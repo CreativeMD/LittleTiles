@@ -18,7 +18,7 @@ public class LittleTiles {
 	public static final String modid = "littletiles";
 	public static final String version = "0.1";
 	
-	public BlockTile blockTile = new BlockTile(Material.rock);
+	public static BlockTile blockTile = new BlockTile(Material.rock);
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)

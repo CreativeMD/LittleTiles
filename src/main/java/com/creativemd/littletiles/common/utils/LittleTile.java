@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -12,7 +13,10 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class LittleTile {
@@ -157,7 +161,7 @@ public class LittleTile {
 	public void updateEntity() {}
 	
 	/**The LittleTile is not placed yet! No reference to position, block, meta etc. are valid.*/
-	public static boolean PlaceLittleTile(ItemStack stack, TileEntityLittleTiles tileEntity, byte centerX, byte centerY, byte centerZ, ForgeDirection direction, byte sizeX, byte sizeY, byte sizeZ, ArrayList<LittleTile> splittedTiles)
+	public boolean PlaceLittleTile(ItemStack stack, TileEntityLittleTiles tileEntity, byte centerX, byte centerY, byte centerZ, byte sizeX, byte sizeY, byte sizeZ, ArrayList<LittleTile> splittedTiles)
 	{
 		byte minX = (byte) (centerX - (byte)(sizeX/2));
 		byte tempminX = (byte) Math.max(minX, minPos);
@@ -168,19 +172,130 @@ public class LittleTile {
 		byte minZ = (byte) (centerZ - (byte)(sizeZ/2));
 		byte tempminZ = (byte) Math.max(minZ, minPos);
 		
-		byte maxX = (byte) (centerX + (sizeX - centerX - minX));
+		byte maxX = (byte) (centerX + (sizeX - (centerX - minX)));
 		byte tempmaxX = (byte) Math.min(maxX, maxPos);
 		
-		byte maxY = (byte) (centerY + (sizeY - centerY - minY));
+		byte maxY = (byte) (centerY + (sizeY - (centerY - minY)));
 		byte tempmaxY = (byte) Math.min(maxY, maxPos);
 		
-		byte maxZ = (byte) (centerZ + (sizeZ - centerZ - minZ));
+		byte maxZ = (byte) (centerZ + (sizeZ - (centerZ - minZ)));
 		byte tempmaxZ = (byte) Math.min(maxZ, maxPos);
 		
 		AxisAlignedBB alignedBB = AxisAlignedBB.getBoundingBox(tempminZ, tempminY, tempminZ, tempmaxX, tempmaxY, tempmaxZ);
 		if(tileEntity.isSpaceForLittleTile(alignedBB))
 		{
-			
+			for (int i = 0; i < 6; i++) {
+				ForgeDirection partDirection = ForgeDirection.getOrientation(i);
+				ChunkCoordinates coord = new ChunkCoordinates(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+				byte newSizeX = 0;
+				byte newSizeY = 0;
+				byte newSizeZ = 0;
+				byte newCenterX = 0;
+				byte newCenterY = 0;
+				byte newCenterZ = 0;
+				
+				//Yes this is not the most aesthetic way to do this, but yes :D
+				switch(partDirection)
+				{
+				case WEST:
+					if(minX < tempminX)
+					{
+						coord.posX--;
+						newSizeX = (byte) (tempminX - minX);
+						newSizeY = sizeY;
+						newSizeZ = sizeZ;
+						newCenterX = (byte) (maxPos - (newSizeX - newSizeX/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterY = centerY;
+						newCenterZ = centerZ;
+					}
+					break;
+				case EAST:
+					if(maxX > tempmaxX)
+					{
+						coord.posX++;
+						newSizeX = (byte) (maxX - tempmaxX);
+						newSizeY = sizeY;
+						newSizeZ = sizeZ;
+						newCenterX = (byte) (minPos + newSizeX/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterY = centerY;
+						newCenterZ = centerZ;
+					}
+					break;
+				case DOWN:
+					if(minY < tempminY)
+					{
+						coord.posY--;
+						newSizeX = sizeX;
+						newSizeY = (byte) (tempminY - minY);
+						newSizeZ = sizeZ;
+						newCenterX = centerX;
+						newCenterY = (byte) (maxPos - (newSizeY - newSizeY/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterZ = centerZ;
+					}
+					break;
+				case UP:
+					if(maxY > tempmaxY)
+					{
+						coord.posY++;
+						newSizeX = sizeX;
+						newSizeY = (byte) (maxY - tempmaxY);
+						newSizeZ = sizeZ;
+						newCenterX = centerX;
+						newCenterY = (byte) (minPos + newSizeY/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterZ = centerZ;
+					}
+					break;
+				case NORTH:
+					if(minZ < tempminZ)
+					{
+						coord.posZ--;
+						newSizeX = sizeX;
+						newSizeY = sizeY;
+						newSizeZ = (byte) (tempminZ - minZ);
+						newCenterX = centerX;
+						newCenterY = centerY;
+						newCenterZ = (byte) (maxPos - (newSizeZ - newSizeZ/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+					}
+					break;
+				case SOUTH:
+					if(maxZ > tempmaxZ)
+					{
+						coord.posZ++;
+						newSizeX = sizeX;
+						newSizeY = sizeY;
+						newSizeZ = (byte) (maxZ - tempmaxZ);
+						newCenterX = centerX;
+						newCenterY = centerY;
+						newCenterZ = (byte) (minPos + newSizeZ/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+					}
+					break;
+				default:
+					break;
+				}
+				World world = tileEntity.getWorldObj();
+				if(sizeX > 0 && canSplit()) //A part needs to be placed
+				{
+					//Try to place it, if not add it to the splittedTiles
+					Block block = world.getBlock(coord.posX, coord.posY, coord.posZ);
+					if(block instanceof BlockTile)
+					{
+						TileEntity tileEntity2 = world.getTileEntity(coord.posX, coord.posY, coord.posZ);
+						if(tileEntity2 instanceof TileEntityLittleTiles)
+							PlaceLittleTile(stack, (TileEntityLittleTiles) tileEntity2, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles);
+					}else if(block.isReplaceable(world, coord.posX, coord.posY, coord.posZ))
+					{
+						world.setBlock(coord.posX, coord.posY, coord.posZ, LittleTiles.blockTile);
+						TileEntityLittleTiles littleTilesEntity = new TileEntityLittleTiles();
+						world.setTileEntity(coord.posX, coord.posY, coord.posZ, littleTilesEntity);
+						if(PlaceLittleTile(stack, (TileEntityLittleTiles) littleTilesEntity, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
+							world.setBlockToAir(coord.posX, coord.posY, coord.posZ);
+					}else{
+						splittedTiles.add(new LittleTile(block, meta, new LittleTileSize(newSizeX, newSizeY, newSizeZ)));
+					}
+				}else if(canSplit())
+					return false;
+			}
+			return true;
 		}
 		return false;
 	}
