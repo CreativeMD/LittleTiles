@@ -324,16 +324,45 @@ public class LittleTile {
 		tileEntity.tiles.remove(this);
 	}
 	
+	/**NOTE: Max size is 16x16x16 and min size is 1x1x1**/
 	public static class LittleTileSize{
 		
 		public byte sizeX;
 		public byte sizeY;
 		public byte sizeZ;
 		
+		public float getVolume()
+		{
+			return sizeX * sizeY * sizeZ;
+		}
+		
+		/**Returns how the volume in percent to a size of a normal block*/
+		public float getPercentVolume()
+		{
+			return getVolume() / (16*16*16);
+		}
+		
+		public LittleTileSize(int sizeX, int sizeY, int sizeZ)
+		{
+			this((byte)sizeX, (byte)sizeY, (byte)sizeZ);
+		}
+		
 		public LittleTileSize(byte sizeX, byte sizeY, byte sizeZ)
 		{
+			if(sizeX < 1)
+				sizeX = 1;
+			if(sizeX > 16)
+				sizeX = 16;
 			this.sizeX = sizeX;
+			if(sizeY < 1)
+				sizeY = 1;
+			if(sizeY > 16)
+				sizeY = 16;
 			this.sizeY = sizeY;
+			if(sizeZ < 1)
+				sizeZ = 1;
+			if(sizeZ > 16)
+				sizeZ = 16;
 			this.sizeZ = sizeZ;
 		}
 	}

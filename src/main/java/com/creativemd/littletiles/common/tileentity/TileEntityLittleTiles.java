@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.creativemd.littletiles.common.utils.LittleTile;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 
@@ -22,6 +23,13 @@ public class TileEntityLittleTiles extends TileEntity{
 				return false;
 		}
 		return true;
+	}
+	
+	public boolean updateLoadedTile(EntityPlayer player)
+	{
+		//TODO  add some caculations
+		
+		return loadedTile != null;
 	}
 	
 	@Override
