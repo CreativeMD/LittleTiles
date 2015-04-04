@@ -9,7 +9,9 @@ public class ItemBlockTiles extends ItemBlock{
 
 	public ItemBlockTiles(Block block) {
 		super(block);
+		hasSubtypes = true;
 	}
 	
 	/**An ItemStack contains the littleblock and a littletilesize**/
+	//TODO Add Place function
 }

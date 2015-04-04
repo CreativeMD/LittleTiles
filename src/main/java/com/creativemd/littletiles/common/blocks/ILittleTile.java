@@ -5,6 +5,7 @@ import net.minecraft.item.ItemStack;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 
+//TODO Change it!!!
 public interface ILittleTile {
 	
 	public boolean canSplit(LittleTile tile);

@@ -289,6 +289,8 @@ public class BlockTile extends BlockContainer{
 	
 	public void setBlockBoundsBasedOnState(IBlockAccess p_149719_1_, int p_149719_2_, int p_149719_3_, int p_149719_4_) {}*/
     
+    //TODO Add on block placed method including itemstack
+    
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
 		return new TileEntityLittleTiles();

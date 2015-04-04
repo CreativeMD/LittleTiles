@@ -1,18 +1,24 @@
 package com.creativemd.littletiles.common.utils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.logging.Logger;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
@@ -61,8 +67,48 @@ public class LittleTile {
 		isPlaced = false;
 	}
 	
-	/**Should load the LittleTile**/
-	public void load(NBTTagCompound nbt)
+	/**All information the client needs*/
+	public void sendToClient(NBTTagCompound nbt)
+	{
+		saveCore(nbt);
+	}
+	
+	/**Should apply all information from sendToCLient**/
+	@SideOnly(Side.CLIENT)
+	public void recieveFromServer(NetworkManager net, NBTTagCompound nbt)
+	{
+		loadCore(nbt);
+	}
+	
+	public static LittleTile CreateandLoadTile(NBTTagCompound nbt)
+	{
+		return CreateandLoadTile(nbt, false, null);
+	}
+	
+	public static LittleTile CreateandLoadTile(NBTTagCompound nbt, boolean isPacket, NetworkManager net)
+	{
+		String id = nbt.getString("tileID");
+		Class<? extends LittleTile> TileClass = getClassByID(id);
+		LittleTile tile = null;
+		if(TileClass != null)
+		{
+			try {
+				tile = TileClass.getConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException
+					| IllegalArgumentException | InvocationTargetException
+					| NoSuchMethodException | SecurityException e) {
+				System.out.println("Found invalid tileID=" + id);
+			}
+		}
+		if(tile != null)
+			if(isPacket)
+				tile.recieveFromServer(net, nbt);
+			else
+				tile.load(nbt);
+		return tile;		
+	}
+	
+	private void loadCore(NBTTagCompound nbt)
 	{
 		block = Block.getBlockFromName(nbt.getString("block"));
 		meta = nbt.getInteger("meta");
@@ -87,9 +133,9 @@ public class LittleTile {
 			setInValid();
 	}
 	
-	/**Should save ALL data**/
-	public void save(NBTTagCompound nbt)
+	private void saveCore(NBTTagCompound nbt)
 	{
+		nbt.setString("tileID", getIDByClass(this.getClass()));
 		nbt.setString("block", Block.blockRegistry.getNameForObject(block));
 		nbt.setInteger("meta", meta);
 		if(isPlaced)
@@ -109,6 +155,18 @@ public class LittleTile {
 			//For ItemStacks
 			size = new LittleTileSize(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
 		}
+	}
+	
+	/**Should load the LittleTile**/
+	public void load(NBTTagCompound nbt)
+	{
+		loadCore(nbt);
+	}
+	
+	/**Should save ALL data**/
+	public void save(NBTTagCompound nbt)
+	{
+		saveCore(nbt);
 	}
 	
 	private boolean isInValid = false;
