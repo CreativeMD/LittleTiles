@@ -7,7 +7,7 @@ import java.util.Random;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 
 import cpw.mods.fml.relauncher.Side;
@@ -158,13 +158,14 @@ public class BlockTile extends BlockContainer{
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item item, CreativeTabs tab, List items)
     {
-		LittleTile tile = new LittleTile(Blocks.stone, 0, new LittleTileSize(1, 1, 1));
+		LittleTile tile = new LittleTile(Blocks.stone, 0, new LittleTileVec(1, 1, 1));
 		for (byte x = 1; x <= 16; x++)
 			for (byte y = 1; y <= 16; y++)
 				for (byte z = 1; z <= 16; z++)
 				{
-					tile.size = new LittleTileSize(x, y, z);
+					tile.size = new LittleTileVec(x, y, z);
 					items.add(tile.getItemStack(false));
+					//TODO CHange it
 				}
     }
 	

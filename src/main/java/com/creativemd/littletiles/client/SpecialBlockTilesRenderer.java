@@ -2,12 +2,14 @@ package com.creativemd.littletiles.client;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderBlocks;
+import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.IItemRenderer;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
 
-public class SpecialBlockTilesRenderer implements ISimpleBlockRenderingHandler, IItemRenderer{
+public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer implements ISimpleBlockRenderingHandler, IItemRenderer{
 	
 	/**Used for renderInventoryBlock*/
 	public ItemStack currentRenderedStack = null;
@@ -50,5 +52,12 @@ public class SpecialBlockTilesRenderer implements ISimpleBlockRenderingHandler, 
 
 	@Override
 	public void renderItem(ItemRenderType type, ItemStack item, Object... data) {}
+
+	@Override
+	public void renderTileEntityAt(TileEntity p_147500_1_, double p_147500_2_,
+			double p_147500_4_, double p_147500_6_, float p_147500_8_) {
+		// TODO Auto-generated method stub
+		
+	}
 
 }

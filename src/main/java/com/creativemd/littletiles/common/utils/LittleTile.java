@@ -53,7 +53,7 @@ public class LittleTile {
 		tileIDs.put(LittleClass, id);
 	}
 	
-	public LittleTile(Block block, int meta, LittleTileSize size)
+	public LittleTile(Block block, int meta, LittleTileVec size)
 	{
 		this();
 		this.block = block;
@@ -150,10 +150,10 @@ public class LittleTile {
 			nbt.setByte("ax", maxX);
 			nbt.setByte("ay", maxY);
 			nbt.setByte("az", maxZ);
-			size = new LittleTileSize((byte)(maxX - minX), (byte)(maxY - minY), (byte)(maxZ - minZ));
+			size = new LittleTileVec((byte)(maxX - minX), (byte)(maxY - minY), (byte)(maxZ - minZ));
 		}else{
 			//For ItemStacks
-			size = new LittleTileSize(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
+			size = new LittleTileVec(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
 		}
 	}
 	
@@ -200,7 +200,7 @@ public class LittleTile {
 	/**All coordinates are going from -7 to 8**/
 	public byte maxZ;
 	
-	public LittleTileSize size;
+	public LittleTileVec size;
 	
 	
 	public AxisAlignedBB getBox()
@@ -215,6 +215,13 @@ public class LittleTile {
 			return ((ILittleTile) block).canSplit(this);
 		return true;
 	}
+	
+	/*public boolean hasFixedSize()
+	{
+		if(block instanceof ILittleTile)
+			return ((ILittleTile) block).getSize();
+		return true;
+	}*/
 	
 	public void updateEntity() {}
 	
@@ -348,7 +355,7 @@ public class LittleTile {
 						if(PlaceLittleTile(stack, (TileEntityLittleTiles) littleTilesEntity, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
 							world.setBlockToAir(coord.posX, coord.posY, coord.posZ);
 					}else{
-						splittedTiles.add(new LittleTile(block, meta, new LittleTileSize(newSizeX, newSizeY, newSizeZ)));
+						splittedTiles.add(new LittleTile(block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
 					}
 				}else if(canSplit())
 					return false;
@@ -383,7 +390,7 @@ public class LittleTile {
 	}
 	
 	/**NOTE: Max size is 16x16x16 and min size is 1x1x1**/
-	public static class LittleTileSize{
+	public static class LittleTileVec{
 		
 		public byte sizeX;
 		public byte sizeY;
@@ -400,12 +407,27 @@ public class LittleTile {
 			return getVolume() / (16*16*16);
 		}
 		
-		public LittleTileSize(int sizeX, int sizeY, int sizeZ)
+		public LittleTileVec(int sizeX, int sizeY, int sizeZ)
 		{
 			this((byte)sizeX, (byte)sizeY, (byte)sizeZ);
 		}
 		
-		public LittleTileSize(byte sizeX, byte sizeY, byte sizeZ)
+		public double getPosX()
+		{
+			return (double)sizeX/16D;
+		}
+		
+		public double getPosY()
+		{
+			return (double)sizeY/16D;
+		}
+		
+		public double getPosZ()
+		{
+			return (double)sizeZ/16D;
+		}
+		
+		public LittleTileVec(byte sizeX, byte sizeY, byte sizeZ)
 		{
 			if(sizeX < 1)
 				sizeX = 1;

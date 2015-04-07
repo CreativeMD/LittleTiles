@@ -32,6 +32,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		BlockTile.mc = Minecraft.getMinecraft();
 		
 		FMLCommonHandler.instance().bus().register(new PreviewRenderer());
+		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 	}
 	
 }
