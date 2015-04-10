@@ -2,11 +2,13 @@ package com.creativemd.littletiles.common.utils;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
 /**This class does all caculate on where to place a block. Used for rendering preview and placing**/
@@ -23,8 +25,17 @@ public class PlacementHelper {
 	
 	public PlacementHelper(EntityPlayer player)
 	{
-		this(player.rayTrace(getBlockReachDistance(player), 1.0F), player);
+		this(null, player);
 	}
+	
+	/*public static MovingObjectPosition rayTrace(EntityPlayer player)
+	{
+		double distance = getBlockReachDistance(player);
+		Vec3 vec3 = player.getPosition(1);
+        Vec3 vec31 = player.getLook(1);
+        Vec3 vec32 = vec3.addVector(vec31.xCoord * distance, vec31.yCoord * distance, vec31.zCoord * distance);
+        return player.worldObj.func_147447_a(vec3, vec32, false, false, true);
+	}*/
 	
 	public static float getBlockReachDistance(EntityPlayer player)
     {
@@ -36,14 +47,20 @@ public class PlacementHelper {
 		this.moving = moving;
 		this.player = player;
 		this.tile = ItemBlockTiles.getLittleTile(player.getHeldItem());
-		this.direction = ForgeDirection.getOrientation(moving.sideHit);
-		this.posX = moving.blockX;
-		this.posY = moving.blockY;
-		this.posZ = moving.blockZ;
+		if(moving != null)
+		{
+			this.direction = ForgeDirection.getOrientation(moving.sideHit);
+			this.posX = moving.blockX;
+			this.posY = moving.blockY;
+			this.posZ = moving.blockZ;
+		}
 	}
 	
 	public boolean canBePlacedInside()
 	{
+		TileEntity tileEntity = player.worldObj.getTileEntity(posX, posY, posZ);
+		if(tileEntity instanceof TileEntityLittleTiles)
+			return true;
 		//TODO Add function
 		/*
 		 * if (block == Blocks.snow_layer && (world.getBlockMetadata(x, y, z) & 7) < 1)

@@ -97,10 +97,13 @@ public class TileEntityLittleTiles extends TileEntity{
 	{
 		loadedTile = null;
 		MovingObjectPosition hit = null;
-		Vec3 look = player.getLook(player.capabilities.isCreativeMode ? 5.0F : 4.5F);
+		
 		Vec3 pos = player.getPosition(1);
+		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
+		Vec3 look = player.getLook(1.0F);
+		Vec3 vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		for (int i = 0; i < tiles.size(); i++) {
-			MovingObjectPosition Temphit = tiles.get(i).getBox().calculateIntercept(pos, look); //TODO Check if this works out
+			MovingObjectPosition Temphit = tiles.get(i).getCoordBox(xCoord, yCoord, zCoord).calculateIntercept(pos, vec32); //TODO Check if this works out
 			if(Temphit != null)
 			{
 				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
@@ -111,8 +114,8 @@ public class TileEntityLittleTiles extends TileEntity{
 			}
 		}
 		
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && hit != null)
-			checkClientLoadedTile(hit.hitVec.distanceTo(pos));
+		//if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && hit != null) //TODO Add except if an entity is in front of the block
+			//checkClientLoadedTile(hit.hitVec.distanceTo(pos));
 		return loadedTile != null;
 	}
 	

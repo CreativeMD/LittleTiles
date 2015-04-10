@@ -79,8 +79,14 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		{
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
 			for (int i = 0; i < little.tiles.size(); i++) {
+				double minX = (double)(little.tiles.get(i).minX+7)/16D;
+				double minY = (double)(little.tiles.get(i).minY+7)/16D;
+				double minZ = (double)(little.tiles.get(i).minZ+7)/16D;
+				double maxX = (double)(little.tiles.get(i).maxX+7)/16D;
+				double maxY = (double)(little.tiles.get(i).maxY+7)/16D;
+				double maxZ = (double)(little.tiles.get(i).maxZ+7)/16D;
+				renderer.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
 				renderer.lockBlockBounds = true;
-				renderer.setRenderBounds(little.tiles.get(i).minX, little.tiles.get(i).minY, little.tiles.get(i).minZ, little.tiles.get(i).maxX, little.tiles.get(i).maxY, little.tiles.get(i).maxZ);
 				renderer.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
 				renderer.lockBlockBounds = false;
 				// TODO Add a new RenderBlock renderer which can render blocks using custom metadata

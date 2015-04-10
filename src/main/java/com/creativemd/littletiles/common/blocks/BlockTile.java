@@ -55,6 +55,13 @@ public class BlockTile extends BlockContainer{
     }
 	
 	@Override
+	public boolean isOpaqueCube()
+    {
+        return false;
+    }
+
+	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public int getRenderType()
     {
@@ -96,9 +103,9 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
 		{
-			return tempEntity.loadedTile.getBox().addCoord(x, y, z);
+			return tempEntity.loadedTile.getCoordBox(x, y, z);
 		}
-		return super.getSelectedBoundingBoxFromPool(world, x, y, z);
+		return AxisAlignedBB.getBoundingBox(x, y, z, x, y, z);
     }
 	
 	@Override
@@ -107,7 +114,9 @@ public class BlockTile extends BlockContainer{
 		if(loadTileEntity(world, x, y, z))
 		{
 			for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				list.add(tempEntity.tiles.get(i).getBox());
+				AxisAlignedBB box = tempEntity.tiles.get(i).getCoordBox(x, y, z);
+				if(axis.intersectsWith(box))
+					list.add(box);
 			}
 		}
     }
@@ -184,14 +193,23 @@ public class BlockTile extends BlockContainer{
     //TODO Add this once it's important
 	//public void fillWithRain(World p_149639_1_, int p_149639_2_, int p_149639_3_, int p_149639_4_) {}
     
+	@SideOnly(Side.CLIENT)
+	public boolean first;
+	
 	@Override
     public int getLightValue(IBlockAccess world, int x, int y, int z)
     {
+		if(first)
+			return 0;
 		int light = 0;
     	if(loadTileEntity(world, x, y, z))
     	{
     		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+    			first = true;
 				int tempLight = tempEntity.tiles.get(i).block.getLightValue(world, x, y, z);
+				first = false;
+				if(tempLight == 0)
+					tempLight = tempEntity.tiles.get(i).block.getLightValue();
 				if(tempLight > light)
 					light = tempLight;
 			}
@@ -249,7 +267,7 @@ public class BlockTile extends BlockContainer{
     		return temp;
     	}
     	else
-    		return mc.getTextureMapBlocks().getAtlasSprite("MISSING");
+    		return Blocks.stone.getBlockTextureFromSide(0); //mc.getTextureMapBlocks().getAtlasSprite("MISSING");
     }
     
     /*TODO Add once it's important

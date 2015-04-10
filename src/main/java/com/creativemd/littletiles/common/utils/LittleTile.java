@@ -201,9 +201,26 @@ public class LittleTile {
 	
 	public LittleTileVec size;
 	
+	public AxisAlignedBB getCoordBox(int x, int y, int z)
+	{
+		AxisAlignedBB box = getBox();
+		box.minX += x;
+		box.minY += y;
+		box.minZ += z;
+		box.maxX += x;
+		box.maxY += y;
+		box.maxZ += z;
+		return box;
+	}
 	
 	public AxisAlignedBB getBox()
 	{
+		double minX = (double)(this.minX+7)/16D;
+		double minY = (double)(this.minY+7)/16D;
+		double minZ = (double)(this.minZ+7)/16D;
+		double maxX = (double)(this.maxX+7)/16D;
+		double maxY = (double)(this.maxY+7)/16D;
+		double maxZ = (double)(this.maxZ+7)/16D;
 		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
@@ -227,13 +244,13 @@ public class LittleTile {
 	/**The LittleTile is not placed yet! No reference to position, block, meta etc. are valid.*/
 	public boolean PlaceLittleTile(ItemStack stack, TileEntityLittleTiles tileEntity, byte centerX, byte centerY, byte centerZ, byte sizeX, byte sizeY, byte sizeZ, ArrayList<LittleTile> splittedTiles)
 	{
-		byte minX = (byte) (centerX - (byte)(sizeX/2));
+		byte minX = (byte) (centerX - (byte)(sizeX/2D));
 		byte tempminX = (byte) Math.max(minX, minPos);
 		
-		byte minY = (byte) (centerY - (byte)(sizeY/2));
+		byte minY = (byte) (centerY - (byte)(sizeY/2D));
 		byte tempminY = (byte) Math.max(minY, minPos);
 		
-		byte minZ = (byte) (centerZ - (byte)(sizeZ/2));
+		byte minZ = (byte) (centerZ - (byte)(sizeZ/2D));
 		byte tempminZ = (byte) Math.max(minZ, minPos);
 		
 		byte maxX = (byte) (centerX + (sizeX - (centerX - minX)));
@@ -337,7 +354,7 @@ public class LittleTile {
 					break;
 				}
 				World world = tileEntity.getWorldObj();
-				if(sizeX > 0 && canSplit()) //A part needs to be placed
+				if(newSizeX > 0 && canSplit()) //A part needs to be placed
 				{
 					//Try to place it, if not add it to the splittedTiles
 					Block block = world.getBlock(coord.posX, coord.posY, coord.posZ);
@@ -356,9 +373,18 @@ public class LittleTile {
 					}else{
 						splittedTiles.add(new LittleTile(block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
 					}
-				}else if(canSplit())
+				}else if(newSizeX > 0 && !canSplit())
 					return false;
 			}
+			size = new LittleTileVec(maxX-minX, maxY-minY, maxZ-minZ);
+			this.minX = minX;
+			this.minY = minY;
+			this.minZ = minZ;
+			this.maxX = maxX;
+			this.maxY = maxY;
+			this.maxZ = maxZ;
+			this.isPlaced = true;
+			tileEntity.tiles.add(this);
 			return true;
 		}
 		return false;
