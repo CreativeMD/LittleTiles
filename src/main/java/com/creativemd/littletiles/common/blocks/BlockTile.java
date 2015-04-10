@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -25,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
@@ -57,6 +59,12 @@ public class BlockTile extends BlockContainer{
 	public int getRenderType()
     {
         return LittleTilesClient.modelID;
+    }
+	
+	@Override
+	public boolean isNormalCube()
+    {
+        return false;
     }
 	
 	@Override
@@ -158,13 +166,17 @@ public class BlockTile extends BlockContainer{
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item item, CreativeTabs tab, List items)
     {
+		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		LittleTile tile = new LittleTile(Blocks.stone, 0, new LittleTileVec(1, 1, 1));
 		for (byte x = 1; x <= 16; x++)
 			for (byte y = 1; y <= 16; y++)
 				for (byte z = 1; z <= 16; z++)
 				{
 					tile.size = new LittleTileVec(x, y, z);
-					items.add(tile.getItemStack(false));
+					ItemStack newStack = stack.copy();
+					newStack.stackTagCompound = new NBTTagCompound();
+					tile.save(newStack.stackTagCompound);
+					items.add(newStack);
 					//TODO CHange it
 				}
     }

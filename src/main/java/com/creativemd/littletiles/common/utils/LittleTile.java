@@ -125,9 +125,7 @@ public class LittleTile {
 			nbt.removeTag("sizeY");
 			nbt.removeTag("sizeZ");
 		}else{
-			nbt.setByte("sizeX", size.sizeX);
-			nbt.setByte("sizeY", size.sizeY);
-			nbt.setByte("sizeZ", size.sizeZ);
+			size = new LittleTileVec(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
 		}
 		if(block == null || block instanceof BlockAir)
 			setInValid();
@@ -152,8 +150,9 @@ public class LittleTile {
 			nbt.setByte("az", maxZ);
 			size = new LittleTileVec((byte)(maxX - minX), (byte)(maxY - minY), (byte)(maxZ - minZ));
 		}else{
-			//For ItemStacks
-			size = new LittleTileVec(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
+			nbt.setByte("sizeX", size.sizeX);
+			nbt.setByte("sizeY", size.sizeY);
+			nbt.setByte("sizeZ", size.sizeZ);
 		}
 	}
 	
@@ -425,6 +424,27 @@ public class LittleTile {
 		public double getPosZ()
 		{
 			return (double)sizeZ/16D;
+		}
+		
+		public void rotateVec(ForgeDirection direction)
+		{
+			switch(direction)
+			{
+			case UP:
+			case DOWN:
+				byte tempY = sizeY;
+				sizeY = sizeX;
+				sizeX = tempY;
+				break;
+			case SOUTH:
+			case NORTH:
+				byte tempZ = sizeZ;
+				sizeZ = sizeX;
+				sizeX = tempZ;
+				break;
+			default:
+				break;
+			}
 		}
 		
 		public LittleTileVec(byte sizeX, byte sizeY, byte sizeZ)

@@ -111,7 +111,7 @@ public class TileEntityLittleTiles extends TileEntity{
 			}
 		}
 		
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && hit != null)
 			checkClientLoadedTile(hit.hitVec.distanceTo(pos));
 		return loadedTile != null;
 	}
