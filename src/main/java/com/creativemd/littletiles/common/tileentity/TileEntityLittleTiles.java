@@ -51,6 +51,10 @@ public class TileEntityLittleTiles extends TileEntity{
 			if(tile != null)
 				tiles.add(tile);
 		}
+        if(tiles.size() == 0)
+        {
+        	worldObj.setBlockToAir(xCoord, yCoord, zCoord);
+        }
     }
 
 	@Override
@@ -135,6 +139,17 @@ public class TileEntityLittleTiles extends TileEntity{
 		Vec3 pos = mc.thePlayer.getPosition(1);
 		if(mc.objectMouseOver.hitVec.distanceTo(pos) < distance)
 			loadedTile = null;
+	}
+	
+	public void update()
+	{
+		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void updateRender()
+	{
+		worldObj.markBlockRangeForRenderUpdate(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord);
 	}
 	
 	@Override

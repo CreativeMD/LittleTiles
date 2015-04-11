@@ -7,7 +7,7 @@ import scala.collection.parallel.ParIterableLike.Min;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.packet.LittlePacket;
+import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
@@ -140,7 +140,7 @@ public class ItemBlockTiles extends ItemBlock{
     {
 		helper.tile.meta = meta;
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-			LittleTiles.network.sendToServer(new LittlePacket(stack, center, size, meta));
+			LittleTiles.network.sendToServer(new LittlePlacePacket(stack, center, size, meta));
 		int x = (int) center.xCoord;
 		int y = (int) center.yCoord;
 		int z = (int) center.zCoord;

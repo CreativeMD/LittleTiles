@@ -6,11 +6,14 @@ import java.util.Random;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
@@ -221,16 +224,35 @@ public class BlockTile extends BlockContainer{
     	return light;
     }
     
-    /*TODO Add before a prerelease
+	@Override
     public boolean isSideSolid(IBlockAccess world, int x, int y, int z, ForgeDirection side)
     {
-    	
+    	//TODO Add before a prerelease
+    	 return false;
+    }
+	
+	@Override
+	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
+    {
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+    	{
+    		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
+    		{
+    			tempEntity.tiles.remove(tempEntity.loadedTile);
+    			NBTTagCompound nbt = new NBTTagCompound();
+    			tempEntity.writeToNBT(nbt);
+    			LittleTiles.network.sendToServer(new LittleDestroyPacket(x, y, z, nbt));
+    			tempEntity.updateRender();
+    		}
+    		
+    	}
+        return true;
     }
     
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest)
     {
-    	
-    }*/
+    	return removedByPlayer(world, player, x, y, z);
+    }
     
     @Override
     /**Blocks will drop before this method is called*/
@@ -298,6 +320,16 @@ public class BlockTile extends BlockContainer{
     }*/
     
     @Override
+    public boolean isNormalCube(IBlockAccess world, int x, int y, int z)
+    {
+    	for (int i = 0; i < 6; i++) {
+			if(!isSideSolid(world, x, y, z, ForgeDirection.getOrientation(i)))
+				return false;
+		}
+    	return true;
+    }
+    
+    @Override
     public float getEnchantPowerBonus(World world, int x, int y, int z)
     {
     	float bonus = 0F;
@@ -320,11 +352,7 @@ public class BlockTile extends BlockContainer{
     
     public void onBlockDestroyedByPlayer(World p_149664_1_, int p_149664_2_, int p_149664_3_, int p_149664_4_, int p_149664_5_) {}
 	
-	public void onNeighborBlockChange(World p_149695_1_, int p_149695_2_, int p_149695_3_, int p_149695_4_, Block p_149695_5_) {}
-	
-	public void setBlockBoundsBasedOnState(IBlockAccess p_149719_1_, int p_149719_2_, int p_149719_3_, int p_149719_4_) {}*/
-    
-    //TODO Add on block placed method including itemstack
+	public void onNeighborBlockChange(World p_149695_1_, int p_149695_2_, int p_149695_3_, int p_149695_4_, Block p_149695_5_) {}*/
     
     @Override
     public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 vec1, Vec3 vec2)

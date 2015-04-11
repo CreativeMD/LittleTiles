@@ -12,14 +12,14 @@ import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
-public class LittlePacket implements IMessage {
+public class LittlePlacePacket implements IMessage {
 	
-	public LittlePacket()
+	public LittlePlacePacket()
 	{
 		
 	}
 	
-	public LittlePacket(ItemStack stack, Vec3 center, LittleTileVec size, int meta)
+	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileVec size, int meta)
 	{
 		this.stack = stack;
 		this.center = center;

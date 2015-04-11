@@ -4,8 +4,10 @@ import net.minecraft.block.material.Material;
 
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.packet.LittlePacket;
-import com.creativemd.littletiles.common.packet.RecieveHandler;
+import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
+import com.creativemd.littletiles.common.packet.LittlePlacePacket;
+import com.creativemd.littletiles.common.packet.RecieveHandlerDestroy;
+import com.creativemd.littletiles.common.packet.RecieveHandlerPlace;
 import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -48,7 +50,8 @@ public class LittleTiles {
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		
 		network = NetworkRegistry.INSTANCE.newSimpleChannel("LittleTilePacket");
-		network.registerMessage(RecieveHandler.class, LittlePacket.class, 0, Side.SERVER);
+		network.registerMessage(RecieveHandlerPlace.class, LittlePlacePacket.class, 0, Side.SERVER);
+		network.registerMessage(RecieveHandlerDestroy.class, LittleDestroyPacket.class, 1, Side.SERVER);
     }
 	
 	@EventHandler
