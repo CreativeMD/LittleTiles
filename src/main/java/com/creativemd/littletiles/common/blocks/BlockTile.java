@@ -31,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.IPlantable;
@@ -103,7 +104,10 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
 		{
-			return tempEntity.loadedTile.getCoordBox(x, y, z);
+			if(tempEntity.loadedTile == null)
+				System.out.println("Failed");
+			else
+				return tempEntity.loadedTile.getCoordBox(x, y, z);
 		}
 		return AxisAlignedBB.getBoundingBox(x, y, z, x, y, z);
     }
@@ -321,6 +325,26 @@ public class BlockTile extends BlockContainer{
 	public void setBlockBoundsBasedOnState(IBlockAccess p_149719_1_, int p_149719_2_, int p_149719_3_, int p_149719_4_) {}*/
     
     //TODO Add on block placed method including itemstack
+    
+    @Override
+    public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 vec1, Vec3 vec2)
+    {
+    	if(loadTileEntity(world, x, y, z))
+    	{
+    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+    			MovingObjectPosition moving = tempEntity.tiles.get(i).getCoordBox(x, y, z).calculateIntercept(vec1, vec2);
+    			
+    			if(moving != null)
+    			{
+    				moving.blockX = x;
+        			moving.blockY = y;
+        			moving.blockZ = z;
+    				return moving;
+    			}
+			}
+    	}
+    	return null;
+    }
     
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {

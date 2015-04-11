@@ -13,6 +13,11 @@ public class RecieveHandler implements IMessageHandler<LittlePacket, IMessage> {
 	public IMessage onMessage(LittlePacket message, MessageContext ctx) {
 		if(message.stack.getItem() instanceof ItemBlockTiles)
 		{
+			if(ctx.getServerHandler().playerEntity.getHeldItem() != null && ctx.getServerHandler().playerEntity.getHeldItem().getItem() instanceof ItemBlockTiles)
+			{
+				ctx.getServerHandler().playerEntity.getHeldItem().stackTagCompound = message.stack.stackTagCompound;
+			}
+				
 			((ItemBlockTiles)message.stack.getItem()).placeBlockAt(message.stack, ctx.getServerHandler().playerEntity.worldObj, message.center, message.size, new PlacementHelper(ctx.getServerHandler().playerEntity), message.meta);
 		}
 		return null;

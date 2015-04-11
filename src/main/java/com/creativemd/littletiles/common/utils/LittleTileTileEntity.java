@@ -27,7 +27,7 @@ public class LittleTileTileEntity extends LittleTile{
 		
 	}
 	
-	public LittleTileTileEntity(TileEntity tileEntity)
+	public LittleTileTileEntity(Block block, int meta, LittleTileVec size, TileEntity tileEntity)
 	{
 		this.tileEntity = tileEntity;
 	}
@@ -99,6 +99,14 @@ public class LittleTileTileEntity extends LittleTile{
 	{
 		if(tileEntity != null)
 			tileEntity.updateEntity();
+	}
+	
+	@Override
+	public LittleTile copy()
+	{
+		LittleTileTileEntity tile = new LittleTileTileEntity(block, meta, size, tileEntity);
+		copyCore(tile);
+		return tile;
 	}
 	
 	@Override

@@ -79,12 +79,12 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		{
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
 			for (int i = 0; i < little.tiles.size(); i++) {
-				double minX = (double)(little.tiles.get(i).minX+7)/16D;
-				double minY = (double)(little.tiles.get(i).minY+7)/16D;
-				double minZ = (double)(little.tiles.get(i).minZ+7)/16D;
-				double maxX = (double)(little.tiles.get(i).maxX+7)/16D;
-				double maxY = (double)(little.tiles.get(i).maxY+7)/16D;
-				double maxZ = (double)(little.tiles.get(i).maxZ+7)/16D;
+				double minX = (double)(little.tiles.get(i).minX+8)/16D;
+				double minY = (double)(little.tiles.get(i).minY+8)/16D;
+				double minZ = (double)(little.tiles.get(i).minZ+8)/16D;
+				double maxX = (double)(little.tiles.get(i).maxX+8)/16D;
+				double maxY = (double)(little.tiles.get(i).maxY+8)/16D;
+				double maxZ = (double)(little.tiles.get(i).maxZ+8)/16D;
 				renderer.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
 				renderer.lockBlockBounds = true;
 				renderer.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);

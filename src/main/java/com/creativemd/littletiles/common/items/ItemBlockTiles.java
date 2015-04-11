@@ -78,7 +78,7 @@ public class ItemBlockTiles extends ItemBlock{
         {
             return false;
         }
-        else if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack))
+        else// if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack) || helper.canBePlacedInside(x, y, z))
         {
             int i1 = this.getMetadata(stack.getItemDamage());
             int j1 = helper.tile.block.onBlockPlaced(world, x, y, z, side, offsetX, offsetY, offsetZ, i1);
@@ -86,10 +86,6 @@ public class ItemBlockTiles extends ItemBlock{
             placeBlockAt(stack, world, center, size, helper, j1);
 
             return true;
-        }
-        else
-        {
-            return false;
         }
     }
 	
@@ -99,7 +95,7 @@ public class ItemBlockTiles extends ItemBlock{
     {
 		Block block = world.getBlock(x, y, z);
 		
-		PlacementHelper helper = new PlacementHelper(player);
+		PlacementHelper helper = createPlacementHelper();
 		//TODO Check if canBePlacedInsideWork
         if (block == Blocks.snow_layer)
         {
@@ -137,8 +133,7 @@ public class ItemBlockTiles extends ItemBlock{
                 ++x;
             }
         }
-
-        return world.canPlaceEntityOnSide(block, x, y, z, false, side, (Entity)null, stack);
+        return true;
     }
 	
 	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileVec size, PlacementHelper helper, int meta)
@@ -158,9 +153,9 @@ public class ItemBlockTiles extends ItemBlock{
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-			byte centerX = (byte) (((center.xCoord - x)*16D) - 7);
-			byte centerY = (byte) (((center.yCoord - y)*16D) - 7);
-			byte centerZ = (byte) (((center.zCoord - z)*16D) - 7);
+			byte centerX = (byte) (Math.floor((center.xCoord - x)*16D) - 8);
+			byte centerY = (byte) (Math.floor((center.yCoord - y)*16D) - 8);
+			byte centerZ = (byte) (Math.floor((center.zCoord - z)*16D) - 8);
 			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
 			if(helper.tile.PlaceLittleTile(stack, littleEntity, centerX, centerY, centerZ, size.sizeX, size.sizeY, size.sizeZ, splittedTiles))
 			{

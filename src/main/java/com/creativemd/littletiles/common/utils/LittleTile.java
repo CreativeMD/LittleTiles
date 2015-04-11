@@ -29,7 +29,7 @@ public class LittleTile {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	
-	public static final int minPos = -7;
+	public static final int minPos = -8;
 	public static final int maxPos = 8;
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
@@ -185,18 +185,18 @@ public class LittleTile {
 	public Block block;
 	public int meta;
 	
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte minX;
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte minY;
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte minZ;
 	
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte maxX;
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte maxY;
-	/**All coordinates are going from -7 to 8**/
+	/**All coordinates are going from -8 to 8**/
 	public byte maxZ;
 	
 	public LittleTileVec size;
@@ -213,14 +213,19 @@ public class LittleTile {
 		return box;
 	}
 	
+	public AxisAlignedBB getLittleBox()
+	{
+		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
 	public AxisAlignedBB getBox()
 	{
-		double minX = (double)(this.minX+7)/16D;
-		double minY = (double)(this.minY+7)/16D;
-		double minZ = (double)(this.minZ+7)/16D;
-		double maxX = (double)(this.maxX+7)/16D;
-		double maxY = (double)(this.maxY+7)/16D;
-		double maxZ = (double)(this.maxZ+7)/16D;
+		double minX = (double)(this.minX+8)/16D;
+		double minY = (double)(this.minY+8)/16D;
+		double minZ = (double)(this.minZ+8)/16D;
+		double maxX = (double)(this.maxX+8)/16D;
+		double maxY = (double)(this.maxY+8)/16D;
+		double maxZ = (double)(this.maxZ+8)/16D;
 		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
@@ -262,6 +267,24 @@ public class LittleTile {
 		byte maxZ = (byte) (centerZ + (sizeZ - (centerZ - minZ)));
 		byte tempmaxZ = (byte) Math.min(maxZ, maxPos);
 		
+		/*byte maxX = (byte) (centerX + (byte)(sizeX/2D));
+		//byte tempmaxX = (byte) Math.min(maxX, maxPos);
+		
+		//byte maxY = (byte) (centerY + (byte)(sizeY/2D));
+		//byte tempmaxY = (byte) Math.min(maxY, maxPos);
+		
+		//byte maxZ = (byte) (centerZ + (byte)(sizeZ/2D));
+		//byte tempmaxZ = (byte) Math.min(maxZ, maxPos);
+		
+		//byte minX = (byte) (centerX - (sizeX - (maxX - centerX)));
+		//byte tempminX = (byte) Math.max(minX, minPos);
+		
+		//byte minY = (byte) (centerY - (sizeY - (maxY - centerY)));
+		//byte tempminY = (byte) Math.max(minY, minPos);
+		
+		//byte minZ = (byte) (centerZ - (sizeZ - (maxZ - centerZ)));
+		//byte tempminZ = (byte) Math.max(minZ, minPos);*/
+		
 		AxisAlignedBB alignedBB = AxisAlignedBB.getBoundingBox(tempminZ, tempminY, tempminZ, tempmaxX, tempmaxY, tempmaxZ);
 		if(tileEntity.isSpaceForLittleTile(alignedBB))
 		{
@@ -285,7 +308,7 @@ public class LittleTile {
 						newSizeX = (byte) (tempminX - minX);
 						newSizeY = sizeY;
 						newSizeZ = sizeZ;
-						newCenterX = (byte) (maxPos - (newSizeX - newSizeX/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterX = (byte) (maxPos - (newSizeX - newSizeX/2));
 						newCenterY = centerY;
 						newCenterZ = centerZ;
 					}
@@ -368,7 +391,7 @@ public class LittleTile {
 						world.setBlock(coord.posX, coord.posY, coord.posZ, LittleTiles.blockTile);
 						TileEntityLittleTiles littleTilesEntity = new TileEntityLittleTiles();
 						world.setTileEntity(coord.posX, coord.posY, coord.posZ, littleTilesEntity);
-						if(PlaceLittleTile(stack, (TileEntityLittleTiles) littleTilesEntity, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
+						if(!PlaceLittleTile(stack, (TileEntityLittleTiles) littleTilesEntity, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
 							world.setBlockToAir(coord.posX, coord.posY, coord.posZ);
 					}else{
 						splittedTiles.add(new LittleTile(block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
@@ -376,18 +399,40 @@ public class LittleTile {
 				}else if(newSizeX > 0 && !canSplit())
 					return false;
 			}
-			size = new LittleTileVec(maxX-minX, maxY-minY, maxZ-minZ);
-			this.minX = minX;
-			this.minY = minY;
-			this.minZ = minZ;
-			this.maxX = maxX;
-			this.maxY = maxY;
-			this.maxZ = maxZ;
-			this.isPlaced = true;
-			tileEntity.tiles.add(this);
+			LittleTile placed = this.copy();
+			placed.size = new LittleTileVec(tempmaxX-tempminX, tempmaxY-tempminY, tempmaxZ-tempminZ);
+			placed.minX = tempminX;
+			placed.minY = tempminY;
+			placed.minZ = tempminZ;
+			placed.maxX = tempmaxX;
+			placed.maxY = tempmaxY;
+			placed.maxZ = tempmaxZ;
+			placed.isPlaced = true;
+			tileEntity.tiles.add(placed);
+			tileEntity.getWorldObj().markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
 			return true;
 		}
 		return false;
+	}
+	
+	/**This method has to be overriden by any class. Use copyCore as a refernece to load all core stuff**/
+	public LittleTile copy()
+	{
+		LittleTile tile = new LittleTile(block, meta, size.copy());
+		copyCore(tile);
+		return tile;
+	}
+	
+	protected void copyCore(LittleTile tile)
+	{
+		tile.isInValid = isInValid;
+		tile.isPlaced = isPlaced;
+		tile.minX = minX;
+		tile.minY = minY;
+		tile.minZ = minZ;
+		tile.maxX = maxX;
+		tile.maxY = maxY;
+		tile.maxZ = maxZ;
 	}
 	
 	/**Is used for drop and creating LittleTile ItemStacks**/
@@ -413,6 +458,8 @@ public class LittleTile {
 	{
 		tileEntity.tiles.remove(this);
 	}
+	
+	//public LittleTile 
 	
 	/**NOTE: Max size is 16x16x16 and min size is 1x1x1**/
 	public static class LittleTileVec{
@@ -490,6 +537,11 @@ public class LittleTile {
 			if(sizeZ > 16)
 				sizeZ = 16;
 			this.sizeZ = sizeZ;
+		}
+		
+		public LittleTileVec copy()
+		{
+			return new LittleTileVec(sizeX, sizeY, sizeZ);
 		}
 	}
 }

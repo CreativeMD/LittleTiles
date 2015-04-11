@@ -43,10 +43,11 @@ public class PreviewRenderer {
 			//TODO Add more Items for rendering
 			if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlockTiles)
 			{
+				PlacementHelper helper = new PlacementHelper(mc.objectMouseOver, mc.thePlayer);	  
 				
-				double x = (double)mc.objectMouseOver.blockX - TileEntityRendererDispatcher.staticPlayerX;
-				double y = (double)mc.objectMouseOver.blockY - TileEntityRendererDispatcher.staticPlayerY;
-				double z = (double)mc.objectMouseOver.blockZ - TileEntityRendererDispatcher.staticPlayerZ;
+				double x = (double)helper.moving.blockX - TileEntityRendererDispatcher.staticPlayerX;
+				double y = (double)helper.moving.blockY - TileEntityRendererDispatcher.staticPlayerY;
+				double z = (double)helper.moving.blockZ - TileEntityRendererDispatcher.staticPlayerZ;
 				
 				//TODO Clean up this code
 				GL11.glEnable(GL11.GL_BLEND);
@@ -54,9 +55,7 @@ public class PreviewRenderer {
 	            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
 	            GL11.glLineWidth(2.0F);
 	            GL11.glDisable(GL11.GL_TEXTURE_2D);
-	            GL11.glDepthMask(false);
-	            
-	            PlacementHelper helper = new PlacementHelper(mc.objectMouseOver, mc.thePlayer);	            
+	            GL11.glDepthMask(false);          
 	            
 	            //Rotate Block
 	            //TODO Enhance and clean up rotation code!

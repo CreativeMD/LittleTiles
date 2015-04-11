@@ -53,12 +53,30 @@ public class PlacementHelper {
 			this.posX = moving.blockX;
 			this.posY = moving.blockY;
 			this.posZ = moving.blockZ;
+			TileEntity entity = player.worldObj.getTileEntity(posX, posY, posZ);
+			if(entity instanceof TileEntityLittleTiles)
+			{
+				MovingObjectPosition newmoving = ((TileEntityLittleTiles) entity).getMoving(player);
+				if(newmoving != null)
+				{
+					this.moving = newmoving;
+					this.moving.blockX = posX;
+					this.moving.blockY = posY;
+					this.moving.blockZ = posZ;
+					this.direction = ForgeDirection.getOrientation(this.moving.sideHit);
+				}
+			}
 		}
 	}
 	
 	public boolean canBePlacedInside()
 	{
-		TileEntity tileEntity = player.worldObj.getTileEntity(posX, posY, posZ);
+		return canBePlacedInside(posX, posY, posZ);
+	}
+	
+	public boolean canBePlacedInside(int x, int y, int z)
+	{
+		TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
 		if(tileEntity instanceof TileEntityLittleTiles)
 			return true;
 		//TODO Add function
@@ -148,9 +166,9 @@ public class PlacementHelper {
 		posX = ((int)(posX*16))/16D;
 		posY = ((int)(posY*16))/16D;
 		posZ = ((int)(posZ*16))/16D;
-		//posX = posX*16-7;
-		//posY = posY*16-7;
-		//posZ = posZ*16-7;
+		//posX = posX*16-8;
+		//posY = posY*16-8;
+		//posZ = posZ*16-8;
 		if(!canBePlacedInside())
 		{
 			switch(ForgeDirection.getOrientation(moving.sideHit))
