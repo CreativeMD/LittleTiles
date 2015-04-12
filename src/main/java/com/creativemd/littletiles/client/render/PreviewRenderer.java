@@ -1,7 +1,9 @@
-package com.creativemd.littletiles.client;
+package com.creativemd.littletiles.client.render;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
@@ -110,7 +112,7 @@ public class PreviewRenderer {
 	            Vec3 vec = helper.getCenterPos();
 	            LittleTileVec size = helper.getRelativeSize();
 	            
-				LittleRenderHelper.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
+				RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
 						size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
 				
 				GL11.glDepthMask(true);

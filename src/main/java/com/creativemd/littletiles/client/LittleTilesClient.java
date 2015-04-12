@@ -10,6 +10,8 @@ import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.client.render.SpecialBlockTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.server.LittleTilesServer;
 

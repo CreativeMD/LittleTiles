@@ -2,12 +2,11 @@ package com.creativemd.littletiles;
 
 import net.minecraft.block.material.Material;
 
+import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
-import com.creativemd.littletiles.common.packet.RecieveHandlerDestroy;
-import com.creativemd.littletiles.common.packet.RecieveHandlerPlace;
 import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -17,6 +16,7 @@ import com.creativemd.littletiles.server.LittleTilesServer;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.Mod.EventHandler;
+import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
@@ -27,6 +27,8 @@ import cpw.mods.fml.relauncher.Side;
 @Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles")
 public class LittleTiles {
 	
+	@Instance(LittleTiles.modid)
+	public static LittleTiles instance = new LittleTiles();
 	
 	@SidedProxy(clientSide = "com.creativemd.littletiles.client.LittleTilesClient", serverSide = "com.creativemd.littletiles.server.LittleTilesServer")
 	public static LittleTilesServer proxy;
@@ -35,7 +37,6 @@ public class LittleTiles {
 	public static final String version = "0.1";
 	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
-	public static SimpleNetworkWrapper network;
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
@@ -49,9 +50,8 @@ public class LittleTiles {
 		LittleTile.registerLittleTile(LittleTile.class, "BlockTile");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		
-		network = NetworkRegistry.INSTANCE.newSimpleChannel("LittleTilePacket");
-		network.registerMessage(RecieveHandlerPlace.class, LittlePlacePacket.class, 0, Side.SERVER);
-		network.registerMessage(RecieveHandlerDestroy.class, LittleDestroyPacket.class, 1, Side.SERVER);
+		CreativeCorePacket.registerPacket(LittleDestroyPacket.class, "LittleDestroy");
+		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");
     }
 	
 	@EventHandler

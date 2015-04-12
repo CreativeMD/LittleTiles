@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
@@ -241,7 +242,7 @@ public class BlockTile extends BlockContainer{
     			tempEntity.tiles.remove(tempEntity.loadedTile);
     			NBTTagCompound nbt = new NBTTagCompound();
     			tempEntity.writeToNBT(nbt);
-    			LittleTiles.network.sendToServer(new LittleDestroyPacket(x, y, z, nbt));
+    			PacketHandler.sendPacketToServer(new LittleDestroyPacket(x, y, z, nbt));
     			tempEntity.updateRender();
     		}
     		

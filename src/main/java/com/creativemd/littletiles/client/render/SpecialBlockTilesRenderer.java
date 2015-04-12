@@ -1,9 +1,10 @@
-package com.creativemd.littletiles.client;
+package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
