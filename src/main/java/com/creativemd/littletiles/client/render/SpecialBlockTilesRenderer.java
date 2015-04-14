@@ -38,7 +38,7 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			double z = (double)tile.size.sizeZ/2D/16D;
 			renderer.setRenderBounds(0.5-x, 0.5-y, 0.5-z, 0.5+x, 0.5+y, 0.5+z);
 			renderer.lockBlockBounds = true;
-			renderer.renderBlockAsItem(tile.block, currentRenderedStack.getItemDamage(), 1F);
+			renderer.renderBlockAsItem(tile.block, tile.meta, 1F);
 			renderer.lockBlockBounds = false;
 		}
 		/*Tessellator tesselator = Tessellator.instance;

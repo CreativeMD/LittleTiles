@@ -136,7 +136,7 @@ public class ItemBlockTiles extends ItemBlock{
         }
         else// if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack) || helper.canBePlacedInside(x, y, z))
         {
-            int i1 = this.getMetadata(stack.getItemDamage());
+            int i1 = helper.tile.meta;
             int j1 = helper.tile.block.onBlockPlaced(world, x, y, z, side, offsetX, offsetY, offsetZ, i1);
 
             placeBlockAt(stack, world, center, size, helper, j1, x, y, z);
@@ -210,14 +210,14 @@ public class ItemBlockTiles extends ItemBlock{
 		/*byte centerX = (byte) (Math.floor((Math.abs(center.xCoord) - Math.abs((int)center.xCoord))*16D) - 8);
 		byte centerY = (byte) (Math.floor((Math.abs(center.yCoord) - Math.abs((int)center.yCoord))*16D) - 8);
 		byte centerZ = (byte) (Math.floor((Math.abs(center.zCoord) - Math.abs((int)center.zCoord))*16D) - 8);*/
-		byte centerX = (byte) (Math.floor((center.xCoord - (int)center.xCoord)*16D) - 8);
+		byte centerX = (byte) (Math.floor((center.xCoord - (int)x)*16D) - 8);
 		if(center.xCoord < 0)
 		{
 			double temp = -center.xCoord + (int)(center.xCoord);
 			centerX = (byte) (Math.floor((1D-temp)*16D) - 8);
 		}
-		byte centerY = (byte) (Math.floor((center.yCoord - (int)center.yCoord)*16D) - 8);
-		byte centerZ = (byte) (Math.floor((center.zCoord - (int)center.zCoord)*16D) - 8);
+		byte centerY = (byte) (Math.floor((center.yCoord - (int)y)*16D) - 8);
+		byte centerZ = (byte) (Math.floor((center.zCoord - (int)z)*16D) - 8);
 		if(center.zCoord < 0)
 		{
 			double temp = -center.zCoord + (int)(center.zCoord);

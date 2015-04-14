@@ -249,13 +249,13 @@ public class LittleTile {
 	/**The LittleTile is not placed yet! No reference to position, block, meta etc. are valid.*/
 	public boolean PlaceLittleTile(ItemStack stack, TileEntityLittleTiles tileEntity, byte centerX, byte centerY, byte centerZ, byte sizeX, byte sizeY, byte sizeZ, ArrayList<LittleTile> splittedTiles)
 	{
-		byte minX = (byte) (centerX - (byte)(sizeX/2D));
+		byte minX = (byte) (centerX - (int)(sizeX/2D));
 		byte tempminX = (byte) Math.max(minX, minPos);
 		
-		byte minY = (byte) (centerY - (byte)(sizeY/2D));
+		byte minY = (byte) (centerY - (int)(sizeY/2D));
 		byte tempminY = (byte) Math.max(minY, minPos);
 		
-		byte minZ = (byte) (centerZ - (byte)(sizeZ/2D));
+		byte minZ = (byte) (centerZ - (int)(sizeZ/2D));
 		byte tempminZ = (byte) Math.max(minZ, minPos);
 		
 		byte maxX = (byte) (centerX + (sizeX - (centerX - minX)));
@@ -285,7 +285,7 @@ public class LittleTile {
 		//byte minZ = (byte) (centerZ - (sizeZ - (maxZ - centerZ)));
 		//byte tempminZ = (byte) Math.max(minZ, minPos);*/
 		
-		AxisAlignedBB alignedBB = AxisAlignedBB.getBoundingBox(tempminZ, tempminY, tempminZ, tempmaxX, tempmaxY, tempmaxZ);
+		AxisAlignedBB alignedBB = AxisAlignedBB.getBoundingBox(tempminX, tempminY, tempminZ, tempmaxX, tempmaxY, tempmaxZ);
 		if(tileEntity.isSpaceForLittleTile(alignedBB))
 		{
 			for (int i = 0; i < 6; i++) {
