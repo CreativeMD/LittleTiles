@@ -92,7 +92,10 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				RenderHelper3D.renderBlocks.clearOverrideBlockTexture();
 				RenderHelper3D.renderBlocks.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
 				RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
-				RenderHelper3D.renderBlocks.renderStandardBlock(little.tiles.get(i).block, x, y, z);
+				RenderHelper3D.renderBlocks.lockBlockBounds = true;
+				RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
+				RenderHelper3D.renderBlocks.lockBlockBounds = false;
+				//RenderHelper3D.renderBlocks.renderStandardBlock(little.tiles.get(i).block, x, y, z);
 				// TODO Add a new RenderBlock renderer which can render blocks using custom metadata
 			}
 		}

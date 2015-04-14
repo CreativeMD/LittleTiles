@@ -3,6 +3,8 @@ package com.creativemd.littletiles.common.gui;
 import java.util.ArrayList;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
@@ -30,7 +32,7 @@ public class SubContainerHammer extends SubContainer{
 				if(basic.getStackInSlot(0) != null && basic.getStackInSlot(0).getItem() instanceof ItemBlock)
 				{
 					Block block = Block.getBlockFromItem(basic.getStackInSlot(0).getItem());
-					if(block.isNormalCube())
+					if(block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass)
 					{
 						LittleTile tile = new LittleTile(block, basic.getStackInSlot(0).getItemDamage(), size);
 						ItemStack stack = new ItemStack(LittleTiles.blockTile);

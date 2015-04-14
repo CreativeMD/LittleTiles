@@ -62,6 +62,7 @@ public class LittleDestroyPacket extends CreativeCorePacket {
 		{
 			entity.readFromNBT(nbt);
 			((TileEntityLittleTiles) entity).update();
+			//TODO Add drop!!!!
 		}
 	}
 

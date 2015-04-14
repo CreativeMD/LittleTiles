@@ -7,6 +7,7 @@ import java.util.Random;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -108,10 +109,11 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
 		{
-			if(tempEntity.loadedTile == null)
-				System.out.println("Failed");
-			else
+			try{ //Why try? because the number of tiles can change while this method is called
 				return tempEntity.loadedTile.getCoordBox(x, y, z);
+			}catch(Exception e){
+				
+			}
 		}
 		return AxisAlignedBB.getBoundingBox(x, y, z, x, y, z);
     }
@@ -121,10 +123,14 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z))
 		{
-			for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				AxisAlignedBB box = tempEntity.tiles.get(i).getCoordBox(x, y, z);
-				if(axis.intersectsWith(box))
-					list.add(box);
+			try{ //Why try? because the number of tiles can change while this method is called
+				for (int i = 0; i < tempEntity.tiles.size(); i++) {
+					AxisAlignedBB box = tempEntity.tiles.get(i).getCoordBox(x, y, z);
+					if(axis.intersectsWith(box))
+						list.add(box);
+				}
+			}catch(Exception e){
+				
 			}
 		}
     }
@@ -206,22 +212,26 @@ public class BlockTile extends BlockContainer{
 	@Override
     public int getLightValue(IBlockAccess world, int x, int y, int z)
     {
-		if(first)
+		try{ //Why try? because the number of tiles can change while this method is called
+			if(first)
+				return 0;
+			int light = 0;
+	    	if(loadTileEntity(world, x, y, z))
+	    	{
+	    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+	    			first = true;
+					int tempLight = tempEntity.tiles.get(i).block.getLightValue(world, x, y, z);
+					first = false;
+					if(tempLight == 0)
+						tempLight = tempEntity.tiles.get(i).block.getLightValue();
+					if(tempLight > light)
+						light = tempLight;
+				}
+	    	}
+	    	return light;
+		}catch(Exception e){
 			return 0;
-		int light = 0;
-    	if(loadTileEntity(world, x, y, z))
-    	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-    			first = true;
-				int tempLight = tempEntity.tiles.get(i).block.getLightValue(world, x, y, z);
-				first = false;
-				if(tempLight == 0)
-					tempLight = tempEntity.tiles.get(i).block.getLightValue();
-				if(tempLight > light)
-					light = tempLight;
-			}
-    	}
-    	return light;
+		}
     }
     
 	@Override
@@ -234,6 +244,14 @@ public class BlockTile extends BlockContainer{
 	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
     {
+		if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemHammer)
+		{
+			if(!world.isRemote)
+			{
+				//TODO Drop all tiles;
+			}
+			return super.removedByPlayer(world, player, x, y, z);
+		}
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
     	{
     		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
@@ -259,6 +277,16 @@ public class BlockTile extends BlockContainer{
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
     	return new ArrayList<ItemStack>();
+    }
+    
+    @Override
+    public ItemStack getPickBlock(MovingObjectPosition target, World world, int x, int y, int z, EntityPlayer player)
+    {
+    	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
+    	{
+    		return tempEntity.loadedTile.getItemStack(false);
+    	}
+    	return null;
     }
     
     @SideOnly(Side.CLIENT)

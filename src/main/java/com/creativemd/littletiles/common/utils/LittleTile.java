@@ -150,6 +150,8 @@ public class LittleTile {
 			nbt.setByte("az", maxZ);
 			size = new LittleTileVec((byte)(maxX - minX), (byte)(maxY - minY), (byte)(maxZ - minZ));
 		}else{
+			if(size == null)
+				size = new LittleTileVec((byte)(maxX - minX), (byte)(maxY - minY), (byte)(maxZ - minZ));
 			nbt.setByte("sizeX", size.sizeX);
 			nbt.setByte("sizeY", size.sizeY);
 			nbt.setByte("sizeZ", size.sizeZ);
@@ -440,11 +442,16 @@ public class LittleTile {
 	{
 		if(isInValid)
 			return null;
-		ItemStack stack = new ItemStack(block, 1, meta);
+		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		stack.stackTagCompound = new NBTTagCompound();
+		
 		if(isDrop)
-			isPlaced = true;
+			isPlaced = false;
+		
+		boolean tempPlace = isPlaced;
+		isPlaced = false;
 		save(stack.stackTagCompound);
+		isPlaced = tempPlace;
 		return stack;
 	}
 	
