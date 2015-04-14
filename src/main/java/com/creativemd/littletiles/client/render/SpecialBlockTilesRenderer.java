@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -86,10 +87,12 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				double maxX = (double)(little.tiles.get(i).maxX+8)/16D;
 				double maxY = (double)(little.tiles.get(i).maxY+8)/16D;
 				double maxZ = (double)(little.tiles.get(i).maxZ+8)/16D;
-				renderer.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
-				renderer.lockBlockBounds = true;
-				renderer.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
-				renderer.lockBlockBounds = false;
+				
+				RenderHelper3D.renderBlocks.blockAccess = renderer.blockAccess;
+				RenderHelper3D.renderBlocks.clearOverrideBlockTexture();
+				RenderHelper3D.renderBlocks.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
+				RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
+				RenderHelper3D.renderBlocks.renderStandardBlock(little.tiles.get(i).block, x, y, z);
 				// TODO Add a new RenderBlock renderer which can render blocks using custom metadata
 			}
 		}

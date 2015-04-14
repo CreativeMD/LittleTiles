@@ -25,18 +25,24 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileVec size, int meta)
+	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileVec size, int meta, int x, int y, int z)
 	{
 		this.stack = stack;
 		this.center = center;
 		this.size = size;
 		this.meta = meta;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 	
 	public ItemStack stack;
 	public Vec3 center;
 	public LittleTileVec size;
 	public int meta;
+	public int x;
+	public int y;
+	public int z;
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
@@ -48,6 +54,9 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		buf.writeByte(size.sizeY);
 		buf.writeByte(size.sizeZ);
 		buf.writeInt(meta);
+		buf.writeInt(x);
+		buf.writeInt(y);
+		buf.writeInt(z);
 	}
 
 	@Override
@@ -62,6 +71,9 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		byte sizeZ = buf.readByte();
 		size = new LittleTileVec(sizeX, sizeY, sizeZ);
 		meta = buf.readInt();
+		this.x = buf.readInt();
+		this.y = buf.readInt();
+		this.z = buf.readInt();
 	}
 
 	@Override
@@ -79,7 +91,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 				player.getHeldItem().stackTagCompound = stack.stackTagCompound;
 			}
 				
-			((ItemBlockTiles)stack.getItem()).placeBlockAt(stack, player.worldObj, center, size, new PlacementHelper(player), meta);
+			((ItemBlockTiles)stack.getItem()).placeBlockAt(stack, player.worldObj, center, size, new PlacementHelper(player), meta, x, y, z);
 		}
 	}
 

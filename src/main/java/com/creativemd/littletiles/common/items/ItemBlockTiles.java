@@ -26,6 +26,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.Vec3;
@@ -45,6 +46,8 @@ public class ItemBlockTiles extends ItemBlock{
 	
 	public static void saveLittleTile(ItemStack stack, LittleTile tile)
 	{
+		if(stack.stackTagCompound == null)
+			stack.stackTagCompound = new NBTTagCompound();
 		tile.save(stack.stackTagCompound);
 	}
 	
@@ -52,6 +55,23 @@ public class ItemBlockTiles extends ItemBlock{
 	public static PlacementHelper createPlacementHelper()
 	{
 		return new PlacementHelper(Minecraft.getMinecraft().objectMouseOver, Minecraft.getMinecraft().thePlayer);
+	}
+	
+	public boolean canPlaceInside(Vec3 hit, int side)
+	{
+		switch(side)
+		{
+		case 0: 
+		case 1:
+			return (int)hit.yCoord != hit.yCoord;
+		case 2:
+		case 3:
+			return (int)hit.zCoord != hit.zCoord;
+		case 4:
+		case 5:
+			return (int)hit.xCoord != hit.xCoord;
+		default: return false;
+		}
 	}
 	
 	@Override
@@ -63,9 +83,44 @@ public class ItemBlockTiles extends ItemBlock{
 		Vec3 center = helper.getCenterPos();
 		LittleTileVec size = helper.getRelativeSize();
 		
-		x = (int) center.xCoord;
-		y = (int) center.yCoord;
-		z = (int) center.zCoord;
+		x = helper.moving.blockX;
+		y = helper.moving.blockY;
+		z = helper.moving.blockZ;
+		
+		side = helper.moving.sideHit;
+		
+		if(!helper.canBePlacedInside() || !canPlaceInside(helper.moving.hitVec, side))
+		{
+			if (side == 0)
+	        {
+	            --y;
+	        }
+	
+	        if (side == 1)
+	        {
+	            ++y;
+	        }
+	
+	        if (side == 2)
+	        {
+	            --z;
+	        }
+	
+	        if (side == 3)
+	        {
+	            ++z;
+	        }
+	
+	        if (side == 4)
+	        {
+	            --x;
+	        }
+	
+	        if (side == 5)
+	        {
+	            ++x;
+	        }
+		}
 		
 		if (stack.stackSize == 0)
         {
@@ -84,7 +139,7 @@ public class ItemBlockTiles extends ItemBlock{
             int i1 = this.getMetadata(stack.getItemDamage());
             int j1 = helper.tile.block.onBlockPlaced(world, x, y, z, side, offsetX, offsetY, offsetZ, i1);
 
-            placeBlockAt(stack, world, center, size, helper, j1);
+            placeBlockAt(stack, world, center, size, helper, j1, x, y, z);
 
             return true;
         }
@@ -97,7 +152,11 @@ public class ItemBlockTiles extends ItemBlock{
 		Block block = world.getBlock(x, y, z);
 		
 		PlacementHelper helper = createPlacementHelper();
-		//TODO Check if canBePlacedInsideWork
+		
+		x = helper.moving.blockX;
+		y = helper.moving.blockY;
+		z = helper.moving.blockZ;
+		
         if (block == Blocks.snow_layer)
         {
             side = 1;
@@ -137,14 +196,33 @@ public class ItemBlockTiles extends ItemBlock{
         return true;
     }
 	
-	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileVec size, PlacementHelper helper, int meta)
+	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileVec size, PlacementHelper helper, int meta, int x, int y, int z)
     {
 		helper.tile.meta = meta;
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, meta));
-		int x = (int) center.xCoord;
-		int y = (int) center.yCoord;
-		int z = (int) center.zCoord;
+			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, meta, x, y, z));
+		
+		/*if(x < 0)
+			center.xCoord -= 1;
+		if(z < 0)
+			center.zCoord -= 1;*/
+		
+		/*byte centerX = (byte) (Math.floor((Math.abs(center.xCoord) - Math.abs((int)center.xCoord))*16D) - 8);
+		byte centerY = (byte) (Math.floor((Math.abs(center.yCoord) - Math.abs((int)center.yCoord))*16D) - 8);
+		byte centerZ = (byte) (Math.floor((Math.abs(center.zCoord) - Math.abs((int)center.zCoord))*16D) - 8);*/
+		byte centerX = (byte) (Math.floor((center.xCoord - (int)center.xCoord)*16D) - 8);
+		if(center.xCoord < 0)
+		{
+			double temp = -center.xCoord + (int)(center.xCoord);
+			centerX = (byte) (Math.floor((1D-temp)*16D) - 8);
+		}
+		byte centerY = (byte) (Math.floor((center.yCoord - (int)center.yCoord)*16D) - 8);
+		byte centerZ = (byte) (Math.floor((center.zCoord - (int)center.zCoord)*16D) - 8);
+		if(center.zCoord < 0)
+		{
+			double temp = -center.zCoord + (int)(center.zCoord);
+			centerZ = (byte) (Math.floor((1D-temp)*16D) - 8);
+		}
 		
 		if(!(world.getBlock(x, y, z) instanceof BlockTile))
 			if (!world.setBlock(x, y, z, LittleTiles.blockTile, 0, 3))
@@ -154,9 +232,7 @@ public class ItemBlockTiles extends ItemBlock{
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-			byte centerX = (byte) (Math.floor((center.xCoord - x)*16D) - 8);
-			byte centerY = (byte) (Math.floor((center.yCoord - y)*16D) - 8);
-			byte centerZ = (byte) (Math.floor((center.zCoord - z)*16D) - 8);
+			
 			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
 			if(helper.tile.PlaceLittleTile(stack, littleEntity, centerX, centerY, centerZ, size.sizeX, size.sizeY, size.sizeZ, splittedTiles))
 			{

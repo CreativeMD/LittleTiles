@@ -183,7 +183,7 @@ public class BlockTile extends BlockContainer{
     @SideOnly(Side.CLIENT)
     public void getSubBlocks(Item item, CreativeTabs tab, List items)
     {
-		ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		/*ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		LittleTile tile = new LittleTile(Blocks.stone, 0, new LittleTileVec(1, 1, 1));
 		for (byte x = 1; x <= 16; x++)
 			for (byte y = 1; y <= 16; y++)
@@ -194,8 +194,7 @@ public class BlockTile extends BlockContainer{
 					newStack.stackTagCompound = new NBTTagCompound();
 					tile.save(newStack.stackTagCompound);
 					items.add(newStack);
-					//TODO CHange it
-				}
+				}*/
     }
 	
     //TODO Add this once it's important

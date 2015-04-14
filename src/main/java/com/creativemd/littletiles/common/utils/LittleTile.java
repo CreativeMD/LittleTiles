@@ -409,7 +409,7 @@ public class LittleTile {
 			placed.maxZ = tempmaxZ;
 			placed.isPlaced = true;
 			tileEntity.tiles.add(placed);
-			tileEntity.getWorldObj().markBlockForUpdate(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+			tileEntity.update();
 			return true;
 		}
 		return false;

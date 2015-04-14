@@ -1,10 +1,12 @@
 package com.creativemd.littletiles;
 
 import net.minecraft.block.material.Material;
+import net.minecraft.item.Item;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
@@ -38,9 +40,12 @@ public class LittleTiles {
 	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
 	
+	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
+	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
     {
+		GameRegistry.registerItem(hammer, "hammer");
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
