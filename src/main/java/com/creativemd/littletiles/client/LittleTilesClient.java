@@ -43,6 +43,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		RenderingRegistry.registerBlockHandler(modelID, renderer);
 		
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LittleTiles.blockTile), renderer);
+		MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);
 		
 		BlockTile.mc = Minecraft.getMinecraft();
 		

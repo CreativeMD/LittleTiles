@@ -4,8 +4,12 @@ import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.creativecore.common.gui.IGuiCreator;
 import com.creativemd.creativecore.common.gui.SubGui;
 import com.creativemd.creativecore.core.CreativeCore;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
+
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,8 +34,16 @@ public class ItemHammer extends Item implements IGuiCreator{
 		}
 		return stack;
 	}
-
+	
 	@Override
+	@SideOnly(Side.CLIENT)
+    protected String getIconString()
+    {
+        return LittleTiles.modid + ":LTHammer";
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world,
 			int x, int y, int z) {
 		return new SubGuiHammer();

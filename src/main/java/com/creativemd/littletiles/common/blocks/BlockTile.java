@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.items.ItemHammer;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -156,7 +157,12 @@ public class BlockTile extends BlockContainer{
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ)
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
-			return tempEntity.loadedTile.block.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ);
+		{
+			if(tempEntity.loadedTile.block.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
+			{
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 0));
+			}
+		}
         return false;
     }
 	
@@ -377,8 +383,6 @@ public class BlockTile extends BlockContainer{
     {
     	
     }
-    
-    public void onBlockDestroyedByPlayer(World p_149664_1_, int p_149664_2_, int p_149664_3_, int p_149664_4_, int p_149664_5_) {}
 	
 	public void onNeighborBlockChange(World p_149695_1_, int p_149695_2_, int p_149695_3_, int p_149695_4_, Block p_149695_5_) {}*/
     

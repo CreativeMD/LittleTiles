@@ -3,44 +3,62 @@ package com.creativemd.littletiles.client.render;
 import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
+import org.omg.CORBA.REBIND;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.IItemRenderer;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
+@SideOnly(Side.CLIENT)
 public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer implements ISimpleBlockRenderingHandler, IItemRenderer{
 	
 	/**Used for renderInventoryBlock*/
 	public ItemStack currentRenderedStack = null;
+	
+	public void renderLittleTileInventory(LittleTile tile, RenderBlocks renderer, boolean usePlace)
+	{
+		if(!usePlace)
+		{
+			double x = (double)tile.size.sizeX/2D/16D;
+			double y = (double)tile.size.sizeY/2D/16D;
+			double z = (double)tile.size.sizeZ/2D/16D;
+			renderer.setRenderBounds(0.5-x, 0.5-y, 0.5-z, 0.5+x, 0.5+y, 0.5+z);
+		}else{
+			AxisAlignedBB box = tile.getBox();
+			renderer.setRenderBounds(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
+		}
+		renderer.lockBlockBounds = true;
+		renderer.renderBlockAsItem(tile.block, tile.meta, 1F);
+		renderer.lockBlockBounds = false;
+	}
 	
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelId,
 			RenderBlocks renderer) {
 		LittleTile tile = ItemBlockTiles.getLittleTile(currentRenderedStack);
 		if(tile != null)
-		{
-			double x = (double)tile.size.sizeX/2D/16D;
-			double y = (double)tile.size.sizeY/2D/16D;
-			double z = (double)tile.size.sizeZ/2D/16D;
-			renderer.setRenderBounds(0.5-x, 0.5-y, 0.5-z, 0.5+x, 0.5+y, 0.5+z);
-			renderer.lockBlockBounds = true;
-			renderer.renderBlockAsItem(tile.block, tile.meta, 1F);
-			renderer.lockBlockBounds = false;
-		}
+			renderLittleTileInventory(tile, renderer, false);
 		/*Tessellator tesselator = Tessellator.instance;
 		block = Blocks.stone;
 		int meta = 0;
@@ -70,7 +88,6 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
         renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, block.getIcon(5, meta));
         tesselator.draw();
         GL11.glTranslatef(0.5F, 0.5F, 0.5F);*/
-        //TODO Add Inventory render
 	}
 
 	@Override
@@ -96,7 +113,6 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
 				RenderHelper3D.renderBlocks.lockBlockBounds = false;
 				//RenderHelper3D.renderBlocks.renderStandardBlock(little.tiles.get(i).block, x, y, z);
-				// TODO Add a new RenderBlock renderer which can render blocks using custom metadata
 			}
 		}
 		
@@ -116,6 +132,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 	@Override
 	public boolean handleRenderType(ItemStack item, ItemRenderType type) {
 		currentRenderedStack = item;
+		if(item.getItem() instanceof ITilesRenderer && item.stackTagCompound != null)
+			return true;
 		return false;
 	}
 
@@ -126,7 +144,32 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 	}
 
 	@Override
-	public void renderItem(ItemRenderType type, ItemStack item, Object... data) {}
+	public void renderItem(ItemRenderType type, ItemStack item, Object... data)
+	{
+		if(item.getItem() instanceof ITilesRenderer)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
+			GL11.glEnable(GL11.GL_LIGHTING);
+			GL11.glEnable(GL11.GL_BLEND);
+			if(type == ItemRenderType.INVENTORY)
+			{
+				GL11.glTranslatef(7.5F, 7.5F, 0);
+				GL11.glScalef(10F, 10F, 10F);
+				GL11.glScalef(1.0F, 1.0F, -1F);
+	            GL11.glRotatef(210F, 1.0F, 0.0F, 0.0F);
+	            GL11.glRotatef(45F, 0.0F, 1.0F, 0.0F);
+			}else{
+				GL11.glTranslatef(0.5F, 0.5F, 0);
+			}
+			ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(item);
+			for (int i = 0; i < tiles.size(); i++) {
+				
+				renderLittleTileInventory(tiles.get(i), (RenderBlocks) data[0], true);
+				GL11.glRotatef(270.0F, 0.0F, 1.0F, 0.0F);
+			}
+		}
+	}
 
 	@Override
 	public void renderTileEntityAt(TileEntity p_147500_1_, double p_147500_2_,

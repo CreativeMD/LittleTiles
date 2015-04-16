@@ -34,6 +34,8 @@ public class SubContainerHammer extends SubContainer{
 					Block block = Block.getBlockFromItem(basic.getStackInSlot(0).getItem());
 					if(block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass)
 					{
+						if(block.hasTileEntity(basic.getStackInSlot(0).getItemDamage()))
+							return ;
 						LittleTile tile = new LittleTile(block, basic.getStackInSlot(0).getItemDamage(), size);
 						ItemStack stack = new ItemStack(LittleTiles.blockTile);
 						ItemBlockTiles.saveLittleTile(stack, tile);

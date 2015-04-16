@@ -110,8 +110,14 @@ public class TileEntityLittleTiles extends TileEntity{
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3 look = player.getLook(1.0F);
 		Vec3 vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
-		for (int i = 0; i < tiles.size(); i++) {
-			MovingObjectPosition Temphit = tiles.get(i).getCoordBox(xCoord, yCoord, zCoord).calculateIntercept(pos, vec32);
+		return getMoving(pos, vec32, loadTile);
+    }
+    
+    public MovingObjectPosition getMoving(Vec3 pos, Vec3 look, boolean loadTile)
+    {
+    	MovingObjectPosition hit = null;
+    	for (int i = 0; i < tiles.size(); i++) {
+			MovingObjectPosition Temphit = tiles.get(i).getCoordBox(xCoord, yCoord, zCoord).calculateIntercept(pos, look);
 			if(Temphit != null)
 			{
 				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
@@ -129,6 +135,13 @@ public class TileEntityLittleTiles extends TileEntity{
 	{
 		loadedTile = null;
 		getMoving(player, true);
+		return loadedTile != null;
+	}
+	
+	public boolean updateLoadedTileServer(Vec3 pos, Vec3 look)
+	{
+		loadedTile = null;
+		getMoving(pos, look, true);
 		return loadedTile != null;
 	}
 	
