@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemHammer;
+import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
@@ -47,12 +48,14 @@ public class LittleTiles {
 	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
+	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles");
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
     {
 		GameRegistry.registerItem(hammer, "hammer");
 		GameRegistry.registerItem(recipe, "recipe");
+		GameRegistry.registerItem(multiTiles, "multiTiles");
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");

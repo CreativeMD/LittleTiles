@@ -18,12 +18,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.entity.RenderItem;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.IIcon;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.IItemRenderer;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -149,12 +152,30 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		if(item.getItem() instanceof ITilesRenderer)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
-			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glEnable(GL11.GL_BLEND);
 			if(type == ItemRenderType.INVENTORY)
 			{
-				GL11.glTranslatef(7.5F, 7.5F, 0);
+				RenderItem.getInstance().renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, item, 0, 0);
+				/*mc.renderEngine.bindTexture(TextureMap.locationItemsTexture);
+				GL11.glDisable(GL11.GL_LIGHTING);
+	            GL11.glEnable(GL11.GL_BLEND);
+	            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+	            ResourceLocation resourcelocation = mc.renderEngine.getResourceLocation(item.getItemSpriteNumber());
+	            mc.renderEngine.bindTexture(resourcelocation);
+	            GL11.glDisable(GL11.GL_LIGHTING); //Forge: Make sure that render states are reset, a renderEffect can derp them up.
+	            GL11.glEnable(GL11.GL_ALPHA_TEST);
+	            GL11.glEnable(GL11.GL_BLEND);
+
+	            this.renderIcon(p_77015_4_, p_77015_5_, (IIcon)object, 16, 16);
+
+	            GL11.glEnable(GL11.GL_LIGHTING);
+	            GL11.glDisable(GL11.GL_ALPHA_TEST);
+	            GL11.glDisable(GL11.GL_BLEND);
+	            
+	            GL11.glEnable(GL11.GL_LIGHTING);*/
+	            
+				GL11.glTranslatef(7.5F, 7.5F, 10);
 				GL11.glScalef(10F, 10F, 10F);
 				GL11.glScalef(1.0F, 1.0F, -1F);
 	            GL11.glRotatef(210F, 1.0F, 0.0F, 0.0F);
@@ -162,6 +183,7 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			}else{
 				GL11.glTranslatef(0.5F, 0.5F, 0);
 			}
+			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
 			ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(item);
 			for (int i = 0; i < tiles.size(); i++) {
 				

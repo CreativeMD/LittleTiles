@@ -94,9 +94,7 @@ public class LittleTile {
 		{
 			try {
 				tile = TileClass.getConstructor().newInstance();
-			} catch (InstantiationException | IllegalAccessException
-					| IllegalArgumentException | InvocationTargetException
-					| NoSuchMethodException | SecurityException e) {
+			} catch (Exception e) {
 				System.out.println("Found invalid tileID=" + id);
 			}
 		}

@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.items.ItemHammer;
+import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -28,6 +29,7 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -162,7 +164,7 @@ public class BlockTile extends BlockContainer{
 			{
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 0));
 			}
-		}
+		}		
         return false;
     }
 	
@@ -282,7 +284,14 @@ public class BlockTile extends BlockContainer{
     /**Blocks will drop before this method is called*/
     public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune)
     {
-    	return new ArrayList<ItemStack>();
+    	ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+    	if(loadTileEntity(world, x, y, z))
+    	{
+    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+				stacks.add(tempEntity.tiles.get(i).getItemStack(false));
+			}
+    	}
+    	return stacks;
     }
     
     @Override
