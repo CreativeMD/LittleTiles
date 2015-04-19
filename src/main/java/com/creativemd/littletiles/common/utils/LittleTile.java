@@ -320,7 +320,7 @@ public class LittleTile {
 						newSizeX = (byte) (maxX - tempmaxX);
 						newSizeY = sizeY;
 						newSizeZ = sizeZ;
-						newCenterX = (byte) (minPos + newSizeX/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterX = (byte) (minPos + newSizeX/2);
 						newCenterY = centerY;
 						newCenterZ = centerZ;
 					}
@@ -333,7 +333,7 @@ public class LittleTile {
 						newSizeY = (byte) (tempminY - minY);
 						newSizeZ = sizeZ;
 						newCenterX = centerX;
-						newCenterY = (byte) (maxPos - (newSizeY - newSizeY/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterY = (byte) (maxPos - (newSizeY - newSizeY/2));
 						newCenterZ = centerZ;
 					}
 					break;
@@ -345,7 +345,7 @@ public class LittleTile {
 						newSizeY = (byte) (maxY - tempmaxY);
 						newSizeZ = sizeZ;
 						newCenterX = centerX;
-						newCenterY = (byte) (minPos + newSizeY/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterY = (byte) (minPos + newSizeY/2);
 						newCenterZ = centerZ;
 					}
 					break;
@@ -358,7 +358,7 @@ public class LittleTile {
 						newSizeZ = (byte) (tempminZ - minZ);
 						newCenterX = centerX;
 						newCenterY = centerY;
-						newCenterZ = (byte) (maxPos - (newSizeZ - newSizeZ/2));//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterZ = (byte) (maxPos - (newSizeZ - newSizeZ/2));
 					}
 					break;
 				case SOUTH:
@@ -370,7 +370,7 @@ public class LittleTile {
 						newSizeZ = (byte) (maxZ - tempmaxZ);
 						newCenterX = centerX;
 						newCenterY = centerY;
-						newCenterZ = (byte) (minPos + newSizeZ/2);//TODO Check if this works out. Could create a new tile with an invalid pos
+						newCenterZ = (byte) (minPos + newSizeZ/2);
 					}
 					break;
 				default:
@@ -385,16 +385,21 @@ public class LittleTile {
 					{
 						TileEntity tileEntity2 = world.getTileEntity(coord.posX, coord.posY, coord.posZ);
 						if(tileEntity2 instanceof TileEntityLittleTiles)
-							PlaceLittleTile(stack, (TileEntityLittleTiles) tileEntity2, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles);
+							if(!PlaceLittleTile(stack, (TileEntityLittleTiles) tileEntity2, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
+								splittedTiles.add(new LittleTile(this.block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
+							
 					}else if(block.isReplaceable(world, coord.posX, coord.posY, coord.posZ))
 					{
 						world.setBlock(coord.posX, coord.posY, coord.posZ, LittleTiles.blockTile);
 						TileEntityLittleTiles littleTilesEntity = new TileEntityLittleTiles();
 						world.setTileEntity(coord.posX, coord.posY, coord.posZ, littleTilesEntity);
 						if(!PlaceLittleTile(stack, (TileEntityLittleTiles) littleTilesEntity, newCenterX, newCenterY, newCenterZ, newSizeX, newSizeY, newSizeZ, splittedTiles))
+						{
 							world.setBlockToAir(coord.posX, coord.posY, coord.posZ);
+							splittedTiles.add(new LittleTile(this.block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
+						}
 					}else{
-						splittedTiles.add(new LittleTile(block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
+						splittedTiles.add(new LittleTile(this.block, meta, new LittleTileVec(newSizeX, newSizeY, newSizeZ)));
 					}
 				}else if(newSizeX > 0 && !canSplit())
 					return false;
@@ -436,15 +441,22 @@ public class LittleTile {
 	}
 	
 	/**Is used for drop and creating LittleTile ItemStacks**/
-	public ItemStack getItemStack(boolean isDrop)
+	public ArrayList<ItemStack> getDrops()
+	{
+		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+		stacks.add(getItemStack());
+		return stacks;
+	}
+	
+	public ItemStack getItemStack()
 	{
 		if(isInValid)
 			return null;
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		stack.stackTagCompound = new NBTTagCompound();
 		
-		if(isDrop)
-			isPlaced = false;
+		//if(isDrop)
+			//isPlaced = false;
 		
 		boolean tempPlace = isPlaced;
 		isPlaced = false;

@@ -156,24 +156,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			GL11.glEnable(GL11.GL_BLEND);
 			if(type == ItemRenderType.INVENTORY)
 			{
-				RenderItem.getInstance().renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, item, 0, 0);
-				/*mc.renderEngine.bindTexture(TextureMap.locationItemsTexture);
-				GL11.glDisable(GL11.GL_LIGHTING);
-	            GL11.glEnable(GL11.GL_BLEND);
-	            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-	            ResourceLocation resourcelocation = mc.renderEngine.getResourceLocation(item.getItemSpriteNumber());
-	            mc.renderEngine.bindTexture(resourcelocation);
-	            GL11.glDisable(GL11.GL_LIGHTING); //Forge: Make sure that render states are reset, a renderEffect can derp them up.
-	            GL11.glEnable(GL11.GL_ALPHA_TEST);
-	            GL11.glEnable(GL11.GL_BLEND);
-
-	            this.renderIcon(p_77015_4_, p_77015_5_, (IIcon)object, 16, 16);
-
-	            GL11.glEnable(GL11.GL_LIGHTING);
-	            GL11.glDisable(GL11.GL_ALPHA_TEST);
-	            GL11.glDisable(GL11.GL_BLEND);
-	            
-	            GL11.glEnable(GL11.GL_LIGHTING);*/
+				if(((ITilesRenderer)item.getItem()).hasBackground(item))
+					RenderItem.getInstance().renderItemIntoGUI(mc.fontRenderer, mc.renderEngine, item, 0, 0);
 	            
 				GL11.glTranslatef(7.5F, 7.5F, 10);
 				GL11.glScalef(10F, 10F, 10F);
@@ -194,9 +178,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 	}
 
 	@Override
-	public void renderTileEntityAt(TileEntity p_147500_1_, double p_147500_2_,
-			double p_147500_4_, double p_147500_6_, float p_147500_8_) {
-		// TODO Auto-generated method stub
+	public void renderTileEntityAt(TileEntity tileEntity, double x,
+			double y, double z, float p_147500_8_) {
 		
 	}
 

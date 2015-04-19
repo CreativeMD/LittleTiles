@@ -1,7 +1,11 @@
 package com.creativemd.littletiles;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
@@ -12,7 +16,6 @@ import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -65,11 +68,16 @@ public class LittleTiles {
 		LittleTile.registerLittleTile(LittleTile.class, "BlockTile");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		
-		CreativeCorePacket.registerPacket(LittleDestroyPacket.class, "LittleDestroy");
 		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		FMLCommonHandler.instance().bus().register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
+		
+		//Recipes
+		GameRegistry.addRecipe(new ItemStack(hammer),  new Object[]
+				{
+				"XAX", "AXA", "AXA", 'X', Items.iron_ingot
+				});
     }
 	
 	@EventHandler

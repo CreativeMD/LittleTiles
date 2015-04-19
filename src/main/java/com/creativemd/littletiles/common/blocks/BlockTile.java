@@ -10,7 +10,6 @@ import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleDestroyPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
@@ -139,6 +138,12 @@ public class BlockTile extends BlockContainer{
     }
 	
 	@Override
+	public void setBlockBoundsBasedOnState(IBlockAccess world, int x, int y, int z)
+	{
+		setBlockBounds(0, 0, 0, 0, 0, 0);
+	}
+	
+	@Override
 	public void breakBlock(World world, int x, int y, int z, Block block, int meta)
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.tiles.size() == 0)
@@ -252,14 +257,6 @@ public class BlockTile extends BlockContainer{
 	@Override
 	public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z)
     {
-		if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemHammer)
-		{
-			if(!world.isRemote)
-			{
-				//TODO Drop all tiles;
-			}
-			return super.removedByPlayer(world, player, x, y, z);
-		}
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
     	{
     		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
@@ -267,7 +264,7 @@ public class BlockTile extends BlockContainer{
     			tempEntity.tiles.remove(tempEntity.loadedTile);
     			NBTTagCompound nbt = new NBTTagCompound();
     			tempEntity.writeToNBT(nbt);
-    			PacketHandler.sendPacketToServer(new LittleDestroyPacket(x, y, z, nbt));
+    			PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 1));
     			tempEntity.updateRender();
     		}
     		
@@ -288,7 +285,7 @@ public class BlockTile extends BlockContainer{
     	if(loadTileEntity(world, x, y, z))
     	{
     		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				stacks.add(tempEntity.tiles.get(i).getItemStack(false));
+				stacks.addAll(tempEntity.tiles.get(i).getDrops());
 			}
     	}
     	return stacks;
@@ -299,7 +296,7 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     	{
-    		return tempEntity.loadedTile.getItemStack(false);
+    		return tempEntity.loadedTile.getItemStack();
     	}
     	return null;
     }
@@ -400,17 +397,21 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z))
     	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-    			MovingObjectPosition moving = tempEntity.tiles.get(i).getCoordBox(x, y, z).calculateIntercept(vec1, vec2);
-    			
-    			if(moving != null)
-    			{
-    				moving.blockX = x;
-        			moving.blockY = y;
-        			moving.blockZ = z;
-    				return moving;
-    			}
-			}
+    		try{ //Why try? because the number of tiles can change while this method is called
+	    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+	    			MovingObjectPosition moving = tempEntity.tiles.get(i).getCoordBox(x, y, z).calculateIntercept(vec1, vec2);
+	    			
+	    			if(moving != null)
+	    			{
+	    				moving.blockX = x;
+	        			moving.blockY = y;
+	        			moving.blockZ = z;
+	    				return moving;
+	    			}
+				}
+    		}catch(Exception e){
+    			return null;
+    		}
     	}
     	return null;
     }

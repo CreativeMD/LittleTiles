@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.items;
 import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.creativecore.common.gui.IGuiCreator;
 import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.core.CreativeCore;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
@@ -26,6 +27,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 	public ItemHammer()
 	{
 		setCreativeTab(CreativeTabs.tabTools);
+		setMaxStackSize(1);
 	}
 	
 	@Override
@@ -53,8 +55,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 				}else{
 					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
 					ItemRecipe.saveTiles(((TileEntityLittleTiles) tileEntity).tiles, drop);
-					EntityItem item = new EntityItem(world, x, y, z, drop);
-					world.spawnEntityInWorld(item);
+					WorldUtils.dropItem(world, drop, x, y, z);
 				}
 				world.setBlockToAir(x, y, z);
 				return true;

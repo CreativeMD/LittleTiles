@@ -1,12 +1,16 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.util.ArrayList;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
@@ -71,14 +75,21 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
-			MovingObjectPosition moving = ((TileEntityLittleTiles) tileEntity).getMoving(pos, look, true);
-			LittleTile tile = ((TileEntityLittleTiles) tileEntity).loadedTile;
+			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
+			MovingObjectPosition moving = littleEntity.getMoving(pos, look, true);
+			LittleTile tile = littleEntity.loadedTile;
 			if(tile != null)
 			{
 				switch(action)
 				{
 				case 0: //Activated
 					tile.block.onBlockActivated(player.worldObj, x, y, z, player, moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+					break;
+				case 1: //Destory tile
+					littleEntity.tiles.remove(tile);
+					if(!player.capabilities.isCreativeMode)
+						WorldUtils.dropItem(player.worldObj, tile.getDrops(), x, y, z);
+					littleEntity.update();
 					break;
 				}
 			}

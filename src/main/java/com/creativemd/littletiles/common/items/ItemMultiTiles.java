@@ -45,5 +45,10 @@ public class ItemMultiTiles extends Item implements ITilesRenderer{
 			list.add("Contains " + stack.stackTagCompound.getInteger("tiles") + " tiles");
 		}
 	}
+
+	@Override
+	public boolean hasBackground(ItemStack stack) {
+		return false;
+	}
 	
 }

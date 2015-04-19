@@ -29,23 +29,41 @@ public class SubContainerHammer extends SubContainer{
 			if(sizeS.length == 3)
 			{
 				LittleTileVec size = new LittleTileVec(Integer.parseInt(sizeS[0]), Integer.parseInt(sizeS[1]), Integer.parseInt(sizeS[2]));
-				if(basic.getStackInSlot(0) != null && basic.getStackInSlot(0).getItem() instanceof ItemBlock)
+				ItemStack stack = basic.getStackInSlot(0);
+				if(stack != null && stack.getItem() instanceof ItemBlock)
 				{
-					Block block = Block.getBlockFromItem(basic.getStackInSlot(0).getItem());
+					Block block = Block.getBlockFromItem(stack.getItem());
 					if(block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass)
 					{
-						if(block.hasTileEntity(basic.getStackInSlot(0).getItemDamage()))
+						int tiles = (int) (1/size.getPercentVolume()*stack.stackSize);
+						if(tiles > 64)
+							tiles = 64;
+						int blocks = (int) Math.ceil(tiles*size.getPercentVolume());
+						stack.stackSize -= blocks;
+						if(stack.stackSize <= 0)
+							basic.setInventorySlotContents(0, null);
+						if(block.hasTileEntity(stack.getItemDamage()))
 							return ;
-						LittleTile tile = new LittleTile(block, basic.getStackInSlot(0).getItemDamage(), size);
-						ItemStack stack = new ItemStack(LittleTiles.blockTile);
-						ItemBlockTiles.saveLittleTile(stack, tile);
-						player.inventory.addItemStackToInventory(stack);
+						LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
+						ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
+						dropstack.stackSize = tiles;
+						ItemBlockTiles.saveLittleTile(dropstack, tile);
+						player.inventory.addItemStackToInventory(dropstack);
 					}
 				}
 			}
 		}
 	}
-
+	
+	@Override
+	public void onGuiClosed(EntityPlayer player)
+	{
+		if(basic.getStackInSlot(0) != null)
+		{
+			player.dropPlayerItemWithRandomChoice(basic.getStackInSlot(0), false);
+		}
+	}
+	
 	@Override
 	public ArrayList<Slot> getSlots(EntityPlayer player) {
 		ArrayList<Slot> slots = new ArrayList<Slot>();

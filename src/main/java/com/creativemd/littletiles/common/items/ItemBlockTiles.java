@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import scala.collection.parallel.ParIterableLike.Min;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -38,6 +39,29 @@ public class ItemBlockTiles extends ItemBlock{
 		super(block);
 		hasSubtypes = true;
 	}
+	
+	@Override
+	public String getItemStackDisplayName(ItemStack stack)
+    {
+		String result = super.getItemStackDisplayName(stack);
+		LittleTile tile = getLittleTile(stack);
+		if(tile != null)
+		{
+			result += " (" + tile.size.sizeX + "x" + tile.size.sizeY + "x" + tile.size.sizeZ + ")";
+		}
+		return result;
+    }
+	
+	@Override
+	public String getUnlocalizedName(ItemStack stack)
+    {
+		LittleTile tile = getLittleTile(stack);
+		if(tile != null)
+		{
+			return tile.block.getUnlocalizedName();
+		}
+        return super.getUnlocalizedName(stack);
+    }
 	
 	public static LittleTile getLittleTile(ItemStack stack)
 	{
@@ -238,11 +262,15 @@ public class ItemBlockTiles extends ItemBlock{
 			{
 				helper.tile.block.onBlockPlacedBy(world, x, y, z, helper.player, stack);
 				helper.tile.block.onPostBlockPlaced(world, x, y, z, helper.tile.meta);
-				//TODO drop splitted parts
+				helper.player.inventory.mainInventory[helper.player.inventory.currentItem].stackSize--;
+				if(stack.stackSize == 0)
+					helper.player.inventory.mainInventory[helper.player.inventory.currentItem] = null;
 				if(!world.isRemote)
 				{
+					for (int i = 0; i < splittedTiles.size(); i++) {
+						WorldUtils.dropItem(world, splittedTiles.get(i).getItemStack(), x, y, z);
+					}
 					world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), helper.tile.block.stepSound.func_150496_b(), (helper.tile.block.stepSound.getVolume() + 1.0F) / 2.0F, helper.tile.block.stepSound.getPitch() * 0.8F);
-	                --stack.stackSize; 
 				}
 			}else{
 				return false;
