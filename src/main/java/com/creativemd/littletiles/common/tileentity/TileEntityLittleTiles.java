@@ -133,6 +133,8 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public boolean updateLoadedTile(EntityPlayer player)
 	{
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+			return false;
 		loadedTile = null;
 		getMoving(player, true);
 		return loadedTile != null;

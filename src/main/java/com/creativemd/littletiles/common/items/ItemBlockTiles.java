@@ -65,6 +65,8 @@ public class ItemBlockTiles extends ItemBlock{
 	
 	public static LittleTile getLittleTile(ItemStack stack)
 	{
+		if(stack == null || stack.stackTagCompound == null)
+			return null;
 		return LittleTile.CreateandLoadTile(stack.stackTagCompound);
 	}
 	

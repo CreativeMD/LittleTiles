@@ -219,8 +219,7 @@ public class BlockTile extends BlockContainer{
     //TODO Add this once it's important
 	//public void fillWithRain(World p_149639_1_, int p_149639_2_, int p_149639_3_, int p_149639_4_) {}
     
-	@SideOnly(Side.CLIENT)
-	public boolean first;
+	public boolean first = false;
 	
 	@Override
     public int getLightValue(IBlockAccess world, int x, int y, int z)
