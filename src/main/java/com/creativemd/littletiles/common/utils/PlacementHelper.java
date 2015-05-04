@@ -166,17 +166,20 @@ public class PlacementHelper {
 	
 	public void rotateTiles(ForgeDirection direction)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tile = tiles.get(i);
-			CubeObject box = new CubeObject(tile.getLittleBox());
-			box = CubeObject.rotateCube(box, direction);
-			tile.minX = (byte) box.minX;
-			tile.minY = (byte) box.minY;
-			tile.minZ = (byte) box.minZ;
-			tile.maxX = (byte) box.maxX;
-			tile.maxY = (byte) box.maxY;
-			tile.maxZ = (byte) box.maxZ;
-			tile.updateSize();
+		if(!isSingle())
+		{
+			for (int i = 0; i < tiles.size(); i++) {
+				LittleTile tile = tiles.get(i);
+				CubeObject box = new CubeObject(tile.getLittleBox());
+				box = CubeObject.rotateCube(box, direction);
+				tile.minX = (byte) box.minX;
+				tile.minY = (byte) box.minY;
+				tile.minZ = (byte) box.minZ;
+				tile.maxX = (byte) box.maxX;
+				tile.maxY = (byte) box.maxY;
+				tile.maxZ = (byte) box.maxZ;
+				tile.updateSize();
+			}
 		}
 	}
 	

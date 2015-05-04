@@ -284,6 +284,9 @@ public class ItemBlockTiles extends ItemBlock{
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
+			helper.rotateTiles(direction);
+			helper.rotateTiles(direction2);
+			
 			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
 		
 			for (int i = 0; i < helper.tiles.size(); i++) {
@@ -298,8 +301,7 @@ public class ItemBlockTiles extends ItemBlock{
 				
 			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
 			LittleTile tile = null;
-			helper.rotateTiles(direction);
-			helper.rotateTiles(direction2);
+			
 			for (int i = 0; i < helper.tiles.size(); i++) {
 					
 				tile = helper.tiles.get(i);
