@@ -17,6 +17,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.ByteBufUtils;
@@ -31,7 +32,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileSize size, int x, int y, int z, float offsetX, float offsetY, float offsetZ, int side)
+	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileSize size, int x, int y, int z, float offsetX, float offsetY, float offsetZ, int side, int direction, int direction2)
 	{
 		this.stack = stack;
 		this.center = center;
@@ -43,6 +44,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.offsetY = offsetY;
 		this.offsetZ = offsetZ;
 		this.side = side;
+		this.direction = direction;
+		this.direction2 = direction2;
 	}
 	
 	public ItemStack stack;
@@ -55,6 +58,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	public float offsetY;
 	public float offsetZ;
 	public int side;
+	public int direction;
+	public int direction2;
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
@@ -72,6 +77,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		buf.writeFloat(offsetY);
 		buf.writeFloat(offsetZ);
 		buf.writeInt(side);
+		buf.writeInt(direction);
+		buf.writeInt(direction2);
 	}
 
 	@Override
@@ -92,6 +99,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.offsetY = buf.readFloat();
 		this.offsetZ = buf.readFloat();
 		this.side = buf.readInt();
+		this.direction = buf.readInt();
+		this.direction2 = buf.readInt();
 	}
 
 	@Override
@@ -112,7 +121,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			PlacementHelper helper = new PlacementHelper(player);
 			helper.side = side;
 			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(stack, player.worldObj, center, size, helper, x, y, z, offsetX, offsetY, offsetZ);
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(stack, player.worldObj, center, size, helper, x, y, z, offsetX, offsetY, offsetZ, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			playerMP.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(playerMP.openContainer.windowId, playerMP.inventory.currentItem, playerMP.inventory.getCurrentItem()));

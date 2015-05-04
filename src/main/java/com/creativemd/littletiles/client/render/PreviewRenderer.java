@@ -41,6 +41,9 @@ public class PreviewRenderer {
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
+	public static ForgeDirection direction = ForgeDirection.EAST;
+	public static ForgeDirection direction2 = ForgeDirection.EAST;
+	
 	@SubscribeEvent
 	public void tick(RenderHandEvent event)
 	{
@@ -62,63 +65,69 @@ public class PreviewRenderer {
 	            GL11.glDisable(GL11.GL_TEXTURE_2D);
 	            GL11.glDepthMask(false);          
 	            
-	            /*
+	            
 	            //Rotate Block
 	            //TODO Enhance and clean up rotation code!
-	            boolean saveItem = false;
+	            //boolean saveItem = false;
 	            if(GameSettings.isKeyDown(LittleTilesClient.up) && !LittleTilesClient.pressedUp)
 	            {
-	            	helper.tile.size.rotateVec(ForgeDirection.UP);
-	            	saveItem = true;
+	            	//helper.tile.size.rotateVec(ForgeDirection.UP);
+	            	//saveItem = true;
 	            	LittleTilesClient.pressedUp = true;
+	            	direction = direction.getRotation(ForgeDirection.NORTH);
 	            }else if(!GameSettings.isKeyDown(LittleTilesClient.up))
 	            	LittleTilesClient.pressedUp = false;
 	            
 	            if(GameSettings.isKeyDown(LittleTilesClient.down) && !LittleTilesClient.pressedDown)
 	            {
-	            	helper.tile.size.rotateVec(ForgeDirection.DOWN);
-	            	saveItem = true;
+	            	//helper.tile.size.rotateVec(ForgeDirection.DOWN);
+	            	//saveItem = true;
 	            	LittleTilesClient.pressedDown = true;
+	            	direction = direction.getRotation(ForgeDirection.SOUTH);
 	            }else if(!GameSettings.isKeyDown(LittleTilesClient.down))
 	            	LittleTilesClient.pressedDown = false;
 	            
 	            if(GameSettings.isKeyDown(LittleTilesClient.right) && !LittleTilesClient.pressedRight)
 	            {
-	            	byte tempSizeX = helper.tile.size.sizeX;
+	            	/*byte tempSizeX = helper.tile.size.sizeX;
 	            	byte tempSizeY = helper.tile.size.sizeY;
 	            	byte tempSizeZ = helper.tile.size.sizeZ;
 	            	helper.tile.size.sizeX = tempSizeX;
 	            	helper.tile.size.sizeY = tempSizeZ;
 	            	helper.tile.size.sizeZ = tempSizeY;
-	            	saveItem = true;
+	            	saveItem = true;*/
 	            	LittleTilesClient.pressedRight = true;
+	            	direction2 = direction2.getRotation(ForgeDirection.UP);
 	            }else if(!GameSettings.isKeyDown(LittleTilesClient.right))
 	            	LittleTilesClient.pressedRight = false;
 	            
 	            if(GameSettings.isKeyDown(LittleTilesClient.left) && !LittleTilesClient.pressedLeft)
 	            {
-	            	byte tempSizeX = helper.tile.size.sizeX;
+	            	/*byte tempSizeX = helper.tile.size.sizeX;
 	            	byte tempSizeY = helper.tile.size.sizeY;
 	            	byte tempSizeZ = helper.tile.size.sizeZ;
 	            	helper.tile.size.sizeX = tempSizeX;
 	            	helper.tile.size.sizeY = tempSizeY;
 	            	helper.tile.size.sizeZ = tempSizeZ;
-	            	saveItem = true;
+	            	saveItem = true;*/
 	            	LittleTilesClient.pressedLeft = true;
+	            	direction2 = direction2.getRotation(ForgeDirection.DOWN);
 	            }else if(!GameSettings.isKeyDown(LittleTilesClient.left))
 	            	LittleTilesClient.pressedLeft = false;
 	            
-	            if(saveItem)
+	            /*if(saveItem)
 	            {
 	            	ItemBlockTiles.saveLittleTile(mc.thePlayer.getHeldItem(), helper.tile);
 	            } */  
 	            LittleTileSize size = helper.size;
-	            
+	            size.rotateSize(direction);
+	            size.rotateSize(direction2);
 	            Vec3 vec = helper.getCenterPos(size);
 	            
 	            if(!helper.isSingle())
 	            {
-	            	//helper.rotateTiles();
+	            	helper.rotateTiles(direction);
+	            	helper.rotateTiles(direction2);
 		            for (int i = 0; i < helper.tiles.size(); i++) {
 						LittleTile tile = helper.tiles.get(i);
 						Vec3 offset = helper.getOffset(i, size);

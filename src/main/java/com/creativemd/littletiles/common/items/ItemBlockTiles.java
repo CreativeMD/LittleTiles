@@ -6,9 +6,11 @@ import java.util.List;
 import scala.collection.parallel.ParIterableLike.Min;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -37,6 +39,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.common.util.RotationHelper;
 
 public class ItemBlockTiles extends ItemBlock{
 
@@ -113,6 +117,8 @@ public class ItemBlockTiles extends ItemBlock{
 		PlacementHelper helper = createPlacementHelper();
 		
 		LittleTileSize size = helper.size;
+		size.rotateSize(PreviewRenderer.direction);
+		size.rotateSize(PreviewRenderer.direction2);
 		Vec3 center = helper.getCenterPos(size);
 		
 		x = helper.moving.blockX;
@@ -168,7 +174,7 @@ public class ItemBlockTiles extends ItemBlock{
         }
         else// if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack) || helper.canBePlacedInside(x, y, z))
         {
-            placeBlockAt(stack, world, center, size, helper, x, y, z, offsetX, offsetY, offsetZ);
+            placeBlockAt(stack, world, center, size, helper, x, y, z, offsetX, offsetY, offsetZ, PreviewRenderer.direction, PreviewRenderer.direction2);
 
             return true;
         }
@@ -244,10 +250,10 @@ public class ItemBlockTiles extends ItemBlock{
         return block.isReplaceable(world, x, y, z) || helper.canBePlacedInside();
     }
 	
-	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileSize size, PlacementHelper helper, int x, int y, int z, float offsetX, float offsetY, float offsetZ)
+	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileSize size, PlacementHelper helper, int x, int y, int z, float offsetX, float offsetY, float offsetZ, ForgeDirection direction, ForgeDirection direction2)
     {		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, x, y, z, offsetX, offsetY, offsetZ, helper.side));
+			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, x, y, z, offsetX, offsetY, offsetZ, helper.side, RotationUtils.getIndex(direction), RotationUtils.getIndex(direction2)));
 		
 		/*if(x < 0)
 			center.xCoord -= 1;
@@ -292,7 +298,10 @@ public class ItemBlockTiles extends ItemBlock{
 				
 			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
 			LittleTile tile = null;
+			helper.rotateTiles(direction);
+			helper.rotateTiles(direction2);
 			for (int i = 0; i < helper.tiles.size(); i++) {
+					
 				tile = helper.tiles.get(i);
 				Vec3 offset = helper.getOffset(i, size);
 				

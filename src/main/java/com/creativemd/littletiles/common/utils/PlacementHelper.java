@@ -164,7 +164,7 @@ public class PlacementHelper {
 		return vec;
 	}
 	
-	public void rotateTiles()
+	public void rotateTiles(ForgeDirection direction)
 	{
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTile tile = tiles.get(i);
