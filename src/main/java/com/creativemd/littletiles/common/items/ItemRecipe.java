@@ -7,6 +7,8 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -45,6 +47,27 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 		}
         return false;
     }
+	
+	public static LittleTileSize getSize(ItemStack stack)
+	{
+		ArrayList<LittleTile> tiles = loadTiles(stack);
+		byte minX = LittleTile.maxPos;
+		byte minY = LittleTile.maxPos;
+		byte minZ = LittleTile.maxPos;
+		byte maxX = LittleTile.minPos;
+		byte maxY = LittleTile.minPos;
+		byte maxZ = LittleTile.minPos;
+		for (int i = 0; i < tiles.size(); i++) {
+			LittleTile tile = tiles.get(i);
+			minX = (byte) Math.min(minX, tile.minX);
+			minY = (byte) Math.min(minY, tile.minY);
+			minZ = (byte) Math.min(minZ, tile.minZ);
+			maxX = (byte) Math.max(maxX, tile.maxX);
+			maxY = (byte) Math.max(maxY, tile.maxY);
+			maxZ = (byte) Math.max(maxZ, tile.maxZ);
+		}
+		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ);
+	}
 	
 	public static ArrayList<LittleTile> loadTiles(ItemStack stack)
 	{

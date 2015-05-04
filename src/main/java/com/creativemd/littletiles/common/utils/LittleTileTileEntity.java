@@ -27,7 +27,7 @@ public class LittleTileTileEntity extends LittleTile{
 		
 	}
 	
-	public LittleTileTileEntity(Block block, int meta, LittleTileVec size, TileEntity tileEntity)
+	public LittleTileTileEntity(Block block, int meta, LittleTileSize size, TileEntity tileEntity)
 	{
 		this.tileEntity = tileEntity;
 	}

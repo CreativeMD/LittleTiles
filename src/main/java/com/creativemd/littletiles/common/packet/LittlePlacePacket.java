@@ -3,13 +3,19 @@ package com.creativemd.littletiles.common.packet;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.server.S2FPacketSetSlot;
 import net.minecraft.util.Vec3;
 
 import io.netty.buffer.ByteBuf;
@@ -25,24 +31,30 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileVec size, int meta, int x, int y, int z)
+	public LittlePlacePacket(ItemStack stack, Vec3 center, LittleTileSize size, int x, int y, int z, float offsetX, float offsetY, float offsetZ, int side)
 	{
 		this.stack = stack;
 		this.center = center;
 		this.size = size;
-		this.meta = meta;
 		this.x = x;
 		this.y = y;
 		this.z = z;
+		this.offsetX = offsetX;
+		this.offsetY = offsetY;
+		this.offsetZ = offsetZ;
+		this.side = side;
 	}
 	
 	public ItemStack stack;
 	public Vec3 center;
-	public LittleTileVec size;
-	public int meta;
+	public LittleTileSize size;
 	public int x;
 	public int y;
 	public int z;
+	public float offsetX;
+	public float offsetY;
+	public float offsetZ;
+	public int side;
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
@@ -53,10 +65,13 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		buf.writeByte(size.sizeX);
 		buf.writeByte(size.sizeY);
 		buf.writeByte(size.sizeZ);
-		buf.writeInt(meta);
 		buf.writeInt(x);
 		buf.writeInt(y);
 		buf.writeInt(z);
+		buf.writeFloat(offsetX);
+		buf.writeFloat(offsetY);
+		buf.writeFloat(offsetZ);
+		buf.writeInt(side);
 	}
 
 	@Override
@@ -69,11 +84,14 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		byte sizeX = buf.readByte();
 		byte sizeY = buf.readByte();
 		byte sizeZ = buf.readByte();
-		size = new LittleTileVec(sizeX, sizeY, sizeZ);
-		meta = buf.readInt();
+		size = new LittleTileSize(sizeX, sizeY, sizeZ);
 		this.x = buf.readInt();
 		this.y = buf.readInt();
 		this.z = buf.readInt();
+		this.offsetX = buf.readFloat();
+		this.offsetY = buf.readFloat();
+		this.offsetZ = buf.readFloat();
+		this.side = buf.readInt();
 	}
 
 	@Override
@@ -84,14 +102,21 @@ public class LittlePlacePacket extends CreativeCorePacket{
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		if(stack.getItem() instanceof ItemBlockTiles)
+		if(stack.getItem() instanceof ItemBlockTiles || stack.getItem() instanceof ItemMultiTiles)
 		{
-			if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemBlockTiles)
+			/*if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemBlockTiles)
 			{
 				player.getHeldItem().stackTagCompound = stack.stackTagCompound;
-			}
-				
-			((ItemBlockTiles)stack.getItem()).placeBlockAt(stack, player.worldObj, center, size, new PlacementHelper(player), meta, x, y, z);
+			}*/
+			
+			PlacementHelper helper = new PlacementHelper(player);
+			helper.side = side;
+			
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(stack, player.worldObj, center, size, helper, x, y, z, offsetX, offsetY, offsetZ);
+			
+			EntityPlayerMP playerMP = (EntityPlayerMP) player;
+			playerMP.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(playerMP.openContainer.windowId, playerMP.inventory.currentItem, playerMP.inventory.getCurrentItem()));
+			
 		}
 	}
 

@@ -1,11 +1,15 @@
 package com.creativemd.littletiles.client.render;
 
+import java.util.ArrayList;
+
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
@@ -43,7 +47,7 @@ public class PreviewRenderer {
 		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{
 			//TODO Add more Items for rendering
-			if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null && mc.thePlayer.getHeldItem().getItem() instanceof ItemBlockTiles)
+			if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null && (mc.thePlayer.getHeldItem().getItem() instanceof ItemBlockTiles || mc.thePlayer.getHeldItem().getItem() instanceof ItemMultiTiles))
 			{
 				PlacementHelper helper = new PlacementHelper(mc.objectMouseOver, mc.thePlayer);	  
 				
@@ -51,7 +55,6 @@ public class PreviewRenderer {
 				double y = (double)helper.moving.blockY - TileEntityRendererDispatcher.staticPlayerY;
 				double z = (double)helper.moving.blockZ - TileEntityRendererDispatcher.staticPlayerZ;
 				
-				//TODO Clean up this code
 				GL11.glEnable(GL11.GL_BLEND);
 	            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 	            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
@@ -59,6 +62,7 @@ public class PreviewRenderer {
 	            GL11.glDisable(GL11.GL_TEXTURE_2D);
 	            GL11.glDepthMask(false);          
 	            
+	            /*
 	            //Rotate Block
 	            //TODO Enhance and clean up rotation code!
 	            boolean saveItem = false;
@@ -107,13 +111,36 @@ public class PreviewRenderer {
 	            if(saveItem)
 	            {
 	            	ItemBlockTiles.saveLittleTile(mc.thePlayer.getHeldItem(), helper.tile);
-	            }   
+	            } */  
+	            LittleTileSize size = helper.size;
 	            
-	            Vec3 vec = helper.getCenterPos();
-	            LittleTileVec size = helper.getRelativeSize();
+	            Vec3 vec = helper.getCenterPos(size);
 	            
-				RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
-						size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+	            if(!helper.isSingle())
+	            {
+	            	//helper.rotateTiles();
+		            for (int i = 0; i < helper.tiles.size(); i++) {
+						LittleTile tile = helper.tiles.get(i);
+						Vec3 offset = helper.getOffset(i, size);
+						
+						double posX = vec.xCoord+offset.xCoord;
+						double posY = vec.yCoord+offset.yCoord;
+						double posZ = vec.zCoord+offset.zCoord;
+						
+						RenderHelper3D.renderBlock(posX - TileEntityRendererDispatcher.staticPlayerX, posY - TileEntityRendererDispatcher.staticPlayerY, posZ - TileEntityRendererDispatcher.staticPlayerZ,
+								tile.size.getPosX(), tile.size.getPosY(), tile.size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+					}
+	            
+	           
+	            	RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
+						size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, 0.12);
+	            }
+	            else{
+	            	LittleTile tile = helper.tiles.get(0);
+	            	RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
+							tile.size.getPosX(), tile.size.getPosY(), tile.size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+	            }
+	            	
 				
 				GL11.glDepthMask(true);
 	            GL11.glEnable(GL11.GL_TEXTURE_2D);

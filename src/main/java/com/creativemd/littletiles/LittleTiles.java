@@ -58,8 +58,10 @@ public class LittleTiles {
     {
 		GameRegistry.registerItem(hammer, "hammer");
 		GameRegistry.registerItem(recipe, "recipe");
-		GameRegistry.registerItem(multiTiles, "multiTiles");
+		
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
+		
+		GameRegistry.registerItem(multiTiles, "multiTiles");
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		

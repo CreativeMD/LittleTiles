@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import scala.collection.parallel.ParIterableLike.Min;
 
@@ -12,6 +13,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
@@ -21,10 +23,13 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -106,8 +111,9 @@ public class ItemBlockTiles extends ItemBlock{
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
 			return false;
 		PlacementHelper helper = createPlacementHelper();
-		Vec3 center = helper.getCenterPos();
-		LittleTileVec size = helper.getRelativeSize();
+		
+		LittleTileSize size = helper.size;
+		Vec3 center = helper.getCenterPos(size);
 		
 		x = helper.moving.blockX;
 		y = helper.moving.blockY;
@@ -156,20 +162,32 @@ public class ItemBlockTiles extends ItemBlock{
         {
             return false;
         }
-        else if (y == 255 && helper.tile.block.getMaterial().isSolid())
+        else if (y == 255)
         {
             return false;
         }
         else// if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack) || helper.canBePlacedInside(x, y, z))
         {
-            int i1 = helper.tile.meta;
-            int j1 = helper.tile.block.onBlockPlaced(world, x, y, z, side, offsetX, offsetY, offsetZ, i1);
-
-            placeBlockAt(stack, world, center, size, helper, j1, x, y, z);
+            placeBlockAt(stack, world, center, size, helper, x, y, z, offsetX, offsetY, offsetZ);
 
             return true;
         }
     }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void registerIcons(IIconRegister iconregister)
+    {
+        
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void getSubItems(Item stack, CreativeTabs tab, List list)
+    {
+        
+    }
+
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -219,14 +237,17 @@ public class ItemBlockTiles extends ItemBlock{
                 ++x;
             }
         }
-        return true;
+        block = world.getBlock(x, y, z);
+        helper.posX = x;
+        helper.posY = y;
+        helper.posZ = z;
+        return block.isReplaceable(world, x, y, z) || helper.canBePlacedInside();
     }
 	
-	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileVec size, PlacementHelper helper, int meta, int x, int y, int z)
-    {
-		helper.tile.meta = meta;
+	public boolean placeBlockAt(ItemStack stack, World world, Vec3 center, LittleTileSize size, PlacementHelper helper, int x, int y, int z, float offsetX, float offsetY, float offsetZ)
+    {		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, meta, x, y, z));
+			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, x, y, z, offsetX, offsetY, offsetZ, helper.side));
 		
 		/*if(x < 0)
 			center.xCoord -= 1;
@@ -258,24 +279,54 @@ public class ItemBlockTiles extends ItemBlock{
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-			
-			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
-			if(helper.tile.PlaceLittleTile(stack, littleEntity, centerX, centerY, centerZ, size.sizeX, size.sizeY, size.sizeZ, splittedTiles))
-			{
-				helper.tile.block.onBlockPlacedBy(world, x, y, z, helper.player, stack);
-				helper.tile.block.onPostBlockPlaced(world, x, y, z, helper.tile.meta);
-				helper.player.inventory.mainInventory[helper.player.inventory.currentItem].stackSize--;
-				if(stack.stackSize == 0)
-					helper.player.inventory.mainInventory[helper.player.inventory.currentItem] = null;
-				if(!world.isRemote)
+		
+			for (int i = 0; i < helper.tiles.size(); i++) {
+				Vec3 offset = helper.getOffset(i, size);
+				if(!helper.tiles.get(i).canPlaceBlock(littleEntity, centerX, centerY, centerZ, helper.tiles.get(i).size.sizeX, helper.tiles.get(i).size.sizeY, helper.tiles.get(i).size.sizeZ, (byte)Math.floor(offset.xCoord*16), (byte)Math.floor(offset.yCoord*16), (byte)Math.floor(offset.zCoord*16)))
 				{
-					for (int i = 0; i < splittedTiles.size(); i++) {
-						WorldUtils.dropItem(world, splittedTiles.get(i).getItemStack(), x, y, z);
-					}
-					world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), helper.tile.block.stepSound.func_150496_b(), (helper.tile.block.stepSound.getVolume() + 1.0F) / 2.0F, helper.tile.block.stepSound.getPitch() * 0.8F);
+					if(littleEntity.tiles.size() == 0)
+						world.setBlockToAir(x, y, z);
+					return false;
 				}
-			}else{
-				return false;
+			}
+				
+			ArrayList<LittleTile> splittedTiles = new ArrayList<LittleTile>();
+			LittleTile tile = null;
+			for (int i = 0; i < helper.tiles.size(); i++) {
+				tile = helper.tiles.get(i);
+				Vec3 offset = helper.getOffset(i, size);
+				
+				byte offX = (byte)Math.floor(offset.xCoord*16);
+				byte offY = (byte)Math.floor(offset.yCoord*16);
+				byte offZ = (byte)Math.floor(offset.zCoord*16);
+				
+				if(tile.PlaceLittleTile(littleEntity, centerX, centerY, centerZ, tile.size.sizeX, tile.size.sizeY, tile.size.sizeZ, splittedTiles, offX, offY, offZ))
+				{
+					if(helper.isSingle())
+			    	{
+			            int i1 = tile.meta;
+			            int j1 = tile.block.onBlockPlaced(world, x, y, z, helper.side, offsetX, offsetY, offsetZ, i1);
+			            tile.meta = j1;
+			    	}
+					
+					tile.block.onBlockPlacedBy(world, x, y, z, helper.player, stack);
+					tile.block.onPostBlockPlaced(world, x, y, z, tile.meta);
+				}else{
+					return false;
+				}
+			}
+			if(!helper.player.capabilities.isCreativeMode)
+			{
+				helper.player.inventory.mainInventory[helper.player.inventory.currentItem].stackSize--;
+				if(helper.player.inventory.mainInventory[helper.player.inventory.currentItem].stackSize == 0)
+					helper.player.inventory.mainInventory[helper.player.inventory.currentItem] = null;
+			}
+			if(!world.isRemote)
+			{
+				for (int j = 0; j < splittedTiles.size(); j++) {
+					WorldUtils.dropItem(world, splittedTiles.get(j).getItemStack(), x, y, z);
+				}
+				world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), tile.block.stepSound.func_150496_b(), (tile.block.stepSound.getVolume() + 1.0F) / 2.0F, tile.block.stepSound.getPitch() * 0.8F);
 			}
 		}
 

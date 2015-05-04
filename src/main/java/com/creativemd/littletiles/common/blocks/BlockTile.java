@@ -271,9 +271,18 @@ public class BlockTile extends BlockContainer{
         return true;
     }
     
+	@Override
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest)
     {
     	return removedByPlayer(world, player, x, y, z);
+    }
+    
+	@Override
+    public boolean isReplaceable(IBlockAccess world, int x, int y, int z)
+    {
+      	if(loadTileEntity(world, x, y, z))
+      		return tempEntity.tiles.size() == 0;
+      	return true;
     }
     
     @Override
@@ -307,8 +316,12 @@ public class BlockTile extends BlockContainer{
     @SideOnly(Side.CLIENT)
     public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
     {
-    	if(loadTileEntity(worldObj, target.blockX, target.blockY, target.blockZ) && tempEntity.updateLoadedTile(mc.thePlayer))
-    		overrideIcon = tempEntity.loadedTile.block.getIcon(worldObj, target.blockX, target.blockY, target.blockZ, target.sideHit);
+    	try{ //Why try? because the loaded tile can change while setting this icon
+	    	if(loadTileEntity(worldObj, target.blockX, target.blockY, target.blockZ) && tempEntity.updateLoadedTile(mc.thePlayer))
+	    		overrideIcon = tempEntity.loadedTile.block.getIcon(worldObj, target.blockX, target.blockY, target.blockZ, target.sideHit);
+    	}catch(Exception e){
+    		
+    	}
         return false;
     }
     
@@ -316,8 +329,12 @@ public class BlockTile extends BlockContainer{
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
     {
-    	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
-    		overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
+    	try{ //Why try? because the loaded tile can change while setting this icon
+	    	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
+	    		overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
+	    }catch(Exception e){
+			
+		}
         return false;
     }
     

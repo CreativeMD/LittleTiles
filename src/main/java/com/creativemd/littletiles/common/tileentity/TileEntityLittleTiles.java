@@ -51,10 +51,6 @@ public class TileEntityLittleTiles extends TileEntity{
 			if(tile != null)
 				tiles.add(tile);
 		}
-        if(tiles.size() == 0)
-        {
-        	worldObj.setBlockToAir(xCoord, yCoord, zCoord);
-        }
     }
 
 	@Override
@@ -173,5 +169,7 @@ public class TileEntityLittleTiles extends TileEntity{
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).updateEntity();
 		}
+		if(tiles.size() == 0)
+			worldObj.setBlockToAir(xCoord, yCoord, zCoord);
 	}
 }

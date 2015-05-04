@@ -10,11 +10,13 @@ import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.event.world.BlockEvent;
 
 import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
 public class SubContainerHammer extends SubContainer{
@@ -28,7 +30,7 @@ public class SubContainerHammer extends SubContainer{
 			String[] sizeS = value.split(";");
 			if(sizeS.length == 3)
 			{
-				LittleTileVec size = new LittleTileVec(Integer.parseInt(sizeS[0]), Integer.parseInt(sizeS[1]), Integer.parseInt(sizeS[2]));
+				LittleTileSize size = new LittleTileSize(Integer.parseInt(sizeS[0]), Integer.parseInt(sizeS[1]), Integer.parseInt(sizeS[2]));
 				ItemStack stack = basic.getStackInSlot(0);
 				if(stack != null && stack.getItem() instanceof ItemBlock)
 				{
