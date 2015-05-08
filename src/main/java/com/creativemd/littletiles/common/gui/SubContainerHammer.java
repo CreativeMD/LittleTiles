@@ -79,4 +79,9 @@ public class SubContainerHammer extends SubContainer{
 		return false;
 	}
 
+	@Override
+	public void sendUpdate() {
+		
+	}
+
 }
