@@ -111,14 +111,9 @@ public class LittlePlacePacket extends CreativeCorePacket{
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		if(stack.getItem() instanceof ItemBlockTiles || stack.getItem() instanceof ItemMultiTiles)
+		if(PlacementHelper.isLittleBlock(stack))
 		{
-			/*if(player.getHeldItem() != null && player.getHeldItem().getItem() instanceof ItemBlockTiles)
-			{
-				player.getHeldItem().stackTagCompound = stack.stackTagCompound;
-			}*/
-			
-			PlacementHelper helper = new PlacementHelper(player);
+			PlacementHelper helper = new PlacementHelper(player, x, y, z);
 			helper.side = side;
 			
 			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(stack, player.worldObj, center, size, helper, x, y, z, offsetX, offsetY, offsetZ, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));

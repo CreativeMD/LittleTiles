@@ -293,7 +293,7 @@ public class BlockTile extends BlockContainer{
     	if(loadTileEntity(world, x, y, z))
     	{
     		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				stacks.addAll(tempEntity.tiles.get(i).getDrops());
+				stacks.addAll(tempEntity.tiles.get(i).getDrops(world));
 			}
     	}
     	return stacks;
@@ -304,7 +304,7 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     	{
-    		return tempEntity.loadedTile.getItemStack();
+    		return tempEntity.loadedTile.getItemStack(world);
     	}
     	return null;
     }
@@ -398,15 +398,28 @@ public class BlockTile extends BlockContainer{
     	return bonus;
     }
     
-    /*TODO add it before prereleas3
-    public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity p_149670_5_) {}
+    /*TODO add it before prereleas
+    public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity p_149670_5_) {}*/
     
     public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ)
     {
-    	
+    	if(loadTileEntity(world, x, y, z))
+    	{
+    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+    			tempEntity.tiles.get(i).onNeighborChange(world, x, y, z, tileX, tileY, tileZ);
+			}
+    	}
     }
 	
-	public void onNeighborBlockChange(World p_149695_1_, int p_149695_2_, int p_149695_3_, int p_149695_4_, Block p_149695_5_) {}*/
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
+	{
+		if(loadTileEntity(world, x, y, z))
+    	{
+    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
+    			tempEntity.tiles.get(i).onNeighborBlockChange(world, x, y, z, block);
+			}
+    	}
+	}
     
     @Override
     public MovingObjectPosition collisionRayTrace(World world, int x, int y, int z, Vec3 vec1, Vec3 vec2)

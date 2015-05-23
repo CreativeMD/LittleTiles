@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tileentity;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -25,8 +27,43 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public ArrayList<LittleTile> tiles = new ArrayList<LittleTile>();
 	
+	public boolean removeTile(LittleTile tile)
+	{
+		update();
+		needFullUpdate = true;
+		boolean result = tiles.remove(tile);
+		updateNeighbor();
+		return result;
+	}
+	
+	public boolean addTile(LittleTile tile)
+	{
+		update();
+		needFullUpdate = true;
+		boolean result = tiles.add(tile);
+		updateNeighbor();
+		return result;
+	}
+	
+	public void updateNeighbor()
+	{
+		
+		for (int i = 0; i < tiles.size(); i++) {
+			tiles.get(i).onNeighborBlockChange(worldObj, xCoord, yCoord, zCoord, LittleTiles.blockTile);
+		}
+		worldObj.notifyBlockChange(xCoord, yCoord, zCoord, LittleTiles.blockTile);
+	}
+	
+	public boolean needFullUpdate = true;
+	
 	/**Used for**/
 	public LittleTile loadedTile = null;
+	
+	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
+	public boolean isSpaceForLittleTile(CubeObject cube)
+	{
+		return isSpaceForLittleTile(cube.getAxis());
+	}
 	
 	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
 	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB)
@@ -47,7 +84,7 @@ public class TileEntityLittleTiles extends TileEntity{
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(tileNBT);
+			LittleTile tile = LittleTile.CreateandLoadTile(worldObj, tileNBT);
 			if(tile != null)
 				tiles.add(tile);
 		}
@@ -59,7 +96,7 @@ public class TileEntityLittleTiles extends TileEntity{
         super.writeToNBT(nbt);
         for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound tileNBT = new NBTTagCompound();
-			tiles.get(i).save(tileNBT);
+			tiles.get(i).save(worldObj, tileNBT);
 			nbt.setTag("t" + i, tileNBT);
 		}
         nbt.setInteger("tilesCount", tiles.size());
@@ -69,28 +106,52 @@ public class TileEntityLittleTiles extends TileEntity{
     public Packet getDescriptionPacket()
     {
     	NBTTagCompound nbt = new NBTTagCompound();
-    	for (int i = 0; i < tiles.size(); i++) {
-			NBTTagCompound tileNBT = new NBTTagCompound();
-			tiles.get(i).sendToClient(tileNBT);
-			nbt.setTag("t" + i, tileNBT);
-		}
-        nbt.setInteger("tilesCount", tiles.size());
+    	if(needFullUpdate)
+    	{
+    		needFullUpdate = false;
+    		nbt.setBoolean("fullUpdate", true);
+    		writeToNBT(nbt);
+    	}else{
+	    	for (int i = 0; i < tiles.size(); i++) {
+				NBTTagCompound tileNBT = new NBTTagCompound();
+				tiles.get(i).sendToClient(tileNBT);
+				tileNBT.setByte("minX", tiles.get(i).minX);
+				tileNBT.setByte("minY", tiles.get(i).minY);
+				tileNBT.setByte("minZ", tiles.get(i).minZ);
+				nbt.setTag("t" + i, tileNBT);
+			}
+	        nbt.setInteger("tilesCount", tiles.size());
+    	}
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, blockMetadata, nbt);
+    }
+    
+    public LittleTile getTile(byte minX, byte minY, byte minZ)
+    {
+    	for (int i = 0; i < tiles.size(); i++) {
+			if(tiles.get(i).minX == minX && tiles.get(i).minY == minY && tiles.get(i).minZ == minZ)
+				return tiles.get(i);
+		}
+    	return null;
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
     {
-    	tiles = new ArrayList<LittleTile>();
-        int count = pkt.func_148857_g().getInteger("tilesCount");
-        for (int i = 0; i < count; i++) {
-        	NBTTagCompound tileNBT = new NBTTagCompound();
-        	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(tileNBT, true, net);
-			if(tile != null)
-				tiles.add(tile);
-		}
+    	if(pkt.func_148857_g().getBoolean("fullUpdate"))
+    	{
+    		readFromNBT(pkt.func_148857_g());
+    	}else{
+	        int count = pkt.func_148857_g().getInteger("tilesCount");
+	        for (int i = 0; i < count; i++) {
+	        	NBTTagCompound tileNBT = new NBTTagCompound();
+	        	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
+				LittleTile tile = getTile(tileNBT.getByte("minX"), tileNBT.getByte("minY"), tileNBT.getByte("minZ"));
+				if(tile != null)
+					tile.recieveFromServer(net, tileNBT);
+			}
+    	}
+        updateRender();
     }
     
     public MovingObjectPosition getMoving(EntityPlayer player)
@@ -167,7 +228,7 @@ public class TileEntityLittleTiles extends TileEntity{
 	public void updateEntity()
 	{
 		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).updateEntity();
+			tiles.get(i).updateEntity(worldObj);
 		}
 		if(tiles.size() == 0)
 			worldObj.setBlockToAir(xCoord, yCoord, zCoord);

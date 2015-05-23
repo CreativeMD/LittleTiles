@@ -18,19 +18,23 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
 public class LittleTileTileEntity extends LittleTile{
 	
 	public LittleTileTileEntity()
 	{
-		
+		super();
 	}
 	
 	public LittleTileTileEntity(Block block, int meta, LittleTileSize size, TileEntity tileEntity)
 	{
+		super(block, meta, size);
 		this.tileEntity = tileEntity;
 	}
+	
+	public boolean firstSended = false;
 	
 	public TileEntity tileEntity;
 	
@@ -39,30 +43,38 @@ public class LittleTileTileEntity extends LittleTile{
 	public void sendToClient(NBTTagCompound nbt)
 	{
 		super.sendToClient(nbt);
-		Packet packet = tileEntity.getDescriptionPacket();
-		if(packet instanceof S35PacketUpdateTileEntity)
+		if(!firstSended)
 		{
-			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-			try {
-				packet.writePacketData(buffer);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			int x = buffer.readInt();
-	        int y = buffer.readShort();
-	        int z = buffer.readInt();
-	        int meta = buffer.readUnsignedByte();
-	        NBTTagCompound newNBT = null;
-	        try {
-				newNBT = buffer.readNBTTagCompoundFromBuffer();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	        if(newNBT != null)
-	        	nbt.setTag("tileentity", newNBT);
-			//TODO Check if this cheat works
+			firstSended = true;
+			NBTTagCompound nbtTag = new NBTTagCompound();
+			tileEntity.writeToNBT(nbtTag);
+			nbt.setTag("tileentity", nbtTag);
+			nbt.setBoolean("isFirst", true);
 		}else{
-			//TODO Send packet. No idea how!
+			Packet packet = tileEntity.getDescriptionPacket();
+			if(packet instanceof S35PacketUpdateTileEntity)
+			{
+				PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
+				try {
+					packet.writePacketData(buffer);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				int x = buffer.readInt();
+		        int y = buffer.readShort();
+		        int z = buffer.readInt();
+		        int meta = buffer.readUnsignedByte();
+		        NBTTagCompound newNBT = null;
+		        try {
+					newNBT = buffer.readNBTTagCompoundFromBuffer();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+		        if(newNBT != null)
+		        	nbt.setTag("tileentity", newNBT);
+			}else{
+				//TODO Send packet. No idea how!
+			}
 		}
 	}
 	
@@ -72,33 +84,52 @@ public class LittleTileTileEntity extends LittleTile{
 	public void recieveFromServer(NetworkManager net, NBTTagCompound nbt)
 	{
 		super.recieveFromServer(net, nbt);
-		NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
-		tileEntity.onDataPacket(net, new S35PacketUpdateTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, meta, tileNBT)); //TODO Check if using coords from tileentity is valid
+		if(nbt.getBoolean("isFirst"))
+		{
+			tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileentity"));
+		}else{
+			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
+			if(tileEntity != null)
+				tileEntity.onDataPacket(net, new S35PacketUpdateTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, meta, tileNBT));
+		}
 	}
 	
 	
 	@Override
-	public void load(NBTTagCompound nbt)
+	public void load(World world, NBTTagCompound nbt)
 	{
-		super.load(nbt);
-		tileEntity = TileEntity.createAndLoadEntity(nbt);
-		if(tileEntity.isInvalid())
-			setInValid();
+		super.load(world, nbt);
+		NBTTagCompound tileNBT = nbt.getCompoundTag("tileEntity");
+		if(tileNBT != null)
+		{
+			tileEntity = TileEntity.createAndLoadEntity(tileNBT);
+			tileEntity.setWorldObj(world);
+			if(tileEntity.isInvalid())
+				setInValid();
+		}
 	}
 	
 	@Override
-	public void save(NBTTagCompound nbt)
+	public void save(World world, NBTTagCompound nbt)
 	{
-		super.save(nbt);
+		super.save(world,nbt);
 		if(tileEntity != null)
-			tileEntity.writeToNBT(nbt);
+		{
+			NBTTagCompound tileNBT = new NBTTagCompound();
+			tileEntity.writeToNBT(tileNBT);
+			nbt.setTag("tileEntity", tileNBT);
+		}
 	}
 	
 	@Override
-	public void updateEntity()
+	public void updateEntity(World world)
 	{
 		if(tileEntity != null)
+		{
+			if(tileEntity.getWorldObj() == null)
+				tileEntity.setWorldObj(world);
 			tileEntity.updateEntity();
+		}
 	}
 	
 	@Override
@@ -109,10 +140,19 @@ public class LittleTileTileEntity extends LittleTile{
 		return tile;
 	}
 	
-	@Override
-	public void onPlaced(ItemStack stack, TileEntityLittleTiles tileEntity)
+	public TileEntityLittleTiles te;
+	
+	public boolean loadTileEntity()
 	{
-		super.onPlaced(stack, tileEntity);
-		
+		if(tileEntity != null && tileEntity.getWorldObj() != null)
+		{
+			TileEntity Tempte = tileEntity.getWorldObj().getTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+			if(Tempte instanceof TileEntityLittleTiles)
+			{
+				te = (TileEntityLittleTiles) Tempte;
+				return true;
+			}
+		}
+		return false;
 	}
 }

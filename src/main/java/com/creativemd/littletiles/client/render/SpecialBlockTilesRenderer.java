@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 import org.omg.CORBA.REBIND;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -59,38 +60,13 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelId,
 			RenderBlocks renderer) {
-		LittleTile tile = ItemBlockTiles.getLittleTile(currentRenderedStack);
-		if(tile != null)
-			renderLittleTileInventory(tile, renderer, false);
-		/*Tessellator tesselator = Tessellator.instance;
-		block = Blocks.stone;
-		int meta = 0;
-		GL11.glTranslatef(-0.5F, -0.5F, -0.5F);
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(0.0F, -1.0F, 0.0F);
-        renderer.renderFaceYNeg(block, 0.0D, 0.0D, 0.0D, block.getIcon(0, meta));
-        tesselator.draw();
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(0.0F, 1.0F, 0.0F);
-        renderer.renderFaceYPos(block, 0.0D, 0.0D, 0.0D, block.getIcon(1, meta));
-        tesselator.draw();
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(0.0F, 0.0F, -1.0F);
-        renderer.renderFaceZNeg(block, 0.0D, 0.0D, 0.0D, block.getIcon(2, meta));
-        tesselator.draw();
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(0.0F, 0.0F, 1.0F);
-        renderer.renderFaceZPos(block, 0.0D, 0.0D, 0.0D, block.getIcon(3, meta));
-        tesselator.draw();
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(-1.0F, 0.0F, 0.0F);
-        renderer.renderFaceXNeg(block, 0.0D, 0.0D, 0.0D, block.getIcon(4, meta));
-        tesselator.draw();
-        tesselator.startDrawingQuads();
-        tesselator.setNormal(1.0F, 0.0F, 0.0F);
-        renderer.renderFaceXPos(block, 0.0D, 0.0D, 0.0D, block.getIcon(5, meta));
-        tesselator.draw();
-        GL11.glTranslatef(0.5F, 0.5F, 0.5F);*/
+		try{
+			LittleTile tile = ItemBlockTiles.getLittleTile(Minecraft.getMinecraft().theWorld, currentRenderedStack);
+			if(tile != null)
+				renderLittleTileInventory(tile, renderer, false);
+		}catch(Exception e){
+			
+		}
 	}
 
 	@Override
@@ -100,22 +76,30 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
+			
 			for (int i = 0; i < little.tiles.size(); i++) {
-				double minX = (double)(little.tiles.get(i).minX+8)/16D;
-				double minY = (double)(little.tiles.get(i).minY+8)/16D;
-				double minZ = (double)(little.tiles.get(i).minZ+8)/16D;
-				double maxX = (double)(little.tiles.get(i).maxX+8)/16D;
-				double maxY = (double)(little.tiles.get(i).maxY+8)/16D;
-				double maxZ = (double)(little.tiles.get(i).maxZ+8)/16D;
-				
-				RenderHelper3D.renderBlocks.blockAccess = renderer.blockAccess;
-				RenderHelper3D.renderBlocks.clearOverrideBlockTexture();
-				RenderHelper3D.renderBlocks.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
-				RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
-				RenderHelper3D.renderBlocks.lockBlockBounds = true;
-				RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
-				RenderHelper3D.renderBlocks.lockBlockBounds = false;
-				//RenderHelper3D.renderBlocks.renderStandardBlock(little.tiles.get(i).block, x, y, z);
+				ArrayList<CubeObject> cubes = little.tiles.get(i).getCubes();
+				for (int j = 0; j < cubes.size(); j++) {
+					double minX = (double)(cubes.get(j).minX+8)/16D;
+					double minY = (double)(cubes.get(j).minY+8)/16D;
+					double minZ = (double)(cubes.get(j).minZ+8)/16D;
+					double maxX = (double)(cubes.get(j).maxX+8)/16D;
+					double maxY = (double)(cubes.get(j).maxY+8)/16D;
+					double maxZ = (double)(cubes.get(j).maxZ+8)/16D;
+					RenderHelper3D.renderBlocks.blockAccess = renderer.blockAccess;
+					RenderHelper3D.renderBlocks.clearOverrideBlockTexture();
+					RenderHelper3D.renderBlocks.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
+					if(cubes.get(j).meta != -1)
+						RenderHelper3D.renderBlocks.meta = cubes.get(j).meta;
+					else
+						RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
+					RenderHelper3D.renderBlocks.lockBlockBounds = true;
+					if(cubes.get(j).block != null)
+						RenderHelper3D.renderBlocks.renderBlockAllFaces(cubes.get(j).block, x, y, z);
+					else
+						RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
+					RenderHelper3D.renderBlocks.lockBlockBounds = false;
+				}
 			}
 		}
 		
@@ -168,7 +152,7 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				GL11.glTranslatef(0.5F, 0.5F, 0);
 			}
 			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-			ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(item);
+			ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(Minecraft.getMinecraft().theWorld, item);
 			for (int i = 0; i < tiles.size(); i++) {
 				
 				renderLittleTileInventory(tiles.get(i), (RenderBlocks) data[0], true);

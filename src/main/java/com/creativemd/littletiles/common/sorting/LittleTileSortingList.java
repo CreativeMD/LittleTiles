@@ -13,6 +13,7 @@ import net.minecraft.item.ItemStack;
 
 /**This stores all LittleTiles bound to an block (meta). Used for vanilla blocks, but can also be used by modders.
  * This is an easier way than implementing the interface, but you cannot add specialized configurations
+ * NOTE: not implemented yet
  * @author CreativeMD
  *
  */
@@ -20,7 +21,7 @@ public class LittleTileSortingList {
 	
 	public static HashMap<SortingTile, LittleTile> tiles = new HashMap<SortingTile, LittleTile>();
 	
-	public static LittleTile getLittleTile(ItemStack stack)
+	/*public static LittleTile getLittleTile(ItemStack stack)
 	{
 		if(stack == null || stack.getItem() == null)
 			return null;
@@ -42,7 +43,7 @@ public class LittleTileSortingList {
 			}
 	    }
 		return null;
-	}
+	}*/
 	
 	/**NOTE: this adds only custom Tiles. Every solid normal cube can be used as a littletile without configuration*/
 	public static void initVanillaBlocks()

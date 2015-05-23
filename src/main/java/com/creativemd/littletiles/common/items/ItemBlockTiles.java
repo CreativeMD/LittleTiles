@@ -12,10 +12,12 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 
@@ -42,7 +44,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.common.util.RotationHelper;
 
-public class ItemBlockTiles extends ItemBlock{
+public class ItemBlockTiles extends ItemBlock implements ILittleTile{
 
 	public ItemBlockTiles(Block block) {
 		super(block);
@@ -53,7 +55,7 @@ public class ItemBlockTiles extends ItemBlock{
 	public String getItemStackDisplayName(ItemStack stack)
     {
 		String result = super.getItemStackDisplayName(stack);
-		LittleTile tile = getLittleTile(stack);
+		LittleTile tile = getLittleTile(Minecraft.getMinecraft().theWorld, stack);
 		if(tile != null)
 		{
 			result += " (" + tile.size.sizeX + "x" + tile.size.sizeY + "x" + tile.size.sizeZ + ")";
@@ -64,7 +66,7 @@ public class ItemBlockTiles extends ItemBlock{
 	@Override
 	public String getUnlocalizedName(ItemStack stack)
     {
-		LittleTile tile = getLittleTile(stack);
+		LittleTile tile = getLittleTile(Minecraft.getMinecraft().theWorld, stack);
 		if(tile != null)
 		{
 			return tile.block.getUnlocalizedName();
@@ -72,24 +74,24 @@ public class ItemBlockTiles extends ItemBlock{
         return super.getUnlocalizedName(stack);
     }
 	
-	public static LittleTile getLittleTile(ItemStack stack)
+	public static LittleTile getLittleTile(World world, ItemStack stack)
 	{
 		if(stack == null || stack.stackTagCompound == null)
 			return null;
-		return LittleTile.CreateandLoadTile(stack.stackTagCompound);
+		return LittleTile.CreateandLoadTile(world, stack.stackTagCompound);
 	}
 	
-	public static void saveLittleTile(ItemStack stack, LittleTile tile)
+	public static void saveLittleTile(World world, ItemStack stack, LittleTile tile)
 	{
 		if(stack.stackTagCompound == null)
 			stack.stackTagCompound = new NBTTagCompound();
-		tile.save(stack.stackTagCompound);
+		tile.save(world, stack.stackTagCompound);
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static PlacementHelper createPlacementHelper()
+	public static PlacementHelper createPlacementHelper(int x, int y, int z, boolean simulate)
 	{
-		return new PlacementHelper(Minecraft.getMinecraft().objectMouseOver, Minecraft.getMinecraft().thePlayer);
+		return new PlacementHelper(Minecraft.getMinecraft().objectMouseOver, Minecraft.getMinecraft().thePlayer, x, y, z, simulate);
 	}
 	
 	public boolean canPlaceInside(Vec3 hit, int side)
@@ -114,7 +116,7 @@ public class ItemBlockTiles extends ItemBlock{
     {
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
 			return false;
-		PlacementHelper helper = createPlacementHelper();
+		PlacementHelper helper = createPlacementHelper(x, y, z, false);
 		
 		LittleTileSize size = helper.size;
 		size.rotateSize(PreviewRenderer.direction);
@@ -201,7 +203,7 @@ public class ItemBlockTiles extends ItemBlock{
     {
 		Block block = world.getBlock(x, y, z);
 		
-		PlacementHelper helper = createPlacementHelper();
+		PlacementHelper helper = createPlacementHelper(x, y, z, true);
 		
 		x = helper.moving.blockX;
 		y = helper.moving.blockY;
@@ -254,6 +256,12 @@ public class ItemBlockTiles extends ItemBlock{
     {		
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
 			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, center, size, x, y, z, offsetX, offsetY, offsetZ, helper.side, RotationUtils.getIndex(direction), RotationUtils.getIndex(direction2)));
+		
+		if(helper.isSingle() && FMLCommonHandler.instance().getEffectiveSide().isServer())
+		{
+			helper.size.rotateSize(direction);
+			helper.size.rotateSize(direction2);
+		}
 		
 		/*if(x < 0)
 			center.xCoord -= 1;
@@ -322,6 +330,7 @@ public class ItemBlockTiles extends ItemBlock{
 					
 					tile.block.onBlockPlacedBy(world, x, y, z, helper.player, stack);
 					tile.block.onPostBlockPlaced(world, x, y, z, tile.meta);
+					tile.onNeighborBlockChange(world, x, y, z, LittleTiles.blockTile);
 				}else{
 					return false;
 				}
@@ -335,12 +344,28 @@ public class ItemBlockTiles extends ItemBlock{
 			if(!world.isRemote)
 			{
 				for (int j = 0; j < splittedTiles.size(); j++) {
-					WorldUtils.dropItem(world, splittedTiles.get(j).getItemStack(), x, y, z);
+					WorldUtils.dropItem(world, splittedTiles.get(j).getItemStack(world), x, y, z);
 				}
+				//world.notifyBlockChange(x, y, z, LittleTiles.blockTile);
 				world.playSoundEffect((double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), tile.block.stepSound.func_150496_b(), (tile.block.stepSound.getVolume() + 1.0F) / 2.0F, tile.block.stepSound.getPitch() * 0.8F);
 			}
 		}
 
        return true;
     }
+
+	@Override
+	public LittleTilePreview getLittlePreview(ItemStack stack) {
+		return LittleTilePreview.getPreviewFromNBT(stack.stackTagCompound);
+	}
+
+	@Override
+	public ArrayList<LittleTile> getLittleTile(ItemStack stack, World world,
+			int x, int y, int z) {
+		ArrayList<LittleTile> tiles = new ArrayList<LittleTile>();
+		LittleTile tile = getLittleTile(world, stack);
+		if(tile != null)
+			tiles.add(tile);
+		return tiles;
+	}
 }

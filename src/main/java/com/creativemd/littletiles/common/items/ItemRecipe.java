@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -43,14 +44,27 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-			saveTiles(littleEntity.tiles, stack);
+			saveTiles(world, littleEntity.tiles, stack);
 		}
         return false;
     }
 	
+	public static ArrayList<LittleTilePreview> getPreview(ItemStack stack)
+	{
+		ArrayList<LittleTilePreview> result = new ArrayList<LittleTilePreview>();
+		int tiles = stack.stackTagCompound.getInteger("tiles");
+		for (int i = 0; i < tiles; i++) {
+			NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("tile" + i);
+			LittleTilePreview preview = LittleTilePreview.getPreviewFromNBT(nbt);
+			if(preview != null)
+				result.add(preview);
+		}
+		return result;
+	}
+	
 	public static LittleTileSize getSize(ItemStack stack)
 	{
-		ArrayList<LittleTile> tiles = loadTiles(stack);
+		ArrayList<LittleTilePreview> tiles = getPreview(stack);
 		byte minX = LittleTile.maxPos;
 		byte minY = LittleTile.maxPos;
 		byte minZ = LittleTile.maxPos;
@@ -58,37 +72,37 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 		byte maxY = LittleTile.minPos;
 		byte maxZ = LittleTile.minPos;
 		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tile = tiles.get(i);
-			minX = (byte) Math.min(minX, tile.minX);
-			minY = (byte) Math.min(minY, tile.minY);
-			minZ = (byte) Math.min(minZ, tile.minZ);
-			maxX = (byte) Math.max(maxX, tile.maxX);
-			maxY = (byte) Math.max(maxY, tile.maxY);
-			maxZ = (byte) Math.max(maxZ, tile.maxZ);
+			LittleTilePreview tile = tiles.get(i);
+			minX = (byte) Math.min(minX, tile.min.posX);
+			minY = (byte) Math.min(minY, tile.min.posY);
+			minZ = (byte) Math.min(minZ, tile.min.posZ);
+			maxX = (byte) Math.max(maxX, tile.max.posX);
+			maxY = (byte) Math.max(maxY, tile.max.posY);
+			maxZ = (byte) Math.max(maxZ, tile.max.posZ);
 		}
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ);
 	}
 	
-	public static ArrayList<LittleTile> loadTiles(ItemStack stack)
+	public static ArrayList<LittleTile> loadTiles(World world, ItemStack stack)
 	{
 		ArrayList<LittleTile> result = new ArrayList<LittleTile>();
 		int tiles = stack.stackTagCompound.getInteger("tiles");
 		for (int i = 0; i < tiles; i++) {
 			NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("tile" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(nbt);
+			LittleTile tile = LittleTile.CreateandLoadTile(world, nbt);
 			if(tile != null && tile.isValid())
 				result.add(tile);
 		}
 		return result;
 	}
 	
-	public static void saveTiles(ArrayList<LittleTile> tiles, ItemStack stack)
+	public static void saveTiles(World world, ArrayList<LittleTile> tiles, ItemStack stack)
 	{
 		stack.stackTagCompound = new NBTTagCompound();
 		stack.stackTagCompound.setInteger("tiles", tiles.size());
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			tiles.get(i).save(nbt);
+			tiles.get(i).save(world, nbt);
 			stack.stackTagCompound.setTag("tile" + i, nbt);
 		}
 	}

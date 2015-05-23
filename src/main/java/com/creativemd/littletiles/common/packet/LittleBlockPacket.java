@@ -11,6 +11,7 @@ import net.minecraft.util.Vec3;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
@@ -86,9 +87,12 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					tile.block.onBlockActivated(player.worldObj, x, y, z, player, moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
 					break;
 				case 1: //Destory tile
-					littleEntity.tiles.remove(tile);
+					littleEntity.removeTile(tile);
 					if(!player.capabilities.isCreativeMode)
-						WorldUtils.dropItem(player.worldObj, tile.getDrops(), x, y, z);
+						WorldUtils.dropItem(player.worldObj, tile.getDrops(player.worldObj), x, y, z);
+					for (int i = 0; i < littleEntity.tiles.size(); i++) {
+						littleEntity.tiles.get(i).onNeighborBlockChange(littleEntity.getWorldObj(), x, y, z, LittleTiles.blockTile);
+					}
 					littleEntity.update();
 					break;
 				}

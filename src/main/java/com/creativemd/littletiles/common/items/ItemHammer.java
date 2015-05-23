@@ -54,7 +54,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 					LittleTiles.blockTile.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 				}else{
 					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-					ItemRecipe.saveTiles(((TileEntityLittleTiles) tileEntity).tiles, drop);
+					ItemRecipe.saveTiles(world, ((TileEntityLittleTiles) tileEntity).tiles, drop);
 					WorldUtils.dropItem(world, drop, x, y, z);
 				}
 				world.setBlockToAir(x, y, z);

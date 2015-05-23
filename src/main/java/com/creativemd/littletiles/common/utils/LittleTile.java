@@ -23,6 +23,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -81,12 +82,12 @@ public class LittleTile {
 		loadCore(nbt);
 	}
 	
-	public static LittleTile CreateandLoadTile(NBTTagCompound nbt)
+	public static LittleTile CreateandLoadTile(World world, NBTTagCompound nbt)
 	{
-		return CreateandLoadTile(nbt, false, null);
+		return CreateandLoadTile(world, nbt, false, null);
 	}
 	
-	public static LittleTile CreateandLoadTile(NBTTagCompound nbt, boolean isPacket, NetworkManager net)
+	public static LittleTile CreateandLoadTile(World world, NBTTagCompound nbt, boolean isPacket, NetworkManager net)
 	{
 		String id = nbt.getString("tileID");
 		Class<? extends LittleTile> TileClass = getClassByID(id);
@@ -103,7 +104,7 @@ public class LittleTile {
 			if(isPacket)
 				tile.recieveFromServer(net, nbt);
 			else
-				tile.load(nbt);
+				tile.load(world, nbt);
 		return tile;		
 	}
 	
@@ -164,13 +165,13 @@ public class LittleTile {
 	}
 	
 	/**Should load the LittleTile**/
-	public void load(NBTTagCompound nbt)
+	public void load(World world, NBTTagCompound nbt)
 	{
 		loadCore(nbt);
 	}
 	
 	/**Should save ALL data**/
-	public void save(NBTTagCompound nbt)
+	public void save(World world, NBTTagCompound nbt)
 	{
 		saveCore(nbt);
 	}
@@ -225,6 +226,13 @@ public class LittleTile {
 		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
+	public ArrayList<CubeObject> getCubes()
+	{
+		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
+		cubes.add(new CubeObject(minX, minY, minZ, maxX, maxY, maxZ));
+		return cubes;
+	}
+	
 	public AxisAlignedBB getBox()
 	{
 		double minX = (double)(this.minX+8)/16D;
@@ -239,8 +247,6 @@ public class LittleTile {
 	/**If this LittleTile can be split. Interesting for TileEntity blocks**/
 	public boolean canSplit()
 	{
-		if(block instanceof ILittleTile)
-			return ((ILittleTile) block).canSplit(this);
 		return true;
 	}
 	
@@ -251,7 +257,7 @@ public class LittleTile {
 		return true;
 	}*/
 	
-	public void updateEntity() {}
+	public void updateEntity(World world) {}
 	
 	public boolean canPlaceBlock(TileEntityLittleTiles tileEntity, byte centerX, byte centerY, byte centerZ, byte sizeX, byte sizeY, byte sizeZ, byte offsetX, byte offsetY, byte offsetZ)
 	{
@@ -422,8 +428,8 @@ public class LittleTile {
 				placed.maxX = tempmaxX;
 				placed.maxY = tempmaxY;
 				placed.maxZ = tempmaxZ;
-				placed.isPlaced = true;
-				tileEntity.tiles.add(placed);
+				placed.onPlaced(tileEntity);
+				tileEntity.addTile(placed);
 				tileEntity.update();
 				
 				return true;
@@ -486,14 +492,14 @@ public class LittleTile {
 	}
 	
 	/**Is used for drop and creating LittleTile ItemStacks**/
-	public ArrayList<ItemStack> getDrops()
+	public ArrayList<ItemStack> getDrops(World world)
 	{
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		stacks.add(getItemStack());
+		stacks.add(getItemStack(world));
 		return stacks;
 	}
 	
-	public ItemStack getItemStack()
+	public ItemStack getItemStack(World world)
 	{
 		if(isInValid)
 			return null;
@@ -505,12 +511,12 @@ public class LittleTile {
 		
 		boolean tempPlace = isPlaced;
 		isPlaced = false;
-		save(stack.stackTagCompound);
+		save(world, stack.stackTagCompound);
 		isPlaced = tempPlace;
 		return stack;
 	}
 	
-	public void onPlaced(ItemStack stack, TileEntityLittleTiles tileEntity)
+	public void onPlaced(TileEntityLittleTiles tileEntity)
 	{
 		isPlaced = true;
 		block.onBlockAdded(tileEntity.getWorldObj(), tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
@@ -518,7 +524,17 @@ public class LittleTile {
 	
 	public void onRemoved(TileEntityLittleTiles tileEntity)
 	{
-		tileEntity.tiles.remove(this);
+		tileEntity.removeTile(this);
+	}
+	
+	public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ)
+    {
+    	block.onNeighborChange(world, x, y, z, tileX, tileY, tileZ);
+    }
+	
+	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
+	{
+		this.block.onNeighborBlockChange(world, x, y, z, block);
 	}
 	
 	//public LittleTile 
@@ -664,6 +680,12 @@ public class LittleTile {
 		public LittleTileVec copy()
 		{
 			return new LittleTileVec(posX, posY, posZ);
+		}
+		
+		/**Return null if this LittleTile does not have a fixed size*/
+		public LittleTileSize getFixedSize()
+		{
+			return null;
 		}
 		
 	}

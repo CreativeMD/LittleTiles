@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -11,6 +12,7 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
@@ -24,6 +26,7 @@ public class PlacementHelper {
 	public MovingObjectPosition moving;
 	public EntityPlayer player;
 	public ArrayList<LittleTile> tiles;
+	public ArrayList<LittleTilePreview> preview;
 	public LittleTileSize size;
 	public Vec3 centeroffset;
 	public ForgeDirection direction;
@@ -32,10 +35,20 @@ public class PlacementHelper {
 	public int posZ;
 	public int side;
 	
-	
-	public PlacementHelper(EntityPlayer player)
+	public static boolean isLittleBlock(ItemStack stack)
 	{
-		this(null, player);
+		if(stack == null)
+			return false;
+		if(stack.getItem() instanceof ILittleTile)
+			return ((ILittleTile) stack.getItem()).getLittlePreview(stack) != null;
+		if(Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile)
+			return ((ILittleTile)Block.getBlockFromItem(stack.getItem())).getLittlePreview(stack) != null;
+		return false;
+	}
+	
+	public PlacementHelper(EntityPlayer player, int x, int y, int z)
+	{
+		this(null, player, x, y, z, false);
 	}
 	
 	/*public static MovingObjectPosition rayTrace(EntityPlayer player)
@@ -54,24 +67,17 @@ public class PlacementHelper {
 	
 	public PlacementHelper(MovingObjectPosition moving, EntityPlayer player)
 	{
+		this(moving, player, 0, 0, 0, true);
+	}
+	
+	public PlacementHelper(MovingObjectPosition moving, EntityPlayer player, int x, int y, int z, boolean isPreview)
+	{
+		this.posX = x;
+		this.posY = y;
+		this.posZ = z;
 		this.moving = moving;
 		this.player = player;
-		this.tiles = new ArrayList<LittleTile>();
 		ItemStack stack = player.getHeldItem();
-		if(stack != null)
-		{
-			if(stack.getItem() instanceof ItemBlockTiles)
-			{
-				this.tiles.add(ItemBlockTiles.getLittleTile(player.getHeldItem()));
-				this.size = tiles.get(0).size;
-			}
-			if(stack.getItem() instanceof ItemMultiTiles)
-			{
-				this.tiles.addAll(ItemRecipe.loadTiles(stack));
-				this.size = ItemRecipe.getSize(stack);
-			}
-		}
-		
 		
 		if(moving != null)
 		{
@@ -92,6 +98,37 @@ public class PlacementHelper {
 					this.direction = ForgeDirection.getOrientation(this.moving.sideHit);
 				}
 			}
+		}
+		if(stack != null)
+		{
+			if(isPreview)
+			{
+				LittleTilePreview tempPreview = null;
+				if(stack.getItem() instanceof ILittleTile)
+				{
+					tempPreview = ((ILittleTile)stack.getItem()).getLittlePreview(stack);
+				}else if(Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile){
+					tempPreview = ((ILittleTile)Block.getBlockFromItem(stack.getItem())).getLittlePreview(stack);
+				}
+				if(tempPreview != null)
+				{
+					this.size = tempPreview.size;
+					this.preview = tempPreview.getAllTiles();
+				}
+			}else{
+				this.tiles = new ArrayList<LittleTile>();
+				if(stack.getItem() instanceof ILittleTile)
+				{
+					this.tiles.addAll(((ILittleTile)stack.getItem()).getLittleTile(stack, player.getEntityWorld(), posX, posY, posZ));
+					this.size = tiles.get(0).size;
+				}else if(Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile){
+					this.tiles.addAll(((ILittleTile)Block.getBlockFromItem(stack.getItem())).getLittleTile(stack, player.getEntityWorld(), posX, posY, posZ));
+					this.size = tiles.get(0).size;
+				}
+			}
+		}
+		if(moving != null)
+		{
 			side = this.moving.sideHit;
 			if(!isSingle()) //Calculate box offset for multitiles
 			{
@@ -108,22 +145,31 @@ public class PlacementHelper {
 		byte maxX = LittleTile.minPos;
 		byte maxY = LittleTile.minPos;
 		byte maxZ = LittleTile.minPos;
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tile = tiles.get(i);
-			minX = (byte) Math.min(minX, tile.minX);
-			minY = (byte) Math.min(minY, tile.minY);
-			minZ = (byte) Math.min(minZ, tile.minZ);
-			maxX = (byte) Math.max(maxX, tile.maxX);
-			maxY = (byte) Math.max(maxY, tile.maxY);
-			maxZ = (byte) Math.max(maxZ, tile.maxZ);
+		if(tiles == null)
+		{
+			for (int i = 0; i < preview.size(); i++) {
+				LittleTilePreview tile = preview.get(i);
+				minX = (byte) Math.min(minX, tile.min.posX);
+				minY = (byte) Math.min(minY, tile.min.posY);
+				minZ = (byte) Math.min(minZ, tile.min.posZ);
+				maxX = (byte) Math.max(maxX, tile.max.posX);
+				maxY = (byte) Math.max(maxY, tile.max.posY);
+				maxZ = (byte) Math.max(maxZ, tile.max.posZ);
+			}
+		}else{
+			for (int i = 0; i < tiles.size(); i++) {
+				LittleTile tile = tiles.get(i);
+				minX = (byte) Math.min(minX, tile.minX);
+				minY = (byte) Math.min(minY, tile.minY);
+				minZ = (byte) Math.min(minZ, tile.minZ);
+				maxX = (byte) Math.max(maxX, tile.maxX);
+				maxY = (byte) Math.max(maxY, tile.maxY);
+				maxZ = (byte) Math.max(maxZ, tile.maxZ);
+			}
 		}
 		double offsetX = (minX+maxX)/2D;
 		double offsetY = (minY+maxY)/2D;
 		double offsetZ = (minZ+maxZ)/2D;
-		
-		//double offsetX = (16-size.sizeX)/2D;
-		//double offsetY = (16-size.sizeY)/2D;
-		//double offsetZ = (16-size.sizeZ)/2D;
 		
 		centeroffset = Vec3.createVectorHelper(offsetX/16D, offsetY/16D, offsetZ/16D);
 	}
@@ -154,6 +200,8 @@ public class PlacementHelper {
 	
 	public boolean isSingle()
 	{
+		if(tiles == null)
+			return preview.size() == 1;
 		return tiles.size() == 1;
 	}
 	
@@ -168,17 +216,33 @@ public class PlacementHelper {
 	{
 		if(!isSingle())
 		{
-			for (int i = 0; i < tiles.size(); i++) {
-				LittleTile tile = tiles.get(i);
-				CubeObject box = new CubeObject(tile.getLittleBox());
-				box = CubeObject.rotateCube(box, direction);
-				tile.minX = (byte) box.minX;
-				tile.minY = (byte) box.minY;
-				tile.minZ = (byte) box.minZ;
-				tile.maxX = (byte) box.maxX;
-				tile.maxY = (byte) box.maxY;
-				tile.maxZ = (byte) box.maxZ;
-				tile.updateSize();
+			if(tiles == null)
+			{
+				for (int i = 0; i < preview.size(); i++) {
+					LittleTilePreview tile = preview.get(i);
+					CubeObject box = new CubeObject(tile.getLittleBox());
+					box = CubeObject.rotateCube(box, direction);
+					tile.min.posX = (byte) box.minX;
+					tile.min.posY = (byte) box.minY;
+					tile.min.posZ = (byte) box.minZ;
+					tile.max.posX = (byte) box.maxX;
+					tile.max.posY = (byte) box.maxY;
+					tile.max.posZ = (byte) box.maxZ;
+					tile.updateSize();
+				}
+			}else{
+				for (int i = 0; i < tiles.size(); i++) {
+					LittleTile tile = tiles.get(i);
+					CubeObject box = new CubeObject(tile.getLittleBox());
+					box = CubeObject.rotateCube(box, direction);
+					tile.minX = (byte) box.minX;
+					tile.minY = (byte) box.minY;
+					tile.minZ = (byte) box.minZ;
+					tile.maxX = (byte) box.maxX;
+					tile.maxY = (byte) box.maxY;
+					tile.maxZ = (byte) box.maxZ;
+					tile.updateSize();
+				}
 			}
 		}
 	}
@@ -188,11 +252,21 @@ public class PlacementHelper {
 		if(!isSingle())
 		{
 			calculateOffset(size);
-			LittleTile tile = tiles.get(i);
-			double x = ((tile.minX+tile.maxX)/2D)/16D-centeroffset.xCoord;
-			double y = ((tile.minY+tile.maxY)/2D)/16D-centeroffset.yCoord;
-			double z = ((tile.minZ+tile.maxZ)/2D)/16D-centeroffset.zCoord;
-			return Vec3.createVectorHelper(x, y, z); //TODO Check if this is the correct offset
+			
+			if(tiles == null)
+			{
+				LittleTilePreview tile = preview.get(i);
+				double x = ((tile.min.posX+tile.max.posX)/2D)/16D-centeroffset.xCoord;
+				double y = ((tile.min.posY+tile.max.posY)/2D)/16D-centeroffset.yCoord;
+				double z = ((tile.min.posZ+tile.max.posZ)/2D)/16D-centeroffset.zCoord;
+				return Vec3.createVectorHelper(x, y, z);
+			}else{
+				LittleTile tile = tiles.get(i);
+				double x = ((tile.minX+tile.maxX)/2D)/16D-centeroffset.xCoord;
+				double y = ((tile.minY+tile.maxY)/2D)/16D-centeroffset.yCoord;
+				double z = ((tile.minZ+tile.maxZ)/2D)/16D-centeroffset.zCoord;
+				return Vec3.createVectorHelper(x, y, z);
+			}
 		}
 		return Vec3.createVectorHelper(0, 0, 0);
 	}

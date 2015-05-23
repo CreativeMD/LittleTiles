@@ -49,7 +49,7 @@ public class SubContainerHammer extends SubContainer{
 						LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
 						ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
 						dropstack.stackSize = tiles;
-						ItemBlockTiles.saveLittleTile(dropstack, tile);
+						ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
 						player.inventory.addItemStackToInventory(dropstack);
 					}
 				}
