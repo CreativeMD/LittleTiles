@@ -52,6 +52,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile{
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack)
     {
 		String result = super.getItemStackDisplayName(stack);
@@ -64,6 +65,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile{
     }
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public String getUnlocalizedName(ItemStack stack)
     {
 		LittleTile tile = getLittleTile(Minecraft.getMinecraft().theWorld, stack);
