@@ -81,7 +81,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack,
 			World world, int x, int y, int z) {
-		return new SubContainerHammer();
+		return new SubContainerHammer(player);
 	}
 	
 }

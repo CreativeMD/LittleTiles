@@ -3,21 +3,29 @@ package com.creativemd.littletiles.common.gui;
 import java.util.ArrayList;
 
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.nbt.NBTTagCompound;
 
 import com.creativemd.creativecore.common.gui.SubGui;
 import com.creativemd.creativecore.common.gui.controls.GuiButtonControl;
 import com.creativemd.creativecore.common.gui.controls.GuiControl;
-import com.creativemd.creativecore.common.packet.GuiPacket;
+import com.creativemd.creativecore.common.gui.controls.GuiTextfield;
+import com.creativemd.creativecore.common.packet.GuiControlPacket;
+import com.creativemd.creativecore.common.packet.GuiUpdatePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 
 public class SubGuiHammer extends SubGui {
+	
+	public SubGuiHammer()
+	{
+		
+	}
 	
 	public int sizeX = 1;
 	public int sizeY = 1;
 	public int sizeZ = 1;
 	
 	@Override
-	public ArrayList<GuiControl> getControls() {
+	public void createControls() {
 		ArrayList<GuiControl> controls = new ArrayList<GuiControl>();
 		controls.add(new GuiButtonControl("<", 50, 20, 10, 20, 0));
 		controls.add(new GuiButtonControl(">", 80, 20, 10, 20, 1));
@@ -26,7 +34,6 @@ public class SubGuiHammer extends SubGui {
 		controls.add(new GuiButtonControl("<", 50, 60, 10, 20, 4));
 		controls.add(new GuiButtonControl(">", 80, 60, 10, 20, 5));
 		controls.add(new GuiButtonControl("HAMMER IT", 130, 40, 60, 20, 6));
-		return controls;
 	}
 
 	@Override
@@ -34,11 +41,6 @@ public class SubGuiHammer extends SubGui {
 		fontRenderer.drawString("" + sizeX, 62, 14, 0);
 		fontRenderer.drawString("" + sizeY, 62, 34, 0);
 		fontRenderer.drawString("" + sizeZ, 62, 54, 0);
-	}
-
-	@Override
-	public void drawBackground(FontRenderer fontRenderer) {
-		
 	}
 
 	public void onControlClicked(GuiControl control)
@@ -81,7 +83,11 @@ public class SubGuiHammer extends SubGui {
 			
 			if(button.id == 6)
 			{
-				PacketHandler.sendPacketToServer(new GuiPacket(button.id, sizeX + ";" + sizeY + ";" + sizeZ));
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setByte("sizeX", (byte) sizeX);
+				nbt.setByte("sizeY", (byte) sizeY);
+				nbt.setByte("sizeZ", (byte) sizeZ);
+				PacketHandler.sendPacketToServer(new GuiControlPacket(button.id, nbt));
 			}
 		}
 	}

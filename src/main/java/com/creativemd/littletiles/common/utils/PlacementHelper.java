@@ -149,12 +149,15 @@ public class PlacementHelper {
 		{
 			for (int i = 0; i < preview.size(); i++) {
 				LittleTilePreview tile = preview.get(i);
-				minX = (byte) Math.min(minX, tile.min.posX);
-				minY = (byte) Math.min(minY, tile.min.posY);
-				minZ = (byte) Math.min(minZ, tile.min.posZ);
-				maxX = (byte) Math.max(maxX, tile.max.posX);
-				maxY = (byte) Math.max(maxY, tile.max.posY);
-				maxZ = (byte) Math.max(maxZ, tile.max.posZ);
+				if(tile != null)
+				{
+					minX = (byte) Math.min(minX, tile.min.posX);
+					minY = (byte) Math.min(minY, tile.min.posY);
+					minZ = (byte) Math.min(minZ, tile.min.posZ);
+					maxX = (byte) Math.max(maxX, tile.max.posX);
+					maxY = (byte) Math.max(maxY, tile.max.posY);
+					maxZ = (byte) Math.max(maxZ, tile.max.posZ);
+				}
 			}
 		}else{
 			for (int i = 0; i < tiles.size(); i++) {

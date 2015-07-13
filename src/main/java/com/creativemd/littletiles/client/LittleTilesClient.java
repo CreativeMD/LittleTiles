@@ -15,6 +15,7 @@ import com.creativemd.littletiles.client.render.SpecialBlockTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
+import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
@@ -55,6 +56,11 @@ public class LittleTilesClient extends LittleTilesServer{
 		down = new KeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
 		right = new KeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
 		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
+		
+		ClientRegistry.registerKeyBinding(up);
+		ClientRegistry.registerKeyBinding(down);
+		ClientRegistry.registerKeyBinding(right);
+		ClientRegistry.registerKeyBinding(left);
 	}
 	
 }

@@ -36,7 +36,8 @@ public class LittleTilePreview {
 	public ArrayList<LittleTilePreview> getAllTiles()
 	{
 		ArrayList<LittleTilePreview> tiles = new ArrayList<LittleTilePreview>();
-		tiles.add(this);
+		if(min != null && max != null)
+			tiles.add(this);
 		for (int i = 0; i < subTiles.size(); i++) {
 			tiles.addAll(subTiles.get(i).getAllTiles());
 		}

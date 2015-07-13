@@ -27,6 +27,8 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public ArrayList<LittleTile> tiles = new ArrayList<LittleTile>();
 	
+	//public boolean needFullUpdate = true;
+	
 	public boolean removeTile(LittleTile tile)
 	{
 		update();
@@ -106,22 +108,22 @@ public class TileEntityLittleTiles extends TileEntity{
     public Packet getDescriptionPacket()
     {
     	NBTTagCompound nbt = new NBTTagCompound();
-    	if(needFullUpdate)
-    	{
-    		needFullUpdate = false;
-    		nbt.setBoolean("fullUpdate", true);
-    		writeToNBT(nbt);
-    	}else{
-	    	for (int i = 0; i < tiles.size(); i++) {
-				NBTTagCompound tileNBT = new NBTTagCompound();
-				tiles.get(i).sendToClient(tileNBT);
-				tileNBT.setByte("minX", tiles.get(i).minX);
-				tileNBT.setByte("minY", tiles.get(i).minY);
-				tileNBT.setByte("minZ", tiles.get(i).minZ);
-				nbt.setTag("t" + i, tileNBT);
-			}
-	        nbt.setInteger("tilesCount", tiles.size());
-    	}
+    	//writeToNBT(nbt);
+    	for (int i = 0; i < tiles.size(); i++) {
+			NBTTagCompound tileNBT = new NBTTagCompound();
+			tiles.get(i).save(worldObj, tileNBT);
+			tiles.get(i).sendToClient(tileNBT);
+			tileNBT.setByte("minX", tiles.get(i).minX);
+			tileNBT.setByte("minY", tiles.get(i).minY);
+			tileNBT.setByte("minZ", tiles.get(i).minZ);
+			nbt.setTag("t" + i, tileNBT);
+		}
+        nbt.setInteger("tilesCount", tiles.size());
+        if(needFullUpdate)
+        {
+        	nbt.setBoolean("fullUpdate", true);
+        	needFullUpdate = false;
+        }
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, blockMetadata, nbt);
     }
     
@@ -140,7 +142,15 @@ public class TileEntityLittleTiles extends TileEntity{
     {
     	if(pkt.func_148857_g().getBoolean("fullUpdate"))
     	{
-    		readFromNBT(pkt.func_148857_g());
+    		tiles = new ArrayList<LittleTile>();
+	        int count = pkt.func_148857_g().getInteger("tilesCount");
+	        for (int i = 0; i < count; i++) {
+	        	NBTTagCompound tileNBT = new NBTTagCompound();
+	        	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
+				LittleTile tile = LittleTile.CreateandLoadTile(worldObj, tileNBT);
+				if(tile != null)
+					tiles.add(tile);
+			}
     	}else{
 	        int count = pkt.func_148857_g().getInteger("tilesCount");
 	        for (int i = 0; i < count; i++) {
@@ -149,6 +159,12 @@ public class TileEntityLittleTiles extends TileEntity{
 				LittleTile tile = getTile(tileNBT.getByte("minX"), tileNBT.getByte("minY"), tileNBT.getByte("minZ"));
 				if(tile != null)
 					tile.recieveFromServer(net, tileNBT);
+				else
+				{
+					tile = LittleTile.CreateandLoadTile(worldObj, tileNBT);
+					if(tile != null)
+						tiles.add(tile);
+				}
 			}
     	}
         updateRender();
