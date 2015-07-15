@@ -6,6 +6,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.common.gui.SubGui.ControlEvent;
 import com.creativemd.creativecore.common.gui.controls.GuiButtonControl;
 import com.creativemd.creativecore.common.gui.controls.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.GuiTextfield;
@@ -26,7 +27,6 @@ public class SubGuiHammer extends SubGui {
 	
 	@Override
 	public void createControls() {
-		ArrayList<GuiControl> controls = new ArrayList<GuiControl>();
 		controls.add(new GuiButtonControl("<", 50, 20, 10, 20, 0));
 		controls.add(new GuiButtonControl(">", 80, 20, 10, 20, 1));
 		controls.add(new GuiButtonControl("<", 50, 40, 10, 20, 2));
@@ -42,8 +42,9 @@ public class SubGuiHammer extends SubGui {
 		fontRenderer.drawString("" + sizeY, 62, 34, 0);
 		fontRenderer.drawString("" + sizeZ, 62, 54, 0);
 	}
-
-	public void onControlClicked(GuiControl control)
+	
+	@Override
+	public void onControlEvent(GuiControl control, ControlEvent event)
 	{
 		if(control instanceof GuiButtonControl)
 		{
