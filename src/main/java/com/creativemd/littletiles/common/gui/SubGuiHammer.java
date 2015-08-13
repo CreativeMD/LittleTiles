@@ -6,13 +6,14 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.common.gui.SubGui.ControlEvent;
 import com.creativemd.creativecore.common.gui.controls.GuiButtonControl;
 import com.creativemd.creativecore.common.gui.controls.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.GuiTextfield;
+import com.creativemd.creativecore.common.gui.event.ControlClickEvent;
 import com.creativemd.creativecore.common.packet.GuiControlPacket;
 import com.creativemd.creativecore.common.packet.GuiUpdatePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 public class SubGuiHammer extends SubGui {
 	
@@ -37,18 +38,18 @@ public class SubGuiHammer extends SubGui {
 	}
 
 	@Override
-	public void drawForeground(FontRenderer fontRenderer) {
+	public void drawOverlay(FontRenderer fontRenderer) {
 		fontRenderer.drawString("" + sizeX, 62, 14, 0);
 		fontRenderer.drawString("" + sizeY, 62, 34, 0);
 		fontRenderer.drawString("" + sizeZ, 62, 54, 0);
 	}
 	
-	@Override
-	public void onControlEvent(GuiControl control, ControlEvent event)
+	@CustomEventSubscribe
+	public void onClicked(ControlClickEvent event)
 	{
-		if(control instanceof GuiButtonControl)
+		if(event.source instanceof GuiButtonControl)
 		{
-			GuiButtonControl button = (GuiButtonControl) control;
+			GuiButtonControl button = (GuiButtonControl) event.source;
 			switch (button.id) {
 			case 0:
 				sizeX--;
@@ -88,7 +89,7 @@ public class SubGuiHammer extends SubGui {
 				nbt.setByte("sizeX", (byte) sizeX);
 				nbt.setByte("sizeY", (byte) sizeY);
 				nbt.setByte("sizeZ", (byte) sizeZ);
-				PacketHandler.sendPacketToServer(new GuiControlPacket(button.id, nbt));
+				sendPacketToServer(button.id, nbt);
 			}
 		}
 	}
