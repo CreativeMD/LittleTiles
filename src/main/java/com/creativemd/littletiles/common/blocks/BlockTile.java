@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.blocks;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -12,8 +13,8 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -25,6 +26,7 @@ import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
@@ -91,9 +93,9 @@ public class BlockTile extends BlockContainer{
 	@Override
 	public float getPlayerRelativeBlockHardness(EntityPlayer player, World world, int x, int y, int z)
     {
-		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
+		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player) && tempEntity.loadedTile instanceof LittleTileBlock)
 		{
-			return tempEntity.loadedTile.block.getPlayerRelativeBlockHardness(player, world, x, y, z);
+			return ((LittleTileBlock)tempEntity.loadedTile).block.getPlayerRelativeBlockHardness(player, world, x, y, z);
 		}
         return super.getBlockHardness(world, x, y, z);
     }
@@ -112,7 +114,7 @@ public class BlockTile extends BlockContainer{
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
 		{
 			try{ //Why try? because the number of tiles can change while this method is called
-				return tempEntity.loadedTile.getCoordBox(x, y, z);
+				return tempEntity.loadedTile.getSelectedBox().getOffsetBoundingBox(x, y, z);
 			}catch(Exception e){
 				
 			}
@@ -125,13 +127,13 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z))
 		{
-			try{ //Why try? because the number of tiles can change while this method is called
-				for (int i = 0; i < tempEntity.tiles.size(); i++) {
-					AxisAlignedBB box = tempEntity.tiles.get(i).getCoordBox(x, y, z);
+			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+					AxisAlignedBB box = tile.boundingBoxes.get(i).getBox().getOffsetBoundingBox(x, y, z);
 					if(axis.intersectsWith(box))
 						list.add(box);
 				}
-			}catch(Exception e){
 				
 			}
 		}
@@ -155,8 +157,9 @@ public class BlockTile extends BlockContainer{
     public void randomDisplayTick(World world, int x, int y, int z, Random random)
 	{
 		if(loadTileEntity(world, x, y, z))
-			for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				tempEntity.tiles.get(i).block.randomDisplayTick(world, x, y, z, random);
+			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				tile.randomDisplayTick(world, x, y, z, random);
 			}
 	}
 	
@@ -165,7 +168,7 @@ public class BlockTile extends BlockContainer{
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
 		{
-			if(tempEntity.loadedTile.block.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
+			if(tempEntity.loadedTile.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
 			{
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 0));
 			}
@@ -173,7 +176,7 @@ public class BlockTile extends BlockContainer{
         return false;
     }
 	
-	/* TODO Add Power
+	/*
 	public int isProvidingWeakPower(IBlockAccess p_149709_1_, int p_149709_2_, int p_149709_3_, int p_149709_4_, int p_149709_5_)
     {
         return 0;
@@ -219,23 +222,22 @@ public class BlockTile extends BlockContainer{
     //TODO Add this once it's important
 	//public void fillWithRain(World p_149639_1_, int p_149639_2_, int p_149639_3_, int p_149639_4_) {}
     
-	public boolean first = false;
+	public boolean first = true;
 	
 	@Override
     public int getLightValue(IBlockAccess world, int x, int y, int z)
     {
 		try{ //Why try? because the number of tiles can change while this method is called
-			if(first)
-				return 0;
 			int light = 0;
+			if(!first)
+				return 0;
 	    	if(loadTileEntity(world, x, y, z))
 	    	{
-	    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-	    			first = true;
-					int tempLight = tempEntity.tiles.get(i).block.getLightValue(world, x, y, z);
+	    		for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+					LittleTile tile = (LittleTile) iterator.next();
 					first = false;
-					if(tempLight == 0)
-						tempLight = tempEntity.tiles.get(i).block.getLightValue();
+					int tempLight = tile.getLightValue(world, x, y, z);
+					first = true;
 					if(tempLight > light)
 						light = tempLight;
 				}
@@ -292,8 +294,9 @@ public class BlockTile extends BlockContainer{
     	ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
     	if(loadTileEntity(world, x, y, z))
     	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-				stacks.addAll(tempEntity.tiles.get(i).getDrops(world));
+    		for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				stacks.addAll(tile.getDrops());
 			}
     	}
     	return stacks;
@@ -304,7 +307,7 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     	{
-    		return tempEntity.loadedTile.getItemStack(world);
+    		return tempEntity.loadedTile.getDrop();
     	}
     	return null;
     }
@@ -318,7 +321,7 @@ public class BlockTile extends BlockContainer{
     {
     	try{ //Why try? because the loaded tile can change while setting this icon
 	    	if(loadTileEntity(worldObj, target.blockX, target.blockY, target.blockZ) && tempEntity.updateLoadedTile(mc.thePlayer))
-	    		overrideIcon = tempEntity.loadedTile.block.getIcon(worldObj, target.blockX, target.blockY, target.blockZ, target.sideHit);
+	    		overrideIcon = tempEntity.loadedTile.getIcon(target.sideHit);
     	}catch(Exception e){
     		
     	}
@@ -331,7 +334,29 @@ public class BlockTile extends BlockContainer{
     {
     	try{ //Why try? because the loaded tile can change while setting this icon
 	    	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
-	    		overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
+	    	{
+	    		//overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
+	    		AxisAlignedBB box = tempEntity.loadedTile.getSelectedBox();
+	    		byte b0 = 1;
+
+	            for (int i1 = 0; i1 < b0; ++i1)
+	            {
+	                for (int j1 = 0; j1 < b0; ++j1)
+	                {
+	                    for (int k1 = 0; k1 < b0; ++k1)
+	                    {
+	                        double d0 = (double)x + ((double)i1 + box.maxX) / (double)b0;
+	                        double d1 = (double)y + ((double)j1 + box.maxY) / (double)b0;
+	                        double d2 = (double)z + ((double)k1 + box.maxZ) / (double)b0;
+	                        EntityDiggingFX fx = (new EntityDiggingFX(world, d0, d1, d2, 0, 0, 0, this, meta)).applyColourMultiplier(x, y, z);
+	                        fx.setParticleIcon(tempEntity.loadedTile.getIcon(0));
+	                        effectRenderer.addEffect(fx);
+	                    }
+	                }
+	            }
+	            //overrideIcon = null;
+	            return true;
+	    	}
 	    }catch(Exception e){
 			
 		}
@@ -345,7 +370,7 @@ public class BlockTile extends BlockContainer{
     	if(overrideIcon != null)
     	{
     		IIcon temp = overrideIcon;
-    		overrideIcon = null;
+    		//overrideIcon = null;
     		return temp;
     	}
     	else
@@ -358,13 +383,13 @@ public class BlockTile extends BlockContainer{
     	
     }*/
     
-    /*TODO Add this once the core mechanic is working
+    /*
     public int getLightOpacity(IBlockAccess world, int x, int y, int z)
     {
     	
     }*/
     
-    /*TODO Check it before prerelease
+    /*
    	public boolean rotateBlock(World worldObj, int x, int y, int z, ForgeDirection axis)
     {
         return RotationHelper.rotateVanillaBlock(this, worldObj, x, y, z, axis);
@@ -391,22 +416,24 @@ public class BlockTile extends BlockContainer{
     	float bonus = 0F;
     	if(loadTileEntity(world, x, y, z))
     	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-    			bonus += tempEntity.tiles.get(i).block.getEnchantPowerBonus(world, x, y, z) * tempEntity.tiles.get(i).size.getPercentVolume();
+    		for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+    			bonus += tile.getEnchantPowerBonus(world, x, y, z) * tile.getPercentVolume();
 			}
     	}
     	return bonus;
     }
     
-    /*TODO add it before prereleas
+    /*
     public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity p_149670_5_) {}*/
     
     public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ)
     {
     	if(loadTileEntity(world, x, y, z))
     	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-    			tempEntity.tiles.get(i).onNeighborChange(world, x, y, z, tileX, tileY, tileZ);
+    		for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+    			tile.onNeighborChangeOutside();;
 			}
     	}
     }
@@ -415,8 +442,9 @@ public class BlockTile extends BlockContainer{
 	{
 		if(loadTileEntity(world, x, y, z))
     	{
-    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-    			tempEntity.tiles.get(i).onNeighborBlockChange(world, x, y, z, block);
+			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+    			tile.onNeighborChangeOutside();
 			}
     	}
 	}
@@ -427,17 +455,28 @@ public class BlockTile extends BlockContainer{
     	if(loadTileEntity(world, x, y, z))
     	{
     		try{ //Why try? because the number of tiles can change while this method is called
-	    		for (int i = 0; i < tempEntity.tiles.size(); i++) {
-	    			MovingObjectPosition moving = tempEntity.tiles.get(i).getCoordBox(x, y, z).calculateIntercept(vec1, vec2);
-	    			
-	    			if(moving != null)
-	    			{
-	    				moving.blockX = x;
-	        			moving.blockY = y;
-	        			moving.blockZ = z;
-	    				return moving;
-	    			}
+    			MovingObjectPosition moving = null;
+    			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+					LittleTile tile = (LittleTile) iterator.next();
+					for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+						MovingObjectPosition tempMoving = tile.boundingBoxes.get(i).getBox().getOffsetBoundingBox(x, y, z).calculateIntercept(vec1, vec2);
+		    			
+		    			if(tempMoving != null)
+		    			{
+		    				if(moving == null || moving.hitVec.distanceTo(vec1) > tempMoving.hitVec.distanceTo(vec1))
+		    					moving = tempMoving;
+		    			}
+					}
+					
 				}
+    			
+    			if(moving != null)
+    			{
+    				moving.blockX = x;
+        			moving.blockY = y;
+        			moving.blockZ = z;
+        			return moving;
+    			}
     		}catch(Exception e){
     			return null;
     		}

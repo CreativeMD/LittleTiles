@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
@@ -67,7 +68,7 @@ public class LittleTiles {
 		
 		proxy.loadSide();
 		
-		LittleTile.registerLittleTile(LittleTile.class, "BlockTile");
+		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		
 		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");

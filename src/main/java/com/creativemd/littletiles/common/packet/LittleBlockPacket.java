@@ -84,14 +84,14 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				switch(action)
 				{
 				case 0: //Activated
-					tile.block.onBlockActivated(player.worldObj, x, y, z, player, moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+					tile.onBlockActivated(player.worldObj, x, y, z, player, moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
 					break;
 				case 1: //Destory tile
 					littleEntity.removeTile(tile);
 					if(!player.capabilities.isCreativeMode)
-						WorldUtils.dropItem(player.worldObj, tile.getDrops(player.worldObj), x, y, z);
+						WorldUtils.dropItem(player.worldObj, tile.getDrops(), x, y, z);
 					for (int i = 0; i < littleEntity.tiles.size(); i++) {
-						littleEntity.tiles.get(i).onNeighborBlockChange(littleEntity.getWorldObj(), x, y, z, LittleTiles.blockTile);
+						littleEntity.tiles.get(i).onNeighborChangeInside();
 					}
 					littleEntity.update();
 					break;

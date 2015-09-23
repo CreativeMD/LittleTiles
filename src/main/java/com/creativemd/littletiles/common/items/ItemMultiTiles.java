@@ -3,12 +3,14 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -69,21 +71,13 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
     }
 
 	@Override
-	public LittleTilePreview getLittlePreview(ItemStack stack) {
-		LittleTileSize size = ItemRecipe.getSize(stack);
-		if(size != null)
-		{
-			LittleTilePreview preview = new LittleTilePreview(size);
-			preview.subTiles.addAll(ItemRecipe.getPreview(stack));
-			return preview;
-		}
-		return null;
+	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
+		return ItemRecipe.getPreview(stack);
 	}
 
 	@Override
-	public ArrayList<LittleTile> getLittleTile(ItemStack stack, World world,
-			int x, int y, int z) {
-		return ItemRecipe.loadTiles(world, stack);
+	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
+		return ItemRecipe.getCubes(stack);
 	}
 	
 	/*@Override

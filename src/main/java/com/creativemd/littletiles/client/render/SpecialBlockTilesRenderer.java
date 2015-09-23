@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 import org.omg.CORBA.REBIND;
 
+import com.creativemd.creativecore.client.block.BlockRenderHelper;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
@@ -40,33 +41,16 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 	/**Used for renderInventoryBlock*/
 	public ItemStack currentRenderedStack = null;
 	
-	public void renderLittleTileInventory(LittleTile tile, RenderBlocks renderer, boolean usePlace)
-	{
-		if(!usePlace)
-		{
-			double x = (double)tile.size.sizeX/2D/16D;
-			double y = (double)tile.size.sizeY/2D/16D;
-			double z = (double)tile.size.sizeZ/2D/16D;
-			renderer.setRenderBounds(0.5-x, 0.5-y, 0.5-z, 0.5+x, 0.5+y, 0.5+z);
-		}else{
-			AxisAlignedBB box = tile.getBox();
-			renderer.setRenderBounds(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ);
-		}
-		renderer.lockBlockBounds = true;
-		renderer.renderBlockAsItem(tile.block, tile.meta, 1F);
-		renderer.lockBlockBounds = false;
-	}
-	
 	@Override
 	public void renderInventoryBlock(Block block, int metadata, int modelId,
 			RenderBlocks renderer) {
-		try{
+		/*try{
 			LittleTile tile = ItemBlockTiles.getLittleTile(Minecraft.getMinecraft().theWorld, currentRenderedStack);
 			if(tile != null)
 				renderLittleTileInventory(tile, renderer, false);
 		}catch(Exception e){
 			
-		}
+		}*/
 	}
 
 	@Override
@@ -78,8 +62,9 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
 			
 			for (int i = 0; i < little.tiles.size(); i++) {
-				ArrayList<CubeObject> cubes = little.tiles.get(i).getCubes();
-				for (int j = 0; j < cubes.size(); j++) {
+				ArrayList<CubeObject> cubes = little.tiles.get(i).getRenderingCubes();
+				BlockRenderHelper.renderCubes(world, cubes, x, y, z, block, renderer, null);
+				/*for (int j = 0; j < cubes.size(); j++) {
 					double minX = (double)(cubes.get(j).minX+8)/16D;
 					double minY = (double)(cubes.get(j).minY+8)/16D;
 					double minZ = (double)(cubes.get(j).minZ+8)/16D;
@@ -91,15 +76,15 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 					RenderHelper3D.renderBlocks.setRenderBounds(minX, minY, minZ, maxX, maxY, maxZ);
 					if(cubes.get(j).meta != -1)
 						RenderHelper3D.renderBlocks.meta = cubes.get(j).meta;
-					else
-						RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
+					//else
+						//RenderHelper3D.renderBlocks.meta = little.tiles.get(i).meta;
 					RenderHelper3D.renderBlocks.lockBlockBounds = true;
 					if(cubes.get(j).block != null)
 						RenderHelper3D.renderBlocks.renderBlockAllFaces(cubes.get(j).block, x, y, z);
-					else
-						RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
+					//else
+						//RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
 					RenderHelper3D.renderBlocks.lockBlockBounds = false;
-				}
+				}*/
 			}
 		}
 		
@@ -152,12 +137,13 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				GL11.glTranslatef(0.5F, 0.5F, 0);
 			}
 			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-			ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(Minecraft.getMinecraft().theWorld, item);
-			for (int i = 0; i < tiles.size(); i++) {
+			BlockRenderHelper.renderInventoryCubes((RenderBlocks) data[0], ((ITilesRenderer)item.getItem()).getRenderingCubes(item), Block.getBlockFromItem(item.getItem()), item.getItemDamage());
+			//ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(Minecraft.getMinecraft().theWorld, item);
+			/*for (int i = 0; i < tiles.size(); i++) {
 				
-				renderLittleTileInventory(tiles.get(i), (RenderBlocks) data[0], true);
+				//renderLittleTileInventory(tiles.get(i), (RenderBlocks) data[0], true);
 				GL11.glRotatef(270.0F, 0.0F, 1.0F, 0.0F);
-			}
+			}*/
 		}
 	}
 

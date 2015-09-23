@@ -2,72 +2,108 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.Constants.NBT;
+import scala.tools.nsc.backend.icode.Primitives.Shift;
 
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
+import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.utils.InsideShiftHandler;
+import com.creativemd.littletiles.utils.ShiftHandler;
 
-public class LittleTilePreview {
+public final class LittleTilePreview {
 	
 	public boolean canSplit = true;
 	public LittleTileSize size = null;
-	/**Used for multiblocks**/
-	public ArrayList<LittleTilePreview> subTiles = new ArrayList<LittleTilePreview>(); 
 	
-	public LittleTileVec min = null;
-	public LittleTileVec max = null;
+	public NBTTagCompound nbt;
+	///**Used for multiblocks**/
+	//public ArrayList<LittleTilePreview> subTiles = new ArrayList<LittleTilePreview>(); 
 	
-	public LittleTilePreview(LittleTileSize size)
+	public LittleTileBox box;
+	
+	public ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
+	
+	public LittleTilePreview(LittleTileBox box, NBTTagCompound nbt)
 	{
-		this.size = size;
+		this(box.getSize(), nbt);
+		this.box = box;
 	}
 	
-	public AxisAlignedBB getLittleBox()
+	public LittleTilePreview(LittleTileSize size, NBTTagCompound nbt)
 	{
-		return AxisAlignedBB.getBoundingBox(min.posX, min.posY, min.posZ, max.posX, max.posY, max.posZ);
+		this.size = size;
+		this.nbt = nbt;
 	}
 	
 	public void updateSize()
 	{
-		size = new LittleTileSize((byte)(max.posX - min.posX), (byte)(max.posY - min.posY), (byte)(max.posZ - min.posZ));
+		size = box.getSize();
 	}
 	
-	public ArrayList<LittleTilePreview> getAllTiles()
+	public LittleTile getLittleTile(TileEntityLittleTiles te)
+	{
+		return LittleTile.CreateandLoadTile(te, te.getWorldObj(), nbt);
+	}
+	
+	/*public ArrayList<LittleTilePreview> getAllTiles()
 	{
 		ArrayList<LittleTilePreview> tiles = new ArrayList<LittleTilePreview>();
-		if(min != null && max != null)
+		if(box != null || subTiles.size() == 0)
 			tiles.add(this);
 		for (int i = 0; i < subTiles.size(); i++) {
 			tiles.addAll(subTiles.get(i).getAllTiles());
 		}
 		return tiles;
+	}*/
+	
+	public CubeObject getCubeBlock()
+	{
+		CubeObject cube = box.getCube();
+		if(nbt.hasKey("block"))
+		{
+			cube.block = Block.getBlockFromName(nbt.getString("block"));
+			cube.meta = nbt.getInteger("meta");
+		}else{
+			cube.block = Blocks.stone;
+		}
+		return cube;
 	}
+
+	public LittleTilePreview copy() {
+		LittleTilePreview preview = new LittleTilePreview(size != null ? size.copy() : null, (NBTTagCompound)nbt.copy());
+		preview.canSplit = this.canSplit;
+		preview.shifthandlers = new ArrayList<ShiftHandler>(this.shifthandlers);
+		if(box != null)
+			preview.box = box.copy();
+		return preview;
+	}
+	
 	
 	public static LittleTilePreview getPreviewFromNBT(NBTTagCompound nbt)
 	{
 		if(nbt == null)
 			return null;
 		LittleTileSize size = null;
-		if(nbt.hasKey("sizeX"))
-			size = new LittleTileSize(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
-		LittleTileVec min = null;
-		LittleTileVec max = null;
-		if(nbt.hasKey("ix"))
+		LittleTileBox box = null;
+		if(nbt.hasKey("sizex"))
+			size = new LittleTileSize("size", nbt);
+		if(nbt.hasKey("bBoxminX"))
 		{
-			min = new LittleTileVec(nbt.getByte("ix"), nbt.getByte("iy"), nbt.getByte("iz"));
-			max = new LittleTileVec(nbt.getByte("ax"), nbt.getByte("ay"), nbt.getByte("az"));
+			box = new LittleTileBox("bBox", nbt);
 			if(size == null)
-			{
-				size = new LittleTileSize(max.posX-min.posX, max.posY-min.posY, max.posZ-min.posZ);
-			}
+				size = box.getSize();
 		}
 		
 		if(size != null)
 		{
-			LittleTilePreview preview = new LittleTilePreview(size);
-			preview.min = min;
-			preview.max = max;
+			LittleTilePreview preview = new LittleTilePreview(size, nbt);
+			preview.box = box;
 			return preview;
 		}else{
 			return null;

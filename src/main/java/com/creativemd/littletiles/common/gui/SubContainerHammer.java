@@ -17,8 +17,8 @@ import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 public class SubContainerHammer extends SubContainer{
 	
@@ -48,10 +48,15 @@ public class SubContainerHammer extends SubContainer{
 						basic.setInventorySlotContents(0, null);
 					if(block.hasTileEntity(stack.getItemDamage()))
 						return ;
-					LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
+					//LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
 					ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
 					dropstack.stackSize = tiles;
-					ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
+					dropstack.stackTagCompound = new NBTTagCompound();
+					size.writeToNBT("size", dropstack.stackTagCompound);
+					new LittleTileBlock(block, stack.getItemDamage()).saveTile(dropstack.stackTagCompound);
+					//dropstack.stackTagCompound.setString("block", Block.blockRegistry.getNameForObject(block));
+					//dropstack.stackTagCompound.setInteger("meta", stack.getItemDamage());
+					//ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
 					player.inventory.addItemStackToInventory(dropstack);
 				}
 			}

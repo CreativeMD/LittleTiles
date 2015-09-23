@@ -5,16 +5,20 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
+import com.creativemd.littletiles.common.utils.PlacementHelper.PreviewTile;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.utils.InsideShiftHandler;
+import com.creativemd.littletiles.utils.ShiftHandler;
+import com.google.common.collect.ForwardingObject;
 import com.ibm.icu.text.PluralRules.PluralType;
 
 import net.minecraft.block.Block;
@@ -27,6 +31,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -43,6 +48,7 @@ import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import ibxm.Player;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {
@@ -61,21 +67,8 @@ public class PreviewRenderer {
 			{
 				if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem()))
 				{
-					PlacementHelper helper = new PlacementHelper(mc.objectMouseOver, mc.thePlayer);	  
-					
-					double x = (double)helper.moving.blockX - TileEntityRendererDispatcher.staticPlayerX;
-					double y = (double)helper.moving.blockY - TileEntityRendererDispatcher.staticPlayerY;
-					double z = (double)helper.moving.blockZ - TileEntityRendererDispatcher.staticPlayerZ;
-					
-					GL11.glEnable(GL11.GL_BLEND);
-		            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-		            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
-		            GL11.glLineWidth(2.0F);
-		            GL11.glDisable(GL11.GL_TEXTURE_2D);
-		            GL11.glDepthMask(false);          
-		            
-		            
-		            //Rotate Block
+					PlacementHelper helper = PlacementHelper.getInstance(mc.thePlayer);
+					//Rotate Block
 		            if(GameSettings.isKeyDown(LittleTilesClient.up) && !LittleTilesClient.pressedUp)
 		            {
 		            	LittleTilesClient.pressedUp = true;
@@ -103,40 +96,95 @@ public class PreviewRenderer {
 		            	direction2 = direction2.getRotation(ForgeDirection.DOWN);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.left))
 		            	LittleTilesClient.pressedLeft = false;
-		            
-		            LittleTileSize size = helper.size;
-		            size.rotateSize(direction);
-		            size.rotateSize(direction2);
-		            Vec3 vec = helper.getCenterPos(size);
-		            
-		            if(!helper.isSingle())
-		            {
-		            	helper.rotateTiles(direction);
-		            	helper.rotateTiles(direction2);
-			            for (int i = 0; i < helper.preview.size(); i++) {
-							LittleTilePreview tile = helper.preview.get(i);
-							Vec3 offset = helper.getOffset(i, size);
-							
-							double posX = vec.xCoord+offset.xCoord;
-							double posY = vec.yCoord+offset.yCoord;
-							double posZ = vec.zCoord+offset.zCoord;
-							
-							RenderHelper3D.renderBlock(posX - TileEntityRendererDispatcher.staticPlayerX, posY - TileEntityRendererDispatcher.staticPlayerY, posZ - TileEntityRendererDispatcher.staticPlayerZ,
-									tile.size.getPosX(), tile.size.getPosY(), tile.size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
-						}
-		            
-		           
-		            	RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
-							size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, 0.12);
-		            }
-		            else{
-		            	LittleTilePreview tile = helper.preview.get(0);
-		            	RenderHelper3D.renderBlock(vec.xCoord - TileEntityRendererDispatcher.staticPlayerX, vec.yCoord - TileEntityRendererDispatcher.staticPlayerY, vec.zCoord - TileEntityRendererDispatcher.staticPlayerZ,
-								tile.size.getPosX(), tile.size.getPosY(), tile.size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
-		            }
-		            	
 					
-					GL11.glDepthMask(true);
+					int posX = mc.objectMouseOver.blockX;
+					int posY = mc.objectMouseOver.blockY;
+					int posZ = mc.objectMouseOver.blockZ;
+					
+					double x = (double)posX - TileEntityRendererDispatcher.staticPlayerX;
+					//if(posX < 0)
+						//x--;
+					double y = (double)posY - TileEntityRendererDispatcher.staticPlayerY;
+					//if(posY < 0)
+						//y--;
+					double z = (double)posZ - TileEntityRendererDispatcher.staticPlayerZ;
+					//if(posZ < 0)
+						//z--;
+					
+					ForgeDirection side = ForgeDirection.getOrientation(mc.objectMouseOver.sideHit);
+					if(!helper.canBePlacedInside(posX, posY, posZ, mc.objectMouseOver.hitVec, side))
+					{
+						switch(side)
+						{
+						case EAST:
+							x++;
+							break;
+						case WEST:
+							x--;
+							break;
+						case UP:
+							y++;
+							break;
+						case DOWN:
+							y--;
+							break;
+						case SOUTH:
+							z++;
+							break;
+						case NORTH:
+							z--;
+							break;
+						default:
+							break;
+						}
+					}
+					GL11.glEnable(GL11.GL_BLEND);
+		            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+		            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+		            GL11.glLineWidth(2.0F);
+		            GL11.glDisable(GL11.GL_TEXTURE_2D);
+		            GL11.glDepthMask(false);
+		            
+		            ArrayList<PreviewTile> previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(), mc.objectMouseOver, direction, direction2);
+		            
+		            for (int i = 0; i < previews.size(); i++) {
+						GL11.glPushMatrix();
+						PreviewTile preview = previews.get(i);
+						CubeObject cube = preview.box.getCube();
+						LittleTileSize size = preview.box.getSize();
+						double cubeX = x+cube.minX+size.getPosX()/2D;
+						//if(posX < 0 && side != ForgeDirection.WEST && side != ForgeDirection.EAST)
+							//cubeX = x+(1-cube.minX)+size.getPosX()/2D;
+						double cubeY = y+cube.minY+size.getPosY()/2D;
+						//if(posY < 0 && side != ForgeDirection.DOWN)
+							//cubeY = y-cube.minY+size.getPosY()/2D;
+						double cubeZ = z+cube.minZ+size.getPosZ()/2D;
+						//if(posZ < 0 && side != ForgeDirection.NORTH)
+							//cubeZ = z-cube.minZ+size.getPosZ()/2D;
+						/*double cubeX = x;
+						if(posX < 0)
+							x -= 1;
+						double cubeY = y;
+						double cubeZ = z;*/
+						RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+						GL11.glPopMatrix();
+					}
+		            
+		            if(mc.thePlayer.isSneaking())
+		            {
+		            	ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
+		            	
+		            	 for (int i = 0; i < previews.size(); i++) 
+		    				shifthandlers.addAll(previews.get(i).preview.shifthandlers);
+		            	 
+		            	 for (int i = 0; i < shifthandlers.size(); i++) {
+		            		//GL11.glPushMatrix();
+							shifthandlers.get(i).handleRendering(mc, x, y, z);
+							//GL11.glPopMatrix();
+						}
+		            }
+		            
+		            GL11.glDepthMask(true);
 		            GL11.glEnable(GL11.GL_TEXTURE_2D);
 		            GL11.glDisable(GL11.GL_BLEND);
 				}

@@ -3,13 +3,13 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileSize;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -73,25 +73,25 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 		byte maxZ = LittleTile.minPos;
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
-			minX = (byte) Math.min(minX, tile.min.posX);
-			minY = (byte) Math.min(minY, tile.min.posY);
-			minZ = (byte) Math.min(minZ, tile.min.posZ);
-			maxX = (byte) Math.max(maxX, tile.max.posX);
-			maxY = (byte) Math.max(maxY, tile.max.posY);
-			maxZ = (byte) Math.max(maxZ, tile.max.posZ);
+			minX = (byte) Math.min(minX, tile.box.minX);
+			minY = (byte) Math.min(minY, tile.box.minY);
+			minZ = (byte) Math.min(minZ, tile.box.minZ);
+			maxX = (byte) Math.max(maxX, tile.box.maxX);
+			maxY = (byte) Math.max(maxY, tile.box.maxY);
+			maxZ = (byte) Math.max(maxZ, tile.box.maxZ);
 		}
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ);
 	}
 	
-	public static ArrayList<LittleTile> loadTiles(World world, ItemStack stack)
+	public static ArrayList<LittleTile> loadTiles(TileEntityLittleTiles te, ItemStack stack)
 	{
 		ArrayList<LittleTile> result = new ArrayList<LittleTile>();
 		int tiles = stack.stackTagCompound.getInteger("tiles");
 		for (int i = 0; i < tiles; i++) {
 			NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("tile" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(world, nbt);
-			if(tile != null && tile.isValid())
-				result.add(tile);
+			LittleTile tile = LittleTile.CreateandLoadTile(te, te.getWorldObj(), nbt);
+			//if(tile != null && tile.isValid())
+			result.add(tile);
 		}
 		return result;
 	}
@@ -102,9 +102,20 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 		stack.stackTagCompound.setInteger("tiles", tiles.size());
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			tiles.get(i).save(world, nbt);
+			tiles.get(i).boundingBoxes.get(0).writeToNBT("bBox", nbt);
+			tiles.get(i).saveTile(nbt);
 			stack.stackTagCompound.setTag("tile" + i, nbt);
 		}
+	}
+	
+	public static ArrayList<CubeObject> getCubes(ItemStack stack)
+	{
+		ArrayList<LittleTilePreview> preview = getPreview(stack);
+		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
+		for (int i = 0; i < preview.size(); i++) {
+			cubes.add(preview.get(i).getCubeBlock());
+		}
+		return cubes;
 	}
 	
 	@Override
@@ -120,5 +131,10 @@ public class ItemRecipe extends Item implements ITilesRenderer{
 	@Override
 	public boolean hasBackground(ItemStack stack) {
 		return true;
+	}
+
+	@Override
+	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
+		return getCubes(stack);
 	}
 }

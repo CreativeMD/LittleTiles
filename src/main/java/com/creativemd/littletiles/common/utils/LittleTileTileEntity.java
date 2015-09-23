@@ -5,6 +5,7 @@ import java.io.IOException;
 import io.netty.buffer.Unpooled;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
@@ -21,16 +22,16 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
-public class LittleTileTileEntity extends LittleTile{
+public class LittleTileTileEntity extends LittleTileBlock{
 	
 	public LittleTileTileEntity()
 	{
 		super();
 	}
 	
-	public LittleTileTileEntity(Block block, int meta, LittleTileSize size, TileEntity tileEntity)
+	public LittleTileTileEntity(Block block, int meta, TileEntity tileEntity)
 	{
-		super(block, meta, size);
+		super(block, meta);
 		this.tileEntity = tileEntity;
 	}
 	
@@ -40,9 +41,9 @@ public class LittleTileTileEntity extends LittleTile{
 	
 	/**All information the client needs*/
 	@Override
-	public void sendToClient(NBTTagCompound nbt)
+	public void updatePacket(NBTTagCompound nbt)
 	{
-		super.sendToClient(nbt);
+		super.updatePacket(nbt);
 		if(!firstSended)
 		{
 			firstSended = true;
@@ -73,7 +74,7 @@ public class LittleTileTileEntity extends LittleTile{
 		        if(newNBT != null)
 		        	nbt.setTag("tileentity", newNBT);
 			}else{
-				//TODO Send packet. No idea how!
+				//Send packet. No idea how!
 			}
 		}
 	}
@@ -81,9 +82,9 @@ public class LittleTileTileEntity extends LittleTile{
 	/**Should apply all information from sendToCLient**/
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void recieveFromServer(NetworkManager net, NBTTagCompound nbt)
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
 	{
-		super.recieveFromServer(net, nbt);
+		super.receivePacket(nbt, net);
 		if(nbt.getBoolean("isFirst"))
 		{
 			tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileentity"));
@@ -96,23 +97,23 @@ public class LittleTileTileEntity extends LittleTile{
 	
 	
 	@Override
-	public void load(World world, NBTTagCompound nbt)
+	public void loadTileExtra(NBTTagCompound nbt)
 	{
-		super.load(world, nbt);
+		super.loadTileExtra(nbt);
 		NBTTagCompound tileNBT = nbt.getCompoundTag("tileEntity");
 		if(tileNBT != null)
 		{
 			tileEntity = TileEntity.createAndLoadEntity(tileNBT);
-			tileEntity.setWorldObj(world);
-			if(tileEntity.isInvalid())
-				setInValid();
+			tileEntity.setWorldObj(te.getWorldObj());
+			//if(tileEntity.isInvalid())
+				//setInValid();
 		}
 	}
 	
 	@Override
-	public void save(World world, NBTTagCompound nbt)
+	public void saveTileExtra(NBTTagCompound nbt)
 	{
-		super.save(world,nbt);
+		super.saveTileExtra(nbt);
 		if(tileEntity != null)
 		{
 			NBTTagCompound tileNBT = new NBTTagCompound();
@@ -122,25 +123,22 @@ public class LittleTileTileEntity extends LittleTile{
 	}
 	
 	@Override
-	public void updateEntity(World world)
+	public void updateEntity()
 	{
 		if(tileEntity != null)
 		{
 			if(tileEntity.getWorldObj() == null)
-				tileEntity.setWorldObj(world);
+				tileEntity.setWorldObj(te.getWorldObj());
 			tileEntity.updateEntity();
 		}
 	}
 	
 	@Override
-	public LittleTile copy()
-	{
-		LittleTileTileEntity tile = new LittleTileTileEntity(block, meta, size, tileEntity);
-		copyCore(tile);
-		return tile;
+	public void copyExtra(LittleTile tile) {
+		super.copyExtra(tile);
+		LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
+		thisTile.tileEntity = tileEntity;
 	}
-	
-	public TileEntityLittleTiles te;
 	
 	public boolean loadTileEntity()
 	{

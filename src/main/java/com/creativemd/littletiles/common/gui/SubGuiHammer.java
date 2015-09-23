@@ -6,7 +6,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.common.gui.controls.GuiButtonControl;
+import com.creativemd.creativecore.common.gui.controls.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.ControlClickEvent;
@@ -28,13 +28,13 @@ public class SubGuiHammer extends SubGui {
 	
 	@Override
 	public void createControls() {
-		controls.add(new GuiButtonControl("<", 50, 20, 10, 20, 0));
-		controls.add(new GuiButtonControl(">", 80, 20, 10, 20, 1));
-		controls.add(new GuiButtonControl("<", 50, 40, 10, 20, 2));
-		controls.add(new GuiButtonControl(">", 80, 40, 10, 20, 3));
-		controls.add(new GuiButtonControl("<", 50, 60, 10, 20, 4));
-		controls.add(new GuiButtonControl(">", 80, 60, 10, 20, 5));
-		controls.add(new GuiButtonControl("HAMMER IT", 130, 40, 60, 20, 6));
+		controls.add(new GuiButton("<", 45, 10, 10, 20, 0));
+		controls.add(new GuiButton(">", 75, 10, 10, 20, 1));
+		controls.add(new GuiButton("<", 45, 30, 10, 20, 2));
+		controls.add(new GuiButton(">", 75, 30, 10, 20, 3));
+		controls.add(new GuiButton("<", 45, 50, 10, 20, 4));
+		controls.add(new GuiButton(">", 75, 50, 10, 20, 5));
+		controls.add(new GuiButton("HAMMER IT", 100, 30, 60, 20, 6));
 	}
 
 	@Override
@@ -47,9 +47,9 @@ public class SubGuiHammer extends SubGui {
 	@CustomEventSubscribe
 	public void onClicked(ControlClickEvent event)
 	{
-		if(event.source instanceof GuiButtonControl)
+		if(event.source instanceof GuiButton)
 		{
-			GuiButtonControl button = (GuiButtonControl) event.source;
+			GuiButton button = (GuiButton) event.source;
 			switch (button.id) {
 			case 0:
 				sizeX--;
