@@ -66,7 +66,8 @@ public class LittleTileBlock extends LittleTile{
 	public ItemStack getDrop() {
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		stack.stackTagCompound = new NBTTagCompound();
-		saveTileExtra(stack.stackTagCompound);
+		saveTile(stack.stackTagCompound);
+		boundingBoxes.get(0).getSize().writeToNBT("size", stack.stackTagCompound);
 		return stack;
 	}
 

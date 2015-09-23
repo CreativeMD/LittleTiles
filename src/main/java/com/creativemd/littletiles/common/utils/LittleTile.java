@@ -71,25 +71,39 @@ public abstract class LittleTile {
 	
 	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt, boolean isPacket, NetworkManager net)
 	{
-		String id = nbt.getString("tID");
-		Class<? extends LittleTile> TileClass = getClassByID(id);
-		LittleTile tile = null;
-		
-		//TODO CHeck if it is old!!!!!!!!!!!!!!!
-		if(TileClass != null)
+		if(nbt.hasKey("tileID")) //If it's the old tileentity
 		{
-			try {
-				tile = TileClass.getConstructor().newInstance();
-			} catch (Exception e) {
-				System.out.println("Found invalid tileID=" + id);
+			if(nbt.hasKey("block"))
+			{
+				Block block = Block.getBlockFromName(nbt.getString("block"));
+				int meta = nbt.getInteger("meta");
+				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
+				box.addOffset(new LittleTileVec(8, 8, 8));
+				LittleTileBlock tile = new LittleTileBlock(block, meta);
+				tile.boundingBoxes.add(box);
+				tile.cornerVec = box.getMinVec();
+				return tile;
 			}
+		}else{
+			String id = nbt.getString("tID");
+			Class<? extends LittleTile> TileClass = getClassByID(id);
+			LittleTile tile = null;
+			if(TileClass != null)
+			{
+				try {
+					tile = TileClass.getConstructor().newInstance();
+				} catch (Exception e) {
+					System.out.println("Found invalid tileID=" + id);
+				}
+			}
+			if(tile != null)
+				if(isPacket)
+					tile.receivePacket(nbt, net);
+				else
+					tile.loadTile(te, nbt);
+			return tile;		
 		}
-		if(tile != null)
-			if(isPacket)
-				tile.receivePacket(nbt, net);
-			else
-				tile.loadTile(te, nbt);
-		return tile;		
+		return null;
 	}
 	
 	public TileEntityLittleTiles te;
@@ -289,7 +303,8 @@ public abstract class LittleTile {
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z) {}
 	
-	@SideOnly(Side.CLIENT)
+	//================Sound================
+	
 	public abstract Block.SoundType getSound();
 	
 	//================Tick================
