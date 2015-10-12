@@ -18,6 +18,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import scala.tools.nsc.backend.icode.Primitives.Shift;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
@@ -26,7 +27,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.HashMapList;
 import com.creativemd.littletiles.utils.InsideShiftHandler;
 import com.creativemd.littletiles.utils.ShiftHandler;
 

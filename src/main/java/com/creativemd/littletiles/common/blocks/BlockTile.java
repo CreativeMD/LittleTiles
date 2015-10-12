@@ -307,7 +307,11 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     	{
-    		return tempEntity.loadedTile.getDrop();
+    		try{
+    			return tempEntity.loadedTile.getDrop();
+    		}catch(Exception e){
+    			
+    		}
     	}
     	return null;
     }
