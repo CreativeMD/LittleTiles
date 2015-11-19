@@ -121,8 +121,12 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		if(item.getItem() instanceof ITilesRenderer)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
+			GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
+            //GL11.glEnable(GL11.GL_BLEND);
+            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glEnable(GL11.GL_BLEND);
+			GL11.glColor4d(1, 1, 1, 1);
 			if(type == ItemRenderType.INVENTORY)
 			{
 				if(((ITilesRenderer)item.getItem()).hasBackground(item))
