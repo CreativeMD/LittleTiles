@@ -5,95 +5,100 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
-import com.creativemd.littletiles.common.utils.PlacementHelper.PreviewTile;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.utils.InsideShiftHandler;
+import com.creativemd.littletiles.utils.PreviewTile;
 import com.creativemd.littletiles.utils.ShiftHandler;
-import com.google.common.collect.ForwardingObject;
-import com.ibm.icu.text.PluralRules.PluralType;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.MovingObjectPosition.MovingObjectType;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.RenderHandEvent;
-import net.minecraftforge.client.event.RenderWorldEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.event.entity.player.EntityInteractEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.gameevent.TickEvent.Phase;
-import cpw.mods.fml.common.gameevent.TickEvent.RenderTickEvent;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import ibxm.Player;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.settings.GameSettings;
+import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.util.Vec3;
+import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.common.util.ForgeDirection;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
-	public static ForgeDirection direction = ForgeDirection.EAST;
-	public static ForgeDirection direction2 = ForgeDirection.EAST;
+	//public static ForgeDirection direction = ForgeDirection.UP;
+	//public static ForgeDirection direction2 = ForgeDirection.EAST;
+	
+	/*public static void updateVertical()
+	{
+		if(direction == ForgeDirection.UNKNOWN)
+			direction = ForgeDirection.DOWN;
+		else if(direction == ForgeDirection.DOWN)
+			direction = ForgeDirection.UP;
+		else
+			direction = ForgeDirection.UNKNOWN;
+	}
+	
+	public static void updateHorizontal()
+	{
+		if(direction2 == ForgeDirection.WEST || direction2 == ForgeDirection.EAST)
+			direction2 = ForgeDirection.NORTH;
+		else
+			direction2 = ForgeDirection.EAST;
+	}*/
+	
+	public void processKey(ForgeDirection direction)
+	{
+		LittleRotatePacket packet = new LittleRotatePacket(direction);
+		packet.executeClient(mc.thePlayer);
+		PacketHandler.sendPacketToServer(packet);
+	}
 	
 	@SubscribeEvent
 	public void tick(RenderHandEvent event)
 	{
 		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{
+			//mc.theWorld
 			if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null)
 			{
 				if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem()))
 				{
+					//direction = ForgeDirection.UP;
+					//direction2 = ForgeDirection.EAST;
 					PlacementHelper helper = PlacementHelper.getInstance(mc.thePlayer);
 					//Rotate Block
 		            if(GameSettings.isKeyDown(LittleTilesClient.up) && !LittleTilesClient.pressedUp)
 		            {
 		            	LittleTilesClient.pressedUp = true;
-		            	direction = direction.getRotation(ForgeDirection.NORTH);
+		            	processKey(ForgeDirection.UP);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.up))
 		            	LittleTilesClient.pressedUp = false;
 		            
 		            if(GameSettings.isKeyDown(LittleTilesClient.down) && !LittleTilesClient.pressedDown)
 		            {
 		            	LittleTilesClient.pressedDown = true;
-		            	direction = direction.getRotation(ForgeDirection.SOUTH);
+		            	processKey(ForgeDirection.DOWN);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.down))
 		            	LittleTilesClient.pressedDown = false;
 		            
 		            if(GameSettings.isKeyDown(LittleTilesClient.right) && !LittleTilesClient.pressedRight)
 		            {
 		            	LittleTilesClient.pressedRight = true;
-		            	direction2 = direction2.getRotation(ForgeDirection.UP);
+		            	processKey(ForgeDirection.SOUTH);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.right))
 		            	LittleTilesClient.pressedRight = false;
 		            
 		            if(GameSettings.isKeyDown(LittleTilesClient.left) && !LittleTilesClient.pressedLeft)
 		            {
 		            	LittleTilesClient.pressedLeft = true;
-		            	direction2 = direction2.getRotation(ForgeDirection.DOWN);
+		            	processKey(ForgeDirection.NORTH);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.left))
 		            	LittleTilesClient.pressedLeft = false;
 					
@@ -145,20 +150,25 @@ public class PreviewRenderer {
 		            GL11.glDisable(GL11.GL_TEXTURE_2D);
 		            GL11.glDepthMask(false);
 		            
-		            ArrayList<PreviewTile> previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(), mc.objectMouseOver, direction, direction2);
+		            
+		            
+		            
+		            ArrayList<PreviewTile> previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(), mc.objectMouseOver); //, direction, direction2);
+		            
 		            
 		            for (int i = 0; i < previews.size(); i++) {
 						GL11.glPushMatrix();
 						PreviewTile preview = previews.get(i);
-						CubeObject cube = preview.box.getCube();
-						LittleTileSize size = preview.box.getSize();
-						double cubeX = x+cube.minX+size.getPosX()/2D;
+						LittleTileBox previewBox = preview.getPreviewBox();
+						CubeObject cube = previewBox.getCube();
+						Vec3 size = previewBox.getSizeD();
+						double cubeX = x+cube.minX+size.xCoord/2D;
 						//if(posX < 0 && side != ForgeDirection.WEST && side != ForgeDirection.EAST)
 							//cubeX = x+(1-cube.minX)+size.getPosX()/2D;
-						double cubeY = y+cube.minY+size.getPosY()/2D;
+						double cubeY = y+cube.minY+size.yCoord/2D;
 						//if(posY < 0 && side != ForgeDirection.DOWN)
 							//cubeY = y-cube.minY+size.getPosY()/2D;
-						double cubeZ = z+cube.minZ+size.getPosZ()/2D;
+						double cubeZ = z+cube.minZ+size.zCoord/2D;
 						//if(posZ < 0 && side != ForgeDirection.NORTH)
 							//cubeZ = z-cube.minZ+size.getPosZ()/2D;
 						/*double cubeX = x;
@@ -166,7 +176,8 @@ public class PreviewRenderer {
 							x -= 1;
 						double cubeY = y;
 						double cubeZ = z;*/
-						RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.getPosX(), size.getPosY(), size.getPosZ(), 0, 0, 0, 1, 1, 1, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+						Vec3 color = preview.getPreviewColor();
+						RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.xCoord, size.yCoord, size.zCoord, 0, 0, 0, color.xCoord, color.yCoord, color.zCoord, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
 						GL11.glPopMatrix();
 					}
 		            
@@ -175,7 +186,8 @@ public class PreviewRenderer {
 		            	ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
 		            	
 		            	 for (int i = 0; i < previews.size(); i++) 
-		    				shifthandlers.addAll(previews.get(i).preview.shifthandlers);
+		            		 if(previews.get(i).preview != null)
+		            			 shifthandlers.addAll(previews.get(i).preview.shifthandlers);
 		            	 
 		            	 for (int i = 0; i < shifthandlers.size(); i++) {
 		            		//GL11.glPushMatrix();
