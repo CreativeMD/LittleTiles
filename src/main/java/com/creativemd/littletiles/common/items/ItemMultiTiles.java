@@ -7,6 +7,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -20,7 +21,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	
@@ -37,7 +40,11 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	{
 		if(stack.stackTagCompound != null)
 		{
-			list.add("Contains " + stack.stackTagCompound.getInteger("tiles") + " tiles");
+			String id = "none";
+			if(stack.stackTagCompound.hasKey("structure"))
+				id = stack.stackTagCompound.getCompoundTag("structure").getString("id");
+			list.add("structure: " + id);
+			list.add("contains " + stack.stackTagCompound.getInteger("tiles") + " tiles");
 		}
 	}
 
@@ -78,6 +85,20 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	@Override
 	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
 		return ItemRecipe.getCubes(stack);
+	}
+
+	@Override
+	public void rotateLittlePreview(ItemStack stack, ForgeDirection direction) {
+		ItemRecipe.rotatePreview(stack, direction);
+	}
+
+	@Override
+	public LittleStructure getLittleStructure(ItemStack stack) {
+		return getLTStructure(stack);
+	}
+	
+	public static LittleStructure getLTStructure(ItemStack stack) {
+		return LittleStructure.createAndLoadStructure(stack.stackTagCompound.getCompoundTag("structure"));
 	}
 	
 	/*@Override
