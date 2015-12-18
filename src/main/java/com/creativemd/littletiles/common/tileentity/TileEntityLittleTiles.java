@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -22,6 +23,7 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 
@@ -108,6 +110,7 @@ public class TileEntityLittleTiles extends TileEntity{
 			if(tile != null)
 				tiles.add(tile);
 		}
+        //update();
     }
 
 	@Override
@@ -129,11 +132,13 @@ public class TileEntityLittleTiles extends TileEntity{
     	//writeToNBT(nbt);
     	for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound tileNBT = new NBTTagCompound();
+			NBTTagCompound packet = new NBTTagCompound();
 			tiles.get(i).saveTile(tileNBT);
-			tiles.get(i).updatePacket(tileNBT);
+			tiles.get(i).updatePacket(packet);
 			//tileNBT.setByte("x", tiles.get(i).cornerVec.x);
 			//tileNBT.setByte("y", tiles.get(i).cornerVec.y);
 			//tileNBT.setByte("z", tiles.get(i).cornerVec.z);
+			tileNBT.setTag("update", packet);
 			nbt.setTag("t" + i, tileNBT);
 		}
         nbt.setInteger("tilesCount", tiles.size());
@@ -143,6 +148,11 @@ public class TileEntityLittleTiles extends TileEntity{
         	//needFullUpdate = false;
         //}
         return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, blockMetadata, nbt);
+    }
+    
+    public LittleTile getTile(LittleTileVec vec)
+    {
+    	return getTile((byte)vec.x, (byte)vec.y, (byte)vec.z);
     }
     
     public LittleTile getTile(byte minX, byte minY, byte minZ)
@@ -170,6 +180,7 @@ public class TileEntityLittleTiles extends TileEntity{
 					tiles.add(tile);
 			}
     	}else{*/
+    	
     	ArrayList<LittleTile> exstingTiles = new ArrayList<LittleTile>();
     	exstingTiles.addAll(tiles);
         int count = pkt.func_148857_g().getInteger("tilesCount");
@@ -179,7 +190,7 @@ public class TileEntityLittleTiles extends TileEntity{
 			LittleTile tile = getTile(tileNBT.getByte("cVecx"), tileNBT.getByte("cVecy"), tileNBT.getByte("cVecz"));
 			if(tile != null)
 			{
-				tile.receivePacket(tileNBT, net);
+				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);
 			}
 			else
@@ -187,6 +198,8 @@ public class TileEntityLittleTiles extends TileEntity{
 				tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 				if(tile != null)
 					tiles.add(tile);
+				//else
+					//System.out.println("Failed to load tileentity nbt=" + tileNBT.toString());
 			}
 		}
         for (int i = 0; i < exstingTiles.size(); i++) {
@@ -194,6 +207,16 @@ public class TileEntityLittleTiles extends TileEntity{
 		}
     	//}
         updateRender();
+        /*if(tiles.size() == 0)
+        {
+        	System.out.println("===============================");
+        	System.out.println("Receiving littleTiles packet x=" + xCoord + ",y=" + yCoord + ",z" + zCoord);
+        	
+        	System.out.println(pkt.func_148857_g().toString());
+        	
+        	System.out.println("-------------------------------");
+        	System.out.println("Loaded " + tiles.size() + " tiles");
+        }*/
     }
     
     public MovingObjectPosition getMoving(EntityPlayer player)
@@ -259,6 +282,7 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public void update()
 	{
+		worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
 	
@@ -274,7 +298,44 @@ public class TileEntityLittleTiles extends TileEntity{
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).updateEntity();
 		}
-		if(tiles.size() == 0)
+		if(!worldObj.isRemote && tiles.size() == 0)
 			worldObj.setBlockToAir(xCoord, yCoord, zCoord);
+	}
+
+	public ChunkCoordinates getCoord() {
+		return new ChunkCoordinates(xCoord, yCoord, zCoord);
+	}
+
+	public void combineTiles() {
+		//ArrayList<LittleTile> newTiles = new ArrayList<>();
+		int size = 0;
+		while(size != tiles.size())
+		{
+			size = tiles.size();
+			int i = 0;
+			while(i < tiles.size()){
+				int j = 0;
+				while(j < tiles.size()) {
+					if(i != j && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)))
+					{
+						LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
+						if(box != null)
+						{
+							tiles.get(i).boundingBoxes.set(0, box);
+							tiles.get(i).combineTiles(tiles.get(j));
+							tiles.get(i).updateCorner();
+							tiles.remove(j);
+							if(i > j)
+								i--;
+							continue;
+						}
+					}
+					j++;
+				}
+				i++;
+			}
+		}
+		update();
+		
 	}
 }
