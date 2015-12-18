@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.common.util.Constants.NBT;
 import scala.tools.nsc.backend.icode.Primitives.Shift;
 
@@ -82,6 +83,32 @@ public final class LittleTilePreview {
 		if(box != null)
 			preview.box = box.copy();
 		return preview;
+	}
+	
+	public static void rotatePreview(NBTTagCompound nbt, ForgeDirection direction)
+	{
+		if(nbt.hasKey("sizex"))
+		{
+			LittleTileSize size = new LittleTileSize("size", nbt);
+			size.rotateSize(direction);
+			size.writeToNBT("size", nbt);
+		}
+		if(nbt.hasKey("bBoxminX"))
+		{
+			LittleTileBox box = new LittleTileBox("bBox", nbt);
+			box.rotateBox(direction);
+			box.writeToNBT("bBox", nbt);
+		}
+		if(nbt.hasKey("bSize"))
+		{
+			int count = nbt.getInteger("bSize");
+			for (int i = 0; i < count; i++) {
+				LittleTileBox box = new LittleTileBox("bBox" + i, nbt);
+				box.rotateBox(direction);
+				//box.rotateBox(direction.getRotation(ForgeDirection.UP));
+				box.writeToNBT("bBox" + i, nbt);
+			}
+		}
 	}
 	
 	

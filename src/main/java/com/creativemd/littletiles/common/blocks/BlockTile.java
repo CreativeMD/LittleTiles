@@ -15,6 +15,8 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -30,6 +32,7 @@ import net.minecraft.client.particle.EntityDiggingFX;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -39,6 +42,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
@@ -69,7 +73,48 @@ public class BlockTile extends BlockContainer{
     {
         return false;
     }
-
+	
+	@Override
+	public boolean isLadder(IBlockAccess world, int x, int y, int z, EntityLivingBase entity)
+    {
+		AxisAlignedBB bb = entity.boundingBox;
+        int mX = MathHelper.floor_double(bb.minX);
+        int mY = MathHelper.floor_double(bb.minY);
+        int mZ = MathHelper.floor_double(bb.minZ);
+        for (int y2 = mY; y2 < bb.maxY; y2++)
+        {
+            for (int x2 = mX; x2 < bb.maxX; x2++)
+            {
+                for (int z2 = mZ; z2 < bb.maxZ; z2++)
+                {
+                	TileEntity te = world.getTileEntity(x, y, z2);
+                	if(te instanceof TileEntityLittleTiles)
+                	{
+                		TileEntityLittleTiles littleTE = (TileEntityLittleTiles) te;
+                		for (int i = 0; i < littleTE.tiles.size(); i++) {
+                			if(littleTE.tiles.get(i).isLadder())
+                			{
+	                			for (int j = 0; j < littleTE.tiles.get(i).boundingBoxes.size(); j++) {
+	                				LittleTileBox box = littleTE.tiles.get(i).boundingBoxes.get(j).copy();
+	                				box.addOffset(new LittleTileVec(x2*16, y2*16, z2*16));
+	                				double expand = 0.0001;
+	                				if(bb.intersectsWith(box.getBox().expand(expand, expand, expand)))
+	                					return true;
+								}
+                			}
+							
+						}
+                	}
+                    /*block = world.getBlock(x2, y2, z2);
+                    if (block != null && block.isLadder(world, x2, y2, z2, entity))
+                    {
+                        return true;
+                    }*/
+                }
+            }
+        }
+        return false;
+    }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -163,16 +208,27 @@ public class BlockTile extends BlockContainer{
 			}
 	}
 	
+	public static boolean cancelNext = false;
+	
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ)
     {
 		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
 		{
-			if(tempEntity.loadedTile.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
+			try
 			{
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 0));
+				if(world.isRemote)
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 0));
+				return tempEntity.loadedTile.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ);
+			}catch(Exception e){
+				
 			}
-		}		
+		}
+		if(cancelNext)
+		{
+			cancelNext = false;
+			return true;
+		}
         return false;
     }
 	
@@ -262,7 +318,7 @@ public class BlockTile extends BlockContainer{
     	{
     		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     		{
-    			tempEntity.tiles.remove(tempEntity.loadedTile);
+    			tempEntity.loadedTile.destroy();
     			NBTTagCompound nbt = new NBTTagCompound();
     			tempEntity.writeToNBT(nbt);
     			PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 1));
@@ -308,7 +364,9 @@ public class BlockTile extends BlockContainer{
     	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     	{
     		try{
-    			return tempEntity.loadedTile.getDrop();
+    			ArrayList<ItemStack> drops = tempEntity.loadedTile.getDrops();
+    			if(drops.size() > 0)
+    				return drops.get(0);
     		}catch(Exception e){
     			
     		}
@@ -431,6 +489,7 @@ public class BlockTile extends BlockContainer{
     /*
     public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity p_149670_5_) {}*/
     
+    @Override
     public void onNeighborChange(IBlockAccess world, int x, int y, int z, int tileX, int tileY, int tileZ)
     {
     	if(loadTileEntity(world, x, y, z))
@@ -442,6 +501,7 @@ public class BlockTile extends BlockContainer{
     	}
     }
 	
+    @Override
 	public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
 	{
 		if(loadTileEntity(world, x, y, z))
@@ -493,10 +553,15 @@ public class BlockTile extends BlockContainer{
 		return new TileEntityLittleTiles();
 	}
 	
-	public TileEntityLittleTiles tempEntity;
+	public static TileEntityLittleTiles tempEntity;
 	
-	public boolean loadTileEntity(IBlockAccess world, int x, int y, int z)
+	public static boolean loadTileEntity(IBlockAccess world, int x, int y, int z)
 	{
+		if(world == null)
+		{
+			tempEntity = null;
+			return false;
+		}
 		TileEntity tileEntity = world.getTileEntity(x, y, z);
 		if(tileEntity instanceof TileEntityLittleTiles)
 			tempEntity = (TileEntityLittleTiles) tileEntity;

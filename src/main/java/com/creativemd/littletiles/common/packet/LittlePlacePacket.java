@@ -30,7 +30,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(ItemStack stack, Vec3 playerPos, Vec3 hitVec, int x, int y, int z, int side, int direction, int direction2)
+	public LittlePlacePacket(ItemStack stack, Vec3 playerPos, Vec3 hitVec, int x, int y, int z, int side) //, int direction, int direction2)
 	{
 		this.stack = stack;
 		this.playerPos = playerPos;
@@ -39,8 +39,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.y = y;
 		this.z = z;
 		this.side = side;
-		this.direction = direction;
-		this.direction2 = direction2;
+		//this.direction = direction;
+		//this.direction2 = direction2;
 	}
 	
 	public ItemStack stack;
@@ -50,8 +50,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	public int y;
 	public int z;
 	public int side;
-	public int direction;
-	public int direction2;
+	//public int direction;
+	//public int direction2;
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
@@ -62,8 +62,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		buf.writeInt(y);
 		buf.writeInt(z);
 		buf.writeInt(side);
-		buf.writeInt(direction);
-		buf.writeInt(direction2);
+		//buf.writeInt(direction);
+		//buf.writeInt(direction2);
 	}
 
 	@Override
@@ -75,8 +75,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.y = buf.readInt();
 		this.z = buf.readInt();
 		this.side = buf.readInt();
-		this.direction = buf.readInt();
-		this.direction2 = buf.readInt();
+		//this.direction = buf.readInt();
+		//this.direction2 = buf.readInt();
 	}
 
 	@Override
@@ -92,7 +92,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);
 			//helper.side = side;
 			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, x, y, z, side, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, x, y, z, side); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			playerMP.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(playerMP.openContainer.windowId, playerMP.inventory.currentItem, playerMP.inventory.getCurrentItem()));

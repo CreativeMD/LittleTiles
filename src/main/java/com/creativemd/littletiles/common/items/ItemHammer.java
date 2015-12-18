@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.items;
 
+import java.util.List;
+
 import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.creativecore.common.gui.IGuiCreator;
 import com.creativemd.creativecore.common.gui.SubGui;
@@ -28,6 +30,16 @@ public class ItemHammer extends Item implements IGuiCreator{
 	{
 		setCreativeTab(CreativeTabs.tabTools);
 		setMaxStackSize(1);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	{
+		list.add("used for hammering normal");
+		list.add("blocks into small pieces");
+		list.add("shift+rightclick will harvest and");
+		list.add("drop all tiles inside one block");
 	}
 	
 	@Override

@@ -7,6 +7,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.Block.SoundType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,6 +41,7 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
+		
 		nbt.setString("block", Block.blockRegistry.getNameForObject(block));
 		nbt.setInteger("meta", meta);		
 	}
@@ -48,6 +50,8 @@ public class LittleTileBlock extends LittleTile{
 	public void loadTileExtra(NBTTagCompound nbt) {
 		block = Block.getBlockFromName(nbt.getString("block"));
 		meta = nbt.getInteger("meta");
+		if(block == null || block instanceof BlockAir)
+			throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
 	}
 
 	@Override
@@ -87,8 +91,12 @@ public class LittleTileBlock extends LittleTile{
 	public void onPlaced(EntityPlayer player, ItemStack stack)
 	{
 		super.onPlaced(player, stack);
-		block.onBlockPlacedBy(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, player, stack);
-		block.onPostBlockPlaced(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, meta);
+		try{
+			block.onBlockPlacedBy(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, player, stack);
+			block.onPostBlockPlaced(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, meta);
+		}catch(Exception e){
+			
+		}
 	}
 
 	@Override
@@ -109,6 +117,8 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ) {
+		if(super.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
+			return true;
 		return block.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ);
 	}
 	
@@ -130,6 +140,19 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public double getEnchantPowerBonus(World world, int x, int y, int z) {
 		return block.getEnchantPowerBonus(world, x, y, z);
+	}
+
+	@Override
+	public boolean canBeCombined(LittleTile tile) {
+		if(tile instanceof LittleTileBlock)
+		{
+			if(isStructureBlock != tile.isStructureBlock)
+				return false;
+			if(isStructureBlock && structure != tile.structure)
+				return false;
+			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
+		}
+		return false;
 	}
 	
 }

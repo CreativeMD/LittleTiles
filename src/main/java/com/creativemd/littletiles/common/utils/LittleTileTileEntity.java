@@ -153,4 +153,11 @@ public class LittleTileTileEntity extends LittleTileBlock{
 		}
 		return false;
 	}
+	
+	@Override
+	public boolean canBeCombined(LittleTile tile) {
+		if(super.canBeCombined(tile))
+			return tile instanceof LittleTileTileEntity && tileEntity == ((LittleTileTileEntity) tile).tileEntity;
+		return false;
+	}
 }
