@@ -16,6 +16,7 @@ import net.minecraftforge.event.world.BlockEvent;
 import com.creativemd.creativecore.common.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -37,11 +38,10 @@ public class SubContainerHammer extends SubContainer{
 			if(stack != null && stack.getItem() instanceof ItemBlock)
 			{
 				Block block = Block.getBlockFromItem(stack.getItem());
-				if(block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass)
+				if(isBlockValid(block))
 				{
-					int tiles = (int) (1/size.getPercentVolume()*stack.stackSize);
-					if(tiles > 64)
-						tiles = 64;
+					int alltiles = (int) (1/size.getPercentVolume()*stack.stackSize);
+					int tiles = Math.min(alltiles, 64);
 					int blocks = (int) Math.ceil(tiles*size.getPercentVolume());
 					stack.stackSize -= blocks;
 					if(stack.stackSize <= 0)
@@ -54,6 +54,10 @@ public class SubContainerHammer extends SubContainer{
 					dropstack.stackTagCompound = new NBTTagCompound();
 					size.writeToNBT("size", dropstack.stackTagCompound);
 					new LittleTileBlock(block, stack.getItemDamage()).saveTile(dropstack.stackTagCompound);
+					
+					float missingTiles = blocks-tiles*size.getPercentVolume();
+					if(missingTiles > 0)
+						ItemTileContainer.addBlock(player, block, stack.getItemDamage(), missingTiles);
 					//dropstack.stackTagCompound.setString("block", Block.blockRegistry.getNameForObject(block));
 					//dropstack.stackTagCompound.setInteger("meta", stack.getItemDamage());
 					//ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
@@ -61,6 +65,11 @@ public class SubContainerHammer extends SubContainer{
 				}
 			}
 		}
+	}
+	
+	public static boolean isBlockValid(Block block)
+	{
+		return block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass;
 	}
 	
 	@Override
