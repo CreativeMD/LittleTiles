@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -33,6 +34,8 @@ import net.minecraft.util.IIcon;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.common.util.Constants.NBT;
 
@@ -99,8 +102,14 @@ public abstract class LittleTile {
 			if(tile != null)
 				if(isPacket)
 					tile.receivePacket(nbt, net);
-				else
-					tile.loadTile(te, nbt);
+				else{
+					try {
+						tile.loadTile(te, nbt);
+					}catch(Exception e){
+						e.printStackTrace();
+						return null;
+					}
+				}
 			return tile;		
 		}
 		return null;
@@ -159,11 +168,35 @@ public abstract class LittleTile {
 		return size;
 	}
 	
+	public abstract boolean canBeCombined(LittleTile tile);
+	
+	public void combineTiles(LittleTile tile)
+	{
+		if(isLoaded())
+		{
+			structure.tiles.remove(tile);
+		}
+	}
+	
 	//================Packets================
 	
-	public void updatePacket(NBTTagCompound nbt) {}
+	public void updatePacket(NBTTagCompound nbt)
+	{
+		nbt.setInteger("bSize", boundingBoxes.size());
+		for (int i = 0; i < boundingBoxes.size(); i++) {
+			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
+		}
+	}
 	
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net) {}
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	{
+		int count = nbt.getInteger("bSize");
+		boundingBoxes.clear();
+		for (int i = 0; i < count; i++) {
+			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
+		}
+		updateCorner();
+	}
 	
 	//================Save & Loading================
 	
@@ -184,6 +217,18 @@ public abstract class LittleTile {
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
 		}
+		
+		if(isStructureBlock)
+		{
+			nbt.setBoolean("isStructure", true);
+			if(isMainBlock)
+			{
+				nbt.setBoolean("main", true);
+				structure.writeToNBT(nbt);
+			}else{
+				pos.writeToNBT(nbt);
+			}
+		}
 	}
 	
 	public void loadTile(TileEntityLittleTiles te, NBTTagCompound nbt)
@@ -203,6 +248,20 @@ public abstract class LittleTile {
 		for (int i = 0; i < count; i++) {
 			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
 		}
+		updateCorner();
+		
+		isStructureBlock = nbt.getBoolean("isStructure");
+		
+		if(isStructureBlock)
+		{
+			if(nbt.getBoolean("main"))
+			{
+				isMainBlock = true;
+				structure = LittleStructure.createAndLoadStructure(nbt);
+			}else{
+				pos = new LittleTilePosition(nbt);
+			}
+		}
 	}
 	
 	public void markForUpdate()
@@ -218,15 +277,26 @@ public abstract class LittleTile {
 	/**return null for any rotation**/
 	public abstract ForgeDirection[] getValidRotation();
 	
-	public void onPlaced(EntityPlayer player, ItemStack stack)
+	/**stack may be null**/
+	public void onPlaced(EntityPlayer player , ItemStack stack)
 	{
 		onNeighborChangeInside();
+	}
+	
+	public void updateCorner()
+	{
+		if(boundingBoxes.size() > 0)
+		{
+			LittleTileBox box = boundingBoxes.get(0);
+			cornerVec = new LittleTileVec(box.minX, box.minY, box.minZ);
+		}else
+			cornerVec = new LittleTileVec(0, 0, 0);
 	}
 	
 	public void place()
 	{
 		LittleTileBox box = new LittleTileBox(getSelectedBox());
-		cornerVec = new LittleTileVec(box.minX, box.minY, box.minZ);
+		updateCorner();
 		te.addTile(this);
 		te.getWorldObj().playSoundEffect((double)((float)te.xCoord + 0.5F), (double)((float)te.yCoord + 0.5F), (double)((float)te.zCoord + 0.5F), getSound().func_150496_b(), (getSound().getVolume() + 1.0F) / 2.0F, getSound().getPitch() * 0.8F);
 	}
@@ -237,7 +307,12 @@ public abstract class LittleTile {
 	
 	public void destroy()
 	{
-		te.removeTile(this);
+		if(isStructureBlock)
+		{
+			if(!te.getWorldObj().isRemote && isLoaded())
+				structure.onLittleTileDestory();
+		}else
+			te.removeTile(this);
 	}
 	
 	//================Copy================
@@ -266,8 +341,12 @@ public abstract class LittleTile {
 		for (int i = 0; i < this.boundingBoxes.size(); i++) {
 			tile.boundingBoxes.add(this.boundingBoxes.get(i).copy());
 		}
-		tile.cornerVec = tile.cornerVec.copy();
-		tile.te = tile.te;
+		tile.cornerVec = this.cornerVec.copy();
+		tile.te = this.te;
+		
+		tile.structure = this.structure;
+		if(this.pos != null)
+			tile.pos = this.pos.copy();
 	}
 	
 	//================Drop================
@@ -275,7 +354,16 @@ public abstract class LittleTile {
 	public ArrayList<ItemStack> getDrops()
 	{
 		ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
-		drops.add(getDrop());
+		ItemStack stack = null;
+		if(isStructureBlock)
+		{
+			if(isLoaded())
+				stack = structure.getStructureDrop();
+		}else
+			stack = getDrop();
+		if(stack != null)
+			drops.add(stack);
+		
 		return drops;
 	}
 	
@@ -309,7 +397,20 @@ public abstract class LittleTile {
 	
 	//================Tick================
 	
-	public void updateEntity() {}
+	public void updateEntity()
+	{
+		if(isStructureBlock && isMainBlock && structure.tilesToLoad != null)
+		{
+			structure.tiles = new ArrayList<LittleTile>();
+			for (int i = 0; i < structure.tilesToLoad.size(); i++) {
+				structure.checkForTile(te.getWorldObj(), structure.tilesToLoad.get(i));
+			}
+			int missingTiles = structure.tilesToLoad.size() - structure.tiles.size();
+			if(missingTiles > 0)
+				System.out.println("Couldn't load " + missingTiles + " tiles");
+			structure.tilesToLoad = null;
+		}
+	}
 	
 	//================Block Event================
 	
@@ -318,6 +419,8 @@ public abstract class LittleTile {
 	public void randomDisplayTick(World world, int x, int y, int z, Random random) {}
 
 	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ) {
+		if(isLoaded())
+			return structure.onBlockActivated(world, this, x, y, z, player, side, moveX, moveY, moveZ);
 		return false;
 	}
 
@@ -328,4 +431,105 @@ public abstract class LittleTile {
 	public double getEnchantPowerBonus(World world, int x, int y, int z) {
 		return 0;
 	}
+	
+	public boolean isLadder()
+	{
+		if(isLoaded())
+			return structure.isLadder();
+		return false;
+	}
+	
+	//================Structure================
+	
+	public boolean isStructureBlock = false;
+	
+	public LittleStructure structure;
+	public LittleTilePosition pos;
+	public boolean isMainBlock = false;
+	
+	public boolean checkForStructure()
+	{
+		if(structure != null)
+			return true;
+		World world = te.getWorldObj();
+		//if(!world.isRemote)
+		//{
+			Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
+			if(!(chunk instanceof EmptyChunk))
+			{
+				TileEntity tileEntity = world.getTileEntity(pos.coord.posX, pos.coord.posY, pos.coord.posZ);
+				if(tileEntity instanceof TileEntityLittleTiles)
+				{
+					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
+					if(tile != null && tile.isStructureBlock)
+					{
+						if(tile.isMainBlock)
+						{
+							this.structure = tile.structure;
+							if(this.structure != null && this.structure.tiles != null && !this.structure.tiles.contains(this))
+								this.structure.tiles.add(this);
+						}
+					}
+				}
+				
+				if(structure == null)
+					te.removeTile(this);
+				
+				//pos = null;
+				te.update();
+				
+				return structure != null;
+			}
+			
+		//}
+		return false;
+	}
+	
+	public boolean isLoaded()
+	{
+		return isStructureBlock && checkForStructure();
+	}
+	
+	public static class LittleTilePosition {
+		
+		public ChunkCoordinates coord;
+		public LittleTileVec position;
+		
+		public LittleTilePosition(ChunkCoordinates coord, LittleTileVec position)
+		{
+			this.coord = coord;
+			this.position = position;
+		}
+		
+		public LittleTilePosition(String id, NBTTagCompound nbt)
+		{
+			coord = new ChunkCoordinates(nbt.getInteger(id + "coX"), nbt.getInteger(id + "coY"), nbt.getInteger(id + "coZ"));
+			position = new LittleTileVec(id + "po", nbt);
+		}
+		
+		public LittleTilePosition(NBTTagCompound nbt)
+		{
+			this("", nbt);
+		}
+		
+		public void writeToNBT(String id, NBTTagCompound nbt)
+		{
+			nbt.setInteger(id + "coX", coord.posX);
+			nbt.setInteger(id + "coY", coord.posY);
+			nbt.setInteger(id + "coZ", coord.posZ);
+			position.writeToNBT(id + "po", nbt);
+		}
+		
+		public void writeToNBT(NBTTagCompound nbt)
+		{
+			writeToNBT("", nbt);
+		}
+		
+		public LittleTilePosition copy()
+		{
+			return new LittleTilePosition(new ChunkCoordinates(coord), position.copy());
+		}
+		
+	}
+	
 }
