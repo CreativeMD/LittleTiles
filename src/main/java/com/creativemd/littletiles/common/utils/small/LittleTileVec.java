@@ -1,31 +1,37 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class LittleTileVec {
 	
-	public byte x;
-	public byte y;
-	public byte z;
+	public int x;
+	public int y;
+	public int z;
 	
 	public LittleTileVec(String name, NBTTagCompound nbt)
 	{
-		this(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
+		if(nbt.getTag(name + "minX") instanceof NBTTagByte)
+		{
+			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
+			writeToNBT(name, nbt);
+		}else
+			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
 	}
 	
 	public LittleTileVec(Vec3 vec)
 	{
-		this((byte) vec.xCoord, (byte) vec.yCoord, (byte) vec.zCoord);
+		this((int) vec.xCoord, (int) vec.yCoord, (int) vec.zCoord);
 	}
 	
 	public LittleTileVec(int x, int y, int z)
 	{
-		this((byte)x, (byte)y, (byte)z);
+		set(x, y, z);
 	}
 	
-	public LittleTileVec(byte x, byte y, byte z)
+	public void set(int x, int y, int z)
 	{
 		this.x = x;
 		this.y = y;
@@ -60,13 +66,13 @@ public class LittleTileVec {
 		{
 		case UP:
 		case DOWN:
-			byte tempY = y;
+			int tempY = y;
 			y = x;
 			x = tempY;
 			break;
 		case SOUTH:
 		case NORTH:
-			byte tempZ = z;
+			int tempZ = z;
 			z = x;
 			x = tempZ;
 			break;
@@ -95,14 +101,18 @@ public class LittleTileVec {
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		nbt.setByte(name+"x", x);
-		nbt.setByte(name+"y", y);
-		nbt.setByte(name+"z", z);
+		nbt.setInteger(name+"x", x);
+		nbt.setInteger(name+"y", y);
+		nbt.setInteger(name+"z", z);
 	}
 	
 	@Override
 	public String toString()
 	{
 		return "[" + x + "," + y + "," + z + "]";
+	}
+
+	public void invert() {
+		set(-x, -y, -z);
 	}
 }
