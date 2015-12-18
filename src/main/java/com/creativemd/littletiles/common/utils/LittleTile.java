@@ -298,7 +298,7 @@ public abstract class LittleTile {
 		LittleTileBox box = new LittleTileBox(getSelectedBox());
 		updateCorner();
 		te.addTile(this);
-		te.getWorldObj().playSoundEffect((double)((float)te.xCoord + 0.5F), (double)((float)te.yCoord + 0.5F), (double)((float)te.zCoord + 0.5F), getSound().func_150496_b(), (getSound().getVolume() + 1.0F) / 2.0F, getSound().getPitch() * 0.8F);
+		//te.getWorldObj().playSoundEffect((double)((float)te.xCoord + 0.5F), (double)((float)te.yCoord + 0.5F), (double)((float)te.zCoord + 0.5F), getSound().func_150496_b(), (getSound().getVolume() + 1.0F) / 2.0F, getSound().getPitch() * 0.8F);
 	}
 	
 	//================Destroying================

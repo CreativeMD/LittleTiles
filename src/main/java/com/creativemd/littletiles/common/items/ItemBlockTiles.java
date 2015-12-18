@@ -29,6 +29,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.Block.SoundType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
@@ -278,6 +279,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 			coordsToCheck = new ArrayList<>();
 			coordsToCheck.add(new ChunkCoordinates(x, y, z));
 		}
+		ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
 		if(canPlaceTiles(world, splitted, coordsToCheck))
 		{
 			LittleTilePosition pos = null;
@@ -308,6 +310,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles);
 							if(LT != null)
 							{
+								if(!soundsToBePlayed.contains(LT.getSound()))
+									soundsToBePlayed.add(LT.getSound());
 								if(structure != null)
 								{
 									if(pos == null)
@@ -324,6 +328,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 					//System.out.println("Placed " + tiles + "/" + placeTiles.size());
 				}//else
 					//System.out.println("Couldn't create te at x=" + coord.posX + ",y=" + coord.posY + ",z=" + coord.posZ);
+			}
+			for (int i = 0; i < soundsToBePlayed.size(); i++) {
+				world.playSoundEffect((double)((float)player.posX), (double)((float)player.posY), (double)((float)player.posZ), soundsToBePlayed.get(i).func_150496_b(), (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 			}
 			return true;
 		}
