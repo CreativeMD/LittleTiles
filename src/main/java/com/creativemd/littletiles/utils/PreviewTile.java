@@ -62,7 +62,7 @@ public class PreviewTile {
 		{
 			LT.isStructureBlock = true;
 			LT.structure = structure;
-			structure.tiles.add(LT);
+			structure.getTiles().add(LT);
 		}
 		
 		if(teLT.isSpaceForLittleTile(box.copy()))

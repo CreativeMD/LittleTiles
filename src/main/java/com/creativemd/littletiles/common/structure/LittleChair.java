@@ -36,15 +36,21 @@ public class LittleChair extends LittleStructure{
 	
 	public LittleTileVec getHighestCenterPoint()
 	{
+		int minYPos = Integer.MAX_VALUE;
+		
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
+		
+		int maxYPos = Integer.MIN_VALUE;
 		
 		int maxX = Integer.MIN_VALUE;
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
 		HashMapList<ChunkCoordinates, LittleTile> coords = getTilesSortedPerBlock();
+		if(coords.sizeOfValues() == 0)
+			return null;
 		for (int i = 0; i < coords.size(); i++) {
 			ChunkCoordinates coord = coords.getKey(i);
 			for (int j = 0; j < coords.getValues(i).size(); j++) {
@@ -58,6 +64,8 @@ public class LittleChair extends LittleStructure{
 					maxY = Math.max(maxY, coord.posY*16+box.maxY);
 					maxZ = Math.max(maxZ, coord.posZ*16+box.maxZ);
 				}
+				minYPos = Math.min(minYPos, coord.posY);
+				maxYPos = Math.max(maxYPos, coord.posY);
 			}
 			/*
 			minX = Math.min(minX, coord.posX);
@@ -69,31 +77,37 @@ public class LittleChair extends LittleStructure{
 			maxZ = Math.max(maxZ, coord.posZ);*/
 		}
 		
-		int centerX = (minX+maxX)/2/16;
-		int centerY = (minY+maxY)/2/16;
-		int centerZ = (minZ+maxZ)/2/16;
+		//double test = Math.floor(((minX+maxX)/16D/2D));
+		int centerX = (int) Math.floor((minX+maxX)/16D/2D);
+		int centerY = (int) Math.floor((minY+maxY)/16D/2D);
+		int centerZ = (int) Math.floor((minZ+maxZ)/16D/2D);
 		
-		int centerTileX = ((minX+maxX)/2)%16;
-		int centerTileY = ((minY+maxY)/2)%16;
-		int centerTileZ = ((minZ+maxZ)/2)%16;
+		int centerTileX = (int) (Math.floor(minX+maxX)/2D)-centerX*16;
+		int centerTileY = (int) (Math.floor(minY+maxY)/2D)-centerY*16;
+		int centerTileZ = (int) (Math.floor(minZ+maxZ)/2D)-centerZ*16;
 		
-		LittleTileVec position = new LittleTileVec((minX+maxX)/2, (minY+maxY)/2, (minZ+maxZ)/2);
-		ArrayList<LittleTile> tilesInCenter = coords.getValues(new ChunkCoordinates(centerX, centerY, centerZ));
-		if(tilesInCenter != null)
-		{
-			LittleTileBox box = new LittleTileBox(centerTileX, LittleTile.minPos, centerTileZ, centerTileX+1, LittleTile.maxPos, centerTileZ+1);
-			int highest = LittleTile.minPos;
-			for (int i = 0; i < tilesInCenter.size(); i++) {
-				for (int j = 0; j < tilesInCenter.get(i).boundingBoxes.size(); j++) {
-					LittleTileBox littleBox = tilesInCenter.get(i).boundingBoxes.get(j);
-					if(box.intersectsWith(littleBox))
-					{
-						highest = Math.max(highest, littleBox.maxY);
+		LittleTileVec position = new LittleTileVec((minX+maxX)/2, minYPos*16, (minZ+maxZ)/2);
+		//position.y = ;
+		for (int y = minYPos; y <= maxYPos; y++) {
+			ArrayList<LittleTile> tilesInCenter = coords.getValues(new ChunkCoordinates(centerX, y, centerZ));
+			if(tilesInCenter != null)
+			{
+				LittleTileBox box = new LittleTileBox(centerTileX, LittleTile.minPos, centerTileZ, centerTileX+1, LittleTile.maxPos, centerTileZ+1);
+				//int highest = LittleTile.minPos;
+				for (int i = 0; i < tilesInCenter.size(); i++) {
+					for (int j = 0; j < tilesInCenter.get(i).boundingBoxes.size(); j++) {
+						LittleTileBox littleBox = tilesInCenter.get(i).boundingBoxes.get(j);
+						if(box.intersectsWith(littleBox))
+						{
+							position.y = Math.max(y*16+littleBox.maxY, position.y);
+							//highest = Math.max(highest, littleBox.maxY);
+						}
 					}
 				}
+				
 			}
-			position.y = centerY*16+highest;
 		}
+		
 		
 		return position;
 	}
@@ -104,9 +118,12 @@ public class LittleChair extends LittleStructure{
 		if(!world.isRemote)
 		{
 			LittleTileVec vec = getHighestCenterPoint();
-			EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY(), vec.getPosZ());
-			player.mountEntity(sit);
-			world.spawnEntityInWorld(sit);
+			if(vec != null)
+			{
+				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY(), vec.getPosZ());
+				player.mountEntity(sit);
+				world.spawnEntityInWorld(sit);
+			}
 			
 		}
 		return true;

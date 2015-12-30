@@ -110,7 +110,39 @@ public abstract class LittleStructure {
 	}
 	
 	public LittleTile mainTile;
-	public ArrayList<LittleTile> tiles = null;
+	private ArrayList<LittleTile> tiles = null;
+	
+	public void setTiles(ArrayList<LittleTile> tiles)
+	{
+		this.tiles = tiles;
+	}
+	
+	public ArrayList<LittleTile> getTiles()
+	{
+		if(tiles == null)
+			if(!loadTiles())
+				return new ArrayList<>();
+		return tiles;
+	}
+	
+	public boolean loadTiles()
+	{
+		if(mainTile != null)
+		{
+			tiles = new ArrayList<LittleTile>();
+			if(tilesToLoad == null)
+				return true;
+			for (int i = 0; i < tilesToLoad.size(); i++) {
+				checkForTile(mainTile.te.getWorldObj(), tilesToLoad.get(i));
+			}
+			int missingTiles = tilesToLoad.size() - tiles.size();
+			if(missingTiles > 0)
+				System.out.println("Couldn't load " + missingTiles + " tiles");
+			tilesToLoad = null;
+			return true;
+		}
+		return false;
+	}
 	
 	public ArrayList<LittleTilePosition> tilesToLoad = null;
 	
@@ -167,7 +199,8 @@ public abstract class LittleStructure {
 				}
 					//tiles.get(i).pos.writeToNBT("i" + i, nbt);
 			}
-		}
+		}else
+			System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
 		
 		writeToNBTExtra(nbt);
 	}
@@ -205,12 +238,10 @@ public abstract class LittleStructure {
 	
 	public void onLittleTileDestory()
 	{
-		if(tiles != null)
-		{
-			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.removeTile(tiles.get(i));
-				//tiles.get(i).destroy();
-			}
+		ArrayList<LittleTile> tiles = getTiles();
+		for (int i = 0; i < tiles.size(); i++) {
+			tiles.get(i).te.removeTile(tiles.get(i));
+			//tiles.get(i).destroy();
 		}
 	}
 	
@@ -229,6 +260,7 @@ public abstract class LittleStructure {
 	public HashMapList<ChunkCoordinates, LittleTile> getTilesSortedPerBlock()
 	{
 		HashMapList<ChunkCoordinates, LittleTile> coords = new HashMapList<>();
+		ArrayList<LittleTile> tiles = getTiles();
 		for (int i = 0; i < tiles.size(); i++) {
 			coords.add(tiles.get(i).te.getCoord(), tiles.get(i));
 		}

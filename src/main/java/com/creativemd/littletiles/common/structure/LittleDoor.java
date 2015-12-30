@@ -307,7 +307,7 @@ public class LittleDoor extends LittleStructure{
 		LittleDoor structure = new LittleDoor();
 		structure.dropStack = dropStack.copy();
 		structure.axisPoint = new LittleTileVec(0, 0, 0);
-		structure.tiles = new ArrayList<>();
+		structure.setTiles(new ArrayList<LittleTile>());
 		structure.axis = this.axis;
 		
 		ForgeDirection rotationAxis = this.axis.getDirection();
@@ -342,12 +342,14 @@ public class LittleDoor extends LittleStructure{
 		
 		if(ItemBlockTiles.placeTiles(world, player, previews, structure, x, y, z, null, null))
 		{
+			ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
 				tiles.get(i).te.update();
 			}
 			tiles.clear();
-			for (int i = 0; i < structure.tiles.size(); i++) {
-				structure.tiles.get(i).te.combineTiles();
+			tiles = structure.getTiles();
+			for (int i = 0; i < tiles.size(); i++) {
+				tiles.get(i).te.combineTiles();
 			}
 			return true;
 		}
@@ -374,7 +376,7 @@ public class LittleDoor extends LittleStructure{
 			invaxis.invert();
 			
 			//invaxis.addVec(internalOffset);
-			
+			ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
 				LittleTile tileOfList = tiles.get(i);
 				for (int j = 0; j < tileOfList.boundingBoxes.size(); j++) {

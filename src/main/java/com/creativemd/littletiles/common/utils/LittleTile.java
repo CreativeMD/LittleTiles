@@ -174,7 +174,7 @@ public abstract class LittleTile {
 	{
 		if(isLoaded())
 		{
-			structure.tiles.remove(tile);
+			structure.getTiles().remove(tile);
 		}
 	}
 	
@@ -258,6 +258,7 @@ public abstract class LittleTile {
 			{
 				isMainBlock = true;
 				structure = LittleStructure.createAndLoadStructure(nbt);
+				structure.mainTile = this;
 			}else{
 				pos = new LittleTilePosition(nbt);
 			}
@@ -401,14 +402,8 @@ public abstract class LittleTile {
 	{
 		if(isStructureBlock && isMainBlock && structure.tilesToLoad != null)
 		{
-			structure.tiles = new ArrayList<LittleTile>();
-			for (int i = 0; i < structure.tilesToLoad.size(); i++) {
-				structure.checkForTile(te.getWorldObj(), structure.tilesToLoad.get(i));
-			}
-			int missingTiles = structure.tilesToLoad.size() - structure.tiles.size();
-			if(missingTiles > 0)
-				System.out.println("Couldn't load " + missingTiles + " tiles");
-			structure.tilesToLoad = null;
+			//System.out.println("Loading structure x=" + te.xCoord + " y=" + te.yCoord + " z=" + te.zCoord + "");
+			structure.loadTiles();
 		}
 	}
 	
@@ -466,8 +461,8 @@ public abstract class LittleTile {
 						if(tile.isMainBlock)
 						{
 							this.structure = tile.structure;
-							if(this.structure != null && this.structure.tiles != null && !this.structure.tiles.contains(this))
-								this.structure.tiles.add(this);
+							if(this.structure != null && this.structure.getTiles() != null && !this.structure.getTiles().contains(this))
+								this.structure.getTiles().add(this);
 						}
 					}
 				}

@@ -352,7 +352,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		if(structure != null)
 		{
 			structure.dropStack = stack.copy();
-			structure.tiles = new ArrayList<>();
+			structure.setTiles(new ArrayList<LittleTile>());
 		}
 		//System.out.println("Creating " + previews.size() + " tiles");
 		
