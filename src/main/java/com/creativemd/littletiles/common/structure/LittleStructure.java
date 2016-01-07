@@ -121,7 +121,10 @@ public abstract class LittleStructure {
 	{
 		if(tiles == null)
 			if(!loadTiles())
-				return new ArrayList<>();
+			{
+				ArrayList<LittleTile> tiles =  new ArrayList<>();
+				return tiles;
+			}
 		return tiles;
 	}
 	
@@ -130,6 +133,7 @@ public abstract class LittleStructure {
 		if(mainTile != null)
 		{
 			tiles = new ArrayList<LittleTile>();
+			tiles.add(mainTile);
 			if(tilesToLoad == null)
 				return true;
 			for (int i = 0; i < tilesToLoad.size(); i++) {
@@ -199,7 +203,7 @@ public abstract class LittleStructure {
 				}
 					//tiles.get(i).pos.writeToNBT("i" + i, nbt);
 			}
-		}else
+		}else if(mainTile != null)
 			System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
 		
 		writeToNBTExtra(nbt);
@@ -219,7 +223,8 @@ public abstract class LittleStructure {
 				LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
 				if(tile != null && tile.isStructureBlock)
 				{
-					tiles.add(tile);
+					if(!tiles.contains(tile))
+						tiles.add(tile);
 					tile.structure = this;
 					return ;
 				}
