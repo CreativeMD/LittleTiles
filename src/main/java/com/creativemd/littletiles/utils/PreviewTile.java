@@ -54,6 +54,9 @@ public class PreviewTile {
 	{
 		//PreviewTile tile = placeTiles.get(j);
 		LittleTile LT = preview.getLittleTile(teLT);
+		if(LT == null)
+			return null;
+		
 		LT.boundingBoxes.clear();
 		LT.boundingBoxes.add(box.copy());
 		LT.updateCorner();

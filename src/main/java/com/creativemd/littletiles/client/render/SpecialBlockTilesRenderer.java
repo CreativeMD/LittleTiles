@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.render;
 import java.util.ArrayList;
 
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Color;
 import org.omg.CORBA.REBIND;
 
 import com.creativemd.creativecore.client.block.BlockRenderHelper;
@@ -63,7 +64,9 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			
 			for (int i = 0; i < little.tiles.size(); i++) {
 				ArrayList<CubeObject> cubes = little.tiles.get(i).getRenderingCubes();
+				//BlockTile.currentlyRenderedTile = little.tiles.get(i);
 				BlockRenderHelper.renderCubes(world, cubes, x, y, z, block, renderer, null);
+				//BlockTile.currentlyRenderedTile = null;
 				/*for (int j = 0; j < cubes.size(); j++) {
 					double minX = (double)(cubes.get(j).minX+8)/16D;
 					double minY = (double)(cubes.get(j).minY+8)/16D;

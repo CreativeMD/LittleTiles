@@ -409,6 +409,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 			CubeObject cube = new LittleTileBox(new LittleTileVec(8, 8, 8), size).getCube();
 			cube.block = block;
 			cube.meta = meta;
+			if(stack.stackTagCompound.hasKey("color"))
+				cube.color = stack.stackTagCompound.getInteger("color");
 			cubes.add(cube);
 		}
 		return cubes;

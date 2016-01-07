@@ -10,6 +10,7 @@ import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -28,6 +29,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
@@ -53,9 +55,10 @@ public class LittleTiles {
 	public static LittleTilesServer proxy;
 	
 	public static final String modid = "littletiles";
-	public static final String version = "1.0.0";
+	public static final String version = "1.0.2";
 	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
+	public static Block coloredBlock = new BlockLTColored();
 	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
@@ -77,6 +80,7 @@ public class LittleTiles {
 		GameRegistry.registerItem(wrench, "wrench");
 		GameRegistry.registerItem(chisel, "chisel");
 		
+		GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
 		
 		GameRegistry.registerItem(multiTiles, "multiTiles");
@@ -88,6 +92,7 @@ public class LittleTiles {
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
 		//LittleTile.registerLittleTile(LittleTileStructureBlock.class, "BlockTileStructure");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
+		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
 		
 		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");

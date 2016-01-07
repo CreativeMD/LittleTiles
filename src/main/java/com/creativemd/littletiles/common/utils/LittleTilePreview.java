@@ -73,6 +73,8 @@ public final class LittleTilePreview {
 		}else{
 			cube.block = Blocks.stone;
 		}
+		if(nbt.hasKey("color"))
+			cube.color = nbt.getInteger("color");
 		return cube;
 	}
 
