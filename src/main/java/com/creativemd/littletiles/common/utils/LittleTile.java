@@ -398,12 +398,21 @@ public abstract class LittleTile {
 	
 	//================Tick================
 	
+	public static final int ticksBetweenRefresh = 1200;
+	
+	public int ticks = 0;
+	
 	public void updateEntity()
 	{
-		if(isStructureBlock && isMainBlock && structure.tilesToLoad != null)
+		ticks++;
+		if(ticks > ticksBetweenRefresh)
 		{
-			//System.out.println("Loading structure x=" + te.xCoord + " y=" + te.yCoord + " z=" + te.zCoord + "");
-			structure.loadTiles();
+			ticks = 0;
+			if(isStructureBlock && isMainBlock && structure.tilesToLoad != null)
+			{
+				//System.out.println("Loading structure x=" + te.xCoord + " y=" + te.yCoord + " z=" + te.zCoord + "");
+				structure.loadTiles();
+			}
 		}
 	}
 	

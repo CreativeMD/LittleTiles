@@ -45,6 +45,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	
 	@Override
 	public void copyExtra(LittleTile tile) {
+		super.copyExtra(tile);
 		LittleTileBlockColored thisTile = (LittleTileBlockColored) tile;
 		thisTile.color = Vec3.createVectorHelper(color.xCoord, color.yCoord, color.zCoord);
 	}
@@ -61,5 +62,15 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		color = ColorUtils.IntToRGB(nbt.getInteger("color"));
 	}
 	
+	@Override
+	public boolean canBeCombined(LittleTile tile) {
+		if(tile instanceof LittleTileBlockColored && super.canBeCombined(tile))
+		{
+			int color1 = ColorUtils.RGBToInt(((LittleTileBlockColored) tile).color);
+			int color2 = ColorUtils.RGBToInt(this.color);
+			return color1 == color2;
+		}
+		return false;
+	}
 	
 }

@@ -128,21 +128,35 @@ public abstract class LittleStructure {
 		return tiles;
 	}
 	
+	public boolean hasLoaded()
+	{
+		loadTiles();
+		return tilesToLoad == null || tilesToLoad.size() == 0;
+	}
+	
 	public boolean loadTiles()
 	{
 		if(mainTile != null)
 		{
-			tiles = new ArrayList<LittleTile>();
-			tiles.add(mainTile);
 			if(tilesToLoad == null)
 				return true;
-			for (int i = 0; i < tilesToLoad.size(); i++) {
-				checkForTile(mainTile.te.getWorldObj(), tilesToLoad.get(i));
+			
+			if(tiles == null)
+			{
+				tiles = new ArrayList<LittleTile>();
+				tiles.add(mainTile);
 			}
-			int missingTiles = tilesToLoad.size() - tiles.size();
-			if(missingTiles > 0)
-				System.out.println("Couldn't load " + missingTiles + " tiles");
-			tilesToLoad = null;
+				
+			int i = 0;
+			while (i < tilesToLoad.size()) {
+				if(checkForTile(mainTile.te.getWorldObj(), tilesToLoad.get(i)))
+					tilesToLoad.remove(i);
+				else
+					i++;
+			}
+			
+			if(tilesToLoad.size() == 0)
+				tilesToLoad = null;
 			return true;
 		}
 		return false;
@@ -203,7 +217,18 @@ public abstract class LittleStructure {
 				}
 					//tiles.get(i).pos.writeToNBT("i" + i, nbt);
 			}
-		}else if(mainTile != null)
+		}
+		
+		if(tilesToLoad != null)
+		{
+			int start = nbt.getInteger("count");
+			nbt.setInteger("count", start + tilesToLoad.size());
+			for (int i = 0; i < tilesToLoad.size(); i++) {
+				tilesToLoad.get(i).writeToNBT("i" + (i + start), nbt);
+			}
+		}
+		
+		if(mainTile != null)
 			System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
 		
 		writeToNBTExtra(nbt);
@@ -211,7 +236,7 @@ public abstract class LittleStructure {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
-	public void checkForTile(World world, LittleTilePosition pos)
+	public boolean checkForTile(World world, LittleTilePosition pos)
 	{
 		Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
 		if(!(chunk instanceof EmptyChunk))
@@ -226,10 +251,11 @@ public abstract class LittleStructure {
 					if(!tiles.contains(tile))
 						tiles.add(tile);
 					tile.structure = this;
-					return ;
+					return true;
 				}
 			}
-		}		
+		}
+		return false;
 	}
 	
 	//====================Rendering====================

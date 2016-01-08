@@ -24,6 +24,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
@@ -361,6 +362,11 @@ public class LittleDoor extends LittleStructure{
 	{
 		if(axis != null)
 		{
+			if(!hasLoaded())
+			{
+				player.addChatComponentMessage(new ChatComponentText("Cannot interact with door! Not all tiles are loaded!"));
+				return true;
+			}
 			ArrayList<PreviewTile> previews = new ArrayList<>();
 			
 			int mainX = axisPoint.x/16;

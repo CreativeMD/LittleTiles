@@ -318,6 +318,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 									{
 										structure.mainTile = LT;
 										LT.isMainBlock = true;
+										LT.updateCorner();
 										pos = new LittleTilePosition(coord, LT.cornerVec.copy());
 									}else
 										LT.pos = pos;

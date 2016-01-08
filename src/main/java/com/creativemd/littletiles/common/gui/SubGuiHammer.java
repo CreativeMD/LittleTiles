@@ -75,12 +75,16 @@ public class SubGuiHammer extends SubGui {
 		size.writeToNBT("size", dropstack.stackTagCompound);
 		Block block = null;
 		ItemStack slotStack = container.getSlots().get(0).getStack();
+		int meta = 0;
 		if(slotStack != null)
+		{
 			block = Block.getBlockFromItem(slotStack.getItem());
+			meta = slotStack.getItemDamage();
+		}
 		if(block instanceof BlockAir || block == null)
 			block = Blocks.stone;
 		GuiColorPlate plate = (GuiColorPlate) getControl("plate");
-		new LittleTileBlockColored(block, 0, plate.color).saveTile(dropstack.stackTagCompound);
+		new LittleTileBlockColored(block, meta, plate.color).saveTile(dropstack.stackTagCompound);
 		
 		label.avatar = new AvatarItemStack(dropstack);
 	}
