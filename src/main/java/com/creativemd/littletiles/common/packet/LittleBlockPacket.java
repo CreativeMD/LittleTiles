@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.packet;
 
 import java.util.ArrayList;
 
+import org.lwjgl.util.Color;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -12,13 +14,16 @@ import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
@@ -150,6 +155,50 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					
 					}catch(Exception e){
 						System.out.println("Failed to use saw!");
+						e.printStackTrace();
+					}
+					break;
+				case 3:
+					try{
+						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+						if(te.updateLoadedTileServer(pos, look) && (te.loadedTile.getClass() == LittleTileBlock.class || te.loadedTile instanceof LittleTileBlockColored))
+						{
+							int color = nbt.getInteger("color");
+							LittleTile currentTile = te.loadedTile;
+							LittleTile newTile = null;
+							int index = te.tiles.indexOf(currentTile);
+							if(player.isSneaking())
+							{
+								color = ColorUtils.WHITE;
+								if(currentTile instanceof LittleTileBlockColored)
+									color = ColorUtils.RGBToInt(((LittleTileBlockColored) currentTile).color);
+								ItemColorTube.setColor(player.getCurrentEquippedItem(), color);
+							}else{
+								if(color == ColorUtils.WHITE)
+								{
+									if(currentTile instanceof LittleTileBlockColored)
+									{
+										newTile = new LittleTileBlock();
+										currentTile.assign(newTile);
+									}
+								}else{
+									if(currentTile instanceof LittleTileBlockColored)
+									{
+										((LittleTileBlockColored) currentTile).color = ColorUtils.IntToRGB(color);
+									}else{
+										newTile = new LittleTileBlockColored();
+										currentTile.assign(newTile);
+										((LittleTileBlockColored) newTile).color = ColorUtils.IntToRGB(color);
+									}
+								}
+								
+								if(newTile != null)
+									te.tiles.set(index, newTile);
+								te.update();
+							}
+						}
+					}catch(Exception e){
+						System.out.println("Failed to use color tube!");
 						e.printStackTrace();
 					}
 					break;

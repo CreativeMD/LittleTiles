@@ -12,8 +12,10 @@ import net.minecraftforge.common.MinecraftForge;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleSaw;
@@ -67,6 +69,7 @@ public class LittleTiles {
 	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer");
 	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench");
 	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel");
+	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube");
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
@@ -79,8 +82,10 @@ public class LittleTiles {
 		GameRegistry.registerItem(container, "container");
 		GameRegistry.registerItem(wrench, "wrench");
 		GameRegistry.registerItem(chisel, "chisel");
+		GameRegistry.registerItem(colorTube, "colorTube");
 		
-		GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
+		//GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
+		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class, "LTColoredBlock");
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
 		
 		GameRegistry.registerItem(multiTiles, "multiTiles");

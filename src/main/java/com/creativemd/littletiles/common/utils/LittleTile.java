@@ -123,6 +123,11 @@ public abstract class LittleTile {
 		boundingBoxes = new ArrayList<LittleTileBox>();
 	}
 	
+	public String getID()
+	{
+		return getIDByClass(this.getClass());
+	}
+	
 	//================Position & Size================
 	
 	public LittleTileVec cornerVec;
@@ -210,7 +215,7 @@ public abstract class LittleTile {
 	
 	public void saveTileCore(NBTTagCompound nbt)
 	{
-		nbt.setString("tID", getIDByClass(this.getClass()));
+		nbt.setString("tID", getID());
 		if(cornerVec != null)
 			cornerVec.writeToNBT("cVec", nbt);
 		nbt.setInteger("bSize", boundingBoxes.size());
@@ -333,6 +338,12 @@ public abstract class LittleTile {
 			copyExtra(tile);
 		}
 		return tile;
+	}
+	
+	public void assign(LittleTile tile)
+	{
+		copyCore(tile);
+		copyExtra(tile);
 	}
 	
 	public abstract void copyExtra(LittleTile tile);

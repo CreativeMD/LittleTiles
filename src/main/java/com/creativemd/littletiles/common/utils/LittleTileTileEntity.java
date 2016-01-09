@@ -136,8 +136,11 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
-		LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
-		thisTile.tileEntity = tileEntity;
+		if(tile instanceof LittleTileTileEntity)
+		{
+			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
+			thisTile.tileEntity = tileEntity;
+		}
 	}
 	
 	public boolean loadTileEntity()

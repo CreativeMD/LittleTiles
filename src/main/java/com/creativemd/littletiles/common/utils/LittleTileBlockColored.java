@@ -14,6 +14,7 @@ import net.minecraft.block.BlockGrass;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.NetworkManager;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.ColorizerFoliage;
 import net.minecraft.world.IBlockAccess;
@@ -34,6 +35,20 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
+	public void updatePacket(NBTTagCompound nbt)
+	{
+		super.updatePacket(nbt);
+		nbt.setInteger("color", ColorUtils.RGBToInt(color));
+	}
+	
+	@Override
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	{
+		super.receivePacket(nbt, net);
+		color = ColorUtils.IntToRGB(nbt.getInteger("color"));
+	}
+	
+	@Override
 	public ArrayList<CubeObject> getRenderingCubes() {
 		ArrayList<CubeObject> cubes = super.getRenderingCubes();
 		int color = ColorUtils.RGBToInt(this.color);
@@ -46,8 +61,11 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
-		LittleTileBlockColored thisTile = (LittleTileBlockColored) tile;
-		thisTile.color = Vec3.createVectorHelper(color.xCoord, color.yCoord, color.zCoord);
+		if(tile instanceof LittleTileBlockColored)
+		{
+			LittleTileBlockColored thisTile = (LittleTileBlockColored) tile;
+			thisTile.color = Vec3.createVectorHelper(color.xCoord, color.yCoord, color.zCoord);
+		}
 	}
 	
 	@Override

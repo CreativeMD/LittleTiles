@@ -188,7 +188,7 @@ public class TileEntityLittleTiles extends TileEntity{
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
 			LittleTile tile = getTile(tileNBT.getByte("cVecx"), tileNBT.getByte("cVecy"), tileNBT.getByte("cVecz"));
-			if(tile != null)
+			if(tile != null && tile.getID().equals(tileNBT.getString("tID")))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);

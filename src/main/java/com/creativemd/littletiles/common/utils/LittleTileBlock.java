@@ -61,9 +61,12 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public void copyExtra(LittleTile tile) {
-		LittleTileBlock thisTile = (LittleTileBlock) tile;
-		thisTile.block = block;
-		thisTile.meta = meta;
+		if(tile instanceof LittleTileBlock)
+		{
+			LittleTileBlock thisTile = (LittleTileBlock) tile;
+			thisTile.block = block;
+			thisTile.meta = meta;
+		}
 	}
 
 	@Override

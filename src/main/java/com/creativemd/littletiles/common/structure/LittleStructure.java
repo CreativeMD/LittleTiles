@@ -138,14 +138,14 @@ public abstract class LittleStructure {
 	{
 		if(mainTile != null)
 		{
-			if(tilesToLoad == null)
-				return true;
-			
 			if(tiles == null)
 			{
 				tiles = new ArrayList<LittleTile>();
 				tiles.add(mainTile);
 			}
+			
+			if(tilesToLoad == null)
+				return true;
 				
 			int i = 0;
 			while (i < tilesToLoad.size()) {
@@ -228,8 +228,8 @@ public abstract class LittleStructure {
 			}
 		}
 		
-		if(mainTile != null)
-			System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
+		//if(mainTile == null)
+			//System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
 		
 		writeToNBTExtra(nbt);
 	}
