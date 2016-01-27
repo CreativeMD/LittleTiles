@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
@@ -29,9 +30,14 @@ import net.minecraft.util.Vec3;
 
 public class TileEntityLittleTiles extends TileEntity{
 	
-	public TileList<LittleTile> tiles = new TileList<LittleTile>();
+	public static TileList<LittleTile> createTileList()
+	{
+		return new TileList<LittleTile>();
+	}
 	
-	//public boolean needFullUpdate = true;
+	public TileList<LittleTile> tiles = createTileList();
+	
+	public boolean needFullUpdate = false;
 	
 	public boolean removeTile(LittleTile tile)
 	{
@@ -140,8 +146,11 @@ public class TileEntityLittleTiles extends TileEntity{
 			//tileNBT.setByte("z", tiles.get(i).cornerVec.z);
 			tileNBT.setTag("update", packet);
 			nbt.setTag("t" + i, tileNBT);
+			if(needFullUpdate)
+				nbt.setBoolean("f" + i, true);
 		}
         nbt.setInteger("tilesCount", tiles.size());
+        needFullUpdate = false;
         //if(needFullUpdate)
         //{
         //nbt.setBoolean("fullUpdate", true);
@@ -188,7 +197,7 @@ public class TileEntityLittleTiles extends TileEntity{
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
 			LittleTile tile = getTile(tileNBT.getByte("cVecx"), tileNBT.getByte("cVecy"), tileNBT.getByte("cVecz"));
-			if(tile != null && tile.getID().equals(tileNBT.getString("tID")))
+			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !pkt.func_148857_g().getBoolean("f" + i))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);
@@ -305,6 +314,51 @@ public class TileEntityLittleTiles extends TileEntity{
 	public ChunkCoordinates getCoord() {
 		return new ChunkCoordinates(xCoord, yCoord, zCoord);
 	}
+	
+	public void combineTiles(LittleStructure structure) {
+			//ArrayList<LittleTile> newTiles = new ArrayList<>();
+			int size = 0;
+			while(size != tiles.size())
+			{
+				size = tiles.size();
+				int i = 0;
+				while(i < tiles.size()){
+					if(tiles.get(i).structure != structure)
+					{
+						i++;
+						continue;
+					}
+					
+					int j = 0;
+					
+					while(j < tiles.size()) {
+						if(tiles.get(j).structure != structure)
+						{
+							j++;
+							continue;
+						}
+						
+						if(i != j && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
+						{
+							LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
+							if(box != null)
+							{
+								tiles.get(i).boundingBoxes.set(0, box);
+								tiles.get(i).combineTiles(tiles.get(j));
+								tiles.get(i).updateCorner();
+								tiles.remove(j);
+								if(i > j)
+									i--;
+								continue;
+							}
+						}
+						j++;
+					}
+					i++;
+				}
+			}
+			update();
+	}
 
 	public void combineTiles() {
 		//ArrayList<LittleTile> newTiles = new ArrayList<>();
@@ -335,7 +389,6 @@ public class TileEntityLittleTiles extends TileEntity{
 				i++;
 			}
 		}
-		update();
-		
+		update();	
 	}
 }

@@ -24,6 +24,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
@@ -41,6 +42,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.MovingObjectPosition;
@@ -72,6 +74,28 @@ public class BlockTile extends BlockContainer{
 	public boolean isOpaqueCube()
     {
         return false;
+    }
+	
+	@Override
+	public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player)
+    {
+		if(loadTileEntity(world, x, y, z))
+		{
+			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				if(tile.isBed(world, x, y, z, player))
+					return true;
+			}
+		}
+        return false;
+    }
+	
+	@Override
+	public ChunkCoordinates getBedSpawnPosition(IBlockAccess world, int x, int y, int z, EntityPlayer player)
+    {
+        if (world instanceof World)
+            return new ChunkCoordinates(x, y, z);
+        return null;
     }
 	
 	@Override

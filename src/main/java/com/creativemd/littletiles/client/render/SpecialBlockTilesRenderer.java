@@ -62,6 +62,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		{
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
 			
+			//System.out.println("Rendering " + little.tiles.size() + " tiles!");
+			
 			for (int i = 0; i < little.tiles.size(); i++) {
 				ArrayList<CubeObject> cubes = little.tiles.get(i).getRenderingCubes();
 				//BlockTile.currentlyRenderedTile = little.tiles.get(i);
@@ -89,6 +91,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 					RenderHelper3D.renderBlocks.lockBlockBounds = false;
 				}*/
 			}
+			
+			//System.out.println("Rendered " + little.tiles.size() + " tiles!");
 		}
 		
 		return true;

@@ -23,6 +23,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -301,7 +302,7 @@ public abstract class LittleTile {
 	
 	public void place()
 	{
-		LittleTileBox box = new LittleTileBox(getSelectedBox());
+		//LittleTileBox box = new LittleTileBox(getSelectedBox());
 		updateCorner();
 		te.addTile(this);
 		//te.getWorldObj().playSoundEffect((double)((float)te.xCoord + 0.5F), (double)((float)te.yCoord + 0.5F), (double)((float)te.zCoord + 0.5F), getSound().func_150496_b(), (getSound().getVolume() + 1.0F) / 2.0F, getSound().getPitch() * 0.8F);
@@ -454,6 +455,13 @@ public abstract class LittleTile {
 		return false;
 	}
 	
+	public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player)
+	{
+		if(isLoaded())
+			return structure.isBed(world, x, y, z, player);
+		return false;
+	}
+	
 	//================Structure================
 	
 	public boolean isStructureBlock = false;
@@ -488,10 +496,13 @@ public abstract class LittleTile {
 				}
 				
 				if(structure == null)
+				{
 					te.removeTile(this);
+					te.update();
+				}
 				
 				//pos = null;
-				te.update();
+				
 				
 				return structure != null;
 			}
