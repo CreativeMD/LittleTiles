@@ -23,7 +23,7 @@ public class BlockLTColored extends Block{
 		setCreativeTab(CreativeTabs.tabTools);
 	}
 	
-	public static final String[] subBlocks = new String[]{"clean", "floor", "grainybig", "grainy", "grainylow", "brick", "bordered", "brickBig", "structured", "brokenBrickBig"};
+	public static final String[] subBlocks = new String[]{"clean", "floor", "grainybig", "grainy", "grainylow", "brick", "bordered", "brickBig", "structured", "brokenBrickBig", "clay"};
 	
 	@SideOnly(Side.CLIENT)
 	public IIcon[] textures;
