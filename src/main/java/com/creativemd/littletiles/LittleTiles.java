@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
@@ -57,10 +58,10 @@ public class LittleTiles {
 	public static LittleTilesServer proxy;
 	
 	public static final String modid = "littletiles";
-	public static final String version = "1.0.2";
+	public static final String version = "1.1.0";
 	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
-	public static Block coloredBlock = new BlockLTColored();
+	public static Block coloredBlock = new BlockLTColored().setBlockName("LTBlocks");
 	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
@@ -70,6 +71,8 @@ public class LittleTiles {
 	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench");
 	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel");
 	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube");
+	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
+	
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
@@ -83,6 +86,7 @@ public class LittleTiles {
 		GameRegistry.registerItem(wrench, "wrench");
 		GameRegistry.registerItem(chisel, "chisel");
 		GameRegistry.registerItem(colorTube, "colorTube");
+		GameRegistry.registerItem(rubberMallet, "rubberMallet");
 		
 		//GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
 		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class, "LTColoredBlock");
