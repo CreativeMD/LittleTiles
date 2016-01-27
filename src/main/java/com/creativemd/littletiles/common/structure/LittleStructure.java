@@ -15,11 +15,13 @@ import com.creativemd.littletiles.utils.PreviewTile;
 import codechicken.lib.render.QBImporter.RasterisedModel;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
@@ -82,6 +84,7 @@ public abstract class LittleStructure {
 		registerLittleStructure("chair", new LittleChair());
 		registerLittleStructure("door", new LittleDoor());
 		registerLittleStructure("ladder", new LittleLadder());
+		registerLittleStructure("bed", new LittleBed());
 	}
 	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt)
@@ -336,6 +339,11 @@ public abstract class LittleStructure {
 		{
 			return structureClass.toString();
 		}
+	}
+	
+	public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player)
+	{
+		return false;
 	}
 
 	public boolean isLadder()
