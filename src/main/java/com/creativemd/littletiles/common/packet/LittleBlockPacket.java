@@ -165,32 +165,17 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						{
 							int color = nbt.getInteger("color");
 							LittleTile currentTile = te.loadedTile;
-							LittleTile newTile = null;
+							
 							int index = te.tiles.indexOf(currentTile);
 							if(player.isSneaking())
 							{
 								color = ColorUtils.WHITE;
 								if(currentTile instanceof LittleTileBlockColored)
-									color = ColorUtils.RGBToInt(((LittleTileBlockColored) currentTile).color);
+									color = ((LittleTileBlockColored) currentTile).color;
 								ItemColorTube.setColor(player.getCurrentEquippedItem(), color);
 							}else{
-								if(color == ColorUtils.WHITE)
-								{
-									if(currentTile instanceof LittleTileBlockColored)
-									{
-										newTile = new LittleTileBlock();
-										currentTile.assign(newTile);
-									}
-								}else{
-									if(currentTile instanceof LittleTileBlockColored)
-									{
-										((LittleTileBlockColored) currentTile).color = ColorUtils.IntToRGB(color);
-									}else{
-										newTile = new LittleTileBlockColored();
-										currentTile.assign(newTile);
-										((LittleTileBlockColored) newTile).color = ColorUtils.IntToRGB(color);
-									}
-								}
+								
+								LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) currentTile, color);
 								
 								if(newTile != null)
 									te.tiles.set(index, newTile);
