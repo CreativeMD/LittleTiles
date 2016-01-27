@@ -325,6 +325,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 								}
 							}
 						}
+						
+						if(structure != null)
+							teLT.combineTiles(structure);
 					}
 					//System.out.println("Placed " + tiles + "/" + placeTiles.size());
 				}//else
