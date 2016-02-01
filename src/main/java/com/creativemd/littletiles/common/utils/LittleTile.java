@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.LittleBlockVertex;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -174,7 +175,17 @@ public abstract class LittleTile {
 		return size;
 	}
 	
-	public abstract boolean canBeCombined(LittleTile tile);
+	public boolean canBeCombined(LittleTile tile) {
+		if(isStructureBlock && isMainBlock)
+			return false;
+		if(isStructureBlock != tile.isStructureBlock)
+			return false;
+		if(isStructureBlock && structure != tile.structure)
+			return false;
+		
+		return true;
+	}
+	//public abstract boolean canBeCombined(LittleTile tile);
 	
 	public void combineTiles(LittleTile tile)
 	{
@@ -397,6 +408,15 @@ public abstract class LittleTile {
 	public void onNeighborChange() {}
 	
 	//================Rendering================
+	
+	/*@SideOnly(Side.CLIENT)
+	public boolean isRendering;
+	
+	@SideOnly(Side.CLIENT)
+	public ArrayList<LittleBlockVertex> lastRendered;*/
+	
+	@SideOnly(Side.CLIENT)
+	public abstract boolean canBlockBeThreaded();
 	
 	@SideOnly(Side.CLIENT)
 	public abstract ArrayList<CubeObject> getRenderingCubes();

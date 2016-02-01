@@ -8,6 +8,7 @@ import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockGrass;
 import net.minecraft.block.Block.SoundType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -134,10 +135,10 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public int getLightValue(IBlockAccess world, int x, int y, int z) {
-		int light = block.getLightValue(world, x, y, z);
-		if(light == 0)
-			return block.getLightValue();
-		return light;
+		//int light = block.getLightValue(world, x, y, z);
+		//if(light == 0)
+		return block.getLightValue();
+		//return light;
 	}
 	
 	@Override
@@ -147,15 +148,16 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
-		if(tile instanceof LittleTileBlock)
+		if(super.canBeCombined(tile) && tile instanceof LittleTileBlock)
 		{
-			if(isStructureBlock != tile.isStructureBlock)
-				return false;
-			if(isStructureBlock && structure != tile.structure)
-				return false;
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean canBlockBeThreaded() {
+		return block.getRenderType() == 0 && !(block instanceof BlockGrass);
 	}
 	
 }

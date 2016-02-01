@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.utils.PlacementHelper;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S2FPacketSetSlot;
@@ -95,7 +96,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, x, y, z, side); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
-			playerMP.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(playerMP.openContainer.windowId, playerMP.inventory.currentItem, playerMP.inventory.getCurrentItem()));
+			Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);
+			playerMP.playerNetServerHandler.sendPacket(new S2FPacketSetSlot(playerMP.openContainer.windowId, slot.slotNumber, playerMP.inventory.getCurrentItem()));
 			
 		}
 	}

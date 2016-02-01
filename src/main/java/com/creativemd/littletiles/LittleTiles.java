@@ -60,6 +60,8 @@ public class LittleTiles {
 	public static final String modid = "littletiles";
 	public static final String version = "1.1.0";
 	
+	public static int maxNewTiles = 4096;
+	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
 	public static Block coloredBlock = new BlockLTColored().setBlockName("LTBlocks");
 	

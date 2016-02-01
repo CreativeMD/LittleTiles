@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.LittleBlockVertex;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -37,12 +38,27 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public TileList<LittleTile> tiles = createTileList();
 	
+	@SideOnly(Side.CLIENT)
+	public ArrayList<LittleBlockVertex> lastRendered;
+	
+	@SideOnly(Side.CLIENT)
+	public boolean isRendering;
+	
+	@SideOnly(Side.CLIENT)
+	public boolean needFullRenderUpdate;
+	
+	@SideOnly(Side.CLIENT)
+	public void markFullRenderUpdate()
+	{
+		this.needFullRenderUpdate = true;
+		updateRender();
+	}
+	
 	public boolean needFullUpdate = false;
 	
 	public boolean removeTile(LittleTile tile)
 	{
 		update();
-		//needFullUpdate = true;
 		boolean result = tiles.remove(tile);
 		updateNeighbor();
 		return result;
@@ -51,7 +67,6 @@ public class TileEntityLittleTiles extends TileEntity{
 	public boolean addTile(LittleTile tile)
 	{
 		update();
-		//needFullUpdate = true;
 		boolean result = tiles.add(tile);
 		updateNeighbor();
 		return result;
@@ -59,7 +74,8 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public void updateNeighbor()
 	{
-		
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			markFullRenderUpdate();
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).onNeighborChangeInside();
 		}
@@ -215,7 +231,7 @@ public class TileEntityLittleTiles extends TileEntity{
 			tiles.remove(exstingTiles.get(i));
 		}
     	//}
-        updateRender();
+        markFullRenderUpdate();
         /*if(tiles.size() == 0)
         {
         	System.out.println("===============================");
@@ -291,6 +307,8 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public void update()
 	{
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			markFullRenderUpdate();
 		worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}

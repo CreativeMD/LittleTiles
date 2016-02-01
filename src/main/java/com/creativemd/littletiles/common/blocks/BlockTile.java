@@ -518,6 +518,7 @@ public class BlockTile extends BlockContainer{
     {
     	if(loadTileEntity(world, x, y, z))
     	{
+    		//tempEntity.markFullRenderUpdate();
     		for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
     			tile.onNeighborChangeOutside();;
@@ -530,6 +531,7 @@ public class BlockTile extends BlockContainer{
 	{
 		if(loadTileEntity(world, x, y, z))
     	{
+			//tempEntity.markFullRenderUpdate();
 			for (Iterator iterator = tempEntity.tiles.iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
     			tile.onNeighborChangeOutside();

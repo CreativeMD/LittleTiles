@@ -61,10 +61,14 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles little = (TileEntityLittleTiles) tileEntity;
-			
+			//long time = System.currentTimeMillis();
 			//System.out.println("Rendering " + little.tiles.size() + " tiles!");
 			
-			for (int i = 0; i < little.tiles.size(); i++) {
+			LittleBlockRenderHelper.renderBlock(world, x, y, z, block, modelId, renderer, little);
+			//System.out.println("Rendered " + little.tiles.size() + " tiles! " + (System.currentTimeMillis()-time) + " ms");
+		}
+			
+			/*for (int i = 0; i < little.tiles.size(); i++) {
 				ArrayList<CubeObject> cubes = little.tiles.get(i).getRenderingCubes();
 				//BlockTile.currentlyRenderedTile = little.tiles.get(i);
 				BlockRenderHelper.renderCubes(world, cubes, x, y, z, block, renderer, null);
@@ -89,12 +93,12 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 					//else
 						//RenderHelper3D.renderBlocks.renderBlockAllFaces(little.tiles.get(i).block, x, y, z);
 					RenderHelper3D.renderBlocks.lockBlockBounds = false;
-				}*/
+				}
 			}
 			
-			//System.out.println("Rendered " + little.tiles.size() + " tiles!");
+			
 		}
-		
+		*/
 		return true;
 	}
 

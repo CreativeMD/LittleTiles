@@ -23,6 +23,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 public class ItemRubberMallet extends Item {
@@ -74,8 +75,13 @@ public class ItemRubberMallet extends Item {
 					}else
 						newTiles.add(oldTile);
 				}
-				te.tiles = newTiles;
-				te.update();
+				if(LittleTiles.maxNewTiles >= newTiles.size() - te.tiles.size())
+				{
+					te.tiles = newTiles;
+					te.update();
+				}else{
+					player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+				}
 			}
 			return true;
 		}else {
@@ -98,8 +104,14 @@ public class ItemRubberMallet extends Item {
 							}
 						}
 					}
-					world.setBlock(x, y, z, LittleTiles.blockTile);
-					world.setTileEntity(x, y, z, te);
+					if(LittleTiles.maxNewTiles >= te.tiles.size())
+					{
+						world.setBlock(x, y, z, LittleTiles.blockTile);
+						world.setTileEntity(x, y, z, te);
+					}else{
+						player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+					}
+					
 				}
 				return true;
 			}
