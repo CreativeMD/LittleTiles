@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.IBlockAccess;
@@ -22,7 +23,12 @@ public class LittleBlockRenderHelper {
 	
 	public static void renderBlock(IBlockAccess world, int x, int y, int z, Block block, int modelId, RenderBlocks renderer, TileEntityLittleTiles te)
 	{
-		boolean needThread = false;
+		te.isRendering = true;
+		int lightValue = Minecraft.getMinecraft().theWorld.getBlockLightValue(x, y, z);
+		boolean needThread = true;
+		
+		
+		
 		for (int i = 0; i < te.tiles.size(); i++) {
 			LittleTile tile = te.tiles.get(i);
 			ArrayList<CubeObject> cubes = tile.getRenderingCubes();
@@ -38,25 +44,24 @@ public class LittleBlockRenderHelper {
 		}
 		if(needThread)
 		{
-			if(te.needFullRenderUpdate || te.lastRendered == null)
+			if(te.needFullRenderUpdate || lightValue != te.lightValue || te.lastRendered == null)
 			{
+				te.lightValue = lightValue;
 				RenderingThread.renderer = renderer;
 				RenderingThread.addCoordToUpdate(te.getWorldObj(), new ChunkCoordinates(x, y, z));
+				//System.out.println("Marked!");
 				te.needFullRenderUpdate = false;
 			}
 			if(te.lastRendered != null)
 			{
-				if(!te.isRendering)
-				{
-					
-					te.isRendering = true;
-					for (int j = 0; j < te.lastRendered.size(); j++) {
-						te.lastRendered.get(j).renderVertex();
-					}
-					te.isRendering = false;
+				//aSystem.out.println("Rendered!");
+				for (int j = 0; j < te.lastRendered.size(); j++) {
+					te.lastRendered.get(j).renderVertex();
 				}
 			}
 		}
+		te.lightValue = lightValue;
+		te.isRendering = false;
 	}
 	
 }

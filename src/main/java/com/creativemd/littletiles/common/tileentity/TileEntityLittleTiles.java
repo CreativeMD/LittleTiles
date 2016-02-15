@@ -39,6 +39,12 @@ public class TileEntityLittleTiles extends TileEntity{
 	public TileList<LittleTile> tiles = createTileList();
 	
 	@SideOnly(Side.CLIENT)
+	public boolean needsRenderingUpdate;
+	
+	@SideOnly(Side.CLIENT)
+	public int lightValue;
+	
+	@SideOnly(Side.CLIENT)
 	public ArrayList<LittleBlockVertex> lastRendered;
 	
 	@SideOnly(Side.CLIENT)
@@ -322,6 +328,16 @@ public class TileEntityLittleTiles extends TileEntity{
 	@Override
 	public void updateEntity()
 	{
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		{
+			if(needsRenderingUpdate)
+			{
+				updateRender();
+				//System.out.println("Chunk update!");
+				needsRenderingUpdate = false;
+			}
+		}
+		
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).updateEntity();
 		}

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.client.block.BlockRenderHelper;
@@ -18,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -26,10 +28,16 @@ import net.minecraft.world.chunk.Chunk;
 public class RenderingThread extends Thread {
 	
 	private static CopyOnWriteArrayList<ChunkCoordinates> updateCoords = new CopyOnWriteArrayList<>();
+	private static HashMap<ChunkCoordinates, Integer> chunks = new HashMap<>();
 	
 	private static World lastWorld;
 	
 	public static RenderBlocks renderer;
+	
+	public static ChunkCoordinates getChunkCoords(ChunkCoordinates coord)
+	{
+		return new ChunkCoordinates(coord.posX >> 4, 0, coord.posZ >> 4);
+	}
 	
 	public static void addCoordToUpdate(World world, ChunkCoordinates coord)
 	{
@@ -37,7 +45,12 @@ public class RenderingThread extends Thread {
 			updateCoords.clear();
 		lastWorld = world;
 		if(!updateCoords.contains(coord))
+		{
+			ChunkCoordinates chunk = getChunkCoords(coord);
+			Integer count = chunks.get(chunk);
+			chunks.put(chunk, count == null ? 1 : count+1);
 			updateCoords.add(coord);
+		}
 	}
 	
 	public static RenderingThread instance = new RenderingThread();
@@ -57,8 +70,10 @@ public class RenderingThread extends Thread {
 			
 			if(world != null && updateCoords.size() > 0)
 			{
+				ChunkCoordinates coord = updateCoords.get(0);
+				updateCoords.remove(0);
 				try{
-					ChunkCoordinates coord = updateCoords.get(0);
+					
 					TileEntity tileEntity = world.getTileEntity(coord.posX, coord.posY, coord.posZ);
 					if(tileEntity instanceof TileEntityLittleTiles)
 					{
@@ -82,14 +97,16 @@ public class RenderingThread extends Thread {
 												//renderer.blockAccess = Minecraft.getMinecraft().theWorld;
 											if(LittleBlockRenderHelper.fake == null)
 											{
-												LittleBlockRenderHelper.fake = new IBlockAccessFake(renderer.blockAccess);
+												LittleBlockRenderHelper.fake = new IBlockAccessFake(Minecraft.getMinecraft().theWorld);//renderer.blockAccess);
+												
 												LittleBlockRenderHelper.renderBlocks.blockAccess = LittleBlockRenderHelper.fake;
 											}
 											
-											if(LittleBlockRenderHelper.fake.world != renderer.blockAccess)
-												LittleBlockRenderHelper.fake.world = renderer.blockAccess;
+											if(LittleBlockRenderHelper.fake.world != Minecraft.getMinecraft().theWorld)
+												LittleBlockRenderHelper.fake.world = Minecraft.getMinecraft().theWorld;
 											
 											LittleBlockRenderHelper.renderBlocks.clearOverrideBlockTexture();
+											LittleBlockRenderHelper.renderBlocks.lockBlockBounds = false;
 											LittleBlockRenderHelper.renderBlocks.setRenderBounds(cube.minX, cube.minY, cube.minZ, cube.maxX, cube.maxY, cube.maxZ);
 											LittleBlockRenderHelper.renderBlocks.meta = cube.meta;					
 											LittleBlockRenderHelper.fake.overrideMeta = cube.meta;
@@ -113,24 +130,27 @@ public class RenderingThread extends Thread {
 							}
 						}
 						//System.out.println("Done rendering block");
-						setLastRenderedTiles(vertexes, te);
-						te.updateRender();
+						setLastRenderedTiles(vertexes, te, coord);
+						
 					}
 				}catch(Exception e){
-					e.printStackTrace();
+					updateCoords.add(coord);
+					//e.printStackTrace();
 				}
-				updateCoords.remove(0);
+				
 				
 				try {
 					sleep(1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+			}else if(updateCoords.size() == 0){
+				chunks.clear();
 			}
 		}
 	}
 	
-	public synchronized void setLastRenderedTiles(ArrayList<LittleBlockVertex> vertexes, TileEntityLittleTiles te)
+	public synchronized void setLastRenderedTiles(ArrayList<LittleBlockVertex> vertexes, TileEntityLittleTiles te, ChunkCoordinates coord)
 	{
 		while(te.isRendering)
 		{
@@ -141,6 +161,20 @@ public class RenderingThread extends Thread {
 			}
 		}
 		te.lastRendered = vertexes;
+		//System.out.println("Finished rendering!");
+		
+		ChunkCoordinates chunk = getChunkCoords(coord);
+		Integer count = chunks.get(chunk);
+		chunks.put(chunk, count == null ? 0 : count-1);
+		
+		if(count == null || count <= 1)
+		{
+			chunks.remove(chunk);
+			te.needsRenderingUpdate = true;
+			//System.out.println("Force update!");
+		}
+		//te.updateRender();
+		
 		/*if(!te.isRendering)
 		{
 			te.isRendering = true;
