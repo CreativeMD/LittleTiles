@@ -30,6 +30,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.client.IItemRenderer;
 import cpw.mods.fml.client.registry.ISimpleBlockRenderingHandler;
@@ -138,6 +139,8 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			GL11.glEnable(GL11.GL_LIGHTING);
 			GL11.glEnable(GL11.GL_BLEND);
 			GL11.glColor4d(1, 1, 1, 1);
+			
+			
 			if(type == ItemRenderType.INVENTORY)
 			{
 				if(((ITilesRenderer)item.getItem()).hasBackground(item))
@@ -152,7 +155,16 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 				GL11.glTranslatef(0.5F, 0.5F, 0);
 			}
 			mc.renderEngine.bindTexture(TextureMap.locationBlocksTexture);
-			BlockRenderHelper.renderInventoryCubes((RenderBlocks) data[0], ((ITilesRenderer)item.getItem()).getRenderingCubes(item), Block.getBlockFromItem(item.getItem()), item.getItemDamage());
+			
+			ArrayList<CubeObject> cubes = ((ITilesRenderer)item.getItem()).getRenderingCubes(item);
+			
+			Vec3 size = CubeObject.getSizeOfCubes(cubes);
+			double largestSide = Math.max(size.xCoord, Math.max(size.yCoord, size.zCoord));
+			double scaler = 1/largestSide;
+			GL11.glScaled(scaler, scaler, scaler);
+			GL11.glTranslated(0.5-largestSide/2D, 0.5-largestSide/2D, 0.5-largestSide/2D);
+			
+			BlockRenderHelper.renderInventoryCubes((RenderBlocks) data[0], cubes, Block.getBlockFromItem(item.getItem()), item.getItemDamage());
 			//ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(Minecraft.getMinecraft().theWorld, item);
 			/*for (int i = 0; i < tiles.size(); i++) {
 				

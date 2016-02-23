@@ -60,7 +60,7 @@ public class LittleTiles {
 	public static final String modid = "littletiles";
 	public static final String version = "1.1.0";
 	
-	public static int maxNewTiles = 4096;
+	public static int maxNewTiles = 512;
 	
 	public static BlockTile blockTile = new BlockTile(Material.rock);
 	public static Block coloredBlock = new BlockLTColored().setBlockName("LTBlocks");
@@ -132,6 +132,16 @@ public class LittleTiles {
 		GameRegistry.addRecipe(new ItemStack(wrench),  new Object[]
 				{
 				"AXA", "ALA", "ALA", 'X', Items.iron_ingot, 'L', new ItemStack(Items.dye, 1, 4)
+				});
+		
+		GameRegistry.addRecipe(new ItemStack(rubberMallet),  new Object[]
+				{
+				"XXX", "XLX", "ALA", 'X', Blocks.wool, 'L', new ItemStack(Items.dye, 1, 4)
+				});
+		
+		GameRegistry.addRecipe(new ItemStack(colorTube),  new Object[]
+				{
+				"XXX", "XLX", "XXX", 'X', Items.dye, 'L', Items.iron_ingot
 				});
 		
     }

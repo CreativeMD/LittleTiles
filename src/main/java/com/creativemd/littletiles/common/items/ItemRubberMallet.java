@@ -39,7 +39,9 @@ public class ItemRubberMallet extends Item {
 	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
 	{
-		
+		list.add("splits all tiles into");
+		list.add("smallest pieces possible");
+		list.add("limit: " + LittleTiles.maxNewTiles);
 	}
 	
 	@Override

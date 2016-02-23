@@ -96,7 +96,8 @@ public class ItemColorTube extends Item implements IGuiCreator{
 	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
 	{
-		
+		list.add("rightclick: dyes a tile");
+		list.add("shift+rightclick: copies tile's color");
 	}
 	
 	@Override

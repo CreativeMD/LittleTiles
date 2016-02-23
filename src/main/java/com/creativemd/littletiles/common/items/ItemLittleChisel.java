@@ -56,6 +56,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 			list.add("2: x=" + stack.stackTagCompound.getInteger("x2") + ",y=" + stack.stackTagCompound.getInteger("y2")+ ",z=" + stack.stackTagCompound.getInteger("z2"));
 		else
 			list.add("2: undefinded");
+		
+		list.add("creative mode only");
 	}
 	
 	@Override
