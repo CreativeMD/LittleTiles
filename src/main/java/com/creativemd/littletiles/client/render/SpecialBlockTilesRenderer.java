@@ -160,10 +160,12 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 			
 			Vec3 size = CubeObject.getSizeOfCubes(cubes);
 			double largestSide = Math.max(size.xCoord, Math.max(size.yCoord, size.zCoord));
-			double scaler = 1/largestSide;
-			GL11.glScaled(scaler, scaler, scaler);
-			GL11.glTranslated(0.5-largestSide/2D, 0.5-largestSide/2D, 0.5-largestSide/2D);
-			
+			if(largestSide > 1)
+			{
+				double scaler = 1/largestSide;
+				GL11.glScaled(scaler, scaler, scaler);
+				GL11.glTranslated(0.5-largestSide/2D, 0.5-largestSide/2D, 0.5-largestSide/2D);
+			}
 			BlockRenderHelper.renderInventoryCubes((RenderBlocks) data[0], cubes, Block.getBlockFromItem(item.getItem()), item.getItemDamage());
 			//ArrayList<LittleTile> tiles = ItemRecipe.loadTiles(Minecraft.getMinecraft().theWorld, item);
 			/*for (int i = 0; i < tiles.size(); i++) {
