@@ -17,6 +17,8 @@ public interface ILittleTile {
 	
 	public void rotateLittlePreview(ItemStack stack, ForgeDirection direction);
 	
+	public void flipLittlePreview(ItemStack stack, ForgeDirection direction);
+	
 	public LittleStructure getLittleStructure(ItemStack stack);
 	
 	//public ArrayList<LittleTile> getLittleTile(ItemStack stack);

@@ -342,11 +342,15 @@ public class BlockTile extends BlockContainer{
     	{
     		if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(player))
     		{
-    			tempEntity.loadedTile.destroy();
-    			NBTTagCompound nbt = new NBTTagCompound();
-    			tempEntity.writeToNBT(nbt);
-    			PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 1));
-    			tempEntity.updateRender();
+    			try{
+	    			tempEntity.loadedTile.destroy();
+	    			NBTTagCompound nbt = new NBTTagCompound();
+	    			tempEntity.writeToNBT(nbt);
+	    			PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 1));
+	    			tempEntity.updateRender();
+    			}catch(Exception e){
+    				
+    			}
     		}
     		
     	}

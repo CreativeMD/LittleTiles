@@ -28,6 +28,9 @@ public class LittleTilesClient extends LittleTilesServer{
 	
 	public static SpecialBlockTilesRenderer renderer = new SpecialBlockTilesRenderer();
 	
+	public static KeyBinding flip;
+	public static boolean pressedFlip = false;
+	
 	public static KeyBinding up;
 	public static boolean pressedUp = false;
 	public static KeyBinding down;
@@ -57,10 +60,13 @@ public class LittleTilesClient extends LittleTilesServer{
 		right = new KeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
 		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
 		
+		flip = new KeyBinding("key.flip", Keyboard.KEY_F, "key.categories.littletiles");
+		
 		ClientRegistry.registerKeyBinding(up);
 		ClientRegistry.registerKeyBinding(down);
 		ClientRegistry.registerKeyBinding(right);
 		ClientRegistry.registerKeyBinding(left);
+		ClientRegistry.registerKeyBinding(flip);
 	}
 	
 }

@@ -6,6 +6,7 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.common.util.Constants.NBT;
 import scala.tools.nsc.backend.icode.Primitives.Shift;
@@ -14,6 +15,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.InsideShiftHandler;
 import com.creativemd.littletiles.utils.ShiftHandler;
 
@@ -85,6 +87,26 @@ public final class LittleTilePreview {
 		if(box != null)
 			preview.box = box.copy();
 		return preview;
+	}
+	
+	public static void flipPreview(NBTTagCompound nbt, ForgeDirection direction)
+	{
+		if(nbt.hasKey("bBoxminX"))
+		{
+			LittleTileBox box = new LittleTileBox("bBox", nbt);
+			box.flipBoxWithCenter(direction, null);
+			box.writeToNBT("bBox", nbt);
+		}
+		if(nbt.hasKey("bSize"))
+		{
+			int count = nbt.getInteger("bSize");
+			for (int i = 0; i < count; i++) {
+				LittleTileBox box = new LittleTileBox("bBox" + i, nbt);
+				box.flipBoxWithCenter(direction, null);
+				//box.rotateBox(direction.getRotation(ForgeDirection.UP));
+				box.writeToNBT("bBox" + i, nbt);
+			}
+		}
 	}
 	
 	public static void rotatePreview(NBTTagCompound nbt, ForgeDirection direction)

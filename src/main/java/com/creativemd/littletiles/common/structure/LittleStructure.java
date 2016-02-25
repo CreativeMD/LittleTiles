@@ -301,6 +301,8 @@ public abstract class LittleStructure {
 		return coords;
 	}
 	
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction){}
+	
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction){}
 	
 	//====================GUI STUFF====================

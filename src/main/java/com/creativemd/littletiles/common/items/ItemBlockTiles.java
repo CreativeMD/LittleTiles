@@ -430,4 +430,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		return null;
 	}
 
+	@Override
+	public void flipLittlePreview(ItemStack stack, ForgeDirection direction) {
+		//No need to flip one single tile!
+	}
+
 }

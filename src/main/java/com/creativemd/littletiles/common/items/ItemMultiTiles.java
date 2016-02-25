@@ -100,6 +100,11 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	public static LittleStructure getLTStructure(ItemStack stack) {
 		return LittleStructure.createAndLoadStructure(stack.stackTagCompound.getCompoundTag("structure"));
 	}
+
+	@Override
+	public void flipLittlePreview(ItemStack stack, ForgeDirection direction) {
+		ItemRecipe.flipPreview(stack, direction);
+	}
 	
 	/*@Override
 	@SideOnly(Side.CLIENT)

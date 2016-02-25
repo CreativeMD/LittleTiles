@@ -140,6 +140,16 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
         return false;
     }
 	
+	public static void flipPreview(ItemStack stack, ForgeDirection direction)
+	{
+		int tiles = stack.stackTagCompound.getInteger("tiles");
+		for (int i = 0; i < tiles; i++) {
+			NBTTagCompound nbt = stack.stackTagCompound.getCompoundTag("tile" + i);
+			LittleTilePreview.flipPreview(nbt, direction);
+			stack.stackTagCompound.setTag("tile" + i, nbt);
+		}
+	}
+	
 	public static void rotatePreview(ItemStack stack, ForgeDirection direction)
 	{
 		int tiles = stack.stackTagCompound.getInteger("tiles");

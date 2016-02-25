@@ -177,6 +177,15 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	@Override
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction)
+	{
+		LittleTileBox box = new LittleTileBox(axisPoint.x, axisPoint.y, axisPoint.z, axisPoint.x+1, axisPoint.y+1, axisPoint.z+1);
+		box.flipBoxWithCenter(direction, null);
+		axisPoint = box.getMinVec();
+	}
+	
+	
+	@Override
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction) 
 	{
 		LittleTileBox box = new LittleTileBox(axisPoint.x, axisPoint.y, axisPoint.z, axisPoint.x+1, axisPoint.y+1, axisPoint.z+1);

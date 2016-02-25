@@ -8,6 +8,7 @@ import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -22,7 +23,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.MovingObjectPosition.MovingObjectType;
+import net.minecraft.world.World;
+import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -66,9 +70,40 @@ public class PreviewRenderer {
 		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{
 			//mc.theWorld
-			if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null)
+			if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem()))
 			{
-				if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem()))
+				if(GameSettings.isKeyDown(LittleTilesClient.flip) && !LittleTilesClient.pressedFlip)
+				{
+					LittleTilesClient.pressedFlip = true;
+					int i4 = MathHelper.floor_double((double)(this.mc.thePlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+					ForgeDirection direction = null;
+					switch(i4)
+					{
+					case 0:
+						direction = ForgeDirection.SOUTH;
+						break;
+					case 1:
+						direction = ForgeDirection.WEST;
+						break;
+					case 2:
+						direction = ForgeDirection.NORTH;
+						break;
+					case 3:
+						direction = ForgeDirection.EAST;
+						break;
+					}
+					if(mc.thePlayer.rotationPitch > 45)
+						direction = ForgeDirection.DOWN;
+					if(mc.thePlayer.rotationPitch < -45)
+						direction = ForgeDirection.UP;
+					System.out.println("f: " + i4 + ", pitch: " + mc.thePlayer.rotationPitch + ", direction: " + direction);
+					LittleFlipPacket packet = new LittleFlipPacket(direction);
+					packet.executeClient(mc.thePlayer);
+					PacketHandler.sendPacketToServer(packet);
+				}else if(!GameSettings.isKeyDown(LittleTilesClient.flip)){
+					LittleTilesClient.pressedFlip = false;
+				}
+				if(mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null)
 				{
 					//direction = ForgeDirection.UP;
 					//direction2 = ForgeDirection.EAST;

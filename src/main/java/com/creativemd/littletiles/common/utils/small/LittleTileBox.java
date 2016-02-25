@@ -163,6 +163,16 @@ public class LittleTileBox {
 		maxZ += vec.z;
 	}
 	
+	public void subOffset(LittleTileVec vec)
+	{
+		minX -= vec.x;
+		minY -= vec.y;
+		minZ -= vec.z;
+		maxX -= vec.x;
+		maxY -= vec.y;
+		maxZ -= vec.z;
+	}
+	
 	public void assignCube(CubeObject cube)
 	{
 		this.minX = (int)(cube.minX*16);
@@ -219,6 +229,41 @@ public class LittleTileBox {
 		this.maxY = (int) (cube.maxY*16);
 		this.maxZ = (int) (cube.maxZ*16);
 		//assignCube(cube);
+	}
+	
+	public void flipBox(ForgeDirection direction)
+	{
+		switch(direction)
+		{
+		case EAST:
+		case WEST:
+			minX = -minX;
+			maxX = -maxX;
+			break;
+		case UP:
+		case DOWN:
+			minY = -minY;
+			maxY = -maxY;
+			break;
+		case SOUTH:
+		case NORTH:
+			minZ = -minZ;
+			maxZ = -maxZ;
+			break;
+		default:
+			break;
+		}
+		
+		resort();
+	}
+	
+	public void flipBoxWithCenter(ForgeDirection direction, LittleTileVec center)
+	{
+		if(center == null)
+			center = new LittleTileVec(8, 8, 8);
+		subOffset(center);
+		flipBox(direction);
+		addOffset(center);		
 	}
 	
 	public void rotateBox(ForgeDirection direction)
@@ -489,7 +534,7 @@ public class LittleTileBox {
 	}
 
 	public void resort() {
-		set(Math.min(minX, maxX), Math.max(minX, maxX), Math.min(minY, maxY), Math.max(minY, maxY), Math.min(minZ, maxZ), Math.max(minZ, maxZ));
+		set(Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
 	}
 	
 	
