@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PreviewTile;
@@ -283,6 +284,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		if(canPlaceTiles(world, splitted, coordsToCheck))
 		{
 			LittleTilePosition pos = null;
+			//LittleTileCoord pos = null;
 			
 			for (int i = 0; i < splitted.size(); i++) {
 				ChunkCoordinates coord = splitted.getKey(i);
@@ -319,9 +321,10 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 										structure.mainTile = LT;
 										LT.isMainBlock = true;
 										LT.updateCorner();
+										//pos = new LittleTileCoord(baseX, baseY, baseZ, coord, LT.cornerVec.copy());
 										pos = new LittleTilePosition(coord, LT.cornerVec.copy());
 									}else
-										LT.pos = pos;
+										LT.coord = new LittleTileCoord(LT.te, pos.coord, pos.position);
 								}
 							}
 						}

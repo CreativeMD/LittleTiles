@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.utils.PreviewTile;
 
 import codechicken.lib.render.QBImporter.RasterisedModel;
@@ -87,7 +88,7 @@ public abstract class LittleStructure {
 		registerLittleStructure("bed", new LittleBed());
 	}
 	
-	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt)
+	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, LittleTile mainTile)
 	{
 		if(nbt == null)
 			return null;
@@ -104,7 +105,7 @@ public abstract class LittleStructure {
 				} catch (Exception e) {
 					System.out.println("Found invalid structureID=" + id);
 				}
-				
+				structure.mainTile = mainTile;
 				structure.loadFromNBT(nbt);
 				return structure;
 			}
@@ -165,7 +166,8 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	public ArrayList<LittleTilePosition> tilesToLoad = null;
+	//public ArrayList<LittleTilePosition> tilesToLoad = null;
+	public ArrayList<LittleTileCoord> tilesToLoad = null;
 	
 	public ItemStack dropStack;
 	
@@ -186,9 +188,16 @@ public abstract class LittleStructure {
 			tilesToLoad = new ArrayList<>();
 			int count = nbt.getInteger("count");
 			for (int i = 0; i < count; i++) {
-				LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-				if(pos != null)
-					tilesToLoad.add(pos);
+				LittleTileCoord coord = null;
+				if(nbt.hasKey("i" + i + "coX"))
+				{
+					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
+					coord = new LittleTileCoord(mainTile.te, pos.coord, pos.position);
+				}else{
+					coord = new LittleTileCoord("i" + i, nbt);
+				}
+				
+				tilesToLoad.add(coord);
 			}
 		}
 		
@@ -216,7 +225,8 @@ public abstract class LittleStructure {
 				if(tiles.get(i).isStructureBlock)
 				{
 					tiles.get(i).updateCorner();
-					new LittleTilePosition(tiles.get(i).te.getCoord(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);
+					new LittleTileCoord(mainTile.te, tiles.get(i).te.getCoord(), tiles.get(i).cornerVec.copy());
+					//new LittleTilePosition().writeToNBT("i" + i, nbt);
 				}
 					//tiles.get(i).pos.writeToNBT("i" + i, nbt);
 			}
@@ -239,6 +249,30 @@ public abstract class LittleStructure {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
+	public boolean checkForTile(World world, LittleTileCoord pos)
+	{
+		ChunkCoordinates coord = pos.getAbsolutePosition(mainTile.te);
+		Chunk chunk = world.getChunkFromBlockCoords(coord.posX, coord.posZ);
+		if(!(chunk instanceof EmptyChunk))
+		{
+			//chunk.isChunkLoaded
+			TileEntity tileEntity = world.getTileEntity(coord.posX, coord.posY, coord.posZ);
+			if(tileEntity instanceof TileEntityLittleTiles)
+			{
+				LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
+				if(tile != null && tile.isStructureBlock)
+				{
+					if(!tiles.contains(tile))
+						tiles.add(tile);
+					tile.structure = this;
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	/*@Deprecated
 	public boolean checkForTile(World world, LittleTilePosition pos)
 	{
 		Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
@@ -259,7 +293,7 @@ public abstract class LittleStructure {
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	//====================Rendering====================
 	

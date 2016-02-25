@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
@@ -243,7 +244,8 @@ public abstract class LittleTile {
 				nbt.setBoolean("main", true);
 				structure.writeToNBT(nbt);
 			}else{
-				pos.writeToNBT(nbt);
+				coord.writeToNBT(nbt);
+				//pos.writeToNBT(nbt);
 			}
 		}
 	}
@@ -274,10 +276,18 @@ public abstract class LittleTile {
 			if(nbt.getBoolean("main"))
 			{
 				isMainBlock = true;
-				structure = LittleStructure.createAndLoadStructure(nbt);
-				structure.mainTile = this;
+				structure = LittleStructure.createAndLoadStructure(nbt, this);
+				//structure.mainTile = this;
 			}else{
-				pos = new LittleTilePosition(nbt);
+				if(nbt.hasKey("coX"))
+				{
+					LittleTilePosition pos = new LittleTilePosition(nbt);
+					
+					coord = new LittleTileCoord(te, pos.coord, pos.position);
+					
+					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
+				}else
+					coord = new LittleTileCoord(nbt);
 			}
 		}
 	}
@@ -369,8 +379,8 @@ public abstract class LittleTile {
 		tile.te = this.te;
 		
 		tile.structure = this.structure;
-		if(this.pos != null)
-			tile.pos = this.pos.copy();
+		if(this.coord != null)
+			tile.coord = this.coord.copy();
 	}
 	
 	//================Drop================
@@ -487,7 +497,14 @@ public abstract class LittleTile {
 	public boolean isStructureBlock = false;
 	
 	public LittleStructure structure;
-	public LittleTilePosition pos;
+	
+	/*
+	 * Removed positions are now saved relative to the current position
+	 * @Deprecated
+	 * public LittleTilePosition pos;*/
+	
+	public LittleTileCoord coord;
+	
 	public boolean isMainBlock = false;
 	
 	public boolean checkForStructure()
@@ -497,13 +514,14 @@ public abstract class LittleTile {
 		World world = te.getWorldObj();
 		//if(!world.isRemote)
 		//{
-			Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
+			ChunkCoordinates absoluteCoord = coord.getAbsolutePosition(te);
+			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord.posX, absoluteCoord.posZ);
 			if(!(chunk instanceof EmptyChunk))
 			{
-				TileEntity tileEntity = world.getTileEntity(pos.coord.posX, pos.coord.posY, pos.coord.posZ);
+				TileEntity tileEntity = world.getTileEntity(absoluteCoord.posX, absoluteCoord.posY, absoluteCoord.posZ);
 				if(tileEntity instanceof TileEntityLittleTiles)
 				{
-					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
+					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.position);
 					if(tile != null && tile.isStructureBlock)
 					{
 						if(tile.isMainBlock)
@@ -536,6 +554,7 @@ public abstract class LittleTile {
 		return isStructureBlock && checkForStructure();
 	}
 	
+	@Deprecated
 	public static class LittleTilePosition {
 		
 		public ChunkCoordinates coord;
@@ -569,6 +588,12 @@ public abstract class LittleTile {
 		public void writeToNBT(NBTTagCompound nbt)
 		{
 			writeToNBT("", nbt);
+		}
+		
+		@Override
+		public String toString()
+		{
+			return "coord:" + coord + "|position:" + position;
 		}
 		
 		public LittleTilePosition copy()
