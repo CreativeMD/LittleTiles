@@ -9,6 +9,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -185,6 +186,38 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}catch(Exception e){
 						System.out.println("Failed to use color tube!");
 						e.printStackTrace();
+					}
+					break;
+				case 4:
+					TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+					ArrayList<LittleTile> newTiles = new ArrayList<>();
+					if(te.updateLoadedTileServer(pos, look) && (te.loadedTile.getClass() == LittleTileBlock.class || te.loadedTile instanceof LittleTileBlockColored)  && te.loadedTile.structure == null)
+					{
+						LittleTile oldTile = te.loadedTile;
+						for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
+							LittleTileBox box = oldTile.boundingBoxes.get(j);
+							for (int littleX = box.minX; littleX < box.maxX; littleX++) {
+								for (int littleY = box.minY; littleY < box.maxY; littleY++) {
+									for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
+										tile = oldTile.copy();
+										tile.boundingBoxes.clear();
+										tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
+										tile.updateCorner();
+										tile.te = te;
+										newTiles.add(tile);
+									}
+								}
+							}
+						}
+						
+						if(LittleTiles.maxNewTiles >= newTiles.size() - 1)
+						{
+							te.tiles.remove(oldTile);
+							te.tiles.addAll(newTiles);
+							te.update();
+						}else{
+							player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+						}
 					}
 					break;
 				}
