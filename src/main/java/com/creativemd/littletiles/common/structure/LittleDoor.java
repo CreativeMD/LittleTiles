@@ -34,14 +34,22 @@ public class LittleDoor extends LittleStructure{
 
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		axisPoint = new LittleTileVec("a", nbt);
+		if(nbt.hasKey("ax"))
+		{
+			axisVec = new LittleTileVec("a", nbt);
+			if(mainTile != null)
+				axisVec.subVec(mainTile.cornerVec);
+		}else{
+			axisVec = new LittleTileVec("av", nbt);
+		}
 		axis = Axis.getAxis(nbt.getInteger("axis"));
 		normalDirection = ForgeDirection.getOrientation(nbt.getInteger("ndirection"));
 	}
 
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		axisPoint.writeToNBT("a", nbt);
+		//axisPoint.writeToNBT("a", nbt);
+		axisVec.writeToNBT("av", nbt);
 		nbt.setInteger("axis", axis.toInt());
 		nbt.setInteger("ndirection", RotationUtils.getIndex(normalDirection));
 	}
@@ -56,9 +64,12 @@ public class LittleDoor extends LittleStructure{
 		if(door != null)
 		{
 			tile.axisDirection = door.axis;
-			tile.axisX = door.axisPoint.x;
+			/*tile.axisX = door.axisPoint.x;
 			tile.axisY = door.axisPoint.y;
-			tile.axisZ = door.axisPoint.z;
+			tile.axisZ = door.axisPoint.z;*/
+			tile.axisX = door.axisVec.x;
+			tile.axisY = door.axisVec.y;
+			tile.axisZ = door.axisVec.z;
 			tile.normalAxis = Axis.getAxis(door.normalDirection);
 		}
 		tile.visibleAxis = true;
@@ -84,7 +95,14 @@ public class LittleDoor extends LittleStructure{
 	
 	public ForgeDirection normalDirection;
 	public Axis axis;
-	public LittleTileVec axisPoint;
+	public LittleTileVec axisVec;
+	
+	public LittleTileVec getAxisVec()
+	{
+		LittleTileVec newAxisVec = axisVec.copy();
+		newAxisVec.addVec(mainTile.cornerVec);
+		return newAxisVec;
+	}
 	
 	@CustomEventSubscribe
 	@SideOnly(Side.CLIENT)
@@ -170,7 +188,7 @@ public class LittleDoor extends LittleStructure{
 	public ArrayList<PreviewTile> getSpecialTiles()
 	{
 		ArrayList<PreviewTile> boxes = new ArrayList<>();
-		LittleTileBox box = new LittleTileBox(axisPoint.x, axisPoint.y, axisPoint.z, axisPoint.x+1, axisPoint.y+1, axisPoint.z+1);
+		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		
 		boxes.add(new PreviewTileAxis(box, null, axis));
 		return boxes;
@@ -179,18 +197,18 @@ public class LittleDoor extends LittleStructure{
 	@Override
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction)
 	{
-		LittleTileBox box = new LittleTileBox(axisPoint.x, axisPoint.y, axisPoint.z, axisPoint.x+1, axisPoint.y+1, axisPoint.z+1);
+		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		box.flipBoxWithCenter(direction, null);
-		axisPoint = box.getMinVec();
+		axisVec = box.getMinVec();
 	}
 	
 	
 	@Override
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction) 
 	{
-		LittleTileBox box = new LittleTileBox(axisPoint.x, axisPoint.y, axisPoint.z, axisPoint.x+1, axisPoint.y+1, axisPoint.z+1);
+		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		box.rotateBox(direction);
-		axisPoint = box.getMinVec();
+		axisVec = box.getMinVec();
 		//ForgeDirection axisDirection = axis.getDirection();
 		this.axis = Axis.getAxis(RotationUtils.rotateForgeDirection(axis.getDirection(), direction));
 		//this.axis = Axis.getAxis(direction.getRotation(axis.getDirection()));
@@ -250,6 +268,7 @@ public class LittleDoor extends LittleStructure{
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, int x, int y, int z, Rotation direction, ArrayList<PreviewTile> defaultpreviews, boolean inverse)
 	{
+		LittleTileVec axisPoint = getAxisVec();
 		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-x*16, axisPoint.y-y*16, axisPoint.z-z*16);
 		
 		/*LittleTileVec missingOffset = new LittleTileVec(0, 0, 0);
@@ -316,7 +335,7 @@ public class LittleDoor extends LittleStructure{
 		
 		LittleDoor structure = new LittleDoor();
 		structure.dropStack = dropStack.copy();
-		structure.axisPoint = new LittleTileVec(0, 0, 0);
+		structure.axisVec = new LittleTileVec(0, 0, 0);
 		structure.setTiles(new ArrayList<LittleTile>());
 		structure.axis = this.axis;
 		
@@ -377,6 +396,8 @@ public class LittleDoor extends LittleStructure{
 				return true;
 			}
 			ArrayList<PreviewTile> previews = new ArrayList<>();
+			
+			LittleTileVec axisPoint = getAxisVec();
 			
 			int mainX = axisPoint.x/16;
 			int mainY = axisPoint.y/16;
@@ -554,7 +575,7 @@ public class LittleDoor extends LittleStructure{
 	public LittleStructure parseStructure(SubGui gui) {
 		LittleDoor door = new LittleDoor();
 		GuiTileViewer viewer = (GuiTileViewer) gui.getControl("tileviewer");
-		door.axisPoint = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
+		door.axisVec = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
 		door.axis = viewer.axisDirection;
 		door.normalDirection = viewer.normalAxis.getDirection();
 		//door.updateNormalDirection();

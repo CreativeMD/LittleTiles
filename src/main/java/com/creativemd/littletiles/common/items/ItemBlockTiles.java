@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
+import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
@@ -44,6 +45,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.GuiScreenEvent.ActionPerformedEvent.Pre;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRenderer{
@@ -87,6 +89,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		PlacementHelper helper = PlacementHelper.getInstance(player);
 		
 		MovingObjectPosition moving = Minecraft.getMinecraft().objectMouseOver;
+		if(PreviewRenderer.markedHit != null)
+			moving = PreviewRenderer.markedHit;
 		
 		//LittleTileSize size = helper.size;
 		//size.rotateSize(PreviewRenderer.direction);
@@ -99,39 +103,41 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		
 		side = moving.sideHit;
 		
-		if(!helper.canBePlacedInside(x, y, z, moving.hitVec, ForgeDirection.getOrientation(side)))
+		if(PreviewRenderer.markedHit == null)
 		{
-			if (side == 0)
-	        {
-	            --y;
-	        }
-	
-	        if (side == 1)
-	        {
-	            ++y;
-	        }
-	
-	        if (side == 2)
-	        {
-	            --z;
-	        }
-	
-	        if (side == 3)
-	        {
-	            ++z;
-	        }
-	
-	        if (side == 4)
-	        {
-	            --x;
-	        }
-	
-	        if (side == 5)
-	        {
-	            ++x;
-	        }
-		}
+			if(!helper.canBePlacedInside(x, y, z, moving.hitVec, ForgeDirection.getOrientation(side)))
+			{
+				if (side == 0)
+		        {
+		            --y;
+		        }
 		
+		        if (side == 1)
+		        {
+		            ++y;
+		        }
+		
+		        if (side == 2)
+		        {
+		            --z;
+		        }
+		
+		        if (side == 3)
+		        {
+		            ++z;
+		        }
+		
+		        if (side == 4)
+		        {
+		            --x;
+		        }
+		
+		        if (side == 5)
+		        {
+		            ++x;
+		        }
+			}
+		}
 		if (stack.stackSize == 0)
         {
             return false;
@@ -147,10 +153,11 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
         else// if (world.canPlaceEntityOnSide(helper.tile.block, x, y, z, false, side, player, stack) || helper.canBePlacedInside(x, y, z))
         {
         	if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-    			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, player.getPosition(1.0F), moving.hitVec, x, y, z, side)); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
+    			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, player.getPosition(1.0F), moving.hitVec, x, y, z, side, PreviewRenderer.markedHit != null)); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
     		
-            placeBlockAt(player, stack, world, player.getPosition(1.0F), moving.hitVec, helper, x, y, z, side); //, PreviewRenderer.direction, PreviewRenderer.direction2);
-
+            if(placeBlockAt(player, stack, world, player.getPosition(1.0F), moving.hitVec, helper, x, y, z, side, PreviewRenderer.markedHit != null)) //, PreviewRenderer.direction, PreviewRenderer.direction2);
+	            PreviewRenderer.markedHit = null;
+            
             return true;
         }
     }
@@ -178,15 +185,21 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		x = mc.objectMouseOver.blockX;
-		y = mc.objectMouseOver.blockY;
-		z = mc.objectMouseOver.blockZ;
+		MovingObjectPosition moving = Minecraft.getMinecraft().objectMouseOver;
+		if(PreviewRenderer.markedHit != null)
+			moving = PreviewRenderer.markedHit;
+		
+		x = moving.blockX;
+		y = moving.blockY;
+		z = moving.blockZ;
+		
+		
 		
         if (block == Blocks.snow_layer)
         {
             side = 1;
         }
-        else if (block != Blocks.vine && block != Blocks.tallgrass && block != Blocks.deadbush && !block.isReplaceable(world, x, y, z) && !PlacementHelper.getInstance(player).canBePlacedInside(x, y, z, mc.objectMouseOver.hitVec, ForgeDirection.getOrientation(side)))
+        else if (block != Blocks.vine && block != Blocks.tallgrass && block != Blocks.deadbush && !block.isReplaceable(world, x, y, z) && !PlacementHelper.getInstance(player).canBePlacedInside(x, y, z, moving.hitVec, ForgeDirection.getOrientation(side)))
         {
             if (side == 0)
             {
@@ -324,7 +337,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 										//pos = new LittleTileCoord(baseX, baseY, baseZ, coord, LT.cornerVec.copy());
 										pos = new LittleTilePosition(coord, LT.cornerVec.copy());
 									}else
-										LT.coord = new LittleTileCoord(LT.te, pos.coord, pos.position);
+										LT.coord = new LittleTileCoord(teLT, pos.coord, pos.position);
 								}
 							}
 						}
@@ -344,9 +357,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		return false;
 	}
 	
-	public boolean placeBlockAt(EntityPlayer player, ItemStack stack, World world, Vec3 playerPos, Vec3 hitVec, PlacementHelper helper, int x, int y, int z, int side) //, ForgeDirection direction, ForgeDirection direction2)
+	public boolean placeBlockAt(EntityPlayer player, ItemStack stack, World world, Vec3 playerPos, Vec3 hitVec, PlacementHelper helper, int x, int y, int z, int side, boolean customPlacement) //, ForgeDirection direction, ForgeDirection direction2)
     {
-		ArrayList<PreviewTile> previews = helper.getPreviewTiles(stack, x, y, z, playerPos, hitVec, ForgeDirection.getOrientation(side), true); //, direction, direction2);
+		ArrayList<PreviewTile> previews = helper.getPreviewTiles(stack, x, y, z, playerPos, hitVec, ForgeDirection.getOrientation(side), customPlacement, true); //, direction, direction2);
 		
 		LittleStructure structure = null;
 		if(stack.getItem() instanceof ILittleTile)
@@ -389,8 +402,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 					
 				}
 			}*/
+			return true;
 		}
-       return true;
+       return false;
     }
 
 	@Override

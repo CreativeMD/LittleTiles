@@ -225,7 +225,7 @@ public abstract class LittleStructure {
 				if(tiles.get(i).isStructureBlock)
 				{
 					tiles.get(i).updateCorner();
-					new LittleTileCoord(mainTile.te, tiles.get(i).te.getCoord(), tiles.get(i).cornerVec.copy());
+					new LittleTileCoord(mainTile.te, tiles.get(i).te.getCoord(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);;
 					//new LittleTilePosition().writeToNBT("i" + i, nbt);
 				}
 					//tiles.get(i).pos.writeToNBT("i" + i, nbt);

@@ -31,7 +31,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(ItemStack stack, Vec3 playerPos, Vec3 hitVec, int x, int y, int z, int side) //, int direction, int direction2)
+	public LittlePlacePacket(ItemStack stack, Vec3 playerPos, Vec3 hitVec, int x, int y, int z, int side, boolean customPlacement) //, int direction, int direction2)
 	{
 		this.stack = stack;
 		this.playerPos = playerPos;
@@ -40,6 +40,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.y = y;
 		this.z = z;
 		this.side = side;
+		this.customPlacement = customPlacement;
 		//this.direction = direction;
 		//this.direction2 = direction2;
 	}
@@ -51,6 +52,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	public int y;
 	public int z;
 	public int side;
+	public boolean customPlacement;
 	//public int direction;
 	//public int direction2;
 	
@@ -63,6 +65,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		buf.writeInt(y);
 		buf.writeInt(z);
 		buf.writeInt(side);
+		buf.writeBoolean(customPlacement);
 		//buf.writeInt(direction);
 		//buf.writeInt(direction2);
 	}
@@ -76,6 +79,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.y = buf.readInt();
 		this.z = buf.readInt();
 		this.side = buf.readInt();
+		this.customPlacement = buf.readBoolean();
 		//this.direction = buf.readInt();
 		//this.direction2 = buf.readInt();
 	}
@@ -93,7 +97,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);
 			//helper.side = side;
 			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, x, y, z, side); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, x, y, z, side, customPlacement); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);

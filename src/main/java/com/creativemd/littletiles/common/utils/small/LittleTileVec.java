@@ -13,7 +13,7 @@ public class LittleTileVec {
 	
 	public LittleTileVec(String name, NBTTagCompound nbt)
 	{
-		if(nbt.getTag(name + "minX") instanceof NBTTagByte)
+		if(nbt.getTag(name + "x") instanceof NBTTagByte)
 		{
 			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
 			writeToNBT(name, nbt);
@@ -58,6 +58,13 @@ public class LittleTileVec {
 		this.x += vec.x;
 		this.y += vec.y;
 		this.z += vec.z;
+	}
+	
+	public void subVec(LittleTileVec vec)
+	{
+		this.x -= vec.x;
+		this.y -= vec.y;
+		this.z -= vec.z;
 	}
 	
 	public void rotateVec(ForgeDirection direction)
