@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.render;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.creativemd.creativecore.client.block.BlockRenderHelper;
 import com.creativemd.creativecore.client.block.IBlockAccessFake;
@@ -28,7 +29,7 @@ import net.minecraft.world.chunk.Chunk;
 public class RenderingThread extends Thread {
 	
 	private static CopyOnWriteArrayList<ChunkCoordinates> updateCoords = new CopyOnWriteArrayList<>();
-	private static HashMap<ChunkCoordinates, Integer> chunks = new HashMap<>();
+	private static HashMap<ChunkCoordinates, AtomicInteger> chunks = new HashMap<>();
 	
 	private static World lastWorld;
 	
@@ -47,8 +48,12 @@ public class RenderingThread extends Thread {
 		if(!updateCoords.contains(coord))
 		{
 			ChunkCoordinates chunk = getChunkCoords(coord);
-			Integer count = chunks.get(chunk);
-			chunks.put(chunk, count == null ? 1 : count+1);
+			AtomicInteger count = chunks.get(chunk);
+			if(count == null)
+				count = new AtomicInteger(0);
+			//System.out.println("Added 1 + " + count + " = " + (count+1));
+			count.addAndGet(1);
+			//chunks.put(chunk, count == null ? 1 : +1);
 			updateCoords.add(coord);
 		}
 	}
@@ -164,11 +169,15 @@ public class RenderingThread extends Thread {
 		//System.out.println("Finished rendering!");
 		
 		ChunkCoordinates chunk = getChunkCoords(coord);
-		Integer count = chunks.get(chunk);
-		chunks.put(chunk, count == null ? 0 : count-1);
+		AtomicInteger count = chunks.get(chunk);
+		//System.out.println("Rendered 1/" + count);
+		//chunks.put(chunk, count == null ? 0 : count-1);
+		if(count != null)
+			count.addAndGet(-1);
 		
-		if(count == null || count <= 1)
+		if(count == null || count.intValue() <= 0)
 		{
+			//System.out.println("Force update");
 			chunks.remove(chunk);
 			te.needsRenderingUpdate = true;
 			//System.out.println("Force update!");
