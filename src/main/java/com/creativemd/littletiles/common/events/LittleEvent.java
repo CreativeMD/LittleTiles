@@ -9,15 +9,29 @@ import com.creativemd.littletiles.common.utils.PlacementHelper;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.eventhandler.Event.Result;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.util.MovingObjectPosition;
+import net.minecraftforge.client.event.RenderWorldEvent;
 import net.minecraftforge.event.entity.player.EntityInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerOpenContainerEvent;
+import net.minecraftforge.event.world.ChunkEvent.Unload;
 
 public class LittleEvent {
+	
+	@SideOnly(Side.CLIENT)
+	public static int renderPass;
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onPreRenderWorld(RenderWorldEvent.Pre event)
+	{
+		renderPass = event.pass;
+	}
 	
 	@SubscribeEvent
 	public void openContainer(PlayerOpenContainerEvent event){

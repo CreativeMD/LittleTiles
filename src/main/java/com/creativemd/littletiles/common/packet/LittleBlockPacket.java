@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.utils.TileList;
 
 import cpw.mods.fml.common.network.ByteBufUtils;
 import cpw.mods.fml.relauncher.Side;
@@ -114,8 +115,9 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					//littleEntity.removeTile(tile);
 					if(!player.capabilities.isCreativeMode)
 						WorldUtils.dropItem(player.worldObj, tile.getDrops(), x, y, z);
-					for (int i = 0; i < littleEntity.tiles.size(); i++) {
-						littleEntity.tiles.get(i).onNeighborChangeInside();
+					TileList<LittleTile> tiles = littleEntity.getTiles();
+					for (int i = 0; i < tiles.size(); i++) {
+						tiles.get(i).onNeighborChangeInside();
 					}
 					littleEntity.update();
 					break;
@@ -124,7 +126,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						int side = nbt.getInteger("side");
 						ForgeDirection direction = ForgeDirection.getOrientation(side);
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-						if(te.updateLoadedTileServer(pos, look) && te.loadedTile.boundingBoxes.size() == 1 && !te.loadedTile.isStructureBlock && !(te.loadedTile instanceof LittleTileTileEntity) && te.loadedTile instanceof LittleTileBlock)
+						if(te.updateLoadedTileServer(pos, look) && te.loadedTile.canSawResizeTile(direction, player))
 						{
 							LittleTileBox box = null;
 							if(player.isSneaking())
@@ -167,7 +169,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							int color = nbt.getInteger("color");
 							LittleTile currentTile = te.loadedTile;
 							
-							int index = te.tiles.indexOf(currentTile);
+							int index = te.getTiles().indexOf(currentTile);
 							if(player.isSneaking())
 							{
 								color = ColorUtils.WHITE;
@@ -179,7 +181,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 								LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) currentTile, color);
 								
 								if(newTile != null)
-									te.tiles.set(index, newTile);
+									te.getTiles().set(index, newTile);
 								te.update();
 							}
 						}
@@ -212,8 +214,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						
 						if(LittleTiles.maxNewTiles >= newTiles.size() - 1)
 						{
-							te.tiles.remove(oldTile);
-							te.tiles.addAll(newTiles);
+							te.removeTile(oldTile);
+							te.addTiles(newTiles);
 							te.update();
 						}else{
 							player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));

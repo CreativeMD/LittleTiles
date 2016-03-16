@@ -61,12 +61,12 @@ public class ItemHammer extends Item implements IGuiCreator{
 			TileEntity tileEntity = world.getTileEntity(x, y, z);
 			if(tileEntity instanceof TileEntityLittleTiles)
 			{
-				if(((TileEntityLittleTiles) tileEntity).tiles.size() <= 1)
+				if(((TileEntityLittleTiles) tileEntity).getTiles().size() <= 1)
 				{
 					LittleTiles.blockTile.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
 				}else{
 					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-					ItemRecipe.saveTiles(world, ((TileEntityLittleTiles) tileEntity).tiles, drop);
+					ItemRecipe.saveTiles(world, ((TileEntityLittleTiles) tileEntity).getTiles(), drop);
 					WorldUtils.dropItem(world, drop, x, y, z);
 				}
 				world.setBlockToAir(x, y, z);

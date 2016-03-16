@@ -532,7 +532,7 @@ public class LittleDoor extends LittleStructure{
 			}*/
 			
 			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.tiles.remove(tiles.get(i));
+				tiles.get(i).te.removeTile(tiles.get(i));
 			}
 			
 			if(tryToPlacePreviews(world, player, mainX, mainY, mainZ, rotation, previews, !inverse))
@@ -540,10 +540,8 @@ public class LittleDoor extends LittleStructure{
 			else if(tryToPlacePreviews(world, player, mainX, mainY, mainZ, rotation.getOpposite(), previews, inverse))
 				return true;
 			
-			
-			
 			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.tiles.add(tiles.get(i));
+				tiles.get(i).te.addTile(tiles.get(i));
 			}
 			return true;
 			

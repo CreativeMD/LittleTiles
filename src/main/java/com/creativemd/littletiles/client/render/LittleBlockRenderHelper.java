@@ -8,12 +8,14 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderBlocks;
 import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.chunk.Chunk;
 
 public class LittleBlockRenderHelper {
 	
@@ -25,12 +27,13 @@ public class LittleBlockRenderHelper {
 	{
 		te.isRendering = true;
 		int lightValue = Minecraft.getMinecraft().theWorld.getBlockLightValue(x, y, z);
-		boolean needThread = true;
+		boolean needThread = false;
 		
+		Chunk chunk = Minecraft.getMinecraft().theWorld.getChunkFromBlockCoords(x, z);
 		
-		
-		for (int i = 0; i < te.tiles.size(); i++) {
-			LittleTile tile = te.tiles.get(i);
+		TileList<LittleTile> tiles = te.getTiles();
+		for (int i = 0; i < tiles.size(); i++) {
+			LittleTile tile = tiles.get(i);
 			ArrayList<CubeObject> cubes = tile.getRenderingCubes();
 			boolean threaded = false;
 			//if()

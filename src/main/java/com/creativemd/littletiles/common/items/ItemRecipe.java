@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.utils.TileList;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -111,8 +112,9 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 							{
 								LittleTileVec offset = new LittleTileVec((posX-minX)*16, (posY-minY)*16, (posZ-minZ)*16);
 								TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-								for (int i = 0; i < littleEntity.tiles.size(); i++) {
-									LittleTile tile = littleEntity.tiles.get(i).copy();
+								TileList<LittleTile> teTiles = littleEntity.getTiles();
+								for (int i = 0; i < teTiles.size(); i++) {
+									LittleTile tile = teTiles.get(i).copy();
 									for (int j = 0; j < tile.boundingBoxes.size(); j++) {
 										tile.boundingBoxes.get(j).addOffset(offset);
 									}

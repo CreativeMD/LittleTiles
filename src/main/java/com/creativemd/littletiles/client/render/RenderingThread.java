@@ -12,6 +12,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.utils.TileList;
 import com.jcraft.jorbis.Block;
 
 import cpw.mods.fml.relauncher.Side;
@@ -84,9 +85,10 @@ public class RenderingThread extends Thread {
 					{
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 						ArrayList<LittleBlockVertex> vertexes = new ArrayList<>();
-						for (int i = 0; i < te.tiles.size(); i++) {
-							LittleTile tile = te.tiles.get(i);
-							if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).block.getRenderType() == 0)
+						TileList<LittleTile> tiles = te.getTiles();
+						for (int i = 0; i < tiles.size(); i++) {
+							LittleTile tile = tiles.get(i);
+							if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).canBlockBeThreaded())
 							{
 								
 								ArrayList<CubeObject> cubes = tile.getRenderingCubes();

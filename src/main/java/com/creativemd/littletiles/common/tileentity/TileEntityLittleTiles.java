@@ -36,7 +36,22 @@ public class TileEntityLittleTiles extends TileEntity{
 		return new TileList<LittleTile>();
 	}
 	
-	public TileList<LittleTile> tiles = createTileList();
+	private TileList<LittleTile> tiles = createTileList();
+	
+	public void setTiles(TileList<LittleTile> tiles)
+	{
+		this.tiles = tiles;
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateCustomRenderer();
+	}
+	
+	public TileList<LittleTile> getTiles()
+	{
+		return tiles;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public ArrayList<LittleTile> customRenderingTiles = new ArrayList<>();
 	
 	@SideOnly(Side.CLIENT)
 	public boolean needsRenderingUpdate;
@@ -64,18 +79,44 @@ public class TileEntityLittleTiles extends TileEntity{
 	
 	public boolean removeTile(LittleTile tile)
 	{
-		update();
 		boolean result = tiles.remove(tile);
-		updateNeighbor();
+		updateTiles();
 		return result;
+	}
+	
+	public void addTiles(ArrayList<LittleTile> tiles)
+	{
+		this.tiles.addAll(tiles);
+		updateTiles();
 	}
 	
 	public boolean addTile(LittleTile tile)
 	{
-		update();
 		boolean result = tiles.add(tile);
-		updateNeighbor();
+		updateTiles();
 		return result;
+	}
+	
+	public void updateTiles()
+	{
+		if(worldObj != null)
+		{
+			update();
+			updateNeighbor();
+		}
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateCustomRenderer();
+		
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void updateCustomRenderer()
+	{
+		customRenderingTiles.clear();;
+		for (int i = 0; i < tiles.size(); i++) {
+			if(tiles.get(i).needCustomRendering())
+				customRenderingTiles.add(tiles.get(i));
+		}
 	}
 	
 	public void updateNeighbor()
@@ -87,6 +128,39 @@ public class TileEntityLittleTiles extends TileEntity{
 		}
 		worldObj.notifyBlockChange(xCoord, yCoord, zCoord, LittleTiles.blockTile);
 	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared()
+    {
+		double renderDistance = 0;
+		for (int i = 0; i < tiles.size(); i++) {
+			renderDistance = Math.max(renderDistance, tiles.get(i).getMaxRenderDistanceSquared());
+		}
+        return renderDistance;
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+		double minX = xCoord;
+		double minY = yCoord;
+		double minZ = zCoord;
+		double maxX = xCoord+1;
+		double maxY = yCoord+1;
+		double maxZ = zCoord+1;
+		for (int i = 0; i < tiles.size(); i++) {
+			AxisAlignedBB box = tiles.get(i).getRenderBoundingBox();
+			minX = Math.min(box.minX, minX);
+			minY = Math.min(box.minY, minY);
+			minZ = Math.min(box.minZ, minZ);
+			maxX = Math.max(box.maxX, maxX);
+			maxY = Math.max(box.maxY, maxY);
+			maxZ = Math.max(box.maxZ, maxZ);
+		}
+		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+    }
 	
 	//public boolean needFullUpdate = true;
 	
@@ -138,6 +212,7 @@ public class TileEntityLittleTiles extends TileEntity{
 			if(tile != null)
 				tiles.add(tile);
 		}
+        updateTiles();
         //update();
     }
 
@@ -237,7 +312,8 @@ public class TileEntityLittleTiles extends TileEntity{
 			tiles.remove(exstingTiles.get(i));
 		}
     	//}
-        markFullRenderUpdate();
+        updateTiles();
+        //markFullRenderUpdate();
         /*if(tiles.size() == 0)
         {
         	System.out.println("===============================");
@@ -311,10 +387,21 @@ public class TileEntityLittleTiles extends TileEntity{
 			loadedTile = null;
 	}
 	
+	@Override
+	public boolean shouldRenderInPass(int pass)
+    {
+		if(super.shouldRenderInPass(pass))
+		{
+			return customRenderingTiles.size() > 0;
+		}
+        return false;
+    }
+	
 	public void update()
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			markFullRenderUpdate();
+		
 		worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
 		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
 	}
@@ -425,4 +512,6 @@ public class TileEntityLittleTiles extends TileEntity{
 		}
 		update();	
 	}
+
+	
 }

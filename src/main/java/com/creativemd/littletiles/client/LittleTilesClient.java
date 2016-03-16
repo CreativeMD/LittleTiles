@@ -13,6 +13,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.SpecialBlockTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -48,6 +49,8 @@ public class LittleTilesClient extends LittleTilesServer{
 	{
 		modelID = RenderingRegistry.getNextAvailableRenderId();
 		RenderingRegistry.registerBlockHandler(modelID, renderer);
+		
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new SpecialBlockTilesRenderer());
 		
 		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LittleTiles.blockTile), renderer);
 		MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);

@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.utils;
 
 import java.io.IOException;
 
+import org.lwjgl.opengl.GL11;
+
 import io.netty.buffer.Unpooled;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -11,6 +13,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -19,8 +25,10 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class LittleTileTileEntity extends LittleTileBlock{
 	
@@ -105,6 +113,9 @@ public class LittleTileTileEntity extends LittleTileBlock{
 		{
 			tileEntity = TileEntity.createAndLoadEntity(tileNBT);
 			tileEntity.setWorldObj(te.getWorldObj());
+			tileEntity.xCoord = te.xCoord;
+			tileEntity.yCoord = te.yCoord;
+			tileEntity.zCoord = te.zCoord;
 			//if(tileEntity.isInvalid())
 				//setInValid();
 		}
@@ -134,6 +145,52 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
+	public void renderTick(double x, double y, double z, float partialTickTime) {
+		if(tileEntity != null)
+		{
+			Minecraft mc = Minecraft.getMinecraft();
+			if (te.getDistanceFrom(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < tileEntity.getMaxRenderDistanceSquared())
+	        {
+	            int i = te.getWorldObj().getLightBrightnessForSkyBlocks(te.xCoord, te.yCoord, te.zCoord, 0);
+	            int j = i % 65536;
+	            int k = i / 65536;
+	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
+	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+	            double posX = (double)te.xCoord - TileEntityRendererDispatcher.staticPlayerX;
+	            double posY = (double)te.yCoord - TileEntityRendererDispatcher.staticPlayerY;
+	            double posZ = (double)te.zCoord - TileEntityRendererDispatcher.staticPlayerZ;
+	            
+	            posX += cornerVec.getPosX() - 0.5;
+	            posY += cornerVec.getPosY() - 0.5;
+	            posZ += cornerVec.getPosZ() - 0.5;
+	            
+	            tileEntity.blockMetadata = meta;
+	            
+	            TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, posX, posY, posZ, partialTickTime);
+	        }
+		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared()
+    {
+		if(tileEntity != null)
+			return tileEntity.getMaxRenderDistanceSquared();
+		return super.getMaxRenderDistanceSquared();
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+		if(tileEntity != null)
+			return tileEntity.getRenderBoundingBox().getOffsetBoundingBox(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
+		return super.getRenderBoundingBox();
+    }
+	
+	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
 		if(tile instanceof LittleTileTileEntity)
@@ -154,6 +211,11 @@ public class LittleTileTileEntity extends LittleTileBlock{
 				return true;
 			}
 		}
+		return false;
+	}
+	
+	@Override
+	protected boolean canSawResize(ForgeDirection direction, EntityPlayer player) {
 		return false;
 	}
 	

@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -178,8 +179,15 @@ public class SpecialBlockTilesRenderer extends TileEntitySpecialRenderer impleme
 
 	@Override
 	public void renderTileEntityAt(TileEntity tileEntity, double x,
-			double y, double z, float p_147500_8_) {
-		
+			double y, double z, float partialTime) {
+		if(tileEntity instanceof TileEntityLittleTiles)
+		{
+			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+			for (int i = 0; i < te.customRenderingTiles.size(); i++) {
+				LittleTileVec cornerVec = te.customRenderingTiles.get(i).cornerVec;
+				te.customRenderingTiles.get(i).renderTick(x+cornerVec.getPosX(), y+cornerVec.getPosY(), z+cornerVec.getPosZ(), partialTime);
+			}
+		}
 	}
 
 }

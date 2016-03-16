@@ -157,7 +157,13 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public boolean canBlockBeThreaded() {
+		//return false;
 		return block.getRenderType() == 0 && !(block instanceof BlockGrass);
+	}
+
+	@Override
+	protected boolean canSawResize(ForgeDirection direction, EntityPlayer player) {
+		return true;
 	}
 	
 }

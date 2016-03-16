@@ -41,7 +41,7 @@ public class SubGuiChisel extends SubGui {
 		if(stack.stackTagCompound == null)
 			stack.stackTagCompound = new NBTTagCompound();
 		
-		controls.add(new GuiCheckBox("any", "any", 5, 5, true));
+		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
 		controls.add(new GuiInvSelector("filter", 40, 5, 140, container.player, true));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 20));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 50, true));

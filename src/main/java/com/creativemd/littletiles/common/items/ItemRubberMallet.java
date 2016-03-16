@@ -56,8 +56,9 @@ public class ItemRubberMallet extends Item {
 				{
 					TileList<LittleTile> newTiles = TileEntityLittleTiles.createTileList();
 					TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-					for (int i = 0; i < te.tiles.size(); i++) {
-						LittleTile oldTile = te.tiles.get(i);
+					TileList<LittleTile> tiles = te.getTiles();
+					for (int i = 0; i < tiles.size(); i++) {
+						LittleTile oldTile = tiles.get(i);
 						if((oldTile.getClass() == LittleTileBlock.class || oldTile instanceof LittleTileBlockColored) && oldTile.structure == null)
 						{
 							for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
@@ -79,9 +80,9 @@ public class ItemRubberMallet extends Item {
 						}else
 							newTiles.add(oldTile);
 					}
-					if(LittleTiles.maxNewTiles >= newTiles.size() - te.tiles.size())
+					if(LittleTiles.maxNewTiles >= newTiles.size() - te.getTiles().size())
 					{
-						te.tiles = newTiles;
+						te.setTiles(newTiles);
 						te.update();
 					}else{
 						player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
@@ -112,11 +113,11 @@ public class ItemRubberMallet extends Item {
 								tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
 								tile.updateCorner();
 								tile.te = te;
-								te.tiles.add(tile);
+								te.getTiles().add(tile);
 							}
 						}
 					}
-					if(LittleTiles.maxNewTiles >= te.tiles.size())
+					if(LittleTiles.maxNewTiles >= te.getTiles().size())
 					{
 						world.setBlock(x, y, z, LittleTiles.blockTile);
 						world.setTileEntity(x, y, z, te);

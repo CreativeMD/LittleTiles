@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
@@ -76,8 +77,9 @@ public class SubContainerChisel extends SubContainer {
 						if(tileEntity instanceof TileEntityLittleTiles)
 						{
 							TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-							for (int i = 0; i < littleEntity.tiles.size(); i++) {
-								LittleTile tile = littleEntity.tiles.get(i);
+							TileList<LittleTile> tiles = littleEntity.getTiles();
+							for (int i = 0; i < tiles.size(); i++) {
+								LittleTile tile = tiles.get(i);
 								boolean shouldEffect = tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored;
 								if(filter != null)
 								{
@@ -104,7 +106,7 @@ public class SubContainerChisel extends SubContainer {
 										LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 										
 										if(newTile != null)
-											littleEntity.tiles.set(i, newTile);
+											tiles.set(i, newTile);
 									}
 									effected++;
 								}

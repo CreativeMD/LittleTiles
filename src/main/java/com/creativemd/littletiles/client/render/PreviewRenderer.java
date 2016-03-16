@@ -139,7 +139,7 @@ public class PreviewRenderer {
 						direction = ForgeDirection.DOWN;
 					if(mc.thePlayer.rotationPitch < -45)
 						direction = ForgeDirection.UP;
-					System.out.println("f: " + i4 + ", pitch: " + mc.thePlayer.rotationPitch + ", direction: " + direction);
+					//System.out.println("f: " + i4 + ", pitch: " + mc.thePlayer.rotationPitch + ", direction: " + direction);
 					LittleFlipPacket packet = new LittleFlipPacket(direction);
 					packet.executeClient(mc.thePlayer);
 					PacketHandler.sendPacketToServer(packet);

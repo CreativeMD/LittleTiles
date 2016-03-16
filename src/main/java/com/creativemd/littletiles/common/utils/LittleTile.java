@@ -425,6 +425,11 @@ public abstract class LittleTile {
 	@SideOnly(Side.CLIENT)
 	public ArrayList<LittleBlockVertex> lastRendered;*/
 	
+	public boolean needCustomRendering()
+	{
+		return false;
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public abstract boolean canBlockBeThreaded();
 	
@@ -432,7 +437,19 @@ public abstract class LittleTile {
 	public abstract ArrayList<CubeObject> getRenderingCubes();
 	
 	@SideOnly(Side.CLIENT)
-	public void renderTick(double x, double y, double z) {}
+	public void renderTick(double x, double y, double z, float partialTickTime) {}
+	
+	@SideOnly(Side.CLIENT)
+    public double getMaxRenderDistanceSquared()
+    {
+        return 4096;
+    }
+	
+	@SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+		return AxisAlignedBB.getBoundingBox(te.xCoord, te.yCoord, te.zCoord, te.xCoord + 1, te.yCoord + 1, te.zCoord + 1);
+    }
 	
 	//================Sound================
 	
@@ -456,6 +473,15 @@ public abstract class LittleTile {
 				structure.loadTiles();
 			}
 		}
+	}
+	
+	//================Interaction================
+	
+	protected abstract boolean canSawResize(ForgeDirection direction, EntityPlayer player);
+	
+	public boolean canSawResizeTile(ForgeDirection direction, EntityPlayer player)
+	{
+		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(direction, player);
 	}
 	
 	//================Block Event================
