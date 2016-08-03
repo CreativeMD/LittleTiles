@@ -1,8 +1,6 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.creativecore.gui.container.SubContainer;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -25,20 +23,9 @@ public class SubContainerStructure extends SubContainer{
 	}
 
 	@Override
-	public void onGuiPacket(int controlID, NBTTagCompound nbt, EntityPlayer player) {
-		if(controlID == 0)
-		{
-			stack.stackTagCompound = nbt;
-			player.inventory.mainInventory[index] = stack;
-			//player.inventory.
-			/*if(player.capabilities.isCreativeMode)
-			{
-				ItemStack multiTiles = new ItemStack(LittleTiles.multiTiles);
-				multiTiles.stackTagCompound = nbt;
-				WorldUtils.dropItem(player, multiTiles);
-			}*/
-			//closeLayer(null);
-		}
+	public void onPacketReceive(NBTTagCompound nbt) {
+		stack.setTagCompound(nbt);
+		player.inventory.mainInventory[index] = stack;
 	}
 	
 	

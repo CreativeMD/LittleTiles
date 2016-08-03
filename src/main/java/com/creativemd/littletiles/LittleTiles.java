@@ -1,14 +1,5 @@
 package com.creativemd.littletiles;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.common.MinecraftForge;
-
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -37,17 +28,22 @@ import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
+import net.minecraft.block.Block;
+import net.minecraft.block.material.Material;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 @Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles")
 public class LittleTiles {
@@ -59,12 +55,12 @@ public class LittleTiles {
 	public static LittleTilesServer proxy;
 	
 	public static final String modid = "littletiles";
-	public static final String version = "1.1.0";
+	public static final String version = "1.3.0";
 	
 	public static int maxNewTiles = 512;
 	
-	public static BlockTile blockTile = new BlockTile(Material.rock);
-	public static Block coloredBlock = new BlockLTColored().setBlockName("LTBlocks");
+	public static BlockTile blockTile = new BlockTile(Material.ROCK);
+	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTBlocks");
 	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
@@ -110,7 +106,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
-		FMLCommonHandler.instance().bus().register(new LittleEvent());
+		//FMLCommonHandler.instance().bus().register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		
 		LittleStructure.initStructures();
@@ -118,32 +114,32 @@ public class LittleTiles {
 		//Recipes
 		GameRegistry.addRecipe(new ItemStack(hammer),  new Object[]
 				{
-				"XXX", "ALA", "ALA", 'X', Items.iron_ingot, 'L', new ItemStack(Items.dye, 1, 4)
+				"XXX", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(container),  new Object[]
 				{
-				"XXX", "XHX", "XXX", 'X', Items.iron_ingot, 'H', hammer
+				"XXX", "XHX", "XXX", 'X', Items.IRON_INGOT, 'H', hammer
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(saw),  new Object[]
 				{
-				"AXA", "AXA", "ALA", 'X', Items.iron_ingot, 'L', new ItemStack(Items.dye, 1, 4)
+				"AXA", "AXA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(wrench),  new Object[]
 				{
-				"AXA", "ALA", "ALA", 'X', Items.iron_ingot, 'L', new ItemStack(Items.dye, 1, 4)
+				"AXA", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(rubberMallet),  new Object[]
 				{
-				"XXX", "XLX", "ALA", 'X', Blocks.wool, 'L', new ItemStack(Items.dye, 1, 4)
+				"XXX", "XLX", "ALA", 'X', Blocks.WOOL, 'L', new ItemStack(Items.DYE, 1, 4)
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(colorTube),  new Object[]
 				{
-				"XXX", "XLX", "XXX", 'X', Items.dye, 'L', Items.iron_ingot
+				"XXX", "XLX", "XXX", 'X', Items.DYE, 'L', Items.IRON_INGOT
 				});
 		
     }

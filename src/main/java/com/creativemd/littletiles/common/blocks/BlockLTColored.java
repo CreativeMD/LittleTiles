@@ -4,29 +4,22 @@ import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.IIcon;
-import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockLTColored extends Block{
 
 	public BlockLTColored() {
-		super(Material.rock);
-		this.setBlockTextureName(LittleTiles.modid + ":LTColored0");
-		setCreativeTab(CreativeTabs.tabTools);
+		super(Material.ROCK);
+		setCreativeTab(CreativeTabs.DECORATIONS);
 	}
 	
 	public static final String[] subBlocks = new String[]{"clean", "floor", "grainybig", "grainy", "grainylow", "brick", "bordered", "brickBig", "structured", "brokenBrickBig", "clay"};
-	
-	@SideOnly(Side.CLIENT)
-	public IIcon[] textures;
 	
 	@Override
 	@SideOnly(Side.CLIENT)

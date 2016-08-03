@@ -2,19 +2,15 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
-import com.creativemd.littletiles.utils.PreviewTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -131,69 +127,66 @@ public class SubContainerWrench extends SubContainer{
 	}
 	
 	@Override
-	public void onGuiPacket(int controlID, NBTTagCompound nbt, EntityPlayer player) {
-		if(controlID == 0)
-		{
-			ItemStack stack1 = basic.getStackInSlot(0);
-			ItemStack stack2 = basic.getStackInSlot(1);
-			if(stack1 != null)
-			{
-				if(stack1.getItem() instanceof ItemRecipe)
-				{
-					if(stack1.stackTagCompound != null && !stack1.stackTagCompound.hasKey("x"))
-					{
-						boolean enough = true;
-						
-						ArrayList<BlockEntry> entries = getContentofStack(stack2);
-						ArrayList<LittleTilePreview> tiles = ItemRecipe.getPreview(stack1);
-						
-						if(!player.capabilities.isCreativeMode){
-							enough = getMissing(tiles, entries).size() == 0;
-						}
-						
-						
-						if(enough)
-						{
-							if(stack2 != null && !player.capabilities.isCreativeMode)
-							{
-								if(stack2.getItem() instanceof ItemTileContainer)
-								{
-									ItemTileContainer.saveMap(stack2, entries);
-								}else{
-									stack2.stackSize--;
-									if(stack2.stackSize == 0)
-										basic.setInventorySlotContents(1, null);
-									if(entries.size() > 0){
-										for (int i = 0; i < entries.size(); i++) {
-											ItemTileContainer.addBlock(player, entries.get(i).block, entries.get(i).meta, entries.get(i).value);
-										}
-									}
-								}
-							}
-							
-							ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-							stack.stackTagCompound = (NBTTagCompound) stack1.stackTagCompound.copy();
-							if(!player.inventory.addItemStackToInventory(stack))
-								WorldUtils.dropItem(player, stack);
-						}
-					}
-				}else{
-					ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
-					if(tile != null && stack2 != null && stack2.getItem() instanceof ItemRecipe)
-					{
-						stack2.stackTagCompound = (NBTTagCompound) stack1.stackTagCompound.copy();
-					}
-				}				
-			}
-		}
-	}
-	
-	@Override
-	public void onGuiClosed()
+	public void onClosed()
 	{
 		for (int i = 0; i < basic.getSizeInventory(); i++) {
 			if(basic.getStackInSlot(i) != null)
-				player.dropPlayerItemWithRandomChoice(basic.getStackInSlot(i), false);
+				player.dropItem(basic.getStackInSlot(i), false);
+		}
+	}
+
+	@Override
+	public void onPacketReceive(NBTTagCompound nbt) {
+		ItemStack stack1 = basic.getStackInSlot(0);
+		ItemStack stack2 = basic.getStackInSlot(1);
+		if(stack1 != null)
+		{
+			if(stack1.getItem() instanceof ItemRecipe)
+			{
+				if(stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x"))
+				{
+					boolean enough = true;
+					
+					ArrayList<BlockEntry> entries = getContentofStack(stack2);
+					ArrayList<LittleTilePreview> tiles = ItemRecipe.getPreview(stack1);
+					
+					if(!player.capabilities.isCreativeMode){
+						enough = getMissing(tiles, entries).size() == 0;
+					}
+					
+					
+					if(enough)
+					{
+						if(stack2 != null && !player.capabilities.isCreativeMode)
+						{
+							if(stack2.getItem() instanceof ItemTileContainer)
+							{
+								ItemTileContainer.saveMap(stack2, entries);
+							}else{
+								stack2.stackSize--;
+								if(stack2.stackSize == 0)
+									basic.setInventorySlotContents(1, null);
+								if(entries.size() > 0){
+									for (int i = 0; i < entries.size(); i++) {
+										ItemTileContainer.addBlock(player, entries.get(i).block, entries.get(i).meta, entries.get(i).value);
+									}
+								}
+							}
+						}
+						
+						ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+						stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+						if(!player.inventory.addItemStackToInventory(stack))
+							WorldUtils.dropItem(player, stack);
+					}
+				}
+			}else{
+				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
+				if(tile != null && stack2 != null && stack2.getItem() instanceof ItemRecipe)
+				{
+					stack2.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+				}
+			}				
 		}
 	}
 

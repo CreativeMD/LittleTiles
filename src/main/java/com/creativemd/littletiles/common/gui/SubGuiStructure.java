@@ -1,19 +1,13 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
-import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.common.gui.controls.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.GuiComboBox;
-import com.creativemd.creativecore.common.gui.controls.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.GuiListBox;
-import com.creativemd.creativecore.common.gui.event.ControlChangedEvent;
-import com.creativemd.creativecore.common.gui.event.ControlClickEvent;
-import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
-import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure.LittleStructureEntry;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -50,7 +44,36 @@ public class SubGuiStructure extends SubGui{
 				comboBox.caption = structure.getIDOfStructure();
 		}
 		controls.add(comboBox);
-		controls.add(new GuiButton("save", 120, 140, 50));
+		controls.add(new GuiButton("save", 120, 140, 50){
+			@Override
+			public void onClicked(int x, int y, int button){
+				String id = ((GuiComboBox) get("types")).caption;
+				LittleStructure parser = null;
+				LittleStructureEntry entry = LittleStructure.getEntryByID(id); 
+				if(entry != null)
+					parser = entry.parser;
+				if(parser != null)
+				{
+					LittleStructure structure = parser.parseStructure(this);
+					if(structure != null)
+					{
+						
+						NBTTagCompound structureNBT = new NBTTagCompound();
+						structure.writeToNBT(structureNBT);
+						stack.getTagCompound().setTag("structure", structureNBT);
+						//ItemStack multiTiles = new ItemStack(LittleTiles.multiTiles);
+						//multiTiles.stackTagCompound = stack.stackTagCompound;
+						//WorldUtils.dropItem(container.player, multiTiles);
+					}else
+						stack.getTagCompound().removeTag("structure");
+					
+				}else
+					stack.getTagCompound().removeTag("structure");
+				
+				sendPacketToServer(stack.getTagCompound());
+				closeGui();
+			}
+		});
 		onChanged();
 	}
 	
@@ -59,7 +82,7 @@ public class SubGuiStructure extends SubGui{
 	public void onChanged()
 	{
 		removeControls("type:", "types", "save");
-		String id = ((GuiComboBox) getControl("types")).caption;
+		String id = ((GuiComboBox) get("types")).caption;
 		
 		if(lastListener != null)
 			removeListener(lastListener);
@@ -79,50 +102,11 @@ public class SubGuiStructure extends SubGui{
 			lastListener = parser;
 		}
 	}
-	
+
 	@CustomEventSubscribe
-	public void onComboChange(ControlChangedEvent event)
+	public void onComboChange(GuiControlChangedEvent event)
 	{
 		if(event.source.is("types"))
 			onChanged();
 	}
-	
-	@CustomEventSubscribe
-	public void onButtonClicked(ControlClickEvent event)
-	{
-		if(event.source.is("save"))
-		{
-			String id = ((GuiComboBox) getControl("types")).caption;
-			LittleStructure parser = null;
-			LittleStructureEntry entry = LittleStructure.getEntryByID(id); 
-			if(entry != null)
-				parser = entry.parser;
-			if(parser != null)
-			{
-				LittleStructure structure = parser.parseStructure(this);
-				if(structure != null)
-				{
-					
-					NBTTagCompound structureNBT = new NBTTagCompound();
-					structure.writeToNBT(structureNBT);
-					stack.stackTagCompound.setTag("structure", structureNBT);
-					//ItemStack multiTiles = new ItemStack(LittleTiles.multiTiles);
-					//multiTiles.stackTagCompound = stack.stackTagCompound;
-					//WorldUtils.dropItem(container.player, multiTiles);
-				}else
-					stack.stackTagCompound.removeTag("structure");
-				
-			}else
-				stack.stackTagCompound.removeTag("structure");
-			
-			sendPacketToServer(0, stack.stackTagCompound);
-			closeGui();
-		}
-	}
-
-	@Override
-	public void drawOverlay(FontRenderer fontRenderer) {
-		
-	}
-
 }

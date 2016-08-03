@@ -7,19 +7,17 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 
 public class PreviewTile {
 	
-	public static final Vec3 white = Vec3.createVectorHelper(1, 1, 1);
+	public static final Vec3d white = new Vec3d(1, 1, 1);
 
 	public LittleTileBox box;
 	public LittleTilePreview preview;
@@ -35,7 +33,7 @@ public class PreviewTile {
 		return new PreviewTile(box.copy(), preview.copy());
 	}
 	
-	public Vec3 getPreviewColor()
+	public Vec3d getPreviewColor()
 	{
 		return white;
 	}
@@ -79,7 +77,7 @@ public class PreviewTile {
 		return null;
 	}
 	
-	public boolean split(HashMapList<ChunkCoordinates, PreviewTile> tiles, int x, int y, int z)
+	public boolean split(HashMapList<BlockPos, PreviewTile> tiles, int x, int y, int z)
 	{
 		//box.resort();
 		
@@ -159,7 +157,7 @@ public class PreviewTile {
 					
 					if(tile.box.isValidBox())
 					{
-						tiles.add(new ChunkCoordinates(posX, posY, posZ), tile);
+						tiles.add(new BlockPos(posX, posY, posZ), tile);
 						//tilesCount++;
 					}//else
 						//failedBoxes.add(tile.box);

@@ -1,14 +1,8 @@
 package com.creativemd.littletiles.client;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.item.Item;
-import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.common.MinecraftForge;
-
+import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.SpecialBlockTilesRenderer;
@@ -16,18 +10,19 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.item.Item;
+import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.client.registry.RenderingRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class LittleTilesClient extends LittleTilesServer{
-	
-	public static int modelID;
-	
-	public static SpecialBlockTilesRenderer renderer = new SpecialBlockTilesRenderer();
 	
 	public static KeyBinding flip;
 	public static boolean pressedFlip = false;
@@ -46,19 +41,16 @@ public class LittleTilesClient extends LittleTilesServer{
 	
 	@Override
 	public void loadSide()
-	{
-		modelID = RenderingRegistry.getNextAvailableRenderId();
-		RenderingRegistry.registerBlockHandler(modelID, renderer);
+	{		
+		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new SpecialBlockTilesRenderer());
 		
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new SpecialBlockTilesRenderer());
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
 		
-		MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(LittleTiles.blockTile), renderer);
-		MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);
-		MinecraftForgeClient.registerItemRenderer(LittleTiles.multiTiles, renderer);
+		/*MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);
+		MinecraftForgeClient.registerItemRenderer(LittleTiles.multiTiles, renderer);*/
 		
 		BlockTile.mc = Minecraft.getMinecraft();
 		
-		FMLCommonHandler.instance().bus().register(new PreviewRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 		
 		up = new KeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");

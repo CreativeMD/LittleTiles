@@ -1,18 +1,14 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.common.gui.controls.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.GuiItemListBox;
-import com.creativemd.creativecore.common.gui.controls.GuiListBox;
-import com.creativemd.creativecore.common.gui.event.ControlClickEvent;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiScreen;
@@ -47,8 +43,8 @@ public class SubGuiTileContainer extends SubGui{
 	public void createControls() {
 		ArrayList<String> lines = new ArrayList<String>();
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		if(stack.stackTagCompound == null)
-			stack.stackTagCompound = new NBTTagCompound();
+		if(stack.getTagCompound() == null)
+			stack.setTagCompound(new NBTTagCompound());
 		ArrayList<BlockEntry> map = ItemTileContainer.loadMap(stack);
 		for (BlockEntry entry : map) {
 			if(!(entry.block instanceof BlockAir) && entry.block != null)
@@ -57,26 +53,24 @@ public class SubGuiTileContainer extends SubGui{
 				lines.add(getStringOfValue(entry.value));
 			}
 		}
-		controls.add(new GuiItemListBox("items", container.player, 5, 5, 140, 75, stacks, lines));
-		controls.add(new GuiButton("drop", 145, 60, 30, 20));
-	}
-	
-	@CustomEventSubscribe
-	public void onClicked(ControlClickEvent event)
-	{
-		if(event.source.is("drop"))
-		{
-			if(((GuiItemListBox) getControl("items")).getSelectedStack() != null)
-			{
-				NBTTagCompound nbt = new NBTTagCompound();
-				ItemStack stack = ((GuiItemListBox) getControl("items")).getSelectedStack();
-				stack.stackSize = 1;
-				if(GuiScreen.isCtrlKeyDown())
-					stack.stackSize = 64;
-				stack.writeToNBT(nbt);
-				sendPacketToServer(0, nbt);
+		controls.add(new GuiItemListBox("items", 5, 5, 140, 75, stacks, lines));
+		controls.add(new GuiButton("drop", 145, 60, 30, 20){
+
+			@Override
+			public void onClicked(int x, int y, int button) {
+				if(((GuiItemListBox) get("items")).getSelectedStack() != null)
+				{
+					NBTTagCompound nbt = new NBTTagCompound();
+					ItemStack stack = ((GuiItemListBox) get("items")).getSelectedStack();
+					stack.stackSize = 1;
+					if(GuiScreen.isCtrlKeyDown())
+						stack.stackSize = 64;
+					stack.writeToNBT(nbt);
+					sendPacketToServer(nbt);
+				}
 			}
-		}
+			
+		});
 	}
 	
 	@Override
@@ -85,16 +79,10 @@ public class SubGuiTileContainer extends SubGui{
 		if(nbt.getBoolean("needUpdate"))
 		{
 			nbt.removeTag("needUpdate");
-			stack.stackTagCompound = nbt;
+			stack.setTagCompound(nbt);
 			controls.clear();
-			initGui();
+			onOpened();
 		}
-	}
-
-	@Override
-	public void drawOverlay(FontRenderer fontRenderer) {
-		// TODO Auto-generated method stub
-		
 	}
 	
 }

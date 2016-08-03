@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.common.container.SubContainer;
+import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,14 +20,11 @@ public class SubContainerColorTube extends SubContainer{
 	public void createControls() {
 		
 	}
-
+	
 	@Override
-	public void onGuiPacket(int controlID, NBTTagCompound nbt, EntityPlayer player) {
-		if(controlID == 0)
-		{
-			ItemColorTube.setColor(stack, nbt.getInteger("color"));
-			player.inventory.mainInventory[player.inventory.currentItem] = stack;
-		}
+	public void onPacketReceive(NBTTagCompound nbt) {
+		ItemColorTube.setColor(stack, nbt.getInteger("color"));
+		player.inventory.mainInventory[player.inventory.currentItem] = stack;
 	}
 
 }

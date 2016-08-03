@@ -8,29 +8,20 @@ import javax.vecmath.Vector4d;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.client.block.BlockRenderHelper;
-import com.creativemd.creativecore.client.rendering.RenderHelper2D;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
-import com.creativemd.creativecore.common.gui.controls.GuiControl;
-import com.creativemd.creativecore.common.gui.premade.SubGuiControl;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.utils.RotationUtils.Axis;
+import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 public class GuiTileViewer extends GuiControl{
 	
@@ -40,7 +31,7 @@ public class GuiTileViewer extends GuiControl{
 	public float offsetX = 0;
 	public float offsetY = 0;
 	
-	public ForgeDirection viewDirection = ForgeDirection.EAST;
+	public EnumFacing viewDirection = EnumFacing.EAST;
 	
 	public boolean visibleAxis = false;
 	
