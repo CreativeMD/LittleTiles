@@ -1,0 +1,16 @@
+[
+{
+  "modid": "littletiles",
+  "name": "LittleTiles",
+  "description": "#BuildItYourself",
+  "mcversion": "${mcversion}",
+  "version": "1.3",
+  "url": "http://www.minecraftforum.net/forums/mapping-and-modding/minecraft-mods/2408680",
+  "updateUrl": "",
+  "authorList": ["CreativeMD", "Shana"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
