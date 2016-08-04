@@ -13,8 +13,10 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.settings.KeyBinding;
@@ -52,12 +54,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
-		//CreativeCoreClient.registerBlockItem(LittleTiles.coloredBlock);
 		
-		Item item = Item.getItemFromBlock(LittleTiles.coloredBlock);
-		for (int i = 0; i < BlockLTColored.EnumType.values().length; i++) {
-			mc.getRenderItem().getItemModelMesher().register(item, i, new ModelResourceLocation(new ResourceLocation(LittleTiles.modid, "colored_block_" + BlockLTColored.EnumType.values()[i].getName()), "inventory"));
-		}
+		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
 		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
