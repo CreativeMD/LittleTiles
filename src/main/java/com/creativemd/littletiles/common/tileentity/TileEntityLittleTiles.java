@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.TickUtils;
+import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -316,9 +318,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     {
     	RayTraceResult hit = null;
 		
-		Vec3d pos = player.getPositionVector();
+		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3d look = player.getLook(1.0F);
+		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		return getMoving(pos, vec32, loadTile);
     }
@@ -363,7 +365,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void checkClientLoadedTile(double distance)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		Vec3d pos = mc.thePlayer.getPositionVector();
+		Vec3d pos = mc.thePlayer.getPositionEyes(TickUtils.getPartialTickTime());
 		if(mc.objectMouseOver.hitVec.distanceTo(pos) < distance)
 			loadedTile = null;
 	}

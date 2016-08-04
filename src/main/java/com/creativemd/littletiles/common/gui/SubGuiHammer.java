@@ -5,10 +5,12 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
@@ -22,6 +24,7 @@ import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.Vec3i;
 
 public class SubGuiHammer extends SubGui {
@@ -39,21 +42,38 @@ public class SubGuiHammer extends SubGui {
 	
 	@Override
 	public void createControls() {
-		controls.add(new GuiIDButton("<", 45, 10, 0));
+		/*controls.add(new GuiIDButton("<", 45, 10, 0));
 		controls.add(new GuiIDButton(">", 75, 10, 1));
 		controls.add(new GuiIDButton("<", 45, 30, 2));
 		controls.add(new GuiIDButton(">", 75, 30, 3));
 		controls.add(new GuiIDButton("<", 45, 50, 4));
-		controls.add(new GuiIDButton(">", 75, 50, 5));
-		controls.add(new GuiIDButton("HAMMER IT", 100, 10, 6));
-		controls.add(new GuiSteppedSlider("colorX", 5, 75, 100, 10, 0, 255, 255));
-		controls.add(new GuiSteppedSlider("colorY", 5, 85, 100, 10, 0, 255, 255));
-		controls.add(new GuiSteppedSlider("colorZ", 5, 95, 100, 10, 0, 255, 255));
+		controls.add(new GuiIDButton(">", 75, 50, 5));*/
+		controls.add(new GuiSteppedSlider("sizeX", 35, 10, 50, 14, sizeX, 1, 16));
+		controls.add(new GuiSteppedSlider("sizeY", 35, 30, 50, 14, sizeY, 1, 16));
+		controls.add(new GuiSteppedSlider("sizeZ", 35, 50, 50, 14, sizeZ, 1, 16));
+		
+		controls.add(new GuiButton("HAMMER IT", 100, 10){
+
+			@Override
+			public void onClicked(int x, int y, int button) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setByte("sizeX", (byte) sizeX);
+				nbt.setByte("sizeY", (byte) sizeY);
+				nbt.setByte("sizeZ", (byte) sizeZ);
+				GuiColorPlate plate = (GuiColorPlate) get("plate");
+				int color = ColorUtils.RGBAToInt(plate.getColor());
+				if(color != ColorUtils.WHITE)
+					nbt.setInteger("color", color);
+				sendPacketToServer(nbt);
+			}
+			
+		});
+		controls.add(new GuiSteppedSlider("colorX", 5, 75, 100, 5, 255, 0, 255));
+		controls.add(new GuiSteppedSlider("colorY", 5, 85, 100, 5, 255, 0, 255));
+		controls.add(new GuiSteppedSlider("colorZ", 5, 95, 100, 5, 255, 0, 255));
 		controls.add(new GuiColorPlate("plate", 120, 80, 20, 20, new Vec3i(255, 255, 255)));
 		
-		controls.add(new GuiLabel("sizeX", "" + sizeX, 62, 14));
-		controls.add(new GuiLabel("sizeY", "" + sizeY, 62, 34));
-		controls.add(new GuiLabel("sizeZ", "" + sizeZ, 62, 54, 14));
+		//controls.add(new GuiCheckBox("translucent", 100, 30, false));
 		
 		GuiAvatarLabel label = new GuiAvatarLabel("", 100, 32, 0, null);
 		label.name = "avatar";
@@ -88,69 +108,19 @@ public class SubGuiHammer extends SubGui {
 	}
 	
 	@CustomEventSubscribe
-	public void onChange(GuiControlChangedEvent event)
+	public void onSlotChange(SlotChangeEvent event)
 	{
-		GuiColorPlate plate = (GuiColorPlate) get("plate");
-		plate.setColor(new Vec3i((int) ((GuiSteppedSlider) get("colorX")).value, (int) ((GuiSteppedSlider) get("colorY")).value, (int) ((GuiSteppedSlider) get("colorZ")).value));
 		updateLabel();
 	}
 	
 	@CustomEventSubscribe
-	public void onClicked(GuiControlClickEvent event)
+	public void onChange(GuiControlChangedEvent event)
 	{
-		if(event.source instanceof GuiIDButton)
-		{
-			GuiIDButton button = (GuiIDButton) event.source;
-			switch (button.id) {
-			case 0:
-				sizeX--;
-				break;
-			case 1:
-				sizeX++;
-				break;
-			case 2:
-				sizeY--;
-				break;
-			case 3:
-				sizeY++;
-				break;
-			case 4:
-				sizeZ--;
-				break;
-			case 5:
-				sizeZ++;
-				break;
-			}
-			if(sizeX < 1)
-				sizeX = 16;
-			if(sizeX > 16)
-				sizeX = 1;
-			if(sizeY < 1)
-				sizeY = 16;
-			if(sizeY > 16)
-				sizeY = 1;
-			if(sizeZ < 1)
-				sizeZ = 16;
-			if(sizeZ > 16)
-				sizeZ = 1;
-			
-			((GuiLabel) get("sizeX")).caption = "" + sizeX;
-			((GuiLabel) get("sizeY")).caption = "" + sizeY;
-			((GuiLabel) get("sizeZ")).caption = "" + sizeZ;
-			
-			if(button.id == 6)
-			{
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setByte("sizeX", (byte) sizeX);
-				nbt.setByte("sizeY", (byte) sizeY);
-				nbt.setByte("sizeZ", (byte) sizeZ);
-				GuiColorPlate plate = (GuiColorPlate) get("plate");
-				int color = ColorUtils.RGBAToInt(plate.getColor());
-				if(color != ColorUtils.WHITE)
-					nbt.setInteger("color", color);
-				sendPacketToServer(nbt);
-			}
-		}
+		sizeX = (int) ((GuiSteppedSlider) get("sizeX")).value;
+		sizeY = (int) ((GuiSteppedSlider) get("sizeY")).value;
+		sizeZ = (int) ((GuiSteppedSlider) get("sizeZ")).value;
+		GuiColorPlate plate = (GuiColorPlate) get("plate");
+		plate.setColor(new Vec3i((int) ((GuiSteppedSlider) get("colorX")).value, (int) ((GuiSteppedSlider) get("colorY")).value, (int) ((GuiSteppedSlider) get("colorZ")).value));
 		updateLabel();
 	}
 	

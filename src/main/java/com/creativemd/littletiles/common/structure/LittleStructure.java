@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
@@ -180,7 +181,14 @@ public abstract class LittleStructure {
 	public void loadFromNBT(NBTTagCompound nbt)
 	{
 		if(nbt.hasKey("stack"))
+		{
 			dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
+			if(dropStack == null)
+			{
+				nbt.getCompoundTag("stack").setString("id", LittleTiles.multiTiles.getRegistryName().toString());
+				dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
+			}
+		}
 		
 		
 		//LoadTiles
@@ -229,7 +237,7 @@ public abstract class LittleStructure {
 					new LittleTileCoord(mainTile.te, tiles.get(i).te.getPos(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);;
 					//new LittleTilePosition().writeToNBT("i" + i, nbt);
 				}
-					//tiles.get(i).pos.writeToNBT("i" + i, nbt);
+				//tiles.get(i).pos.writeToNBT("i" + i, nbt);
 			}
 		}
 		

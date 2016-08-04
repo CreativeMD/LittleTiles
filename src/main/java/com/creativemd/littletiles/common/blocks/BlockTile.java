@@ -7,9 +7,13 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.block.TileEntityState;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -34,6 +38,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -43,11 +48,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockTile extends BlockContainer{
+public class BlockTile extends BlockContainer implements ICreativeRendered {
 
 	public BlockTile(Material material) {
 		super(material);
@@ -70,6 +76,12 @@ public class BlockTile extends BlockContainer{
     {
         return pass == getRenderBlockPass();
     }*/
+	
+	@Override
+	public EnumBlockRenderType getRenderType(IBlockState state)
+    {
+        return EnumBlockRenderType.MODEL;
+    }
 	
 	@Override
 	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
@@ -153,7 +165,7 @@ public class BlockTile extends BlockContainer{
 	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity)
     {
-		AxisAlignedBB bb = entity.getCollisionBoundingBox();
+		AxisAlignedBB bb = entity.getEntityBoundingBox();
         int mX = MathHelper.floor_double(bb.minX);
         int mY = MathHelper.floor_double(bb.minY);
         int mZ = MathHelper.floor_double(bb.minZ);
@@ -637,6 +649,24 @@ public class BlockTile extends BlockContainer{
 			return ((TileEntityLittleTiles) tileEntity).loadedTile;
 		}
 		return null;
+	}
+
+	@Override
+	public ArrayList<CubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		ArrayList<CubeObject> cubes = new ArrayList<>();
+		if(te instanceof TileEntityLittleTiles)
+		{
+			BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
+			
+			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
+			for (int i = 0; i < tileEntity.getTiles().size(); i++) {
+				if(tileEntity.getTiles().get(i).shouldBeRenderedInLayer(layer))
+					cubes.addAll(tileEntity.getTiles().get(i).getRenderingCubes());
+			}
+		}else if(stack != null){
+			return ItemBlockTiles.getItemRenderingCubes(stack);
+		}
+		return cubes;
 	}
 
 }

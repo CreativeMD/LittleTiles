@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemColorTube;
@@ -51,9 +53,9 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	{
 		this.blockPos = blockPos;
 		this.action = action;
-		this.pos = player.getPositionVector();
+		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3d look = player.getLook(1.0F);
+		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		this.nbt = nbt;
 	}

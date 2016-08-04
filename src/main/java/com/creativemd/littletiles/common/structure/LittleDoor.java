@@ -361,7 +361,7 @@ public class LittleDoor extends LittleStructure{
 		EnumFacing rotationAxis = RotationUtils.getFacingFromAxis(this.axis);
 		if(inverse)
 			rotationAxis = rotationAxis.getOpposite();
-		structure.normalDirection = this.normalDirection.rotateAround(rotationAxis);
+		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, rotationAxis);
 		
 		/*Axis directionAxis = Axis.getAxis(this.axis);
 		switch(directionAxis)

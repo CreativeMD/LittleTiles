@@ -16,16 +16,23 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileBlock extends LittleTile{
 	
 	public Block block;
 	public int meta;
+	
+	@SideOnly(Side.CLIENT)
+	private boolean translucent;
 	private IBlockState state = null;
 	
 	public IBlockState getBlockState()
@@ -44,6 +51,8 @@ public class LittleTileBlock extends LittleTile{
 		super();
 		this.block = block;
 		this.meta = meta;
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateClient();
 	}
 	
 	public LittleTileBlock(Block block)
@@ -56,19 +65,34 @@ public class LittleTileBlock extends LittleTile{
 		super();
 	}
 	
+	public void updateClient()
+	{
+		updateTranslucent();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void updateTranslucent()
+	{
+		translucent = block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+	}
+	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		
 		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
-		nbt.setInteger("meta", meta);		
+		nbt.setInteger("meta", meta);
 	}
 
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
 		block = Block.getBlockFromName(nbt.getString("block"));
 		meta = nbt.getInteger("meta");
-		if(block == null || block instanceof BlockAir)
-			throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
+		if(block == null || block instanceof BlockAir){
+			System.out.println("Invalid block name! name=" + nbt.getString("block"));
+			//throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
+		}
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateClient();
 	}
 
 	/*@Override
@@ -105,6 +129,15 @@ public class LittleTileBlock extends LittleTile{
 			cubes.add(cube);
 		}
 		return cubes;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
+	{
+		if(translucent)
+			return layer == BlockRenderLayer.TRANSLUCENT;
+		return layer == BlockRenderLayer.SOLID;
 	}
 	
 	@Override

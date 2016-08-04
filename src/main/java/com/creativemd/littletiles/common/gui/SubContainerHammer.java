@@ -18,6 +18,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockRenderLayer;
 
 public class SubContainerHammer extends SubContainer{
 	
@@ -26,6 +27,11 @@ public class SubContainerHammer extends SubContainer{
 	}
 
 	public InventoryBasic basic = new InventoryBasic("Hammer", false, 1);
+	
+	public static boolean doesBlockSupportedTranslucent(Block block)
+	{
+		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+	}
 	
 	public static boolean isBlockValid(Block block)
 	{

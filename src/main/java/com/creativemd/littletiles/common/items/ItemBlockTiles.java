@@ -6,10 +6,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
@@ -55,7 +58,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRenderer{
+public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered, ITilesRenderer{
 
 	public ItemBlockTiles(Block block, ResourceLocation location) {
 		super(block);
@@ -125,9 +128,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
             IBlockState iblockstate1 = this.block.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);*/
             
             if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-    			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, playerIn.getPositionVector(), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null)); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
+    			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null)); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
     		
-            if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionVector(), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null)) //, PreviewRenderer.direction, PreviewRenderer.direction2);
+            if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null)) //, PreviewRenderer.direction, PreviewRenderer.direction2);
 	            PreviewRenderer.markedHit = null;
             
             /*if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
@@ -224,7 +227,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		return splitted;
 	}
 	
-	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PreviewTile> splitted, Set<BlockPos> coordsToCheck)
+	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PreviewTile> splitted, ArrayList<BlockPos> coordsToCheck)
 	{
 		for (BlockPos pos : coordsToCheck) {
 			TileEntity mainTile = world.getTileEntity(pos);
@@ -260,12 +263,11 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		}
 		
 		System.out.println("Created " + counting + " of " + previews.size() + " tiles");*/
-		Set<BlockPos> coordsToCheck = null;
+		ArrayList<BlockPos> coordsToCheck = new ArrayList<BlockPos>();
 		if(structure != null)
 		{
-			coordsToCheck = splitted.getKeys();
+			coordsToCheck.addAll(splitted.getKeys());
 		}else{
-			coordsToCheck = Collections.emptySet();
 			coordsToCheck.add(pos);
 		}
 		ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
@@ -392,9 +394,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
 		LittleTilePreview.rotatePreview(stack.getTagCompound(), direction);
 	}
-
-	@Override
-	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
+	
+	public static ArrayList<CubeObject> getItemRenderingCubes(ItemStack stack) {
 		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
 		Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
 		int meta = stack.getTagCompound().getInteger("meta");
@@ -410,6 +411,11 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 		}
 		return cubes;
 	}
+	
+	@Override
+	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
+		return getItemRenderingCubes(stack);
+	}
 
 	@Override
 	public boolean hasBackground(ItemStack stack) {
@@ -424,6 +430,13 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ITilesRend
 	@Override
 	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
 		//No need to flip one single tile!
+	}
+
+	@Override
+	public ArrayList<CubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		if(stack != null)
+			return getRenderingCubes(stack);
+		return new ArrayList<>();
 	}
 
 }

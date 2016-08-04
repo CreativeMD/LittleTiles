@@ -28,7 +28,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -112,7 +114,7 @@ public class PreviewRenderer {
 	}
 	
 	@SubscribeEvent
-	public void tick(RenderHandEvent event)
+	public void tick(RenderWorldLastEvent event)
 	{
 		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{

@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.common.utils.TickUtils;
+import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -72,7 +74,7 @@ public class PlacementHelper {
 	
 	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionVector(), moving.hitVec, moving.sideHit, customPlacement); //, rotation, rotation2);
+		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement); //, rotation, rotation2);
 	}
 	
 	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)
