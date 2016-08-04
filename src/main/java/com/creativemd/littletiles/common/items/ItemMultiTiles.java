@@ -8,22 +8,19 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	
@@ -31,20 +28,20 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	{
 		//super(LittleTiles.blockTile);
 		hasSubtypes = true;
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
 	{
-		if(stack.stackTagCompound != null)
+		if(stack.hasTagCompound())
 		{
 			String id = "none";
-			if(stack.stackTagCompound.hasKey("structure"))
-				id = stack.stackTagCompound.getCompoundTag("structure").getString("id");
+			if(stack.getTagCompound().hasKey("structure"))
+				id = stack.getTagCompound().getCompoundTag("structure").getString("id");
 			list.add("structure: " + id);
-			list.add("contains " + stack.stackTagCompound.getInteger("tiles") + " tiles");
+			list.add("contains " + stack.getTagCompound().getInteger("tiles") + " tiles");
 		}
 	}
 
@@ -54,20 +51,13 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	}
 	
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float offsetX, float offsetY, float offsetZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		if(stack.stackTagCompound != null)
+		if(stack.hasTagCompound())
 		{
-			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(stack, player, world, x, y, z, side, offsetX, offsetY, offsetZ);
+			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
 		}
-		return false;
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister iconregister)
-    {
-        
+		return EnumActionResult.PASS;
     }
 	
 	@Override
@@ -88,7 +78,7 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	}
 
 	@Override
-	public void rotateLittlePreview(ItemStack stack, ForgeDirection direction) {
+	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.rotatePreview(stack, direction);
 	}
 
@@ -98,11 +88,11 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	}
 	
 	public static LittleStructure getLTStructure(ItemStack stack) {
-		return LittleStructure.createAndLoadStructure(stack.stackTagCompound.getCompoundTag("structure"), null);
+		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
 
 	@Override
-	public void flipLittlePreview(ItemStack stack, ForgeDirection direction) {
+	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.flipPreview(stack, direction);
 	}
 	

@@ -2,23 +2,21 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
-import javax.swing.Icon;
-
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.gui.IGuiCreator;
-import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.core.CreativeCore;
+import com.creativemd.creativecore.gui.container.SubContainer;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerColorTube;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.renderer.texture.IIconRegister;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -26,71 +24,43 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemColorTube extends Item implements IGuiCreator{
 
 	public ItemColorTube()
 	{
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-	
-	@SideOnly(Side.CLIENT)
-	public static IIcon overlay;
-
-	@Override
-	@SideOnly(Side.CLIENT)
-    public void registerIcons(IIconRegister registry)
-    {
-        this.itemIcon = registry.registerIcon(LittleTiles.modid + ":LTColorTube");
-        this.overlay = registry.registerIcon(LittleTiles.modid + ":LTColorTube-Overlay");
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public int getColorFromItemStack(ItemStack stack, int pass)
-    {
-        if (pass == 0)
-        	return ColorUtils.WHITE;
-        return getColor(stack);
-    }
 	
 	public static int getColor(ItemStack stack)
 	{
 		if(stack == null)
 			return ColorUtils.WHITE;
-		if(stack.stackTagCompound == null)
-			stack.stackTagCompound = new NBTTagCompound();
-		if(!stack.stackTagCompound.hasKey("color"))
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		if(!stack.getTagCompound().hasKey("color"))
 			setColor(stack, ColorUtils.WHITE);
-		return stack.stackTagCompound.getInteger("color");
+		return stack.getTagCompound().getInteger("color");
 	}
 	
 	public static void setColor(ItemStack stack, int color)
 	{
 		if(stack == null)
 			return ;
-		if(stack.stackTagCompound == null)
-			stack.stackTagCompound = new NBTTagCompound();
-		stack.stackTagCompound.setInteger("color", color);
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		stack.getTagCompound().setInteger("color", color);
 	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public IIcon getIconFromDamageForRenderPass(int meta, int pass)
-    {
-        return pass == 1 ? this.overlay : this.itemIcon;
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public boolean requiresMultipleRenderPasses()
-    {
-        return true;
-    }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -101,40 +71,38 @@ public class ItemColorTube extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		TileEntity tileEntity = world.getTileEntity(x, y, z);
+		TileEntity tileEntity = worldIn.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
-			if(world.isRemote)
+			if(worldIn.isRemote)
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setInteger("color", getColor(stack));
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 3, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 3, nbt));
 			}
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
-		return false;
+		return EnumActionResult.PASS;
     }
 	
 	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
-	{
-		if(!world.isRemote)
-		{
-			((EntityPlayerMP)player).openGui(CreativeCore.instance, 1, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-		}
-		return stack;
-	}
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
+    {
+		if(!worldIn.isRemote)
+			GuiHandler.openGuiItem(playerIn, worldIn);
+        return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
+    }
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiColorTube(stack);
 	}
 
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerColorTube(player, stack);
 	}
 }

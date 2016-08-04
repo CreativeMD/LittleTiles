@@ -1,40 +1,39 @@
 package com.creativemd.littletiles.common.items;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.gui.IGuiCreator;
-import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.core.CreativeCore;
+import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.gui.container.SubContainer;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.gui.SubContainerTileContainer;
 import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.PlacementHelper;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemTileContainer extends Item implements IGuiCreator{
 	
 	public ItemTileContainer()
 	{
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 	}
 	
 	@Override
@@ -46,13 +45,6 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		list.add("needed materials");
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-    protected String getIconString()
-    {
-        return LittleTiles.modid + ":LTContainer";
-    }
-	
 	public static void saveMap(ItemStack stack, ArrayList<BlockEntry> map)
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
@@ -60,14 +52,14 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		for (BlockEntry entry : map) {
 			if(entry.block != null && !(entry.block instanceof BlockAir))
 			{
-				nbt.setString("b" + i, Block.blockRegistry.getNameForObject(entry.block));
+				nbt.setString("b" + i, Block.REGISTRY.getNameForObject(entry.block).toString());
 				nbt.setInteger("m" + i, entry.meta);
 				nbt.setFloat("v" + i, entry.value);
 				i++;
 			}
 		}
 		nbt.setInteger("count", i+1);
-		stack.stackTagCompound = nbt;
+		stack.setTagCompound(nbt);
 	}
 	
 	public static ArrayList<BlockEntry> loadMap(EntityPlayer player)
@@ -103,12 +95,12 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		ArrayList<BlockEntry> mainMap = new ArrayList<BlockEntry>();
 		if(stack.hasTagCompound())
 		{
-			int count = stack.stackTagCompound.getInteger("count");
+			int count = stack.getTagCompound().getInteger("count");
 			for (int i = 0; i < count; i++) {
-				Block block = Block.getBlockFromName(stack.stackTagCompound.getString("b" + i));
-				int meta = stack.stackTagCompound.getInteger("m" + i);
+				Block block = Block.getBlockFromName(stack.getTagCompound().getString("b" + i));
+				int meta = stack.getTagCompound().getInteger("m" + i);
 				if(block != null && !(block instanceof BlockAir))
-					mainMap.add(new BlockEntry(block, meta, stack.stackTagCompound.getFloat("v" + i)));
+					mainMap.add(new BlockEntry(block, meta, stack.getTagCompound().getFloat("v" + i)));
 			}
 		}
 		return mainMap;
@@ -191,24 +183,21 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiTileContainer(stack);
 	}
 
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerTileContainer(player, stack, player.inventory.currentItem);
 	}
 	
 	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
 	{
-		if(!world.isRemote)
-		{
-			((EntityPlayerMP)player).openGui(CreativeCore.instance, 1, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-			return stack;
-		}
-		return stack;
+		if(!worldIn.isRemote)
+			GuiHandler.openGuiItem(playerIn, worldIn);
+		return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
 	}
 	
 	public static class BlockEntry {

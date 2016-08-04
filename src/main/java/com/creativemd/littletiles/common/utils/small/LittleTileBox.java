@@ -3,13 +3,12 @@ package com.creativemd.littletiles.common.utils.small;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.ibm.icu.impl.UBiDiProps;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.Vec3d;
 
 public class LittleTileBox {
 	
@@ -64,12 +63,12 @@ public class LittleTileBox {
 	
 	public AxisAlignedBB getBox()
 	{
-		return AxisAlignedBB.getBoundingBox(minX/16D, minY/16D, minZ/16D, maxX/16D, maxY/16D, maxZ/16D);
+		return new AxisAlignedBB(minX/16D, minY/16D, minZ/16D, maxX/16D, maxY/16D, maxZ/16D);
 	}
 	
 	public CubeObject getCube()
 	{
-		return new CubeObject(minX/16D, minY/16D, minZ/16D, maxX/16D, maxY/16D, maxZ/16D);
+		return new CubeObject(minX/16F, minY/16F, minZ/16F, maxX/16F, maxY/16F, maxZ/16F);
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
@@ -82,9 +81,9 @@ public class LittleTileBox {
 		nbt.setInteger(name+"maxZ", maxZ);
 	}
 	
-	public Vec3 getSizeD()
+	public Vec3d getSizeD()
 	{
-		return Vec3.createVectorHelper((maxX - minX)*1/16D, (maxY - minY)*1/16D, (maxZ - minZ)*1/16D);
+		return new Vec3d((maxX - minX)*1/16D, (maxY - minY)*1/16D, (maxZ - minZ)*1/16D);
 	}
 	
 	public LittleTileSize getSize()
@@ -193,7 +192,7 @@ public class LittleTileBox {
 		return new LittleTileVec(maxX, maxY, maxZ);
 	}
 	
-	/*public void rotateBoxby(ForgeDirection direction)
+	/*public void rotateBoxby(EnumFacing direction)
 	{
 		switch(direction)
 		{
@@ -212,7 +211,7 @@ public class LittleTileBox {
 		}
 	}*/
 	
-	public void rotateBoxWithCenter(Rotation direction, Vec3 center)
+	public void rotateBoxWithCenter(Rotation direction, Vec3d center)
 	{
 		CubeObject cube = this.getCube();
 		cube = CubeObject.rotateCube(cube, direction, center);
@@ -231,7 +230,7 @@ public class LittleTileBox {
 		//assignCube(cube);
 	}
 	
-	public void flipBox(ForgeDirection direction)
+	public void flipBox(EnumFacing direction)
 	{
 		switch(direction)
 		{
@@ -257,7 +256,7 @@ public class LittleTileBox {
 		resort();
 	}
 	
-	public void flipBoxWithCenter(ForgeDirection direction, LittleTileVec center)
+	public void flipBoxWithCenter(EnumFacing direction, LittleTileVec center)
 	{
 		if(center == null)
 			center = new LittleTileVec(8, 8, 8);
@@ -266,7 +265,7 @@ public class LittleTileBox {
 		addOffset(center);		
 	}
 	
-	public void rotateBox(ForgeDirection direction)
+	public void rotateBox(EnumFacing direction)
 	{
 		CubeObject cube = this.getCube();
 		/*int x = (int) cube.minX;
@@ -391,34 +390,34 @@ public class LittleTileBox {
         return box.maxX > this.minX && box.minX < this.maxX ? (box.maxY > this.minY && box.minY < this.maxY ? box.maxZ > this.minZ && box.minZ < this.maxZ : false) : false;
     }
 	
-	public ForgeDirection faceTo(LittleTileBox box) {
+	public EnumFacing faceTo(LittleTileBox box) {
 		
 		boolean x = !(this.minX >= box.maxX || box.minX >= this.maxX);
 		boolean y = !(this.minY >= box.maxY || box.minY >= this.maxY);
 		boolean z = !(this.minZ >= box.maxZ || box.minZ >= this.maxZ);
 		
 		if(x && y && z)
-			return ForgeDirection.UNKNOWN;
+			return EnumFacing.EAST;
 		
 		if(x && y)
 			if(this.minZ > box.maxZ)
-				return ForgeDirection.NORTH;
+				return EnumFacing.NORTH;
 			else
-				return ForgeDirection.SOUTH;
+				return EnumFacing.SOUTH;
 		
 		if(x && z)
 			if(this.minY > box.maxY)
-				return ForgeDirection.DOWN;
+				return EnumFacing.DOWN;
 			else
-				return ForgeDirection.UP;
+				return EnumFacing.UP;
 		
 		if(y && z)
 			if(this.minX > box.maxX)
-				return ForgeDirection.WEST;
+				return EnumFacing.WEST;
 			else
-				return ForgeDirection.EAST;
+				return EnumFacing.EAST;
 		
-		return ForgeDirection.UNKNOWN;
+		return EnumFacing.EAST;
 	}
 
 	public boolean hasTwoSideIntersection(LittleTileBox box) {
@@ -440,7 +439,7 @@ public class LittleTileBox {
 		return minX >= LittleTile.minPos && maxX <= LittleTile.maxPos && minY >= LittleTile.minPos && maxY <= LittleTile.maxPos && minZ >= LittleTile.minPos && maxZ <= LittleTile.maxPos;
 	}
 	
-	public LittleTileBox expand(ForgeDirection direction)
+	public LittleTileBox expand(EnumFacing direction)
 	{
 		LittleTileBox result = this.copy();
 		switch(direction)
@@ -470,7 +469,7 @@ public class LittleTileBox {
 		return result;
 	}
 	
-	public LittleTileBox shrink(ForgeDirection direction)
+	public LittleTileBox shrink(EnumFacing direction)
 	{
 		LittleTileBox result = this.copy();
 		switch(direction)
@@ -500,7 +499,7 @@ public class LittleTileBox {
 		return result;
 	}
 	
-	public void applyDirection(ForgeDirection direction) {
+	public void applyDirection(EnumFacing direction) {
 		switch(direction)
 		{
 		

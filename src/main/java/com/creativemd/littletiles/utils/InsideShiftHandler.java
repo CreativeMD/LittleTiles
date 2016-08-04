@@ -6,14 +6,10 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class InsideShiftHandler extends ShiftHandler{
-
-	@Override
-	public void handleRendering(Minecraft mc, double x, double y, double z) {
-		
-	}
 
 	@Override
 	public double getDistance(LittleTileVec suggestedPos) {
@@ -21,7 +17,7 @@ public class InsideShiftHandler extends ShiftHandler{
 	}
 
 	@Override
-	protected LittleTileBox getNewPos(World world, int x, int y, int z, LittleTileBox suggested) {
+	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleTileBox suggested) {
 		LittleTileSize size = suggested.getSize();
 		
 		double offset = 0;
@@ -67,6 +63,11 @@ public class InsideShiftHandler extends ShiftHandler{
 		}
 		
 		return suggested;
+	}
+
+	@Override
+	public void handleRendering(Minecraft mc, double x, double y, double z) {
+		
 	}
 
 }

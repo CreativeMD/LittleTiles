@@ -1,59 +1,55 @@
 package com.creativemd.littletiles.common.items;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.gui.IGuiCreator;
-import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.core.CreativeCore;
+import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.gui.container.SubContainer;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerChisel;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleChisel extends Item implements IGuiCreator{
 	
 	public ItemLittleChisel(){
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    protected String getIconString()
-    {
-        return LittleTiles.modid + ":LTChisel";
-    }
-	@Override
-	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
 	{
-		if(stack.stackTagCompound == null)
-			stack.stackTagCompound = new NBTTagCompound();
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
 		
-		if(stack.stackTagCompound.hasKey("x1"))
-			list.add("1: x=" + stack.stackTagCompound.getInteger("x1") + ",y=" + stack.stackTagCompound.getInteger("y1")+ ",z=" + stack.stackTagCompound.getInteger("z1"));
+		if(stack.getTagCompound().hasKey("x1"))
+			list.add("1: x=" + stack.getTagCompound().getInteger("x1") + ",y=" + stack.getTagCompound().getInteger("y1")+ ",z=" + stack.getTagCompound().getInteger("z1"));
 		else
 			list.add("1: undefinded");
 		
-		if(stack.stackTagCompound.hasKey("x2"))
-			list.add("2: x=" + stack.stackTagCompound.getInteger("x2") + ",y=" + stack.stackTagCompound.getInteger("y2")+ ",z=" + stack.stackTagCompound.getInteger("z2"));
+		if(stack.getTagCompound().hasKey("x2"))
+			list.add("2: x=" + stack.getTagCompound().getInteger("x2") + ",y=" + stack.getTagCompound().getInteger("y2")+ ",z=" + stack.getTagCompound().getInteger("z2"));
 		else
 			list.add("2: undefinded");
 		
@@ -61,50 +57,50 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-		if(!world.isRemote && !player.isSneaking() && stack.stackTagCompound != null)
+		if(!world.isRemote && !player.isSneaking() && stack.hasTagCompound())
 		{
-			if(stack.stackTagCompound.hasKey("x1") && stack.stackTagCompound.hasKey("x2"))
-				((EntityPlayerMP)player).openGui(CreativeCore.instance, 1, world, (int)player.posX, (int)player.posY, (int)player.posZ);
+			if(stack.getTagCompound().hasKey("x1") && stack.getTagCompound().hasKey("x2"))
+				GuiHandler.openGuiItem(player, world);
 			else
-				player.addChatMessage(new ChatComponentText("You have to select two positions first"));
+				player.addChatMessage(new TextComponentTranslation("You have to select two positions first"));
 		}
-        return stack;
+		return new ActionResult(EnumActionResult.SUCCESS, stack);
     }
 	
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		if(stack.stackTagCompound == null)
-			stack.stackTagCompound = new NBTTagCompound();
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
 		
 		if(!world.isRemote)
 		{
 			if(player.isSneaking())
 			{
-				stack.stackTagCompound.setInteger("x2", x);
-				stack.stackTagCompound.setInteger("y2", y);
-				stack.stackTagCompound.setInteger("z2", z);
-				player.addChatMessage(new ChatComponentText("Second position: x=" + x + ",y=" + y + ",z=" + z));
+				stack.getTagCompound().setInteger("x2", pos.getX());
+				stack.getTagCompound().setInteger("y2", pos.getY());
+				stack.getTagCompound().setInteger("z2", pos.getZ());
+				player.addChatMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}else{
-				stack.stackTagCompound.setInteger("x1", x);
-				stack.stackTagCompound.setInteger("y1", y);
-				stack.stackTagCompound.setInteger("z1", z);
-				player.addChatMessage(new ChatComponentText("First position: x=" + x + ",y=" + y + ",z=" + z + " sneak to set the second pos!"));
+				stack.getTagCompound().setInteger("x1", pos.getX());
+				stack.getTagCompound().setInteger("y1", pos.getY());
+				stack.getTagCompound().setInteger("z1", pos.getZ());
+				player.addChatMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ() + " sneak to set the second pos!"));
 			}
 		}
-		return true;
+		return EnumActionResult.SUCCESS;
     }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiChisel(stack);
 	}
 
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, int x, int y, int z) {
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerChisel(player);
 	}
 }

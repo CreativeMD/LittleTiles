@@ -4,6 +4,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -15,14 +16,14 @@ public abstract class ShiftHandler {
 	
 	public abstract double getDistance(LittleTileVec suggestedPos);
 	
-	protected abstract LittleTileBox getNewPos(World world, int x, int y, int z, LittleTileBox suggested);
+	protected abstract LittleTileBox getNewPos(World world, BlockPos pos, LittleTileBox suggested);
 	
-	public void init(World world, int x, int y, int z)
+	public void init(World world, BlockPos pos)
 	{
 		
 	}
 	
-	public LittleTileBox getNewPosition(World world, int x, int y, int z, LittleTileBox suggested)
+	public LittleTileBox getNewPosition(World world, BlockPos pos, LittleTileBox suggested)
 	{
 		/*suggested.minX *= 16;
 		suggested.minY *= 16;
@@ -32,7 +33,7 @@ public abstract class ShiftHandler {
 		suggested.maxZ *= 16;
 		*/
 		LittleTileBox oldBox = suggested.copy();
-		LittleTileBox newBox = getNewPos(world, x, y, z, suggested);
+		LittleTileBox newBox = getNewPos(world, pos, suggested);
 		
 		//TileEntity te = world.getTileEntity(x, y, z);
 		//if(te instanceof TileEntityLittleTiles)

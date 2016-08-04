@@ -77,7 +77,7 @@ public class PreviewTile {
 		return null;
 	}
 	
-	public boolean split(HashMapList<BlockPos, PreviewTile> tiles, int x, int y, int z)
+	public boolean split(HashMapList<BlockPos, PreviewTile> tiles, BlockPos pos)
 	{
 		//box.resort();
 		
@@ -101,18 +101,18 @@ public class PreviewTile {
 		if(box.minZ < 0)
 			offZ = (int) Math.floor(box.minZ/16D);
 		
-		int posX = x+offX;
-		int posY = y+offY;
-		int posZ = z+offZ;
+		int posX = pos.getX()+offX;
+		int posY = pos.getY()+offY;
+		int posZ = pos.getZ()+offZ;
 		
 		int spaceX = box.minX-offX*16;
 		int spaceY = box.minY-offY*16;
 		int spaceZ = box.minZ-offZ*16;
 		
 		for (int i = 0; spaceX+size.sizeX > i*16; i++) {
-			posY = y+offY;
+			posY = pos.getY()+offY;
 			for (int j = 0; spaceY+size.sizeY > j*16; j++) {
-				posZ = z+offZ;
+				posZ = pos.getZ()+offZ;
 				for (int h = 0; spaceZ+size.sizeZ > h*16; h++) {
 					
 					PreviewTile tile = this.copy();

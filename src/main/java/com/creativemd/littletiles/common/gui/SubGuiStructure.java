@@ -54,7 +54,7 @@ public class SubGuiStructure extends SubGui{
 					parser = entry.parser;
 				if(parser != null)
 				{
-					LittleStructure structure = parser.parseStructure(this);
+					LittleStructure structure = parser.parseStructure((SubGui)getParent());
 					if(structure != null)
 					{
 						

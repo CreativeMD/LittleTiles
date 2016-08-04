@@ -10,7 +10,8 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 
 public class LittleFlipPacket extends CreativeCorePacket{
 	
@@ -18,20 +19,20 @@ public class LittleFlipPacket extends CreativeCorePacket{
 		
 	}
 	
-	public ForgeDirection direction;
+	public EnumFacing direction;
 	
-	public LittleFlipPacket(ForgeDirection direction) {
+	public LittleFlipPacket(EnumFacing direction) {
 		this.direction = direction;
 	}
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		writeDirection(buf, direction);
+		writeFacing(buf, direction);
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		direction = readDirection(buf);
+		direction = readFacing(buf);
 	}
 
 	@Override
@@ -41,9 +42,9 @@ public class LittleFlipPacket extends CreativeCorePacket{
 	
 	public void execute(EntityPlayer player)
 	{
-		if(PlacementHelper.isLittleBlock(player.getHeldItem()))
+		if(PlacementHelper.isLittleBlock(player.getHeldItem(EnumHand.MAIN_HAND)))
 		{
-			ItemStack stack = player.getHeldItem();
+			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 			
 			ILittleTile itile = null;
 			
@@ -63,7 +64,7 @@ public class LittleFlipPacket extends CreativeCorePacket{
 					structure.onFlip(player.worldObj, player, stack, direction);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
-					stack.stackTagCompound.setTag("structure", nbt);
+					stack.getTagCompound().setTag("structure", nbt);
 				}
 			}
 		}

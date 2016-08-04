@@ -5,11 +5,13 @@ import com.creativemd.littletiles.LittleTiles;
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 
 public class ItemBlockColored extends ItemBlock{
 
-	public ItemBlockColored(Block block) {
+	public ItemBlockColored(Block block, ResourceLocation location) {
 		super(block);
+		setUnlocalizedName(location.getResourcePath());
 		setHasSubtypes(true);
 	}
 	
@@ -17,8 +19,8 @@ public class ItemBlockColored extends ItemBlock{
 	public String getUnlocalizedName(ItemStack stack)
     {
 		String name = "default";
-		if(stack.getItemDamage() < BlockLTColored.subBlocks.length)
-			name = BlockLTColored.subBlocks[stack.getItemDamage()];
+		if(stack.getItemDamage() < BlockLTColored.EnumType.values().length)
+			name = BlockLTColored.EnumType.values()[stack.getItemDamage()].getName();
 		return getUnlocalizedName() + "." + name;
     }
 	

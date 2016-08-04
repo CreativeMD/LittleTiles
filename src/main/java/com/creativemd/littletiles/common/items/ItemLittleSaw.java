@@ -2,31 +2,29 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
-import org.lwjgl.Sys;
-
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleSaw extends Item{
 	
 	public ItemLittleSaw(){
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 		setMaxStackSize(1);
 	}
 	
@@ -40,28 +38,21 @@ public class ItemLittleSaw extends Item{
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-    protected String getIconString()
-    {
-        return LittleTiles.modid + ":LTSaw";
-    }
-	
-	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
 		
-		TileEntity tileEntity = world.getTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			if(world.isRemote)
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setInteger("side", side);
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 2, nbt));
+				nbt.setInteger("side", facing.getIndex());
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 2, nbt));
 			}
-			return true;
+			return EnumActionResult.SUCCESS;
 		}
-		return false;
+		return EnumActionResult.PASS;
     }
 	
 }

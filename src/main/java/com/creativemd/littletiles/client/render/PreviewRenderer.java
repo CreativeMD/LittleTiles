@@ -21,7 +21,13 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.enchantment.Enchantment.Rarity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -53,16 +59,16 @@ public class PreviewRenderer {
 			direction2 = ForgeDirection.EAST;
 	}*/
 	
-	public void processKey(ForgeDirection direction)
+	public void processKey(EnumFacing direction)
 	{
 		LittleRotatePacket packet = new LittleRotatePacket(direction);
 		packet.executeClient(mc.thePlayer);
 		PacketHandler.sendPacketToServer(packet);
 	}
 	
-	public static MovingObjectPosition markedHit = null;
+	public static RayTraceResult markedHit = null;
 	
-	public static void moveMarkedHit(ForgeDirection direction)
+	public static void moveMarkedHit(EnumFacing direction)
 	{
 		int posX = (int) markedHit.hitVec.xCoord;
 		int posY = (int) markedHit.hitVec.yCoord;
@@ -72,32 +78,37 @@ public class PreviewRenderer {
 			move = 1;
 		switch (direction) {
 		case EAST:
-			markedHit.hitVec.xCoord += move;
+			markedHit.hitVec = markedHit.hitVec.addVector(move, 0, 0);
 			break;
 		case WEST:
-			markedHit.hitVec.xCoord -= move;
+			markedHit.hitVec = markedHit.hitVec.addVector(-move, 0, 0);
 			break;
 		case UP:
-			markedHit.hitVec.yCoord += move;
+			markedHit.hitVec = markedHit.hitVec.addVector(0, move, 0);
 			break;
 		case DOWN:
-			markedHit.hitVec.yCoord -= move;
+			markedHit.hitVec = markedHit.hitVec.addVector(0, -move, 0);
 			break;
 		case SOUTH:
-			markedHit.hitVec.zCoord += move;
+			markedHit.hitVec = markedHit.hitVec.addVector(0, 0, move);
 			break;
 		case NORTH:
-			markedHit.hitVec.zCoord -= move;
+			markedHit.hitVec = markedHit.hitVec.addVector(0, 0, -move);
 			break;
 		default:
 			break;
 		}
+		int blockX = markedHit.getBlockPos().getX();
+		int blockY = markedHit.getBlockPos().getY();
+		int blockZ = markedHit.getBlockPos().getZ();
 		if(posX != (int) markedHit.hitVec.xCoord)
-			markedHit.blockX += ((int) markedHit.hitVec.xCoord) - posX;
+			blockX += ((int) markedHit.hitVec.xCoord) - posX;
 		if(posY != (int) markedHit.hitVec.yCoord)
-			markedHit.blockY += ((int) markedHit.hitVec.yCoord) - posY;
+			blockY += ((int) markedHit.hitVec.yCoord) - posY;
 		if(posZ != (int) markedHit.hitVec.zCoord)
-			markedHit.blockZ += ((int) markedHit.hitVec.zCoord) - posZ;
+			blockZ += ((int) markedHit.hitVec.zCoord) - posZ;
+		
+		markedHit = new RayTraceResult(markedHit.hitVec, markedHit.sideHit, new BlockPos(blockX, blockY, blockZ));
 	}
 	
 	@SubscribeEvent
@@ -106,32 +117,32 @@ public class PreviewRenderer {
 		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{
 			//mc.theWorld
-			if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem()))
+			if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND)))
 			{
 				if(GameSettings.isKeyDown(LittleTilesClient.flip) && !LittleTilesClient.pressedFlip)
 				{
 					LittleTilesClient.pressedFlip = true;
 					int i4 = MathHelper.floor_double((double)(this.mc.thePlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-					ForgeDirection direction = null;
+					EnumFacing direction = null;
 					switch(i4)
 					{
 					case 0:
-						direction = ForgeDirection.SOUTH;
+						direction = EnumFacing.SOUTH;
 						break;
 					case 1:
-						direction = ForgeDirection.WEST;
+						direction = EnumFacing.WEST;
 						break;
 					case 2:
-						direction = ForgeDirection.NORTH;
+						direction = EnumFacing.NORTH;
 						break;
 					case 3:
-						direction = ForgeDirection.EAST;
+						direction = EnumFacing.EAST;
 						break;
 					}
 					if(mc.thePlayer.rotationPitch > 45)
-						direction = ForgeDirection.DOWN;
+						direction = EnumFacing.DOWN;
 					if(mc.thePlayer.rotationPitch < -45)
-						direction = ForgeDirection.UP;
+						direction = EnumFacing.UP;
 					//System.out.println("f: " + i4 + ", pitch: " + mc.thePlayer.rotationPitch + ", direction: " + direction);
 					LittleFlipPacket packet = new LittleFlipPacket(direction);
 					packet.executeClient(mc.thePlayer);
@@ -140,26 +151,25 @@ public class PreviewRenderer {
 					LittleTilesClient.pressedFlip = false;
 				}
 				
-				MovingObjectPosition look = mc.objectMouseOver;
+				RayTraceResult look = mc.objectMouseOver;
 				if(markedHit != null)
 					look = markedHit;
 				
-				if(look != null && look.typeOfHit == MovingObjectType.BLOCK && mc.thePlayer.getHeldItem() != null)
+				if(look != null && look.typeOfHit == RayTraceResult.Type.BLOCK && mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND) != null)
 				{
 					PlacementHelper helper = PlacementHelper.getInstance(mc.thePlayer);
 					
-					int posX = look.blockX;
-					int posY = look.blockY;
-					int posZ = look.blockZ;
+					int posX = look.getBlockPos().getX();
+					int posY = look.getBlockPos().getY();
+					int posZ = look.getBlockPos().getZ();
 					
 					double x = (double)posX - TileEntityRendererDispatcher.staticPlayerX;
 					double y = (double)posY - TileEntityRendererDispatcher.staticPlayerY;
 					double z = (double)posZ - TileEntityRendererDispatcher.staticPlayerZ;
 					
-					ForgeDirection side = ForgeDirection.getOrientation(look.sideHit);
-					if(!helper.canBePlacedInside(posX, posY, posZ, look.hitVec, side))
+					if(!helper.canBePlacedInside(look.getBlockPos(), look.hitVec, look.sideHit))
 					{
-						switch(side)
+						switch(look.sideHit)
 						{
 						case EAST:
 							x++;
@@ -190,15 +200,15 @@ public class PreviewRenderer {
 						if(markedHit == null)
 						{							
 							
-							LittleTileVec vec = helper.getHitVec(look.hitVec, look.blockX, look.blockY, look.blockZ, side, false, false);
-							Vec3 hitVec = Vec3.createVectorHelper(vec.getPosX(), vec.getPosY(), vec.getPosZ());
+							LittleTileVec vec = helper.getHitVec(look.hitVec, look.getBlockPos(), look.sideHit, false, false);
+							Vec3d hitVec = new Vec3d(vec.getPosX(), vec.getPosY(), vec.getPosZ());
 							
-							int newX = look.blockX;
-							int newY = look.blockY;
-							int newZ = look.blockZ;
-							if(!helper.canBePlacedInside(newX, newY, newZ, look.hitVec, side))
+							int newX = look.getBlockPos().getX();
+							int newY = look.getBlockPos().getY();
+							int newZ = look.getBlockPos().getZ();
+							if(!helper.canBePlacedInside(look.getBlockPos(), look.hitVec, look.sideHit))
 							{
-								switch(side)
+								switch(look.sideHit)
 								{
 								case EAST:
 									newX++;
@@ -223,7 +233,7 @@ public class PreviewRenderer {
 								}
 							}
 							hitVec = hitVec.addVector(newX, newY, newZ);
-							look = markedHit = new MovingObjectPosition(newX, newY, newZ/*look.blockX, look.blockY, look.blockZ*/, look.sideHit, hitVec);
+							look = markedHit = new RayTraceResult(hitVec, look.sideHit, look.getBlockPos());
 							return ;
 						}
 						else
@@ -240,9 +250,9 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedUp = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(mc.thePlayer.isSneaking() ? ForgeDirection.UP : ForgeDirection.EAST);
+		            		moveMarkedHit(mc.thePlayer.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
 		            	else
-		            		processKey(ForgeDirection.UP);
+		            		processKey(EnumFacing.UP);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.up))
 		            	LittleTilesClient.pressedUp = false;
 		            
@@ -250,9 +260,9 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedDown = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(mc.thePlayer.isSneaking() ? ForgeDirection.DOWN : ForgeDirection.WEST);
+		            		moveMarkedHit(mc.thePlayer.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
 		            	else
-		            		processKey(ForgeDirection.DOWN);
+		            		processKey(EnumFacing.DOWN);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.down))
 		            	LittleTilesClient.pressedDown = false;
 		            
@@ -260,9 +270,9 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedRight = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(ForgeDirection.SOUTH);
+		            		moveMarkedHit(EnumFacing.SOUTH);
 		            	else
-		            		processKey(ForgeDirection.SOUTH);
+		            		processKey(EnumFacing.SOUTH);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.right))
 		            	LittleTilesClient.pressedRight = false;
 		            
@@ -270,9 +280,9 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedLeft = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(ForgeDirection.NORTH);
+		            		moveMarkedHit(EnumFacing.NORTH);
 		            	else
-		            		processKey(ForgeDirection.NORTH);
+		            		processKey(EnumFacing.NORTH);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.left))
 		            	LittleTilesClient.pressedLeft = false;
 		            
@@ -285,14 +295,14 @@ public class PreviewRenderer {
 		            
 		            ArrayList<PreviewTile> previews = null;
 		            
-		            previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(), look, markedHit != null); //, direction, direction2);
+		            previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
 		            
 		            for (int i = 0; i < previews.size(); i++) {
 						GL11.glPushMatrix();
 						PreviewTile preview = previews.get(i);
 						LittleTileBox previewBox = preview.getPreviewBox();
 						CubeObject cube = previewBox.getCube();
-						Vec3 size = previewBox.getSizeD();
+						Vec3d size = previewBox.getSizeD();
 						double cubeX = x+cube.minX+size.xCoord/2D;
 						//if(posX < 0 && side != ForgeDirection.WEST && side != ForgeDirection.EAST)
 							//cubeX = x+(1-cube.minX)+size.getPosX()/2D;
@@ -307,7 +317,7 @@ public class PreviewRenderer {
 							x -= 1;
 						double cubeY = y;
 						double cubeZ = z;*/
-						Vec3 color = preview.getPreviewColor();
+						Vec3d color = preview.getPreviewColor();
 						RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.xCoord, size.yCoord, size.zCoord, 0, 0, 0, color.xCoord, color.yCoord, color.zCoord, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
 						GL11.glPopMatrix();
 					}

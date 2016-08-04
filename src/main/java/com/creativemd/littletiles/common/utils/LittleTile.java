@@ -3,6 +3,9 @@ package com.creativemd.littletiles.common.utils;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
+
+import javax.annotation.Nullable;
+
 import java.util.Random;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -14,13 +17,18 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -139,7 +147,7 @@ public abstract class LittleTile {
 			}
 			return box.getBox();
 		}else
-			return AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
+			return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 	
 	public double getPercentVolume()
@@ -282,7 +290,7 @@ public abstract class LittleTile {
 	public void markForUpdate()
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide().isServer())
-			te.update();
+			te.updateBlock();
 		else
 			te.updateRender();
 	}
@@ -290,7 +298,7 @@ public abstract class LittleTile {
 	//================Placing================
 	
 	/**return null for any rotation**/
-	public abstract ForgeDirection[] getValidRotation();
+	//public abstract ForgeDirection[] getValidRotation();
 	
 	/**stack may be null**/
 	public void onPlaced(EntityPlayer player , ItemStack stack)
@@ -324,7 +332,7 @@ public abstract class LittleTile {
 	{
 		if(isStructureBlock)
 		{
-			if(!te.getWorldObj().isRemote && isLoaded())
+			if(!te.getWorld().isRemote && isLoaded())
 				structure.onLittleTileDestory();
 		}else
 			te.removeTile(this);
@@ -417,8 +425,8 @@ public abstract class LittleTile {
 		return false;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public abstract boolean canBlockBeThreaded();
+	/*@SideOnly(Side.CLIENT)
+	public abstract boolean canBlockBeThreaded();*/
 	
 	@SideOnly(Side.CLIENT)
 	public abstract ArrayList<CubeObject> getRenderingCubes();
@@ -435,12 +443,12 @@ public abstract class LittleTile {
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-		return AxisAlignedBB.getBoundingBox(te.xCoord, te.yCoord, te.zCoord, te.xCoord + 1, te.yCoord + 1, te.zCoord + 1);
+		return new AxisAlignedBB(te.getPos());
     }
 	
 	//================Sound================
 	
-	public abstract Block.SoundType getSound();
+	public abstract SoundType getSound();
 	
 	//================Tick================
 	
@@ -464,30 +472,28 @@ public abstract class LittleTile {
 	
 	//================Interaction================
 	
-	protected abstract boolean canSawResize(ForgeDirection direction, EntityPlayer player);
+	protected abstract boolean canSawResize(EnumFacing facing, EntityPlayer player);
 	
-	public boolean canSawResizeTile(ForgeDirection direction, EntityPlayer player)
+	public boolean canSawResizeTile(EnumFacing facing, EntityPlayer player)
 	{
-		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(direction, player);
+		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(facing, player);
 	}
 	
 	//================Block Event================
 	
-	public abstract IIcon getIcon(int side);
-	
-	public void randomDisplayTick(World world, int x, int y, int z, Random random) {}
+	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {}
 
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ) {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if(isLoaded())
-			return structure.onBlockActivated(world, this, x, y, z, player, side, moveX, moveY, moveZ);
+			return structure.onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		return false;
 	}
 
-	public int getLightValue(IBlockAccess world, int x, int y, int z) {
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		return 0;
 	}
 
-	public double getEnchantPowerBonus(World world, int x, int y, int z) {
+	public float getEnchantPowerBonus(World world, BlockPos pos) {
 		return 0;
 	}
 	
@@ -498,10 +504,10 @@ public abstract class LittleTile {
 		return false;
 	}
 	
-	public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player)
+	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
 	{
 		if(isLoaded())
-			return structure.isBed(world, x, y, z, player);
+			return structure.isBed(world, pos, player);
 		return false;
 	}
 	
@@ -524,14 +530,14 @@ public abstract class LittleTile {
 	{
 		if(structure != null)
 			return true;
-		World world = te.getWorldObj();
+		World world = te.getWorld();
 		//if(!world.isRemote)
 		//{
-			ChunkCoordinates absoluteCoord = coord.getAbsolutePosition(te);
-			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord.posX, absoluteCoord.posZ);
+			BlockPos absoluteCoord = coord.getAbsolutePosition(te);
+			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
 			if(!(chunk instanceof EmptyChunk))
 			{
-				TileEntity tileEntity = world.getTileEntity(absoluteCoord.posX, absoluteCoord.posY, absoluteCoord.posZ);
+				TileEntity tileEntity = world.getTileEntity(absoluteCoord);
 				if(tileEntity instanceof TileEntityLittleTiles)
 				{
 					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.position);
@@ -549,7 +555,7 @@ public abstract class LittleTile {
 				if(structure == null)
 				{
 					te.removeTile(this);
-					te.update();
+					te.updateBlock();
 				}
 				
 				//pos = null;
@@ -570,10 +576,10 @@ public abstract class LittleTile {
 	@Deprecated
 	public static class LittleTilePosition {
 		
-		public ChunkCoordinates coord;
+		public BlockPos coord;
 		public LittleTileVec position;
 		
-		public LittleTilePosition(ChunkCoordinates coord, LittleTileVec position)
+		public LittleTilePosition(BlockPos coord, LittleTileVec position)
 		{
 			this.coord = coord;
 			this.position = position;
@@ -581,7 +587,7 @@ public abstract class LittleTile {
 		
 		public LittleTilePosition(String id, NBTTagCompound nbt)
 		{
-			coord = new ChunkCoordinates(nbt.getInteger(id + "coX"), nbt.getInteger(id + "coY"), nbt.getInteger(id + "coZ"));
+			coord = new BlockPos(nbt.getInteger(id + "coX"), nbt.getInteger(id + "coY"), nbt.getInteger(id + "coZ"));
 			position = new LittleTileVec(id + "po", nbt);
 		}
 		
@@ -592,9 +598,9 @@ public abstract class LittleTile {
 		
 		public void writeToNBT(String id, NBTTagCompound nbt)
 		{
-			nbt.setInteger(id + "coX", coord.posX);
-			nbt.setInteger(id + "coY", coord.posY);
-			nbt.setInteger(id + "coZ", coord.posZ);
+			nbt.setInteger(id + "coX", coord.getX());
+			nbt.setInteger(id + "coY", coord.getY());
+			nbt.setInteger(id + "coZ", coord.getZ());
 			position.writeToNBT(id + "po", nbt);
 		}
 		
@@ -611,7 +617,7 @@ public abstract class LittleTile {
 		
 		public LittleTilePosition copy()
 		{
-			return new LittleTilePosition(new ChunkCoordinates(coord), position.copy());
+			return new LittleTilePosition(new BlockPos(coord), position.copy());
 		}
 		
 	}

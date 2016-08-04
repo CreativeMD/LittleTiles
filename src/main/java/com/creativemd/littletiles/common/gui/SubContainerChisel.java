@@ -107,7 +107,7 @@ public class SubContainerChisel extends SubContainer {
 							}
 						}
 						if(hasChanged)
-							littleEntity.update();
+							littleEntity.updateBlock();
 					}
 				}
 			}

@@ -2,33 +2,38 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.container.SubContainer;
-import com.creativemd.creativecore.common.gui.IGuiCreator;
-import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.creativecore.core.CreativeCore;
+import com.creativemd.creativecore.gui.container.SubContainer;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemHammer extends Item implements IGuiCreator{
 	
 	public ItemHammer()
 	{
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 		setMaxStackSize(1);
 	}
 	
@@ -43,56 +48,44 @@ public class ItemHammer extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
 	{
-		if(!world.isRemote && !player.isSneaking())
-		{
-			((EntityPlayerMP)player).openGui(CreativeCore.instance, 1, world, (int)player.posX, (int)player.posY, (int)player.posZ);
-			return stack;
-		}
-		return stack;
+		if(!worldIn.isRemote && !playerIn.isSneaking())
+			GuiHandler.openGuiItem(playerIn, worldIn);
+		return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
 	}
 	
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
 		if(!world.isRemote && player.isSneaking())
 		{
-			TileEntity tileEntity = world.getTileEntity(x, y, z);
+			TileEntity tileEntity = world.getTileEntity(pos);
 			if(tileEntity instanceof TileEntityLittleTiles)
 			{
 				if(((TileEntityLittleTiles) tileEntity).getTiles().size() <= 1)
 				{
-					LittleTiles.blockTile.dropBlockAsItem(world, x, y, z, world.getBlockMetadata(x, y, z), 0);
+					LittleTiles.blockTile.dropBlockAsItem(world, pos, world.getBlockState(pos), 0);
 				}else{
 					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
 					ItemRecipe.saveTiles(world, ((TileEntityLittleTiles) tileEntity).getTiles(), drop);
-					WorldUtils.dropItem(world, drop, x, y, z);
+					WorldUtils.dropItem(world, drop, pos);
 				}
-				world.setBlockToAir(x, y, z);
-				return true;
+				world.setBlockToAir(pos);
+				return EnumActionResult.SUCCESS;
 			}
 		}
-        return false;
+        return EnumActionResult.PASS;
     }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    protected String getIconString()
-    {
-        return LittleTiles.modid + ":LTHammer";
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world,
-			int x, int y, int z) {
+	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiHammer();
 	}
 
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack,
-			World world, int x, int y, int z) {
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerHammer(player);
 	}
 	

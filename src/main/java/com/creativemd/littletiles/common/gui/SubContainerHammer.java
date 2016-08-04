@@ -29,7 +29,7 @@ public class SubContainerHammer extends SubContainer{
 	
 	public static boolean isBlockValid(Block block)
 	{
-		return block.isNormalCube() || block.isOpaqueCube() || block.renderAsNormalBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass;
+		return block.isNormalCube(block.getDefaultState()) || block.isFullyOpaque(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass;
 	}
 	
 	@Override

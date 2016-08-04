@@ -2,22 +2,16 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
-import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.common.util.Constants.NBT;
-import scala.tools.nsc.backend.icode.Primitives.Shift;
-
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.InsideShiftHandler;
 import com.creativemd.littletiles.utils.ShiftHandler;
+
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
 
 public final class LittleTilePreview {
 	
@@ -51,7 +45,7 @@ public final class LittleTilePreview {
 	
 	public LittleTile getLittleTile(TileEntityLittleTiles te)
 	{
-		return LittleTile.CreateandLoadTile(te, te.getWorldObj(), nbt);
+		return LittleTile.CreateandLoadTile(te, te.getWorld(), nbt);
 	}
 	
 	/*public ArrayList<LittleTilePreview> getAllTiles()
@@ -73,7 +67,7 @@ public final class LittleTilePreview {
 			cube.block = Block.getBlockFromName(nbt.getString("block"));
 			cube.meta = nbt.getInteger("meta");
 		}else{
-			cube.block = Blocks.stone;
+			cube.block = Blocks.STONE;
 		}
 		if(nbt.hasKey("color"))
 			cube.color = nbt.getInteger("color");
@@ -89,7 +83,7 @@ public final class LittleTilePreview {
 		return preview;
 	}
 	
-	public static void flipPreview(NBTTagCompound nbt, ForgeDirection direction)
+	public static void flipPreview(NBTTagCompound nbt, EnumFacing direction)
 	{
 		if(nbt.hasKey("bBoxminX"))
 		{
@@ -109,7 +103,7 @@ public final class LittleTilePreview {
 		}
 	}
 	
-	public static void rotatePreview(NBTTagCompound nbt, ForgeDirection direction)
+	public static void rotatePreview(NBTTagCompound nbt, EnumFacing direction)
 	{
 		if(nbt.hasKey("sizex"))
 		{

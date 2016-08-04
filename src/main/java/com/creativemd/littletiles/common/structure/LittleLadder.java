@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.structure;
 
-import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.gui.container.SubGui;
 
 import net.minecraft.nbt.NBTTagCompound;
 

@@ -2,22 +2,28 @@ package com.creativemd.littletiles.client;
 
 import org.lwjgl.input.Keyboard;
 
+import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
+import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
-import com.creativemd.littletiles.client.render.SpecialBlockTilesRenderer;
+import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraft.item.ItemStack;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -43,13 +49,51 @@ public class LittleTilesClient extends LittleTilesServer{
 	public void loadSide()
 	{		
 		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new SpecialBlockTilesRenderer());
+		Minecraft mc = Minecraft.getMinecraft();
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
+		//CreativeCoreClient.registerBlockItem(LittleTiles.coloredBlock);
+		
+		Item item = Item.getItemFromBlock(LittleTiles.coloredBlock);
+		for (int i = 0; i < BlockLTColored.EnumType.values().length; i++) {
+			mc.getRenderItem().getItemModelMesher().register(item, i, new ModelResourceLocation(new ResourceLocation(LittleTiles.modid, "colored_block_" + BlockLTColored.EnumType.values()[i].getName()), "inventory"));
+		}
+		
+		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.chisel);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
+		
 		
 		/*MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);
 		MinecraftForgeClient.registerItemRenderer(LittleTiles.multiTiles, renderer);*/
 		
-		BlockTile.mc = Minecraft.getMinecraft();
+		
+		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
+        {
+            public ModelResourceLocation getModelLocation(ItemStack stack)
+            {
+                return new ModelResourceLocation("LTChisel", "inventory");
+            }
+        });
+		mc.getItemColors().registerItemColorHandler(new IItemColor() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+		    public int getColorFromItemstack(ItemStack stack, int color)
+		    {
+				if (color == 0)
+		        	return ColorUtils.WHITE;
+		        return ItemColorTube.getColor(stack);
+		    }
+			
+		}, LittleTiles.colorTube);
+		
+		BlockTile.mc = mc;
 		
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 		

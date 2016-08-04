@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.utils.small;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 
 public class LittleTileVec {
 	
@@ -21,7 +21,7 @@ public class LittleTileVec {
 			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
 	}
 	
-	public LittleTileVec(Vec3 vec)
+	public LittleTileVec(Vec3d vec)
 	{
 		this((int) vec.xCoord, (int) vec.yCoord, (int) vec.zCoord);
 	}
@@ -67,7 +67,7 @@ public class LittleTileVec {
 		this.z -= vec.z;
 	}
 	
-	public void rotateVec(ForgeDirection direction)
+	public void rotateVec(EnumFacing direction)
 	{
 		switch(direction)
 		{

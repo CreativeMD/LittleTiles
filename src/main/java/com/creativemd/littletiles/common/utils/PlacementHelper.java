@@ -1,29 +1,9 @@
 package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import scala.tools.nsc.backend.icode.Primitives.Shift;
-
-import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
-import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -32,11 +12,16 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.InsideShiftHandler;
 import com.creativemd.littletiles.utils.PreviewTile;
 import com.creativemd.littletiles.utils.ShiftHandler;
-import com.google.common.primitives.UnsignedInteger;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 /**This class does all caculate on where to place a block. Used for rendering preview and placing**/
 public class PlacementHelper {
@@ -85,9 +70,9 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, MovingObjectPosition moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, moving.blockX, moving.blockY, moving.blockZ, player.getPosition(1.0F), moving.hitVec, ForgeDirection.getOrientation(moving.sideHit), customPlacement); //, rotation, rotation2);
+		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionVector(), moving.hitVec, moving.sideHit, customPlacement); //, rotation, rotation2);
 	}
 	
 	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)
@@ -137,12 +122,12 @@ public class PlacementHelper {
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).max(size);
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, int x, int y, int z, Vec3 playerPos, Vec3 hitVec, ForgeDirection side, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, x, y, z, playerPos, hitVec, side, customPlacement, false);
+		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, false);
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, int x, int y, int z, Vec3 playerPos, Vec3 hitVec, ForgeDirection side, boolean customPlacement, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
 		ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
 		ArrayList<PreviewTile> preview = new ArrayList<PreviewTile>();
@@ -170,7 +155,7 @@ public class PlacementHelper {
 			
 			shifthandlers.add(new InsideShiftHandler());
 			
-			LittleTileBox box = getTilesBox(size, hitVec, x, y, z, side, customPlacement, inside);
+			LittleTileBox box = getTilesBox(size, hitVec, pos, side, customPlacement, inside);
 			LittleTileVec internalOffset = getInternalOffset(tiles);
 			internalOffset.invert();
 			//box.addOffset(new LittleTileVec(-LittleTile.maxPos/2, -LittleTile.maxPos/2, -LittleTile.maxPos/2));
@@ -179,39 +164,17 @@ public class PlacementHelper {
 			
 			if(!customPlacement && player.isSneaking())
 			{			
-				if(!inside && !canBePlacedInside(x, y, z, hitVec, side))
+				if(!inside && !canBePlacedInside(pos, hitVec, side))
 				{
-					switch(side)
-					{
-					case EAST:
-						x++;
-						break;
-					case WEST:
-						x--;
-						break;
-					case UP:
-						y++;
-						break;
-					case DOWN:
-						y--;
-						break;
-					case SOUTH:
-						z++;
-						break;
-					case NORTH:
-						z--;
-						break;
-					default:
-						break;
-					}
+					pos = pos.offset(side);
 				}
 				
 				if(tiles.size() > 0 && tiles.get(0).box != null)
 				{
-					Block block = world.getBlock(x, y, z);
-					if(block.isReplaceable(world, x, y, z) || block instanceof BlockTile)
+					Block block = world.getBlockState(pos).getBlock();
+					if(block.isReplaceable(world, pos) || block instanceof BlockTile)
 					{
-						TileEntity te = world.getTileEntity(x, y, z);
+						TileEntity te = world.getTileEntity(pos);
 						canPlaceNormal = true;
 						if(te instanceof TileEntityLittleTiles)
 						{
@@ -232,10 +195,10 @@ public class PlacementHelper {
 				{
 					
 					for (int i = 0; i < shifthandlers.size(); i++) {
-						shifthandlers.get(i).init(world, x, y, z);
+						shifthandlers.get(i).init(world, pos);
 					}
 					
-					LittleTileVec hit = getHitVec(hitVec, x, y, z, side, customPlacement, inside);
+					LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside);
 					ShiftHandler handler = null;
 					double distance = 2;
 					for (int i = 0; i < shifthandlers.size(); i++) {
@@ -249,7 +212,7 @@ public class PlacementHelper {
 					
 					if(handler != null)
 					{
-						box = handler.getNewPosition(world, x, y, z, box);
+						box = handler.getNewPosition(world, pos, box);
 					}
 				}
 			}
@@ -306,9 +269,9 @@ public class PlacementHelper {
 		return preview;
 	}
 	
-	public LittleTileBox getTilesBox(LittleTileSize size, Vec3 hitVec, int x, int y, int z, ForgeDirection side, boolean customPlacement, boolean inside)
+	public LittleTileBox getTilesBox(LittleTileSize size, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean inside)
 	{
-		LittleTileVec hit = getHitVec(hitVec, x, y, z, side, customPlacement, inside);
+		LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside);
 		LittleTileVec center = size.calculateCenter();
 		LittleTileVec centerInv = size.calculateInvertedCenter();
 		//hit.addVec(center);
@@ -339,18 +302,18 @@ public class PlacementHelper {
 		return new LittleTileBox(hit, size);
 	}
 	
-	public boolean canBePlacedInsideBlock(int x, int y, int z)
+	public boolean canBePlacedInsideBlock(BlockPos pos)
 	{
-		TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
+		TileEntity tileEntity = player.worldObj.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 			return true;
 		
 		return false;
 	}
 	
-	public boolean canBePlacedInside(int x, int y, int z, Vec3 hitVec, ForgeDirection side)
+	public boolean canBePlacedInside(BlockPos pos, Vec3d hitVec, EnumFacing side)
 	{
-		TileEntity tileEntity = player.worldObj.getTileEntity(x, y, z);
+		TileEntity tileEntity = player.worldObj.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			switch(side)
@@ -381,16 +344,16 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public LittleTileVec getHitVec(Vec3 hitVec, int x, int y, int z, ForgeDirection side, boolean customPlacement, boolean isInside)
+	public LittleTileVec getHitVec(Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isInside)
 	{
 		if(customPlacement && !isInside)
 		{
-			double posX = hitVec.xCoord - x;
-			double posY = hitVec.yCoord - y;
-			double posZ = hitVec.zCoord - z;
+			double posX = hitVec.xCoord - pos.getX();
+			double posY = hitVec.yCoord - pos.getY();
+			double posZ = hitVec.zCoord - pos.getZ();
 			
 			LittleTileVec vec = new LittleTileVec((int)(posX*16), (int)(posY*16), (int)(posZ*16));
-			if(!canBePlacedInside(x, y, z, hitVec, side))
+			if(!canBePlacedInside(pos, hitVec, side))
 			{
 				switch(side)
 				{
@@ -419,17 +382,17 @@ public class PlacementHelper {
 			}
 			return vec;
 		}
-		double posX = hitVec.xCoord - x;
+		double posX = hitVec.xCoord - pos.getX();
 		//if(hitVec.xCoord < 0)
 			//posX = 1-posX;
-		double posY = hitVec.yCoord - y;
+		double posY = hitVec.yCoord - pos.getY();
 		//if(hitVec.yCoord < 0)
 			//posY = 1-posY;
-		double posZ = hitVec.zCoord - z;
+		double posZ = hitVec.zCoord - pos.getZ();
 		//if(hitVec.zCoord < 0)
 			//posZ = 1-posZ;
 		LittleTileVec vec = new LittleTileVec((int)(posX*16), (int)(posY*16), (int)(posZ*16));
-		if(!customPlacement && !canBePlacedInside(x, y, z, hitVec, side))
+		if(!customPlacement && !canBePlacedInside(pos, hitVec, side))
 		{
 			switch(side)
 			{

@@ -1,18 +1,25 @@
 package com.creativemd.littletiles.common.structure;
 
-import java.util.Iterator;
+import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.gui.SubGui;
+import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayer.SleepResult;
+import net.minecraft.init.Biomes;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentTranslation;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.BiomeGenBase;
+import net.minecraft.world.biome.Biome;
+import net.minecraftforge.common.BiomeManager.BiomeType;
 
 public class LittleBed extends LittleStructure{
 
@@ -40,13 +47,13 @@ public class LittleBed extends LittleStructure{
 	}
 	
 	@Override
-	public boolean isBed(IBlockAccess world, int x, int y, int z, EntityLivingBase player)
+	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
 	{
 		return true;
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ)
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
             return true;
@@ -65,7 +72,7 @@ public class LittleBed extends LittleStructure{
             i1 = world.getBlockMetadata(x, y, z);
         }*/
 
-        if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(x, z) != BiomeGenBase.hell)
+        if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
         {
             /*if (func_149976_c(i1))
             {
@@ -96,22 +103,22 @@ public class LittleBed extends LittleStructure{
                 //func_149979_a(world, x, y, z, false);
             }
 
-            EntityPlayer.EnumStatus enumstatus = player.sleepInBedAt(x, y, z);
+            SleepResult enumstatus = player.trySleep(pos);
 
-            if (enumstatus == EntityPlayer.EnumStatus.OK)
+            if (enumstatus == SleepResult.OK)
             {
                 //func_149979_a(world, x, y, z, true);
                 return true;
             }
             else
             {
-                if (enumstatus == EntityPlayer.EnumStatus.NOT_POSSIBLE_NOW)
+                if (enumstatus == SleepResult.NOT_POSSIBLE_NOW)
                 {
-                    player.addChatComponentMessage(new ChatComponentTranslation("tile.bed.noSleep", new Object[0]));
+                    player.addChatComponentMessage(new TextComponentTranslation("tile.bed.noSleep"));
                 }
-                else if (enumstatus == EntityPlayer.EnumStatus.NOT_SAFE)
+                else if (enumstatus == SleepResult.NOT_SAFE)
                 {
-                	player.addChatComponentMessage(new ChatComponentTranslation("tile.bed.notSafe", new Object[0]));
+                	player.addChatComponentMessage(new TextComponentTranslation("tile.bed.notSafe"));
                 }
 
                 return true;

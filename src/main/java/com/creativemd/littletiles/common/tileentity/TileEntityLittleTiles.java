@@ -2,34 +2,32 @@ package com.creativemd.littletiles.common.tileentity;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.LittleBlockVertex;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityLittleTiles extends TileEntity{
+public class TileEntityLittleTiles extends TileEntityCreative implements ITickable{
 	
 	public static TileList<LittleTile> createTileList()
 	{
@@ -41,8 +39,8 @@ public class TileEntityLittleTiles extends TileEntity{
 	public void setTiles(TileList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			updateCustomRenderer();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//updateCustomRenderer();
 	}
 	
 	public TileList<LittleTile> getTiles()
@@ -50,7 +48,7 @@ public class TileEntityLittleTiles extends TileEntity{
 		return tiles;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	public ArrayList<LittleTile> customRenderingTiles = new ArrayList<>();
 	
 	@SideOnly(Side.CLIENT)
@@ -75,7 +73,7 @@ public class TileEntityLittleTiles extends TileEntity{
 		updateRender();
 	}
 	
-	public boolean needFullUpdate = false;
+	public boolean needFullUpdate = false;*/
 	
 	public boolean removeTile(LittleTile tile)
 	{
@@ -101,15 +99,15 @@ public class TileEntityLittleTiles extends TileEntity{
 	{
 		if(worldObj != null)
 		{
-			update();
+			updateBlock();
 			updateNeighbor();
 		}
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			updateCustomRenderer();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//updateCustomRenderer();
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	public void updateCustomRenderer()
 	{
 		customRenderingTiles.clear();;
@@ -117,16 +115,16 @@ public class TileEntityLittleTiles extends TileEntity{
 			if(tiles.get(i).needCustomRendering())
 				customRenderingTiles.add(tiles.get(i));
 		}
-	}
+	}*/
 	
 	public void updateNeighbor()
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			markFullRenderUpdate();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//markFullRenderUpdate();
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).onNeighborChangeInside();
 		}
-		worldObj.notifyBlockChange(xCoord, yCoord, zCoord, LittleTiles.blockTile);
+		worldObj.notifyBlockOfStateChange(getPos(), LittleTiles.blockTile);
 	}
 	
 	@Override
@@ -144,12 +142,12 @@ public class TileEntityLittleTiles extends TileEntity{
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-		double minX = xCoord;
-		double minY = yCoord;
-		double minZ = zCoord;
-		double maxX = xCoord+1;
-		double maxY = yCoord+1;
-		double maxZ = zCoord+1;
+		double minX = getPos().getX();
+		double minY = getPos().getY();
+		double minZ = getPos().getZ();
+		double maxX = getPos().getX()+1;
+		double maxY = getPos().getY()+1;
+		double maxZ = getPos().getZ()+1;
 		for (int i = 0; i < tiles.size(); i++) {
 			AxisAlignedBB box = tiles.get(i).getRenderBoundingBox();
 			minX = Math.min(box.minX, minX);
@@ -159,10 +157,10 @@ public class TileEntityLittleTiles extends TileEntity{
 			maxY = Math.max(box.maxY, maxY);
 			maxZ = Math.max(box.maxZ, maxZ);
 		}
-		return AxisAlignedBB.getBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
+		return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 	
-	//public boolean needFullUpdate = true;
+	public boolean needFullUpdate = true;
 	
 	/**Used for**/
 	public LittleTile loadedTile = null;
@@ -217,7 +215,7 @@ public class TileEntityLittleTiles extends TileEntity{
     }
 
 	@Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
         for (int i = 0; i < tiles.size(); i++) {
@@ -226,12 +224,12 @@ public class TileEntityLittleTiles extends TileEntity{
 			nbt.setTag("t" + i, tileNBT);
 		}
         nbt.setInteger("tilesCount", tiles.size());
+		return nbt;
     }
     
     @Override
-    public Packet getDescriptionPacket()
-    {
-    	NBTTagCompound nbt = new NBTTagCompound();
+    public void getDescriptionNBT(NBTTagCompound nbt)
+	{
     	//writeToNBT(nbt);
     	for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound tileNBT = new NBTTagCompound();
@@ -248,12 +246,6 @@ public class TileEntityLittleTiles extends TileEntity{
 		}
         nbt.setInteger("tilesCount", tiles.size());
         needFullUpdate = false;
-        //if(needFullUpdate)
-        //{
-        //nbt.setBoolean("fullUpdate", true);
-        	//needFullUpdate = false;
-        //}
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, blockMetadata, nbt);
     }
     
     public LittleTile getTile(LittleTileVec vec)
@@ -271,30 +263,18 @@ public class TileEntityLittleTiles extends TileEntity{
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+	@SideOnly(Side.CLIENT)
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
-    	/*if(pkt.func_148857_g().getBoolean("fullUpdate"))
-    	{
-    		tiles = new ArrayList<LittleTile>();
-	        int count = pkt.func_148857_g().getInteger("tilesCount");
-	        for (int i = 0; i < count; i++) {
-	        	NBTTagCompound tileNBT = new NBTTagCompound();
-	        	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
-				LittleTile tile = LittleTile.CreateandLoadTile(worldObj, tileNBT);
-				if(tile != null)
-					tiles.add(tile);
-			}
-    	}else{*/
-    	
+    	NBTTagCompound nbt = pkt.getNbtCompound();
     	ArrayList<LittleTile> exstingTiles = new ArrayList<LittleTile>();
     	exstingTiles.addAll(tiles);
-        int count = pkt.func_148857_g().getInteger("tilesCount");
+        int count = nbt.getInteger("tilesCount");
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
-        	tileNBT = pkt.func_148857_g().getCompoundTag("t" + i);
+        	tileNBT = nbt.getCompoundTag("t" + i);
 			LittleTile tile = getTile(tileNBT.getByte("cVecx"), tileNBT.getByte("cVecy"), tileNBT.getByte("cVecz"));
-			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !pkt.func_148857_g().getBoolean("f" + i))
+			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !nbt.getBoolean("f" + i))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);
@@ -319,35 +299,36 @@ public class TileEntityLittleTiles extends TileEntity{
         	System.out.println("===============================");
         	System.out.println("Receiving littleTiles packet x=" + xCoord + ",y=" + yCoord + ",z" + zCoord);
         	
-        	System.out.println(pkt.func_148857_g().toString());
+        	System.out.println(nbt.toString());
         	
         	System.out.println("-------------------------------");
         	System.out.println("Loaded " + tiles.size() + " tiles");
         }*/
+        super.onDataPacket(net, pkt);
     }
     
-    public MovingObjectPosition getMoving(EntityPlayer player)
+    public RayTraceResult getMoving(EntityPlayer player)
     {
     	return getMoving(player, false);
     }
     
-    public MovingObjectPosition getMoving(EntityPlayer player, boolean loadTile)
+    public RayTraceResult getMoving(EntityPlayer player, boolean loadTile)
     {
-    	MovingObjectPosition hit = null;
+    	RayTraceResult hit = null;
 		
-		Vec3 pos = player.getPosition(1);
+		Vec3d pos = player.getPositionVector();
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3 look = player.getLook(1.0F);
-		Vec3 vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		Vec3d look = player.getLook(1.0F);
+		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		return getMoving(pos, vec32, loadTile);
     }
     
-    public MovingObjectPosition getMoving(Vec3 pos, Vec3 look, boolean loadTile)
+    public RayTraceResult getMoving(Vec3d pos, Vec3d look, boolean loadTile)
     {
-    	MovingObjectPosition hit = null;
+    	RayTraceResult hit = null;
     	for (int i = 0; i < tiles.size(); i++) {
     		for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-    			MovingObjectPosition Temphit = tiles.get(i).boundingBoxes.get(j).getBox().getOffsetBoundingBox(xCoord, yCoord, zCoord).calculateIntercept(pos, look);
+    			RayTraceResult Temphit = tiles.get(i).boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
     			if(Temphit != null)
     			{
     				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
@@ -371,7 +352,7 @@ public class TileEntityLittleTiles extends TileEntity{
 		return loadedTile != null;
 	}
 	
-	public boolean updateLoadedTileServer(Vec3 pos, Vec3 look)
+	public boolean updateLoadedTileServer(Vec3d pos, Vec3d look)
 	{
 		loadedTile = null;
 		getMoving(pos, look, true);
@@ -382,12 +363,12 @@ public class TileEntityLittleTiles extends TileEntity{
 	public void checkClientLoadedTile(double distance)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
-		Vec3 pos = mc.thePlayer.getPosition(1);
+		Vec3d pos = mc.thePlayer.getPositionVector();
 		if(mc.objectMouseOver.hitVec.distanceTo(pos) < distance)
 			loadedTile = null;
 	}
 	
-	@Override
+	/*@Override
 	public boolean shouldRenderInPass(int pass)
     {
 		if(super.shouldRenderInPass(pass))
@@ -395,27 +376,18 @@ public class TileEntityLittleTiles extends TileEntity{
 			return customRenderingTiles.size() > 0;
 		}
         return false;
-    }
+    }*/
 	
-	public void update()
-	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			markFullRenderUpdate();
-		
-		worldObj.markTileEntityChunkModified(this.xCoord, this.yCoord, this.zCoord, this);
-		worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);
-	}
-	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	public void updateRender()
 	{
 		worldObj.markBlockRangeForRenderUpdate(xCoord, yCoord, zCoord, xCoord, yCoord, zCoord);
-	}
+	}*/
 	
 	@Override
-	public void updateEntity()
+	public void update()
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		/*if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 		{
 			if(needsRenderingUpdate)
 			{
@@ -423,17 +395,13 @@ public class TileEntityLittleTiles extends TileEntity{
 				//System.out.println("Chunk update!");
 				needsRenderingUpdate = false;
 			}
-		}
+		}*/
 		
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).updateEntity();
 		}
 		if(!worldObj.isRemote && tiles.size() == 0)
-			worldObj.setBlockToAir(xCoord, yCoord, zCoord);
-	}
-
-	public ChunkCoordinates getCoord() {
-		return new ChunkCoordinates(xCoord, yCoord, zCoord);
+			worldObj.setBlockToAir(getPos());
 	}
 	
 	public void combineTiles(LittleStructure structure) {
@@ -478,7 +446,7 @@ public class TileEntityLittleTiles extends TileEntity{
 					i++;
 				}
 			}
-			update();
+			updateBlock();
 	}
 
 	public void combineTiles() {
@@ -510,7 +478,7 @@ public class TileEntityLittleTiles extends TileEntity{
 				i++;
 			}
 		}
-		update();	
+		updateBlock();	
 	}
 
 	

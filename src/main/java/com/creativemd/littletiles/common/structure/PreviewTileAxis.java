@@ -2,8 +2,6 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.RotationUtils.Axis;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -13,21 +11,21 @@ import com.creativemd.littletiles.utils.PreviewTile;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChunkCoordinates;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 
 public class PreviewTileAxis extends PreviewTile{
 	
-	public static Vec3 red = Vec3.createVectorHelper(1, 0, 0);
-	public Axis axis;
+	public static Vec3d red = new Vec3d(1, 0, 0);
+	public EnumFacing.Axis axis;
 
-	public PreviewTileAxis(LittleTileBox box, LittleTilePreview preview, Axis axis) {
+	public PreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis) {
 		super(box, preview);
 		this.axis = axis;
 	}
 	
 	@Override
-	public Vec3 getPreviewColor()
+	public Vec3d getPreviewColor()
 	{
 		return red;
 	}
@@ -52,15 +50,15 @@ public class PreviewTileAxis extends PreviewTile{
 		int min = -max;
 		switch(axis)
 		{
-		case Xaxis:
+		case X:
 			preview.minX = min;
 			preview.maxX = max;
 			break;
-		case Yaxis:
+		case Y:
 			preview.minY = min;
 			preview.maxY = max;
 			break;
-		case Zaxis:
+		case Z:
 			preview.minZ = min;
 			preview.maxZ = max;
 			break;
@@ -77,7 +75,7 @@ public class PreviewTileAxis extends PreviewTile{
 		{
 			LittleDoor door = (LittleDoor) structure;
 			door.axisVec = box.getMinVec(); //Check if this would be perfect
-			door.axisVec.addVec(new LittleTileVec(teLT.xCoord*16, teLT.yCoord*16, teLT.zCoord*16));
+			door.axisVec.addVec(new LittleTileVec(teLT.getPos().getX()*16, teLT.getPos().getY()*16, teLT.getPos().getZ()*16));
 			door.axisVec.subVec(door.mainTile.cornerVec);
 		}
 		return null;

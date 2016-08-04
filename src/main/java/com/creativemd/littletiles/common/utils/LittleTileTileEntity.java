@@ -4,31 +4,26 @@ import java.io.IOException;
 
 import org.lwjgl.opengl.GL11;
 
-import io.netty.buffer.Unpooled;
-
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
-import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ITickable;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileTileEntity extends LittleTileBlock{
 	
@@ -60,30 +55,25 @@ public class LittleTileTileEntity extends LittleTileBlock{
 			nbt.setTag("tileentity", nbtTag);
 			nbt.setBoolean("isFirst", true);
 		}else{
-			Packet packet = tileEntity.getDescriptionPacket();
-			if(packet instanceof S35PacketUpdateTileEntity)
-			{
-				PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-				try {
-					packet.writePacketData(buffer);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				int x = buffer.readInt();
-		        int y = buffer.readShort();
-		        int z = buffer.readInt();
-		        int meta = buffer.readUnsignedByte();
-		        NBTTagCompound newNBT = null;
-		        try {
-					newNBT = buffer.readNBTTagCompoundFromBuffer();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-		        if(newNBT != null)
-		        	nbt.setTag("tileentity", newNBT);
-			}else{
-				//Send packet. No idea how!
+			SPacketUpdateTileEntity packet = tileEntity.getUpdatePacket();
+			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
+			try {
+				packet.writePacketData(buffer);
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			int x = buffer.readInt();
+	        int y = buffer.readShort();
+	        int z = buffer.readInt();
+	        int meta = buffer.readUnsignedByte();
+	        NBTTagCompound newNBT = null;
+	        try {
+				newNBT = buffer.readNBTTagCompoundFromBuffer();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+	        if(newNBT != null)
+	        	nbt.setTag("tileentity", newNBT);
 		}
 	}
 	
@@ -95,11 +85,11 @@ public class LittleTileTileEntity extends LittleTileBlock{
 		super.receivePacket(nbt, net);
 		if(nbt.getBoolean("isFirst"))
 		{
-			tileEntity = TileEntity.createAndLoadEntity(nbt.getCompoundTag("tileentity"));
+			tileEntity = TileEntity.func_190200_a(te.getWorld(), nbt.getCompoundTag("tileentity"));
 		}else{
 			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
 			if(tileEntity != null)
-				tileEntity.onDataPacket(net, new S35PacketUpdateTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord, meta, tileNBT));
+				tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), meta, tileNBT));
 		}
 	}
 	
@@ -111,11 +101,9 @@ public class LittleTileTileEntity extends LittleTileBlock{
 		NBTTagCompound tileNBT = nbt.getCompoundTag("tileEntity");
 		if(tileNBT != null)
 		{
-			tileEntity = TileEntity.createAndLoadEntity(tileNBT);
-			tileEntity.setWorldObj(te.getWorldObj());
-			tileEntity.xCoord = te.xCoord;
-			tileEntity.yCoord = te.yCoord;
-			tileEntity.zCoord = te.zCoord;
+			tileEntity = TileEntity.func_190200_a(te.getWorld(), tileNBT);
+			//tileEntity.setWorldObj(te.getWorld());
+			tileEntity.setPos(new BlockPos(te.getPos()));
 			//if(tileEntity.isInvalid())
 				//setInValid();
 		}
@@ -138,21 +126,22 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	{
 		if(tileEntity != null)
 		{
-			if(tileEntity.getWorldObj() == null)
-				tileEntity.setWorldObj(te.getWorldObj());
-			tileEntity.updateEntity();
+			if(tileEntity.getWorld() == null)
+				tileEntity.setWorldObj(te.getWorld());
+			if(tileEntity instanceof ITickable)
+				((ITickable) tileEntity).update();
 		}
 	}
 	
-	@Override
+	/*@Override
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {
 		if(tileEntity != null)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
-			if (te.getDistanceFrom(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < tileEntity.getMaxRenderDistanceSquared())
+			if (te.getDistanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < tileEntity.getMaxRenderDistanceSquared())
 	        {
-	            int i = te.getWorldObj().getLightBrightnessForSkyBlocks(te.xCoord, te.yCoord, te.zCoord, 0);
+	            int i = te.getWorld().getLightBrightnessForSkyBlocks(te.getPos(), 0);
 	            int j = i % 65536;
 	            int k = i / 65536;
 	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
@@ -170,7 +159,7 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	            TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, posX, posY, posZ, partialTickTime);
 	        }
 		}
-	}
+	}*/
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -186,7 +175,7 @@ public class LittleTileTileEntity extends LittleTileBlock{
     public AxisAlignedBB getRenderBoundingBox()
     {
 		if(tileEntity != null)
-			return tileEntity.getRenderBoundingBox().getOffsetBoundingBox(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
+			return tileEntity.getRenderBoundingBox().offset(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
 		return super.getRenderBoundingBox();
     }
 	
@@ -202,9 +191,9 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	
 	public boolean loadTileEntity()
 	{
-		if(tileEntity != null && tileEntity.getWorldObj() != null)
+		if(tileEntity != null && tileEntity.getWorld() != null)
 		{
-			TileEntity Tempte = tileEntity.getWorldObj().getTileEntity(tileEntity.xCoord, tileEntity.yCoord, tileEntity.zCoord);
+			TileEntity Tempte = tileEntity.getWorld().getTileEntity(tileEntity.getPos());
 			if(Tempte instanceof TileEntityLittleTiles)
 			{
 				te = (TileEntityLittleTiles) Tempte;
@@ -215,7 +204,7 @@ public class LittleTileTileEntity extends LittleTileBlock{
 	}
 	
 	@Override
-	protected boolean canSawResize(ForgeDirection direction, EntityPlayer player) {
+	protected boolean canSawResize(EnumFacing direction, EntityPlayer player) {
 		return false;
 	}
 	

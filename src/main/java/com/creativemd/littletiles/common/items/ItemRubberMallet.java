@@ -1,6 +1,5 @@
 package com.creativemd.littletiles.common.items;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -14,23 +13,29 @@ import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.utils.TileList;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.swing.TextComponent;
 
 public class ItemRubberMallet extends Item {
 	
 	public ItemRubberMallet()
 	{
-		setCreativeTab(CreativeTabs.tabTools);
+		setCreativeTab(CreativeTabs.TOOLS);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
@@ -45,9 +50,9 @@ public class ItemRubberMallet extends Item {
 	}
 	
 	@Override
-	public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		TileEntity tileEntity = world.getTileEntity(x, y, z);
+		TileEntity tileEntity = world.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			if(!world.isRemote)
@@ -83,33 +88,33 @@ public class ItemRubberMallet extends Item {
 					if(LittleTiles.maxNewTiles >= newTiles.size() - te.getTiles().size())
 					{
 						te.setTiles(newTiles);
-						te.update();
+						te.updateBlock();
 					}else{
-						player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
 					}
 				}
 			}else{
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(x, y, z, player, 4, new NBTTagCompound()));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 4, new NBTTagCompound()));
 			}
-			return true;
+			return EnumActionResult.SUCCESS;
 		}else {
-			Block block = world.getBlock(x, y, z);
+			IBlockState state = world.getBlockState(pos);
 			
-			if(tileEntity == null && SubContainerHammer.isBlockValid(block))
+			if(tileEntity == null && SubContainerHammer.isBlockValid(state.getBlock()))
 			{
 				if(!world.isRemote)
 				{
 					if(LittleTiles.maxNewTiles < 4096)
 					{
-						player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
-						return true;
+						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+						return EnumActionResult.SUCCESS;
 					}
-					int meta = world.getBlockMetadata(x, y, z);
+					int meta = state.getBlock().getMetaFromState(state);
 					TileEntityLittleTiles te = new TileEntityLittleTiles();
 					for (int littleX = LittleTile.minPos; littleX < LittleTile.maxPos; littleX++) {
 						for (int littleY = LittleTile.minPos; littleY < LittleTile.maxPos; littleY++) {
 							for (int littleZ = LittleTile.minPos; littleZ < LittleTile.maxPos; littleZ++) {
-								LittleTileBlock tile = new LittleTileBlock(block, meta);
+								LittleTileBlock tile = new LittleTileBlock(state.getBlock(), meta);
 								tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
 								tile.updateCorner();
 								tile.te = te;
@@ -119,23 +124,16 @@ public class ItemRubberMallet extends Item {
 					}
 					if(LittleTiles.maxNewTiles >= te.getTiles().size())
 					{
-						world.setBlock(x, y, z, LittleTiles.blockTile);
-						world.setTileEntity(x, y, z, te);
+						world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+						world.setTileEntity(pos, te);
 					}else{
-						player.addChatComponentMessage(new ChatComponentText("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
+						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
 					}
 					
 				}
-				return true;
+				return EnumActionResult.SUCCESS;
 			}
 		}
-		return false;
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-    protected String getIconString()
-    {
-        return LittleTiles.modid + ":LTRubberMallet";
+		return EnumActionResult.PASS;
     }
 }

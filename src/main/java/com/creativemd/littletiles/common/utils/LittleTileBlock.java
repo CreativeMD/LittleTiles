@@ -3,25 +3,41 @@ package com.creativemd.littletiles.common.utils;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockGrass;
-import net.minecraft.block.Block.SoundType;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.IIcon;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 
 public class LittleTileBlock extends LittleTile{
 	
 	public Block block;
 	public int meta;
+	private IBlockState state = null;
+	
+	public IBlockState getBlockState()
+	{
+		if(state == null)
+		{
+			state = block.getStateFromMeta(meta);
+			if(state == null)
+				state = block.getDefaultState();
+		}
+		return state;
+	}
 	
 	public LittleTileBlock(Block block, int meta)
 	{
@@ -43,7 +59,7 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		
-		nbt.setString("block", Block.blockRegistry.getNameForObject(block));
+		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
 		nbt.setInteger("meta", meta);		
 	}
 
@@ -55,10 +71,10 @@ public class LittleTileBlock extends LittleTile{
 			throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
 	}
 
-	@Override
+	/*@Override
 	public ForgeDirection[] getValidRotation() {
 		return null;
-	}
+	}*/
 
 	@Override
 	public void copyExtra(LittleTile tile) {
@@ -73,9 +89,9 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public ItemStack getDrop() {
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
-		stack.stackTagCompound = new NBTTagCompound();
-		saveTile(stack.stackTagCompound);
-		boundingBoxes.get(0).getSize().writeToNBT("size", stack.stackTagCompound);
+		stack.setTagCompound(new NBTTagCompound());
+		saveTile(stack.getTagCompound());
+		boundingBoxes.get(0).getSize().writeToNBT("size", stack.getTagCompound());
 		return stack;
 	}
 
@@ -96,8 +112,8 @@ public class LittleTileBlock extends LittleTile{
 	{
 		super.onPlaced(player, stack);
 		try{
-			block.onBlockPlacedBy(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, player, stack);
-			block.onPostBlockPlaced(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord, meta);
+			block.onBlockPlacedBy(te.getWorld(), te.getPos(), getBlockState(), player, stack);
+			//block.onPostBlockPlaced(te.getWorld(), te.getPos(), getBlockState());
 		}catch(Exception e){
 			
 		}
@@ -105,45 +121,45 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public SoundType getSound() {
-		return block.stepSound;
+		return block.getSoundType();
 	}
 
-	@Override
+	/*@Override
 	public IIcon getIcon(int side) {
 		return block.getIcon(side, meta);
-	}
+	}*/
 	
 	@Override
-	public void randomDisplayTick(World world, int x, int y, int z, Random random)
+	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
 	{
-		block.randomDisplayTick(world, x, y, z, random);
+		block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ) {
-		if(super.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ))
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			return true;
-		return block.onBlockActivated(world, x, y, z, player, side, moveX, moveY, moveZ);
+		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 	
 	@Override
 	public void place()
 	{
 		super.place();
-		block.onBlockAdded(te.getWorldObj(), te.xCoord, te.yCoord, te.zCoord);
+		block.onBlockAdded(te.getWorld(), te.getPos(), getBlockState());
 	}
 	
 	@Override
-	public int getLightValue(IBlockAccess world, int x, int y, int z) {
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		//int light = block.getLightValue(world, x, y, z);
 		//if(light == 0)
-		return block.getLightValue();
+		return block.getLightValue(getBlockState());
 		//return light;
 	}
 	
 	@Override
-	public double getEnchantPowerBonus(World world, int x, int y, int z) {
-		return block.getEnchantPowerBonus(world, x, y, z);
+	public float getEnchantPowerBonus(World world, BlockPos pos) {
+		return (float) block.getEnchantPowerBonus(world, pos);
 	}
 
 	@Override
@@ -155,14 +171,14 @@ public class LittleTileBlock extends LittleTile{
 		return false;
 	}
 
-	@Override
+	/*@Override
 	public boolean canBlockBeThreaded() {
 		//return false;
 		return block.getRenderType() == 0 && !(block instanceof BlockGrass);
-	}
-
+	}*/
+	
 	@Override
-	protected boolean canSawResize(ForgeDirection direction, EntityPlayer player) {
+	protected boolean canSawResize(EnumFacing facing, EntityPlayer player) {
 		return true;
 	}
 	

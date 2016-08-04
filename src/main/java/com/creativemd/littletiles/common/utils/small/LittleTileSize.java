@@ -1,8 +1,7 @@
 package com.creativemd.littletiles.common.utils.small;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraft.util.EnumFacing;
 
 public class LittleTileSize {
 	
@@ -123,7 +122,7 @@ public class LittleTileSize {
 		}
 	}*/
 	
-	public void rotateSize(ForgeDirection direction)
+	public void rotateSize(EnumFacing direction)
 	{
 		switch(direction)
 		{

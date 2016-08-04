@@ -10,8 +10,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.RotationUtils.Axis;
 import com.creativemd.creativecore.gui.GuiControl;
+import com.creativemd.creativecore.gui.GuiRenderHelper;
+import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
@@ -22,6 +23,7 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 
 public class GuiTileViewer extends GuiControl{
 	
@@ -35,8 +37,8 @@ public class GuiTileViewer extends GuiControl{
 	
 	public boolean visibleAxis = false;
 	
-	public Axis normalAxis = null;
-	public Axis axisDirection = Axis.Yaxis;
+	public EnumFacing.Axis normalAxis = null;
+	public EnumFacing.Axis axisDirection = EnumFacing.Axis.Y;
 	public int axisX = 0;
 	public int axisY = 0;
 	public int axisZ = 0;
@@ -75,23 +77,23 @@ public class GuiTileViewer extends GuiControl{
 		
 		switch(axisDirection)
 		{
-		case Xaxis:
+		case X:
 			if(sizeY >= sizeZ)
-				normalAxis = Axis.Zaxis;
+				normalAxis = EnumFacing.Axis.Z;
 			else
-				normalAxis = Axis.Yaxis;
+				normalAxis = EnumFacing.Axis.Y;
 			break;
-		case Yaxis:
+		case Y:
 			if(sizeX >= sizeZ)
-				normalAxis = Axis.Zaxis;
+				normalAxis = EnumFacing.Axis.Z;
 			else
-				normalAxis = Axis.Xaxis;
+				normalAxis = EnumFacing.Axis.X;
 			break;
-		case Zaxis:
+		case Z:
 			if(sizeX >= sizeY)
-				normalAxis = Axis.Yaxis;
+				normalAxis = EnumFacing.Axis.Y;
 			else
-				normalAxis = Axis.Xaxis;
+				normalAxis = EnumFacing.Axis.Z;
 			break;
 		default:
 			break;
@@ -102,30 +104,36 @@ public class GuiTileViewer extends GuiControl{
 	{
 		switch(axisDirection)
 		{
-		case Xaxis:
-			if(normalAxis == Axis.Zaxis)
-				normalAxis = Axis.Yaxis;
+		case X:
+			if(normalAxis == EnumFacing.Axis.Z)
+				normalAxis = EnumFacing.Axis.Y;
 			else
-				normalAxis = Axis.Zaxis;
+				normalAxis = EnumFacing.Axis.Z;
 			break;
-		case Yaxis:
-			if(normalAxis == Axis.Zaxis)
-				normalAxis = Axis.Xaxis;
+		case Y:
+			if(normalAxis == EnumFacing.Axis.Z)
+				normalAxis = EnumFacing.Axis.X;
 			else
-				normalAxis = Axis.Zaxis;
+				normalAxis = EnumFacing.Axis.Z;
 			break;
-		case Zaxis:
-			if(normalAxis == Axis.Yaxis)
-				normalAxis = Axis.Xaxis;
+		case Z:
+			if(normalAxis == EnumFacing.Axis.Y)
+				normalAxis = EnumFacing.Axis.X;
 			else
-				normalAxis = Axis.Yaxis;
+				normalAxis = EnumFacing.Axis.Y;
 			break;
 		default:
 			break;
 		}
 	}
-
+	
 	@Override
+	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	/*@Override
 	public void drawControl(FontRenderer renderer) {
 		Vector4d black = new Vector4d(0, 0, 0, 255);
 		RenderHelper2D.drawGradientRect(0, 0, this.width, this.height, black, black);
@@ -165,14 +173,6 @@ public class GuiTileViewer extends GuiControl{
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
         GL11.glEnable(GL11.GL_BLEND);
         //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        /*if (block.getRenderBlockPass() != 0)
-        {
-            GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-            GL11.glEnable(GL11.GL_BLEND);
-            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        }
-        else
-        {*/
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.5F);
         GL11.glDisable(GL11.GL_BLEND);
         
@@ -192,9 +192,6 @@ public class GuiTileViewer extends GuiControl{
         GL11.glScalef(1.0F, 1.0F, -1.0F);
         GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
         //GL11.glRotatef(210.0F, 1.0F, 0.0F, 0.0F);
-        /*GL11.glRotatef(45.0F, 0.0F, 1.0F, 0.0F);
-        
-        GL11.glRotatef(-90.0F, 0.0F, 1.0F, 0.0F);*/
         GL11.glEnable(GL11.GL_LIGHTING);
         //RenderBlocks.getInstance().useInventoryTint = true;
         //RenderBlocks.getInstance().renderBlockAsItem(block, k, 1.0F);
@@ -255,9 +252,6 @@ public class GuiTileViewer extends GuiControl{
         	cubes.add(cube);
         }
         
-        /*for (int k = 0; k < cubes.size(); k++) {
-        	RotationUtils.applyCubeRotation(cubes.get(k), viewDirection);
-		}*/
         BlockRenderHelper.renderInventoryCubes(RenderHelper3D.renderBlocks, cubes, Block.getBlockFromItem(stack.getItem()), stack.getItemDamage());
         
         //RenderBlocks.getInstance().useInventoryTint = true;
@@ -272,7 +266,7 @@ public class GuiTileViewer extends GuiControl{
 		
 		GL11.glPopMatrix();
 		GL11.glDisable(GL11.GL_SCISSOR_TEST);
-	}
+	}*/
 	
 	@Override
 	public boolean mouseScrolled(int posX, int posY, int scrolled){
@@ -287,21 +281,21 @@ public class GuiTileViewer extends GuiControl{
 	public boolean mousePressed(int posX, int posY, int button)
 	{
 		grabbed = true;
-		lastPosition = Vec3.createVectorHelper(posX, posY, 0);
+		lastPosition = new Vec3d(posX, posY, 0);
 		return true;
 	}
 	
-	public Vec3 lastPosition;
+	public Vec3d lastPosition;
 	
 	@Override
 	public void mouseMove(int posX, int posY, int button){
-		Vector2d mouse = parent.getMousePos();
+		//Vec3d mouse = getParent().getMousePos();
 		if(grabbed)
 		{
-			Vec3 currentPosition = Vec3.createVectorHelper(posX, posY, 0);
+			Vec3d currentPosition = new Vec3d(posX, posY, 0);
 			if(lastPosition != null)
 			{
-				Vec3 move = lastPosition.subtract(currentPosition);
+				Vec3d move = lastPosition.subtract(currentPosition);
 				double percent = 0.3;
 				offsetX += 1/scale*move.xCoord*percent;
 				offsetY += 1/scale*move.yCoord*percent;
@@ -361,18 +355,17 @@ public class GuiTileViewer extends GuiControl{
 	public void updateViewDirection() {
 		switch(axisDirection)
 		{
-		case Xaxis:
-			viewDirection = Axis.Zaxis.getDirection();
+		case X:
+			viewDirection = EnumFacing.SOUTH;
 			break;
-		case Yaxis:
-			viewDirection = Axis.Yaxis.getDirection();
+		case Y:
+			viewDirection = EnumFacing.UP;
 			break;
-		case Zaxis:
-			viewDirection = Axis.Xaxis.getDirection();
+		case Z:
+			viewDirection = EnumFacing.EAST;
 			break;
 		default:
 			break;
 		}
 	}
-
 }

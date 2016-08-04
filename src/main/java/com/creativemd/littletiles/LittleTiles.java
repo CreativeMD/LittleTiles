@@ -59,8 +59,8 @@ public class LittleTiles {
 	
 	public static int maxNewTiles = 512;
 	
-	public static BlockTile blockTile = new BlockTile(Material.ROCK);
-	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTBlocks");
+	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
+	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock");
 	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
@@ -88,8 +88,8 @@ public class LittleTiles {
 		GameRegistry.registerItem(rubberMallet, "rubberMallet");
 		
 		//GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
-		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class, "LTColoredBlock");
-		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class, "BlockLittleTiles");
+		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class);
+		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class);
 		
 		GameRegistry.registerItem(multiTiles, "multiTiles");
 		

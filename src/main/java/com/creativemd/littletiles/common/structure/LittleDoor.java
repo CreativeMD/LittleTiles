@@ -2,33 +2,38 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.gui.SubGui;
-import com.creativemd.creativecore.common.gui.controls.GuiButton;
-import com.creativemd.creativecore.common.gui.event.ControlClickEvent;
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.creativecore.common.utils.RotationUtils.Axis;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
+import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PreviewTile;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentText;
-import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleDoor extends LittleStructure{
 
@@ -42,16 +47,16 @@ public class LittleDoor extends LittleStructure{
 		}else{
 			axisVec = new LittleTileVec("av", nbt);
 		}
-		axis = Axis.getAxis(nbt.getInteger("axis"));
-		normalDirection = ForgeDirection.getOrientation(nbt.getInteger("ndirection"));
+		axis = RotationUtils.getAxisFromIndex(nbt.getInteger("axis"));
+		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
 	}
 
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		//axisPoint.writeToNBT("a", nbt);
 		axisVec.writeToNBT("av", nbt);
-		nbt.setInteger("axis", axis.toInt());
-		nbt.setInteger("ndirection", RotationUtils.getIndex(normalDirection));
+		nbt.setInteger("axis", RotationUtils.getAxisIndex(axis));
+		nbt.setInteger("ndirection", normalDirection.getIndex());
 	}
 
 	@Override
@@ -70,31 +75,45 @@ public class LittleDoor extends LittleStructure{
 			tile.axisX = door.axisVec.x;
 			tile.axisY = door.axisVec.y;
 			tile.axisZ = door.axisVec.z;
-			tile.normalAxis = Axis.getAxis(door.normalDirection);
+			tile.normalAxis = door.normalDirection.getAxis();
 		}
 		tile.visibleAxis = true;
 		tile.updateViewDirection();
 		gui.controls.add(tile);
-		gui.controls.add(new GuiButton("reset view", 105, 30, 70));
+		gui.controls.add(new GuiIDButton("reset view", 105, 30, 0));
 		//gui.controls.add(new GuiButton("y", 170, 50, 20));
-		gui.controls.add(new GuiButton("flip view", 105, 50, 70));
+		gui.controls.add(new GuiIDButton("flip view", 105, 50, 1));
 		
-		gui.controls.add(new GuiButton("swap axis", 105, 10, 70));
-		gui.controls.add(new GuiButton("swap normal", 105, 70, 70));
+		gui.controls.add(new GuiIDButton("swap axis", 105, 10, 2));
+		gui.controls.add(new GuiIDButton("swap normal", 105, 70, 3));
 		//gui.controls.add(new GuiButton("-->", 150, 50, 20));
 		
 		
 		//gui.controls.add(new GuiButton("<-Z", 130, 70, 20));
-		gui.controls.add(new GuiButton("up", "<-", 125, 90, 20).setRotation(90));
-		gui.controls.add(new GuiButton("->", 145, 110, 20));
-		gui.controls.add(new GuiButton("<-", 105, 110, 20));
-		gui.controls.add(new GuiButton("down", "<-", 125, 110, 20).setRotation(-90));
+		gui.controls.add(new GuiButton("up", "<-", 125, 90, 20){
+			@Override
+			public void onClicked(int x, int y, int button)
+			{
+				
+			}
+			
+		}.setRotation(90));
+		gui.controls.add(new GuiIDButton("->", 145, 110, 4));
+		gui.controls.add(new GuiIDButton("<-", 105, 110, 5));
+		gui.controls.add(new GuiButton("down", "<-", 125, 110, 20){
+			@Override
+			public void onClicked(int x, int y, int button)
+			{
+				
+			}
+			
+		}.setRotation(-90));
 		//gui.controls.add(new GuiButton("->", 190, 90, 20));
 		//gui.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20, "NORTH", "SOUTH", "WEST", "EAST"));
 	}
 	
-	public ForgeDirection normalDirection;
-	public Axis axis;
+	public EnumFacing normalDirection;
+	public EnumFacing.Axis axis;
 	public LittleTileVec axisVec;
 	
 	public LittleTileVec getAxisVec()
@@ -106,20 +125,20 @@ public class LittleDoor extends LittleStructure{
 	
 	@CustomEventSubscribe
 	@SideOnly(Side.CLIENT)
-	public void onButtonClicked(ControlClickEvent event)
+	public void onButtonClicked(GuiControlClickEvent event)
 	{
-		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.getControl("tileviewer");
+		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
 		if(event.source.is("swap axis"))
 		{
 			switch (viewer.axisDirection) {
-			case Xaxis:
-				axis = Axis.Yaxis;
+			case X:
+				axis = EnumFacing.Axis.Y;
 				break;
-			case Yaxis:
-				axis = Axis.Zaxis;
+			case Y:
+				axis = EnumFacing.Axis.Z;
 				break;
-			case Zaxis:
-				axis = Axis.Xaxis;
+			case Z:
+				axis = EnumFacing.Axis.X;
 				break;
 			default:
 				break;
@@ -144,21 +163,21 @@ public class LittleDoor extends LittleStructure{
 		}else if(event.source instanceof GuiButton){			
 			if(event.source.is("<-"))
 			{
-				if(viewer.axisDirection == Axis.Xaxis)
+				if(viewer.axisDirection == Axis.X)
 					viewer.axisZ++;
 				else
 					viewer.axisX--;
 			}
 			if(event.source.is("->"))
 			{
-				if(viewer.axisDirection == Axis.Xaxis)
+				if(viewer.axisDirection == Axis.X)
 					viewer.axisZ--;
 				else
 					viewer.axisX++;
 			}
 			if(event.source.is("up"))
 			{
-				if(viewer.axisDirection == Axis.Yaxis)
+				if(viewer.axisDirection == Axis.Y)
 					viewer.axisZ--;
 				else
 					viewer.axisY++;
@@ -166,7 +185,7 @@ public class LittleDoor extends LittleStructure{
 			}
 			if(event.source.is("down"))
 			{
-				if(viewer.axisDirection == Axis.Yaxis)
+				if(viewer.axisDirection == Axis.Y)
 					viewer.axisZ++;
 				else
 					viewer.axisY--;
@@ -195,7 +214,7 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, EnumFacing direction)
 	{
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		box.flipBoxWithCenter(direction, null);
@@ -204,15 +223,15 @@ public class LittleDoor extends LittleStructure{
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, ForgeDirection direction) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, EnumFacing direction) 
 	{
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		box.rotateBox(direction);
 		axisVec = box.getMinVec();
 		//ForgeDirection axisDirection = axis.getDirection();
-		this.axis = Axis.getAxis(RotationUtils.rotateForgeDirection(axis.getDirection(), direction));
+		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacingFromAxis(axis), direction).getAxis();
 		//this.axis = Axis.getAxis(direction.getRotation(axis.getDirection()));
-		this.normalDirection = RotationUtils.rotateForgeDirection(normalDirection, direction);
+		this.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
 		//if(RotationUtils.isNegative(normalDirection))
 			//normalDirection = normalDirection.getOpposite();
 		/*Axis before = axis;
@@ -266,10 +285,10 @@ public class LittleDoor extends LittleStructure{
 		return new LittleTileVec(maxX-minX, maxY-minY, maxZ-minZ);
 	}*/
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, int x, int y, int z, Rotation direction, ArrayList<PreviewTile> defaultpreviews, boolean inverse)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, ArrayList<PreviewTile> defaultpreviews, boolean inverse)
 	{
 		LittleTileVec axisPoint = getAxisVec();
-		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-x*16, axisPoint.y-y*16, axisPoint.z-z*16);
+		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*16, axisPoint.y-pos.getY()*16, axisPoint.z-pos.getZ()*16);
 		
 		/*LittleTileVec missingOffset = new LittleTileVec(0, 0, 0);
 		switch (direction) {
@@ -304,7 +323,7 @@ public class LittleDoor extends LittleStructure{
 			PreviewTile box = defaultpreviews.get(i).copy();
 			
 			//box.box.addOffset(missingOffset);
-			box.box.rotateBoxWithCenter(direction, Vec3.createVectorHelper(1/32D, 1/32D, 1/32D));
+			box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
 			//box.box.rotateBoxWithCenter(direction, Vec3.createVectorHelper(0, 0, 0));
 			//box.box.addOffset(missingInfOffset);
 			//box.box.addOffset(blockInvOffset);
@@ -339,10 +358,10 @@ public class LittleDoor extends LittleStructure{
 		structure.setTiles(new ArrayList<LittleTile>());
 		structure.axis = this.axis;
 		
-		ForgeDirection rotationAxis = this.axis.getDirection();
+		EnumFacing rotationAxis = RotationUtils.getFacingFromAxis(this.axis);
 		if(inverse)
 			rotationAxis = rotationAxis.getOpposite();
-		structure.normalDirection = this.normalDirection.getRotation(rotationAxis);
+		structure.normalDirection = this.normalDirection.rotateAround(rotationAxis);
 		
 		/*Axis directionAxis = Axis.getAxis(this.axis);
 		switch(directionAxis)
@@ -369,11 +388,11 @@ public class LittleDoor extends LittleStructure{
 			break;
 		}*/
 		
-		if(ItemBlockTiles.placeTiles(world, player, previews, structure, x, y, z, null, null))
+		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null))
 		{
 			ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.update();
+				tiles.get(i).te.updateBlock();
 			}
 			tiles.clear();
 			tiles = structure.getTiles();
@@ -386,13 +405,13 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ)
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if(axis != null)
 		{
 			if(!hasLoaded())
 			{
-				player.addChatComponentMessage(new ChatComponentText("Cannot interact with door! Not all tiles are loaded!"));
+				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
 				return true;
 			}
 			ArrayList<PreviewTile> previews = new ArrayList<>();
@@ -419,7 +438,7 @@ public class LittleDoor extends LittleStructure{
 					NBTTagCompound nbt = new NBTTagCompound();
 					tileOfList.saveTile(nbt);
 					LittleTileBox box = tileOfList.boundingBoxes.get(j).copy();
-					box.addOffset(new LittleTileVec(tileOfList.te.xCoord*16, tileOfList.te.yCoord*16, tileOfList.te.zCoord*16));
+					box.addOffset(new LittleTileVec(tileOfList.te.getPos().getX()*16, tileOfList.te.getPos().getY()*16, tileOfList.te.getPos().getZ()*16));
 					box.addOffset(invaxis);
 					//box.addOffset(internalOffset);
 					//box.set(-box.minX, -box.minY, -box.minZ, -box.maxX, -box.maxY, -box.maxZ);
@@ -436,7 +455,7 @@ public class LittleDoor extends LittleStructure{
 			//Calculate rotation
 			Rotation rotation = Rotation.EAST;
 			//Axis directionAxis = Axis.getAxis(axis);
-			double playerRotation = MathHelper.wrapAngleTo180_float(player.rotationYaw);
+			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
 			boolean rotX = playerRotation <= -90 || playerRotation >= 90;
 			boolean rotY = player.rotationPitch > 0;
 			boolean rotZ = playerRotation > 0 && playerRotation <= 180;
@@ -444,7 +463,7 @@ public class LittleDoor extends LittleStructure{
 			
 			switch(axis)
 			{
-			case Xaxis:
+			case X:
 				//System.out.println(player.rotationPitch);
 				System.out.println(normalDirection);
 				rotation = Rotation.UPX;
@@ -471,7 +490,7 @@ public class LittleDoor extends LittleStructure{
 				}
 				inverse = rotation == Rotation.UPX;
 				break;
-			case Yaxis:
+			case Y:
 				rotation = Rotation.SOUTH;
 				switch(normalDirection)
 				{
@@ -496,7 +515,7 @@ public class LittleDoor extends LittleStructure{
 				}
 				inverse = rotation == Rotation.SOUTH;
 				break;
-			case Zaxis:
+			case Z:
 				//System.out.println(player.rotationPitch);
 				//System.out.println(normalDirection);
 				rotation = Rotation.UP;				
@@ -535,9 +554,9 @@ public class LittleDoor extends LittleStructure{
 				tiles.get(i).te.removeTile(tiles.get(i));
 			}
 			
-			if(tryToPlacePreviews(world, player, mainX, mainY, mainZ, rotation, previews, !inverse))
+			if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, previews, !inverse))
 				return true;
-			else if(tryToPlacePreviews(world, player, mainX, mainY, mainZ, rotation.getOpposite(), previews, inverse))
+			else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), previews, inverse))
 				return true;
 			
 			for (int i = 0; i < tiles.size(); i++) {
@@ -554,14 +573,14 @@ public class LittleDoor extends LittleStructure{
 	{
 		switch(axis)
 		{
-		case Xaxis:
-			normalDirection = Axis.Zaxis.getDirection();
+		case X:
+			normalDirection = RotationUtils.getFacingFromAxis(Axis.Z);
 			break;
-		case Yaxis:
-			normalDirection = Axis.Xaxis.getDirection();
+		case Y:
+			normalDirection = RotationUtils.getFacingFromAxis(Axis.X);
 			break;
-		case Zaxis:
-			normalDirection = Axis.Yaxis.getDirection();
+		case Z:
+			normalDirection = RotationUtils.getFacingFromAxis(Axis.Y);
 			break;
 		default:
 			break;
@@ -572,10 +591,10 @@ public class LittleDoor extends LittleStructure{
 	@SideOnly(Side.CLIENT)
 	public LittleStructure parseStructure(SubGui gui) {
 		LittleDoor door = new LittleDoor();
-		GuiTileViewer viewer = (GuiTileViewer) gui.getControl("tileviewer");
+		GuiTileViewer viewer = (GuiTileViewer) gui.get("tileviewer");
 		door.axisVec = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
 		door.axis = viewer.axisDirection;
-		door.normalDirection = viewer.normalAxis.getDirection();
+		door.normalDirection = RotationUtils.getFacingFromAxis(viewer.normalAxis);
 		//door.updateNormalDirection();
 		return door; 
 	}

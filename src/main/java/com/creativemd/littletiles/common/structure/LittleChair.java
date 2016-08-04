@@ -2,21 +2,26 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.entity.EntitySit;
-import com.creativemd.creativecore.common.gui.SubGui;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure{
 
@@ -48,24 +53,24 @@ public class LittleChair extends LittleStructure{
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		HashMapList<ChunkCoordinates, LittleTile> coords = getTilesSortedPerBlock();
+		HashMapList<BlockPos, LittleTile> coords = getTilesSortedPerBlock();
 		if(coords.sizeOfValues() == 0)
 			return null;
-		for (int i = 0; i < coords.size(); i++) {
-			ChunkCoordinates coord = coords.getKey(i);
-			for (int j = 0; j < coords.getValues(i).size(); j++) {
-				for (int h = 0; h < coords.getValues(i).get(j).boundingBoxes.size(); h++) {
-					LittleTileBox box = coords.getValues(i).get(j).boundingBoxes.get(h);
-					minX = Math.min(minX, coord.posX*16+box.minX);
-					minY = Math.min(minY, coord.posY*16+box.minY);
-					minZ = Math.min(minZ, coord.posZ*16+box.minZ);
+		for (BlockPos coord : coords.getKeys()) {
+			ArrayList<LittleTile> values = coords.getValues(coord);
+			for (int j = 0; j < values.size(); j++) {
+				for (int h = 0; h < values.get(j).boundingBoxes.size(); h++) {
+					LittleTileBox box = values.get(j).boundingBoxes.get(h);
+					minX = Math.min(minX, coord.getX()*16+box.minX);
+					minY = Math.min(minY, coord.getY()*16+box.minY);
+					minZ = Math.min(minZ, coord.getZ()*16+box.minZ);
 					
-					maxX = Math.max(maxX, coord.posX*16+box.maxX);
-					maxY = Math.max(maxY, coord.posY*16+box.maxY);
-					maxZ = Math.max(maxZ, coord.posZ*16+box.maxZ);
+					maxX = Math.max(maxX, coord.getX()*16+box.maxX);
+					maxY = Math.max(maxY, coord.getY()*16+box.maxY);
+					maxZ = Math.max(maxZ, coord.getZ()*16+box.maxZ);
 				}
-				minYPos = Math.min(minYPos, coord.posY);
-				maxYPos = Math.max(maxYPos, coord.posY);
+				minYPos = Math.min(minYPos, coord.getY());
+				maxYPos = Math.max(maxYPos, coord.getY());
 			}
 			/*
 			minX = Math.min(minX, coord.posX);
@@ -89,7 +94,7 @@ public class LittleChair extends LittleStructure{
 		LittleTileVec position = new LittleTileVec((minX+maxX)/2, minYPos*16, (minZ+maxZ)/2);
 		//position.y = ;
 		for (int y = minYPos; y <= maxYPos; y++) {
-			ArrayList<LittleTile> tilesInCenter = coords.getValues(new ChunkCoordinates(centerX, y, centerZ));
+			ArrayList<LittleTile> tilesInCenter = coords.getValues(new BlockPos(centerX, y, centerZ));
 			if(tilesInCenter != null)
 			{
 				LittleTileBox box = new LittleTileBox(centerTileX, LittleTile.minPos, centerTileZ, centerTileX+1, LittleTile.maxPos, centerTileZ+1);
@@ -113,7 +118,7 @@ public class LittleChair extends LittleStructure{
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, int x, int y, int z, EntityPlayer player, int side, float moveX, float moveY, float moveZ)
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if(!world.isRemote)
 		{
@@ -121,7 +126,7 @@ public class LittleChair extends LittleStructure{
 			if(vec != null)
 			{
 				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY(), vec.getPosZ());
-				player.mountEntity(sit);
+				player.startRiding(sit);
 				world.spawnEntityInWorld(sit);
 			}
 			

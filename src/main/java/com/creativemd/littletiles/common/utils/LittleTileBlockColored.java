@@ -2,30 +2,19 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
-import org.lwjgl.util.Color;
-
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.littletiles.LittleTiles;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockGrass;
-import net.minecraft.block.BlockLeaves;
-import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.ColorizerFoliage;
-import net.minecraft.world.IBlockAccess;
+import net.minecraft.util.math.Vec3i;
 
 public class LittleTileBlockColored extends LittleTileBlock{
 	
 	public int color;
 	
-	public LittleTileBlockColored(Block block, int meta, Vec3 color)
+	public LittleTileBlockColored(Block block, int meta, Vec3i color)
 	{
 		super(block, meta);
 		this.color = ColorUtils.RGBToInt(color);

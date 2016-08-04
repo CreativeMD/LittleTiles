@@ -11,18 +11,19 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class BoxShiftHandler extends ShiftHandler{
 	
 	public ArrayList<LittleTileBox> boxes = new ArrayList<LittleTileBox>();
 	
-	public void init(World world, int x, int y, int z)
+	public void init(World world, BlockPos pos)
 	{
-		boxes = getBoxes(world, x, y, z);
+		boxes = getBoxes(world, pos);
 	}
 	
-	public abstract ArrayList<LittleTileBox> getBoxes(World world, int x, int y, int z);
+	public abstract ArrayList<LittleTileBox> getBoxes(World world, BlockPos pos);
 	
 	@Override
 	public void handleRendering(Minecraft mc, double x, double y, double z) {
@@ -51,7 +52,7 @@ public abstract class BoxShiftHandler extends ShiftHandler{
 	}
 
 	@Override
-	protected LittleTileBox getNewPos(World world, int x, int y, int z, LittleTileBox suggested) {
+	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleTileBox suggested) {
 		/*double distance = 2;
 		LittleTileBox nearestBox = null;
 		for (int i = 0; i < boxes.size(); i++)
