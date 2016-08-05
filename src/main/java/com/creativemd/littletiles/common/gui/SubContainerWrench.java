@@ -30,8 +30,8 @@ public class SubContainerWrench extends SubContainer{
 
 	@Override
 	public void createControls() {
-		addSlotToContainer(new Slot(basic, 0, 10, 5));
-		addSlotToContainer(new Slot(basic, 1, 40, 5));
+		addSlotToContainer(new Slot(basic, 0, 5, 5));
+		addSlotToContainer(new Slot(basic, 1, 35, 5));
 		
 		addPlayerSlotsToContainer(player);
 	}

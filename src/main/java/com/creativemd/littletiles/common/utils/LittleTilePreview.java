@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -59,9 +60,9 @@ public final class LittleTilePreview {
 		return tiles;
 	}*/
 	
-	public CubeObject getCubeBlock()
+	public RenderCubeObject getCubeBlock()
 	{
-		CubeObject cube = box.getCube();
+		RenderCubeObject cube = new RenderCubeObject(box.getCube(), null);
 		if(nbt.hasKey("block"))
 		{
 			cube.block = Block.getBlockFromName(nbt.getString("block"));

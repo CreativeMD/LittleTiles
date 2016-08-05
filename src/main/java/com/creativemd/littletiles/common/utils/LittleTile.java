@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -191,6 +192,10 @@ public abstract class LittleTile {
 			structure.getTiles().remove(tile);
 		}
 	}
+	
+	public abstract boolean doesProvideSolidFace(EnumFacing facing);
+	
+	public abstract boolean canBeRenderCombined(LittleTile tile);
 	
 	//================Packets================
 	
@@ -436,7 +441,7 @@ public abstract class LittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract ArrayList<CubeObject> getRenderingCubes();
+	public abstract ArrayList<RenderCubeObject> getRenderingCubes();
 	
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {}

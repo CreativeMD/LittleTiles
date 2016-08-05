@@ -43,7 +43,7 @@ public class SubGuiTileContainer extends SubGui{
 	public void createControls() {
 		ArrayList<String> lines = new ArrayList<String>();
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		if(stack.getTagCompound() == null)
+		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		ArrayList<BlockEntry> map = ItemTileContainer.loadMap(stack);
 		for (BlockEntry entry : map) {
@@ -53,8 +53,8 @@ public class SubGuiTileContainer extends SubGui{
 				lines.add(getStringOfValue(entry.value));
 			}
 		}
-		controls.add(new GuiItemListBox("items", 5, 5, 140, 75, stacks, lines));
-		controls.add(new GuiButton("drop", 145, 60, 30, 20){
+		controls.add(new GuiItemListBox("items", 5, 5, 130, 65, stacks, lines));
+		controls.add(new GuiButton("drop", 145, 60){
 
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -74,7 +74,7 @@ public class SubGuiTileContainer extends SubGui{
 	}
 	
 	@Override
-	public void readFromNBT(NBTTagCompound nbt)
+	public void receiveContainerPacket(NBTTagCompound nbt)
 	{
 		if(nbt.getBoolean("needUpdate"))
 		{

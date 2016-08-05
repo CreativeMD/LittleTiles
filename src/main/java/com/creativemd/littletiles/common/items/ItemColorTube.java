@@ -90,6 +90,8 @@ public class ItemColorTube extends Item implements IGuiCreator{
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
+		if(hand == EnumHand.OFF_HAND)
+			return new ActionResult(EnumActionResult.PASS, itemStackIn); 
 		if(!worldIn.isRemote)
 			GuiHandler.openGuiItem(playerIn, worldIn);
         return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);

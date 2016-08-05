@@ -65,7 +65,7 @@ public class LittleDoor extends LittleStructure{
 		LittleDoor door = null;
 		if(structure instanceof LittleDoor)
 			door = (LittleDoor) structure;
-		GuiTileViewer tile = new GuiTileViewer("tileviewer", 5, 30, 100, 100, ((SubGuiStructure) gui).stack);
+		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
 		if(door != null)
 		{
 			tile.axisDirection = door.axis;
@@ -80,17 +80,17 @@ public class LittleDoor extends LittleStructure{
 		tile.visibleAxis = true;
 		tile.updateViewDirection();
 		gui.controls.add(tile);
-		gui.controls.add(new GuiIDButton("reset view", 105, 30, 0));
+		gui.controls.add(new GuiIDButton("reset view", 109, 30, 0));
 		//gui.controls.add(new GuiButton("y", 170, 50, 20));
-		gui.controls.add(new GuiIDButton("flip view", 105, 50, 1));
+		gui.controls.add(new GuiIDButton("flip view", 109, 50, 1));
 		
-		gui.controls.add(new GuiIDButton("swap axis", 105, 10, 2));
-		gui.controls.add(new GuiIDButton("swap normal", 105, 70, 3));
+		gui.controls.add(new GuiIDButton("swap axis", 109, 10, 2));
+		gui.controls.add(new GuiIDButton("swap normal", 109, 70, 3));
 		//gui.controls.add(new GuiButton("-->", 150, 50, 20));
 		
 		
 		//gui.controls.add(new GuiButton("<-Z", 130, 70, 20));
-		gui.controls.add(new GuiButton("up", "<-", 125, 90, 20){
+		gui.controls.add(new GuiButton("up", "<-", 125, 91, 14){
 			@Override
 			public void onClicked(int x, int y, int button)
 			{
@@ -98,9 +98,9 @@ public class LittleDoor extends LittleStructure{
 			}
 			
 		}.setRotation(90));
-		gui.controls.add(new GuiIDButton("->", 145, 110, 4));
-		gui.controls.add(new GuiIDButton("<-", 105, 110, 5));
-		gui.controls.add(new GuiButton("down", "<-", 125, 110, 20){
+		gui.controls.add(new GuiIDButton("->", 146, 112, 4));
+		gui.controls.add(new GuiIDButton("<-", 107, 112, 5));
+		gui.controls.add(new GuiButton("down", "<-", 125, 112, 14){
 			@Override
 			public void onClicked(int x, int y, int button)
 			{

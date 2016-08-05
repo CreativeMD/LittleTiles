@@ -2,34 +2,38 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
 
-import javax.vecmath.Vector2d;
-import javax.vecmath.Vector4d;
-
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.gui.GuiControl;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.client.style.Style;
-import com.creativemd.littletiles.client.render.ITilesRenderer;
+import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 
-public class GuiTileViewer extends GuiControl{
+public class GuiTileViewer extends GuiParent{
 	
 	public ItemStack stack;
 	
-	public float scale = 1;
+	public float scale = 5;
 	public float offsetX = 0;
 	public float offsetY = 0;
 	
@@ -48,12 +52,13 @@ public class GuiTileViewer extends GuiControl{
 	public GuiTileViewer(String name, int x, int y, int width, int height, ItemStack stack) {
 		super(name, x, y, width, height);
 		this.stack = stack;
+		this.marginWidth = 0;
 		updateNormalAxis();
 	}
 	
 	public void updateNormalAxis()
 	{
-		ArrayList<CubeObject> cubes = ((ITilesRenderer)stack.getItem()).getRenderingCubes(stack);
+		ArrayList<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double minZ = Integer.MAX_VALUE;
@@ -129,93 +134,71 @@ public class GuiTileViewer extends GuiControl{
 	
 	@Override
 	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
-		// TODO Auto-generated method stub
 		
-	}
-
-	/*@Override
-	public void drawControl(FontRenderer renderer) {
-		Vector4d black = new Vector4d(0, 0, 0, 255);
-		RenderHelper2D.drawGradientRect(0, 0, this.width, this.height, black, black);
-		
-		Vector4d color = new Vector4d(255, 255, 255, 255); //new Vector4d(140, 140, 140, 255);
-		RenderHelper2D.drawGradientRect(1, 1, this.width-1, this.height-1, color, color);
-		
-		ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-		int i = scaledresolution.getScaledWidth();
-        int j = scaledresolution.getScaledHeight();
-        int movex = i/2-parent.width/2+(posX)+1;
-        int movey = j/2-parent.height/2+(parent.height-(height+posY))+1;
-        if(parent instanceof SubGuiControl)
-        {
-        	movey = j/2-((SubGuiControl) parent).parent.parent.height/2+(((SubGuiControl) parent).parent.parent.height-(height+posY))+1;
-	        //Vector2d offset = ((SubGuiControl) parent).parent.getCenterOffset();
-	       // movex -= offset.x;
-	        //movey += offset.y;
-        }
-        int scale = scaledresolution.getScaleFactor();
-        movex *= scale;
-        movey *= scale;
-		
-        GL11.glEnable(GL11.GL_SCISSOR_TEST);
-		GL11.glScissor(movex,movey,(this.width-2) * scale,(this.height-2) * scale);
-		GL11.glPushMatrix();
+		GlStateManager.pushMatrix();
 		
 		//Vec3 offset = Vec3.createVectorHelper(p_72443_0_, p_72443_2_, p_72443_4_);
-		GL11.glTranslated(this.width/2-offsetX, this.height/2-offsetY, 0);
+		GL11.glTranslated(this.width/2+offsetX, this.height/2+offsetY, 0);
 		GL11.glScaled(4, 4, 4);
 		GL11.glScaled(this.scale, this.scale, this.scale);
-		GL11.glTranslated(offsetX*2, offsetY*2, 0);
+		GL11.glTranslated(-offsetX*2, -offsetY*2, 0);
 		
-		mc.getTextureManager().bindTexture(TextureMap.locationBlocksTexture);
+		/*mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
         //Block block = Block.getBlockFromItem(stack.getItem());
         GL11.glEnable(GL11.GL_ALPHA_TEST);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-        GL11.glEnable(GL11.GL_BLEND);
+        GlStateManager.enableBlend();
         //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
         GL11.glAlphaFunc(GL11.GL_GREATER, 0.5F);
-        GL11.glDisable(GL11.GL_BLEND);
-        
+        GlStateManager.disableBlend();*/
+        GlStateManager.enableBlend();
+
+        RenderHelper.enableGUIStandardItemLighting();
         //}
         
-        if(viewDirection == ForgeDirection.UP || viewDirection == ForgeDirection.DOWN)
+        if(viewDirection == EnumFacing.UP || viewDirection == EnumFacing.DOWN)
         	GL11.glRotated(-90, 1, 0, 0);
-        else if(viewDirection == ForgeDirection.DOWN)
+        else if(viewDirection == EnumFacing.DOWN)
         	GL11.glRotated(90, 1, 0, 0);
         else
         	RenderHelper3D.applyDirection(viewDirection);
-            
-        GL11.glPushMatrix();
+        
+        
+       /* GL11.glPushMatrix();
         GL11.glTranslatef((float)(- 2), (float)(+ 3), -3.0F);
         GL11.glScalef(10.0F, 10.0F, 10.0F);
         GL11.glTranslatef(1.0F, 0.5F, 1.0F);
         GL11.glScalef(1.0F, 1.0F, -1.0F);
         GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
         //GL11.glRotatef(210.0F, 1.0F, 0.0F, 0.0F);
-        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glEnable(GL11.GL_LIGHTING);*/
+        GlStateManager.enableLighting();
         //RenderBlocks.getInstance().useInventoryTint = true;
         //RenderBlocks.getInstance().renderBlockAsItem(block, k, 1.0F);
-        ArrayList<CubeObject> cubes = ((ITilesRenderer)stack.getItem()).getRenderingCubes(stack);
+        ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+        stack.setTagCompound(this.stack.getTagCompound().copy());
+        
+        //ArrayList<CubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
         
         if(visibleAxis)
         {
-        	double min = -10*1/scale;
-        	double max = -min;
+        	float min = -100*1/scale;
+        	float max = -min;
         	CubeObject cube = new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube();
-        	cube.block = Blocks.wool;
-        	cube.meta = 0;
+        	//cube.block = Blocks.WOOL;
+        	//cube.meta = 0;
         	switch (normalAxis) {
-        	case Xaxis:
+        	case X:
 				//cube.minZ = min;
 				//cube.maxZ = max;
 				cube.minX = min;
 				cube.maxX = max;
 				break;
-        	case Yaxis:
+        	case Y:
 				cube.minY = min;
 				cube.maxY = max;
 				break;
-        	case Zaxis:
+        	case Z:
         		//cube.minX = min;
 				//cube.maxX = max;
         		cube.minZ = min;
@@ -224,23 +207,31 @@ public class GuiTileViewer extends GuiControl{
 			default:
 				break;
 			}
-        	cubes.add(cube);
+        	//cubes.add(cube);
+        	LittleTileBlock tile = new LittleTileBlock(Blocks.WOOL, 0);
+        	int tiles = stack.getTagCompound().getInteger("tiles");
+        	stack.getTagCompound().setInteger("tiles", tiles+1);
+        	NBTTagCompound nbt = new NBTTagCompound();
+        	new LittleTileBox(cube).writeToNBT("bBox", nbt);
+			tile.saveTile(nbt);
+			stack.getTagCompound().setTag("tile" + tiles, nbt);
         	cube = new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube();
-        	cube.block = Blocks.wool;
-        	cube.meta = 5;
+        	//cube.block = Blocks.WOOL;
+        	//cube.meta = 5;
         	
+			
         	switch (axisDirection) {
-        	case Xaxis:
+        	case X:
 				//cube.minZ = min;
 				//cube.maxZ = max;
 				cube.minX = min;
 				cube.maxX = max;
 				break;
-        	case Yaxis:
+        	case Y:
 				cube.minY = min;
 				cube.maxY = max;
 				break;
-			case Zaxis:
+			case Z:
 				//cube.minX = min;
 				//cube.maxX = max;
 				cube.minZ = min;
@@ -249,24 +240,24 @@ public class GuiTileViewer extends GuiControl{
 			default:
 				break;
 			}
-        	cubes.add(cube);
+        	tile = new LittleTileBlock(Blocks.WOOL, 5);
+        	tiles = stack.getTagCompound().getInteger("tiles");
+        	stack.getTagCompound().setInteger("tiles", tiles+1);
+        	nbt = new NBTTagCompound();
+        	new LittleTileBox(cube).writeToNBT("bBox", nbt);
+			tile.saveTile(nbt);
+			stack.getTagCompound().setTag("tile" + tiles, nbt);
         }
         
-        BlockRenderHelper.renderInventoryCubes(RenderHelper3D.renderBlocks, cubes, Block.getBlockFromItem(stack.getItem()), stack.getItemDamage());
         
-        //RenderBlocks.getInstance().useInventoryTint = true;
-        GL11.glDisable(GL11.GL_LIGHTING);
-        //if (block.getRenderBlockPass() == 0)
-       // {
-            GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-        //}
         
-        GL11.glPopMatrix();
-		//RenderHelper2D.renderItem(stack, 0, 0);
-		
-		GL11.glPopMatrix();
-		GL11.glDisable(GL11.GL_SCISSOR_TEST);
-	}*/
+        IBakedModel model = mc.getRenderItem().getItemModelMesher().getItemModel(stack);
+        mc.getRenderItem().renderItem(stack, TransformType.NONE);
+        
+        GlStateManager.disableBlend();
+        GlStateManager.disableLighting();
+        GlStateManager.popMatrix();
+	}
 	
 	@Override
 	public boolean mouseScrolled(int posX, int posY, int scrolled){

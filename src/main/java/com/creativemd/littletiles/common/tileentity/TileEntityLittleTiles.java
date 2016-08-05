@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.common.tileentity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -14,12 +16,15 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
@@ -48,6 +53,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public TileList<LittleTile> getTiles()
 	{
 		return tiles;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> cachedQuads;
+	
+	@SideOnly(Side.CLIENT)
+	public HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> getCachedQuads()
+	{
+		if(cachedQuads == null)
+			cachedQuads = new HashMap<>();
+		return cachedQuads;
 	}
 	
 	/*@SideOnly(Side.CLIENT)
@@ -103,21 +119,31 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		{
 			updateBlock();
 			updateNeighbor();
+			worldObj.checkLight(getPos());
 		}
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//updateCustomRenderer();
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateCustomRenderer();
 		
 	}
 	
-	/*@SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)
 	public void updateCustomRenderer()
 	{
-		customRenderingTiles.clear();;
-		for (int i = 0; i < tiles.size(); i++) {
-			if(tiles.get(i).needCustomRendering())
-				customRenderingTiles.add(tiles.get(i));
+		getCachedQuads().clear();
+	}
+	
+	public boolean isBoxFilled(LittleTileBox box)
+	{
+		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
+			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
+				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
+					if(isSpaceForLittleTile(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1)))
+						return false;
+				}
+			}
 		}
-	}*/
+		return true;
+	}
 	
 	public void updateNeighbor()
 	{
@@ -167,6 +193,32 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	/**Used for**/
 	public LittleTile loadedTile = null;
 	
+	public LittleTile getTileFromPosition(LittleTileBox box)
+	{
+		for (int i = 0; i < tiles.size(); i++) {
+			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
+				if(box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+					return tiles.get(i);
+			}
+		}
+		return null;
+	}
+	
+	/**Used for rendering*/
+	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileBox box, LittleTile rendered)
+	{
+		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
+			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
+				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
+					LittleTile tile = getTileFromPosition(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
+					if((tile == null) || !tile.doesProvideSolidFace(facing) && !tile.canBeRenderCombined(rendered))
+						return true;
+				}
+			}
+		}
+		return false;
+	}
+	
 	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
 	public boolean isSpaceForLittleTile(CubeObject cube)
 	{
@@ -194,7 +246,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box)
 	{
-		return isSpaceForLittleTile(box.getBox());
+		for (int i = 0; i < tiles.size(); i++) {
+			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
+				if(box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+					return false;
+			}
+			
+		}
+		return true;
 	}
 	
 	@Override

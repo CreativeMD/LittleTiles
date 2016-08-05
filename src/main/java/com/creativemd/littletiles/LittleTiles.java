@@ -112,6 +112,11 @@ public class LittleTiles {
 		LittleStructure.initStructures();
 		
 		//Recipes
+		GameRegistry.addRecipe(new ItemStack(recipe, 5),  new Object[]
+				{
+				"XAX", "AXA", "XAX", 'X', Items.PAPER
+				});
+		
 		GameRegistry.addRecipe(new ItemStack(hammer),  new Object[]
 				{
 				"XXX", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)

@@ -1,20 +1,16 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
@@ -38,9 +34,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -58,7 +52,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered, ITilesRenderer{
+public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered{
 
 	public ItemBlockTiles(Block block, ResourceLocation location) {
 		super(block);
@@ -305,7 +299,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 									soundsToBePlayed.add(LT.getSound());
 								if(structure != null)
 								{
-									if(pos == null)
+									if(littlePos == null)
 									{
 										structure.mainTile = LT;
 										LT.isMainBlock = true;
@@ -395,31 +389,21 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		LittleTilePreview.rotatePreview(stack.getTagCompound(), direction);
 	}
 	
-	public static ArrayList<CubeObject> getItemRenderingCubes(ItemStack stack) {
-		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
+	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
+		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
 		Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
 		int meta = stack.getTagCompound().getInteger("meta");
 		LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
 		if(!(block instanceof BlockAir))
 		{
-			CubeObject cube = new LittleTileBox(new LittleTileVec(8, 8, 8), size).getCube();
-			cube.block = block;
-			cube.meta = meta;
+			RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(8, 8, 8), size).getCube(), block, meta);
+			//cube.block = block;
+			//cube.meta = meta;
 			if(stack.getTagCompound().hasKey("color"))
 				cube.color = stack.getTagCompound().getInteger("color");
 			cubes.add(cube);
 		}
 		return cubes;
-	}
-	
-	@Override
-	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
-		return getItemRenderingCubes(stack);
-	}
-
-	@Override
-	public boolean hasBackground(ItemStack stack) {
-		return false;
 	}
 
 	@Override
@@ -433,9 +417,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	}
 
 	@Override
-	public ArrayList<CubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if(stack != null)
-			return getRenderingCubes(stack);
+			return getItemRenderingCubes(stack);
 		return new ArrayList<>();
 	}
 

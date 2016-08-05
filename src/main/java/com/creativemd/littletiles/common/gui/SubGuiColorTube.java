@@ -19,16 +19,17 @@ public class SubGuiColorTube extends SubGui{
 	public ItemStack stack;
 	
 	public SubGuiColorTube(ItemStack stack) {
+		super(150, 43);
 		this.stack = stack;
 	}
 	
 	@Override
 	public void createControls() {
 		Vec3i color = ColorUtils.IntToRGB(ItemColorTube.getColor(stack));
-		controls.add(new GuiSteppedSlider("colorX", 5, 75, 100, 10, (int)color.getX(), 0, 255));
-		controls.add(new GuiSteppedSlider("colorY", 5, 85, 100, 10, (int)color.getY(), 0, 255));
-		controls.add(new GuiSteppedSlider("colorZ", 5, 95, 100, 10, (int)color.getZ(), 0, 255));
-		controls.add(new GuiColorPlate("plate", 120, 80, 20, 20, color));
+		controls.add(new GuiSteppedSlider("colorX", 5, 5, 100, 5, (int)color.getX(), 0, 255));
+		controls.add(new GuiSteppedSlider("colorY", 5, 15, 100, 5, (int)color.getY(), 0, 255));
+		controls.add(new GuiSteppedSlider("colorZ", 5, 25, 100, 5, (int)color.getZ(), 0, 255));
+		controls.add(new GuiColorPlate("plate", 118, 7, 20, 20, color));
 	}
 	
 	@CustomEventSubscribe

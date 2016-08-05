@@ -33,24 +33,24 @@ public class SubGuiChisel extends SubGui {
 			stack.setTagCompound(new NBTTagCompound());
 		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
-		controls.add(new GuiInvSelector("filter", 40, 5, 140, container.player, true));
-		controls.add(new GuiTextfield("search", "", 40, 27, 140, 20));
+		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, true));
+		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 50, true));
 		
-		controls.add(new GuiCheckBox("replace", "Replace with", 5, 73, false));
+		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
-		controls.add(new GuiInvSelector("replacement", 40, 87, 140, container.player, true));
-		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 20));
+		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, true));
+		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
 		
 		Vec3i color = new Vec3i(255, 255, 255);
-		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 150, false));
+		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
 		
-		controls.add(new GuiSteppedSlider("colorX", 5, 165, 100, 10, 0, 255, (int)color.getX()));
-		controls.add(new GuiSteppedSlider("colorY", 5, 175, 100, 10, 0, 255, (int)color.getY()));
-		controls.add(new GuiSteppedSlider("colorZ", 5, 185, 100, 10, 0, 255, (int)color.getZ()));
-		controls.add(new GuiColorPlate("plate", 120, 170, 20, 20, color));
+		controls.add(new GuiSteppedSlider("colorX", 5, 160, 100, 5, (int)color.getX(), 0, 255));
+		controls.add(new GuiSteppedSlider("colorY", 5, 170, 100, 5, (int)color.getY(), 0, 255));
+		controls.add(new GuiSteppedSlider("colorZ", 5, 180, 100, 5, (int)color.getZ(), 0, 255));
+		controls.add(new GuiColorPlate("plate", 120, 163, 20, 20, color));
 		
 		controls.add(new GuiButton("run", "Do it!", 150, 170, 40){
 			

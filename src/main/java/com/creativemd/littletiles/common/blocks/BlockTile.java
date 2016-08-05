@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.common.blocks;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
@@ -11,6 +13,7 @@ import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.block.TileEntityState;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
@@ -25,14 +28,18 @@ import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
+import net.minecraft.block.BlockBed.EnumPartType;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.particle.ParticleDigging;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -41,6 +48,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -62,20 +70,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 	
 	@SideOnly(Side.CLIENT)
 	public static Minecraft mc;
-	
-	/*@Override
-	@SideOnly(Side.CLIENT)
-    public int getRenderBlockPass()
-    {
-        return 1;
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean canRenderInPass(int pass)
-    {
-        return pass == getRenderBlockPass();
-    }*/
 	
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
@@ -118,27 +112,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
     {
         return false;
     }
-	
-	/*@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
-    {
-		CubeObject cube = new CubeObject(0, 0, 0, 0.05F, 1, 1);
-		EnumFacing direction = blockState.getValue(FACING);		
-        return CubeObject.rotateCube(cube, direction).getAxis(); //.offset(pos);
-    }
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-    {
-		TileEntity te = source.getTileEntity(pos);
-		if(te instanceof TileEntityPicFrame)
-			return ((TileEntityPicFrame) te).getBoundingBox();
-		
-		CubeObject cube = new CubeObject(0, 0, 0, 0.05F, 1, 1);
-		EnumFacing direction = state.getValue(FACING);		
-        return CubeObject.rotateCube(cube, direction).getAxis();//.offset(pos);
-    }*/
 	
 	@Override
 	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, Entity player)
@@ -194,11 +167,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 							
 						}
                 	}
-                    /*block = world.getBlock(x2, y2, z2);
-                    if (block != null && block.isLadder(world, x2, y2, z2, entity))
-                    {
-                        return true;
-                    }*/
                 }
             }
         }
@@ -247,8 +215,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
 					AxisAlignedBB box = tile.boundingBoxes.get(i).getBox();
 					addCollisionBoxToList(pos, entityBox, list, box);
-					//if(entityBox.intersectsWith(box))
-						//list.add(box);
 				}
 				
 			}
@@ -324,24 +290,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
     
 	@Override
     @SideOnly(Side.CLIENT)
-    public void getSubBlocks(Item item, CreativeTabs tab, List items)
-    {
-		/*ItemStack stack = new ItemStack(LittleTiles.blockTile);
-		LittleTile tile = new LittleTile(Blocks.stone, 0, new LittleTileVec(1, 1, 1));
-		for (byte x = 1; x <= 16; x++)
-			for (byte y = 1; y <= 16; y++)
-				for (byte z = 1; z <= 16; z++)
-				{
-					tile.size = new LittleTileVec(x, y, z);
-					ItemStack newStack = stack.copy();
-					newStack.stackTagCompound = new NBTTagCompound();
-					tile.save(newStack.stackTagCompound);
-					items.add(newStack);
-				}*/
-    }
-	
-    //TODO Add this once it's important
-	//public void fillWithRain(World p_149639_1_, int p_149639_2_, int p_149639_3_, int p_149639_4_) {}
+    public void getSubBlocks(Item item, CreativeTabs tab, List items) {}
     
 	public boolean first = true;
 	
@@ -372,8 +321,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 	@Override
     public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
     {
-    	//TODO Add before a prerelease
-    	 return false;
+		TileEntity te = world.getTileEntity(pos);
+		if(te instanceof TileEntityLittleTiles)
+		{
+			LittleTileBox box = new LittleTileBox(0, 0, 0, 1, 16, 16);
+			box.rotateBox(side.getOpposite());
+			return ((TileEntityLittleTiles) te).isBoxFilled(box);
+		}
+		return false;
     }
 	
 	@Override
@@ -437,16 +392,56 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
     	return null;
     }
     
-    /*@SideOnly(Side.CLIENT)
-    public IIcon overrideIcon;
-    
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
+    public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager)
     {
     	try{ //Why try? because the loaded tile can change while setting this icon
-	    	if(loadTileEntity(worldObj, target.blockX, target.blockY, target.blockZ) && tempEntity.updateLoadedTile(mc.thePlayer))
-	    		overrideIcon = tempEntity.loadedTile.getIcon(target.sideHit);
+	    	if(loadTileEntity(worldObj, target.getBlockPos()) && tempEntity.updateLoadedTile(mc.thePlayer) && tempEntity.loadedTile instanceof LittleTileBlock)
+	    	{
+	    		IBlockState state = ((LittleTileBlock)tempEntity.loadedTile).getBlockState();
+	    		BlockPos pos = target.getBlockPos();
+	    		int i = pos.getX();
+	            int j = pos.getY();
+	            int k = pos.getZ();
+	            float f = 0.1F;
+	            AxisAlignedBB axisalignedbb = state.getBoundingBox(worldObj, pos);
+	            double d0 = (double)i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
+	            double d1 = (double)j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
+	            double d2 = (double)k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
+	            EnumFacing side = target.sideHit;
+	            if (side == EnumFacing.DOWN)
+	            {
+	                d1 = (double)j + axisalignedbb.minY - 0.10000000149011612D;
+	            }
+
+	            if (side == EnumFacing.UP)
+	            {
+	                d1 = (double)j + axisalignedbb.maxY + 0.10000000149011612D;
+	            }
+
+	            if (side == EnumFacing.NORTH)
+	            {
+	                d2 = (double)k + axisalignedbb.minZ - 0.10000000149011612D;
+	            }
+
+	            if (side == EnumFacing.SOUTH)
+	            {
+	                d2 = (double)k + axisalignedbb.maxZ + 0.10000000149011612D;
+	            }
+
+	            if (side == EnumFacing.WEST)
+	            {
+	                d0 = (double)i + axisalignedbb.minX - 0.10000000149011612D;
+	            }
+
+	            if (side == EnumFacing.EAST)
+	            {
+	                d0 = (double)i + axisalignedbb.maxX + 0.10000000149011612D;
+	            }
+
+	            manager.addEffect(((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+	    	}
     	}catch(Exception e){
     		
     	}
@@ -455,27 +450,28 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
     
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
+    public boolean addDestroyEffects(World world, BlockPos pos, net.minecraft.client.particle.ParticleManager manager)
     {
     	try{ //Why try? because the loaded tile can change while setting this icon
-	    	if(loadTileEntity(world, x, y, z) && tempEntity.updateLoadedTile(mc.thePlayer))
+	    	if(loadTileEntity(world, pos) && tempEntity.updateLoadedTile(mc.thePlayer) && tempEntity.loadedTile instanceof LittleTileBlock)
 	    	{
 	    		//overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
-	    		AxisAlignedBB box = tempEntity.loadedTile.getSelectedBox();
-	    		byte b0 = 1;
+	    		//AxisAlignedBB box = tempEntity.loadedTile.getSelectedBox();
+	    		IBlockState state = ((LittleTileBlock)tempEntity.loadedTile).getBlockState();
+	    		//manager.addBlockDestroyEffects(pos, state);
+	            int i = 4;
 
-	            for (int i1 = 0; i1 < b0; ++i1)
+	            for (int j = 0; j < 1; ++j)
 	            {
-	                for (int j1 = 0; j1 < b0; ++j1)
+	                for (int k = 0; k < 1; ++k)
 	                {
-	                    for (int k1 = 0; k1 < b0; ++k1)
+	                    for (int l = 0; l < 1; ++l)
 	                    {
-	                        double d0 = (double)x + ((double)i1 + box.maxX) / (double)b0;
-	                        double d1 = (double)y + ((double)j1 + box.maxY) / (double)b0;
-	                        double d2 = (double)z + ((double)k1 + box.maxZ) / (double)b0;
-	                        EntityDiggingFX fx = (new EntityDiggingFX(world, d0, d1, d2, 0, 0, 0, this, meta)).applyColourMultiplier(x, y, z);
-	                        fx.setParticleIcon(tempEntity.loadedTile.getIcon(0));
-	                        effectRenderer.addEffect(fx);
+	                        double d0 = (double)pos.getX() + ((double)j + 0.5D) / 4.0D;
+	                        double d1 = (double)pos.getY() + ((double)k + 0.5D) / 4.0D;
+	                        double d2 = (double)pos.getZ() + ((double)l + 0.5D) / 4.0D;
+	                        manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 - (double)pos.getZ() - 0.5D, Block.getStateId(state));
+	                        //manager.addEffect((new ParticleDigging(world, d0, d1, d2, d0 - (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 - (double)pos.getZ() - 0.5D, state)).setBlockPos(pos));
 	                    }
 	                }
 	            }
@@ -487,32 +483,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 		}
         return false;
     }
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
-    {
-    	if(overrideIcon != null)
-    	{
-    		IIcon temp = overrideIcon;
-    		//overrideIcon = null;
-    		return temp;
-    	}
-    	else
-    		return Blocks.stone.getBlockTextureFromSide(0); //mc.getTextureMapBlocks().getAtlasSprite("MISSING");
-    }*/
-    
-    /*TODO Add once it's important
-    public boolean canSustainPlant(IBlockAccess world, int x, int y, int z, ForgeDirection direction, IPlantable plantable)
-    {
-    	
-    }*/
-    
-    /*
-    public int getLightOpacity(IBlockAccess world, int x, int y, int z)
-    {
-    	
-    }*/
     
     /*
    	public boolean rotateBlock(World worldObj, int x, int y, int z, ForgeDirection axis)
@@ -548,9 +518,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
     	}
     	return bonus;
     }
-    
-    /*
-    public void onEntityCollidedWithBlock(World p_149670_1_, int p_149670_2_, int p_149670_3_, int p_149670_4_, Entity p_149670_5_) {}*/
     
     @Override
     public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
@@ -650,23 +617,91 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {
 		}
 		return null;
 	}
+	
+	public boolean checkforNeighbor(TileEntity te, EnumFacing facing)
+	{
+		return !te.getWorld().getBlockState(te.getPos().offset(facing)).doesSideBlockRendering(te.getWorld(), te.getPos().offset(facing), facing.getOpposite());
+	}
 
 	@Override
-	public ArrayList<CubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		ArrayList<CubeObject> cubes = new ArrayList<>();
+	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
 		if(te instanceof TileEntityLittleTiles)
 		{
 			BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
 			
+			HashMap<EnumFacing, Boolean> neighbors = new HashMap<>();
+			
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
 			for (int i = 0; i < tileEntity.getTiles().size(); i++) {
-				if(tileEntity.getTiles().get(i).shouldBeRenderedInLayer(layer))
-					cubes.addAll(tileEntity.getTiles().get(i).getRenderingCubes());
+				LittleTile tile = tileEntity.getTiles().get(i);
+				if(tile.shouldBeRenderedInLayer(layer))
+				{
+					//Check for sides which does not need to be rendered
+					ArrayList<RenderCubeObject> tileCubes = tile.getRenderingCubes();
+					for (int j = 0; j < tileCubes.size(); j++) {
+						RenderCubeObject cube = tileCubes.get(j);
+						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
+							EnumFacing facing = EnumFacing.VALUES[k];
+							LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+							//cubes.add(new RenderCubeObject(box.getCube(), Blocks.STONE, 0));
+							if(box.isBoxInsideBlock())
+								cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile));
+							else{
+								Boolean isSolid = neighbors.get(facing);
+								if(isSolid == null)
+								{
+									isSolid = checkforNeighbor(te, facing);
+									neighbors.put(facing, isSolid);
+								}
+								cube.setSideRender(facing, isSolid);
+							}
+						}
+					}
+					cubes.addAll(tileCubes);
+				}
 			}
+			
+			
+			
+			//return !blockAccess.getBlockState(pos.offset(side)).doesSideBlockRendering(blockAccess, pos.offset(side), side.getOpposite());
+			
 		}else if(stack != null){
 			return ItemBlockTiles.getItemRenderingCubes(stack);
 		}
 		return cubes;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack)
+	{
+		if(te instanceof TileEntityLittleTiles)
+		{
+			HashMap<EnumFacing, List<BakedQuad>> quads = ((TileEntityLittleTiles) te).getCachedQuads().get(layer);
+			if(quads != null)
+				return quads.get(facing);
+		}
+		return null;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack)
+	{
+		if(te instanceof TileEntityLittleTiles)
+		{
+			//System.out.println("updated block model for: " + te.getPos());
+			HashMap<EnumFacing, List<BakedQuad>> quads = ((TileEntityLittleTiles) te).getCachedQuads().get(layer);
+			if(quads == null)
+			{
+				quads = new HashMap<>();
+				((TileEntityLittleTiles) te).getCachedQuads().put(layer, quads);
+			}
+			
+			quads.put(facing, cachedQuads);
+				
+		}
 	}
 
 }

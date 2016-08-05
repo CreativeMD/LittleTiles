@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;

@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;
@@ -114,19 +115,19 @@ public class LittleTileBlock extends LittleTile{
 	public ItemStack getDrop() {
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		stack.setTagCompound(new NBTTagCompound());
-		saveTile(stack.getTagCompound());
+		//saveTile(stack.getTagCompound());
+		stack.getTagCompound().setString("tID", getID());
+		stack.getTagCompound().setInteger("bSize", 0);
+		saveTileExtra(stack.getTagCompound());
 		boundingBoxes.get(0).getSize().writeToNBT("size", stack.getTagCompound());
 		return stack;
 	}
 
 	@Override
-	public ArrayList<CubeObject> getRenderingCubes() {
-		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
+	public ArrayList<RenderCubeObject> getRenderingCubes() {
+		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
 		for (int i = 0; i < boundingBoxes.size(); i++) {
-			CubeObject cube = boundingBoxes.get(i).getCube();
-			cube.block = block;
-			cube.meta = meta;
-			cubes.add(cube);
+			cubes.add(new RenderCubeObject(boundingBoxes.get(i).getCube(), block, meta));
 		}
 		return cubes;
 	}
@@ -201,6 +202,18 @@ public class LittleTileBlock extends LittleTile{
 		{
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean doesProvideSolidFace(EnumFacing facing) {
+		return !translucent;
+	}
+
+	@Override
+	public boolean canBeRenderCombined(LittleTile tile) {
+		if(tile instanceof LittleTileBlock)
+			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
 		return false;
 	}
 

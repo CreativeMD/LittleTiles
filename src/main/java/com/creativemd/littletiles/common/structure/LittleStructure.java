@@ -324,7 +324,7 @@ public abstract class LittleStructure {
 	
 	public ItemStack getStructureDrop()
 	{
-		return dropStack;
+		return dropStack.copy();
 	}
 	
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)

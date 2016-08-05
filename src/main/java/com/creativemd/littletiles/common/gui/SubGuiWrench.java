@@ -18,7 +18,7 @@ public class SubGuiWrench extends SubGui {
 
 	@Override
 	public void createControls() {
-		controls.add(new GuiButton("Craft", 70, 5, 40){
+		controls.add(new GuiButton("Craft", 70, 3, 40){
 
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -53,7 +53,7 @@ public class SubGuiWrench extends SubGui {
 			}
 			
 		});
-		controls.add(new GuiItemListBox("missing", 10, 30, 100, 50, new ArrayList<ItemStack>(), new ArrayList<String>()));
+		controls.add(new GuiItemListBox("missing", 5, 25, 100, 50, new ArrayList<ItemStack>(), new ArrayList<String>()));
 	}
 
 }

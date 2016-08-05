@@ -3,17 +3,20 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -22,7 +25,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
+public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile{
 	
 	public ItemMultiTiles()
 	{
@@ -43,11 +46,6 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 			list.add("structure: " + id);
 			list.add("contains " + stack.getTagCompound().getInteger("tiles") + " tiles");
 		}
-	}
-
-	@Override
-	public boolean hasBackground(ItemStack stack) {
-		return false;
 	}
 	
 	@Override
@@ -73,11 +71,6 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	}
 
 	@Override
-	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
-		return ItemRecipe.getCubes(stack);
-	}
-
-	@Override
 	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.rotatePreview(stack, direction);
 	}
@@ -94,6 +87,11 @@ public class ItemMultiTiles extends Item implements ITilesRenderer, ILittleTile{
 	@Override
 	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.flipPreview(stack, direction);
+	}
+
+	@Override
+	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		return ItemRecipe.getCubes(stack);
 	}
 	
 	/*@Override

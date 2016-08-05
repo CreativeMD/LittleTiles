@@ -59,6 +59,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
+		if(hand == EnumHand.OFF_HAND)
+			return new ActionResult(EnumActionResult.PASS, stack); 
 		if(!world.isRemote && !player.isSneaking() && stack.hasTagCompound())
 		{
 			if(stack.getTagCompound().hasKey("x1") && stack.getTagCompound().hasKey("x2"))

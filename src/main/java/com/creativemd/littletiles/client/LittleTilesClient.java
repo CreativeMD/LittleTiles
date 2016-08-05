@@ -24,6 +24,7 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -66,9 +67,11 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
 		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		
-		/*MinecraftForgeClient.registerItemRenderer(LittleTiles.recipe, renderer);
-		MinecraftForgeClient.registerItemRenderer(LittleTiles.multiTiles, renderer);*/
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 1, new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
 		
 		
 		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
@@ -100,7 +103,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		right = new KeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
 		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
 		
-		flip = new KeyBinding("key.flip", Keyboard.KEY_F, "key.categories.littletiles");
+		flip = new KeyBinding("key.flip", Keyboard.KEY_G, "key.categories.littletiles");
 		mark = new KeyBinding("key.mark", Keyboard.KEY_M, "key.categories.littletiles");
 		
 		ClientRegistry.registerKeyBinding(up);

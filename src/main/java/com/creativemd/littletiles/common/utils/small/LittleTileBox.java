@@ -535,6 +535,38 @@ public class LittleTileBox {
 	public void resort() {
 		set(Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
 	}
+
+	public LittleTileBox getSideOfBox(EnumFacing facing) {
+		LittleTileBox newBox = this.copy();
+		switch(facing)
+		{
+		case EAST:
+			newBox.minX = this.maxX;
+			newBox.maxX++;
+			break;
+		case WEST:
+			newBox.maxX = this.minX;
+			newBox.minX--;
+			break;
+		case UP:
+			newBox.minY = this.maxY;
+			newBox.maxY++;
+			break;
+		case DOWN:
+			newBox.maxY = this.minY;
+			newBox.minY--;
+			break;
+		case SOUTH:
+			newBox.minZ = this.maxZ;
+			newBox.maxZ++;
+			break;
+		case NORTH:
+			newBox.maxZ = this.minZ;
+			newBox.minZ--;
+			break;
+		}
+		return newBox;
+	}
 	
 	
 }

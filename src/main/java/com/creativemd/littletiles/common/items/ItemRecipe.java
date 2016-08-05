@@ -1,16 +1,19 @@
 package com.creativemd.littletiles.common.items;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.ITilesRenderer;
 import com.creativemd.littletiles.common.gui.SubContainerStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -21,9 +24,13 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,12 +40,13 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
+public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiCreator{
 	
 	public ItemRecipe(){
 		setCreativeTab(CreativeTabs.TOOLS);
@@ -48,9 +56,15 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
     {
-		if(!world.isRemote && !player.isSneaking() && stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
-			GuiHandler.openGuiItem(player, world);
-		return new ActionResult(EnumActionResult.SUCCESS, stack);
+		if(hand == EnumHand.OFF_HAND)
+			return new ActionResult(EnumActionResult.PASS, stack); 
+		if(!player.isSneaking() && stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
+		{
+			if(!world.isRemote)
+				GuiHandler.openGuiItem(player, world);
+			return new ActionResult(EnumActionResult.SUCCESS, stack);
+		}
+		return new ActionResult(EnumActionResult.PASS, stack);
     }
 	
 	@Override
@@ -59,7 +73,11 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 		if(player.isSneaking())
 		{
 			if(!world.isRemote)
+			{
 				stack.setTagCompound(null);
+				stack.setItemDamage(0);
+			}
+				
 			return EnumActionResult.SUCCESS;
 		}
 		
@@ -75,9 +93,6 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 			}
 			return false;
 		}*/
-		
-		//if(stack.stackTagCompound == null)
-			//stack.stackTagCompound = new NBTTagCompound();
 		
 		if(stack.hasTagCompound() && stack.getTagCompound().hasKey("x"))
 		{
@@ -121,9 +136,10 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 				}
 				player.addChatMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 				saveTiles(world, tiles, stack);
+				stack.setItemDamage(1);
 			}
 			return EnumActionResult.SUCCESS;
-		}else if(stack.hasTagCompound()){
+		}else if(!stack.hasTagCompound()){
 			if(!world.isRemote)
 			{
 				stack.setTagCompound(new NBTTagCompound());
@@ -208,18 +224,30 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 	{
 		stack.setTagCompound(new NBTTagCompound());
 		stack.getTagCompound().setInteger("tiles", tiles.size());
+		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			tiles.get(i).boundingBoxes.get(0).writeToNBT("bBox", nbt);
 			tiles.get(i).saveTile(nbt);
+			cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);
+		}
+		updateSize(cubes, stack);
+	}
+	
+	public static void updateSize(ArrayList<RenderCubeObject> cubes, ItemStack stack)
+	{
+		if(stack.hasTagCompound())
+		{
+			Vec3d size = CubeObject.getSizeOfCubes(cubes);
+			stack.getTagCompound().setDouble("size", Math.max(1, Math.max(size.xCoord, Math.max(size.yCoord, size.zCoord))));
 		}
 	}
 	
-	public static ArrayList<CubeObject> getCubes(ItemStack stack)
+	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack)
 	{
 		ArrayList<LittleTilePreview> preview = getPreview(stack);
-		ArrayList<CubeObject> cubes = new ArrayList<CubeObject>();
+		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
 		for (int i = 0; i < preview.size(); i++) {
 			cubes.add(preview.get(i).getCubeBlock());
 		}
@@ -245,18 +273,6 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 	}
 
 	@Override
-	public boolean hasBackground(ItemStack stack) {
-		return true;
-	}
-
-	@Override
-	public ArrayList<CubeObject> getRenderingCubes(ItemStack stack) {
-		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
-			return getCubes(stack);
-		return new ArrayList<CubeObject>();
-	}
-
-	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiStructure(stack);
@@ -265,5 +281,47 @@ public class ItemRecipe extends Item implements ITilesRenderer, IGuiCreator{
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerStructure(player, stack);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
+			return getCubes(stack);
+		return new ArrayList<RenderCubeObject>();
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void applyCustomOpenGLHackery(ItemStack stack)
+	{
+		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
+		{
+			if(!stack.getTagCompound().hasKey("size"))
+				updateSize(getCubes(stack), stack);
+			double scaler = 1/Math.max(1, stack.getTagCompound().getDouble("size"));
+			GlStateManager.scale(scaler, scaler, scaler);
+		}
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public List<BakedQuad> getSpecialBakedQuads(IBlockState state, TileEntity te, EnumFacing side, long rand,
+			ItemStack stack) {
+		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
+		/*int damage = stack.getItemDamage();
+		stack.setItemDamage(1);
+		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(stack);
+		stack.setItemDamage(damage);*/
+		if(model != null)
+		{
+			List<BakedQuad> quads = model.getQuads(state, side, rand);
+			ArrayList<BakedQuad> newQuads = new ArrayList<>();
+			for (int i = 0; i < quads.size(); i++) {
+				newQuads.add(new CreativeBakedQuad(quads.get(i), null, -1, true));
+			}
+			return newQuads;
+		}
+		return new ArrayList<>();
 	}
 }
