@@ -57,6 +57,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	private CopyOnWriteArrayList<LittleTile> tiles = createTileList();
 	
+	private CopyOnWriteArrayList<LittleTile> updateTiles = createTileList();
+	
 	public CopyOnWriteArrayList<LittleTile> getTiles()
 	{
 		return tiles;
@@ -196,6 +198,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean removeLittleTile(LittleTile tile)
 	{
 		boolean result = tiles.remove(tile);
+		updateTiles.remove(tile);
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			removeLittleTileClient(tile);
 		return result;
@@ -242,6 +245,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			addLittleTileClient(tile);
+		if(tile.shouldTick())
+			updateTiles.add(tile);
 		return tiles.add(tile);
 	}
 	
@@ -261,7 +266,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void completeTileUpdate()
+	public void completeTileUpdate() //TODO REMOVE LittleTile[16][16][16] too much ram use, use it for rendering only
 	{
 		boundingArray = new LittleTile[16][16][16];
 		for (int i = 0; i < tiles.size(); i++) {
@@ -292,7 +297,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		getCachedCubes().clear();*/
 		cachedCubes = null;
 		cachedQuads = null;
-		getRenderCacheQuads().clear();
+		quadCache = null;
+		
 		info = null;
 	}
 	
@@ -302,6 +308,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		//getCachedQuads().clear();
 		cachedQuads = null;
+		quadCache = null;
 		
 		updateRender();
 	}
@@ -643,9 +650,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).updateEntity();
+		for (int i = 0; i < updateTiles.size(); i++) {
+			updateTiles.get(i).updateEntity();
 		}
+		
 		if(!worldObj.isRemote && tiles.size() == 0)
 			worldObj.setBlockToAir(getPos());
 	}

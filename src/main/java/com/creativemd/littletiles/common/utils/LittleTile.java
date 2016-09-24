@@ -498,6 +498,11 @@ public abstract class LittleTile {
 		}
 	}
 	
+	public boolean shouldTick()
+	{
+		return isStructureBlock && isMainBlock;
+	}
+	
 	//================Interaction================
 	
 	protected abstract boolean canSawResize(EnumFacing facing, EntityPlayer player);
