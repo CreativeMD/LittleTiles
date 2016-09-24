@@ -61,8 +61,9 @@ public class SubGuiHammer extends SubGui {
 				nbt.setByte("sizeY", (byte) sizeY);
 				nbt.setByte("sizeZ", (byte) sizeZ);
 				GuiColorPlate plate = (GuiColorPlate) get("plate");
+				//System.out.println(plate.getColor().getAlpha());
 				int color = ColorUtils.RGBAToInt(plate.getColor());
-				if(color != ColorUtils.WHITE)
+				if(color != -1 && color != ColorUtils.WHITE)
 					nbt.setInteger("color", color);
 				sendPacketToServer(nbt);
 			}

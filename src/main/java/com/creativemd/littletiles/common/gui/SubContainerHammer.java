@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
+import java.awt.Color;
+
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
@@ -10,6 +12,7 @@ import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,6 +22,8 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SubContainerHammer extends SubContainer{
 	
@@ -28,6 +33,7 @@ public class SubContainerHammer extends SubContainer{
 
 	public InventoryBasic basic = new InventoryBasic("Hammer", false, 1);
 	
+	@SideOnly(Side.CLIENT)
 	public static boolean doesBlockSupportedTranslucent(Block block)
 	{
 		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
@@ -35,7 +41,7 @@ public class SubContainerHammer extends SubContainer{
 	
 	public static boolean isBlockValid(Block block)
 	{
-		return block.isNormalCube(block.getDefaultState()) || block.isFullyOpaque(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass;
+		return block.isNormalCube(block.getDefaultState()) || block.isFullyOpaque(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
 	}
 	
 	@Override
@@ -80,8 +86,9 @@ public class SubContainerHammer extends SubContainer{
 				dropstack.stackSize = tiles;
 				dropstack.setTagCompound(new NBTTagCompound());
 				size.writeToNBT("size", dropstack.getTagCompound());
+				
 				LittleTile tile = null;
-				if(nbt.hasKey("color"))
+				if(nbt.hasKey("color") && nbt.getInteger("color") != ColorUtils.WHITE)
 					tile = new LittleTileBlockColored(block, stack.getItemDamage(), ColorUtils.IntToRGB(nbt.getInteger("color")));
 				else
 					tile = new LittleTileBlock(block, stack.getItemDamage());
