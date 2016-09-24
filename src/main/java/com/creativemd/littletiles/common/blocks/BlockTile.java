@@ -504,13 +504,9 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
-    		try{
-    			ArrayList<ItemStack> drops = result.tile.getDrops();
-    			if(drops.size() > 0)
-    				return drops.get(0);
-    		}catch(Exception e){
-    			
-    		}
+			ArrayList<ItemStack> drops = result.tile.getDrops();
+			if(drops.size() > 0)
+				return drops.get(0);
     	}
     	return null;
     }
@@ -679,27 +675,23 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     	TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if(te != null)
 		{
-    		try{ //Why try? because the number of tiles can change while this method is called
-    			RayTraceResult moving = null;
-    			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
-					for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-						RayTraceResult tempMoving = tile.boundingBoxes.get(i).getBox().offset(pos).calculateIntercept(start, end);
-		    			
-		    			if(tempMoving != null)
-		    			{
-		    				if(moving == null || moving.hitVec.distanceTo(start) > tempMoving.hitVec.distanceTo(start))
-		    					moving = tempMoving;
-		    			}
-					}
-					
+			RayTraceResult moving = null;
+			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+					RayTraceResult tempMoving = tile.boundingBoxes.get(i).getBox().offset(pos).calculateIntercept(start, end);
+	    			
+	    			if(tempMoving != null)
+	    			{
+	    				if(moving == null || moving.hitVec.distanceTo(start) > tempMoving.hitVec.distanceTo(start))
+	    					moving = tempMoving;
+	    			}
 				}
-    			
-    			if(moving != null)
-    				return new RayTraceResult(moving.hitVec, moving.sideHit, pos);
-    		}catch(Exception e){
-    			return null;
-    		}
+				
+			}
+			
+			if(moving != null)
+				return new RayTraceResult(moving.hitVec, moving.sideHit, pos);
     	}
     	return null;
     }
