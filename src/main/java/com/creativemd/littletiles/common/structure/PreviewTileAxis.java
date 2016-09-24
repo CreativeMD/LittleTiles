@@ -69,7 +69,7 @@ public class PreviewTileAxis extends PreviewTile{
 	}
 	
 	@Override
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced)
 	{
 		if(structure instanceof LittleDoor)
 		{

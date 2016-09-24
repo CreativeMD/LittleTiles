@@ -48,9 +48,8 @@ public class PreviewTile {
 		return box;
 	}
 	
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced)
 	{
-		//PreviewTile tile = placeTiles.get(j);
 		LittleTile LT = preview.getLittleTile(teLT);
 		if(LT == null)
 			return null;
@@ -71,6 +70,42 @@ public class PreviewTile {
 			LT.place();
 			LT.onPlaced(player, stack);
 			return LT;
+		}else if(forced){
+			ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
+			ArrayList<LittleTileBox> unplaceableBoxes = new ArrayList<>();
+			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
+				for (int littleY = box.minY; littleY < box.maxY; littleY++) {
+					for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
+						LittleTileBox newBox = new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1);
+						if(teLT.isSpaceForLittleTile(newBox))
+							newBoxes.add(newBox);
+						else
+							unplaceableBoxes.add(newBox);
+					}
+				}
+			}
+			
+			LittleTileBox.combineBoxes(newBoxes);
+			LittleTile first = null;
+			for (int i = 0; i < newBoxes.size(); i++) {
+				LittleTile newTile = LT.copy();
+				newTile.boundingBoxes.clear();
+				newTile.boundingBoxes.add(newBoxes.get(i));
+				newTile.place();
+				newTile.onPlaced(player, stack);
+				if(i == 0)
+					first = newTile;
+			}
+			
+			LittleTileBox.combineBoxes(unplaceableBoxes);
+			for (int i = 0; i < unplaceableBoxes.size(); i++) {
+				LittleTile newTile = LT.copy();
+				newTile.boundingBoxes.clear();
+				newTile.boundingBoxes.add(unplaceableBoxes.get(i));
+				unplaceableTiles.add(newTile);
+			}
+			
+			return first;			
 		}else if(unplaceableTiles != null){
 			unplaceableTiles.add(LT);
 		}
@@ -78,16 +113,9 @@ public class PreviewTile {
 	}
 	
 	public boolean split(HashMapList<BlockPos, PreviewTile> tiles, BlockPos pos)
-	{
-		//box.resort();
-		
+	{		
 		if(preview != null && !preview.canSplit && box.needsMultipleBlocks())
 			return false;
-		
-		//if(!box.isValidBox())
-			//System.out.println("Invalid box found!");
-		//int tilesCount = 0;
-		//ArrayList<LittleTileBox> failedBoxes = new ArrayList<LittleTileBox>();
 		
 		LittleTileSize size = box.getSize();
 		
@@ -158,25 +186,13 @@ public class PreviewTile {
 					if(tile.box.isValidBox())
 					{
 						tiles.add(new BlockPos(posX, posY, posZ), tile);
-						//tilesCount++;
-					}//else
-						//failedBoxes.add(tile.box);
+					}
 					posZ++;
 				}
 				posY++;
 			}
 			posX++;
 		}
-		
-		/*if(tilesCount == 0)
-		{
-			System.out.println("Failed to split box!");
-			System.out.println("Main Box: " + box.toString());
-			for (int i = 0; i < failedBoxes.size(); i++) {
-				System.out.println(failedBoxes.get(i).toString());
-			}
-			System.out.println("==============================");
-		}*/
 		
 		return true;
 	}

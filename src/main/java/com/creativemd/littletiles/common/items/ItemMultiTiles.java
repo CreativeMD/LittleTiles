@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -92,6 +93,19 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return ItemRecipe.getCubes(stack);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void applyCustomOpenGLHackery(ItemStack stack)
+	{
+		if(stack.hasTagCompound())
+		{
+			if(!stack.getTagCompound().hasKey("size"))
+				ItemRecipe.updateSize(ItemRecipe.getCubes(stack), stack);
+			double scaler = 1/Math.max(1, stack.getTagCompound().getDouble("size"));
+			GlStateManager.scale(scaler, scaler, scaler);
+		}
 	}
 	
 	/*@Override

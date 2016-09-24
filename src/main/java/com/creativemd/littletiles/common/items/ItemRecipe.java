@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
@@ -43,6 +44,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -224,17 +226,25 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	{
 		stack.setTagCompound(new NBTTagCompound());
 		stack.getTagCompound().setInteger("tiles", tiles.size());
-		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
+		List cubes = null;
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			cubes = new ArrayList<RenderCubeObject>();
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			tiles.get(i).boundingBoxes.get(0).writeToNBT("bBox", nbt);
+			ArrayList<LittleTileBox> boxes = tiles.get(i).boundingBoxes;
+			tiles.get(i).boundingBoxes = new ArrayList<>();
 			tiles.get(i).saveTile(nbt);
-			cubes.addAll(tiles.get(i).getRenderingCubes());
+			tiles.get(i).boundingBoxes = boxes;
+			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+				cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);
 		}
-		updateSize(cubes, stack);
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			updateSize((ArrayList<RenderCubeObject>) cubes, stack);
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static void updateSize(ArrayList<RenderCubeObject> cubes, ItemStack stack)
 	{
 		if(stack.hasTagCompound())
@@ -244,6 +254,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack)
 	{
 		ArrayList<LittleTilePreview> preview = getPreview(stack);
@@ -318,7 +329,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			List<BakedQuad> quads = model.getQuads(state, side, rand);
 			ArrayList<BakedQuad> newQuads = new ArrayList<>();
 			for (int i = 0; i < quads.size(); i++) {
-				newQuads.add(new CreativeBakedQuad(quads.get(i), null, -1, true));
+				newQuads.add(new CreativeBakedQuad(quads.get(i), null, -1, true, side));
 			}
 			return newQuads;
 		}

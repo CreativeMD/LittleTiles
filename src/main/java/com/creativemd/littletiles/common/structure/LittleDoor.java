@@ -388,7 +388,7 @@ public class LittleDoor extends LittleStructure{
 			break;
 		}*/
 		
-		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null))
+		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false))
 		{
 			ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {

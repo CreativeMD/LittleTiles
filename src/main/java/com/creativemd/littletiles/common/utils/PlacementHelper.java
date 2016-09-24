@@ -74,7 +74,7 @@ public class PlacementHelper {
 	
 	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement); //, rotation, rotation2);
+		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, false); //, rotation, rotation2);
 	}
 	
 	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)

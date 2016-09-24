@@ -33,6 +33,7 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -114,17 +115,17 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			{
 				pos = pos.offset(facing);
 			}
-		}
-		
+		}else
+			pos = moving.getBlockPos().offset(facing);
 		if (stack.stackSize != 0 && playerIn.canPlayerEdit(pos, facing, stack)) //&& worldIn.canBlockBePlaced(this.block, pos, false, facing, (Entity)null, stack))
         {
             /*int i = this.getMetadata(stack.getMetadata());
             IBlockState iblockstate1 = this.block.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);*/
             
             if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-    			PacketHandler.sendPacketToServer(new LittlePlacePacket(stack, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null)); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
+    			PacketHandler.sendPacketToServer(new LittlePlacePacket(/*stack,*/ playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
     		
-            if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null)) //, PreviewRenderer.direction, PreviewRenderer.direction2);
+            if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())) //, PreviewRenderer.direction, PreviewRenderer.direction2);
 	            PreviewRenderer.markedHit = null;
             
             /*if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
@@ -221,13 +222,14 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		return splitted;
 	}
 	
-	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PreviewTile> splitted, ArrayList<BlockPos> coordsToCheck)
+	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PreviewTile> splitted, ArrayList<BlockPos> coordsToCheck, boolean forced)
 	{
 		for (BlockPos pos : coordsToCheck) {
 			TileEntity mainTile = world.getTileEntity(pos);
 			if(mainTile instanceof TileEntityLittleTiles)
 			{
-				
+				if(forced)
+					return true;
 				ArrayList<PreviewTile> tiles = splitted.getValues(pos);
 				if(tiles != null)
 				{
@@ -235,13 +237,22 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						if(tiles.get(j).needsCollisionTest() && !((TileEntityLittleTiles) mainTile).isSpaceForLittleTile(tiles.get(j).box))
 							return false;
 				}
-			}else if(!(world.getBlockState(pos).getBlock() instanceof BlockTile) && !world.getBlockState(pos).getMaterial().isReplaceable())
-				return false;
+			}else{
+				IBlockState state = world.getBlockState(pos);
+				if(forced){
+					if(state.getBlock() instanceof BlockTile || state.getMaterial().isReplaceable())
+						return true;
+				}else if(!(state.getBlock() instanceof BlockTile) && !state.getMaterial().isReplaceable())
+					return false;
+			}
 		}
+		
+		if(forced)
+			return false;
 		return true;
 	}
 	
-	public static boolean placeTiles(World world, EntityPlayer player, ArrayList<PreviewTile> previews, LittleStructure structure, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles)
+	public static boolean placeTiles(World world, EntityPlayer player, ArrayList<PreviewTile> previews, LittleStructure structure, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced)
 	{
 		//if(!(world.getBlock(x, y, z) instanceof BlockTile))
 			//if (!world.setBlock(x, y, z, LittleTiles.blockTile, 0, 3))
@@ -262,10 +273,13 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		{
 			coordsToCheck.addAll(splitted.getKeys());
 		}else{
-			coordsToCheck.add(pos);
+			if(forced)
+				coordsToCheck.addAll(splitted.getKeys());
+			else
+				coordsToCheck.add(pos);
 		}
 		ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
-		if(canPlaceTiles(world, splitted, coordsToCheck))
+		if(canPlaceTiles(world, splitted, coordsToCheck, forced))
 		{
 			LittleTilePosition littlePos = null;
 			//LittleTileCoord pos = null;
@@ -290,9 +304,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 					{
 						//int tiles = 0;
 						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
-						
+						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles);
+							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles, forced);
 							if(LT != null)
 							{
 								if(!soundsToBePlayed.contains(LT.getSound()))
@@ -314,6 +328,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						
 						if(structure != null)
 							teLT.combineTiles(structure);
+						
+						teLT.preventUpdate = false;
 					}
 					//System.out.println("Placed " + tiles + "/" + placeTiles.size());
 				}//else
@@ -327,10 +343,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		return false;
 	}
 	
-	public boolean placeBlockAt(EntityPlayer player, ItemStack stack, World world, Vec3d playerPos, Vec3d hitVec, PlacementHelper helper, BlockPos pos, EnumFacing facing, boolean customPlacement) //, ForgeDirection direction, ForgeDirection direction2)
+	public boolean placeBlockAt(EntityPlayer player, ItemStack stack, World world, Vec3d playerPos, Vec3d hitVec, PlacementHelper helper, BlockPos pos, EnumFacing facing, boolean customPlacement, boolean forced) //, ForgeDirection direction, ForgeDirection direction2)
     {
-		ArrayList<PreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, true); //, direction, direction2);
-		
 		LittleStructure structure = null;
 		if(stack.getItem() instanceof ILittleTile)
 		{
@@ -343,11 +357,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		{
 			structure.dropStack = stack.copy();
 			structure.setTiles(new ArrayList<LittleTile>());
+			forced = false;
 		}
+		
+		ArrayList<PreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, true); //, direction, direction2);
+		
 		//System.out.println("Creating " + previews.size() + " tiles");
 		
 		ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-		if(placeTiles(world, player, previews, structure, pos, stack, unplaceableTiles))
+		if(placeTiles(world, player, previews, structure, pos, stack, unplaceableTiles, forced))
 		{			
 			if(!player.capabilities.isCreativeMode)
 			{

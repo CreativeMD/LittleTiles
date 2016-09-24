@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -16,10 +17,12 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -101,15 +104,36 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						BlockTile.cancelNext = true;
 					break;
 				case 1: //Destory tile
-					tile.destroy();
-					//littleEntity.removeTile(tile);
-					if(!player.capabilities.isCreativeMode)
-						WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
-					TileList<LittleTile> tiles = littleEntity.getTiles();
+					LittleTileBox box = null;
+    				
+    				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+    				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+    				{
+    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(littleEntity, tile, littleEntity.getPos(), player);
+    					if(box != null)
+    					{
+    						littleEntity.removeBoxFromTile(tile, box);
+    						if(!player.capabilities.isCreativeMode)
+    						{
+    							tile.boundingBoxes.add(new LittleTileBox(0,0,0,1,1,1));
+    							WorldUtils.dropItem(player, tile.getDrops());
+    						}
+    					}
+    				}
+    				
+    				if(box == null)
+    				{
+						tile.destroy();
+						if(!player.capabilities.isCreativeMode)
+							WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
+					}
+    				
+    				TileList<LittleTile> tiles = littleEntity.getTiles();
 					for (int i = 0; i < tiles.size(); i++) {
 						tiles.get(i).onNeighborChangeInside();
 					}
-					littleEntity.updateBlock();
+    				
+    				littleEntity.updateBlock();
 					break;
 				case 2:
 					try{
@@ -118,7 +142,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 						if(te.updateLoadedTileServer(pos, look) && te.loadedTile.canSawResizeTile(direction, player))
 						{
-							LittleTileBox box = null;
+							box = null;
 							if(player.isSneaking())
 								box = te.loadedTile.boundingBoxes.get(0).shrink(direction);
 							else
@@ -187,7 +211,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					{
 						LittleTile oldTile = te.loadedTile;
 						for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
-							LittleTileBox box = oldTile.boundingBoxes.get(j);
+							box = oldTile.boundingBoxes.get(j);
 							for (int littleX = box.minX; littleX < box.maxX; littleX++) {
 								for (int littleY = box.minY; littleY < box.maxY; littleY++) {
 									for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
