@@ -306,10 +306,10 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		TEResult result = loadTeAndTile(worldIn, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
-			ItemStack stack = Minecraft.getMinecraft().thePlayer.getHeldItem(EnumHand.MAIN_HAND);
+			ItemStack stack = mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
-				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, Minecraft.getMinecraft().thePlayer);
+				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.thePlayer);
 				if(box != null)
 					return box.getBox().offset(pos);
 			}
@@ -363,6 +363,19 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+		if(cancelNext)
+		{
+			cancelNext = false;
+			return true;
+		}
+        return false;
+    }
+	
+	@SideOnly(Side.CLIENT)
+	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
 		TEResult result = loadTeAndTile(worldIn, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
@@ -370,12 +383,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 0));
 			return result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		}
-		if(cancelNext)
-		{
-			cancelNext = false;
-			return true;
-		}
-        return false;
+		return false;
     }
 	
 	/*
@@ -447,30 +455,33 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
-    	{
-			TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
-			if(result.isComplete())
-			{				
-				LittleTileBox box = null;
-				
-				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+			removedByPlayerClient(state, world, pos, player, willHarvest);
+		return true;
+    }
+	
+	@SideOnly(Side.CLIENT)
+	public void removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+	{
+		TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
+		if(result.isComplete())
+		{				
+			LittleTileBox box = null;
+			
+			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+			{
+				box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player);
+				/*if(box != null)
 				{
-					box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player);
-					/*if(box != null)
-					{
-						tempEntity.removeBoxFromTile(loaded, box);
-					}*/
-				}
-				
-				if(box == null)
-    				result.tile.destroy();
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 1));
-    			result.te.updateRender();
-    		}
-    		
-    	}
-        return true;
+					tempEntity.removeBoxFromTile(loaded, box);
+				}*/
+			}
+			
+			if(box == null)
+				result.tile.destroy();
+			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 1));
+			result.te.updateRender();
+		}
     }
     
 	@Override
@@ -499,6 +510,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     }
     
     @Override
+    @SideOnly(Side.CLIENT)
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
     {
     	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
