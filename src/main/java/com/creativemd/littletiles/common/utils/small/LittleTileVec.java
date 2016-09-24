@@ -4,6 +4,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
+import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class LittleTileVec {
 	
@@ -23,7 +24,7 @@ public class LittleTileVec {
 	
 	public LittleTileVec(Vec3d vec)
 	{
-		this((int) vec.xCoord, (int) vec.yCoord, (int) vec.zCoord);
+		this((int) (vec.xCoord*16), (int) (vec.yCoord*16), (int) (vec.zCoord*16));
 	}
 	
 	public LittleTileVec(int x, int y, int z)
