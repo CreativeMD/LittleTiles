@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -10,6 +11,7 @@ import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -92,14 +94,14 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
-			TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-			RayTraceResult moving = littleEntity.getMoving(pos, look, true);
-			LittleTile tile = littleEntity.loadedTile;
+			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+			LittleTile tile = te.getFocusedTile(pos, look);
 			if(tile != null)
 			{
 				switch(action)
 				{
 				case 0: //Activated
+					RayTraceResult moving = te.getMoving(pos, look);
 					if(tile.onBlockActivated(player.worldObj, blockPos, player.worldObj.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord))
 						BlockTile.cancelNext = true;
 					break;
@@ -109,10 +111,10 @@ public class LittleBlockPacket extends CreativeCorePacket{
     				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
     				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
     				{
-    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(littleEntity, tile, littleEntity.getPos(), player);
+    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player);
     					if(box != null)
     					{
-    						littleEntity.removeBoxFromTile(tile, box);
+    						te.removeBoxFromTile(tile, box);
     						if(!player.capabilities.isCreativeMode)
     						{
     							tile.boundingBoxes.add(new LittleTileBox(0,0,0,1,1,1));
@@ -128,94 +130,78 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
 					}
     				
-    				TileList<LittleTile> tiles = littleEntity.getTiles();
-					for (int i = 0; i < tiles.size(); i++) {
-						tiles.get(i).onNeighborChangeInside();
+    				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+    					LittleTile tileNeighbor = (LittleTile) iterator.next();
+						tileNeighbor.onNeighborChangeInside();
 					}
     				
-    				littleEntity.updateBlock();
+    				te.updateBlock();
 					break;
-				case 2:
-					try{
-						int side = nbt.getInteger("side");
-						EnumFacing direction = EnumFacing.getFront(side);
-						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-						if(te.updateLoadedTileServer(pos, look) && te.loadedTile.canSawResizeTile(direction, player))
+				case 2: //Saw
+					int side = nbt.getInteger("side");
+					EnumFacing direction = EnumFacing.getFront(side);
+					if(tile.canSawResizeTile(direction, player))
+					{
+						box = null;
+						if(player.isSneaking())
+							box = tile.boundingBoxes.get(0).shrink(direction);
+						else
+							box = tile.boundingBoxes.get(0).expand(direction);
+						
+						if(box.isBoxInsideBlock() && box.isValidBox() && te.isSpaceForLittleTile(box.getBox(), tile))
 						{
-							box = null;
-							if(player.isSneaking())
-								box = te.loadedTile.boundingBoxes.get(0).shrink(direction);
-							else
-								box = te.loadedTile.boundingBoxes.get(0).expand(direction);
-							
-							if(box.isBoxInsideBlock() && box.isValidBox() && te.isSpaceForLittleTile(box.getBox(), te.loadedTile))
-							{
-								float ammount = te.loadedTile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
-								boolean success = false;
-								if(player.isSneaking())
-								{
-									if(ItemTileContainer.addBlock(player, ((LittleTileBlock)te.loadedTile).block, ((LittleTileBlock)te.loadedTile).meta, ammount))
-										success = true;
-								}else{
-									if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)te.loadedTile).block, ((LittleTileBlock)te.loadedTile).meta, -ammount))
-										success = true;
-								}
-								
-								if(player.capabilities.isCreativeMode || success)
-								{
-									te.loadedTile.boundingBoxes.set(0, box);
-									te.loadedTile.updateCorner();
-									te.updateBlock();
-								}
-							}
-						}
-					
-					}catch(Exception e){
-						System.out.println("Failed to use saw!");
-						e.printStackTrace();
-					}
-					break;
-				case 3:
-					try{
-						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-						if(te.updateLoadedTileServer(pos, look) && (te.loadedTile.getClass() == LittleTileBlock.class || te.loadedTile instanceof LittleTileBlockColored))
-						{
-							int color = nbt.getInteger("color");
-							LittleTile currentTile = te.loadedTile;
-							
-							int index = te.getTiles().indexOf(currentTile);
+							float ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
+							boolean success = false;
 							if(player.isSneaking())
 							{
-								color = ColorUtils.WHITE;
-								if(currentTile instanceof LittleTileBlockColored)
-									color = ((LittleTileBlockColored) currentTile).color;
-								ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+								if(ItemTileContainer.addBlock(player, ((LittleTileBlock)tile).block, ((LittleTileBlock)tile).meta, ammount))
+									success = true;
 							}else{
-								
-								LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) currentTile, color);
-								
-								if(newTile != null)
-									te.getTiles().set(index, newTile);
+								if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)tile).block, ((LittleTileBlock)tile).meta, -ammount))
+									success = true;
+							}
+							
+							if(player.capabilities.isCreativeMode || success)
+							{
+								tile.boundingBoxes.set(0, box);
+								tile.updateCorner();
 								te.updateBlock();
 							}
 						}
-					}catch(Exception e){
-						System.out.println("Failed to use color tube!");
-						e.printStackTrace();
 					}
 					break;
-				case 4:
-					TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-					ArrayList<LittleTile> newTiles = new ArrayList<>();
-					if(te.updateLoadedTileServer(pos, look) && (te.loadedTile.getClass() == LittleTileBlock.class || te.loadedTile instanceof LittleTileBlockColored)  && te.loadedTile.structure == null)
+				case 3: //COLOR TUBE set Color
+					if(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored)
 					{
-						LittleTile oldTile = te.loadedTile;
-						for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
-							box = oldTile.boundingBoxes.get(j);
+						int color = nbt.getInteger("color");
+						
+						int index = te.getTiles().indexOf(tile);
+						if(player.isSneaking())
+						{
+							color = ColorUtils.WHITE;
+							if(tile instanceof LittleTileBlockColored)
+								color = ((LittleTileBlockColored) tile).color;
+							ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+						}else{
+							
+							LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
+							
+							if(newTile != null)
+								te.getTiles().set(index, newTile);
+							te.updateBlock();
+						}
+					}
+					break;
+				case 4: //RUBBER MALLET
+					ArrayList<LittleTile> newTiles = new ArrayList<>();
+					if((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored)  && tile.structure == null)
+					{
+						for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+							box = tile.boundingBoxes.get(j);
 							for (int littleX = box.minX; littleX < box.maxX; littleX++) {
 								for (int littleY = box.minY; littleY < box.maxY; littleY++) {
 									for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-										tile = oldTile.copy();
+										tile = tile.copy();
 										tile.boundingBoxes.clear();
 										tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
 										tile.updateCorner();
@@ -228,7 +214,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						
 						if(LittleTiles.maxNewTiles >= newTiles.size() - 1)
 						{
-							te.removeTile(oldTile);
+							te.removeTile(tile);
 							te.addTiles(newTiles);
 							te.updateBlock();
 						}else{

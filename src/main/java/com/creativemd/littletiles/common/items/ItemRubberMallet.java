@@ -1,6 +1,9 @@
 package com.creativemd.littletiles.common.items;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
@@ -60,11 +63,10 @@ public class ItemRubberMallet extends Item {
 			{
 				if(player.isSneaking())
 				{
-					TileList<LittleTile> newTiles = TileEntityLittleTiles.createTileList();
+					ArrayList<LittleTile> newTiles = new ArrayList<>();
 					TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-					TileList<LittleTile> tiles = te.getTiles();
-					for (int i = 0; i < tiles.size(); i++) {
-						LittleTile oldTile = tiles.get(i);
+					for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+						LittleTile oldTile = (LittleTile) iterator.next();
 						if((oldTile.getClass() == LittleTileBlock.class || oldTile instanceof LittleTileBlockColored) && oldTile.structure == null)
 						{
 							for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
@@ -88,7 +90,9 @@ public class ItemRubberMallet extends Item {
 					}
 					if(LittleTiles.maxNewTiles >= newTiles.size() - te.getTiles().size())
 					{
-						te.setTiles(newTiles);
+						CopyOnWriteArrayList<LittleTile> newTilesReal = TileEntityLittleTiles.createTileList();
+						newTilesReal.addAll(newTiles);
+						te.setTiles(newTilesReal);
 						te.updateBlock();
 					}else{
 						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));

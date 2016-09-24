@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.items;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
@@ -123,10 +124,9 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 							if(tileEntity instanceof TileEntityLittleTiles)
 							{
 								LittleTileVec offset = new LittleTileVec((posX-minX)*16, (posY-minY)*16, (posZ-minZ)*16);
-								TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-								TileList<LittleTile> teTiles = littleEntity.getTiles();
-								for (int i = 0; i < teTiles.size(); i++) {
-									LittleTile tile = teTiles.get(i).copy();
+								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+									LittleTile tile = (LittleTile) iterator.next();
 									for (int j = 0; j < tile.boundingBoxes.size(); j++) {
 										tile.boundingBoxes.get(j).addOffset(offset);
 									}
@@ -222,7 +222,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return result;
 	}
 	
-	public static void saveTiles(World world, ArrayList<LittleTile> tiles, ItemStack stack)
+	public static void saveTiles(World world, List<LittleTile> tiles, ItemStack stack)
 	{
 		stack.setTagCompound(new NBTTagCompound());
 		stack.getTagCompound().setInteger("tiles", tiles.size());

@@ -378,8 +378,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public boolean needFullUpdate = true;
 	
-	/**Used for**/
-	public LittleTile loadedTile = null;
+	///**Used for**/
+	//public LittleTile loadedTile = null;
 
 	public boolean preventUpdate = false;
 	
@@ -465,7 +465,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         super.readFromNBT(nbt);
         if(tiles != null)
         	tiles.clear();
-        tiles = new TileList<LittleTile>();
+        tiles = createTileList();
         int count = nbt.getInteger("tilesCount");
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
@@ -564,21 +564,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     
     public RayTraceResult getMoving(EntityPlayer player)
     {
-    	return getMoving(player, false);
-    }
-    
-    public RayTraceResult getMoving(EntityPlayer player, boolean loadTile)
-    {
     	RayTraceResult hit = null;
 		
 		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
-		return getMoving(pos, vec32, loadTile);
+		return getMoving(pos, vec32);
     }
     
-    public RayTraceResult getMoving(Vec3d pos, Vec3d look, boolean loadTile)
+    public RayTraceResult getMoving(Vec3d pos, Vec3d look)
     {
     	RayTraceResult hit = null;
     	for (int i = 0; i < tiles.size(); i++) {
@@ -589,8 +584,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
     				{
     					hit = Temphit;
-    					if(loadTile)
-    						loadedTile = tiles.get(i);
     				}
     			}
 			}
@@ -598,30 +591,45 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return hit;
     }
 	
-	public boolean updateLoadedTile(EntityPlayer player)
+	public LittleTile getFocusedTile(EntityPlayer player)
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
-			return false;
-		loadedTile = null;
-		getMoving(player, true);
-		return loadedTile != null;
+			return null;
+		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
+		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
+		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
+		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		return getFocusedTile(pos, vec32);
 	}
 	
-	public boolean updateLoadedTileServer(Vec3d pos, Vec3d look)
-	{
-		loadedTile = null;
-		getMoving(pos, look, true);
-		return loadedTile != null;
+	public LittleTile getFocusedTile(Vec3d pos, Vec3d look)
+	{	
+		LittleTile tile = null;
+		RayTraceResult hit = null;
+		for (int i = 0; i < tiles.size(); i++) {
+    		for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
+    			RayTraceResult Temphit = tiles.get(i).boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
+    			if(Temphit != null)
+    			{
+    				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
+    				{
+    					hit = Temphit;
+    					tile = tiles.get(i);
+    				}
+    			}
+			}
+		}
+		return tile;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	public void checkClientLoadedTile(double distance)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
 		Vec3d pos = mc.thePlayer.getPositionEyes(TickUtils.getPartialTickTime());
 		if(mc.objectMouseOver.hitVec.distanceTo(pos) < distance)
 			loadedTile = null;
-	}
+	}*/
 	
 	@Override
 	public void update()
@@ -698,7 +706,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateBlock();	
 	}
 
-	public static void combineTilesList(ArrayList<LittleTile> tiles) {
+	public static void combineTilesList(List<LittleTile> tiles) {
 		//ArrayList<LittleTile> newTiles = new ArrayList<>();
 		int size = 0;
 		while(size != tiles.size())

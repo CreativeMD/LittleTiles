@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
+import java.util.Iterator;
+
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -71,10 +73,9 @@ public class SubContainerChisel extends SubContainer {
 					boolean hasChanged = false;
 					if(tileEntity instanceof TileEntityLittleTiles)
 					{
-						TileEntityLittleTiles littleEntity = (TileEntityLittleTiles) tileEntity;
-						TileList<LittleTile> tiles = littleEntity.getTiles();
-						for (int i = 0; i < tiles.size(); i++) {
-							LittleTile tile = tiles.get(i);
+						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+							LittleTile tile = (LittleTile) iterator.next();
 							boolean shouldEffect = tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored;
 							if(filter != null)
 							{
@@ -93,7 +94,7 @@ public class SubContainerChisel extends SubContainer {
 									((LittleTileBlock) tile).block = replacement;
 									if(metaReplacement != -1)
 										((LittleTileBlock) tile).meta = metaReplacement;
-									littleEntity.needFullUpdate = true;
+									te.needFullUpdate = true;
 								}
 								
 								if(colorize)
@@ -101,13 +102,13 @@ public class SubContainerChisel extends SubContainer {
 									LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 									
 									if(newTile != null)
-										tiles.set(i, newTile);
+										te.getTiles().set(te.getTiles().indexOf(tile), newTile);
 								}
 								effected++;
 							}
 						}
 						if(hasChanged)
-							littleEntity.updateBlock();
+							te.updateBlock();
 					}
 				}
 			}
