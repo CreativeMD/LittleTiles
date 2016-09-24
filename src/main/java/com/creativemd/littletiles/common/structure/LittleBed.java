@@ -3,8 +3,14 @@ package com.creativemd.littletiles.common.structure;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
+import net.minecraft.block.BlockBed;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -25,19 +31,16 @@ public class LittleBed extends LittleStructure{
 
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void createControls(SubGui gui, LittleStructure structure) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -53,61 +56,29 @@ public class LittleBed extends LittleStructure{
 	}
 	
 	@Override
+	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+		LittleTileSize size = getSize();
+		if(size.sizeZ > size.sizeX)
+			return EnumFacing.EAST;
+		return EnumFacing.SOUTH;
+    }
+	
+	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if (world.isRemote)
             return true;
 
-        /*if (!isBlockHeadOfBed(i1))
-        {
-            int j1 = getDirection(i1);
-            p_149727_2_ += field_149981_a[j1][0];
-            p_149727_4_ += field_149981_a[j1][1];
-
-            if (world.getBlock(x, y, z) != this)
-            {
-                return true;
-            }
-
-            i1 = world.getBlockMetadata(x, y, z);
-        }*/
-
         if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
         {
-            /*if (func_149976_c(i1))
-            {
-                EntityPlayer entityplayer1 = null;
-                Iterator iterator = world.playerEntities.iterator();
-
-                while (iterator.hasNext())
-                {
-                    EntityPlayer entityplayer2 = (EntityPlayer)iterator.next();
-
-                    if (entityplayer2.isPlayerSleeping())
-                    {
-                        ChunkCoordinates chunkcoordinates = entityplayer2.playerLocation;
-
-                        if (chunkcoordinates.posX == x && chunkcoordinates.posY == y && chunkcoordinates.posZ == z)
-                        {
-                            entityplayer1 = entityplayer2;
-                        }
-                    }
-                }
-
-                if (entityplayer1 != null)
-                {
-                    player.addChatComponentMessage(new ChatComponentTranslation("tile.bed.occupied", new Object[0]));
-                    return true;
-                }
-				*/
-                //func_149979_a(world, x, y, z, false);
-            }
-
+        	LittleTileVec vec = getHighestCenterPoint();
+        	LittleTiles.blockTile.sleepingTile = mainTile;
             SleepResult enumstatus = player.trySleep(pos);
-
+            LittleTiles.blockTile.sleepingTile = null;
+            
             if (enumstatus == SleepResult.OK)
             {
-                //func_149979_a(world, x, y, z, true);
                 return true;
             }
             else
@@ -123,6 +94,8 @@ public class LittleBed extends LittleStructure{
 
                 return true;
             }
+        }
+        return true;
 	}
 
 }

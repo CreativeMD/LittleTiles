@@ -9,6 +9,7 @@ import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
+import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.server.LittleTilesServer;
@@ -56,7 +57,11 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
 		
+		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
+		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
+		
 		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
 		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);

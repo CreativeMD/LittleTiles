@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
@@ -58,7 +59,7 @@ public class GuiTileViewer extends GuiParent{
 	
 	public void updateNormalAxis()
 	{
-		ArrayList<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
+		List<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double minZ = Integer.MAX_VALUE;

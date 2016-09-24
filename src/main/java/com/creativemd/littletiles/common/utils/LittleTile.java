@@ -10,6 +10,7 @@ import java.util.Random;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.RenderCubeObject;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -152,6 +154,15 @@ public abstract class LittleTile {
 			return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
 	}
 	
+	public int getVolume()
+	{
+		int percent = 0;
+		for (int i = 0; i < boundingBoxes.size(); i++) {
+			percent += boundingBoxes.get(i).getSize().getVolume();
+		}
+		return percent;
+	}
+	
 	public double getPercentVolume()
 	{
 		double percent = 0;
@@ -210,10 +221,15 @@ public abstract class LittleTile {
 	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
 	{
 		int count = nbt.getInteger("bSize");
+		
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			te.removeTile(this);
 		boundingBoxes.clear();
 		for (int i = 0; i < count; i++) {
 			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
 		}
+		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			te.addTile(this);
 		updateCorner();
 	}
 	
@@ -493,6 +509,8 @@ public abstract class LittleTile {
 	
 	//================Block Event================
 	
+	public abstract float getExplosionResistance();
+	
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {}
 
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
@@ -547,7 +565,7 @@ public abstract class LittleTile {
 		//{
 			BlockPos absoluteCoord = coord.getAbsolutePosition(te);
 			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
-			if(!(chunk instanceof EmptyChunk))
+			if(WorldUtils.checkIfChunkExists(chunk))
 			{
 				TileEntity tileEntity = world.getTileEntity(absoluteCoord);
 				if(tileEntity instanceof TileEntityLittleTiles)

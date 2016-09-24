@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import io.netty.buffer.Unpooled;
@@ -25,7 +26,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTileTileEntity extends LittleTileBlock{
+public class LittleTileTileEntity extends LittleTileBlock {
 	
 	public LittleTileTileEntity()
 	{
