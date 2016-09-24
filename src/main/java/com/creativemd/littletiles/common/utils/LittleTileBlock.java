@@ -14,6 +14,7 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -89,7 +90,7 @@ public class LittleTileBlock extends LittleTile{
 		block = Block.getBlockFromName(nbt.getString("block"));
 		meta = nbt.getInteger("meta");
 		if(block == null || block instanceof BlockAir){
-			System.out.println("Invalid block name! name=" + nbt.getString("block"));
+			//System.out.println("Invalid block name! name=" + nbt.getString("block"));
 			//throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
 		}
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
@@ -108,6 +109,8 @@ public class LittleTileBlock extends LittleTile{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
 			thisTile.block = block;
 			thisTile.meta = meta;
+			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+				thisTile.translucent = translucent;
 		}
 	}
 
@@ -138,7 +141,7 @@ public class LittleTileBlock extends LittleTile{
 	{
 		if(translucent)
 			return layer == BlockRenderLayer.TRANSLUCENT;
-		return layer == BlockRenderLayer.SOLID;
+		return layer == block.getBlockLayer();
 	}
 	
 	@Override
@@ -226,6 +229,11 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	protected boolean canSawResize(EnumFacing facing, EntityPlayer player) {
 		return true;
+	}
+
+	@Override
+	public float getExplosionResistance() {
+		return block.getExplosionResistance(null);
 	}
 	
 }

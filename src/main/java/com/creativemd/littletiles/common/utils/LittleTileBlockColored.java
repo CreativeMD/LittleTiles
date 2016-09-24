@@ -83,6 +83,13 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		return false;
 	}
 	
+	@Override
+	public boolean canBeRenderCombined(LittleTile tile) {
+		if(tile instanceof LittleTileBlockColored)
+			return super.canBeRenderCombined(tile) && ((LittleTileBlockColored) tile).color == this.color;
+		return false;
+	}
+	
 	public static LittleTileBlock setColor(LittleTileBlock tile, int color)
 	{
 		if(color == ColorUtils.WHITE)

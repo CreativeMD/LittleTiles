@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import java.util.ArrayList;
+
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -8,6 +10,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class LittleTileBox {
@@ -54,6 +57,11 @@ public class LittleTileBox {
 	public LittleTileBox(LittleTileVec min, LittleTileVec max)
 	{
 		this(min.x, min.y, min.z, max.x, max.y, max.z);
+	}
+	
+	public LittleTileBox(LittleTileVec min)
+	{
+		this(min.x, min.y, min.z, min.x+1, min.y+1, min.z+1);
 	}
 	
 	public LittleTileBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
@@ -567,6 +575,46 @@ public class LittleTileBox {
 		}
 		return newBox;
 	}
+
+	public LittleTileBox createInsideBlockBox(EnumFacing facing)
+	{
+		CubeObject cube = this.getCube();
+		return new LittleTileBox(cube.offset(new BlockPos(0, 0, 0).offset(facing)));
+	}
 	
+	
+	public static void combineBoxes(ArrayList<LittleTileBox> boxes) {
+		//ArrayList<LittleTile> newTiles = new ArrayList<>();
+		int size = 0;
+		while(size != boxes.size())
+		{
+			size = boxes.size();
+			int i = 0;
+			while(i < boxes.size()){
+				int j = 0;
+				while(j < boxes.size()) {
+					if(i != j)
+					{
+						LittleTileBox box = boxes.get(i).combineBoxes(boxes.get(j));
+						if(box != null)
+						{
+							boxes.set(i, box);
+							boxes.remove(j);
+							if(i > j)
+								i--;
+							continue;
+						}
+					}
+					j++;
+				}
+				i++;
+			}
+		}
+		
+	}
+
+	public LittleTileVec getCenter() {
+		return new LittleTileVec((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);
+	}
 	
 }
