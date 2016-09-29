@@ -159,7 +159,8 @@ public abstract class LittleStructure {
 			
 			if(tilesToLoad == null)
 				return true;
-				
+			
+			//long time = System.nanoTime();
 			int i = 0;
 			while (i < tilesToLoad.size()) {
 				if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
@@ -167,6 +168,7 @@ public abstract class LittleStructure {
 				else
 					i++;
 			}
+			//System.out.println("LOADING Structure! time=" + (System.nanoTime()-time));
 			
 			if(tilesToLoad.size() == 0)
 				tilesToLoad = null;

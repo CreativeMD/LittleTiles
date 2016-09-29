@@ -15,6 +15,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
@@ -78,7 +79,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean isRendering;
 	
 	@SideOnly(Side.CLIENT)
-	private BlockInfo info;
+	private int lastRenderedLightValue;
 	
 	@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
@@ -91,9 +92,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void setQuadCache(BlockInfo info, QuadCache[] cache, BlockRenderLayer layer, EnumFacing facing)
+	public void setQuadCache(QuadCache[] cache, BlockRenderLayer layer, EnumFacing facing)
 	{
-		this.info = info;
+		//this.lastRenderedLightValue = lightValue;
 		HashMap<EnumFacing, QuadCache[]> facingCache = getRenderCacheQuads().get(layer);
 		if(facingCache == null)
 			facingCache = new HashMap<>();
@@ -102,63 +103,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public QuadCache[] getQuadCache(BlockInfo info, BlockRenderLayer layer, EnumFacing facing)
+	public QuadCache[] getQuadCache(BlockRenderLayer layer, EnumFacing facing)
 	{
-		if(doesNeedRenderUpdate(info))
-			return null;
 		HashMap<EnumFacing, QuadCache[]> facingCache = getRenderCacheQuads().get(layer);
 		if(facingCache != null)
 			return facingCache.get(facing);
 		return null;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public boolean doesNeedRenderUpdate(BlockInfo newInfo)
+	public void updateQuadCache()
 	{
-		if(info == null)
-			return true;
-		
-		boolean[][][] translucent = info.getTranslucent();
-		boolean[][][] translucentNew = newInfo.getTranslucent();
-		for (int x = 0; x < translucent.length; x++) {
-			for (int y = 0; y < translucent[x].length; y++) {
-				for (int z = 0; z < translucent[x][y].length; z++) {
-					if(translucent[x][y][z] != translucentNew[x][y][z])
-						return true;
-				}
-			}
+		int lightValue = worldObj.getLight(pos);
+		if(lightValue != lastRenderedLightValue)
+		{
+			this.lastRenderedLightValue = lightValue;
+			quadCache = null;
 		}
-	    
-	    float[][][][] skyLight = info.getSkyLight();
-	    float[][][][] skyLightNew = newInfo.getSkyLight();
-	    for (int x = 0; x < skyLight.length; x++) {
-			for (int y = 0; y < skyLight[x].length; y++) {
-				for (int z = 0; z < skyLight[x][y].length; z++) {
-					for (int w = 0; w < skyLight[x][y][z].length; w++) {
-						if(skyLight[x][y][z][w] != skyLightNew[x][y][z][w])
-							return true;
-					}
-				}
-			}
-		}
-	    
-	    float[][][][] blockLight = info.getBlockLight();
-	    float[][][][] blockLightNew = newInfo.getBlockLight();
-	    for (int x = 0; x < blockLight.length; x++) {
-			for (int y = 0; y < blockLight[x].length; y++) {
-				for (int z = 0; z < blockLight[x][y].length; z++) {
-					for (int w = 0; w < blockLight[x][y][z].length; w++) {
-						if(blockLight[x][y][z][w] != blockLightNew[x][y][z][w])
-							return true;
-					}
-				}
-			}
-		}
-	    
-	    if(info.getShx() != newInfo.getShx() || info.getShy() != newInfo.getShy() || info.getShz() != newInfo.getShz() || info.getCachedTint() != newInfo.getCachedTint() || info.getCachedMultiplier() != newInfo.getCachedMultiplier())
-	    	return true;
-	    
-	    return false;
 	}
 	
 	
@@ -299,7 +259,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		cachedQuads = null;
 		quadCache = null;
 		
-		info = null;
+		lastRenderedLightValue = 0;
 	}
 	
 	
@@ -330,7 +290,38 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean isBoxFilled(LittleTileBox box)
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			isBoxFilledClient(box);
+			return isBoxFilledClient(box);
+		LittleTileSize size = box.getSize();
+		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+		for (int i = 0; i < tiles.size(); i++) {
+			LittleTile tile = tiles.get(i);
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				LittleTileBox otherBox = tile.boundingBoxes.get(j);
+				int minX = Math.max(box.minX, otherBox.minX);
+				int maxX = Math.min(box.maxX, otherBox.maxX);
+				int minY = Math.max(box.minY, otherBox.minY);
+				int maxY = Math.min(box.maxY, otherBox.maxY);
+				int minZ = Math.max(box.minZ, otherBox.minZ);
+				int maxZ = Math.min(box.maxZ, otherBox.maxZ);
+				for (int x = minX; x < maxX; x++) {
+					for (int y = minY; y < maxY; y++) {
+						for (int z = minZ; z < maxZ; z++) {
+							filled[x-box.minX][y-box.minY][z-box.minZ] = true;
+						}
+					}
+				}
+			}
+		}
+		for (int x = 0; x < filled.length; x++) {
+			for (int y = 0; y < filled[x].length; y++) {
+				for (int z = 0; z < filled[x][y].length; z++) {
+					if(!filled[x][y][z])
+						return false;
+				}
+			}
+		}
+		return true;
+		/*
 		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
 			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
 				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
@@ -339,11 +330,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				}
 			}
 		}
-		return true;
+		return true;*/
 	}
 	
 	public void updateNeighbor()
 	{
+		//System.out.println("Update Neighbor"); //TODO Maybe change it!
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).onNeighborChangeInside();
 		}
@@ -469,6 +461,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
     {
+		//long time = System.nanoTime();
         super.readFromNBT(nbt);
         if(tiles != null)
         	tiles.clear();
@@ -483,12 +476,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
         if(FMLCommonHandler.instance().getEffectiveSide().isClient())
         	completeTileUpdate();
-        updateTiles();
+        //updateTiles();
+        if(worldObj != null)
+        	updateBlock();
+        //System.out.println("READING! time=" + (System.nanoTime()-time));
     }
 
 	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
+		//long time = System.nanoTime();
         super.writeToNBT(nbt);
         for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound tileNBT = new NBTTagCompound();
@@ -496,6 +493,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			nbt.setTag("t" + i, tileNBT);
 		}
         nbt.setInteger("tilesCount", tiles.size());
+        //long timeLeft = (System.nanoTime()-time);
+        //System.out.println("" + tiles.size() + "," + timeLeft+"," + timeLeft/tiles.size());
 		return nbt;
     }
     
@@ -518,6 +517,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
         nbt.setInteger("tilesCount", tiles.size());
         needFullUpdate = false;
+        //System.out.println("SENDING!");
     }
     
     public LittleTile getTile(LittleTileVec vec)
@@ -567,6 +567,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
         updateTiles();
         super.onDataPacket(net, pkt);
+        //System.out.println("RECEIVING!");
     }
     
     public RayTraceResult getMoving(EntityPlayer player)

@@ -866,7 +866,11 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 					return null;
 				HashMap<EnumFacing, List<BakedQuad>> quads = littleTe.cachedQuads.get(layer);
 				if(quads != null)
+				{
+					if(layer == BlockRenderLayer.SOLID)
+						littleTe.updateQuadCache();
 					return quads.get(facing);
+				}
 			}
 		}
 		return null;
@@ -895,17 +899,17 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public QuadCache[] getCustomCachedQuads(BlockInfo info, BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
+	public QuadCache[] getCustomCachedQuads(BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
 		if(te instanceof TileEntityLittleTiles)
-			return ((TileEntityLittleTiles) te).getQuadCache(info, layer, facing);
+			return ((TileEntityLittleTiles) te).getQuadCache(layer, facing);
 		return null;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCachedQuads(QuadCache[] quads, BlockInfo info, BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
+	public void saveCachedQuads(QuadCache[] quads, BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
 		if(te instanceof TileEntityLittleTiles)
-			((TileEntityLittleTiles) te).setQuadCache(info, quads, layer, facing);
+			((TileEntityLittleTiles) te).setQuadCache(quads, layer, facing);
 	}
 	
 	@Override
