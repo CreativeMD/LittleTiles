@@ -79,18 +79,18 @@ public class PlacementHelper {
 	
 	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)
 	{
-		byte minX = LittleTile.maxPos;
-		byte minY = LittleTile.maxPos;
-		byte minZ = LittleTile.maxPos;
+		int minX = LittleTile.maxPos;
+		int minY = LittleTile.maxPos;
+		int minZ = LittleTile.maxPos;
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
 			if(tile == null)
 				return new LittleTileVec(0, 0, 0);
 			if(tile.box != null)
 			{
-				minX = (byte) Math.min(minX, tile.box.minX);
-				minY = (byte) Math.min(minY, tile.box.minY);
-				minZ = (byte) Math.min(minZ, tile.box.minZ);
+				minX = Math.min(minX, tile.box.minX);
+				minY = Math.min(minY, tile.box.minY);
+				minZ = Math.min(minZ, tile.box.minZ);
 			}
 		}
 		return new LittleTileVec(minX, minY, minZ);
@@ -98,12 +98,12 @@ public class PlacementHelper {
 	
 	public static LittleTileSize getSize(ArrayList<LittleTilePreview> tiles)
 	{
-		byte minX = LittleTile.maxPos;
-		byte minY = LittleTile.maxPos;
-		byte minZ = LittleTile.maxPos;
-		byte maxX = LittleTile.minPos;
-		byte maxY = LittleTile.minPos;
-		byte maxZ = LittleTile.minPos;
+		int minX = LittleTile.maxPos;
+		int minY = LittleTile.maxPos;
+		int minZ = LittleTile.maxPos;
+		int maxX = LittleTile.minPos;
+		int maxY = LittleTile.minPos;
+		int maxZ = LittleTile.minPos;
 		LittleTileSize size = new LittleTileSize(0, 0, 0);
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
@@ -111,12 +111,12 @@ public class PlacementHelper {
 				return new LittleTileSize(0, 0, 0);
 			if(tile.box != null)
 			{
-				minX = (byte) Math.min(minX, tile.box.minX);
-				minY = (byte) Math.min(minY, tile.box.minY);
-				minZ = (byte) Math.min(minZ, tile.box.minZ);
-				maxX = (byte) Math.max(maxX, tile.box.maxX);
-				maxY = (byte) Math.max(maxY, tile.box.maxY);
-				maxZ = (byte) Math.max(maxZ, tile.box.maxZ);
+				minX = Math.min(minX, tile.box.minX);
+				minY = Math.min(minY, tile.box.minY);
+				minZ = Math.min(minZ, tile.box.minZ);
+				maxX = Math.max(maxX, tile.box.maxX);
+				maxY = Math.max(maxY, tile.box.maxY);
+				maxZ = Math.max(maxZ, tile.box.maxZ);
 			}else{
 				size.max(tile.size);
 			}
@@ -354,28 +354,28 @@ public class PlacementHelper {
 			double posY = hitVec.yCoord - pos.getY();
 			double posZ = hitVec.zCoord - pos.getZ();
 			
-			LittleTileVec vec = new LittleTileVec((int)(posX*16), (int)(posY*16), (int)(posZ*16));
+			LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
 			if(!canBePlacedInside(pos, hitVec, side))
 			{
 				switch(side)
 				{
 				case EAST:
-					vec.x -= 16;
+					vec.x -= LittleTile.gridSize;
 					break;
 				case WEST:
-					vec.x += 16;
+					vec.x += LittleTile.gridSize;
 					break;
 				case UP:
-					vec.y -= 16;
+					vec.y -= LittleTile.gridSize;
 					break;
 				case DOWN:
-					vec.y += 16;
+					vec.y += LittleTile.gridSize;
 					break;
 				case SOUTH:
-					vec.z -= 16;
+					vec.z -= LittleTile.gridSize;
 					break;
 				case NORTH:
-					vec.z += 16;
+					vec.z += LittleTile.gridSize;
 					break;
 				default:
 					break;
@@ -393,35 +393,28 @@ public class PlacementHelper {
 		double posZ = hitVec.zCoord - pos.getZ();
 		//if(hitVec.zCoord < 0)
 			//posZ = 1-posZ;
-		LittleTileVec vec = new LittleTileVec((int)(posX*16), (int)(posY*16), (int)(posZ*16));
+		LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
 		if(!customPlacement && !canBePlacedInside(pos, hitVec, side))
 		{
 			switch(side)
 			{
 			case EAST:
-				//vec.x = 15;
 				vec.x = 0;
 				break;
 			case WEST:
-				vec.x = 16;
-				//if(x < 0)
-					//vec.x = 0;
+				vec.x = LittleTile.gridSize;
 				break;
 			case UP:
-				//vec.y = 15;
 				vec.y = 0;
 				break;
 			case DOWN:
-				vec.y = 16;
+				vec.y = LittleTile.gridSize;
 				break;
 			case SOUTH:
-				//vec.z = 15;
 				vec.z = 0;
 				break;
 			case NORTH:
-				vec.z = 16;
-				//if(z < 0)
-					//vec.z = 0;
+				vec.z = LittleTile.gridSize;
 				break;
 			default:
 				break;

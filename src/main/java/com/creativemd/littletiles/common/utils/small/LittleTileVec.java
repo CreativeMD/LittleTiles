@@ -1,9 +1,12 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import com.creativemd.littletiles.common.utils.LittleTile;
+
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class LittleTileVec {
@@ -24,12 +27,45 @@ public class LittleTileVec {
 	
 	public LittleTileVec(Vec3d vec)
 	{
-		this((int) (vec.xCoord*16), (int) (vec.yCoord*16), (int) (vec.zCoord*16));
+		this((int) (vec.xCoord*LittleTile.gridSize), (int) (vec.yCoord*LittleTile.gridSize), (int) (vec.zCoord*LittleTile.gridSize));
+	}
+	
+	public LittleTileVec(EnumFacing facing)
+	{
+		switch(facing)
+		{
+		case EAST:
+			set(1,0,0);
+			break;
+		case WEST:
+			set(-1,0,0);
+			break;
+		case UP:
+			set(0,1,0);
+			break;
+		case DOWN:
+			set(0,-1,0);
+			break;
+		case SOUTH:
+			set(0,0,1);
+			break;
+		case NORTH:
+			set(0,0,-1);
+			break;
+		default:
+			set(0,0,0);
+			break;
+		}
 	}
 	
 	public LittleTileVec(int x, int y, int z)
 	{
 		set(x, y, z);
+	}
+	
+	public LittleTileVec(Vec3i vec)
+	{
+		this(vec.getX()*LittleTile.gridSize, vec.getY()*LittleTile.gridSize, vec.getZ()*LittleTile.gridSize);
 	}
 	
 	public void set(int x, int y, int z)
@@ -41,17 +77,17 @@ public class LittleTileVec {
 	
 	public double getPosX()
 	{
-		return (double)x/16D;
+		return (double)x/LittleTile.gridSize;
 	}
 	
 	public double getPosY()
 	{
-		return (double)y/16D;
+		return (double)y/LittleTile.gridSize;
 	}
 	
 	public double getPosZ()
 	{
-		return (double)z/16D;
+		return (double)z/LittleTile.gridSize;
 	}
 	
 	public void addVec(LittleTileVec vec)

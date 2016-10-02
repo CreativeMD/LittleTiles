@@ -267,7 +267,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
                 			{
 	                			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
 	                				LittleTileBox box = tile.boundingBoxes.get(j).copy();
-	                				box.addOffset(new LittleTileVec(x2*16, y2*16, z2*16));
+	                				box.addOffset(new LittleTileVec(x2*LittleTile.gridSize, y2*LittleTile.gridSize, z2*LittleTile.gridSize));
 	                				double expand = 0.0001;
 	                				if(bb.intersectsWith(box.getBox().expand(expand, expand, expand)))
 	                					return true;
@@ -444,7 +444,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
-			LittleTileBox box = new LittleTileBox(0, 0, 0, 1, 16, 16);
+			LittleTileBox box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
 			box.rotateBox(side.getOpposite());
 			return te.isBoxFilled(box);
 		}
@@ -655,10 +655,10 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     			te.onNeighBorChangedClient();
     		else{
     			PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos), 100, pos);
-	    		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+	    		/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
 	    			tile.onNeighborChangeOutside();;
-				}
+				}*/
     		}
     	}
     }
@@ -672,10 +672,10 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
     			te.onNeighBorChangedClient();
     		else{
-				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
 	    			tile.onNeighborChangeOutside();
-				}
+				}*/
     		}
     	}
 	}

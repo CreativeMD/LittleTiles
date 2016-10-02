@@ -31,7 +31,7 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector {
 			return null;
 		RayTraceResult result = te.getMoving(player);
 		LittleTileVec vec = new LittleTileVec(result.hitVec);
-		vec.subVec(new LittleTileVec(pos.getX()*16, pos.getY()*16, pos.getZ()*16));;
+		vec.subVec(new LittleTileVec(pos));;
 		switch(result.sideHit)
 		{
 		case EAST:
@@ -51,7 +51,6 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector {
 			break;
 		}
 		return new LittleTileBox(vec);
-		//return new AxisAlignedBB(result.hitVec.xCoord, result.hitVec.yCoord, result.hitVec.zCoord, result.hitVec.xCoord+1/16D, result.hitVec.yCoord+1/16D, result.hitVec.zCoord+1/16D);
 	}
 	
 }

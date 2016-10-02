@@ -66,7 +66,7 @@ public class SubContainerHammer extends SubContainer{
 
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		LittleTileSize size = new LittleTileSize(nbt.getByte("sizeX"), nbt.getByte("sizeY"), nbt.getByte("sizeZ"));
+		LittleTileSize size = new LittleTileSize(nbt.getInteger("sizeX"), nbt.getInteger("sizeY"), nbt.getInteger("sizeZ"));
 		ItemStack stack = basic.getStackInSlot(0);
 		if(stack != null && stack.getItem() instanceof ItemBlock)
 		{

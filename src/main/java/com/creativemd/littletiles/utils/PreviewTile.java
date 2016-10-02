@@ -119,69 +119,69 @@ public class PreviewTile {
 		
 		LittleTileSize size = box.getSize();
 		
-		int offX = box.minX/16;
+		int offX = box.minX/LittleTile.gridSize;
 		if(box.minX < 0)
-			offX = (int) Math.floor(box.minX/16D);
-		int offY = box.minY/16;
+			offX = (int) Math.floor(box.minX/(double)LittleTile.gridSize);
+		int offY = box.minY/LittleTile.gridSize;
 		if(box.minY < 0)
-			offY = (int) Math.floor(box.minY/16D);
-		int offZ = box.minZ/16;
+			offY = (int) Math.floor(box.minY/(double)LittleTile.gridSize);
+		int offZ = box.minZ/LittleTile.gridSize;
 		if(box.minZ < 0)
-			offZ = (int) Math.floor(box.minZ/16D);
+			offZ = (int) Math.floor(box.minZ/(double)LittleTile.gridSize);
 		
 		int posX = pos.getX()+offX;
 		int posY = pos.getY()+offY;
 		int posZ = pos.getZ()+offZ;
 		
-		int spaceX = box.minX-offX*16;
-		int spaceY = box.minY-offY*16;
-		int spaceZ = box.minZ-offZ*16;
+		int spaceX = box.minX-offX*LittleTile.gridSize;
+		int spaceY = box.minY-offY*LittleTile.gridSize;
+		int spaceZ = box.minZ-offZ*LittleTile.gridSize;
 		
-		for (int i = 0; spaceX+size.sizeX > i*16; i++) {
+		for (int i = 0; spaceX+size.sizeX > i*LittleTile.gridSize; i++) {
 			posY = pos.getY()+offY;
-			for (int j = 0; spaceY+size.sizeY > j*16; j++) {
+			for (int j = 0; spaceY+size.sizeY > j*LittleTile.gridSize; j++) {
 				posZ = pos.getZ()+offZ;
-				for (int h = 0; spaceZ+size.sizeZ > h*16; h++) {
+				for (int h = 0; spaceZ+size.sizeZ > h*LittleTile.gridSize; h++) {
 					
 					PreviewTile tile = this.copy();
 					if(i > 0)
 						tile.box.minX =	0;
 					else
 						tile.box.minX = spaceX;
-					if(i*16+16 > spaceX+size.sizeX)
+					if(i*LittleTile.gridSize+LittleTile.gridSize > spaceX+size.sizeX)
 					{
-						tile.box.maxX = (box.maxX-box.maxX/16*16);
+						tile.box.maxX = (box.maxX-box.maxX/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxX < 0)
-							tile.box.maxX = 16+tile.box.maxX;
+							tile.box.maxX = LittleTile.gridSize+tile.box.maxX;
 					}
 					else
-						tile.box.maxX = 16;
+						tile.box.maxX = LittleTile.gridSize;
 					
 					if(j > 0)
 						tile.box.minY =	0;
 					else
 						tile.box.minY = spaceY;
-					if(j*16+16 > spaceY+size.sizeY)
+					if(j*LittleTile.gridSize+LittleTile.gridSize > spaceY+size.sizeY)
 					{
-						tile.box.maxY = (box.maxY-box.maxY/16*16);
+						tile.box.maxY = (box.maxY-box.maxY/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxY < 0)
-							tile.box.maxY = 16+tile.box.maxY;
+							tile.box.maxY = LittleTile.gridSize+tile.box.maxY;
 					}
 					else
-						tile.box.maxY = 16;
+						tile.box.maxY = LittleTile.gridSize;
 					
 					if(h > 0)
 						tile.box.minZ =	0;
 					else
 						tile.box.minZ = spaceZ;
-					if(h*16+16 > spaceZ+size.sizeZ)
+					if(h*LittleTile.gridSize+LittleTile.gridSize > spaceZ+size.sizeZ)
 					{
-						tile.box.maxZ = (box.maxZ-box.maxZ/16*16);
+						tile.box.maxZ = (box.maxZ-box.maxZ/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxZ < 0)
-							tile.box.maxZ = 16+tile.box.maxZ;
+							tile.box.maxZ = LittleTile.gridSize+tile.box.maxZ;
 					}
 					else
-						tile.box.maxZ = 16;
+						tile.box.maxZ = LittleTile.gridSize;
 					
 					if(tile.box.isValidBox())
 					{

@@ -46,12 +46,12 @@ public class LittleTileBox {
 	
 	public LittleTileBox(CubeObject cube)
 	{
-		this((int)(cube.minX*16), (int)(cube.minY*16), (int)(cube.minZ*16), (int)(cube.maxX*16), (int)(cube.maxY*16), (int)(cube.maxZ*16));
+		this((int)(cube.minX*LittleTile.gridSize), (int)(cube.minY*LittleTile.gridSize), (int)(cube.minZ*LittleTile.gridSize), (int)(cube.maxX*LittleTile.gridSize), (int)(cube.maxY*LittleTile.gridSize), (int)(cube.maxZ*LittleTile.gridSize));
 	}
 	
 	public LittleTileBox(AxisAlignedBB box)
 	{
-		this((int)(box.minX*16), (int)(box.minY*16), (int)(box.minZ*16), (int)(box.maxX*16), (int)(box.maxY*16), (int)(box.maxZ*16));
+		this((int)(box.minX*LittleTile.gridSize), (int)(box.minY*LittleTile.gridSize), (int)(box.minZ*LittleTile.gridSize), (int)(box.maxX*LittleTile.gridSize), (int)(box.maxY*LittleTile.gridSize), (int)(box.maxZ*LittleTile.gridSize));
 	}
 	
 	public LittleTileBox(LittleTileVec min, LittleTileVec max)
@@ -71,12 +71,12 @@ public class LittleTileBox {
 	
 	public AxisAlignedBB getBox()
 	{
-		return new AxisAlignedBB(minX/16D, minY/16D, minZ/16D, maxX/16D, maxY/16D, maxZ/16D);
+		return new AxisAlignedBB(minX/(double)LittleTile.gridSize, minY/(double)LittleTile.gridSize, minZ/(double)LittleTile.gridSize, maxX/(double)LittleTile.gridSize, maxY/(double)LittleTile.gridSize, maxZ/(double)LittleTile.gridSize);
 	}
 	
 	public CubeObject getCube()
 	{
-		return new CubeObject(minX/16F, minY/16F, minZ/16F, maxX/16F, maxY/16F, maxZ/16F);
+		return new CubeObject(minX/(float)LittleTile.gridSize, minY/(float)LittleTile.gridSize, minZ/(float)LittleTile.gridSize, maxX/(float)LittleTile.gridSize, maxY/(float)LittleTile.gridSize, maxZ/(float)LittleTile.gridSize);
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
@@ -91,7 +91,7 @@ public class LittleTileBox {
 	
 	public Vec3d getSizeD()
 	{
-		return new Vec3d((maxX - minX)*1/16D, (maxY - minY)*1/16D, (maxZ - minZ)*1/16D);
+		return new Vec3d((maxX - minX)*LittleTile.gridMCLength, (maxY - minY)*LittleTile.gridMCLength, (maxZ - minZ)*LittleTile.gridMCLength);
 	}
 	
 	public LittleTileSize getSize()
@@ -119,11 +119,11 @@ public class LittleTileBox {
 	}
 	
 	public boolean needsMultipleBlocks() {
-		int x = minX/16;
-		int y = minY/16;
-		int z = minZ/16;
+		int x = minX/LittleTile.gridSize;
+		int y = minY/LittleTile.gridSize;
+		int z = minZ/LittleTile.gridSize;
 		
-		return maxX-x*16<=LittleTile.maxPos && maxY-y*16<=LittleTile.maxPos && maxZ-z*16<=LittleTile.maxPos;
+		return maxX-x*LittleTile.gridSize<=LittleTile.maxPos && maxY-y*LittleTile.gridSize<=LittleTile.maxPos && maxZ-z*LittleTile.gridSize<=LittleTile.maxPos;
 	}
 	
 	public LittleTileBox combineBoxes(LittleTileBox box)
@@ -182,12 +182,12 @@ public class LittleTileBox {
 	
 	public void assignCube(CubeObject cube)
 	{
-		this.minX = (int)(cube.minX*16);
-		this.minY = (int)(cube.minY*16);
-		this.minZ = (int)(cube.minZ*16);
-		this.maxX = (int)(cube.maxX*16);
-		this.maxY = (int)(cube.maxY*16);
-		this.maxZ = (int)(cube.maxZ*16);
+		this.minX = (int)(cube.minX*LittleTile.gridSize);
+		this.minY = (int)(cube.minY*LittleTile.gridSize);
+		this.minZ = (int)(cube.minZ*LittleTile.gridSize);
+		this.maxX = (int)(cube.maxX*LittleTile.gridSize);
+		this.maxY = (int)(cube.maxY*LittleTile.gridSize);
+		this.maxZ = (int)(cube.maxZ*LittleTile.gridSize);
 	}
 	
 	public LittleTileVec getMinVec()
@@ -223,18 +223,12 @@ public class LittleTileBox {
 	{
 		CubeObject cube = this.getCube();
 		cube = CubeObject.rotateCube(cube, direction, center);
-		/*this.minX = (int) Math.round(cube.minX*16);
-		this.minY = (int) Math.round(cube.minY*16);
-		this.minZ = (int) Math.round(cube.minZ*16);
-		this.maxX = (int) Math.round(cube.maxX*16);
-		this.maxY = (int) Math.round(cube.maxY*16);
-		this.maxZ = (int) Math.round(cube.maxZ*16);*/
-		this.minX = (int) (cube.minX*16);
-		this.minY = (int) (cube.minY*16);
-		this.minZ = (int) (cube.minZ*16);
-		this.maxX = (int) (cube.maxX*16);
-		this.maxY = (int) (cube.maxY*16);
-		this.maxZ = (int) (cube.maxZ*16);
+		this.minX = (int) (cube.minX*LittleTile.gridSize);
+		this.minY = (int) (cube.minY*LittleTile.gridSize);
+		this.minZ = (int) (cube.minZ*LittleTile.gridSize);
+		this.maxX = (int) (cube.maxX*LittleTile.gridSize);
+		this.maxY = (int) (cube.maxY*LittleTile.gridSize);
+		this.maxZ = (int) (cube.maxZ*LittleTile.gridSize);
 		//assignCube(cube);
 	}
 	
@@ -267,7 +261,7 @@ public class LittleTileBox {
 	public void flipBoxWithCenter(EnumFacing direction, LittleTileVec center)
 	{
 		if(center == null)
-			center = new LittleTileVec(8, 8, 8);
+			center = new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize);
 		subOffset(center);
 		flipBox(direction);
 		addOffset(center);		
@@ -482,7 +476,6 @@ public class LittleTileBox {
 		LittleTileBox result = this.copy();
 		switch(direction)
 		{
-		
 		case EAST:
 			result.maxX--;
 			break;
@@ -512,28 +505,28 @@ public class LittleTileBox {
 		{
 		
 		case EAST:
-			minX += 16;
-			maxX += 16;
+			minX += LittleTile.gridSize;
+			maxX += LittleTile.gridSize;
 			break;
 		case WEST:
-			minX -= 16;
-			maxX -= 16;
+			minX -= LittleTile.gridSize;
+			maxX -= LittleTile.gridSize;
 			break;
 		case UP:
-			minY += 16;
-			maxY += 16;
+			minY += LittleTile.gridSize;
+			maxY += LittleTile.gridSize;
 			break;
 		case DOWN:
-			minY -= 16;
-			maxY -= 16;
+			minY -= LittleTile.gridSize;
+			maxY -= LittleTile.gridSize;
 			break;
 		case SOUTH:
-			minZ += 16;
-			maxZ += 16;
+			minZ += LittleTile.gridSize;
+			maxZ += LittleTile.gridSize;
 			break;
 		case NORTH:
-			minZ -= 16;
-			maxZ -= 16;
+			minZ -= LittleTile.gridSize;
+			maxZ -= LittleTile.gridSize;
 			break;
 		default:
 			break;
@@ -574,6 +567,39 @@ public class LittleTileBox {
 			break;
 		}
 		return newBox;
+	}
+	
+	public LittleTileBox createOutsideBlockBox(EnumFacing facing)
+	{
+		LittleTileBox box = this.copy();
+		switch(facing)
+		{
+		case EAST:
+			box.minX = 0;
+			box.maxX -= LittleTile.gridSize;
+			break;
+		case WEST:
+			box.minX += LittleTile.gridSize;
+			box.maxX = LittleTile.gridSize;
+			break;
+		case UP:
+			box.minY = 0;
+			box.maxY -= LittleTile.gridSize;
+			break;
+		case DOWN:
+			box.minY += LittleTile.gridSize;
+			box.maxY = LittleTile.gridSize;
+			break;
+		case SOUTH:
+			box.minZ = 0;
+			box.maxZ -= LittleTile.gridSize;
+			break;
+		case NORTH:
+			box.minZ += LittleTile.gridSize;
+			box.maxZ = LittleTile.gridSize;
+			break;
+		}
+		return box;
 	}
 
 	public LittleTileBox createInsideBlockBox(EnumFacing facing)

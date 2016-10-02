@@ -384,13 +384,13 @@ public abstract class LittleStructure {
 			for (int j = 0; j < values.size(); j++) {
 				for (int h = 0; h < values.get(j).boundingBoxes.size(); h++) {
 					LittleTileBox box = values.get(j).boundingBoxes.get(h);
-					minX = Math.min(minX, coord.getX()*16+box.minX);
-					minY = Math.min(minY, coord.getY()*16+box.minY);
-					minZ = Math.min(minZ, coord.getZ()*16+box.minZ);
+					minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
+					minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
+					minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
 					
-					maxX = Math.max(maxX, coord.getX()*16+box.maxX);
-					maxY = Math.max(maxY, coord.getY()*16+box.maxY);
-					maxZ = Math.max(maxZ, coord.getZ()*16+box.maxZ);
+					maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
+					maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
+					maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
 				}
 			}
 			/*
@@ -428,13 +428,13 @@ public abstract class LittleStructure {
 			for (int j = 0; j < values.size(); j++) {
 				for (int h = 0; h < values.get(j).boundingBoxes.size(); h++) {
 					LittleTileBox box = values.get(j).boundingBoxes.get(h);
-					minX = Math.min(minX, coord.getX()*16+box.minX);
-					minY = Math.min(minY, coord.getY()*16+box.minY);
-					minZ = Math.min(minZ, coord.getZ()*16+box.minZ);
+					minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
+					minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
+					minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
 					
-					maxX = Math.max(maxX, coord.getX()*16+box.maxX);
-					maxY = Math.max(maxY, coord.getY()*16+box.maxY);
-					maxZ = Math.max(maxZ, coord.getZ()*16+box.maxZ);
+					maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
+					maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
+					maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
 				}
 				minYPos = Math.min(minYPos, coord.getY());
 				maxYPos = Math.max(maxYPos, coord.getY());
@@ -449,16 +449,16 @@ public abstract class LittleStructure {
 			maxZ = Math.max(maxZ, coord.posZ);*/
 		}
 		
-		//double test = Math.floor(((minX+maxX)/16D/2D));
-		int centerX = (int) Math.floor((minX+maxX)/16D/2D);
-		int centerY = (int) Math.floor((minY+maxY)/16D/2D);
-		int centerZ = (int) Math.floor((minZ+maxZ)/16D/2D);
+		//double test = Math.floor(((minX+maxX)/LittleTile.gridSize/2D));
+		int centerX = (int) Math.floor((minX+maxX)/(double)LittleTile.gridSize/2D);
+		int centerY = (int) Math.floor((minY+maxY)/(double)LittleTile.gridSize/2D);
+		int centerZ = (int) Math.floor((minZ+maxZ)/(double)LittleTile.gridSize/2D);
 		
-		int centerTileX = (int) (Math.floor(minX+maxX)/2D)-centerX*16;
-		int centerTileY = (int) (Math.floor(minY+maxY)/2D)-centerY*16;
-		int centerTileZ = (int) (Math.floor(minZ+maxZ)/2D)-centerZ*16;
+		int centerTileX = (int) (Math.floor(minX+maxX)/2D)-centerX*LittleTile.gridSize;
+		int centerTileY = (int) (Math.floor(minY+maxY)/2D)-centerY*LittleTile.gridSize;
+		int centerTileZ = (int) (Math.floor(minZ+maxZ)/2D)-centerZ*LittleTile.gridSize;
 		
-		LittleTileVec position = new LittleTileVec((minX+maxX)/2, minYPos*16, (minZ+maxZ)/2);
+		LittleTileVec position = new LittleTileVec((minX+maxX)/2, minYPos*LittleTile.gridSize, (minZ+maxZ)/2);
 		//position.y = ;
 		for (int y = minYPos; y <= maxYPos; y++) {
 			ArrayList<LittleTile> tilesInCenter = coords.getValues(new BlockPos(centerX, y, centerZ));
@@ -471,7 +471,7 @@ public abstract class LittleStructure {
 						LittleTileBox littleBox = tilesInCenter.get(i).boundingBoxes.get(j);
 						if(box.intersectsWith(littleBox))
 						{
-							position.y = Math.max(y*16+littleBox.maxY, position.y);
+							position.y = Math.max(y*LittleTile.gridSize+littleBox.maxY, position.y);
 							//highest = Math.max(highest, littleBox.maxY);
 						}
 					}

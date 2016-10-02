@@ -45,8 +45,12 @@ public abstract class LittleTile {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	
+	public static final int gridSize = 16;
+	public static final int halfGridSize = gridSize/2;
+	public static final double gridMCLength = 1D/gridSize;
 	public static final int minPos = 0;
-	public static final int maxPos = 16;
+	public static final int maxPos = gridSize;
+	public static final int maxTilesPerBlock = gridSize*gridSize*gridSize;
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
 	{
@@ -83,7 +87,7 @@ public abstract class LittleTile {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");
 				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
-				box.addOffset(new LittleTileVec(8, 8, 8));
+				box.addOffset(new LittleTileVec(halfGridSize, halfGridSize, halfGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
 				tile.boundingBoxes.add(box);
 				tile.cornerVec = box.getMinVec();
@@ -142,12 +146,12 @@ public abstract class LittleTile {
 		{
 			LittleTileBox box = boundingBoxes.get(0).copy();
 			for (int i = 1; i < boundingBoxes.size(); i++) {
-				box.minX = (byte) Math.min(box.minX, boundingBoxes.get(i).minX);
-				box.minY = (byte) Math.min(box.minY, boundingBoxes.get(i).minY);
-				box.minZ = (byte) Math.min(box.minZ, boundingBoxes.get(i).minZ);
-				box.maxX = (byte) Math.max(box.maxX, boundingBoxes.get(i).maxX);
-				box.maxY = (byte) Math.max(box.maxY, boundingBoxes.get(i).maxY);
-				box.maxZ = (byte) Math.max(box.maxZ, boundingBoxes.get(i).maxZ);
+				box.minX = Math.min(box.minX, boundingBoxes.get(i).minX);
+				box.minY = Math.min(box.minY, boundingBoxes.get(i).minY);
+				box.minZ = Math.min(box.minZ, boundingBoxes.get(i).minZ);
+				box.maxX = Math.max(box.maxX, boundingBoxes.get(i).maxX);
+				box.maxY = Math.max(box.maxY, boundingBoxes.get(i).maxY);
+				box.maxZ = Math.max(box.maxZ, boundingBoxes.get(i).maxZ);
 			}
 			return box.getBox();
 		}else
@@ -177,9 +181,9 @@ public abstract class LittleTile {
 		LittleTileSize size = new LittleTileSize(0, 0, 0);
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			LittleTileSize tempSize = boundingBoxes.get(i).getSize();
-			size.sizeX = (byte) Math.max(size.sizeX, tempSize.sizeX);
-			size.sizeY = (byte) Math.max(size.sizeY, tempSize.sizeY);
-			size.sizeZ = (byte) Math.max(size.sizeZ, tempSize.sizeZ);
+			size.sizeX = Math.max(size.sizeX, tempSize.sizeX);
+			size.sizeY = Math.max(size.sizeY, tempSize.sizeY);
+			size.sizeZ = Math.max(size.sizeZ, tempSize.sizeZ);
 		}
 		return size;
 	}
@@ -510,6 +514,11 @@ public abstract class LittleTile {
 	public boolean canSawResizeTile(EnumFacing facing, EntityPlayer player)
 	{
 		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(facing, player);
+	}
+	
+	public boolean canBeMoved(EnumFacing facing, EntityPlayer player)
+	{
+		return boundingBoxes.size() == 1;
 	}
 	
 	//================Block Event================

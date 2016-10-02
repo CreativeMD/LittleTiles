@@ -39,7 +39,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		TileEntity te = player.getEntityWorld().getTileEntity(pos);
 		if(te instanceof TileEntityLittleTiles)
 		{
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getByte("tX"), nbt.getByte("tY"), nbt.getByte("tZ"));
+			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getInteger("tX"), nbt.getInteger("tY"), nbt.getInteger("tZ"));
 			if(tile != null)
 				return getContainer(player, nbt, tile);
 		}
@@ -56,7 +56,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		TileEntity te = player.getEntityWorld().getTileEntity(pos);
 		if(te instanceof TileEntityLittleTiles)
 		{
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getByte("tX"), nbt.getByte("tY"), nbt.getByte("tZ"));
+			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getInteger("tX"), nbt.getInteger("tY"), nbt.getInteger("tZ"));
 			if(tile != null)
 				return getGui(player, nbt, tile);
 		}

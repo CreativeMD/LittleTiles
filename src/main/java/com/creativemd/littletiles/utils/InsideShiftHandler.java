@@ -21,7 +21,7 @@ public class InsideShiftHandler extends ShiftHandler{
 		LittleTileSize size = suggested.getSize();
 		
 		double offset = 0;
-		if(size.sizeX <= 16)
+		if(size.sizeX <= LittleTile.gridSize)
 		{
 			if(suggested.minX < LittleTile.minPos)
 			{
@@ -34,7 +34,7 @@ public class InsideShiftHandler extends ShiftHandler{
 			suggested.maxX += offset;
 		}
 		
-		if(size.sizeY <= 16)
+		if(size.sizeY <= LittleTile.gridSize)
 		{
 			offset = 0;
 			if(suggested.minY < LittleTile.minPos)
@@ -48,7 +48,7 @@ public class InsideShiftHandler extends ShiftHandler{
 			suggested.maxY += offset;
 		}
 		
-		if(size.sizeZ <= 16)
+		if(size.sizeZ <= LittleTile.gridSize)
 		{
 			offset = 0;
 			if(suggested.minZ < LittleTile.minPos)

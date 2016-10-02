@@ -265,30 +265,11 @@ public class LittleDoor extends LittleStructure{
 		//	updateNormalDirection();
 	}
 	
-	/*public static LittleTileVec getSize(ArrayList<PreviewTile> previews)
-	{
-		byte minX = LittleTile.maxPos;
-		byte minY = LittleTile.maxPos;
-		byte minZ = LittleTile.maxPos;
-		byte maxX = LittleTile.minPos;
-		byte maxY = LittleTile.minPos;
-		byte maxZ = LittleTile.minPos;
-		for (int i = 0; i < previews.size(); i++) {
-			PreviewTile tile = previews.get(i);
-			minX = (byte) Math.min(minX, tile.box.minX);
-			minY = (byte) Math.min(minY, tile.box.minY);
-			minZ = (byte) Math.min(minZ, tile.box.minZ);
-			maxX = (byte) Math.max(maxX, tile.box.maxX);
-			maxY = (byte) Math.max(maxY, tile.box.maxY);
-			maxZ = (byte) Math.max(maxZ, tile.box.maxZ);
-		}
-		return new LittleTileVec(maxX-minX, maxY-minY, maxZ-minZ);
-	}*/
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, ArrayList<PreviewTile> defaultpreviews, boolean inverse)
 	{
 		LittleTileVec axisPoint = getAxisVec();
-		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*16, axisPoint.y-pos.getY()*16, axisPoint.z-pos.getZ()*16);
+		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
 		
 		/*LittleTileVec missingOffset = new LittleTileVec(0, 0, 0);
 		switch (direction) {
@@ -316,7 +297,7 @@ public class LittleDoor extends LittleStructure{
 		LittleTileVec missingInfOffset = missingOffset.copy();
 		missingInfOffset.invert();*/
 		ArrayList<PreviewTile> previews = new ArrayList<>();
-		//LittleTileVec blockOffset = new LittleTileVec(8, 8, 8);
+		//LittleTileVec blockOffset = new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize);
 		//LittleTileVec blockInvOffset = blockOffset.copy();
 		//blockInvOffset.invert();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
@@ -418,12 +399,12 @@ public class LittleDoor extends LittleStructure{
 			
 			LittleTileVec axisPoint = getAxisVec();
 			
-			int mainX = axisPoint.x/16;
-			int mainY = axisPoint.y/16;
-			int mainZ = axisPoint.z/16;
+			int mainX = axisPoint.x/LittleTile.gridSize;
+			int mainY = axisPoint.y/LittleTile.gridSize;
+			int mainZ = axisPoint.z/LittleTile.gridSize;
 			
 			
-			//LittleTileVec internalOffset = new LittleTileVec(axis.x-mainX*16, axis.y-mainY*16, axis.z-mainZ*16);
+			//LittleTileVec internalOffset = new LittleTileVec(axis.x-mainX*LittleTile.gridSize, axis.y-mainY*LittleTile.gridSize, axis.z-mainZ*LittleTile.gridSize);
 			//internalOffset.invert();
 			LittleTileVec invaxis = axisPoint.copy();
 			//internalOffset.invert();
@@ -438,7 +419,7 @@ public class LittleDoor extends LittleStructure{
 					NBTTagCompound nbt = new NBTTagCompound();
 					tileOfList.saveTile(nbt);
 					LittleTileBox box = tileOfList.boundingBoxes.get(j).copy();
-					box.addOffset(new LittleTileVec(tileOfList.te.getPos().getX()*16, tileOfList.te.getPos().getY()*16, tileOfList.te.getPos().getZ()*16));
+					box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
 					box.addOffset(invaxis);
 					//box.addOffset(internalOffset);
 					//box.set(-box.minX, -box.minY, -box.minZ, -box.maxX, -box.maxY, -box.maxZ);

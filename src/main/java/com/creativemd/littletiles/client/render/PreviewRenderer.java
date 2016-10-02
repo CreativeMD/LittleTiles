@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
+import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
@@ -75,7 +76,7 @@ public class PreviewRenderer {
 		int posX = (int) markedHit.hitVec.xCoord;
 		int posY = (int) markedHit.hitVec.yCoord;
 		int posZ = (int) markedHit.hitVec.zCoord;
-		double move = 1D/16D;
+		double move = LittleTile.gridMCLength;
 		if(GuiScreen.isCtrlKeyDown())
 			move = 1;
 		switch (direction) {

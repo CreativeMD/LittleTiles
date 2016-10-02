@@ -69,7 +69,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		//LittleTile tile = getLittleTile(Minecraft.getMinecraft().theWorld, stack);
 		if(stack.hasTagCompound())
 		{
-			result += " (x=" + stack.getTagCompound().getByte("sizex") + ",y=" + stack.getTagCompound().getByte("sizey") + "z=" + stack.getTagCompound().getByte("sizez") + ")";
+			result += " (x=" + stack.getTagCompound().getInteger("sizex") + ",y=" + stack.getTagCompound().getInteger("sizey") + "z=" + stack.getTagCompound().getInteger("sizez") + ")";
 		}
 		return result;
     }
@@ -414,7 +414,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
 		if(!(block instanceof BlockAir))
 		{
-			RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(8, 8, 8), size).getCube(), block, meta);
+			RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getCube(), block, meta);
 			//cube.block = block;
 			//cube.meta = meta;
 			if(stack.getTagCompound().hasKey("color"))

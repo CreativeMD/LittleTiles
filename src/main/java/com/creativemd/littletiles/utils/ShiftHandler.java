@@ -25,13 +25,6 @@ public abstract class ShiftHandler {
 	
 	public LittleTileBox getNewPosition(World world, BlockPos pos, LittleTileBox suggested)
 	{
-		/*suggested.minX *= 16;
-		suggested.minY *= 16;
-		suggested.minZ *= 16;
-		suggested.maxX *= 16;
-		suggested.maxY *= 16;
-		suggested.maxZ *= 16;
-		*/
 		LittleTileBox oldBox = suggested.copy();
 		LittleTileBox newBox = getNewPos(world, pos, suggested);
 		

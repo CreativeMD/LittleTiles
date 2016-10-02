@@ -14,6 +14,7 @@ import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -48,18 +49,18 @@ public class SubGuiHammer extends SubGui {
 		controls.add(new GuiIDButton(">", 75, 30, 3));
 		controls.add(new GuiIDButton("<", 45, 50, 4));
 		controls.add(new GuiIDButton(">", 75, 50, 5));*/
-		controls.add(new GuiSteppedSlider("sizeX", 35, 10, 50, 14, sizeX, 1, 16));
-		controls.add(new GuiSteppedSlider("sizeY", 35, 30, 50, 14, sizeY, 1, 16));
-		controls.add(new GuiSteppedSlider("sizeZ", 35, 50, 50, 14, sizeZ, 1, 16));
+		controls.add(new GuiSteppedSlider("sizeX", 35, 10, 50, 14, sizeX, 1, LittleTile.gridSize));
+		controls.add(new GuiSteppedSlider("sizeY", 35, 30, 50, 14, sizeY, 1, LittleTile.gridSize));
+		controls.add(new GuiSteppedSlider("sizeZ", 35, 50, 50, 14, sizeZ, 1, LittleTile.gridSize));
 		
 		controls.add(new GuiButton("HAMMER IT", 100, 10){
 
 			@Override
 			public void onClicked(int x, int y, int button) {
 				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setByte("sizeX", (byte) sizeX);
-				nbt.setByte("sizeY", (byte) sizeY);
-				nbt.setByte("sizeZ", (byte) sizeZ);
+				nbt.setInteger("sizeX", sizeX);
+				nbt.setInteger("sizeY", sizeY);
+				nbt.setInteger("sizeZ", sizeZ);
 				GuiColorPlate plate = (GuiColorPlate) get("plate");
 				//System.out.println(plate.getColor().getAlpha());
 				int color = ColorUtils.RGBAToInt(plate.getColor());

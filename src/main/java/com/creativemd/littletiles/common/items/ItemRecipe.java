@@ -123,7 +123,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 							TileEntity tileEntity = world.getTileEntity(new BlockPos(posX, posY, posZ));
 							if(tileEntity instanceof TileEntityLittleTiles)
 							{
-								LittleTileVec offset = new LittleTileVec((posX-minX)*16, (posY-minY)*16, (posZ-minZ)*16);
+								LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 									LittleTile tile = (LittleTile) iterator.next();
@@ -191,20 +191,19 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	public static LittleTileSize getSize(ItemStack stack)
 	{
 		ArrayList<LittleTilePreview> tiles = getPreview(stack);
-		byte minX = LittleTile.maxPos;
-		byte minY = LittleTile.maxPos;
-		byte minZ = LittleTile.maxPos;
-		byte maxX = LittleTile.minPos;
-		byte maxY = LittleTile.minPos;
-		byte maxZ = LittleTile.minPos;
+		int minX = LittleTile.maxPos;
+		int minY = LittleTile.maxPos;
+		int minZ = LittleTile.maxPos;
+		int maxX = LittleTile.minPos;
+		int maxY = LittleTile.minPos;
+		int maxZ = LittleTile.minPos;
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
-			minX = (byte) Math.min(minX, tile.box.minX);
-			minY = (byte) Math.min(minY, tile.box.minY);
-			minZ = (byte) Math.min(minZ, tile.box.minZ);
-			maxX = (byte) Math.max(maxX, tile.box.maxX);
-			maxY = (byte) Math.max(maxY, tile.box.maxY);
-			maxZ = (byte) Math.max(maxZ, tile.box.maxZ);
+			minX = Math.min(minX, tile.box.minX);
+			minY = Math.min(minY, tile.box.minY);
+			maxX = Math.max(maxX, tile.box.maxX);
+			maxY = Math.max(maxY, tile.box.maxY);
+			maxZ = Math.max(maxZ, tile.box.maxZ);
 		}
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ);
 	}

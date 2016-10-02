@@ -49,12 +49,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	public TileEntityLittleTiles() {
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			completeTileUpdate();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//completeTileUpdate();
 	}
 	
-	@SideOnly(Side.CLIENT)
-	private LittleTile[][][] boundingArray;
+	//@SideOnly(Side.CLIENT)
+	//private LittleTile[][][] boundingArray;
 	
 	private CopyOnWriteArrayList<LittleTile> tiles = createTileList();
 	
@@ -68,8 +68,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			completeTileUpdate();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//completeTileUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -159,8 +159,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		boolean result = tiles.remove(tile);
 		updateTiles.remove(tile);
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			removeLittleTileClient(tile);
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//removeLittleTileClient(tile);
 		return result;
 	}
 	
@@ -171,7 +171,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return result;
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	private void removeLittleTileClient(LittleTile tile)
 	{
 		for(int i = 0; i < tile.boundingBoxes.size(); i++){
@@ -199,12 +199,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				}
 			}
 		}
-	}
+	}*/
 	
 	private boolean addLittleTile(LittleTile tile)
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			addLittleTileClient(tile);
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//addLittleTileClient(tile);
 		if(tile.shouldTick())
 			updateTiles.add(tile);
 		return tiles.add(tile);
@@ -225,14 +225,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return result;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public void completeTileUpdate() //TODO REMOVE LittleTile[16][16][16] too much ram use, use it for rendering only
+	/*@SideOnly(Side.CLIENT)
+	public void completeTileUpdate()
 	{
-		boundingArray = new LittleTile[16][16][16];
+		boundingArray = new LittleTile[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
 		for (int i = 0; i < tiles.size(); i++) {
 			addLittleTileClient(tiles.get(i));
 		}
-	}
+	}*/
 	
 	public void updateTiles()
 	{
@@ -273,7 +273,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateRender();
 	}
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	public boolean isBoxFilledClient(LittleTileBox box)
 	{
 		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
@@ -285,12 +285,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		return true;
-	}
+	}*/
 	
 	public boolean isBoxFilled(LittleTileBox box)
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			return isBoxFilledClient(box);
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//return isBoxFilledClient(box);
 		LittleTileSize size = box.getSize();
 		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
 		for (int i = 0; i < tiles.size(); i++) {
@@ -382,19 +382,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 
 	public boolean preventUpdate = false;
 	
-	public LittleTile getTileFromPositionClient(int x, int y, int z)
+	/*public LittleTile getTileFromPositionClient(int x, int y, int z)
 	{
 		if(x < 0 || y < 0 || z < 0 || x > 15 || y > 15 || z > 15)
 			return null;
 		if(boundingArray == null)
 			return null;
 		return boundingArray[x][y][z];
-	}
+	}*/
 	
 	public LittleTile getTileFromPosition(int x, int y, int z)
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			return getTileFromPositionClient(x, y, z);
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//return getTileFromPositionClient(x, y, z);
 		LittleTileBox box = new LittleTileBox(new LittleTileVec(x, y, z));
 		for (int i = 0; i < tiles.size(); i++) {
 			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
@@ -474,8 +474,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			if(tile != null)
 				tiles.add(tile);
 		}
-        if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-        	completeTileUpdate();
+        //if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+        	//completeTileUpdate();
         //updateTiles();
         if(worldObj != null)
         	updateBlock();
@@ -507,9 +507,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			NBTTagCompound packet = new NBTTagCompound();
 			tiles.get(i).saveTile(tileNBT);
 			tiles.get(i).updatePacket(packet);
-			//tileNBT.setByte("x", tiles.get(i).cornerVec.x);
-			//tileNBT.setByte("y", tiles.get(i).cornerVec.y);
-			//tileNBT.setByte("z", tiles.get(i).cornerVec.z);
 			tileNBT.setTag("update", packet);
 			nbt.setTag("t" + i, tileNBT);
 			if(needFullUpdate)
@@ -522,10 +519,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     
     public LittleTile getTile(LittleTileVec vec)
     {
-    	return getTile((byte)vec.x, (byte)vec.y, (byte)vec.z);
+    	return getTile(vec.x, vec.y, vec.z);
     }
     
-    public LittleTile getTile(byte minX, byte minY, byte minZ)
+    public LittleTile getTile(int minX, int minY, int minZ)
     {
     	for (int i = 0; i < tiles.size(); i++) {
 			if(tiles.get(i).cornerVec.x == minX && tiles.get(i).cornerVec.y == minY && tiles.get(i).cornerVec.z == minZ)
@@ -546,7 +543,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = getTile(tileNBT.getByte("cVecx"), tileNBT.getByte("cVecy"), tileNBT.getByte("cVecz"));
+			LittleTile tile = getTile(tileNBT.getInteger("cVecx"), tileNBT.getInteger("cVecy"), tileNBT.getInteger("cVecz"));
 			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !nbt.getBoolean("f" + i))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
@@ -701,8 +698,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				i++;
 			}
 		}
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			completeTileUpdate();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//completeTileUpdate();
 		//updateBlock();
 		updateTiles();
 	}
@@ -710,8 +707,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void combineTiles() {
 		combineTilesList(tiles);
 		
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			completeTileUpdate();
+		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			//completeTileUpdate();
 		updateBlock();	
 	}
 

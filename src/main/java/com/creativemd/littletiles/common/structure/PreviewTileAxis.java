@@ -46,7 +46,7 @@ public class PreviewTileAxis extends PreviewTile{
 	public LittleTileBox getPreviewBox()
 	{
 		LittleTileBox preview = box.copy();
-		int max = 40*16;
+		int max = 40*LittleTile.gridSize;
 		int min = -max;
 		switch(axis)
 		{
@@ -75,7 +75,7 @@ public class PreviewTileAxis extends PreviewTile{
 		{
 			LittleDoor door = (LittleDoor) structure;
 			door.axisVec = box.getMinVec(); //Check if this would be perfect
-			door.axisVec.addVec(new LittleTileVec(teLT.getPos().getX()*16, teLT.getPos().getY()*16, teLT.getPos().getZ()*16));
+			door.axisVec.addVec(new LittleTileVec(teLT.getPos().getX()*LittleTile.gridSize, teLT.getPos().getY()*LittleTile.gridSize, teLT.getPos().getZ()*LittleTile.gridSize));
 			door.axisVec.subVec(door.mainTile.cornerVec);
 		}
 		return null;
