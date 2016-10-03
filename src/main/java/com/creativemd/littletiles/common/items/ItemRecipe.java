@@ -120,13 +120,14 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				for (int posX = minX; posX <= maxX; posX++) {
 					for (int posY = minY; posY <= maxY; posY++) {
 						for (int posZ = minZ; posZ <= maxZ; posZ++) {
-							TileEntity tileEntity = world.getTileEntity(new BlockPos(posX, posY, posZ));
+							BlockPos newPos = new BlockPos(posX, posY, posZ);
+							TileEntity tileEntity = world.getTileEntity(newPos);
 							if(tileEntity instanceof TileEntityLittleTiles)
 							{
 								LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-									LittleTile tile = (LittleTile) iterator.next();
+									LittleTile tile = ((LittleTile) iterator.next()).copy();
 									for (int j = 0; j < tile.boundingBoxes.size(); j++) {
 										tile.boundingBoxes.get(j).addOffset(offset);
 									}
@@ -146,7 +147,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			{
 				stack.setTagCompound(new NBTTagCompound());
 				stack.getTagCompound().setInteger("x", pos.getX());
-				stack.getTagCompound().setInteger("y", pos.getZ());
+				stack.getTagCompound().setInteger("y", pos.getY());
 				stack.getTagCompound().setInteger("z", pos.getZ());
 				player.addChatMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}
