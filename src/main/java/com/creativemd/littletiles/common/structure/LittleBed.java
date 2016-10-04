@@ -73,7 +73,7 @@ public class LittleBed extends LittleStructure{
         if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
         {
         	LittleTileVec vec = getHighestCenterPoint();
-        	LittleTiles.blockTile.sleepingTile = mainTile;
+        	LittleTiles.blockTile.sleepingTile = getMainTile();
             SleepResult enumstatus = player.trySleep(pos);
             LittleTiles.blockTile.sleepingTile = null;
             

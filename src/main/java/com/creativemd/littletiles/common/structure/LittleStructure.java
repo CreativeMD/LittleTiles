@@ -121,7 +121,57 @@ public abstract class LittleStructure {
 		return null;
 	}
 	
-	public LittleTile mainTile;
+	public void setMainTile(LittleTile tile)
+	{
+		this.mainTile = tile;
+		this.mainTile.isMainBlock = true;
+		this.mainTile.updateCorner();
+		this.mainTile.coord = null;
+		if(!tiles.contains(tile))
+			tiles.add(tile);
+		for (int i = 0; i < tiles.size(); i++) {
+			LittleTile stTile = tiles.get(i);
+			if(stTile != mainTile)
+			{
+				stTile.isMainBlock = false;
+				stTile.coord = new LittleTileCoord(stTile.te, mainTile.te.getPos(), mainTile.cornerVec);
+			}
+		}
+	}
+	
+	public void moveStructure(EnumFacing facing)
+	{
+		
+	}
+	
+	public void combineTiles()
+	{
+		ArrayList<TileEntityLittleTiles> tes = new ArrayList<>();
+		for (int i = 0; i < tiles.size(); i++) {
+			if(!tes.contains(tiles.get(i)))
+			{
+				tiles.get(i).te.combineTiles(this);
+				tes.add(tiles.get(i).te);
+			}
+		}
+	}
+	
+	public void selectMainTile()
+	{
+		if(tiles.size() > 0)
+		{
+			setMainTile(tiles.get(0));
+		}
+	}
+	
+	private LittleTile mainTile;
+	
+	/**The core of the structure. Handles saving & loading of the structures. All Tiles inside the structure are containing relative coordinates to this tile**/
+	public LittleTile getMainTile()
+	{
+		return mainTile;
+	}
+	
 	private ArrayList<LittleTile> tiles = null;
 	
 	public void setTiles(ArrayList<LittleTile> tiles)

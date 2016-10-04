@@ -45,12 +45,22 @@ public abstract class LittleTile {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	
-	public static final int gridSize = 16;
-	public static final int halfGridSize = gridSize/2;
-	public static final double gridMCLength = 1D/gridSize;
-	public static final int minPos = 0;
-	public static final int maxPos = gridSize;
-	public static final int maxTilesPerBlock = gridSize*gridSize*gridSize;
+	public static int gridSize = 16;
+	public static int halfGridSize = gridSize/2;
+	public static double gridMCLength = 1D/gridSize;
+	public static int minPos = 0;
+	public static int maxPos = gridSize;
+	public static int maxTilesPerBlock = gridSize*gridSize*gridSize;
+	
+	public static void setGridSize(int size)
+	{
+		gridSize = size;
+		halfGridSize = gridSize/2;
+		gridMCLength = 1D/gridSize;
+		minPos = 0;
+		maxPos = gridSize;
+		maxTilesPerBlock = gridSize*gridSize*gridSize;
+	}
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
 	{
@@ -138,6 +148,14 @@ public abstract class LittleTile {
 	
 	public LittleTileVec cornerVec;
 	
+	/**Might cause issues in regions x, y or z above 134,217,728**/
+	public LittleTileVec getAbsoluteCoordinates()
+	{
+		LittleTileVec coord = new LittleTileVec(te.getPos());
+		coord.addVec(cornerVec);
+		return coord;
+	}
+	
 	public ArrayList<LittleTileBox> boundingBoxes;
 	
 	public AxisAlignedBB getSelectedBox()
@@ -189,8 +207,8 @@ public abstract class LittleTile {
 	}
 	
 	public boolean canBeCombined(LittleTile tile) {
-		if(isStructureBlock && isMainBlock)
-			return false;
+		//if(isStructureBlock && isMainBlock)
+			//return false;
 		if(isStructureBlock != tile.isStructureBlock)
 			return false;
 		if(isStructureBlock && structure != tile.structure)
@@ -516,7 +534,7 @@ public abstract class LittleTile {
 		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(facing, player);
 	}
 	
-	public boolean canBeMoved(EnumFacing facing, EntityPlayer player)
+	public boolean canBeMoved(EnumFacing facing)
 	{
 		return boundingBoxes.size() == 1;
 	}

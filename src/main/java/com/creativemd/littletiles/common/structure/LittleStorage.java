@@ -95,7 +95,7 @@ public class LittleStorage extends LittleStructure  {
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
 		if(!worldIn.isRemote)
-			LittleGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, mainTile);
+			LittleGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, getMainTile());
 		return true;
 	}
 	

@@ -19,6 +19,7 @@ import com.creativemd.creativecore.common.utils.RenderCubeObject.EnumSideRender;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -363,6 +364,8 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
+		if(heldItem != null && heldItem.getItem() instanceof ItemRubberMallet)
+			return false;
 		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		if(cancelNext)

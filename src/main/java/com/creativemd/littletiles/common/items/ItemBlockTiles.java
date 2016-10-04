@@ -315,10 +315,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 								{
 									if(littlePos == null)
 									{
-										structure.mainTile = LT;
-										LT.isMainBlock = true;
-										LT.updateCorner();
-										//pos = new LittleTileCoord(baseX, baseY, baseZ, coord, LT.cornerVec.copy());
+										structure.setMainTile(LT);
 										littlePos = new LittleTilePosition(coord, LT.cornerVec.copy());
 									}else
 										LT.coord = new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
@@ -330,6 +327,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 							teLT.combineTiles(structure);
 						
 						teLT.preventUpdate = false;
+						teLT.updateTiles();
 					}
 					//System.out.println("Placed " + tiles + "/" + placeTiles.size());
 				}//else

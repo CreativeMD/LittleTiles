@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PreviewTile;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -39,11 +40,11 @@ public class LittleDoor extends LittleStructure{
 
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		if(nbt.hasKey("ax"))
+		if(nbt.hasKey("ax")) //TODO Add compability for non relative axis
 		{
 			axisVec = new LittleTileVec("a", nbt);
-			if(mainTile != null)
-				axisVec.subVec(mainTile.cornerVec);
+			if(getMainTile() != null)
+				axisVec.subVec(getMainTile().cornerVec);
 		}else{
 			axisVec = new LittleTileVec("av", nbt);
 		}
@@ -115,12 +116,32 @@ public class LittleDoor extends LittleStructure{
 	public EnumFacing normalDirection;
 	public EnumFacing.Axis axis;
 	public LittleTileVec axisVec;
+	public LittleTileVec lastMainTileVec = null;
 	
 	public LittleTileVec getAxisVec()
 	{
 		LittleTileVec newAxisVec = axisVec.copy();
-		newAxisVec.addVec(mainTile.cornerVec);
+		newAxisVec.addVec(getMainTile().getAbsoluteCoordinates());
 		return newAxisVec;
+	}
+	
+	@Override
+	public void moveStructure(EnumFacing facing)
+	{
+		axisVec.addVec(new LittleTileVec(facing));
+	}
+	
+	@Override
+	public void setMainTile(LittleTile tile)
+	{
+		if(getMainTile() != null)
+		{
+			LittleTileVec oldVec = lastMainTileVec;
+			oldVec.subVec(tile.getAbsoluteCoordinates());
+			axisVec.addVec(oldVec);
+		}
+		lastMainTileVec = tile.getAbsoluteCoordinates().copy();
+		super.setMainTile(tile);
 	}
 	
 	@CustomEventSubscribe
@@ -371,7 +392,7 @@ public class LittleDoor extends LittleStructure{
 		
 		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false))
 		{
-			ArrayList<LittleTile> tiles = getTiles();
+			/*ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
 				tiles.get(i).te.updateBlock();
 			}
@@ -379,7 +400,7 @@ public class LittleDoor extends LittleStructure{
 			tiles = structure.getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
 				tiles.get(i).te.combineTiles();
-			}
+			}*/
 			return true;
 		}
 		return false;

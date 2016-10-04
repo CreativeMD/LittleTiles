@@ -52,12 +52,14 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -93,6 +95,14 @@ public class LittleTiles {
 	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
 	
+	@EventHandler
+	public void PreInit(FMLPreInitializationEvent event)
+	{
+		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+		config.load();
+		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		config.save();
+	}
 	
 	@EventHandler
     public void Init(FMLInitializationEvent event)

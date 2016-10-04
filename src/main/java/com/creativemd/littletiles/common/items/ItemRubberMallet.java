@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
@@ -34,6 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.swing.TextComponent;
+import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class ItemRubberMallet extends Item {
 	
@@ -48,97 +50,174 @@ public class ItemRubberMallet extends Item {
 	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
 	{
-		list.add("splits all tiles into");
-		list.add("smallest pieces possible");
-		list.add("limit: " + LittleTiles.maxNewTiles);
+		list.add("rightclick moves tiles in faced direction");
+		list.add("shift+rightclick moves tiles in oposite faced direction");
+		//list.add("limit: " + LittleTiles.maxNewTiles);
 	}
 	
 	@Override
 	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+		
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
-			if(!world.isRemote)
+			if(world.isRemote)
 			{
-				if(player.isSneaking())
-				{
-					ArrayList<LittleTile> newTiles = new ArrayList<>();
-					TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-					for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-						LittleTile oldTile = (LittleTile) iterator.next();
-						if((oldTile.getClass() == LittleTileBlock.class || oldTile instanceof LittleTileBlockColored) && oldTile.structure == null)
-						{
-							for (int j = 0; j < oldTile.boundingBoxes.size(); j++) {
-								LittleTileBox box = oldTile.boundingBoxes.get(j);
-								for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-									for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-										for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-											LittleTile tile = oldTile.copy();
-											tile.boundingBoxes.clear();
-											tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
-											tile.updateCorner();
-											tile.te = te;
-											newTiles.add(tile);
-										}
-									}
-								}
-							}
-							
-						}else
-							newTiles.add(oldTile);
-					}
-					if(LittleTiles.maxNewTiles >= newTiles.size() - te.getTiles().size())
-					{
-						CopyOnWriteArrayList<LittleTile> newTilesReal = TileEntityLittleTiles.createTileList();
-						newTilesReal.addAll(newTiles);
-						te.setTiles(newTilesReal);
-						te.updateBlock();
-					}else{
-						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
-					}
-				}
-			}else{
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 4, new NBTTagCompound()));
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setInteger("side", facing.getIndex());
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 4, nbt));
 			}
 			return EnumActionResult.SUCCESS;
-		}else {
-			IBlockState state = world.getBlockState(pos);
-			
-			if(tileEntity == null && SubContainerHammer.isBlockValid(state.getBlock()))
-			{
-				if(!world.isRemote)
-				{
-					if(LittleTiles.maxNewTiles < 4096)
-					{
-						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
-						return EnumActionResult.SUCCESS;
-					}
-					int meta = state.getBlock().getMetaFromState(state);
-					TileEntityLittleTiles te = new TileEntityLittleTiles();
-					for (int littleX = LittleTile.minPos; littleX < LittleTile.maxPos; littleX++) {
-						for (int littleY = LittleTile.minPos; littleY < LittleTile.maxPos; littleY++) {
-							for (int littleZ = LittleTile.minPos; littleZ < LittleTile.maxPos; littleZ++) {
-								LittleTileBlock tile = new LittleTileBlock(state.getBlock(), meta);
-								tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
-								tile.updateCorner();
-								tile.te = te;
-								te.getTiles().add(tile);
-							}
-						}
-					}
-					if(LittleTiles.maxNewTiles >= te.getTiles().size())
-					{
-						world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
-						world.setTileEntity(pos, te);
-					}else{
-						player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
-					}
-					
-				}
-				return EnumActionResult.SUCCESS;
-			}
 		}
 		return EnumActionResult.PASS;
     }
+	
+	public static boolean moveTile(TileEntityLittleTiles te, EnumFacing facing, LittleTile tile, boolean simulate)
+	{
+		LittleTileVec vec = new LittleTileVec(facing);
+		LittleTileBox box = tile.boundingBoxes.get(0).copy();
+		box.addOffset(vec);
+		
+		if(box.isBoxInsideBlock())
+		{
+			return tryMoveTile(te.getWorld(), te.getPos(), facing, box, tile, simulate);
+		}else{
+			if(tryMoveTile(te.getWorld(), te.getPos().offset(facing), facing, box.createOutsideBlockBox(facing), tile, simulate))
+			{
+				/*if(tile.isMainBlock) BULLSHIT!
+					if(tile.structure.mainTile != tile)
+						tile.isMainBlock = false;*/
+				if(!simulate)
+				{
+					box.makeItFitInsideBlock();
+					if(box.isValidBox())
+					{
+						tile.boundingBoxes.clear();
+						tile.boundingBoxes.add(box);
+						te.updateBlock();
+					}else{
+						if(tile.isStructureBlock)
+							tile.structure.getTiles().remove(tile);
+						te.removeTile(tile);
+					}
+				}
+				return true;
+			}
+			return false;
+		}
+	}
+	
+	private static void placeMovingTile(LittleTile movingTile, TileEntityLittleTiles littleTE, LittleTileBox box)
+	{
+		LittleTile tile = movingTile;
+		if(movingTile.te != littleTE)
+			tile = movingTile.copy();
+		tile.boundingBoxes.clear();
+		tile.boundingBoxes.add(box);
+		tile.updateCorner();
+		
+		if(movingTile.te != littleTE)
+		{
+			tile.te = littleTE;
+			tile.place();
+			
+			if(movingTile.isStructureBlock)
+			{
+				tile.isStructureBlock = true;
+				//if(mo)
+				//tile.isMainBlock = movingTile.isMainBlock;
+				//tile.structure.mainTile = tile;
+			}
+			
+			if(movingTile.isStructureBlock)
+			{
+				tile.structure.getTiles().add(tile);
+				//littleTE.combineTiles(tile.structure);
+			}
+		}
+	}
+	
+	public static boolean tryMoveTile(World world, BlockPos pos, EnumFacing facing, LittleTileBox box, LittleTile movingTile, boolean simulate)
+	{
+		IBlockState state = world.getBlockState(pos);
+		TileEntity te = world.getTileEntity(pos);
+		TileEntityLittleTiles littleTE = null;
+		if(state.getMaterial().isReplaceable())
+		{ 
+			littleTE = new TileEntityLittleTiles();
+		}
+		if(te instanceof TileEntityLittleTiles)
+			littleTE = (TileEntityLittleTiles) te;
+		
+		if(littleTE != null)
+		{
+			if(littleTE.isSpaceForLittleTile(box, movingTile))
+			{
+				if(!simulate)
+				{
+					placeMovingTile(movingTile, littleTE, box);
+					if(state.getBlock() != LittleTiles.blockTile)
+					{
+						world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+						world.setTileEntity(pos, littleTE);
+					}
+				}
+				return true;
+			}else{
+				LittleTile tile = littleTE.getIntersectingTile(box, movingTile);
+				if(!tile.canBeMoved(facing))
+					return false;
+				if(movingTile.isStructureBlock)
+				{
+					if(tile.isStructureBlock && tile.structure == movingTile.structure)
+					{
+						if(!simulate)
+						{
+							placeMovingTile(movingTile, littleTE, box);
+							if(state.getBlock() != LittleTiles.blockTile)
+							{
+								world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+								world.setTileEntity(pos, littleTE);
+							}
+						}
+						return true;
+					}
+				}else if(movingTile.canBeCombined(tile) && tile.canBeCombined(movingTile)){
+					if(tile.boundingBoxes.get(0).doesMatchTwoSides(box, facing))
+					{
+						if(moveTile(littleTE, facing, tile, simulate))
+						{
+							if(!simulate)
+							{
+								LittleTileBox newBox = tile.boundingBoxes.get(0).copy();
+								newBox.makeItFitInsideBlock();
+								newBox = newBox.combineBoxes(box);
+								if(newBox != null)
+								{
+									if(littleTE == movingTile.te)
+									{
+										movingTile.boundingBoxes.clear();
+										movingTile.boundingBoxes.add(newBox);
+										movingTile.updateCorner();
+										littleTE.removeTile(tile);
+									}else{
+										tile.boundingBoxes.clear();
+										tile.boundingBoxes.add(newBox);
+										tile.updateCorner();
+									}
+								}
+								
+								littleTE.updateBlock();
+							}
+							return true;
+						}
+					}
+				}
+			}
+		}
+		return false;
+		
+	}
+	
 }

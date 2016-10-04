@@ -74,9 +74,9 @@ public class PreviewTileAxis extends PreviewTile{
 		if(structure instanceof LittleDoor)
 		{
 			LittleDoor door = (LittleDoor) structure;
-			door.axisVec = box.getMinVec(); //Check if this would be perfect
+			door.axisVec = box.getMinVec();
 			door.axisVec.addVec(new LittleTileVec(teLT.getPos().getX()*LittleTile.gridSize, teLT.getPos().getY()*LittleTile.gridSize, teLT.getPos().getZ()*LittleTile.gridSize));
-			door.axisVec.subVec(door.mainTile.cornerVec);
+			door.axisVec.subVec(door.getMainTile().getAbsoluteCoordinates());
 		}
 		return null;
 	}

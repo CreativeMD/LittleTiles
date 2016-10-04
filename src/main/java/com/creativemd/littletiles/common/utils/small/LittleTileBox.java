@@ -126,6 +126,23 @@ public class LittleTileBox {
 		return maxX-x*LittleTile.gridSize<=LittleTile.maxPos && maxY-y*LittleTile.gridSize<=LittleTile.maxPos && maxZ-z*LittleTile.gridSize<=LittleTile.maxPos;
 	}
 	
+	public boolean doesMatchTwoSides(LittleTileBox box, EnumFacing facing)
+	{
+		switch(facing)
+		{
+		case EAST:
+		case WEST:
+			return minY == box.minY && maxY == box.maxY && minZ == box.minZ && maxZ == box.maxZ;
+		case UP:
+		case DOWN:
+			return minX == box.minX && maxX == box.maxX && minZ == box.minZ && maxZ == box.maxZ;
+		case SOUTH:
+		case NORTH:
+			return minX == box.minX && maxX == box.maxX && minY == box.minY && maxY == box.maxY;
+		}
+		return false;
+	}
+	
 	public LittleTileBox combineBoxes(LittleTileBox box)
 	{
 		boolean x = this.minX == box.minX && this.maxX == box.maxX;
@@ -503,7 +520,6 @@ public class LittleTileBox {
 	public void applyDirection(EnumFacing direction) {
 		switch(direction)
 		{
-		
 		case EAST:
 			minX += LittleTile.gridSize;
 			maxX += LittleTile.gridSize;
@@ -635,8 +651,17 @@ public class LittleTileBox {
 				}
 				i++;
 			}
-		}
-		
+		}	
+	}
+	
+	public void makeItFitInsideBlock()
+	{
+		minX = Math.max(LittleTile.minPos, minX);
+		maxX = Math.min(LittleTile.gridSize, maxX);
+		minY = Math.max(LittleTile.minPos, minY);
+		maxY = Math.min(LittleTile.gridSize, maxY);
+		minZ = Math.max(LittleTile.minPos, minZ);
+		maxZ = Math.min(LittleTile.gridSize, maxZ);
 	}
 
 	public LittleTileVec getCenter() {

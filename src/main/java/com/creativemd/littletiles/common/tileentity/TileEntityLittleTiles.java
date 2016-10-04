@@ -155,7 +155,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return cachedQuads;
 	}*/
 	
-	public boolean removeLittleTile(LittleTile tile)
+	private boolean removeLittleTile(LittleTile tile)
 	{
 		boolean result = tiles.remove(tile);
 		updateTiles.remove(tile);
@@ -458,6 +458,30 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return true;
 	}
 	
+	public boolean isSpaceForLittleTile(LittleTileBox box, LittleTile ignoreTile)
+	{
+		for (int i = 0; i < tiles.size(); i++) {
+			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
+				if(ignoreTile != tiles.get(i) && box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+					return false;
+			}
+			
+		}
+		return true;
+	}
+	
+	public LittleTile getIntersectingTile(LittleTileBox box, LittleTile ignoreTile)
+	{
+		for (int i = 0; i < tiles.size(); i++) {
+			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
+				if(ignoreTile != tiles.get(i) && box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+					return tiles.get(i);
+			}
+			
+		}
+		return null;
+	}
+	
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
     {
@@ -658,7 +682,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public void combineTiles(LittleStructure structure) {
 		//ArrayList<LittleTile> newTiles = new ArrayList<>();
+		
+		if(!structure.hasLoaded())
+			return ;
+		
 		int size = 0;
+		boolean isMainTile = false;
 		while(size != tiles.size())
 		{
 			size = tiles.size();
@@ -681,6 +710,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 					
 					if(i != j && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
 					{
+						if(tiles.get(i).isMainBlock || tiles.get(j).isMainBlock)
+							isMainTile = true;
 						LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
 						if(box != null)
 						{
@@ -698,6 +729,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				i++;
 			}
 		}
+		if(isMainTile)
+			structure.selectMainTile();
 		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			//completeTileUpdate();
 		//updateBlock();

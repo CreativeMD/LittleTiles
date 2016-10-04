@@ -12,17 +12,23 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
+import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.TileList;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,7 +38,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -92,6 +100,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	@Override
 	public void executeServer(EntityPlayer player) {
 		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
+		World world = player.worldObj;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
@@ -148,7 +157,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						else
 							box = tile.boundingBoxes.get(0).expand(direction);
 						
-						if(box.isBoxInsideBlock() && box.isValidBox() && te.isSpaceForLittleTile(box.getBox(), tile))
+						if(box.isValidBox())
 						{
 							float ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
 							boolean success = false;
@@ -163,9 +172,40 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							
 							if(player.capabilities.isCreativeMode || success)
 							{
-								tile.boundingBoxes.set(0, box);
-								tile.updateCorner();
-								te.updateBlock();
+								if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box.getBox(), tile))
+								{
+									tile.boundingBoxes.set(0, box);
+									tile.updateCorner();
+									te.updateBlock();
+								}else if(!box.isBoxInsideBlock()){
+									box = box.createOutsideBlockBox(direction);
+									BlockPos newPos = blockPos.offset(direction);
+									IBlockState state = world.getBlockState(newPos);
+									TileEntityLittleTiles littleTe = null;
+									TileEntity newTE = world.getTileEntity(newPos);
+									if(newTE instanceof TileEntityLittleTiles)
+										littleTe = (TileEntityLittleTiles) newTE;
+									if(state.getMaterial().isReplaceable())
+									{
+										//new TileEntityLittleTiles();
+										world.setBlockState(newPos, LittleTiles.blockTile.getDefaultState());
+										littleTe = (TileEntityLittleTiles) world.getTileEntity(newPos);
+									}
+									if(littleTe != null)
+									{
+										LittleTile newTile = tile.copy();
+										newTile.boundingBoxes.clear();
+										newTile.boundingBoxes.add(box);
+										newTile.te = littleTe;
+										
+										if(littleTe.isSpaceForLittleTile(box))
+										{
+											newTile.place();
+											//littleTe.addTile(newTile);
+											littleTe.updateBlock();
+										}
+									}
+								}
 							}
 						}
 					}
@@ -193,33 +233,37 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}
 					break;
 				case 4: //RUBBER MALLET
-					ArrayList<LittleTile> newTiles = new ArrayList<>();
-					if((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored)  && tile.structure == null)
+					side = nbt.getInteger("side");
+					direction = EnumFacing.getFront(side).getOpposite();
+					if(player.isSneaking())
+						direction = direction.getOpposite();
+					if(tile.canBeMoved(direction))
 					{
-						for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-							box = tile.boundingBoxes.get(j);
-							for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-								for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-									for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-										tile = tile.copy();
-										tile.boundingBoxes.clear();
-										tile.boundingBoxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
-										tile.updateCorner();
-										tile.te = te;
-										newTiles.add(tile);
-									}
-								}
-							}
-						}
-						
-						if(LittleTiles.maxNewTiles >= newTiles.size() - 1)
+						if(tile.isStructureBlock)
 						{
-							te.removeTile(tile);
-							te.addTiles(newTiles);
-							te.updateBlock();
-						}else{
-							player.addChatComponentMessage(new TextComponentTranslation("Too much new tiles! Limit=" + LittleTiles.maxNewTiles));
-						}
+							if(tile.checkForStructure())
+							{
+								LittleStructure structure = tile.structure;
+								if(structure.hasLoaded())
+								{
+									ArrayList<LittleTile> tiles = new ArrayList(structure.getTiles());
+									for (int i = 0; i < tiles.size(); i++) {
+										if(!ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), true))
+											return ;
+									}
+									for (int i = 0; i < tiles.size(); i++)
+										if(ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false))
+											tiles.get(i).te.updateTiles();
+									
+									structure.combineTiles();
+									structure.selectMainTile();
+									structure.moveStructure(direction);
+								}else
+									player.addChatMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
+							}
+						}else
+							if(ItemRubberMallet.moveTile(te, direction, tile, false))
+								te.updateTiles();												
 					}
 					break;
 				}
