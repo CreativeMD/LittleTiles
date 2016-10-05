@@ -404,6 +404,20 @@ public class LittleTileBox {
 		return true;
 	}
 	
+	public boolean isVecInsideBox(LittleTileVec vec)
+	{
+		if(this.minX > vec.x || vec.x > this.minX)
+			return false;
+		
+		if(this.minY > vec.y || vec.y > this.minY)
+			return false;
+		
+		if(this.minZ > vec.z || vec.z > this.minZ)
+			return false;
+		
+		return true;
+	}
+	
 	public boolean intersectsWith(LittleTileBox box)
     {
         return box.maxX > this.minX && box.minX < this.maxX ? (box.maxY > this.minY && box.minY < this.maxY ? box.maxZ > this.minZ && box.minZ < this.maxZ : false) : false;

@@ -126,12 +126,12 @@ public class LittleBlockPacket extends CreativeCorePacket{
     						te.removeBoxFromTile(tile, box);
     						if(!player.capabilities.isCreativeMode)
     						{
+    							tile.boundingBoxes.clear();
     							tile.boundingBoxes.add(new LittleTileBox(0,0,0,1,1,1));
     							WorldUtils.dropItem(player, tile.getDrops());
     						}
     					}
     				}
-    				
     				if(box == null)
     				{
 						tile.destroy();
@@ -139,12 +139,12 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
 					}
     				
-    				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+    				/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
     					LittleTile tileNeighbor = (LittleTile) iterator.next();
 						tileNeighbor.onNeighborChangeInside();
-					}
+					}*/
     				
-    				te.updateBlock();
+	    			//te.updateBlock();
 					break;
 				case 2: //Saw
 					int side = nbt.getInteger("side");

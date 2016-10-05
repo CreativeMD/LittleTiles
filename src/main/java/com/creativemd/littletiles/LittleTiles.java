@@ -3,6 +3,7 @@ package com.creativemd.littletiles;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
@@ -11,8 +12,14 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
+import com.creativemd.littletiles.common.command.ExportCommand;
+import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.gui.SubContainerExport;
+import com.creativemd.littletiles.common.gui.SubContainerImport;
 import com.creativemd.littletiles.common.gui.SubContainerStorage;
+import com.creativemd.littletiles.common.gui.SubGuiExport;
+import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -60,6 +67,8 @@ import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -76,7 +85,7 @@ public class LittleTiles {
 	public static final String modid = "littletiles";
 	public static final String version = "1.3.0";
 	
-	public static int maxNewTiles = 512;
+	//public static int maxNewTiles = 512;
 	
 	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock");
@@ -156,6 +165,34 @@ public class LittleTiles {
 			}
 		});
 		
+		GuiHandler.registerGuiHandler("lt-import", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubGuiImport();
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerImport(player);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("lt-export", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubGuiExport();
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerExport(player);
+			}
+		});
+		
 		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
@@ -203,6 +240,13 @@ public class LittleTiles {
 				});
 		
     }
+	
+	@EventHandler
+	public void serverStarting(FMLServerStartingEvent event)
+	{
+		event.registerServerCommand(new ExportCommand());
+		event.registerServerCommand(new ImportCommand());
+	}
 	
 	@EventHandler
     public void LoadComplete(FMLLoadCompleteEvent event)

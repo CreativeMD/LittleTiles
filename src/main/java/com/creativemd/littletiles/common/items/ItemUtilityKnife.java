@@ -10,6 +10,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -31,8 +32,10 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector {
 			return null;
 		RayTraceResult result = te.getMoving(player);
 		LittleTileVec vec = new LittleTileVec(result.hitVec);
-		vec.subVec(new LittleTileVec(pos));;
-		switch(result.sideHit)
+		vec.subVec(new LittleTileVec(pos));
+		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			vec.subVec(new LittleTileVec(result.sideHit));
+		/*switch(result.sideHit)
 		{
 		case EAST:
 			vec.x--;
@@ -44,12 +47,13 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector {
 			break;
 		case SOUTH:
 			vec.z--;
+			break;
 		case NORTH:
 			vec.x--;
 			break;
 		default:
 			break;
-		}
+		}*/
 		return new LittleTileBox(vec);
 	}
 	

@@ -124,6 +124,7 @@ public abstract class LittleStructure {
 	public void setMainTile(LittleTile tile)
 	{
 		this.mainTile = tile;
+		
 		this.mainTile.isMainBlock = true;
 		this.mainTile.updateCorner();
 		this.mainTile.coord = null;
@@ -133,6 +134,7 @@ public abstract class LittleStructure {
 			LittleTile stTile = tiles.get(i);
 			if(stTile != mainTile)
 			{
+				stTile.te.markDirty();
 				stTile.isMainBlock = false;
 				stTile.coord = new LittleTileCoord(stTile.te, mainTile.te.getPos(), mainTile.cornerVec);
 			}

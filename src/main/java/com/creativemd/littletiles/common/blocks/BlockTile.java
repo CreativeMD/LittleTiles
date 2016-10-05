@@ -481,9 +481,12 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 			}
 			
 			if(box == null)
+			{
 				result.tile.destroy();
+				result.te.updateRender();
+			}
 			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 1));
-			result.te.updateRender();
+			
 		}
     }
     
