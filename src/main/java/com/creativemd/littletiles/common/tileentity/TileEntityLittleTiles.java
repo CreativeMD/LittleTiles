@@ -568,6 +568,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
 			LittleTile tile = getTile(tileNBT.getInteger("cVecx"), tileNBT.getInteger("cVecy"), tileNBT.getInteger("cVecz"));
+			if(!exstingTiles.contains(tile))
+				tile = null;
 			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !nbt.getBoolean("f" + i))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
@@ -779,16 +781,18 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 
 	public void removeBoxFromTile(LittleTile loaded, LittleTileBox box) {
 		ArrayList<LittleTileBox> boxes = new ArrayList<>(loaded.boundingBoxes);
-		loaded.boundingBoxes.clear();
+		//loaded.boundingBoxes.clear();
 		ArrayList<LittleTile> newTiles = new ArrayList<>();
 		for (int i = 0; i < boxes.size(); i++) {
 			LittleTileBox oldBox = boxes.get(i);
 			for (int littleX = oldBox.minX; littleX < oldBox.maxX; littleX++) {
 				for (int littleY = oldBox.minY; littleY < oldBox.maxY; littleY++) {
 					for (int littleZ = oldBox.minZ; littleZ < oldBox.maxZ; littleZ++) {
-						if(box.minX != littleX || box.minY != littleY || box.minZ != littleZ){
+						LittleTileVec vec = new LittleTileVec(littleX, littleY, littleZ);
+						if(!box.isVecInsideBox(vec)){
 							LittleTile newTile = loaded.copy();
-							newTile.boundingBoxes.add(new LittleTileBox(new LittleTileVec(littleX, littleY, littleZ)));
+							newTile.boundingBoxes.clear();
+							newTile.boundingBoxes.add(new LittleTileBox(vec));
 							newTiles.add(newTile);
 						}
 					}
@@ -804,6 +808,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		
 		combineTiles();
+		//updateTiles();
 	}
 
 	
