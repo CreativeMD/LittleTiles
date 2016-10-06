@@ -246,6 +246,7 @@ public class PlacementHelper {
 			if(structure != null)
 			{
 				//ArrayList<LittleTileBox> highlightedBoxes = structure.getSpecialTiles();
+				
 				ArrayList<PreviewTile> newBoxes = structure.getSpecialTiles();
 				
 				for (int i = 0; i < newBoxes.size(); i++) {

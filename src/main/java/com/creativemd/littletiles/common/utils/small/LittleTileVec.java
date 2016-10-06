@@ -30,7 +30,7 @@ public class LittleTileVec {
 			try{
 				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
 			}catch(Exception e){
-				
+				set(0, 0, 0);
 			}
 		}
 	}

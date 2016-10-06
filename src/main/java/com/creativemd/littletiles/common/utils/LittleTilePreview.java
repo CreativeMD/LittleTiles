@@ -86,7 +86,7 @@ public final class LittleTilePreview {
 	
 	public static void flipPreview(NBTTagCompound nbt, EnumFacing direction)
 	{
-		if(nbt.hasKey("bBoxminX"))
+		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{
 			LittleTileBox box = new LittleTileBox("bBox", nbt);
 			box.flipBoxWithCenter(direction, null);
@@ -112,7 +112,7 @@ public final class LittleTilePreview {
 			size.rotateSize(direction);
 			size.writeToNBT("size", nbt);
 		}
-		if(nbt.hasKey("bBoxminX"))
+		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{
 			LittleTileBox box = new LittleTileBox("bBox", nbt);
 			box.rotateBox(direction);
@@ -139,7 +139,7 @@ public final class LittleTilePreview {
 		LittleTileBox box = null;
 		if(nbt.hasKey("sizex"))
 			size = new LittleTileSize("size", nbt);
-		if(nbt.hasKey("bBoxminX"))
+		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{
 			box = new LittleTileBox("bBox", nbt);
 			if(size == null)

@@ -43,12 +43,12 @@ public class LittleTileBox {
 		}
 		else if(nbt.getTag(name + "minX") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"minX"), nbt.getInteger(name+"minY"), nbt.getInteger(name+"minZ"), nbt.getInteger(name+"maxX"), nbt.getInteger(name+"maxY"), nbt.getInteger(name+"maxZ"));
-		{
+		else{
 			String[] coords = nbt.getString(name).split("\\.");
 			try{
 				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(coords[5]));
 			}catch(Exception e){
-				
+				set(0, 0, 0, 0, 0, 0);
 			}
 		}
 	}
