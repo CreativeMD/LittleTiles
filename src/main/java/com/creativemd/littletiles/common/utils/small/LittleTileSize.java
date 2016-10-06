@@ -4,6 +4,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.EnumFacing;
 
 public class LittleTileSize {
@@ -16,8 +17,16 @@ public class LittleTileSize {
 	{
 		if(nbt.getTag(name+"x") instanceof NBTTagByte)
 			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
-		else
+		else if(nbt.getTag(name + "x") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
+		else{
+			String[] coords = nbt.getString(name).split("\\.");
+			try{
+				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
+			}catch(Exception e){
+				
+			}
+		}
 	}
 	
 	public LittleTileSize(int sizeX, int sizeY, int sizeZ)
@@ -139,9 +148,10 @@ public class LittleTileSize {
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		nbt.setInteger(name+"x", sizeX);
+		/*nbt.setInteger(name+"x", sizeX);
 		nbt.setInteger(name+"y", sizeY);
-		nbt.setInteger(name+"z", sizeZ);
+		nbt.setInteger(name+"z", sizeZ);*/
+		nbt.setString(name, sizeX+"."+sizeY+"."+sizeZ);
 		
 	}
 	

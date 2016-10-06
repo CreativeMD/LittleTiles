@@ -8,6 +8,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -40,8 +41,16 @@ public class LittleTileBox {
 			set((byte) nbt.getByte(name+"minX"), (byte) nbt.getByte(name+"minY"), (byte) nbt.getByte(name+"minZ"), (byte) nbt.getByte(name+"maxX"), (byte) nbt.getByte(name+"maxY"), (byte) nbt.getByte(name+"maxZ"));
 			writeToNBT(name, nbt);
 		}
-		else
+		else if(nbt.getTag(name + "minX") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"minX"), nbt.getInteger(name+"minY"), nbt.getInteger(name+"minZ"), nbt.getInteger(name+"maxX"), nbt.getInteger(name+"maxY"), nbt.getInteger(name+"maxZ"));
+		{
+			String[] coords = nbt.getString(name).split("\\.");
+			try{
+				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(coords[5]));
+			}catch(Exception e){
+				
+			}
+		}
 	}
 	
 	public LittleTileBox(CubeObject cube)
@@ -81,12 +90,13 @@ public class LittleTileBox {
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		nbt.setInteger(name+"minX", minX);
+		/*nbt.setInteger(name+"minX", minX);
 		nbt.setInteger(name+"minY", minY);
 		nbt.setInteger(name+"minZ", minZ);
 		nbt.setInteger(name+"maxX", maxX);
 		nbt.setInteger(name+"maxY", maxY);
-		nbt.setInteger(name+"maxZ", maxZ);
+		nbt.setInteger(name+"maxZ", maxZ);*/
+		nbt.setString(name, minX+"."+minY+"."+minZ+"."+maxX+"."+maxY+"."+maxZ);
 	}
 	
 	public Vec3d getSizeD()

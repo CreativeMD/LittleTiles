@@ -4,6 +4,8 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -21,8 +23,16 @@ public class LittleTileVec {
 		{
 			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
 			writeToNBT(name, nbt);
-		}else
+		}else if(nbt.getTag(name + "x") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
+		else{
+			String[] coords = nbt.getString(name).split("\\.");
+			try{
+				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
+			}catch(Exception e){
+				
+			}
+		}
 	}
 	
 	public LittleTileVec(Vec3d vec)
@@ -145,9 +155,10 @@ public class LittleTileVec {
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		nbt.setInteger(name+"x", x);
+		/*nbt.setInteger(name+"x", x);
 		nbt.setInteger(name+"y", y);
-		nbt.setInteger(name+"z", z);
+		nbt.setInteger(name+"z", z);*/
+		nbt.setString(name, x+"."+y+"."+z);
 	}
 	
 	@Override
