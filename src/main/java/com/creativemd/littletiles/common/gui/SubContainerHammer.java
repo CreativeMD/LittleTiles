@@ -92,7 +92,7 @@ public class SubContainerHammer extends SubContainer{
 					tile = new LittleTileBlockColored(block, stack.getItemDamage(), ColorUtils.IntToRGB(nbt.getInteger("color")));
 				else
 					tile = new LittleTileBlock(block, stack.getItemDamage());
-				tile.saveTile(dropstack.getTagCompound());
+				tile.saveTileExtra(dropstack.getTagCompound());
 				
 				float missingTiles = blocks-tiles*size.getPercentVolume();
 				if(missingTiles > 0)

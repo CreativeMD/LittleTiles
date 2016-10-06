@@ -2,13 +2,16 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
@@ -32,6 +35,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -232,7 +236,7 @@ public abstract class LittleStructure {
 	//public ArrayList<LittleTilePosition> tilesToLoad = null;
 	public ArrayList<LittleTileCoord> tilesToLoad = null;
 	
-	public ItemStack dropStack;
+	//public ItemStack dropStack;
 	
 	public LittleStructure()
 	{
@@ -241,7 +245,7 @@ public abstract class LittleStructure {
 	
 	public void loadFromNBT(NBTTagCompound nbt)
 	{
-		if(nbt.hasKey("stack"))
+		/*if(nbt.hasKey("stack"))
 		{
 			dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
 			if(dropStack == null)
@@ -249,7 +253,7 @@ public abstract class LittleStructure {
 				nbt.getCompoundTag("stack").setString("id", LittleTiles.multiTiles.getRegistryName().toString());
 				dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
 			}
-		}
+		}*/
 		
 		
 		//LoadTiles
@@ -276,14 +280,19 @@ public abstract class LittleStructure {
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
 	
+	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
+	{
+		writeToNBT(nbt);
+	}
+	
 	public void writeToNBT(NBTTagCompound nbt)
 	{
-		if(dropStack != null)
+		/*if(dropStack != null)
 		{
 			NBTTagCompound nbtStack = new NBTTagCompound();
 			dropStack.writeToNBT(nbtStack);
 			nbt.setTag("stack", nbtStack);
-		}
+		}*/
 		
 		nbt.setString("id", getIDOfStructure());
 		
@@ -385,7 +394,41 @@ public abstract class LittleStructure {
 	
 	public ItemStack getStructureDrop()
 	{
-		return dropStack.copy();
+		if(hasLoaded())
+		{
+			BlockPos pos = getMainTile().te.getPos();
+			int x = pos.getX();
+			int y = pos.getY();
+			int z = pos.getZ();
+			
+			for (int i = 0; i < tiles.size(); i++) {
+				x = Math.min(x, tiles.get(i).te.getPos().getX());
+				y = Math.min(y, tiles.get(i).te.getPos().getY());
+				z = Math.min(z, tiles.get(i).te.getPos().getZ());
+			}
+			
+			pos = new BlockPos(x, y, z);
+			
+			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setInteger("tiles", tiles.size());
+			for (int i = 0; i < tiles.size(); i++) {
+				NBTTagCompound tileNBT = new NBTTagCompound();
+				LittleTileBox box = tiles.get(i).boundingBoxes.get(0).copy();
+				box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
+				box.writeToNBT("bBox", tileNBT);
+				tiles.get(i).saveTileExtra(tileNBT);
+				nbt.setTag("tile" + i, tileNBT);
+			}
+			
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			
+			this.writeToNBTPreview(structureNBT, pos);
+			nbt.setTag("structure", structureNBT);
+			stack.setTagCompound(nbt);
+			return stack;
+		}
+		return null;
 	}
 	
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)

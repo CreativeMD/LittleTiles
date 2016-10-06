@@ -353,7 +353,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		
 		if(structure != null)
 		{
-			structure.dropStack = stack.copy();
+			//structure.dropStack = stack.copy();
 			structure.setTiles(new ArrayList<LittleTile>());
 			forced = false;
 		}

@@ -232,10 +232,11 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			tiles.get(i).boundingBoxes.get(0).writeToNBT("bBox", nbt);
-			ArrayList<LittleTileBox> boxes = tiles.get(i).boundingBoxes;
+			/*ArrayList<LittleTileBox> boxes = tiles.get(i).boundingBoxes;
 			tiles.get(i).boundingBoxes = new ArrayList<>();
 			tiles.get(i).saveTile(nbt);
-			tiles.get(i).boundingBoxes = boxes;
+			tiles.get(i).boundingBoxes = boxes;*/
+			tiles.get(i).saveTileExtra(nbt);
 			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 				cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);

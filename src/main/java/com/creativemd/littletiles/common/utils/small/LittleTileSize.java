@@ -142,6 +142,7 @@ public class LittleTileSize {
 		nbt.setInteger(name+"x", sizeX);
 		nbt.setInteger(name+"y", sizeY);
 		nbt.setInteger(name+"z", sizeZ);
+		
 	}
 	
 	@Override

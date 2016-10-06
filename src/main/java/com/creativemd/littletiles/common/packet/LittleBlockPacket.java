@@ -211,7 +211,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}
 					break;
 				case 3: //COLOR TUBE set Color
-					if(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored)
+					if(!tile.isStructureBlock && (tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored))
 					{
 						int color = nbt.getInteger("color");
 						

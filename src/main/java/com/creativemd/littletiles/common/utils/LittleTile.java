@@ -263,6 +263,7 @@ public abstract class LittleTile {
 		saveTileExtra(nbt);
 	}
 	
+	/**Used to save extra data like block-name, meta, color etc. everything necessary for a preview**/
 	public abstract void saveTileExtra(NBTTagCompound nbt);
 	
 	public void saveTileCore(NBTTagCompound nbt)

@@ -355,7 +355,7 @@ public class LittleDoor extends LittleStructure{
 		}*/
 		
 		LittleDoor structure = new LittleDoor();
-		structure.dropStack = dropStack.copy();
+		//structure.dropStack = dropStack.copy();
 		structure.axisVec = new LittleTileVec(0, 0, 0);
 		structure.setTiles(new ArrayList<LittleTile>());
 		structure.axis = this.axis;
@@ -587,6 +587,17 @@ public class LittleDoor extends LittleStructure{
 		default:
 			break;
 		}
+	}
+	
+	@Override
+	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
+	{
+		LittleTileVec axisPointBackup = axisVec.copy();
+		axisVec.subVec(new LittleTileVec(newCenter));
+		axisVec.addVec(new LittleTileVec(getMainTile().te.getPos()));
+		axisVec.addVec(getMainTile().cornerVec);
+		writeToNBT(nbt);
+		axisVec = axisPointBackup;
 	}
 	
 	@Override

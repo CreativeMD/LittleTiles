@@ -214,7 +214,7 @@ public class GuiTileViewer extends GuiParent{
         	stack.getTagCompound().setInteger("tiles", tiles+1);
         	NBTTagCompound nbt = new NBTTagCompound();
         	new LittleTileBox(cube).writeToNBT("bBox", nbt);
-			tile.saveTile(nbt);
+			tile.saveTileExtra(nbt);
 			stack.getTagCompound().setTag("tile" + tiles, nbt);
         	cube = new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube();
         	//cube.block = Blocks.WOOL;
