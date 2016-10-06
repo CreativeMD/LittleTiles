@@ -596,7 +596,7 @@ public class LittleDoor extends LittleStructure{
 		axisVec.subVec(new LittleTileVec(newCenter));
 		axisVec.addVec(new LittleTileVec(getMainTile().te.getPos()));
 		axisVec.addVec(getMainTile().cornerVec);
-		writeToNBT(nbt);
+		super.writeToNBTPreview(nbt, newCenter);
 		axisVec = axisPointBackup;
 	}
 	

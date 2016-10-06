@@ -282,7 +282,9 @@ public abstract class LittleStructure {
 	
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
 	{
-		writeToNBT(nbt);
+		nbt.setString("id", getIDOfStructure());
+		writeToNBTExtra(nbt);
+		//writeToNBT(nbt);
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt)
@@ -417,7 +419,7 @@ public abstract class LittleStructure {
 				LittleTileBox box = tiles.get(i).boundingBoxes.get(0).copy();
 				box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
 				box.writeToNBT("bBox", tileNBT);
-				nbt.setString("tID", tiles.get(i).getID());
+				tileNBT.setString("tID", tiles.get(i).getID());
 				tiles.get(i).saveTileExtra(tileNBT);
 				nbt.setTag("tile" + i, tileNBT);
 			}
