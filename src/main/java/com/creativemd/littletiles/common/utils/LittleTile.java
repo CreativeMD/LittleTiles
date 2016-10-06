@@ -503,7 +503,7 @@ public abstract class LittleTile {
 	
 	//================Tick================
 	
-	public static final int ticksBetweenRefresh = 1200;
+	/*public static final int ticksBetweenRefresh = 1200;
 	
 	public int ticks = 0;
 	
@@ -524,6 +524,16 @@ public abstract class LittleTile {
 	public boolean shouldTick()
 	{
 		return isStructureBlock && isMainBlock;
+	}*/
+	
+	public void updateEntity()
+	{
+		
+	}
+	
+	public boolean shouldTick()
+	{
+		return false;
 	}
 	
 	//================Interaction================

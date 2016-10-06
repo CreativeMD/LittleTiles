@@ -123,6 +123,12 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	}
 	
 	@Override
+	public boolean shouldTick()
+	{
+		return true;
+	}
+	
+	@Override
 	public void updateEntity()
 	{
 		if(tileEntity != null)
