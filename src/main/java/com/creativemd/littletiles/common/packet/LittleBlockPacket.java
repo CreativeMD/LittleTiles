@@ -211,11 +211,10 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}
 					break;
 				case 3: //COLOR TUBE set Color
-					if(!tile.isStructureBlock && (tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored))
+					if((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored))
 					{
 						int color = nbt.getInteger("color");
 						
-						int index = te.getTiles().indexOf(tile);
 						if(player.isSneaking())
 						{
 							color = ColorUtils.WHITE;
@@ -225,9 +224,20 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						}else{
 							
 							LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
-							
 							if(newTile != null)
-								te.getTiles().set(index, newTile);
+							{
+								tile.te.removeTile(tile);
+								tile.te.addTile(newTile);
+							}
+							if(tile.isStructureBlock)
+							{
+								newTile.isStructureBlock = true;
+								newTile.structure.getTiles().remove(tile);
+								newTile.structure.getTiles().add(newTile);
+								if(tile.isMainBlock)
+									newTile.structure.setMainTile(newTile);
+								newTile.structure.getMainTile().te.updateBlock();
+							}
 							te.updateBlock();
 						}
 					}

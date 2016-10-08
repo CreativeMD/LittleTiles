@@ -92,7 +92,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	
 	public static LittleTileBlock setColor(LittleTileBlock tile, int color)
 	{
-		if(color == ColorUtils.WHITE)
+		if(color == ColorUtils.WHITE || color == -1)
 			return removeColor(tile);
 		if(tile instanceof LittleTileBlockColored)
 		{

@@ -418,6 +418,7 @@ public abstract class LittleTile {
 		tile.cornerVec = this.cornerVec.copy();
 		tile.te = this.te;
 		
+		tile.isStructureBlock = this.isStructureBlock;
 		tile.structure = this.structure;
 		if(this.coord != null)
 			tile.coord = this.coord.copy();
