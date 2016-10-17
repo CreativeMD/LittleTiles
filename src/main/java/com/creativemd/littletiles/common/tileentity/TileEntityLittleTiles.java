@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tileentity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -293,8 +294,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			//return isBoxFilledClient(box);
 		LittleTileSize size = box.getSize();
 		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tile = tiles.get(i);
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
 			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
 				LittleTileBox otherBox = tile.boundingBoxes.get(j);
 				int minX = Math.max(box.minX, otherBox.minX);
@@ -336,8 +337,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void updateNeighbor()
 	{
 		//System.out.println("Update Neighbor"); //TODO Maybe change it!
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).onNeighborChangeInside();
+		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			tile.onNeighborChangeInside();
 		}
 		worldObj.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile);
 	}
@@ -347,8 +349,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     public double getMaxRenderDistanceSquared()
     {
 		double renderDistance = 0;
-		for (int i = 0; i < tiles.size(); i++) {
-			renderDistance = Math.max(renderDistance, tiles.get(i).getMaxRenderDistanceSquared());
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
 		}
         return renderDistance;
     }
@@ -363,8 +366,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		double maxX = getPos().getX()+1;
 		double maxY = getPos().getY()+1;
 		double maxZ = getPos().getZ()+1;
-		for (int i = 0; i < tiles.size(); i++) {
-			AxisAlignedBB box = tiles.get(i).getRenderBoundingBox();
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			AxisAlignedBB box = tile.getRenderBoundingBox();
 			minX = Math.min(box.minX, minX);
 			minY = Math.min(box.minY, minY);
 			minZ = Math.min(box.minZ, minZ);
@@ -396,10 +400,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 			//return getTileFromPositionClient(x, y, z);
 		LittleTileBox box = new LittleTileBox(new LittleTileVec(x, y, z));
-		for (int i = 0; i < tiles.size(); i++) {
-			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-				if(box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
-					return tiles.get(i);
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				if(box.intersectsWith(tile.boundingBoxes.get(j)))
+					return tile;
 			}
 		}
 		return null;
@@ -430,9 +435,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
 	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB, LittleTile ignoreTile)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-				if(ignoreTile != tiles.get(i) && alignedBB.intersectsWith(tiles.get(i).boundingBoxes.get(j).getBox()))
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				if(ignoreTile != tile && alignedBB.intersectsWith(tile.boundingBoxes.get(j).getBox()))
 					return false;
 			}
 			
@@ -448,9 +454,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-				if(box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				if(box.intersectsWith(tile.boundingBoxes.get(j)))
 					return false;
 			}
 			
@@ -460,9 +467,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box, LittleTile ignoreTile)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-				if(ignoreTile != tiles.get(i) && box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				if(ignoreTile != tile && box.intersectsWith(tile.boundingBoxes.get(j)))
 					return false;
 			}
 			
@@ -472,10 +480,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public LittleTile getIntersectingTile(LittleTileBox box, LittleTile ignoreTile)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-				if(ignoreTile != tiles.get(i) && box.intersectsWith(tiles.get(i).boundingBoxes.get(j)))
-					return tiles.get(i);
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				if(ignoreTile != tile && box.intersectsWith(tile.boundingBoxes.get(j)))
+					return tile;
 			}
 			
 		}
@@ -511,10 +520,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     {
 		//long time = System.nanoTime();
         super.writeToNBT(nbt);
-        for (int i = 0; i < tiles.size(); i++) {
+        int i = 0;
+        for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
 			NBTTagCompound tileNBT = new NBTTagCompound();
-			tiles.get(i).saveTile(tileNBT);
+			tile.saveTile(tileNBT);
 			nbt.setTag("t" + i, tileNBT);
+			i++;
 		}
         nbt.setInteger("tilesCount", tiles.size());
         //long timeLeft = (System.nanoTime()-time);
@@ -526,15 +538,18 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     public void getDescriptionNBT(NBTTagCompound nbt)
 	{
     	//writeToNBT(nbt);
-    	for (int i = 0; i < tiles.size(); i++) {
+    	int i = 0;
+    	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
 			NBTTagCompound tileNBT = new NBTTagCompound();
 			NBTTagCompound packet = new NBTTagCompound();
-			tiles.get(i).saveTile(tileNBT);
-			tiles.get(i).updatePacket(packet);
+			tile.saveTile(tileNBT);
+			tile.updatePacket(packet);
 			tileNBT.setTag("update", packet);
 			nbt.setTag("t" + i, tileNBT);
 			if(needFullUpdate)
 				nbt.setBoolean("f" + i, true);
+			i++;
 		}
         nbt.setInteger("tilesCount", tiles.size());
         needFullUpdate = false;
@@ -548,9 +563,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     
     public LittleTile getTile(int minX, int minY, int minZ)
     {
-    	for (int i = 0; i < tiles.size(); i++) {
-			if(tiles.get(i).cornerVec.x == minX && tiles.get(i).cornerVec.y == minY && tiles.get(i).cornerVec.z == minZ)
-				return tiles.get(i);
+    	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			if(tile.cornerVec.x == minX && tile.cornerVec.y == minY && tile.cornerVec.z == minZ)
+				return tile;
 		}
     	return null;
     }
@@ -607,9 +623,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     public RayTraceResult getMoving(Vec3d pos, Vec3d look)
     {
     	RayTraceResult hit = null;
-    	for (int i = 0; i < tiles.size(); i++) {
-    		for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-    			RayTraceResult Temphit = tiles.get(i).boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
+    	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+    		for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+    			RayTraceResult Temphit = tile.boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
     			if(Temphit != null)
     			{
     				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
@@ -635,22 +652,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public LittleTile getFocusedTile(Vec3d pos, Vec3d look)
 	{	
-		LittleTile tile = null;
+		LittleTile tileFocus = null;
 		RayTraceResult hit = null;
-		for (int i = 0; i < tiles.size(); i++) {
-    		for (int j = 0; j < tiles.get(i).boundingBoxes.size(); j++) {
-    			RayTraceResult Temphit = tiles.get(i).boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+    		for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+    			RayTraceResult Temphit = tile.boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
     			if(Temphit != null)
     			{
     				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
     				{
     					hit = Temphit;
-    					tile = tiles.get(i);
+    					tileFocus = tile;
     				}
     			}
 			}
 		}
-		return tile;
+		return tileFocus;
 	}
 	
 	/*@SideOnly(Side.CLIENT)
@@ -674,8 +692,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		
-		for (int i = 0; i < updateTiles.size(); i++) {
-			updateTiles.get(i).updateEntity();
+		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			tile.updateEntity();
 		}
 		
 		if(!worldObj.isRemote && tiles.size() == 0)
