@@ -804,17 +804,21 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 				List<RenderCubeObject> cachedCubes = cached.get(layer);
 				if(cachedCubes != null)
 				{
-					for (int i = 0; i < cachedCubes.size(); i++) {
-						RenderCubeObject cube = cachedCubes.get(i);
-						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
-							EnumFacing facing = EnumFacing.VALUES[k];
-							if(cube.getSidedRendererType(facing).outside)
-							{
-								LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
-								
-								updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+					if(tileEntity.hasNeighborChanged)
+					{
+						for (int i = 0; i < cachedCubes.size(); i++) {
+							RenderCubeObject cube = cachedCubes.get(i);
+							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
+								EnumFacing facing = EnumFacing.VALUES[k];
+								if(cube.getSidedRendererType(facing).outside)
+								{
+									LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+									
+									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+								}
 							}
 						}
+						tileEntity.hasNeighborChanged = false;
 					}
 					
 					return cachedCubes;

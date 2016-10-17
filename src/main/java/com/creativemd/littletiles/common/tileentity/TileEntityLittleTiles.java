@@ -83,6 +83,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	private int lastRenderedLightValue;
 	
 	@SideOnly(Side.CLIENT)
+	public boolean hasNeighborChanged;
+	
+	@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
 	
 	public HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> getRenderCacheQuads()
@@ -270,6 +273,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		//getCachedQuads().clear();
 		cachedQuads = null;
 		quadCache = null;
+		hasNeighborChanged = true;
 		
 		updateRender();
 	}
@@ -418,7 +422,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
 				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
 					LittleTile tile = getTileFromPosition(littleX, littleY, littleZ);
-					if((tile == null) || !tile.doesProvideSolidFace(facing) && !tile.canBeRenderCombined(rendered))
+					if((tile == null) || (!tile.doesProvideSolidFace(facing) && !tile.canBeRenderCombined(rendered)))
 						return true;
 				}
 			}
