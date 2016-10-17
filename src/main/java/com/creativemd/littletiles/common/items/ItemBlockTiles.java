@@ -69,7 +69,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		//LittleTile tile = getLittleTile(Minecraft.getMinecraft().theWorld, stack);
 		if(stack.hasTagCompound())
 		{
-			result += " (x=" + stack.getTagCompound().getInteger("sizex") + ",y=" + stack.getTagCompound().getInteger("sizey") + "z=" + stack.getTagCompound().getInteger("sizez") + ")";
+			LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
+			result += " (x=" + size.sizeX + ",y=" + size.sizeY + "z=" + size.sizeZ + ")";
 		}
 		return result;
     }

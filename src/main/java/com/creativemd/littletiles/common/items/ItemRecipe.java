@@ -237,6 +237,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			tiles.get(i).saveTile(nbt);
 			tiles.get(i).boundingBoxes = boxes;*/
 			tiles.get(i).saveTileExtra(nbt);
+			nbt.setString("tID", tiles.get(i).getID());
 			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 				cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);

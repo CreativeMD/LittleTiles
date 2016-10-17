@@ -93,6 +93,7 @@ public class SubContainerHammer extends SubContainer{
 				else
 					tile = new LittleTileBlock(block, stack.getItemDamage());
 				tile.saveTileExtra(dropstack.getTagCompound());
+				dropstack.getTagCompound().setString("tID", "BlockTileBlock");
 				
 				float missingTiles = blocks-tiles*size.getPercentVolume();
 				if(missingTiles > 0)

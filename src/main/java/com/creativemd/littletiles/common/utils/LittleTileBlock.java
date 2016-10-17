@@ -80,7 +80,6 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
-		
 		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
 		nbt.setInteger("meta", meta);
 	}

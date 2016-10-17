@@ -173,13 +173,13 @@ public class LittleDoor extends LittleStructure{
 		{
 			viewer.offsetX = 0;
 			viewer.offsetY = 0;
-			viewer.scale = 1;
+			viewer.scale = 5;
 			//viewer.viewDirection = ForgeDirection.EAST;
 			//((GuiStateButton) event.source.parent.getControl("direction")).setState(3);
 		}else if(event.source.is("flip view"))
 		{
 			viewer.viewDirection = viewer.viewDirection.getOpposite();
-			
+			viewer.baked = null;
 			//viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton) event.source).getState()+2);
 		}else if(event.source instanceof GuiButton){			
 			if(event.source.is("<-"))

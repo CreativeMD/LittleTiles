@@ -106,7 +106,7 @@ public final class LittleTilePreview {
 	
 	public static void rotatePreview(NBTTagCompound nbt, EnumFacing direction)
 	{
-		if(nbt.hasKey("sizex"))
+		if(nbt.hasKey("sizex") || nbt.hasKey("size"))
 		{
 			LittleTileSize size = new LittleTileSize("size", nbt);
 			size.rotateSize(direction);
@@ -137,7 +137,7 @@ public final class LittleTilePreview {
 			return null;
 		LittleTileSize size = null;
 		LittleTileBox box = null;
-		if(nbt.hasKey("sizex"))
+		if(nbt.hasKey("sizex") || nbt.hasKey("size"))
 			size = new LittleTileSize("size", nbt);
 		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{

@@ -1,32 +1,48 @@
 package com.creativemd.littletiles.common.gui.controls;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.RenderCubeObject;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
+import com.creativemd.creativecore.gui.client.style.ColoredDisplayStyle;
+import com.creativemd.creativecore.gui.client.style.DisplayStyle;
 import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
+import net.java.games.input.Component.Identifier.Axis;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 
@@ -44,6 +60,7 @@ public class GuiTileViewer extends GuiParent{
 	
 	public EnumFacing.Axis normalAxis = null;
 	public EnumFacing.Axis axisDirection = EnumFacing.Axis.Y;
+	
 	public int axisX = 0;
 	public int axisY = 0;
 	public int axisZ = 0;
@@ -99,7 +116,7 @@ public class GuiTileViewer extends GuiParent{
 			if(sizeX >= sizeY)
 				normalAxis = EnumFacing.Axis.Y;
 			else
-				normalAxis = EnumFacing.Axis.Z;
+				normalAxis = EnumFacing.Axis.X;
 			break;
 		default:
 			break;
@@ -133,6 +150,8 @@ public class GuiTileViewer extends GuiParent{
 		}
 	}
 	
+	public List<BakedQuad> baked = null;
+	
 	@Override
 	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
 		
@@ -144,116 +163,88 @@ public class GuiTileViewer extends GuiParent{
 		GL11.glScaled(this.scale, this.scale, this.scale);
 		GL11.glTranslated(-offsetX*2, -offsetY*2, 0);
 		
-		/*mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-        //Block block = Block.getBlockFromItem(stack.getItem());
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0.1F);
-        GlStateManager.enableBlend();
-        //OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GL11.glAlphaFunc(GL11.GL_GREATER, 0.5F);
-        GlStateManager.disableBlend();*/
-        GlStateManager.enableBlend();
-
-        RenderHelper.enableGUIStandardItemLighting();
-        //}
-        
-        if(viewDirection == EnumFacing.UP || viewDirection == EnumFacing.DOWN)
-        	GL11.glRotated(-90, 1, 0, 0);
-        else if(viewDirection == EnumFacing.DOWN)
-        	GL11.glRotated(90, 1, 0, 0);
-        else
-        	RenderHelper3D.applyDirection(viewDirection);
-        
-        
-       /* GL11.glPushMatrix();
-        GL11.glTranslatef((float)(- 2), (float)(+ 3), -3.0F);
-        GL11.glScalef(10.0F, 10.0F, 10.0F);
-        GL11.glTranslatef(1.0F, 0.5F, 1.0F);
-        GL11.glScalef(1.0F, 1.0F, -1.0F);
-        GL11.glRotatef(180.0F, 1.0F, 0.0F, 0.0F);
-        //GL11.glRotatef(210.0F, 1.0F, 0.0F, 0.0F);
-        GL11.glEnable(GL11.GL_LIGHTING);*/
-        GlStateManager.enableLighting();
-        //RenderBlocks.getInstance().useInventoryTint = true;
-        //RenderBlocks.getInstance().renderBlockAsItem(block, k, 1.0F);
-        ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-        stack.setTagCompound(this.stack.getTagCompound().copy());
-        
-        //ArrayList<CubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
-        
-        if(visibleAxis)
+		GlStateManager.pushMatrix();
+		
+		if(viewDirection.getAxis() != EnumFacing.Axis.Y)
+			GL11.glRotated(180, 0, 0, 1);
+		EnumFacing facing = viewDirection;
+		switch(viewDirection)
+		{
+		case EAST:
+			GL11.glRotated(180, 0, 1, 0);
+			facing = EnumFacing.SOUTH;
+			break;
+		case WEST:
+			//GL11.glRotated(-180, 0, 1, 0);
+			facing = EnumFacing.NORTH;
+			break;
+		case UP:
+			GL11.glRotated(-90, 1, 0, 0);
+			break;
+		case DOWN:
+			GL11.glRotated(90, 1, 0, 0);
+			break;
+		case SOUTH:
+			GL11.glRotated(90, 0, 1, 0);
+			facing = EnumFacing.EAST;
+			break;
+		case NORTH:
+			GL11.glRotated(-90, 0, 1, 0);
+			facing = EnumFacing.WEST;
+			break;
+		}
+        if(baked == null)
         {
-        	float min = -100*1/scale;
-        	float max = -min;
-        	CubeObject cube = new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube();
-        	//cube.block = Blocks.WOOL;
-        	//cube.meta = 0;
-        	switch (normalAxis) {
-        	case X:
-				//cube.minZ = min;
-				//cube.maxZ = max;
-				cube.minX = min;
-				cube.maxX = max;
-				break;
-        	case Y:
-				cube.minY = min;
-				cube.maxY = max;
-				break;
-        	case Z:
-        		//cube.minX = min;
-				//cube.maxX = max;
-        		cube.minZ = min;
-				cube.maxZ = max;
-				break;
-			default:
-				break;
-			}
-        	//cubes.add(cube);
-        	LittleTileBlock tile = new LittleTileBlock(Blocks.WOOL, 0);
-        	int tiles = stack.getTagCompound().getInteger("tiles");
-        	stack.getTagCompound().setInteger("tiles", tiles+1);
-        	NBTTagCompound nbt = new NBTTagCompound();
-        	new LittleTileBox(cube).writeToNBT("bBox", nbt);
-			tile.saveTileExtra(nbt);
-			stack.getTagCompound().setTag("tile" + tiles, nbt);
-        	cube = new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube();
-        	//cube.block = Blocks.WOOL;
-        	//cube.meta = 5;
-        	
-			
-        	switch (axisDirection) {
-        	case X:
-				//cube.minZ = min;
-				//cube.maxZ = max;
-				cube.minX = min;
-				cube.maxX = max;
-				break;
-        	case Y:
-				cube.minY = min;
-				cube.maxY = max;
-				break;
-			case Z:
-				//cube.minX = min;
-				//cube.maxX = max;
-				cube.minZ = min;
-				cube.maxZ = max;
-				break;
-			default:
-				break;
-			}
-        	tile = new LittleTileBlock(Blocks.WOOL, 5);
-        	tiles = stack.getTagCompound().getInteger("tiles");
-        	stack.getTagCompound().setInteger("tiles", tiles+1);
-        	nbt = new NBTTagCompound();
-        	new LittleTileBox(cube).writeToNBT("bBox", nbt);
-			tile.saveTile(nbt);
-			stack.getTagCompound().setTag("tile" + tiles, nbt);
+        	//ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+        	//stack.setTagCompound(this.stack.getTagCompound().copy());
+	        CreativeBakedModel.setLastItemStack(stack);        
+	        
+	        baked = CreativeBakedModel.getBlockQuads(null, facing, 0, false);
+	        CreativeBakedModel.setLastItemStack(null);
         }
         
+        ArrayList<BakedQuad> quads = new ArrayList<>();
+        if(visibleAxis)
+        {
+        	ArrayList<RenderCubeObject> cubes = new ArrayList<>();
+        	RenderCubeObject normalCube = new RenderCubeObject(new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube(), Blocks.WOOL, 0);
+        	normalCube.keepVU = true;
+        	float min = -100*1/scale;
+        	float max = -min;
+        	switch (normalAxis) {
+        	case X:
+        		normalCube.minX = min;
+        		normalCube.maxX = max;
+				break;
+        	case Y:
+        		normalCube.minY = min;
+        		normalCube.maxY = max;
+				break;
+        	case Z:
+        		normalCube.minZ = min;
+        		normalCube.maxZ = max;
+				break;
+			default:
+				break;
+			}
+        	cubes.add(normalCube);
+        	
+        	RenderCubeObject axisCube = new RenderCubeObject(new LittleTileBox(axisX, axisY, axisZ, axisX+1, axisY+1, axisZ+1).getCube(), Blocks.WOOL, 5);
+        	cubes.add(axisCube);
+        	
+        	
+        	
+        	CreativeBakedModel.getBlockQuads(cubes, quads, (ICreativeRendered) LittleTiles.multiTiles, facing, null, BlockRenderLayer.SOLID, Blocks.WOOL, null, 0, stack, false);
+        }
         
+        helper.renderBakedQuads(baked);
         
-        IBakedModel model = mc.getRenderItem().getItemModelMesher().getItemModel(stack);
-        mc.getRenderItem().renderItem(stack, TransformType.NONE);
+        GlStateManager.disableDepth();
+        helper.renderBakedQuads(quads);
+        GlStateManager.enableDepth();
+        
+        GlStateManager.popMatrix();
+        
         
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
@@ -359,5 +350,7 @@ public class GuiTileViewer extends GuiParent{
 		default:
 			break;
 		}
+		updateNormalAxis();
+		baked = null;
 	}
 }
