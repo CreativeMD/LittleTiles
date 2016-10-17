@@ -1,15 +1,19 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.awt.Color;
+import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.utils.PreviewTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;
@@ -70,17 +74,35 @@ public class SubContainerHammer extends SubContainer{
 		ItemStack stack = basic.getStackInSlot(0);
 		if(stack != null && stack.getItem() instanceof ItemBlock)
 		{
+			double volumePerItem = 1;
 			Block block = Block.getBlockFromItem(stack.getItem());
-			if(isBlockValid(block))
+			if(isBlockValid(block) || stack.getItem() instanceof ItemBlockTiles)
 			{
-				int alltiles = (int) (1/size.getPercentVolume()*stack.stackSize);
+				double availableVolume = stack.stackSize;
+				if(stack.getItem() instanceof ItemBlockTiles)
+				{
+					block = null;
+					volumePerItem = 0;
+					ArrayList<LittleTilePreview> previews = ((ItemBlockTiles) stack.getItem()).getLittlePreview(stack);
+					for (int i = 0; i < previews.size(); i++) {
+						if(block == null)
+							block = previews.get(i).getPreviewBlock();
+						volumePerItem += previews.get(i).size.getPercentVolume();
+					}
+					availableVolume = volumePerItem*stack.stackSize;
+				}
+				
+				if(block.hasTileEntity(block.getStateFromMeta(stack.getItemDamage())))
+					return ;
+				int alltiles = (int) (availableVolume/size.getPercentVolume());
 				int tiles = Math.min(alltiles, 64);
-				int blocks = (int) Math.ceil(tiles*size.getPercentVolume());
+				if(alltiles == 0 || block == null)
+					return ;
+				int blocks = (int) Math.ceil((tiles*size.getPercentVolume()/volumePerItem));
 				stack.stackSize -= blocks;
 				if(stack.stackSize <= 0)
 					basic.setInventorySlotContents(0, null);
-				if(block.hasTileEntity(block.getStateFromMeta(stack.getItemDamage())))
-					return ;
+				
 				//LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
 				ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
 				dropstack.stackSize = tiles;

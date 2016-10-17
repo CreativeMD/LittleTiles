@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
+import java.util.ArrayList;
+
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -14,8 +16,10 @@ import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -100,6 +104,14 @@ public class SubGuiHammer extends SubGui {
 		{
 			block = Block.getBlockFromItem(slotStack.getItem());
 			meta = slotStack.getItemDamage();
+			if(block == LittleTiles.blockTile)
+			{
+				ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+				if(previews.size() > 0)
+					block = previews.get(0).getPreviewBlock();
+				else
+					block = null;
+			}
 		}
 		if(block instanceof BlockAir || block == null)
 			block = Blocks.STONE;
