@@ -75,7 +75,7 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public void updateTranslucent()
 	{
-		translucent = block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+		translucent = block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT || block.getBlockLayer() == BlockRenderLayer.CUTOUT;
 	}
 	
 	@Override
@@ -215,7 +215,7 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if(tile instanceof LittleTileBlock)
-			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
+			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;// && ((LittleTileBlock) tile).translucent == translucent;
 		return false;
 	}
 

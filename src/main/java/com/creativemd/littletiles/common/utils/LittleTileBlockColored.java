@@ -80,7 +80,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 			int color2 = this.color;
 			return color1 == color2;
 		}
-		return false;
+		return super.canBeCombined(tile);
 	}
 	
 	@Override
