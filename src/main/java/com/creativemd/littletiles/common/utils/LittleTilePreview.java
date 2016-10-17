@@ -19,7 +19,7 @@ public final class LittleTilePreview {
 	public boolean canSplit = true;
 	public LittleTileSize size = null;
 	
-	public NBTTagCompound nbt;
+	protected NBTTagCompound nbt;
 	///**Used for multiblocks**/
 	//public ArrayList<LittleTilePreview> subTiles = new ArrayList<LittleTilePreview>(); 
 	
@@ -60,13 +60,40 @@ public final class LittleTilePreview {
 		return tiles;
 	}*/
 	
+	public String getPreviewBlockName()
+	{
+		return nbt.getString("block");
+	}
+	
+	public Block getPreviewBlock()
+	{
+		if(nbt.hasKey("block"))
+			return Block.getBlockFromName(getPreviewBlockName());
+		return Blocks.AIR;
+	}
+	
+	public int getPreviewBlockMeta()
+	{
+		return nbt.getInteger("meta");
+	}
+	
+	public boolean hasColor()
+	{
+		return nbt.hasKey("color");
+	}
+	
+	public int getColor()
+	{
+		return nbt.getInteger("color");
+	}
+	
 	public RenderCubeObject getCubeBlock()
 	{
 		RenderCubeObject cube = new RenderCubeObject(box.getCube(), null);
 		if(nbt.hasKey("block"))
 		{
-			cube.block = Block.getBlockFromName(nbt.getString("block"));
-			cube.meta = nbt.getInteger("meta");
+			cube.block = getPreviewBlock();
+			cube.meta = getPreviewBlockMeta();
 		}else{
 			cube.block = Blocks.STONE;
 		}

@@ -55,15 +55,9 @@ public class SubContainerTileContainer extends SubContainer{
 					if(tiles != null)
 					{
 						for (int i = 0; i < tiles.size(); i++) {
-							if(tiles.get(i).nbt.hasKey("block"))
-							{
-								Block block2 = Block.getBlockFromName(tiles.get(i).nbt.getString("block"));
-								if(block2 != null && !(block2 instanceof BlockAir))
-								{
-										
-									ItemTileContainer.addBlock(stack, block2, tiles.get(i).nbt.getInteger("meta"), ammount*tiles.get(i).size.getPercentVolume());
-								}
-							}
+							Block block2 = tiles.get(i).getPreviewBlock();
+							if(block2 != null && !(block2 instanceof BlockAir))
+								ItemTileContainer.addBlock(stack, block2, tiles.get(i).getPreviewBlockMeta(), ammount*tiles.get(i).size.getPercentVolume());
 						}
 						
 					}

@@ -45,13 +45,13 @@ public class StructureStringUtils {
 				if(previews.get(i).box != null)
 				{
 					LittleTileBox box = previews.get(i).box;
-					String blockName = previews.get(i).nbt.getString("block");
+					String blockName = previews.get(i).getPreviewBlockName();
 					if(!blockNames.contains(blockName))
 						blockNames.add(blockName);
 					
-					String tileString = blockNames.indexOf(blockName) + "." + previews.get(i).nbt.getInteger("meta");
-					if(previews.get(i).nbt.hasKey("color"))
-						tileString += "." + previews.get(i).nbt.getInteger("color");
+					String tileString = blockNames.indexOf(blockName) + "." + previews.get(i).getPreviewBlockMeta();
+					if(previews.get(i).hasColor())
+						tileString += "." + previews.get(i).getColor();
 					
 					nbt.setString("" + i, box.minX+"."+box.minY+"."+box.minZ+"."+box.maxX+"."+box.maxY+"."+box.maxZ+"."+tileString);
 				}

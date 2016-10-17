@@ -85,7 +85,7 @@ public class LittleStorage extends LittleStructure  {
 		int size = 0;
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
 		for (int i = 0; i < previews.size(); i++) {
-			if(previews.get(i).nbt.getString("block").equals(name))
+			if(previews.get(i).getPreviewBlockName().equals(name))
 				size += previews.get(i).box.getSize().getVolume() * slotsPerTileSize;
 		}
 		return size;
