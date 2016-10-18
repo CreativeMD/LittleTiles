@@ -385,9 +385,13 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		TEResult result = loadTeAndTile(worldIn, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
-			if(worldIn.isRemote)
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 0));
-			return result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+			if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
+			{
+				if(worldIn.isRemote)
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 0));
+				return true;
+			}
+			return false;
 		}
 		return false;
     }
