@@ -587,7 +587,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = getTile(tileNBT.getInteger("cVecx"), tileNBT.getInteger("cVecy"), tileNBT.getInteger("cVecz"));
+			LittleTile tile = getTile(new LittleTileVec("cVec", tileNBT));
 			if(!exstingTiles.contains(tile))
 				tile = null;
 			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !nbt.getBoolean("f" + i))
