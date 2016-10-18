@@ -15,8 +15,11 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.tools.nsc.transform.patmat.ScalaLogic.TreesAndTypesDomain.Var;
 
 public class BlockLTColored extends Block{
 	
@@ -63,6 +66,22 @@ public class BlockLTColored extends Block{
         return new BlockStateContainer(this, new IProperty[] {VARIANT});
     }
 	
+	@Override
+    public int getLightValue(IBlockState state)
+    {
+		if(state.getValue(VARIANT) == EnumType.light_clean)
+			return 15;
+        return 0;
+    }
+	
+	@Override
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+		if(state.getValue(VARIANT) == EnumType.light_clean)
+			return 15;
+        return 0;
+    }
+	
 	public static enum EnumType implements IStringSerializable {
 		
 		clean,
@@ -75,7 +94,8 @@ public class BlockLTColored extends Block{
 		brick_big,
 		structured,
 		broken_brick_big,
-		clay;
+		clay,
+		light_clean;
 		
 		public static EnumType byMetadata(int meta)
 		{

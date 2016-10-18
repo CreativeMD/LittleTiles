@@ -10,6 +10,7 @@
         "variant=brick_big": { "model": "littletiles:colored_block_brick_big" },
         "variant=structured": { "model": "littletiles:colored_block_structured" },
         "variant=broken_brick_big": { "model": "littletiles:colored_block_broken_brick_big" },
-        "variant=clay": { "model": "littletiles:colored_block_clay" }
+        "variant=clay": { "model": "littletiles:colored_block_clay" },
+        "variant=light_clean": { "model": "littletiles:colored_block_clean" }
     }
 }
