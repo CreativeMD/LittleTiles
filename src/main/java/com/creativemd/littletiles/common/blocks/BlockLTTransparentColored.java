@@ -103,7 +103,8 @@ public class BlockLTTransparentColored extends Block{
 		clean,
 		thick,
 		thin,
-		
+		thinner,
+		thinnest,
 		
 		water;
 		

@@ -193,6 +193,7 @@ public class GuiTileViewer extends GuiParent{
 			facing = EnumFacing.WEST;
 			break;
 		}
+		
         if(baked == null)
         {
         	//ItemStack stack = new ItemStack(LittleTiles.multiTiles);
