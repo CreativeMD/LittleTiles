@@ -665,8 +665,10 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		if(te != null)
 		{
     		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+    		{
+    			//System.out.println("Update Neighbor Changed");
     			te.onNeighBorChangedClient();
-    		else{
+    		}else{
     			PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos), 100, pos);
 	    		/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
@@ -810,18 +812,21 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 				{
 					if(tileEntity.hasNeighborChanged)
 					{
-						for (int i = 0; i < cachedCubes.size(); i++) {
-							RenderCubeObject cube = cachedCubes.get(i);
-							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
-								EnumFacing facing = EnumFacing.VALUES[k];
-								if(cube.getSidedRendererType(facing).outside)
-								{
-									LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
-									
-									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+						for (List<RenderCubeObject> renderCubes : cached.values()) {
+							for (int i = 0; i < renderCubes.size(); i++) {
+								RenderCubeObject cube = renderCubes.get(i);
+								for (int k = 0; k < EnumFacing.VALUES.length; k++) {
+									EnumFacing facing = EnumFacing.VALUES[k];
+									if(cube.getSidedRendererType(facing).outside)
+									{
+										LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+										
+										updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+									}
 								}
 							}
 						}
+						
 						tileEntity.hasNeighborChanged = false;
 					}
 					
