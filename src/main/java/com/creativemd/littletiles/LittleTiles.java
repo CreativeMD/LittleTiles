@@ -132,7 +132,7 @@ public class LittleTiles {
 		GameRegistry.registerBlock(transparentColoredBlock, ItemBlockTransparentColored.class);
 		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class);
 		GameRegistry.registerBlock(storageBlock);
-		GameRegistry.registerBlock(particleBlock);
+		//GameRegistry.registerBlock(particleBlock);
 		
 		GameRegistry.registerItem(multiTiles, "multiTiles");
 		GameRegistry.registerItem(utilityKnife, "utilityKnife");
@@ -239,6 +239,89 @@ public class LittleTiles {
 				"XXX", "XLX", "XXX", 'X', Items.DYE, 'L', Items.IRON_INGOT
 				});
 		
+		GameRegistry.addRecipe(new ItemStack(utilityKnife),  new Object[]
+				{
+				"XAA", "ALA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
+				});
+		
+		
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 0),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 1),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.SANDSTONE
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 2),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.COBBLESTONE
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 3),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.DIRT
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 4),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.GRAVEL
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 5),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.BRICK_BLOCK
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 6),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.STONE
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 7),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 0)
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 8),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 3)
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 9),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 2)
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 10),  new Object[]
+				{
+				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.HARDENED_CLAY
+				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 11),  new Object[]
+				{
+				"XGX", "GBG", "XGX", 'G', Items.GLOWSTONE_DUST, 'B', new ItemStack(coloredBlock, 1, 0)
+				});
+		
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 0),  new Object[]
+				{
+				"SXS", "XGX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0), 'G', Blocks.GLASS
+				});
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 1),  new Object[]
+				{
+				"SXS", "XSX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
+				});
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 3, 2),  new Object[]
+				{
+				"SSS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
+				});
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 2, 3),  new Object[]
+				{
+				"SS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
+				});
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 1, 4),  new Object[]
+				{
+				"S", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
+				});
+		
+		//Water block
+		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, 5), Items.WATER_BUCKET);
+		
+		GameRegistry.addRecipe(new ItemStack(storageBlock, 1),  new Object[]
+				{
+				"C", 'C', Blocks.CHEST
+				});
     }
 	
 	@EventHandler

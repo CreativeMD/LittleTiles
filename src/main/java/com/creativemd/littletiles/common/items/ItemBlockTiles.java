@@ -82,7 +82,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(stack.hasTagCompound())
 		{
 			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-			return block.getUnlocalizedName();
+			return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
 		}
         return super.getUnlocalizedName(stack);
     }
