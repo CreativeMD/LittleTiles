@@ -83,7 +83,7 @@ public class LittleEvent {
 		{
 			tile.boundingBoxes.clear();
 			tile.boundingBoxes.add(box.copy());
-			WorldUtils.dropItem(player, tile.getDrops());
+			//WorldUtils.dropItem(player, tile.getDrops());
 		}
 		
 		PacketHandler.sendPacketToServer(new LittleBlockVanillaPacket(pos, player));

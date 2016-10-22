@@ -19,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -85,6 +86,8 @@ public class LittleBlockVanillaPacket extends CreativeCorePacket {
 
 			tile.te = te;
 			tile.place();
+			
+			world.playSound((EntityPlayer)null, blockPos, tile.getSound().getPlaceSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
 			
 			te.removeBoxFromTile(tile, box);
 			if(!player.capabilities.isCreativeMode)

@@ -35,6 +35,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -138,6 +139,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						if(!player.capabilities.isCreativeMode)
 							WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
 					}
+    				
+    				world.playSound((EntityPlayer)null, blockPos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
     				
     				/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
     					LittleTile tileNeighbor = (LittleTile) iterator.next();

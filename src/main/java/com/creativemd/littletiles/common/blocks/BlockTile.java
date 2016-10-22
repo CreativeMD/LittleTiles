@@ -38,6 +38,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -47,6 +48,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -69,6 +71,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class BlockTile extends BlockContainer implements ICustomCachedCreativeRendered {
 	
@@ -122,11 +125,14 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 			return new TEResult(te, te.getFocusedTile(player));
 		return new TEResult(null, null);
 	}
+	
+	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
 
 	public BlockTile(Material material) {
 		super(material);
 		setCreativeTab(CreativeTabs.DECORATIONS);
 		setResistance(3.0F);
+		setSoundType(SILENT);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -549,7 +555,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
             int j = pos.getY();
             int k = pos.getZ();
             float f = 0.1F;
-            AxisAlignedBB axisalignedbb = state.getBoundingBox(worldObj, pos);
+            AxisAlignedBB axisalignedbb = result.tile.getSelectedBox();
             double d0 = (double)i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
             double d1 = (double)j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
             double d2 = (double)k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
@@ -586,7 +592,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 
             manager.addEffect(((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
     	}
-        return false;
+        return true;
     }
     
     @Override
@@ -620,6 +626,51 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
             return true;
     	}
         return false;
+    }
+    
+    @SideOnly(Side.CLIENT)
+    public SoundType getSoundTypeClient(IBlockState state, World world, BlockPos pos)
+    {
+    	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
+    	if(result != null && result.tile != null)
+	    	return result.tile.getSound();
+    	return null;
+    }
+    
+    @Override
+    public SoundType getSoundType(IBlockState state, World world, BlockPos pos, @Nullable Entity entity)
+    {
+    	if(entity == null)
+    		return SILENT;
+    	SoundType sound = null;
+    	if(entity instanceof EntityPlayer && world.isRemote)
+    		sound = getSoundTypeClient(state, world, pos);
+    	
+    	if(sound == null)
+    	{
+    		//GET HEIGHEST TILE POSSIBLE
+    		TileEntityLittleTiles te = loadTe(world, pos);
+        	if(te != null)
+        	{
+        		int heighest = 0;
+        		LittleTile heighestTile = null;
+        		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+    				LittleTile tile = (LittleTile) iterator.next();
+    				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+						if(tile.boundingBoxes.get(i).maxY > heighest)
+						{
+							heighest = tile.boundingBoxes.get(i).maxY;
+							heighestTile = tile;
+						}
+					}
+        		}
+        		
+        		if(heighestTile != null)
+	        		return heighestTile.getSound();
+        	}
+    	}
+    	
+        return sound;
     }
     
     /*
