@@ -71,6 +71,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.chisel);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		
