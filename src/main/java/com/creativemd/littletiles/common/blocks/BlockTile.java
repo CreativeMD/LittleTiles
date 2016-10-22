@@ -313,7 +313,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 			ItemStack stack = mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
-				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.thePlayer);
+				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.thePlayer, result.te.getMoving(mc.thePlayer));
 				if(box != null)
 					return box.getBox().offset(pos);
 			}
@@ -472,7 +472,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	@SideOnly(Side.CLIENT)
 	public void removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
 	{
-		TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
+		TEResult result = loadTeAndTile(world, pos, player);
 		if(result.isComplete())
 		{				
 			LittleTileBox box = null;
@@ -480,7 +480,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
-				box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player);
+				box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player, result.te.getMoving(player));
 				/*if(box != null)
 				{
 					tempEntity.removeBoxFromTile(loaded, box);

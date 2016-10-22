@@ -116,18 +116,18 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					break;
 				case 1: //Destory tile
 					LittleTileBox box = null;
-    				
+					moving = te.getMoving(pos, look);
     				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
     				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
     				{
-    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player);
+    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
     					if(box != null)
     					{
     						te.removeBoxFromTile(tile, box);
     						if(!player.capabilities.isCreativeMode)
     						{
     							tile.boundingBoxes.clear();
-    							tile.boundingBoxes.add(new LittleTileBox(0,0,0,1,1,1));
+    							tile.boundingBoxes.add(box.copy());
     							WorldUtils.dropItem(player, tile.getDrops());
     						}
     					}
