@@ -31,3 +31,5 @@ tile.LTTransparentColoredBlock.thinnest.name=Colored Block Thinnest
 tile.LTTransparentColoredBlock.water.name=Water
 
 tile.LTStorageBlockTile.name=Little Storage Block
+
+key.categories.littletiles=LittleTiles Settings
