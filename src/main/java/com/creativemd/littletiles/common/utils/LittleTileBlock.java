@@ -140,7 +140,7 @@ public class LittleTileBlock extends LittleTile{
 	{
 		if(translucent)
 			return layer == BlockRenderLayer.TRANSLUCENT;
-		return layer == block.getBlockLayer();
+		return block.canRenderInLayer(getBlockState(), layer);
 	}
 	
 	@Override
