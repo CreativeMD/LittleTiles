@@ -14,7 +14,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 import com.creativemd.littletiles.utils.ShiftHandler;
 
 import net.minecraft.client.Minecraft;
@@ -296,13 +296,13 @@ public class PreviewRenderer {
 		            GL11.glDisable(GL11.GL_TEXTURE_2D);
 		            GL11.glDepthMask(false);
 		            
-		            ArrayList<PreviewTile> previews = null;
+		            ArrayList<PlacePreviewTile> previews = null;
 		            
 		            previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
 		            
 		            for (int i = 0; i < previews.size(); i++) {
 						GL11.glPushMatrix();
-						PreviewTile preview = previews.get(i);
+						PlacePreviewTile preview = previews.get(i);
 						LittleTileBox previewBox = preview.getPreviewBox();
 						CubeObject cube = previewBox.getCube();
 						Vec3d size = previewBox.getSizeD();

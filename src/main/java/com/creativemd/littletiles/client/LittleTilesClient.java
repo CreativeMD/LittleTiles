@@ -8,10 +8,12 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -52,7 +54,8 @@ public class LittleTilesClient extends LittleTilesServer{
 	@Override
 	public void loadSide()
 	{		
-		//ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new SpecialBlockTilesRenderer());
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new TileEntityTilesRenderer());
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);

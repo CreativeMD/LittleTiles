@@ -86,8 +86,6 @@ public class LittleTiles {
 	public static final String modid = "littletiles";
 	public static final String version = "1.3.0";
 	
-	//public static int maxNewTiles = 512;
-	
 	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock");
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock");
@@ -144,7 +142,6 @@ public class LittleTiles {
 		proxy.loadSide();
 		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
-		//LittleTile.registerLittleTile(LittleTileStructureBlock.class, "BlockTileStructure");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
 		

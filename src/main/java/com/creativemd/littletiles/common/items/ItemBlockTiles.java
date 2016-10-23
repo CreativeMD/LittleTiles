@@ -26,7 +26,8 @@ import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
+import com.ibm.icu.impl.duration.impl.DataRecord.EUnitVariant;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -82,7 +83,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(stack.hasTagCompound())
 		{
 			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-			return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
+			if(block != null && !(block instanceof BlockAir))
+				return new ItemStack(block, 1, stack.getTagCompound().getInteger("meta")).getUnlocalizedName();
 		}
         return super.getUnlocalizedName(stack);
     }
@@ -213,9 +215,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
         return block.isReplaceable(world, x, y, z) || PlacementHelper.getInstance(player).canBePlacedInsideBlock(x, y, z);
     }*/
 	
-	public static HashMapList<BlockPos, PreviewTile> getSplittedTiles(ArrayList<PreviewTile> tiles, BlockPos pos)
+	public static HashMapList<BlockPos, PlacePreviewTile> getSplittedTiles(ArrayList<PlacePreviewTile> tiles, BlockPos pos)
 	{
-		HashMapList<BlockPos, PreviewTile> splitted = new HashMapList<BlockPos, PreviewTile>();
+		HashMapList<BlockPos, PlacePreviewTile> splitted = new HashMapList<BlockPos, PlacePreviewTile>();
 		for (int i = 0; i < tiles.size(); i++) {
 			if(!tiles.get(i).split(splitted, pos))
 				return null;
@@ -223,7 +225,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		return splitted;
 	}
 	
-	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PreviewTile> splitted, ArrayList<BlockPos> coordsToCheck, boolean forced)
+	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PlacePreviewTile> splitted, ArrayList<BlockPos> coordsToCheck, boolean forced)
 	{
 		for (BlockPos pos : coordsToCheck) {
 			TileEntity mainTile = world.getTileEntity(pos);
@@ -231,7 +233,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			{
 				if(forced)
 					return true;
-				ArrayList<PreviewTile> tiles = splitted.getValues(pos);
+				ArrayList<PlacePreviewTile> tiles = splitted.getValues(pos);
 				if(tiles != null)
 				{
 					for (int j = 0; j < tiles.size(); j++)
@@ -253,13 +255,13 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		return true;
 	}
 	
-	public static boolean placeTiles(World world, EntityPlayer player, ArrayList<PreviewTile> previews, LittleStructure structure, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced)
+	public static boolean placeTiles(World world, EntityPlayer player, ArrayList<PlacePreviewTile> previews, LittleStructure structure, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		//if(!(world.getBlock(x, y, z) instanceof BlockTile))
 			//if (!world.setBlock(x, y, z, LittleTiles.blockTile, 0, 3))
 				//return false;
 		
-		HashMapList<BlockPos, PreviewTile> splitted = getSplittedTiles(previews, pos);
+		HashMapList<BlockPos, PlacePreviewTile> splitted = getSplittedTiles(previews, pos);
 		if(splitted == null)
 			return false;
 		
@@ -286,7 +288,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			//LittleTileCoord pos = null;
 			
 			for (BlockPos coord : splitted.getKeys()) {
-				ArrayList<PreviewTile> placeTiles = splitted.getValues(coord);
+				ArrayList<PlacePreviewTile> placeTiles = splitted.getValues(coord);
 				boolean hascollideBlock = false;
 				for (int j = 0; j < placeTiles.size(); j++) {
 					if(placeTiles.get(j).needsCollisionTest())
@@ -307,7 +309,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
 						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles, forced);
+							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles, forced, facing);
 							if(LT != null)
 							{
 								if(!soundsToBePlayed.contains(LT.getSound()))
@@ -359,12 +361,12 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			forced = false;
 		}
 		
-		ArrayList<PreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, true); //, direction, direction2);
+		ArrayList<PlacePreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, true); //, direction, direction2);
 		
 		//System.out.println("Creating " + previews.size() + " tiles");
 		
 		ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-		if(placeTiles(world, player, previews, structure, pos, stack, unplaceableTiles, forced))
+		if(placeTiles(world, player, previews, structure, pos, stack, unplaceableTiles, forced, facing))
 		{			
 			if(!player.capabilities.isCreativeMode)
 			{

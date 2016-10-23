@@ -891,11 +891,17 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 				{
 					//Check for sides which does not need to be rendered
 					ArrayList<RenderCubeObject> tileCubes = tile.getRenderingCubes();
+					boolean canUseBoundingBoxes = tile.boundingBoxes.size() == tileCubes.size();
 					for (int j = 0; j < tileCubes.size(); j++) {
 						RenderCubeObject cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
-							LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+							LittleTileBox box = null;
+							if(!canUseBoundingBoxes)
+								box = new LittleTileBox(cube).getSideOfBox(facing);
+							else
+								box = tile.boundingBoxes.get(j).copy().getSideOfBox(facing);
+							
 							//cubes.add(new RenderCubeObject(box.getCube(), Blocks.STONE, 0));
 							if(box.isBoxInsideBlock())
 								cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);

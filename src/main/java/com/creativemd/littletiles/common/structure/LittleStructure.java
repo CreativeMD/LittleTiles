@@ -19,7 +19,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
@@ -378,7 +378,7 @@ public abstract class LittleStructure {
 	
 	//====================Rendering====================
 	
-	public ArrayList<PreviewTile> getSpecialTiles()
+	public ArrayList<PlacePreviewTile> getSpecialTiles()
 	{
 		return new ArrayList<>();
 	}

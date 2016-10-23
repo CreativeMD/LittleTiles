@@ -131,6 +131,8 @@ public abstract class LittleTile {
 		return null;
 	}
 	
+	public boolean needsFullUpdate = false;
+	
 	public TileEntityLittleTiles te;
 	
 	/**Every LittleTile class has to have this constructor implemented**/
@@ -346,7 +348,7 @@ public abstract class LittleTile {
 	//public abstract ForgeDirection[] getValidRotation();
 	
 	/**stack may be null**/
-	public void onPlaced(EntityPlayer player , ItemStack stack)
+	public void onPlaced(EntityPlayer player , ItemStack stack, EnumFacing facing)
 	{
 		onNeighborChangeInside();
 	}

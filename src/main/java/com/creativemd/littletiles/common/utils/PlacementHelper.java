@@ -12,7 +12,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.InsideShiftHandler;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 import com.creativemd.littletiles.utils.ShiftHandler;
 
 import net.minecraft.block.Block;
@@ -72,7 +72,7 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
 		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, false); //, rotation, rotation2);
 	}
@@ -124,15 +124,15 @@ public class PlacementHelper {
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).max(size);
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
 		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, false);
 	}
 	
-	public ArrayList<PreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
 		ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
-		ArrayList<PreviewTile> preview = new ArrayList<PreviewTile>();
+		ArrayList<PlacePreviewTile> previews = new ArrayList<PlacePreviewTile>();
 		ArrayList<LittleTilePreview> tiles = null;
 		
 		LittleTilePreview tempPreview = null;
@@ -228,17 +228,9 @@ public class PlacementHelper {
 				LittleTilePreview tile = tiles.get(i);
 				if(tile != null)
 				{
-					if(tile.box == null)
-					{
-						preview.add(new PreviewTile(box.copy(), tile));
-					}else{
-						if(!canPlaceNormal)
-							tile.box.addOffset(offset);
-						//tile.box.rotateBox(rotation);
-						//tile.box.rotateBox(rotation2);
-						//tile.box.rotateBox(rotation2.getRotation(ForgeDirection.DOWN));
-						preview.add(new PreviewTile(tile.box, tile));
-					}
+					PlacePreviewTile preview = tile.getPreviewTile(box, canPlaceNormal, offset);
+					if(preview != null)
+						previews.add(preview);
 				}
 			}
 			
@@ -247,14 +239,14 @@ public class PlacementHelper {
 			{
 				//ArrayList<LittleTileBox> highlightedBoxes = structure.getSpecialTiles();
 				
-				ArrayList<PreviewTile> newBoxes = structure.getSpecialTiles();
+				ArrayList<PlacePreviewTile> newBoxes = structure.getSpecialTiles();
 				
 				for (int i = 0; i < newBoxes.size(); i++) {
 					if(!canPlaceNormal)
 						newBoxes.get(i).box.addOffset(offset);
 				}
 				
-				preview.addAll(newBoxes);
+				previews.addAll(newBoxes);
 				
 				/*for (int i = 0; i < highlightedBoxes.size(); i++) {
 					if(!canPlaceNormal)
@@ -269,7 +261,7 @@ public class PlacementHelper {
 			}
 		}
 		
-		return preview;
+		return previews;
 	}
 	
 	public LittleTileBox getTilesBox(LittleTileSize size, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean inside)

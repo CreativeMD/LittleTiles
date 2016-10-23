@@ -7,14 +7,14 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 
-public class PreviewTileAxis extends PreviewTile{
+public class PreviewTileAxis extends PlacePreviewTile{
 	
 	public static Vec3d red = new Vec3d(1, 0, 0);
 	public EnumFacing.Axis axis;
@@ -37,7 +37,7 @@ public class PreviewTileAxis extends PreviewTile{
 	}
 	
 	@Override
-	public PreviewTile copy()
+	public PlacePreviewTile copy()
 	{
 		return new PreviewTileAxis(box.copy(), null, axis);
 	}
@@ -69,7 +69,7 @@ public class PreviewTileAxis extends PreviewTile{
 	}
 	
 	@Override
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		if(structure instanceof LittleDoor)
 		{

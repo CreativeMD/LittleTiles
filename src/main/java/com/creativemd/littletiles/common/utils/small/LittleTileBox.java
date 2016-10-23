@@ -55,7 +55,7 @@ public class LittleTileBox {
 	
 	public LittleTileBox(CubeObject cube)
 	{
-		this((int)(cube.minX*LittleTile.gridSize), (int)(cube.minY*LittleTile.gridSize), (int)(cube.minZ*LittleTile.gridSize), (int)(cube.maxX*LittleTile.gridSize), (int)(cube.maxY*LittleTile.gridSize), (int)(cube.maxZ*LittleTile.gridSize));
+		this((int)Math.ceil(cube.minX*LittleTile.gridSize), (int)Math.ceil(cube.minY*LittleTile.gridSize), (int)Math.ceil(cube.minZ*LittleTile.gridSize), (int)Math.ceil(cube.maxX*LittleTile.gridSize), (int)Math.ceil(cube.maxY*LittleTile.gridSize), (int)Math.ceil(cube.maxZ*LittleTile.gridSize));
 	}
 	
 	public LittleTileBox(AxisAlignedBB box)

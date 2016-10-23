@@ -75,7 +75,7 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public void updateTranslucent()
 	{
-		translucent = block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT || block.getBlockLayer() == BlockRenderLayer.CUTOUT;
+		translucent = block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT);
 	}
 	
 	@Override
@@ -144,9 +144,9 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
-	public void onPlaced(EntityPlayer player, ItemStack stack)
+	public void onPlaced(EntityPlayer player, ItemStack stack, EnumFacing facing)
 	{
-		super.onPlaced(player, stack);
+		super.onPlaced(player, stack, facing);
 		try{
 			block.onBlockPlacedBy(te.getWorld(), te.getPos(), getBlockState(), player, stack);
 			//block.onPostBlockPlaced(te.getWorld(), te.getPos(), getBlockState());

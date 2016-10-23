@@ -50,16 +50,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	public TileEntityLittleTiles() {
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//completeTileUpdate();
+		
 	}
-	
-	//@SideOnly(Side.CLIENT)
-	//private LittleTile[][][] boundingArray;
 	
 	private CopyOnWriteArrayList<LittleTile> tiles = createTileList();
 	
 	private CopyOnWriteArrayList<LittleTile> updateTiles = createTileList();
+	
+	@SideOnly(Side.CLIENT)
+	private CopyOnWriteArrayList<LittleTile> renderTiles;
+	
+	@SideOnly(Side.CLIENT)
+	public CopyOnWriteArrayList<LittleTile> getRenderTiles()
+	{
+		if(renderTiles == null)
+			renderTiles = createTileList();
+		return renderTiles;
+	}
 	
 	public CopyOnWriteArrayList<LittleTile> getTiles()
 	{
@@ -69,8 +76,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//completeTileUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -98,7 +103,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public void setQuadCache(QuadCache[] cache, BlockRenderLayer layer, EnumFacing facing)
 	{
-		//this.lastRenderedLightValue = lightValue;
 		HashMap<EnumFacing, QuadCache[]> facingCache = getRenderCacheQuads().get(layer);
 		if(facingCache == null)
 			facingCache = new HashMap<>();
@@ -129,43 +133,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public HashMap<BlockRenderLayer, List<RenderCubeObject>> cachedCubes;
 	
-	/*public HashMap<BlockRenderLayer, List<RenderCubeObject>> getCachedCubes()
-	{
-		if(cachedCubes == null)
-			cachedCubes = new HashMap<>();
-		return cachedCubes;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void setCachedCubes(HashMap<BlockRenderLayer, List<RenderCubeObject>> cachedCubes)
-	{
-		this.cachedCubes = cachedCubes;
-	}*/
-	
 	@SideOnly(Side.CLIENT)
 	public HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> cachedQuads;
-	
-	/*@SideOnly(Side.CLIENT)
-	public void setCachedQuads(HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> cachedQuads)
-	{
-		this.cachedQuads = cachedQuads;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> getCachedQuads()
-	{
-		if(cachedQuads == null)
-			cachedQuads = new HashMap<>();
-		return cachedQuads;
-	}*/
 	
 	private boolean removeLittleTile(LittleTile tile)
 	{
 		boolean result = tiles.remove(tile);
 		updateTiles.remove(tile);
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//removeLittleTileClient(tile);
+		if(isClientSide())
+			removeLittleTileClient(tile);
 		return result;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void removeLittleTileClient(LittleTile tile)
+	{
+		getRenderTiles().remove(tile);
 	}
 	
 	public boolean removeTile(LittleTile tile)
@@ -175,40 +158,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return result;
 	}
 	
-	/*@SideOnly(Side.CLIENT)
-	private void removeLittleTileClient(LittleTile tile)
-	{
-		for(int i = 0; i < tile.boundingBoxes.size(); i++){
-			LittleTileBox box = tile.boundingBoxes.get(i);
-			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-				for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-					for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-						boundingArray[littleX][littleY][littleZ] = null;
-					}
-				}
-			}
-		}
-	}
-	
 	@SideOnly(Side.CLIENT)
 	private void addLittleTileClient(LittleTile tile)
 	{
-		for(int i = 0; i < tile.boundingBoxes.size(); i++){
-			LittleTileBox box = tile.boundingBoxes.get(i);
-			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-				for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-					for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-						boundingArray[littleX][littleY][littleZ] = tile;
-					}
-				}
-			}
-		}
-	}*/
+		if(tile.needCustomRendering())
+			getRenderTiles().add(tile);
+	}
 	
 	private boolean addLittleTile(LittleTile tile)
 	{
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//addLittleTileClient(tile);
+		if(isClientSide())
+			addLittleTileClient(tile);
 		if(tile.shouldTick())
 			updateTiles.add(tile);
 		return tiles.add(tile);
@@ -218,7 +178,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		for (int i = 0; i < tiles.size(); i++)
 			addLittleTile(tiles.get(i));
-		//this.tiles.addAll(tiles);
 		updateTiles();
 	}
 	
@@ -229,15 +188,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return result;
 	}
 	
-	/*@SideOnly(Side.CLIENT)
-	public void completeTileUpdate()
-	{
-		boundingArray = new LittleTile[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
-		for (int i = 0; i < tiles.size(); i++) {
-			addLittleTileClient(tiles.get(i));
-		}
-	}*/
-	
 	public void updateTiles()
 	{
 		if(preventUpdate)
@@ -246,10 +196,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		{
 			updateBlock();
 			updateNeighbor();
-			//System.out.println("Update Light");
 			worldObj.checkLight(getPos());
 		}
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(isClientSide())
 			updateCustomRenderer();
 		
 	}
@@ -257,8 +206,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public void updateCustomRenderer()
 	{
-		/*getCachedQuads().clear();
-		getCachedCubes().clear();*/
 		cachedCubes = null;
 		cachedQuads = null;
 		quadCache = null;
@@ -270,7 +217,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public void onNeighBorChangedClient()
 	{
-		//getCachedQuads().clear();
 		cachedQuads = null;
 		quadCache = null;
 		hasNeighborChanged = true;
@@ -278,24 +224,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateRender();
 	}
 	
-	/*@SideOnly(Side.CLIENT)
-	public boolean isBoxFilledClient(LittleTileBox box)
-	{
-		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-					if(getTileFromPositionClient(littleX, littleY, littleZ) == null)
-						return false;
-				}
-			}
-		}
-		return true;
-	}*/
-	
 	public boolean isBoxFilled(LittleTileBox box)
 	{
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//return isBoxFilledClient(box);
 		LittleTileSize size = box.getSize();
 		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
@@ -326,21 +256,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		return true;
-		/*
-		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-					if(isSpaceForLittleTile(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1)))
-						return false;
-				}
-			}
-		}
-		return true;*/
 	}
 	
 	public void updateNeighbor()
 	{
-		//System.out.println("Update Neighbor"); //TODO Maybe change it!
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.onNeighborChangeInside();
@@ -349,11 +268,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@Override
+	public boolean shouldRenderInPass(int pass)
+    {
+        return pass == 0 && getRenderTiles().size() > 0;
+    }
+	
+	@Override
 	@SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared()
     {
 		double renderDistance = 0;
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = getRenderTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
 		}
@@ -372,7 +297,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		double maxZ = getPos().getZ()+1;
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			AxisAlignedBB box = tile.getRenderBoundingBox();
+			AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
 			minX = Math.min(box.minX, minX);
 			minY = Math.min(box.minY, minY);
 			minZ = Math.min(box.minZ, minZ);
@@ -384,25 +309,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     }
 	
 	public boolean needFullUpdate = true;
-	
-	///**Used for**/
-	//public LittleTile loadedTile = null;
 
 	public boolean preventUpdate = false;
 	
-	/*public LittleTile getTileFromPositionClient(int x, int y, int z)
-	{
-		if(x < 0 || y < 0 || z < 0 || x > 15 || y > 15 || z > 15)
-			return null;
-		if(boundingArray == null)
-			return null;
-		return boundingArray[x][y][z];
-	}*/
-	
 	public LittleTile getTileFromPosition(int x, int y, int z)
 	{
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//return getTileFromPositionClient(x, y, z);
 		LittleTileBox box = new LittleTileBox(new LittleTileVec(x, y, z));
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
@@ -498,7 +409,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public void readFromNBT(NBTTagCompound nbt)
     {
-		//long time = System.nanoTime();
         super.readFromNBT(nbt);
         if(tiles != null)
         	tiles.clear();
@@ -509,20 +419,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         	tileNBT = nbt.getCompoundTag("t" + i);
 			LittleTile tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 			if(tile != null)
-				tiles.add(tile);
-		}
-        //if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-        	//completeTileUpdate();
-        //updateTiles();
+				addLittleTile(tile);
+        }
         if(worldObj != null)
         	updateBlock();
-        //System.out.println("READING! time=" + (System.nanoTime()-time));
     }
 
 	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-		//long time = System.nanoTime();
         super.writeToNBT(nbt);
         int i = 0;
         for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
@@ -533,15 +438,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			i++;
 		}
         nbt.setInteger("tilesCount", tiles.size());
-        //long timeLeft = (System.nanoTime()-time);
-        //System.out.println("" + tiles.size() + "," + timeLeft+"," + timeLeft/tiles.size());
 		return nbt;
     }
     
     @Override
     public void getDescriptionNBT(NBTTagCompound nbt)
 	{
-    	//writeToNBT(nbt);
     	int i = 0;
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
@@ -551,13 +453,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			tile.updatePacket(packet);
 			tileNBT.setTag("update", packet);
 			nbt.setTag("t" + i, tileNBT);
-			if(needFullUpdate)
+			if(needFullUpdate || tile.needsFullUpdate)
+			{
+				tile.needsFullUpdate = false;
 				nbt.setBoolean("f" + i, true);
+			}
 			i++;
 		}
         nbt.setInteger("tilesCount", tiles.size());
         needFullUpdate = false;
-        //System.out.println("SENDING!");
     }
     
     public LittleTile getTile(LittleTileVec vec)
@@ -610,7 +514,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
         updateTiles();
         super.onDataPacket(net, pkt);
-        //System.out.println("RECEIVING!");
     }
     
     public RayTraceResult getMoving(EntityPlayer player)
@@ -645,7 +548,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public LittleTile getFocusedTile(EntityPlayer player)
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+		if(!isClientSide())
 			return null;
 		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
@@ -675,19 +578,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return tileFocus;
 	}
 	
-	/*@SideOnly(Side.CLIENT)
-	public void checkClientLoadedTile(double distance)
-	{
-		Minecraft mc = Minecraft.getMinecraft();
-		Vec3d pos = mc.thePlayer.getPositionEyes(TickUtils.getPartialTickTime());
-		if(mc.objectMouseOver.hitVec.distanceTo(pos) < distance)
-			loadedTile = null;
-	}*/
-	
 	@Override
 	public void update()
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(isClientSide())
 		{
 			if(forceChunkRenderUpdate)
 			{
@@ -706,8 +600,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	public void combineTiles(LittleStructure structure) {
-		//ArrayList<LittleTile> newTiles = new ArrayList<>();
-		
 		if(!structure.hasLoaded())
 			return ;
 		
@@ -756,22 +648,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		if(isMainTile)
 			structure.selectMainTile();
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//completeTileUpdate();
-		//updateBlock();
 		updateTiles();
 	}
 	
 	public void combineTiles() {
 		combineTilesList(tiles);
 		
-		//if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-			//completeTileUpdate();
 		updateBlock();	
 	}
 
 	public static void combineTilesList(List<LittleTile> tiles) {
-		//ArrayList<LittleTile> newTiles = new ArrayList<>();
 		int size = 0;
 		while(size != tiles.size())
 		{
@@ -804,7 +690,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 
 	public void removeBoxFromTile(LittleTile loaded, LittleTileBox box) {
 		ArrayList<LittleTileBox> boxes = new ArrayList<>(loaded.boundingBoxes);
-		//loaded.boundingBoxes.clear();
 		ArrayList<LittleTile> newTiles = new ArrayList<>();
 		for (int i = 0; i < boxes.size(); i++) {
 			LittleTileBox oldBox = boxes.get(i);
@@ -831,7 +716,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		
 		combineTiles();
-		//updateTiles();
 	}
 
 	

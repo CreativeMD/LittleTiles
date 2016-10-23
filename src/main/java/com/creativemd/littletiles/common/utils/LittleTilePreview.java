@@ -7,21 +7,23 @@ import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 import com.creativemd.littletiles.utils.ShiftHandler;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public final class LittleTilePreview {
+public class LittleTilePreview {
 	
 	public boolean canSplit = true;
 	public LittleTileSize size = null;
 	
 	protected NBTTagCompound nbt;
-	///**Used for multiblocks**/
-	//public ArrayList<LittleTilePreview> subTiles = new ArrayList<LittleTilePreview>(); 
 	
 	public LittleTileBox box;
 	
@@ -87,6 +89,7 @@ public final class LittleTilePreview {
 		return nbt.getInteger("color");
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public RenderCubeObject getCubeBlock()
 	{
 		RenderCubeObject cube = new RenderCubeObject(box.getCube(), null);
@@ -109,6 +112,18 @@ public final class LittleTilePreview {
 		if(box != null)
 			preview.box = box.copy();
 		return preview;
+	}
+	
+	public PlacePreviewTile getPreviewTile(LittleTileBox box, boolean canPlaceNormal, LittleTileVec offset)
+	{
+		if(this.box == null)
+		{
+			return new PlacePreviewTile(box.copy(), this);
+		}else{
+			if(!canPlaceNormal)
+				this.box.addOffset(offset);
+			return new PlacePreviewTile(this.box, this);
+		}
 	}
 	
 	public static void flipPreview(NBTTagCompound nbt, EnumFacing direction)
@@ -156,9 +171,8 @@ public final class LittleTilePreview {
 			}
 		}
 	}
-	
-	
-	public static LittleTilePreview getPreviewFromNBT(NBTTagCompound nbt)
+		
+	public static LittleTilePreview loadPreviewFromNBT(NBTTagCompound nbt)
 	{
 		if(nbt == null)
 			return null;

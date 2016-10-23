@@ -12,25 +12,27 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class PreviewTile {
+public class PlacePreviewTile {
 	
 	public static final Vec3d white = new Vec3d(1, 1, 1);
 
 	public LittleTileBox box;
 	public LittleTilePreview preview;
 	
-	public PreviewTile(LittleTileBox box, LittleTilePreview preview)
+	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview)
 	{
 		this.box = box;
 		this.preview = preview;
 	}
 	
-	public PreviewTile copy()
+	/**NEEDS TO OVERRIDEN! ALWAYS!**/
+	public PlacePreviewTile copy()
 	{
-		return new PreviewTile(box.copy(), preview.copy());
+		return new PlacePreviewTile(box.copy(), preview.copy());
 	}
 	
 	public Vec3d getPreviewColor()
@@ -48,7 +50,7 @@ public class PreviewTile {
 		return box;
 	}
 	
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		LittleTile LT = preview.getLittleTile(teLT);
 		if(LT == null)
@@ -68,7 +70,7 @@ public class PreviewTile {
 		if(teLT.isSpaceForLittleTile(box.copy()))
 		{
 			LT.place();
-			LT.onPlaced(player, stack);
+			LT.onPlaced(player, stack, facing);
 			return LT;
 		}else if(forced){
 			ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
@@ -92,7 +94,7 @@ public class PreviewTile {
 				newTile.boundingBoxes.clear();
 				newTile.boundingBoxes.add(newBoxes.get(i));
 				newTile.place();
-				newTile.onPlaced(player, stack);
+				newTile.onPlaced(player, stack, facing);
 				if(i == 0)
 					first = newTile;
 			}
@@ -112,7 +114,7 @@ public class PreviewTile {
 		return null;
 	}
 	
-	public boolean split(HashMapList<BlockPos, PreviewTile> tiles, BlockPos pos)
+	public boolean split(HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)
 	{		
 		if(preview != null && !preview.canSplit && box.needsMultipleBlocks())
 			return false;
@@ -143,7 +145,7 @@ public class PreviewTile {
 				posZ = pos.getZ()+offZ;
 				for (int h = 0; spaceZ+size.sizeZ > h*LittleTile.gridSize; h++) {
 					
-					PreviewTile tile = this.copy();
+					PlacePreviewTile tile = this.copy();
 					if(i > 0)
 						tile.box.minX =	0;
 					else

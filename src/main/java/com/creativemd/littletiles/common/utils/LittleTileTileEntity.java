@@ -10,7 +10,9 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,6 +25,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -37,6 +40,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	{
 		super(block, meta);
 		this.tileEntity = tileEntity;
+		ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
 	}
 	
 	public boolean firstSended = false;
@@ -57,22 +61,8 @@ public class LittleTileTileEntity extends LittleTileBlock {
 			nbt.setBoolean("isFirst", true);
 		}else{
 			SPacketUpdateTileEntity packet = tileEntity.getUpdatePacket();
-			PacketBuffer buffer = new PacketBuffer(Unpooled.buffer());
-			try {
-				packet.writePacketData(buffer);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			int x = buffer.readInt();
-	        int y = buffer.readShort();
-	        int z = buffer.readInt();
-	        int meta = buffer.readUnsignedByte();
-	        NBTTagCompound newNBT = null;
-	        try {
-				newNBT = buffer.readNBTTagCompoundFromBuffer();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			NBTTagCompound newNBT = ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, packet, "nbt", "field_148860_e");
+			tileEntity.setWorldObj(te.getWorld());
 	        if(newNBT != null)
 	        	nbt.setTag("tileentity", newNBT);
 		}
@@ -87,6 +77,8 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(nbt.getBoolean("isFirst"))
 		{
 			tileEntity = TileEntity.func_190200_a(te.getWorld(), nbt.getCompoundTag("tileentity"));
+			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			tileEntity.setWorldObj(te.getWorld());
 		}else{
 			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
 			if(tileEntity != null)
@@ -103,6 +95,8 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileNBT != null)
 		{
 			tileEntity = TileEntity.func_190200_a(te.getWorld(), tileNBT);
+			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			tileEntity.setWorldObj(te.getWorld());
 			//tileEntity.setWorldObj(te.getWorld());
 			tileEntity.setPos(new BlockPos(te.getPos()));
 			//if(tileEntity.isInvalid())
@@ -140,7 +134,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		}
 	}
 	
-	/*@Override
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {
 		if(tileEntity != null)
@@ -148,7 +142,18 @@ public class LittleTileTileEntity extends LittleTileBlock {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (te.getDistanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < tileEntity.getMaxRenderDistanceSquared())
 	        {
-	            int i = te.getWorld().getLightBrightnessForSkyBlocks(te.getPos(), 0);
+				RenderHelper.enableStandardItemLighting();
+	            /*if(!TileEntityRendererDispatcher.instance.drawingBatch || !tileEntity.hasFastRenderer())
+	            {*/
+	            int i = te.getWorld().getCombinedLight(te.getPos(), 0);
+	            int j = i % 65536;
+	            int k = i / 65536;
+	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
+	            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+	            //}
+	            BlockPos blockpos = te.getPos();
+	            
+	            /*int i = te.getWorld().getLightBrightnessForSkyBlocks(te.getPos(), 0);
 	            int j = i % 65536;
 	            int k = i / 65536;
 	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
@@ -161,12 +166,18 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	            posY += cornerVec.getPosY() - 0.5;
 	            posZ += cornerVec.getPosZ() - 0.5;
 	            
-	            tileEntity.blockMetadata = meta;
-	            
-	            TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, posX, posY, posZ, partialTickTime);
+	            tileEntity.blockMetadata = meta;*/
+	            renderTileEntity(x, y, z, partialTickTime);
+	            //TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, posX, posY, posZ, partialTickTime);
 	        }
 		}
-	}*/
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void renderTileEntity(double x, double y, double z, float partialTickTime)
+	{
+		
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
@@ -192,11 +203,11 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tile instanceof LittleTileTileEntity)
 		{
 			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
-			thisTile.tileEntity = tileEntity;
+			thisTile.tileEntity = TileEntity.func_190200_a(tileEntity.getWorld(), tileEntity.writeToNBT(new NBTTagCompound()));
 		}
 	}
 	
-	public boolean loadTileEntity()
+	/*public boolean loadTileEntity()
 	{
 		if(tileEntity != null && tileEntity.getWorld() != null)
 		{
@@ -208,7 +219,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	@Override
 	protected boolean canSawResize(EnumFacing direction, EntityPlayer player) {

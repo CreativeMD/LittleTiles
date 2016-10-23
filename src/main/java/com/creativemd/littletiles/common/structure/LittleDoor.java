@@ -18,7 +18,7 @@ import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PreviewTile;
+import com.creativemd.littletiles.utils.PlacePreviewTile;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
@@ -225,9 +225,9 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	@Override
-	public ArrayList<PreviewTile> getSpecialTiles()
+	public ArrayList<PlacePreviewTile> getSpecialTiles()
 	{
-		ArrayList<PreviewTile> boxes = new ArrayList<>();
+		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		
 		boxes.add(new PreviewTileAxis(box, null, axis));
@@ -287,7 +287,7 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, ArrayList<PreviewTile> defaultpreviews, boolean inverse)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, ArrayList<PlacePreviewTile> defaultpreviews, boolean inverse)
 	{
 		LittleTileVec axisPoint = getAxisVec();
 		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
@@ -317,12 +317,12 @@ public class LittleDoor extends LittleStructure{
 		}
 		LittleTileVec missingInfOffset = missingOffset.copy();
 		missingInfOffset.invert();*/
-		ArrayList<PreviewTile> previews = new ArrayList<>();
+		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 		//LittleTileVec blockOffset = new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize);
 		//LittleTileVec blockInvOffset = blockOffset.copy();
 		//blockInvOffset.invert();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
-			PreviewTile box = defaultpreviews.get(i).copy();
+			PlacePreviewTile box = defaultpreviews.get(i).copy();
 			
 			//box.box.addOffset(missingOffset);
 			box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
@@ -390,7 +390,7 @@ public class LittleDoor extends LittleStructure{
 			break;
 		}*/
 		
-		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false))
+		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false, EnumFacing.EAST))
 		{
 			/*ArrayList<LittleTile> tiles = getTiles();
 			for (int i = 0; i < tiles.size(); i++) {
@@ -416,7 +416,7 @@ public class LittleDoor extends LittleStructure{
 				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
 				return true;
 			}
-			ArrayList<PreviewTile> previews = new ArrayList<>();
+			ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 			
 			LittleTileVec axisPoint = getAxisVec();
 			
@@ -445,7 +445,7 @@ public class LittleDoor extends LittleStructure{
 					//box.addOffset(internalOffset);
 					//box.set(-box.minX, -box.minY, -box.minZ, -box.maxX, -box.maxY, -box.maxZ);
 					//box.addOffset(internalOffset);
-					PreviewTile preview = new PreviewTile(box, new LittleTilePreview(box, nbt));
+					PlacePreviewTile preview = new PlacePreviewTile(box, new LittleTilePreview(box, nbt));
 					previews.add(preview);
 					//tiles.get(i).boundingBoxes.get(j).rotateBox(direction);
 				}
