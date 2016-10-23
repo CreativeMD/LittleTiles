@@ -40,6 +40,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
@@ -399,13 +400,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	@Override
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
 		ArrayList<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
-		previews.add(LittleTilePreview.getPreviewFromNBT(stack.getTagCompound()));
+		previews.add(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;
 	}
 	
 	@Override
-	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
-		LittleTilePreview.rotatePreview(stack.getTagCompound(), direction);
+	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
+		stack.setTagCompound(new NBTTagCompound());
+		if(previews.size() > 0)
+			previews.get(0).writeToNBT(stack.getTagCompound());
 	}
 	
 	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
@@ -428,11 +431,6 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return null;
-	}
-
-	@Override
-	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
-		//No need to flip one single tile!
 	}
 
 	@Override

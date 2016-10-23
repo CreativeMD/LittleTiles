@@ -65,16 +65,21 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     {
         
     }
+	
+	@Override
+	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
+		ItemRecipe.savePreviewTiles(previews, stack);
+	}
 
 	@Override
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
 		return ItemRecipe.getPreview(stack);
 	}
 
-	@Override
+	/*@Override
 	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.rotatePreview(stack, direction);
-	}
+	}*/
 
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
@@ -85,10 +90,10 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
 
-	@Override
+	/*@Override
 	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
 		ItemRecipe.flipPreview(stack, direction);
-	}
+	}*/
 
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {

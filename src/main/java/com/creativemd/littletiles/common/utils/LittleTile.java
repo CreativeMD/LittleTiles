@@ -697,5 +697,12 @@ public abstract class LittleTile {
 		}
 		
 	}
+
+	public LittleTilePreview getPreviewTile() {
+		NBTTagCompound nbt = new NBTTagCompound();
+		saveTileExtra(nbt);
+		nbt.setString("tID", getID());		
+		return new LittleTilePreview(boundingBoxes.get(0).copy(), nbt);
+	}
 	
 }

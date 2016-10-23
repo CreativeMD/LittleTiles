@@ -228,7 +228,7 @@ public class PlacementHelper {
 				LittleTilePreview tile = tiles.get(i);
 				if(tile != null)
 				{
-					PlacePreviewTile preview = tile.getPreviewTile(box, canPlaceNormal, offset);
+					PlacePreviewTile preview = tile.getPlaceableTile(box, canPlaceNormal, offset);
 					if(preview != null)
 						previews.add(preview);
 				}

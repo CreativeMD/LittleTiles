@@ -156,7 +156,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
         return EnumActionResult.PASS;
     }
 	
-	public static void flipPreview(ItemStack stack, EnumFacing direction)
+	/*public static void flipPreview(ItemStack stack, EnumFacing direction)
 	{
 		int tiles = stack.getTagCompound().getInteger("tiles");
 		for (int i = 0; i < tiles; i++) {
@@ -174,7 +174,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			LittleTilePreview.rotatePreview(nbt, direction);
 			stack.getTagCompound().setTag("tile" + i, nbt);
 		}
-	}
+	}*/
 	
 	public static ArrayList<LittleTilePreview> getPreview(ItemStack stack)
 	{
@@ -182,7 +182,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		int tiles = stack.getTagCompound().getInteger("tiles");
 		for (int i = 0; i < tiles; i++) {
 			NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-			LittleTilePreview preview = LittleTilePreview.getPreviewFromNBT(nbt);
+			LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
 			if(preview != null)
 				result.add(preview);
 		}
@@ -222,6 +222,18 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return result;
 	}
 	
+	public static void savePreviewTiles(List<LittleTilePreview> previews, ItemStack stack)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		stack.getTagCompound().setInteger("tiles", previews.size());
+		for (int i = 0; i < previews.size(); i++) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			previews.get(i).writeToNBT(nbt);			
+			stack.getTagCompound().setTag("tile" + i, nbt);
+		}
+	}
+	
 	public static void saveTiles(World world, List<LittleTile> tiles, ItemStack stack)
 	{
 		stack.setTagCompound(new NBTTagCompound());
@@ -231,13 +243,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			cubes = new ArrayList<RenderCubeObject>();
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			tiles.get(i).boundingBoxes.get(0).writeToNBT("bBox", nbt);
-			/*ArrayList<LittleTileBox> boxes = tiles.get(i).boundingBoxes;
-			tiles.get(i).boundingBoxes = new ArrayList<>();
-			tiles.get(i).saveTile(nbt);
-			tiles.get(i).boundingBoxes = boxes;*/
-			tiles.get(i).saveTileExtra(nbt);
-			nbt.setString("tID", tiles.get(i).getID());
+			tiles.get(i).getPreviewTile().writeToNBT(nbt);;
 			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 				cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);
