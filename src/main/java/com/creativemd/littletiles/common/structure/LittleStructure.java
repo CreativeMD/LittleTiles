@@ -14,6 +14,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
@@ -416,11 +417,14 @@ public abstract class LittleStructure {
 			nbt.setInteger("tiles", tiles.size());
 			for (int i = 0; i < tiles.size(); i++) {
 				NBTTagCompound tileNBT = new NBTTagCompound();
-				LittleTileBox box = tiles.get(i).boundingBoxes.get(0).copy();
+				/*LittleTileBox box = tiles.get(i).boundingBoxes.get(0).copy();
 				box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
 				box.writeToNBT("bBox", tileNBT);
 				tileNBT.setString("tID", tiles.get(i).getID());
-				tiles.get(i).saveTileExtra(tileNBT);
+				tiles.get(i).saveTileExtra(tileNBT);*/
+				LittleTilePreview preview = tiles.get(i).getPreviewTile();
+				preview.box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
+				preview.writeToNBT(tileNBT);
 				nbt.setTag("tile" + i, tileNBT);
 			}
 			
