@@ -93,7 +93,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	@Override
 	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.SERVER)
+		if(!worldIn.isRemote)
 			return EnumActionResult.FAIL;
 		
 		PlacementHelper helper = PlacementHelper.getInstance(playerIn);
@@ -126,7 +126,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
             /*int i = this.getMetadata(stack.getMetadata());
             IBlockState iblockstate1 = this.block.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);*/
             
-            if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+            if(worldIn.isRemote)
     			PacketHandler.sendPacketToServer(new LittlePlacePacket(/*stack,*/ playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
     		
             if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())) //, PreviewRenderer.direction, PreviewRenderer.direction2);

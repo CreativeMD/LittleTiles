@@ -375,7 +375,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     {
 		if(heldItem != null && heldItem.getItem() instanceof ItemRubberMallet)
 			return false;
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(worldIn.isRemote)
 			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		if(cancelNext)
 		{
@@ -470,7 +470,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	@Override
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		if(world.isRemote)
 			removedByPlayerClient(state, world, pos, player, willHarvest);
 		return true;
     }
@@ -715,7 +715,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     	TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if(te != null)
 		{
-    		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+    		if(worldIn.isRemote)
     		{
     			//System.out.println("Update Neighbor Changed");
     			te.onNeighBorChangedClient();
@@ -735,7 +735,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
     	TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
-			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			if(te.getWorld().isRemote)
     			te.onNeighBorChangedClient();
     		else{
 				/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {

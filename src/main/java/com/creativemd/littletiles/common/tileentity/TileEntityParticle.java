@@ -51,7 +51,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		par1 = nbt.getFloat("par1");
 		par2 = nbt.getFloat("par2");
 		par3 = nbt.getFloat("par3");
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(worldObj.isRemote)
 			particleType = null;
 	}
 

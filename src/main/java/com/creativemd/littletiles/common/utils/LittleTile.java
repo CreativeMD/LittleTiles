@@ -246,13 +246,13 @@ public abstract class LittleTile {
 	{
 		int count = nbt.getInteger("bSize");
 		
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(te.isClientSide())
 			te.removeTile(this);
 		boundingBoxes.clear();
 		for (int i = 0; i < count; i++) {
 			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
 		}
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(te.isClientSide())
 			te.addTile(this);
 		updateCorner();
 	}
@@ -336,7 +336,7 @@ public abstract class LittleTile {
 	
 	public void markForUpdate()
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide().isServer())
+		if(!te.getWorld().isRemote)
 			te.updateBlock();
 		else
 			te.updateRender();

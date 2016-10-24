@@ -53,7 +53,7 @@ public class LittleTileBlock extends LittleTile{
 		super();
 		this.block = block;
 		this.meta = meta;
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(FMLCommonHandler.instance().getSide().isClient())
 			updateClient();
 	}
 	
@@ -92,7 +92,7 @@ public class LittleTileBlock extends LittleTile{
 			//System.out.println("Invalid block name! name=" + nbt.getString("block"));
 			//throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
 		}
-		if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+		if(FMLCommonHandler.instance().getSide().isClient())
 			updateClient();
 	}
 
@@ -108,7 +108,7 @@ public class LittleTileBlock extends LittleTile{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
 			thisTile.block = block;
 			thisTile.meta = meta;
-			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			if(FMLCommonHandler.instance().getSide().isClient())
 				thisTile.translucent = translucent;
 		}
 	}
