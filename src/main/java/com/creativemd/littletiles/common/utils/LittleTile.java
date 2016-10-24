@@ -358,7 +358,12 @@ public abstract class LittleTile {
 		if(boundingBoxes.size() > 0)
 		{
 			LittleTileBox box = boundingBoxes.get(0);
-			cornerVec = new LittleTileVec(box.minX, box.minY, box.minZ);
+			if(cornerVec != null){
+				cornerVec.x = box.minX;
+				cornerVec.y = box.minY;
+				cornerVec.z = box.minZ;
+			}else
+				cornerVec = new LittleTileVec(box.minX, box.minY, box.minZ);
 		}else
 			cornerVec = new LittleTileVec(0, 0, 0);
 	}

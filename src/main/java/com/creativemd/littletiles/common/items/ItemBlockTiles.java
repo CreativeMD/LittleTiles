@@ -320,15 +320,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 									if(littlePos == null)
 									{
 										structure.setMainTile(LT);
-										littlePos = new LittleTilePosition(coord, LT.cornerVec.copy());
+										littlePos = new LittleTilePosition(coord, LT.cornerVec);
 									}else
 										LT.coord = new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
 								}
 							}
 						}
 						
-						if(structure != null)
-							teLT.combineTiles(structure);
+						//if(structure != null)
+							//teLT.combineTiles(structure);
 						
 						teLT.preventUpdate = false;
 						teLT.updateTiles();
@@ -337,6 +337,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 				}//else
 					//System.out.println("Couldn't create te at x=" + coord.posX + ",y=" + coord.posY + ",z=" + coord.posZ);
 			}
+			
+			structure.combineTiles();
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {
 				world.playSound((EntityPlayer)null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 			}

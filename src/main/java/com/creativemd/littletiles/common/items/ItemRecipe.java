@@ -239,16 +239,16 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		stack.setTagCompound(new NBTTagCompound());
 		stack.getTagCompound().setInteger("tiles", tiles.size());
 		List cubes = null;
-		if(FMLCommonHandler.instance().getSide().isClient())
+		if(world.isRemote)
 			cubes = new ArrayList<RenderCubeObject>();
 		for (int i = 0; i < tiles.size(); i++) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			tiles.get(i).getPreviewTile().writeToNBT(nbt);;
-			if(FMLCommonHandler.instance().getSide().isClient())
+			if(world.isRemote)
 				cubes.addAll(tiles.get(i).getRenderingCubes());
 			stack.getTagCompound().setTag("tile" + i, nbt);
 		}
-		if(FMLCommonHandler.instance().getSide().isClient())
+		if(world.isRemote)
 			updateSize((ArrayList<RenderCubeObject>) cubes, stack);
 	}
 	

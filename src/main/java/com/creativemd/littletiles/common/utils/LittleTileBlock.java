@@ -92,7 +92,7 @@ public class LittleTileBlock extends LittleTile{
 			//System.out.println("Invalid block name! name=" + nbt.getString("block"));
 			//throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
 		}
-		if(FMLCommonHandler.instance().getSide().isClient())
+		if(te.isClientSide())
 			updateClient();
 	}
 
