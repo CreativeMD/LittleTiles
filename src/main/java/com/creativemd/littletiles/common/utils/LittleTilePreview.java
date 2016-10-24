@@ -141,11 +141,13 @@ public class LittleTilePreview {
 	}
 	
 	public LittleTilePreview copy() {
-		LittleTilePreview preview = new LittleTilePreview(size != null ? size.copy() : null, (NBTTagCompound)tileData.copy());
+		NBTTagCompound nbt = new NBTTagCompound();
+		this.writeToNBT(nbt);
+		LittleTilePreview preview = loadPreviewFromNBT(nbt);
+		
+		//LittleTilePreview preview = new LittleTilePreview(size != null ? size.copy() : null, (NBTTagCompound)tileData.copy());
 		preview.canSplit = this.canSplit;
 		preview.shifthandlers = new ArrayList<ShiftHandler>(this.shifthandlers);
-		if(box != null)
-			preview.box = box.copy();
 		return preview;
 	}
 	
