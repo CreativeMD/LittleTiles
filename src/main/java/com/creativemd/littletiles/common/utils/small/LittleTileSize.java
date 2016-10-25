@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -124,6 +125,33 @@ public class LittleTileSize {
 			break;
 		}
 	}*/
+	
+	public void rotateSize(Rotation direction)
+	{
+		switch(direction)
+		{
+		case UP:
+		case DOWN:
+			int tempY = sizeY;
+			sizeY = sizeX;
+			sizeX = tempY;
+			break;
+		case UPX:
+		case DOWNX:
+			tempY = sizeY;
+			sizeY = sizeZ;
+			sizeZ = tempY;
+			break;
+		case SOUTH:
+		case NORTH:
+			int tempZ = sizeZ;
+			sizeZ = sizeX;
+			sizeX = tempZ;
+			break;
+		default:
+			break;
+		}
+	}
 	
 	public void rotateSize(EnumFacing direction)
 	{

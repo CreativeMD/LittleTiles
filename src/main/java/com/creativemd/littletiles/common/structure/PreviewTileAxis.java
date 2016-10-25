@@ -12,6 +12,7 @@ import com.creativemd.littletiles.utils.PlacePreviewTile;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class PreviewTileAxis extends PlacePreviewTile{
@@ -69,13 +70,13 @@ public class PreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		if(structure instanceof LittleDoor)
 		{
 			LittleDoor door = (LittleDoor) structure;
 			door.axisVec = box.getMinVec();
-			door.axisVec.addVec(new LittleTileVec(teLT.getPos().getX()*LittleTile.gridSize, teLT.getPos().getY()*LittleTile.gridSize, teLT.getPos().getZ()*LittleTile.gridSize));
+			door.axisVec.addVec(new LittleTileVec(pos));
 			door.axisVec.subVec(door.getMainTile().getAbsoluteCoordinates());
 		}
 		return null;

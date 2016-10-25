@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.jcraft.jorbis.Block;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,6 +41,7 @@ public class PlacePreviewTile {
 		return white;
 	}
 	
+	/**If false it will be placed after all regular tiles have been placed**/
 	public boolean needsCollisionTest()
 	{
 		return true;
@@ -50,7 +52,7 @@ public class PlacePreviewTile {
 		return box;
 	}
 	
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public LittleTile placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		LittleTile LT = preview.getLittleTile(teLT);
 		if(LT == null)

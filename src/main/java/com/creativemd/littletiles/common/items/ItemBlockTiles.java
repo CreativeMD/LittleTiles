@@ -229,12 +229,24 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	public static boolean canPlaceTiles(World world, HashMapList<BlockPos, PlacePreviewTile> splitted, ArrayList<BlockPos> coordsToCheck, boolean forced)
 	{
 		for (BlockPos pos : coordsToCheck) {
+			ArrayList<PlacePreviewTile> tiles = splitted.getValues(pos);
+			boolean needsCollisionCheck = false;
+			if(tiles != null)
+			{
+				for (int j = 0; j < tiles.size(); j++)
+					if(tiles.get(j).needsCollisionTest())
+					{
+						needsCollisionCheck = true;
+						break;
+					}
+			}
+			if(!needsCollisionCheck)
+				continue;
 			TileEntity mainTile = world.getTileEntity(pos);
 			if(mainTile instanceof TileEntityLittleTiles)
 			{
 				if(forced)
 					return true;
-				ArrayList<PlacePreviewTile> tiles = splitted.getValues(pos);
 				if(tiles != null)
 				{
 					for (int j = 0; j < tiles.size(); j++)
@@ -288,14 +300,22 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			LittleTilePosition littlePos = null;
 			//LittleTileCoord pos = null;
 			
+			ArrayList<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
+			
 			for (BlockPos coord : splitted.getKeys()) {
 				ArrayList<PlacePreviewTile> placeTiles = splitted.getValues(coord);
 				boolean hascollideBlock = false;
-				for (int j = 0; j < placeTiles.size(); j++) {
-					if(placeTiles.get(j).needsCollisionTest())
+				int i = 0;
+				
+				while(i < placeTiles.size()){
+					if(placeTiles.get(i).needsCollisionTest())
 					{
 						hascollideBlock = true;
-						break;
+						i++;
+					}
+					else{
+						lastPlacedTiles.add(new LastPlacedTile(placeTiles.get(i), coord));
+						placeTiles.remove(i);
 					}
 				}
 				if(hascollideBlock)
@@ -310,7 +330,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
 						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							LittleTile LT = placeTiles.get(j).placeTile(player, stack, teLT, structure, unplaceableTiles, forced, facing);
+							LittleTile LT = placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing);
 							if(LT != null)
 							{
 								if(!soundsToBePlayed.contains(LT.getSound()))
@@ -334,11 +354,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						teLT.updateTiles();
 					}
 					//System.out.println("Placed " + tiles + "/" + placeTiles.size());
-				}//else
-					//System.out.println("Couldn't create te at x=" + coord.posX + ",y=" + coord.posY + ",z=" + coord.posZ);
+				}
 			}
 			
-			structure.combineTiles();
+			for (int j = 0; j < lastPlacedTiles.size(); j++) {
+				lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing);
+			}
+			
+			if(structure != null)
+				structure.combineTiles();
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {
 				world.playSound((EntityPlayer)null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 			}
@@ -440,6 +464,19 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(stack != null)
 			return getItemRenderingCubes(stack);
 		return new ArrayList<>();
+	}
+	
+	public static class LastPlacedTile {
+		
+		public final PlacePreviewTile tile;
+		public final BlockPos pos;
+		
+		
+		public LastPlacedTile(PlacePreviewTile tile, BlockPos pos) {
+			this.tile = tile;
+			this.pos = pos;
+		}
+		
 	}
 
 }

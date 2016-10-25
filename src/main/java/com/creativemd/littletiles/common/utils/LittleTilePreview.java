@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.RenderCubeObject;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -18,6 +19,7 @@ import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -145,7 +147,13 @@ public class LittleTilePreview {
 		this.writeToNBT(nbt);
 		LittleTilePreview preview = loadPreviewFromNBT(nbt);
 		
-		//LittleTilePreview preview = new LittleTilePreview(size != null ? size.copy() : null, (NBTTagCompound)tileData.copy());
+		if(preview == null)
+		{
+			if(this.box != null)
+				preview = new LittleTilePreview(box, tileData.copy());
+			else
+				preview = new LittleTilePreview(size != null ? size.copy() : null, tileData.copy());
+		}
 		preview.canSplit = this.canSplit;
 		preview.shifthandlers = new ArrayList<ShiftHandler>(this.shifthandlers);
 		return preview;
@@ -185,6 +193,16 @@ public class LittleTilePreview {
 		}*/
 	}
 	
+	public void rotatePreview(Rotation direction)
+	{
+		size.rotateSize(direction);
+		if(box != null)
+		{
+			box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
+			size = box.getSize();
+		}
+	}
+	
 	public void rotatePreview(EnumFacing direction)
 	{
 		/*if(tileData.hasKey("sizex") || tileData.hasKey("size"))
@@ -220,7 +238,7 @@ public class LittleTilePreview {
 			box.writeToNBT("bBox", nbt);
 		size.writeToNBT("size", nbt);
 		nbt.setTag("tile", tileData);
-		if(isCustomPreview())
+		if(isCustomPreview() && !getTypeID().equals(""))
 			nbt.setString("type", getTypeID());
 	}
 	

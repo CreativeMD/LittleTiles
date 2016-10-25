@@ -102,9 +102,9 @@ public class GuiTileViewer extends GuiParent{
 		{
 		case X:
 			if(sizeY >= sizeZ)
-				normalAxis = EnumFacing.Axis.Z;
-			else
 				normalAxis = EnumFacing.Axis.Y;
+			else
+				normalAxis = EnumFacing.Axis.Z;
 			break;
 		case Y:
 			if(sizeX >= sizeZ)
@@ -114,9 +114,9 @@ public class GuiTileViewer extends GuiParent{
 			break;
 		case Z:
 			if(sizeX >= sizeY)
-				normalAxis = EnumFacing.Axis.Y;
-			else
 				normalAxis = EnumFacing.Axis.X;
+			else
+				normalAxis = EnumFacing.Axis.Y;
 			break;
 		default:
 			break;

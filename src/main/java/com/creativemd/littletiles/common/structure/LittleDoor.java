@@ -40,7 +40,7 @@ public class LittleDoor extends LittleStructure{
 
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		if(nbt.hasKey("ax")) //TODO Add compability for non relative axis
+		if(nbt.hasKey("ax"))
 		{
 			axisVec = new LittleTileVec("a", nbt);
 			if(getMainTile() != null)
@@ -228,7 +228,7 @@ public class LittleDoor extends LittleStructure{
 	public ArrayList<PlacePreviewTile> getSpecialTiles()
 	{
 		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
-		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
+		LittleTileBox box = new LittleTileBox(axisVec);
 		
 		boxes.add(new PreviewTileAxis(box, null, axis));
 		return boxes;
@@ -249,113 +249,47 @@ public class LittleDoor extends LittleStructure{
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
 		box.rotateBox(direction);
 		axisVec = box.getMinVec();
-		//ForgeDirection axisDirection = axis.getDirection();
 		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacingFromAxis(axis), direction).getAxis();
-		//this.axis = Axis.getAxis(direction.getRotation(axis.getDirection()));
 		this.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
-		//if(RotationUtils.isNegative(normalDirection))
-			//normalDirection = normalDirection.getOpposite();
-		/*Axis before = axis;
-		if(axisDirection == Axis.Yaxis)
-		{
-			switch(axis)
-			{
-			case Xaxis:
-				this.axis = Axis.Yaxis;
-				break;
-			case Yaxis:
-				this.axis = Axis.Xaxis;
-				break;
-			default:
-				break;
-			}
-		}else{
-			switch(axis)
-			{
-			case Xaxis:
-				this.axis = Axis.Zaxis;
-				break;
-			case Zaxis:
-				this.axis = Axis.Xaxis;
-				break;
-			default:
-				break;
-			}
-		}*/
-		//if(before != axis)
-		//	updateNormalDirection();
 	}
 	
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, ArrayList<PlacePreviewTile> defaultpreviews, boolean inverse)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse)
 	{
+		ArrayList<LittleTile> tiles = getTiles();
+		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
 		LittleTileVec axisPoint = getAxisVec();
-		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
 		
-		/*LittleTileVec missingOffset = new LittleTileVec(0, 0, 0);
-		switch (direction) {
-		case EAST:
-			//internalOffset.x++;
-			break;
-		case WEST:
-			//missingOffset.x++;
-			break;
-		case UP:
-			//internalOffset.y++;
-			break;
-		case DOWN:
-			//missingOffset.y++;
-			break;
-		case SOUTH:
-			//internalOffset.z++;
-			break;
-		case NORTH:
-			missingOffset.z--;
-			break;
-		default:
-			break;
-		}
-		LittleTileVec missingInfOffset = missingOffset.copy();
-		missingInfOffset.invert();*/
-		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
-		//LittleTileVec blockOffset = new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize);
-		//LittleTileVec blockInvOffset = blockOffset.copy();
-		//blockInvOffset.invert();
-		for (int i = 0; i < defaultpreviews.size(); i++) {
-			PlacePreviewTile box = defaultpreviews.get(i).copy();
+		LittleTileVec invaxis = axisPoint.copy();
+		invaxis.invert();
+		
+		for (int i = 0; i < tiles.size(); i++) {
+			LittleTile tileOfList = tiles.get(i);
+			NBTTagCompound nbt = new NBTTagCompound();
 			
-			//box.box.addOffset(missingOffset);
-			box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
-			//box.box.rotateBoxWithCenter(direction, Vec3.createVectorHelper(0, 0, 0));
-			//box.box.addOffset(missingInfOffset);
-			//box.box.addOffset(blockInvOffset);
-			//box.box.addOffset(new LittleTileVec(0, 0, 1));
+			LittleTilePreview preview = tileOfList.getPreviewTile();
+			preview.box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
+			preview.box.addOffset(invaxis);
+			
+			preview.rotatePreview(direction);
+			
+			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));
+		}
+		
+		defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis));
+		
+		
+		
+		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
+		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
+		for (int i = 0; i < defaultpreviews.size(); i++) {
+			PlacePreviewTile box = defaultpreviews.get(i); //.copy();
+			//box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
 			box.box.addOffset(internalOffset);
 			previews.add(box);
 		}
 		
-		/*LittleTileVec size = getSize(previews);
-		
-		switch(direction)
-		{
-		case SOUTH:
-			size.invert();
-			size.x = 0;
-			size.y = 0;
-			//size.z = 0;
-			break;
-		default:
-			break;
-		}*/
-			
-		/*for (int i = 0; i < previews.size(); i++) {
-			
-			//PreviewTile box = previews.get(i);
-			previews.get(i).box.addOffset(size);
-		}*/
-		
 		LittleDoor structure = new LittleDoor();
-		//structure.dropStack = dropStack.copy();
 		structure.axisVec = new LittleTileVec(0, 0, 0);
 		structure.setTiles(new ArrayList<LittleTile>());
 		structure.axis = this.axis;
@@ -365,42 +299,8 @@ public class LittleDoor extends LittleStructure{
 			rotationAxis = rotationAxis.getOpposite();
 		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, rotationAxis);
 		
-		/*Axis directionAxis = Axis.getAxis(this.axis);
-		switch(directionAxis)
-		{
-		case Xaxis:
-			if(directionAxis == Axis.Yaxis)
-				structure.normalAxis = Axis.Zaxis;
-			else
-				structure.normalAxis = Axis.Yaxis;
-			break;
-		case Yaxis:
-			if(directionAxis == Axis.Zaxis)
-				structure.normalAxis = Axis.Xaxis;
-			else
-				structure.normalAxis = Axis.Zaxis;
-			break;
-		case Zaxis:
-			if(directionAxis == Axis.Yaxis)
-				structure.normalAxis = Axis.Xaxis;
-			else
-				structure.normalAxis = Axis.Yaxis;
-			break;
-		default:
-			break;
-		}*/
-		
 		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false, EnumFacing.EAST))
 		{
-			/*ArrayList<LittleTile> tiles = getTiles();
-			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.updateBlock();
-			}
-			tiles.clear();
-			tiles = structure.getTiles();
-			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.combineTiles();
-			}*/
 			return true;
 		}
 		return false;
@@ -416,47 +316,18 @@ public class LittleDoor extends LittleStructure{
 				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
 				return true;
 			}
-			ArrayList<PlacePreviewTile> previews = new ArrayList<>();
+			
 			
 			LittleTileVec axisPoint = getAxisVec();
-			
 			int mainX = axisPoint.x/LittleTile.gridSize;
 			int mainY = axisPoint.y/LittleTile.gridSize;
 			int mainZ = axisPoint.z/LittleTile.gridSize;
 			
 			
-			//LittleTileVec internalOffset = new LittleTileVec(axis.x-mainX*LittleTile.gridSize, axis.y-mainY*LittleTile.gridSize, axis.z-mainZ*LittleTile.gridSize);
-			//internalOffset.invert();
-			LittleTileVec invaxis = axisPoint.copy();
-			//internalOffset.invert();
-			//invaxis.addVec(internalOffset);
-			invaxis.invert();
-			
-			//invaxis.addVec(internalOffset);
 			ArrayList<LittleTile> tiles = getTiles();
-			for (int i = 0; i < tiles.size(); i++) {
-				LittleTile tileOfList = tiles.get(i);
-				for (int j = 0; j < tileOfList.boundingBoxes.size(); j++) {
-					NBTTagCompound nbt = new NBTTagCompound();
-					tileOfList.saveTile(nbt);
-					LittleTileBox box = tileOfList.boundingBoxes.get(j).copy();
-					box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
-					box.addOffset(invaxis);
-					//box.addOffset(internalOffset);
-					//box.set(-box.minX, -box.minY, -box.minZ, -box.maxX, -box.maxY, -box.maxZ);
-					//box.addOffset(internalOffset);
-					PlacePreviewTile preview = new PlacePreviewTile(box, new LittleTilePreview(box, nbt));
-					previews.add(preview);
-					//tiles.get(i).boundingBoxes.get(j).rotateBox(direction);
-				}
-				
-			}
-			
-			previews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis));
 						
 			//Calculate rotation
 			Rotation rotation = Rotation.EAST;
-			//Axis directionAxis = Axis.getAxis(axis);
 			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
 			boolean rotX = playerRotation <= -90 || playerRotation >= 90;
 			boolean rotY = player.rotationPitch > 0;
@@ -466,8 +337,7 @@ public class LittleDoor extends LittleStructure{
 			switch(axis)
 			{
 			case X:
-				//System.out.println(player.rotationPitch);
-				System.out.println(normalDirection);
+				//System.out.println(normalDirection);
 				rotation = Rotation.UPX;
 				switch(normalDirection)
 				{
@@ -518,8 +388,6 @@ public class LittleDoor extends LittleStructure{
 				inverse = rotation == Rotation.SOUTH;
 				break;
 			case Z:
-				//System.out.println(player.rotationPitch);
-				//System.out.println(normalDirection);
 				rotation = Rotation.UP;				
 				switch(normalDirection)
 				{
@@ -548,25 +416,19 @@ public class LittleDoor extends LittleStructure{
 				break;
 			}
 			
-			/*for (int i = 0; i < previews.size(); i++) {
-				previews.get(i).box.addOffset(internalOffset);
-			}*/
-			
 			for (int i = 0; i < tiles.size(); i++) {
 				tiles.get(i).te.removeTile(tiles.get(i));
 			}
 			
-			if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, previews, !inverse))
+			if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse))
 				return true;
-			else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), previews, inverse))
+			else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse))
 				return true;
 			
 			for (int i = 0; i < tiles.size(); i++) {
 				tiles.get(i).te.addTile(tiles.get(i));
 			}
 			return true;
-			
-			//tiles.get(i).te.combineTiles();
 		}
 		return true;
 	}
