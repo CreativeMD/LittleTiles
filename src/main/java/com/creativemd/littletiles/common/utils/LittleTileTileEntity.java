@@ -40,12 +40,36 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	{
 		super(block, meta);
 		this.tileEntity = tileEntity;
-		ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+		setMeta(meta);
 	}
 	
 	public boolean firstSended = false;
 	
-	public TileEntity tileEntity;
+	private TileEntity tileEntity;
+	
+	private boolean isTileEntityLoaded = false;
+	
+	public TileEntity getTileEntity()
+	{
+		if(!isTileEntityLoaded && tileEntity != null)
+		{
+			tileEntity.setWorldObj(te.getWorld());
+			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			isTileEntityLoaded = true;
+		}
+		return tileEntity;
+	}
+	
+	public void setTileEntity(TileEntity tileEntity)
+	{
+		this.tileEntity = tileEntity;
+	}
+	
+	public void setMeta(int meta)
+	{
+		this.meta = meta;
+		ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+	}
 	
 	/**All information the client needs*/
 	@Override
@@ -60,12 +84,18 @@ public class LittleTileTileEntity extends LittleTileBlock {
 			nbt.setTag("tileentity", nbtTag);
 			nbt.setBoolean("isFirst", true);
 		}else{
-			SPacketUpdateTileEntity packet = tileEntity.getUpdatePacket();
+			SPacketUpdateTileEntity packet = getTileEntity().getUpdatePacket();
 			NBTTagCompound newNBT = ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, packet, "nbt", "field_148860_e");
 			tileEntity.setWorldObj(te.getWorld());
 	        if(newNBT != null)
 	        	nbt.setTag("tileentity", newNBT);
 		}
+	}
+	
+	@Override
+	public boolean canBeSplitted()
+	{
+		return false;
 	}
 	
 	/**Should apply all information from sendToCLient**/
@@ -77,7 +107,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(nbt.getBoolean("isFirst"))
 		{
 			tileEntity = TileEntity.func_190200_a(te.getWorld(), nbt.getCompoundTag("tileentity"));
-			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			setMeta(meta);
 			tileEntity.setWorldObj(te.getWorld());
 		}else{
 			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
@@ -95,10 +125,10 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileNBT != null)
 		{
 			tileEntity = TileEntity.func_190200_a(te.getWorld(), tileNBT);
-			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			setMeta(meta);
 			tileEntity.setWorldObj(te.getWorld());
-			//tileEntity.setWorldObj(te.getWorld());
 			tileEntity.setPos(new BlockPos(te.getPos()));
+			isTileEntityLoaded = te.getWorld() != null;
 			//if(tileEntity.isInvalid())
 				//setInValid();
 		}
@@ -128,7 +158,10 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileEntity != null)
 		{
 			if(tileEntity.getWorld() == null)
+			{
 				tileEntity.setWorldObj(te.getWorld());
+				isTileEntityLoaded = true;
+			}
 			if(tileEntity instanceof ITickable)
 				((ITickable) tileEntity).update();
 		}
@@ -140,7 +173,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileEntity != null)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
-			if (te.getDistanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < tileEntity.getMaxRenderDistanceSquared())
+			if (te.getDistanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < getTileEntity().getMaxRenderDistanceSquared())
 	        {
 				RenderHelper.enableStandardItemLighting();
 	            /*if(!TileEntityRendererDispatcher.instance.drawingBatch || !tileEntity.hasFastRenderer())
@@ -184,7 +217,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
     public double getMaxRenderDistanceSquared()
     {
 		if(tileEntity != null)
-			return tileEntity.getMaxRenderDistanceSquared();
+			return getTileEntity().getMaxRenderDistanceSquared();
 		return super.getMaxRenderDistanceSquared();
     }
 	
@@ -193,7 +226,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
     public AxisAlignedBB getRenderBoundingBox()
     {
 		if(tileEntity != null)
-			return tileEntity.getRenderBoundingBox().offset(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
+			return getTileEntity().getRenderBoundingBox().offset(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
 		return super.getRenderBoundingBox();
     }
 	
@@ -203,7 +236,8 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tile instanceof LittleTileTileEntity)
 		{
 			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
-			thisTile.tileEntity = TileEntity.func_190200_a(tileEntity.getWorld(), tileEntity.writeToNBT(new NBTTagCompound()));
+			thisTile.tileEntity = TileEntity.func_190200_a(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
+			thisTile.isTileEntityLoaded = false;
 		}
 	}
 	
@@ -229,7 +263,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
 		if(super.canBeCombined(tile))
-			return tile instanceof LittleTileTileEntity && tileEntity == ((LittleTileTileEntity) tile).tileEntity;
+			return tile instanceof LittleTileTileEntity && getTileEntity() == ((LittleTileTileEntity) tile).getTileEntity();
 		return false;
 	}
 }

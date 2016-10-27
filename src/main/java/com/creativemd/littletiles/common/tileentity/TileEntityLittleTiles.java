@@ -687,35 +687,52 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		
 	}
+	
+	public void removeBoxFromTiles(LittleTileBox box) {
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			if(tile.canBeSplitted())
+				removeBoxFromTile(tile, box);
+			else
+				tile.destroy();
+		}
+		combineTiles();
+	}
 
-	public void removeBoxFromTile(LittleTile loaded, LittleTileBox box) {
+	private void removeBoxFromTile(LittleTile loaded, LittleTileBox box) {
 		ArrayList<LittleTileBox> boxes = new ArrayList<>(loaded.boundingBoxes);
 		ArrayList<LittleTile> newTiles = new ArrayList<>();
+		boolean isIntersecting = false;
 		for (int i = 0; i < boxes.size(); i++) {
-			LittleTileBox oldBox = boxes.get(i);
-			for (int littleX = oldBox.minX; littleX < oldBox.maxX; littleX++) {
-				for (int littleY = oldBox.minY; littleY < oldBox.maxY; littleY++) {
-					for (int littleZ = oldBox.minZ; littleZ < oldBox.maxZ; littleZ++) {
-						LittleTileVec vec = new LittleTileVec(littleX, littleY, littleZ);
-						if(!box.isVecInsideBox(vec)){
-							LittleTile newTile = loaded.copy();
-							newTile.boundingBoxes.clear();
-							newTile.boundingBoxes.add(new LittleTileBox(vec));
-							newTiles.add(newTile);
+			if(box.intersectsWith(boxes.get(i)))
+			{
+				isIntersecting = true;
+				LittleTileBox oldBox = boxes.get(i);
+				for (int littleX = oldBox.minX; littleX < oldBox.maxX; littleX++) {
+					for (int littleY = oldBox.minY; littleY < oldBox.maxY; littleY++) {
+						for (int littleZ = oldBox.minZ; littleZ < oldBox.maxZ; littleZ++) {
+							LittleTileVec vec = new LittleTileVec(littleX, littleY, littleZ);
+							if(!box.isVecInsideBox(vec)){
+								LittleTile newTile = loaded.copy();
+								newTile.boundingBoxes.clear();
+								newTile.boundingBoxes.add(new LittleTileBox(vec));
+								newTiles.add(newTile);
+							}
 						}
 					}
 				}
 			}
 		}
 		
-		loaded.destroy();
-		
-		TileEntityLittleTiles.combineTilesList(newTiles);
-		for (int i = 0; i < newTiles.size(); i++) {
-			addTile(newTiles.get(i));
+		if(isIntersecting)
+		{
+			loaded.destroy();
+			
+			TileEntityLittleTiles.combineTilesList(newTiles);
+			for (int i = 0; i < newTiles.size(); i++) {
+				addTile(newTiles.get(i));
+			}
 		}
-		
-		combineTiles();
 	}
 
 	

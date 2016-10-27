@@ -218,6 +218,11 @@ public abstract class LittleTile {
 		
 		return true;
 	}
+	
+	public boolean canBeSplitted()
+	{
+		return true;
+	}
 	//public abstract boolean canBeCombined(LittleTile tile);
 	
 	public void combineTiles(LittleTile tile)

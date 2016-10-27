@@ -200,7 +200,7 @@ public class PlacementHelper {
 						shifthandlers.get(i).init(world, pos);
 					}
 					
-					LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside);
+					LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside, true);
 					ShiftHandler handler = null;
 					double distance = 2;
 					for (int i = 0; i < shifthandlers.size(); i++) {
@@ -266,7 +266,7 @@ public class PlacementHelper {
 	
 	public LittleTileBox getTilesBox(LittleTileSize size, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean inside)
 	{
-		LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside);
+		LittleTileVec hit = getHitVec(hitVec, pos, side, customPlacement, inside, true);
 		LittleTileVec center = size.calculateCenter();
 		LittleTileVec centerInv = size.calculateInvertedCenter();
 		//hit.addVec(center);
@@ -339,7 +339,7 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public LittleTileVec getHitVec(Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isInside)
+	public LittleTileVec getHitVec(Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isInside, boolean checkIfPlacedInside)
 	{
 		if(customPlacement && !isInside)
 		{
@@ -348,7 +348,7 @@ public class PlacementHelper {
 			double posZ = hitVec.zCoord - pos.getZ();
 			
 			LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
-			if(!canBePlacedInside(pos, hitVec, side))
+			if(checkIfPlacedInside && !canBePlacedInside(pos, hitVec, side))
 			{
 				switch(side)
 				{
@@ -387,7 +387,7 @@ public class PlacementHelper {
 		//if(hitVec.zCoord < 0)
 			//posZ = 1-posZ;
 		LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
-		if(!customPlacement && !canBePlacedInside(pos, hitVec, side))
+		if(!customPlacement && checkIfPlacedInside && !canBePlacedInside(pos, hitVec, side))
 		{
 			switch(side)
 			{

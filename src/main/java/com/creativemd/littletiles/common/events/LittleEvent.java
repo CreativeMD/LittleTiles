@@ -78,7 +78,7 @@ public class LittleEvent {
 		tile.boundingBoxes.add(new LittleTileBox(0,0,0,LittleTile.maxPos,LittleTile.maxPos,LittleTile.maxPos));
 		tile.te = te;
 		tile.place();
-		te.removeBoxFromTile(tile, box);
+		te.removeBoxFromTiles(box);
 		if(!player.capabilities.isCreativeMode)
 		{
 			tile.boundingBoxes.clear();

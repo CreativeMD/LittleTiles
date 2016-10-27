@@ -203,7 +203,7 @@ public class PreviewRenderer {
 						if(markedHit == null)
 						{							
 							
-							LittleTileVec vec = helper.getHitVec(look.hitVec, look.getBlockPos(), look.sideHit, false, false);
+							LittleTileVec vec = helper.getHitVec(look.hitVec, look.getBlockPos(), look.sideHit, false, false, true);
 							Vec3d hitVec = new Vec3d(vec.getPosX(), vec.getPosY(), vec.getPosZ());
 							
 							int newX = look.getBlockPos().getX();

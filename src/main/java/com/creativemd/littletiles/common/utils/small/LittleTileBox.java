@@ -416,7 +416,7 @@ public class LittleTileBox {
 	
 	public boolean isVecInsideBox(LittleTileVec vec)
 	{
-		return vec.x >= minX && vec.x <= maxX && vec.y >= minY && vec.y <= maxY && vec.z >= minZ && vec.z <= maxZ;
+		return vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ;
 	}
 	
 	public boolean intersectsWith(LittleTileBox box)

@@ -170,4 +170,10 @@ public class LittleTileVec {
 	public void invert() {
 		set(-x, -y, -z);
 	}
+
+	public void scale(int factor) {
+		x *= factor;
+		y *= factor;
+		z *= factor;
+	}
 }

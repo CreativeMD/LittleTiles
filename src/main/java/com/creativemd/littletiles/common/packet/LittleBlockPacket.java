@@ -124,7 +124,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
     					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
     					if(box != null)
     					{
-    						te.removeBoxFromTile(tile, box);
+    						te.removeBoxFromTiles(box);
     						if(!player.capabilities.isCreativeMode)
     						{
     							tile.boundingBoxes.clear();

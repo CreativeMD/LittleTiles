@@ -89,7 +89,7 @@ public class LittleBlockVanillaPacket extends CreativeCorePacket {
 			
 			world.playSound((EntityPlayer)null, blockPos, tile.getSound().getPlaceSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
 			
-			te.removeBoxFromTile(tile, box);
+			te.removeBoxFromTiles(box);
 			if(!player.capabilities.isCreativeMode)
 			{
 				tile.boundingBoxes.clear();
