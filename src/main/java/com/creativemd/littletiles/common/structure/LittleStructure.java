@@ -6,8 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;

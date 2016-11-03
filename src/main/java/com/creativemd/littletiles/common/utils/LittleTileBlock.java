@@ -5,8 +5,8 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;

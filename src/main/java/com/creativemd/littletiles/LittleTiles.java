@@ -35,6 +35,7 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
+import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
@@ -198,6 +199,8 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
 		CreativeCorePacket.registerPacket(LittleBlockVanillaPacket.class, "LittleVanillaBlock");
+		CreativeCorePacket.registerPacket(LittleDoorInteractPacket.class, "LittleDoor");
+		
 		//FMLCommonHandler.instance().bus().register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		

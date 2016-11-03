@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -13,6 +14,7 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -278,8 +280,6 @@ public class LittleDoor extends LittleStructure{
 		
 		defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis));
 		
-		
-		
 		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
 		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
@@ -309,22 +309,13 @@ public class LittleDoor extends LittleStructure{
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		if(axis != null)
+		if(world.isRemote && axis != null)
 		{
 			if(!hasLoaded())
 			{
 				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
 				return true;
 			}
-			
-			
-			LittleTileVec axisPoint = getAxisVec();
-			int mainX = axisPoint.x/LittleTile.gridSize;
-			int mainY = axisPoint.y/LittleTile.gridSize;
-			int mainZ = axisPoint.z/LittleTile.gridSize;
-			
-			
-			ArrayList<LittleTile> tiles = getTiles();
 						
 			//Calculate rotation
 			Rotation rotation = Rotation.EAST;
@@ -416,21 +407,42 @@ public class LittleDoor extends LittleStructure{
 				break;
 			}
 			
-			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.removeTile(tiles.get(i));
-			}
-			
-			if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse))
-				return true;
-			else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse))
-				return true;
-			
-			for (int i = 0; i < tiles.size(); i++) {
-				tiles.get(i).te.addTile(tiles.get(i));
-			}
-			return true;
+			//System.out.println("Sending packet");
+			PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse));
+			interactWithDoor(world, player, rotation, inverse);
 		}
 		return true;
+	}
+	
+	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse)
+	{
+		ArrayList<LittleTile> tiles = getTiles();
+		
+		LittleTileVec axisPoint = getAxisVec();
+		int mainX = axisPoint.x/LittleTile.gridSize;
+		int mainY = axisPoint.y/LittleTile.gridSize;
+		int mainZ = axisPoint.z/LittleTile.gridSize;
+		
+		for (int i = 0; i < tiles.size(); i++) {
+			tiles.get(i).te.removeTile(tiles.get(i));
+		}
+		
+		if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse))
+		{
+			//System.out.println("Placing first! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation);
+			return true;
+		}
+		else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse))
+		{
+			//System.out.println("Placing second! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation.getOpposite());
+			return true;
+		}
+		
+		for (int i = 0; i < tiles.size(); i++) {
+			tiles.get(i).te.addTile(tiles.get(i));
+		}
+		
+		return false;
 	}
 	
 	public void updateNormalDirection()

@@ -2,9 +2,9 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.RenderCubeObject;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
