@@ -5,7 +5,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.QuadCache;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
@@ -13,6 +16,8 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -90,7 +95,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public boolean hasNeighborChanged;
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
 	
 	public HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> getRenderCacheQuads()
@@ -117,24 +122,69 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		if(facingCache != null)
 			return facingCache.get(facing);
 		return null;
-	}
+	}*/
 	
 	public void updateQuadCache()
 	{
+		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
+			
 		int lightValue = worldObj.getLight(pos);
 		if(lightValue != lastRenderedLightValue)
 		{
 			this.lastRenderedLightValue = lightValue;
-			quadCache = null;
+			//if(getBuffer() != null)
+				//getBuffer().clear();
+			doesNeedUpdate = true;
+		}
+		
+		if(doesNeedUpdate)
+			RenderingThread.addCoordToUpdate(this); //worldObj.getBlockState(pos).getActualState(worldObj, pos));
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private AtomicReference<BlockLayerRenderBuffer> buffer;
+	
+	@SideOnly(Side.CLIENT)
+	private AtomicReference<BlockLayerRenderBuffer> oldBuffer;
+	
+	public void deleteOldBuffer()
+	{
+		if(oldBuffer != null)
+		{
+			oldBuffer.get().deleteBufferData();
+			oldBuffer = null;
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public void setBuffer(BlockLayerRenderBuffer buffer)
+	{
+		if(this.buffer == null)
+			this.buffer = new AtomicReference<BlockLayerRenderBuffer>(new BlockLayerRenderBuffer());
+		else{
+			if(this.buffer.get() != null)
+				oldBuffer = new AtomicReference<BlockLayerRenderBuffer>(this.buffer.get());
+			this.buffer.set(buffer);
+		}
+	}
 	
 	@SideOnly(Side.CLIENT)
-	public HashMap<BlockRenderLayer, List<RenderCubeObject>> cachedCubes;
+	public BlockLayerRenderBuffer getBuffer()
+	{
+		if(buffer == null)
+			buffer = new AtomicReference<>();
+		return buffer.get();
+	}
 	
 	@SideOnly(Side.CLIENT)
-	public HashMap<BlockRenderLayer, HashMap<EnumFacing, List<BakedQuad>>> cachedQuads;
+	private RenderCubeLayerCache cubeCache;
+	
+	public RenderCubeLayerCache getCubeCache()
+	{
+		if(cubeCache == null)
+			cubeCache = new RenderCubeLayerCache();
+		return cubeCache;
+	}
 	
 	private boolean removeLittleTile(LittleTile tile)
 	{
@@ -192,6 +242,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		if(preventUpdate)
 			return ;
+		
 		if(worldObj != null)
 		{
 			updateBlock();
@@ -206,19 +257,21 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public void updateCustomRenderer()
 	{
-		cachedCubes = null;
-		cachedQuads = null;
-		quadCache = null;
+		updateRenderBoundingBox();
+		updateRenderDistance();
+		getCubeCache().clearCache();
+		//getBuffer().clear();
+		RenderingThread.addCoordToUpdate(this);
 		
-		lastRenderedLightValue = 0;
+		//lastRenderedLightValue = 0;
 	}
 	
 	
 	@SideOnly(Side.CLIENT)
 	public void onNeighBorChangedClient()
 	{
-		cachedQuads = null;
-		quadCache = null;
+		//getBuffer().clear();
+		RenderingThread.addCoordToUpdate(this);
 		hasNeighborChanged = true;
 		
 		updateRender();
@@ -270,42 +323,75 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public boolean shouldRenderInPass(int pass)
     {
-        return pass == 0 && getRenderTiles().size() > 0;
+        return pass == 0; //&& getRenderTiles().size() > 0;
     }
+	
+	@SideOnly(Side.CLIENT)
+	private double cachedRenderDistance;
+	
+	@SideOnly(Side.CLIENT)
+	public void updateRenderDistance()
+	{
+		cachedRenderDistance = 0;
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
     public double getMaxRenderDistanceSquared()
     {
-		double renderDistance = 0;
-		for (Iterator iterator = getRenderTiles().iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
-		}
-        return renderDistance;
+    	if(cachedRenderDistance == 0)
+    	{
+			double renderDistance = 262144; //512 blocks
+			for (Iterator iterator = getRenderTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
+			}
+			cachedRenderDistance = renderDistance;
+    	}
+    	return cachedRenderDistance;
     }
+	
+	@Override
+	public boolean hasFastRenderer()
+    {
+        return true;
+    }
+	
+	
+	@SideOnly(Side.CLIENT)
+	private AxisAlignedBB cachedRenderBoundingBox;
+	
+	@SideOnly(Side.CLIENT)
+	public void updateRenderBoundingBox()
+	{
+		cachedRenderBoundingBox = null;
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-		double minX = getPos().getX();
-		double minY = getPos().getY();
-		double minZ = getPos().getZ();
-		double maxX = getPos().getX()+1;
-		double maxY = getPos().getY()+1;
-		double maxZ = getPos().getZ()+1;
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
-			minX = Math.min(box.minX, minX);
-			minY = Math.min(box.minY, minY);
-			minZ = Math.min(box.minZ, minZ);
-			maxX = Math.max(box.maxX, maxX);
-			maxY = Math.max(box.maxY, maxY);
-			maxZ = Math.max(box.maxZ, maxZ);
-		}
-		return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+    	if(cachedRenderBoundingBox == null)
+    	{
+			double minX = getPos().getX();
+			double minY = getPos().getY();
+			double minZ = getPos().getZ();
+			double maxX = getPos().getX()+1;
+			double maxY = getPos().getY()+1;
+			double maxZ = getPos().getZ()+1;
+			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
+				minX = Math.min(box.minX, minX);
+				minY = Math.min(box.minY, minY);
+				minZ = Math.min(box.minZ, minZ);
+				maxX = Math.max(box.maxX, maxX);
+				maxY = Math.max(box.maxY, maxY);
+				maxZ = Math.max(box.maxZ, maxZ);
+			}
+			cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+    	}
+    	return cachedRenderBoundingBox;
     }
 	
 	public boolean needFullUpdate = true;

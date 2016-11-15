@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.blocks;
 
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
@@ -73,7 +75,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
-public class BlockTile extends BlockContainer implements ICustomCachedCreativeRendered {
+public class BlockTile extends BlockContainer implements ICreativeRendered {//ICustomCachedCreativeRendered {
 	
 	public static class TEResult {
 		
@@ -800,7 +802,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	}*/
 	
 	@SideOnly(Side.CLIENT)
-	private TileEntityLittleTiles checkforTileEntity(World world, EnumFacing facing, BlockPos pos)
+	private static TileEntityLittleTiles checkforTileEntity(World world, EnumFacing facing, BlockPos pos)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 		if(tileEntity instanceof TileEntityLittleTiles)
@@ -809,7 +811,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private boolean checkforNeighbor(World world, EnumFacing facing, BlockPos pos)
+	private static boolean checkforNeighbor(World world, EnumFacing facing, BlockPos pos)
 	{
 		BlockPos newPos = pos.offset(facing);
 		IBlockState state = world.getBlockState(newPos);
@@ -817,7 +819,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileBox box)
+	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileBox box)
 	{
 		Boolean shouldRender = neighbors.get(facing);
 		if(shouldRender == null)
@@ -840,22 +842,64 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		}
 		cube.setSideRender(facing, shouldRender ? EnumSideRender.OUTSIDE_RENDERED : EnumSideRender.OUTSIDE_NOT_RENDERD);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		
+		if(te instanceof TileEntityLittleTiles)
+		{
+			((TileEntityLittleTiles) te).updateQuadCache();
+			return Collections.emptyList();
+		}
+		return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
 		if(te instanceof TileEntityLittleTiles)
 		{
-			BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
 			
 			HashMap<EnumFacing, Boolean> neighbors = new HashMap<>();
 			HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles = new HashMap<>();
 			
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
 			
-			HashMap<BlockRenderLayer, List<RenderCubeObject>> cached = tileEntity.cachedCubes;
+			RenderCubeLayerCache cache = tileEntity.getCubeCache();
+			ArrayList<RenderCubeObject> cachedCubes = cache.getCubesByLayer(layer);
+			if(cachedCubes != null)
+			{
+				if(tileEntity.hasNeighborChanged)
+				{
+					for (BlockRenderLayer tempLayer : BlockRenderLayer.values()) {
+						List<RenderCubeObject> renderCubes = cache.getCubesByLayer(tempLayer);
+						for (int i = 0; i < renderCubes.size(); i++) {
+							RenderCubeObject cube = renderCubes.get(i);
+							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
+								EnumFacing facing = EnumFacing.VALUES[k];
+								if(cube.getSidedRendererType(facing).outside)
+								{
+									LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+									
+									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
+									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+									if(cube.shouldSideBeRendered(facing))
+									{
+										if(!shouldRenderBefore)
+											cube.doesNeedQuadUpdate = true;
+									}else
+										cube.setQuad(facing, null);		
+								}
+							}
+						}
+					}
+					
+					tileEntity.hasNeighborChanged = false;
+				}
+				
+				return cachedCubes;
+			}
+			/*HashMap<BlockRenderLayer, List<RenderCubeObject>> cached = tileEntity.cachedCubes;
 			if(cached != null)
 			{
 				List<RenderCubeObject> cachedCubes = cached.get(layer);
@@ -883,7 +927,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 					
 					return cachedCubes;
 				}
-			}
+			}*/
 			
 			for (Iterator iterator = tileEntity.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
@@ -914,10 +958,8 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 					cubes.addAll(tileCubes);
 				}
 			}
-			if(tileEntity.cachedCubes == null)
-				tileEntity.cachedCubes = new HashMap<>();
-			tileEntity.cachedCubes.put(layer, cubes);
 			
+			cache.setCubesByLayer(cubes, layer);
 			
 			//return !blockAccess.getBlockState(pos.offset(side)).doesSideBlockRendering(blockAccess, pos.offset(side), side.getOpposite());
 			
@@ -927,7 +969,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 		return cubes;
 	}
 	
-	@Override
+	/*@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
 	{
@@ -989,7 +1031,7 @@ public class BlockTile extends BlockContainer implements ICustomCachedCreativeRe
 	public void saveCachedQuads(QuadCache[] quads, BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
 		if(te instanceof TileEntityLittleTiles)
 			((TileEntityLittleTiles) te).setQuadCache(quads, layer, facing);
-	}
+	}*/
 	
 	@Override
 	public boolean canDropFromExplosion(Explosion explosionIn)
