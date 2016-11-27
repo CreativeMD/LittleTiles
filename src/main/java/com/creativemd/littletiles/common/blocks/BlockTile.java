@@ -848,7 +848,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if(te instanceof TileEntityLittleTiles)
 		{
-			((TileEntityLittleTiles) te).updateQuadCache();
+			((TileEntityLittleTiles) te).updateQuadCache();			
 			return Collections.emptyList();
 		}
 		return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());

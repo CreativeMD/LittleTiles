@@ -1,6 +1,9 @@
 package com.creativemd.littletiles.client.render;
 
+import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.creativemd.littletiles.client.LittleTilesClient;
 
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -36,7 +39,7 @@ public class BlockLayerRenderBuffer {
 	public final int bufferSizePerQuad;
 	
 	public BlockLayerRenderBuffer() {
-		this(DefaultVertexFormats.BLOCK);
+		this(LittleTilesClient.getBlockVertexFormat());
 	}
 	
 	public BlockLayerRenderBuffer(VertexFormat format) {
@@ -44,38 +47,22 @@ public class BlockLayerRenderBuffer {
 		bufferSizePerQuad = format.getIntegerSize() * 4;
 	}
 	
-	private net.minecraft.client.renderer.vertex.VertexBuffer solid;
-	private net.minecraft.client.renderer.vertex.VertexBuffer cutout_mipped;
-	private net.minecraft.client.renderer.vertex.VertexBuffer cutout;
-	private net.minecraft.client.renderer.vertex.VertexBuffer translucent;
-	
-	private VertexBuffer solidTemp;
-	private VertexBuffer cutout_mippedTemp;
-	private VertexBuffer cutoutTemp;
-	private VertexBuffer translucentTemp;
+	private VertexBuffer solid;
+	private VertexBuffer cutout_mipped;
+	private VertexBuffer cutout;
+	private VertexBuffer translucent;
 	
 	public int getBufferSizeForLayer(int tilesOfType)
 	{
 		return bufferSizePerQuad * 6 * tilesOfType;
 	}
 	
-	/*public net.minecraft.client.renderer.vertex.VertexBuffer getAndCreateBufferByLayer(BlockRenderLayer layer, int tilesOfType)
-	{
-		VertexBuffer buffer = getBufferByLayer(layer);
-		if(buffer == null && tilesOfType > 0)
-		{
-			buffer = new VertexBuffer(getBufferSizeForLayer(tilesOfType));
-			setBufferByLayer(buffer, layer);
-		}
-		return buffer;
-	}*/
-	
 	public VertexBuffer createVertexBuffer(int tilesOfType)
 	{
 		return new VertexBuffer(getBufferSizeForLayer(tilesOfType));
 	}
 	
-	public VertexBuffer getTemporaryBufferByLayer(BlockRenderLayer layer)
+	/*public VertexBuffer getTemporaryBufferByLayer(BlockRenderLayer layer)
 	{
 		switch(layer)
 		{
@@ -108,9 +95,9 @@ public class BlockLayerRenderBuffer {
 			translucentTemp = buffer;
 			break;
 		}
-	}
+	}*/
 	
-	public net.minecraft.client.renderer.vertex.VertexBuffer getBufferByLayer(BlockRenderLayer layer)
+	public VertexBuffer getBufferByLayer(BlockRenderLayer layer)
 	{
 		switch(layer)
 		{
@@ -126,7 +113,7 @@ public class BlockLayerRenderBuffer {
 		return null;
 	}
 	
-	public void setBufferByLayer(net.minecraft.client.renderer.vertex.VertexBuffer buffer, BlockRenderLayer layer)
+	public void setBufferByLayer(VertexBuffer buffer, BlockRenderLayer layer)
 	{
 		switch(layer)
 		{
@@ -147,24 +134,20 @@ public class BlockLayerRenderBuffer {
 	
 	public void clear()
 	{
-		if(solid != null)
+		/*if(solid != null)
 			solid.deleteGlBuffers();
 		if(cutout_mipped != null)
 			cutout_mipped.deleteGlBuffers();
 		if(cutout != null)
 			cutout.deleteGlBuffers();
 		if(translucent != null)
-			translucent.deleteGlBuffers();
-	}
-
-	public void deleteBufferData()
-	{
-		clear();
+			translucent.deleteGlBuffers();*/
 		
-		solidTemp = null;
-		cutout_mippedTemp = null;
-		cutoutTemp = null;
-		translucentTemp = null;		
+		//TODO Check if this causes memory leaks
+		solid = null;
+		cutout_mipped = null;
+		cutout = null;
+		translucent = null;		
 	}
 	
 	public static class RenderOverlapException extends Exception{

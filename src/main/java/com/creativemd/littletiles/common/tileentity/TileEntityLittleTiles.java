@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -83,11 +84,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		this.tiles = tiles;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public boolean forceChunkRenderUpdate;
+	//@SideOnly(Side.CLIENT)
+	//public boolean forceChunkRenderUpdate;
 	
-	@SideOnly(Side.CLIENT)
-	public boolean isRendering;
+	//@SideOnly(Side.CLIENT)
+	//public boolean isRendering;
 	
 	@SideOnly(Side.CLIENT)
 	private int lastRenderedLightValue;
@@ -124,8 +125,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return null;
 	}*/
 	
+	@SideOnly(Side.CLIENT)
+	private AtomicBoolean hasBeenAddedToBuffer;
+	
+	public AtomicBoolean getBeenAddedToBuffer()
+	{
+		if(hasBeenAddedToBuffer == null)
+			hasBeenAddedToBuffer = new AtomicBoolean(false);
+		return hasBeenAddedToBuffer;
+	}
+	
 	public void updateQuadCache()
 	{
+		getBeenAddedToBuffer().set(false);		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
 			
 		int lightValue = worldObj.getLight(pos);
@@ -138,13 +150,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		
 		if(doesNeedUpdate)
-			RenderingThread.addCoordToUpdate(this); //worldObj.getBlockState(pos).getActualState(worldObj, pos));
+			addToRenderUpdate(); //worldObj.getBlockState(pos).getActualState(worldObj, pos));
+		//else if(!rendering.get())
+			//RenderUploader.finishChunkUpdateNonThreadSafe(this);
 	}
 	
 	@SideOnly(Side.CLIENT)
 	private AtomicReference<BlockLayerRenderBuffer> buffer;
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	private AtomicReference<BlockLayerRenderBuffer> oldBuffer;
 	
 	public void deleteOldBuffer()
@@ -154,25 +168,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			oldBuffer.get().deleteBufferData();
 			oldBuffer = null;
 		}
-	}
+	}*/
 	
 	@SideOnly(Side.CLIENT)
 	public void setBuffer(BlockLayerRenderBuffer buffer)
 	{
 		if(this.buffer == null)
-			this.buffer = new AtomicReference<BlockLayerRenderBuffer>(new BlockLayerRenderBuffer());
-		else{
-			if(this.buffer.get() != null)
-				oldBuffer = new AtomicReference<BlockLayerRenderBuffer>(this.buffer.get());
+			this.buffer = new AtomicReference<BlockLayerRenderBuffer>(buffer);
+		else
 			this.buffer.set(buffer);
-		}
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public BlockLayerRenderBuffer getBuffer()
 	{
 		if(buffer == null)
-			buffer = new AtomicReference<>();
+			buffer = new AtomicReference<>(new BlockLayerRenderBuffer());
 		return buffer.get();
 	}
 	
@@ -261,7 +272,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateRenderDistance();
 		getCubeCache().clearCache();
 		//getBuffer().clear();
-		RenderingThread.addCoordToUpdate(this);
+		addToRenderUpdate();
 		
 		//lastRenderedLightValue = 0;
 	}
@@ -271,10 +282,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void onNeighBorChangedClient()
 	{
 		//getBuffer().clear();
-		RenderingThread.addCoordToUpdate(this);
+		
+		addToRenderUpdate();
 		hasNeighborChanged = true;
 		
 		updateRender();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public AtomicBoolean rendering;
+	
+	@SideOnly(Side.CLIENT)
+	public void addToRenderUpdate()
+	{
+		if(rendering == null)
+			rendering = new AtomicBoolean(false);
+		if(!rendering.get())
+			RenderingThread.addCoordToUpdate(this);
 	}
 	
 	public boolean isBoxFilled(LittleTileBox box)
@@ -323,7 +347,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public boolean shouldRenderInPass(int pass)
     {
-        return pass == 0; //&& getRenderTiles().size() > 0;
+        return pass == 0 && getRenderTiles().size() > 0;
     }
 	
 	@SideOnly(Side.CLIENT)
@@ -354,10 +378,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public boolean hasFastRenderer()
     {
-        return true;
+        return false;
     }
-	
-	
+		
 	@SideOnly(Side.CLIENT)
 	private AxisAlignedBB cachedRenderBoundingBox;
 	
@@ -667,14 +690,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public void update()
 	{
-		if(isClientSide())
+		/*if(isClientSide())
 		{
 			if(forceChunkRenderUpdate)
 			{
 				updateRender();
 				forceChunkRenderUpdate = false;
 			}
-		}
+		}*/
 		
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();

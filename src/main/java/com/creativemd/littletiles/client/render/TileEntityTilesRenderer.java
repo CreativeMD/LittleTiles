@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntityLittleTiles> {
 	
@@ -39,10 +40,23 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 	public static BlockRenderLayer[] layers = BlockRenderLayer.values();
 	
 	@Override
+	public boolean isGlobalRenderer(TileEntityLittleTiles te)
+    {
+		AxisAlignedBB box = te.getRenderBoundingBox();
+        if(Math.abs(box.maxX - box.minX) > 16)
+        	return true;
+        if(Math.abs(box.maxY - box.minY) > 16)
+        	return true;
+        if(Math.abs(box.maxZ - box.minZ) > 16)
+        	return true;
+        return false;
+    }
+	
+	@Override
 	public void renderTileEntityFast(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage, net.minecraft.client.renderer.VertexBuffer buffer)
 	{
 		BlockLayerRenderBuffer teBuffer = te.getBuffer();
-		if(teBuffer != null && !teBuffer.isDrawing())
+		/*if(teBuffer != null && !teBuffer.isDrawing())
 		{
 			try {
 				teBuffer.setDrawing();
@@ -142,12 +156,12 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 				
 				teBuffer.setFinishedDrawing();
 				
-				te.deleteOldBuffer();
+				//te.deleteOldBuffer();
 				
 			} catch (RenderOverlapException e) {
 				e.printStackTrace();
 			}
-		}
+		}*/
 		
 		if(!te.getRenderTiles().isEmpty())
 		{

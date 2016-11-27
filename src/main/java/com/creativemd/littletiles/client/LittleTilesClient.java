@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
@@ -22,6 +23,9 @@ import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -29,7 +33,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -50,6 +56,28 @@ public class LittleTilesClient extends LittleTilesServer{
 	public static boolean pressedRight = false;
 	public static KeyBinding left;
 	public static boolean pressedLeft = false;
+	
+	public static boolean optifineMode = FMLClientHandler.instance().hasOptifine();
+	private static VertexFormat optifineFormat = createOptifineBlockFormat();
+	
+	private static VertexFormat createOptifineBlockFormat()
+	{
+		VertexFormat format = new VertexFormat(DefaultVertexFormats.BLOCK);
+		format.addElement(DefaultVertexFormats.NORMAL_3B);
+		format.addElement(DefaultVertexFormats.PADDING_1B);
+		format.addElement(new VertexFormatElement(0, VertexFormatElement.EnumType.FLOAT, VertexFormatElement.EnumUsage.PADDING, 2));
+		VertexFormatElement PADDING_4S = new VertexFormatElement(0, VertexFormatElement.EnumType.SHORT, VertexFormatElement.EnumUsage.PADDING, 4);
+		format.addElement(PADDING_4S);
+		format.addElement(PADDING_4S);
+		return format;
+	}
+	
+	public static VertexFormat getBlockVertexFormat()
+	{
+		//if(optifineMode)
+			//return optifineFormat;
+		return DefaultVertexFormats.BLOCK;
+	}
 	
 	@Override
 	public void loadSide()
@@ -106,6 +134,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		BlockTile.mc = mc;
 		
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
+		MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		
 		up = new KeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
 		down = new KeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");

@@ -11,6 +11,7 @@ import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGrass;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -138,8 +139,8 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
 	{
-		if(translucent)
-			return layer == BlockRenderLayer.TRANSLUCENT;
+		//if(translucent)
+			//return layer == BlockRenderLayer.TRANSLUCENT;
 		return block.canRenderInLayer(getBlockState(), layer);
 	}
 	

@@ -1,8 +1,13 @@
 package com.creativemd.littletiles.client.render;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,10 +17,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
+import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -29,8 +36,10 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.VertexBufferUploader;
+import net.minecraft.client.renderer.ViewFrustum;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
@@ -38,6 +47,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
@@ -49,15 +59,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class RenderingThread extends Thread {
 	
 	private static ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	private static HashMap<BlockPos, AtomicInteger> chunks = new HashMap<>();
+	private static volatile ConcurrentHashMap<BlockPos, AtomicInteger> chunks = new ConcurrentHashMap<>();
 	
 	private static World lastWorld;
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
-	public static BlockPos getChunkCoords(BlockPos coord)
+	public static boolean containsPosition(BlockPos pos)
 	{
-		return new BlockPos(coord.getX() >> 4, 0, coord.getZ() >> 4);
+		for (RenderingData renderingData : updateCoords) {
+			if(renderingData.pos.equals(pos))
+				return true;
+		}
+		return false;
 	}
 	
 	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
@@ -65,15 +79,19 @@ public class RenderingThread extends Thread {
 		if(lastWorld != te.getWorld())
 			updateCoords.clear();
 		lastWorld = te.getWorld();
-		if(!updateCoords.contains(te.getPos()))
+		if(!te.rendering.get())
 		{
-			BlockPos chunk = getChunkCoords(te.getPos());
-			AtomicInteger count = chunks.get(chunk);
-			if(count == null)
-				count = new AtomicInteger(0);
-			//System.out.println("Added 1 + " + count + " = " + (count+1));
-			count.addAndGet(1);
-			//chunks.put(chunk, count == null ? 1 : +1);
+			te.rendering.set(true);
+			BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(te.getPos());
+			synchronized (chunks){
+				AtomicInteger count = chunks.get(chunk);
+				if(count == null)
+				{
+					count = new AtomicInteger(0);
+					chunks.put(chunk, count);
+				}
+				count.addAndGet(1);
+			}
 			updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos()));
 		}
 	}
@@ -102,8 +120,8 @@ public class RenderingThread extends Thread {
 					
 					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 						BlockRenderLayer layer = BlockRenderLayer.values()[i];
-						if(cubeCache.doesNeedUpdate())
-							cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
+						//if(cubeCache.doesNeedUpdate())
+						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
 					
 						ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
 						for (int j = 0; j < cubes.size(); j++) {
@@ -125,11 +143,6 @@ public class RenderingThread extends Thread {
 							}
 						}
 					}
-					
-					Entity entity = mc.getRenderViewEntity();
-					float x = (float)entity.posX;
-		            float y = (float)entity.posY + entity.getEyeHeight();
-		            float z = (float)entity.posZ;
 		            
 		            BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
 		            if(!layerBuffer.isDrawing())
@@ -143,51 +156,63 @@ public class RenderingThread extends Thread {
 								
 								ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
 								VertexBuffer buffer = null;
-								if(cubes != null)
+								if(cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes.size());
 								
 								if(buffer != null)
 								{
+									consumer.setWorld(data.te.getWorld());
 									consumer.setBlockPos(pos);
 									consumer.buffer = buffer;
-									consumer.setWorld(data.te.getWorld());
-									buffer.begin(7, DefaultVertexFormats.BLOCK);
-									//buffer.setTranslation((double)(-pos.getX()), (double)(-pos.getY()), (double)(-pos.getZ()));
+									consumer.getBlockInfo().updateLightMatrix();
+									
+									buffer.begin(7, LittleTilesClient.getBlockVertexFormat());
+									int chunkX = MathHelper.bucketInt(pos.getX(), 16);
+									int chunkY = MathHelper.bucketInt(pos.getY(), 16);
+									int chunkZ = MathHelper.bucketInt(pos.getZ(), 16);
+									int offsetX = pos.getX() - (chunkX*16);//MathHelper.bucketInt(pos.getX(), 16);
+							        int offsetY = pos.getY() - (chunkY*16);//MathHelper.bucketInt(pos.getY(), 16);
+							        int offsetZ = pos.getZ() - (chunkZ*16);//MathHelper.bucketInt(pos.getZ(), 16);
+									//buffer.setTranslation(16-offsetX, 16-offsetY, 16-offsetZ);
+									//System.out.println(offsetX+","+offsetY+","+offsetZ + ",pos=" + pos);
+									buffer.setTranslation(offsetX, offsetY, offsetZ);
+									//buffer.setTranslation((double)(-chunk.getPosition().getX()), (double)(-chunk.getPosition().getY()), (double)(-chunk.getPosition().getZ()));
 									
 									for (int j = 0; j < cubes.size(); j++) {
 										RenderCubeObject cube = cubes.get(j);
+										consumer.cube = cube;
 										consumer.setState(cube.getBlockState());
+										consumer.getBlockInfo().updateShift(false);
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 											EnumFacing facing = EnumFacing.VALUES[h];
 											BakedQuad quad = cube.getQuad(facing);
 											if(quad != null)
 											{
-												consumer.cube = cube;
+												
+												consumer.quad = (CreativeBakedQuad) quad;
 												renderQuad(buffer, quad);
-												consumer.cube = null;
+												
 											}
 										}
 									}
-									
-									if (layer == BlockRenderLayer.TRANSLUCENT)
+									consumer.quad = null;
+									consumer.cube = null;
+									/*if (layer == BlockRenderLayer.TRANSLUCENT)
 							        {
 							        	buffer.sortVertexData(x, y, z);
 							            //compiledChunkIn.setState(worldRendererIn.getVertexState());
-							        }
+							        }*/
 
 							        buffer.finishDrawing();
 							        consumer.buffer = null; 
 							        
-							        layerBuffer.setTemporaryBufferByLayer(buffer, layer);
+							        layerBuffer.setBufferByLayer(buffer, layer);
 								}
 							}
 							
-							
-							
-							setRendered(data.te, data.pos);
 							layerBuffer.setFinishedDrawing();
-							
 							data.te.setBuffer(layerBuffer);
+							setRendered(data.te);							
 							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
@@ -210,8 +235,15 @@ public class RenderingThread extends Thread {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-			}else if(updateCoords.size() == 0){
-				chunks.clear();
+			}else if(!updateCoords.isEmpty()){
+				updateCoords.clear();
+			}else if(world != null && !chunks.isEmpty()){
+				synchronized (chunks){
+					for (Iterator iterator = chunks.keySet().iterator(); iterator.hasNext();) {
+						RenderUploader.finishChunkUpdate((BlockPos) iterator.next());
+					}
+					chunks.clear();
+				}
 			}
 			try {
 				sleep(1);
@@ -230,7 +262,7 @@ public class RenderingThread extends Thread {
 		return formatMaps;
 	}
 	
-	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
+	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
 	
 	private synchronized void renderQuad(VertexBuffer buffer, BakedQuad quad)
 	{
@@ -264,19 +296,25 @@ public class RenderingThread extends Thread {
         }
 	}
 	
-	public synchronized void setRendered(TileEntityLittleTiles te, BlockPos coord)
+	public synchronized void setRendered(TileEntityLittleTiles te)
 	{
-		te.isRendering = false;
+		te.rendering.set(false);
 		
-		BlockPos chunk = getChunkCoords(coord);
-		AtomicInteger count = chunks.get(chunk);
-		if(count != null)
-			count.addAndGet(-1);
-		
-		if(count == null || count.intValue() <= 0)
-		{
-			chunks.remove(chunk);
-			//te.forceChunkRenderUpdate = true;
+		BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(coord);
+		synchronized (chunks){
+			AtomicInteger count = chunks.get(chunk);
+			if(count != null)
+				count.getAndDecrement();
+			
+			//RenderUploader.addBlockForUpdate(te, chunk, false);
+			
+			if(count == null || count.intValue() <= 0)
+			{
+				chunks.remove(chunk);
+				RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
+				//RenderUploader.finishChunkUpdate(chunk);
+				//System.out.println("finish chunk:" + chunk);
+			}
 		}
 	}
 	
