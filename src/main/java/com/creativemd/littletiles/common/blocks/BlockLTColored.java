@@ -1,8 +1,12 @@
 package com.creativemd.littletiles.common.blocks;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
@@ -21,7 +25,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.tools.nsc.transform.patmat.ScalaLogic.TreesAndTypesDomain.Var;
 
-public class BlockLTColored extends Block{
+public class BlockLTColored extends Block implements ISpecialLittleBlock{
 	
 	public static final PropertyEnum<BlockLTColored.EnumType> VARIANT = PropertyEnum.<BlockLTColored.EnumType>create("variant", BlockLTColored.EnumType.class);
 
@@ -95,7 +99,8 @@ public class BlockLTColored extends Block{
 		structured,
 		broken_brick_big,
 		clay,
-		light_clean;
+		light_clean,
+		lava;
 		
 		public static EnumType byMetadata(int meta)
 		{
@@ -111,6 +116,13 @@ public class BlockLTColored extends Block{
 		public String getName() {
 			return name();
 		}
+	}
+	
+	@Override
+	public ArrayList<LittleTileBox> getCollisionBoxes(ArrayList<LittleTileBox> defaultBoxes, LittleTileBlock tile) {
+		if(tile.getBlockState().getValue(VARIANT) == EnumType.lava)
+			return new ArrayList<>();
+		return defaultBoxes;
 	}
 
 }

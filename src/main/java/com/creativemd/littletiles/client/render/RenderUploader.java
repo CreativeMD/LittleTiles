@@ -82,27 +82,8 @@ public class RenderUploader {
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
-	/*public static void finishChunkUpdateNonThreadSafe(TileEntityLittleTiles te)
-	{
-		if(!mc.isCallingFromMinecraftThread())
-		{
-			Thread.dumpStack();
-			System.out.println("Please stop calling it!");
-			return ;
-		}
-		RenderChunk render = getRenderChunk(getViewFrustum(), te.getPos());
-		ArrayList<TileEntityLittleTiles> list = directChunkUpdate.get(render);
-		if(list == null)
-		{
-			list = new ArrayList<>();
-			directChunkUpdate.put(render, list);
-		}
-		list.add(te);
-	}*/
-	
 	public static void addBlockForUpdate(TileEntityLittleTiles te, BlockPos chunkPos, boolean done)
 	{
-		//RenderChunk render = getRenderChunk(getViewFrustum(), pos);
 		synchronized (chunksToUpdate){
 			ChunkQueue queue = chunksToUpdate.get(chunkPos);
 			if(queue == null)
@@ -267,11 +248,6 @@ public class RenderUploader {
         int k = MathHelper.bucketInt(pos.getZ(), 16);
         return new BlockPos(i, j, k);
 	}
-	
-	/*public static RenderChunk getRenderChunk(ViewFrustum frustum, BlockPos pos)
-	{
-		return getRenderChunkByChunkPosition(frustum, getRenderChunkPos(pos));
-	}*/
 	
 	public static RenderChunk getRenderChunkByChunkPosition(ViewFrustum frustum, BlockPos chunkPos)
 	{

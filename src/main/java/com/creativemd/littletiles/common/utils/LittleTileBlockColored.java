@@ -41,8 +41,8 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
-	public ArrayList<RenderCubeObject> getRenderingCubes() {
-		ArrayList<RenderCubeObject> cubes = super.getRenderingCubes();
+	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
+		ArrayList<RenderCubeObject> cubes = super.getInternalRenderingCubes();
 		int color = this.color;
 		for (int i = 0; i < cubes.size(); i++) {
 			cubes.get(i).color = color;
@@ -99,7 +99,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 			((LittleTileBlockColored) tile).color = color;
 		}else{
 			LittleTileBlock newTile = new LittleTileBlockColored();
-			tile.assign(newTile);
+			tile.assignTo(newTile);
 			((LittleTileBlockColored) newTile).color = color;
 			return newTile;
 		}
@@ -111,7 +111,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		if(tile instanceof LittleTileBlockColored)
 		{
 			LittleTileBlock newTile = new LittleTileBlock();
-			tile.assign(newTile);
+			tile.assignTo(newTile);
 			return newTile;
 		}
 		return null;

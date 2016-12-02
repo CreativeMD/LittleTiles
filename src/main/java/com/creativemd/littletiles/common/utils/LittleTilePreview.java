@@ -142,6 +142,16 @@ public class LittleTilePreview {
 		return cube;
 	}
 	
+	public boolean isInvisible()
+	{
+		return tileData.getBoolean("invisible");
+	}
+	
+	public void setInvisibile(boolean invisible)
+	{
+		tileData.setBoolean("invisible", invisible);
+	}
+	
 	public LittleTilePreview copy() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);

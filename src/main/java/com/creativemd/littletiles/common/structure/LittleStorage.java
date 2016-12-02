@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
@@ -40,6 +41,8 @@ public class LittleStorage extends LittleStructure  {
 	
 	public IInventory inventory = null;
 	
+	public boolean invisibleStorageTiles = false;
+	
 	public void updateNumberOfSlots()
 	{
 		float slots = inventorySize/(float) stackSizeLimit;
@@ -56,7 +59,7 @@ public class LittleStorage extends LittleStructure  {
 		if(nbt.hasKey("inventory"))
 			inventory = InventoryUtils.loadInventoryBasic(nbt.getCompoundTag("inventory"));
 		
-		
+		invisibleStorageTiles = nbt.getBoolean("invisible");
 	}
 
 	@Override
@@ -68,8 +71,8 @@ public class LittleStorage extends LittleStructure  {
 			nbt.setInteger("numberOfSlots", numberOfSlots);
 			nbt.setInteger("lastSlot", lastSlotStackSize);
 			nbt.setTag("inventory", InventoryUtils.saveInventoryBasic(inventory));
-			
 		}
+		nbt.setBoolean("invisible", invisibleStorageTiles);
 	}
 	
 	@Override
@@ -102,13 +105,24 @@ public class LittleStorage extends LittleStructure  {
 	@Override
 	public void createControls(SubGui gui, LittleStructure structure) {
 		gui.controls.add(new GuiLabel("space: " + getSizeOfInventory(ItemRecipe.getPreview(((SubGuiStructure) gui).stack)), 5, 30));
+		boolean invisible = false;
+		if(structure instanceof LittleStorage)
+			invisible = ((LittleStorage) structure).invisibleStorageTiles;
+		gui.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 45, invisible));
 	}
 
 	@Override
 	public LittleStructure parseStructure(SubGui gui) {
 		
 		LittleStorage storage = new LittleStorage();
-		storage.inventorySize = getSizeOfInventory(ItemRecipe.getPreview(((SubGuiStructure) gui).stack));
+		storage.invisibleStorageTiles = ((GuiCheckBox) gui.get("invisible")).value;
+		ArrayList<LittleTilePreview> previews = ItemRecipe.getPreview(((SubGuiStructure) gui).stack);
+		for (int i = 0; i < previews.size(); i++) {
+			if(previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
+				previews.get(i).setInvisibile(storage.invisibleStorageTiles);
+		}
+		ItemRecipe.savePreviewTiles(previews, ((SubGuiStructure) gui).stack);
+		storage.inventorySize = getSizeOfInventory(previews);
 		storage.stackSizeLimit = maxSlotStackSize;
 		storage.updateNumberOfSlots();
 		storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);

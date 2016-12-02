@@ -24,6 +24,7 @@ import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -99,6 +100,7 @@ public abstract class LittleStructure {
 		registerLittleStructure("ladder", new LittleLadder());
 		registerLittleStructure("bed", new LittleBed());
 		registerLittleStructure("storage", new LittleStorage());
+		registerLittleStructure("noclip", new LittleNoClipStructure());
 	}
 	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, LittleTile mainTile)
@@ -377,7 +379,12 @@ public abstract class LittleStructure {
 		return false;
 	}*/
 	
-	//====================Rendering====================
+	//====================Placing====================
+	
+	public boolean shouldPlaceTile(LittleTile tile)
+	{
+		return true;
+	}
 	
 	public ArrayList<PlacePreviewTile> getSpecialTiles()
 	{
@@ -631,5 +638,20 @@ public abstract class LittleStructure {
 	{
 		return false;
 	}
+	
+	public boolean noCollisionBoxes()
+	{
+		return false;
+	}
+	
+	public boolean shouldCheckForCollision()
+	{
+		return false;
+	}
+	
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    {
+		
+    }
 	
 }

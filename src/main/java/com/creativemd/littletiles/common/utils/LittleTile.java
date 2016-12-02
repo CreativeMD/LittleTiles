@@ -133,6 +133,8 @@ public abstract class LittleTile {
 	
 	public boolean needsFullUpdate = false;
 	
+	public boolean invisible = false;
+	
 	public TileEntityLittleTiles te;
 	
 	/**Every LittleTile class has to have this constructor implemented**/
@@ -216,6 +218,9 @@ public abstract class LittleTile {
 		if(isStructureBlock && structure != tile.structure)
 			return false;
 		
+		if(invisible != tile.invisible)
+			return false;
+		
 		return true;
 	}
 	
@@ -233,9 +238,15 @@ public abstract class LittleTile {
 		}
 	}
 	
-	public abstract boolean doesProvideSolidFace(EnumFacing facing);
+	public boolean doesProvideSolidFace(EnumFacing facing)
+	{
+		return !invisible;
+	}
 	
-	public abstract boolean canBeRenderCombined(LittleTile tile);
+	public boolean canBeRenderCombined(LittleTile tile)
+	{
+		return this.invisible == tile.invisible;
+	}
 	
 	//================Packets================
 	
@@ -271,7 +282,11 @@ public abstract class LittleTile {
 	}
 	
 	/**Used to save extra data like block-name, meta, color etc. everything necessary for a preview**/
-	public abstract void saveTileExtra(NBTTagCompound nbt);
+	public void saveTileExtra(NBTTagCompound nbt)
+	{
+		if(invisible)
+			nbt.setBoolean("invisible", invisible);
+	}
 	
 	public void saveTileCore(NBTTagCompound nbt)
 	{
@@ -304,7 +319,10 @@ public abstract class LittleTile {
 		loadTileExtra(nbt);
 	}
 	
-	public abstract void loadTileExtra(NBTTagCompound nbt);
+	public void loadTileExtra(NBTTagCompound nbt)
+	{
+		invisible = nbt.getBoolean("invisible");
+	}
 	
 	public void loadTileCore(NBTTagCompound nbt)
 	{
@@ -414,13 +432,16 @@ public abstract class LittleTile {
 		return tile;
 	}
 	
-	public void assign(LittleTile tile)
+	public void assignTo(LittleTile target)
 	{
-		copyCore(tile);
-		copyExtra(tile);
+		copyCore(target);
+		copyExtra(target);
 	}
 	
-	public abstract void copyExtra(LittleTile tile);
+	public void copyExtra(LittleTile tile)
+	{
+		tile.invisible = this.invisible;
+	}
 	
 	public void copyCore(LittleTile tile)
 	{
@@ -493,7 +514,15 @@ public abstract class LittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract ArrayList<RenderCubeObject> getRenderingCubes();
+	public final ArrayList<RenderCubeObject> getRenderingCubes()
+	{
+		if(invisible)
+			return new ArrayList<>();
+		return getInternalRenderingCubes();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	protected abstract ArrayList<RenderCubeObject> getInternalRenderingCubes();
 	
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {}
@@ -507,7 +536,7 @@ public abstract class LittleTile {
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-		return new AxisAlignedBB(te.getPos());
+		return new AxisAlignedBB(0, 0, 0, 1, 1, 1);
     }
 	
 	//================Sound================
@@ -596,6 +625,30 @@ public abstract class LittleTile {
 			return structure.isBed(world, pos, player);
 		return false;
 	}
+	
+	//================Collision================
+	
+	public ArrayList<LittleTileBox> getCollisionBoxes()
+	{
+		if(shouldCheckForCollision())
+			return new ArrayList<>();
+		if(isLoaded() && structure.noCollisionBoxes())
+			return new ArrayList<>();
+		return this.boundingBoxes;
+	}
+	
+	public boolean shouldCheckForCollision()
+	{
+		if(isLoaded())
+			return structure.shouldCheckForCollision();
+		return false;
+	}
+	
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    {
+		if(isLoaded())
+			structure.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+    }
 	
 	//================Structure================
 	

@@ -18,6 +18,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
+import com.creativemd.creativecore.client.rendering.model.CreativeConsumer;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -58,45 +59,40 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
 	
-	private static ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	private static volatile ConcurrentHashMap<BlockPos, AtomicInteger> chunks = new ConcurrentHashMap<>();
+	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
+	public ConcurrentHashMap<BlockPos, AtomicInteger> chunks = new ConcurrentHashMap<>();
 	
-	private static World lastWorld;
+	//private static World lastWorld;
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
-	public static boolean containsPosition(BlockPos pos)
-	{
-		for (RenderingData renderingData : updateCoords) {
-			if(renderingData.pos.equals(pos))
-				return true;
-		}
-		return false;
-	}
+	public static int nearbyRenderDistance = 32*32;
 	
 	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
 	{
-		if(lastWorld != te.getWorld())
-			updateCoords.clear();
-		lastWorld = te.getWorld();
+		double distance = mc.getRenderViewEntity().getDistanceSq(te.getPos());
+		RenderingThread renderer = nearbyRenderer;
+		if(distance > nearbyRenderDistance)
+			renderer = distanceRenderer;
 		if(!te.rendering.get())
 		{
 			te.rendering.set(true);
 			BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(te.getPos());
-			synchronized (chunks){
-				AtomicInteger count = chunks.get(chunk);
+			synchronized (renderer.chunks){
+				AtomicInteger count = renderer.chunks.get(chunk);
 				if(count == null)
 				{
 					count = new AtomicInteger(0);
-					chunks.put(chunk, count);
+					renderer.chunks.put(chunk, count);
 				}
 				count.addAndGet(1);
 			}
-			updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos()));
+			renderer.updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos()));
 		}
 	}
 	
-	public static RenderingThread instance = new RenderingThread();
+	public static RenderingThread nearbyRenderer = new RenderingThread();
+	public static RenderingThread distanceRenderer = new RenderingThread();
 	
 	public RenderingThread() {
 		start();
@@ -161,6 +157,8 @@ public class RenderingThread extends Thread {
 								
 								if(buffer != null)
 								{
+									if(consumer.format != LittleTilesClient.getBlockVertexFormat())
+										consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
 									consumer.setWorld(data.te.getWorld());
 									consumer.setBlockPos(pos);
 									consumer.buffer = buffer;
@@ -184,25 +182,21 @@ public class RenderingThread extends Thread {
 										consumer.setState(cube.getBlockState());
 										consumer.getBlockInfo().updateShift(false);
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-											EnumFacing facing = EnumFacing.VALUES[h];
-											BakedQuad quad = cube.getQuad(facing);
-											if(quad != null)
+											List<BakedQuad> quads = cube.getQuad(EnumFacing.VALUES[h]);
+											if(quads != null && !quads.isEmpty())
 											{
-												
-												consumer.quad = (CreativeBakedQuad) quad;
-												renderQuad(buffer, quad);
-												
+												for (int k = 0; k < quads.size(); k++) {
+													BakedQuad quad = quads.get(k);
+													consumer.quad = (CreativeBakedQuad) quad;
+													renderQuad(buffer, quad);
+												}
 											}
+											
 										}
 									}
+									
 									consumer.quad = null;
 									consumer.cube = null;
-									/*if (layer == BlockRenderLayer.TRANSLUCENT)
-							        {
-							        	buffer.sortVertexData(x, y, z);
-							            //compiledChunkIn.setState(worldRendererIn.getVertexState());
-							        }*/
-
 							        buffer.finishDrawing();
 							        consumer.buffer = null; 
 							        
@@ -211,8 +205,7 @@ public class RenderingThread extends Thread {
 							}
 							
 							layerBuffer.setFinishedDrawing();
-							data.te.setBuffer(layerBuffer);
-							setRendered(data.te);							
+							setRendered(data.te, layerBuffer);							
 							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
@@ -296,7 +289,7 @@ public class RenderingThread extends Thread {
         }
 	}
 	
-	public synchronized void setRendered(TileEntityLittleTiles te)
+	public synchronized void setRendered(TileEntityLittleTiles te, BlockLayerRenderBuffer buffer)
 	{
 		te.rendering.set(false);
 		
@@ -306,12 +299,20 @@ public class RenderingThread extends Thread {
 			if(count != null)
 				count.getAndDecrement();
 			
-			//RenderUploader.addBlockForUpdate(te, chunk, false);
+			boolean uploadDirectly = te.getBuffer() == null;
+			
+			te.setBuffer(buffer);
+			
+			if(uploadDirectly)
+				RenderUploader.addBlockForUpdate(te, chunk, false);
 			
 			if(count == null || count.intValue() <= 0)
 			{
 				chunks.remove(chunk);
-				RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
+				if(uploadDirectly)
+					RenderUploader.finishChunkUpdate(chunk);
+				else
+					RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
 				//RenderUploader.finishChunkUpdate(chunk);
 				//System.out.println("finish chunk:" + chunk);
 			}

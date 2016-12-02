@@ -331,7 +331,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
 							LittleTile LT = placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing);
-							if(LT != null)
+							if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
 							{
 								if(!soundsToBePlayed.contains(LT.getSound()))
 									soundsToBePlayed.add(LT.getSound());

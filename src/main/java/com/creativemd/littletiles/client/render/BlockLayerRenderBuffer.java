@@ -59,7 +59,7 @@ public class BlockLayerRenderBuffer {
 	
 	public VertexBuffer createVertexBuffer(int tilesOfType)
 	{
-		return new VertexBuffer(getBufferSizeForLayer(tilesOfType));
+		return LittleTilesClient.createVertexBuffer(getBufferSizeForLayer(tilesOfType));
 	}
 	
 	/*public VertexBuffer getTemporaryBufferByLayer(BlockRenderLayer layer)

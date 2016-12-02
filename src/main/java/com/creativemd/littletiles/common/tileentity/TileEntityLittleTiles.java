@@ -79,10 +79,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return tiles;
 	}
 	
-	public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
+	/*public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
-	}
+	}*/
 	
 	//@SideOnly(Side.CLIENT)
 	//public boolean forceChunkRenderUpdate;
@@ -95,6 +95,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	@SideOnly(Side.CLIENT)
 	public boolean hasNeighborChanged;
+	
+	public int collisionChecks = 0;
+	
+	public boolean shouldCheckForCollision()
+	{
+		return collisionChecks > 0;
+	}
 	
 	/*@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
@@ -183,7 +190,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public BlockLayerRenderBuffer getBuffer()
 	{
 		if(buffer == null)
-			buffer = new AtomicReference<>(new BlockLayerRenderBuffer());
+			buffer = new AtomicReference<>(null);
 		return buffer.get();
 	}
 	
@@ -201,6 +208,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		boolean result = tiles.remove(tile);
 		updateTiles.remove(tile);
+		if(tile.shouldCheckForCollision())
+			collisionChecks--;
 		if(isClientSide())
 			removeLittleTileClient(tile);
 		return result;
@@ -232,6 +241,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			addLittleTileClient(tile);
 		if(tile.shouldTick())
 			updateTiles.add(tile);
+		if(tile.shouldCheckForCollision())
+			collisionChecks++;
 		return tiles.add(tile);
 	}
 	
@@ -396,21 +407,24 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     {
     	if(cachedRenderBoundingBox == null)
     	{
-			double minX = getPos().getX();
-			double minY = getPos().getY();
-			double minZ = getPos().getZ();
-			double maxX = getPos().getX()+1;
-			double maxY = getPos().getY()+1;
-			double maxZ = getPos().getZ()+1;
+			double minX = Double.MAX_VALUE;
+			double minY = Double.MAX_VALUE;
+			double minZ = Double.MAX_VALUE;
+			double maxX = Double.MIN_VALUE;
+			double maxY = Double.MIN_VALUE;
+			double maxZ = Double.MIN_VALUE;
 			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
-				minX = Math.min(box.minX, minX);
-				minY = Math.min(box.minY, minY);
-				minZ = Math.min(box.minZ, minZ);
-				maxX = Math.max(box.maxX, maxX);
-				maxY = Math.max(box.maxY, maxY);
-				maxZ = Math.max(box.maxZ, maxZ);
+				if(tile.needCustomRendering())
+				{
+					AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
+					minX = Math.min(box.minX, minX);
+					minY = Math.min(box.minY, minY);
+					minZ = Math.min(box.minZ, minZ);
+					maxX = Math.max(box.maxX, maxX);
+					maxY = Math.max(box.maxY, maxY);
+					maxZ = Math.max(box.maxZ, maxZ);
+				}
 			}
 			cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     	}
@@ -521,7 +535,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         super.readFromNBT(nbt);
         if(tiles != null)
         	tiles.clear();
-        tiles = createTileList();
+        if(updateTiles != null)
+        	updateTiles.clear();
+        collisionChecks = 0;
         int count = nbt.getInteger("tilesCount");
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();

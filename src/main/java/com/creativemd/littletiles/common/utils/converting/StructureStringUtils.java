@@ -1,7 +1,14 @@
 package com.creativemd.littletiles.common.utils.converting;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import org.lwjgl.opengl.ARBConditionalRenderInverted;
+
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
@@ -10,16 +17,127 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.stream.JsonWriter;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.util.JsonBlendingMode;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class StructureStringUtils {
+	
+	@SideOnly(Side.CLIENT)
+	public static String exportModel(ItemStack stack)
+	{
+		if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
+		{
+			JsonObject object = new JsonObject();
+			NBTTagCompound nbt = new NBTTagCompound();
+			ArrayList<LittleTilePreview> previews = null;
+			LittleStructure structure = null;
+			if(stack.getItem() instanceof ItemRecipe)
+			{
+				previews = ItemRecipe.getPreview(stack);
+				structure = ItemMultiTiles.getLTStructure(stack);
+			}else{
+				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
+				previews = tile.getLittlePreview(stack);
+				structure = tile.getLittleStructure(stack);
+			}
+			
+			List<String> texturenames = new ArrayList<>();
+			List<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
+			JsonArray elements = new JsonArray();
+			for (int i = 0; i < cubes.size(); i++) {
+				RenderCubeObject cube = cubes.get(i);
+				
+				JsonObject element = new JsonObject();
+				element.addProperty("name", "littletile_" + i);
+				
+				JsonArray positionArray = new JsonArray();
+				positionArray.add(new JsonPrimitive(cube.minX*16));
+				positionArray.add(new JsonPrimitive(cube.minY*16));
+				positionArray.add(new JsonPrimitive(cube.minZ*16));
+				element.add("from", positionArray);
+				
+				positionArray = new JsonArray();
+				positionArray.add(new JsonPrimitive(cube.maxX*16));
+				positionArray.add(new JsonPrimitive(cube.maxY*16));
+				positionArray.add(new JsonPrimitive(cube.maxZ*16));
+				element.add("to", positionArray);
+				
+				IBakedModel blockModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(cube.getBlockState());
+				CubeObject uvCube = cube.offset(cube.getOffset());
+				
+				JsonObject faces = new JsonObject();
+				for (int j = 0; j < EnumFacing.VALUES.length; j++) {
+					EnumFacing facing = EnumFacing.VALUES[j];
+					List<BakedQuad> quads = CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0);
+					if(!quads.isEmpty()) //No support for grass!!!
+					{
+						JsonObject face = new JsonObject();
+						
+						BakedQuad quad = quads.get(0);
+						if(!texturenames.contains(quad.getSprite().getIconName()))
+							texturenames.add(quad.getSprite().getIconName());
+						int iconID = texturenames.indexOf(quad.getSprite().getIconName());
+						face.addProperty("texture", "#" + iconID);
+						JsonArray uv = new JsonArray();
+						
+						float minX = 16;
+						float maxX = 0;
+						float minY = 16;
+						float maxY = 0;
+						
+						for (int k = 0; k < 4; k++) {
+							int index = k * quad.getFormat().getIntegerSize();
+							
+							int uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
+							float u = quad.getSprite().getUnInterpolatedU(Float.intBitsToFloat(quad.getVertexData()[uvIndex]));
+							minX = Math.min(minX, u);
+							maxX = Math.max(maxX, u);
+							
+							float v = quad.getSprite().getUnInterpolatedV(Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]));
+							minY = Math.min(minY, v);
+							maxY = Math.max(maxY, v);
+						}
+						
+						uv.add(new JsonPrimitive(minX));
+						uv.add(new JsonPrimitive(minY));
+						uv.add(new JsonPrimitive(maxX));
+						uv.add(new JsonPrimitive(maxY));
+						
+						face.add("uv", uv);
+						faces.add(facing.getName(), face);
+					}
+				}
+				element.add("faces", faces);
+				elements.add(element);
+			}
+			object.add("elements", elements);
+			
+			JsonObject textures = new JsonObject();
+			for (int j = 0; j < texturenames.size(); j++) {
+				textures.addProperty("" + j, texturenames.get(j));
+			}
+			object.add("textures", textures);
+			object.addProperty("__comment", "Model generated by LittleTiles");
+			return object.toString();
+		}
+		return "";
+	}
 	
 	public static String exportStructure(ItemStack stack)
 	{

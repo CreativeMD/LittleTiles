@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -81,12 +83,14 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
+		super.saveTileExtra(nbt);
 		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
 		nbt.setInteger("meta", meta);
 	}
 
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
+		super.loadTileExtra(nbt);
 		block = Block.getBlockFromName(nbt.getString("block"));
 		meta = nbt.getInteger("meta");
 		if(block == null || block instanceof BlockAir){
@@ -104,6 +108,7 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public void copyExtra(LittleTile tile) {
+		super.copyExtra(tile);
 		if(tile instanceof LittleTileBlock)
 		{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
@@ -127,7 +132,7 @@ public class LittleTileBlock extends LittleTile{
 	}
 
 	@Override
-	public ArrayList<RenderCubeObject> getRenderingCubes() {
+	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			cubes.add(new RenderCubeObject(boundingBoxes.get(i).getCube(), block, meta));
@@ -210,12 +215,12 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public boolean doesProvideSolidFace(EnumFacing facing) {
-		return !translucent;
+		return super.doesProvideSolidFace(facing) && !translucent;
 	}
 
 	@Override
 	public boolean canBeRenderCombined(LittleTile tile) {
-		if(tile instanceof LittleTileBlock)
+		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;// && ((LittleTileBlock) tile).translucent == translucent;
 		return false;
 	}
@@ -234,6 +239,14 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public float getExplosionResistance() {
 		return block.getExplosionResistance(null);
+	}
+	
+	@Override
+	public ArrayList<LittleTileBox> getCollisionBoxes()
+	{
+		if(block instanceof ISpecialLittleBlock)
+			return ((ISpecialLittleBlock) block).getCollisionBoxes(super.getCollisionBoxes(), this);
+		return super.getCollisionBoxes();
 	}
 	
 }

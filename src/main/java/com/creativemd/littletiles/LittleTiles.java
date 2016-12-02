@@ -319,7 +319,9 @@ public class LittleTiles {
 				});
 		
 		//Water block
-		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, 5), Items.WATER_BUCKET);
+		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.water.ordinal()), Items.WATER_BUCKET);
+		
+		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTColored.EnumType.lava.ordinal()), Items.LAVA_BUCKET);
 		
 		GameRegistry.addRecipe(new ItemStack(storageBlock, 1),  new Object[]
 				{

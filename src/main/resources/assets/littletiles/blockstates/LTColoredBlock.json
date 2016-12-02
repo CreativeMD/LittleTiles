@@ -11,6 +11,7 @@
         "variant=structured": { "model": "littletiles:colored_block_structured" },
         "variant=broken_brick_big": { "model": "littletiles:colored_block_broken_brick_big" },
         "variant=clay": { "model": "littletiles:colored_block_clay" },
-        "variant=light_clean": { "model": "littletiles:colored_block_clean" }
+        "variant=light_clean": { "model": "littletiles:colored_block_clean" },
+        "variant=lava": { "model": "littletiles:colored_block_lava" }
     }
 }

@@ -1,8 +1,12 @@
 package com.creativemd.littletiles.common.blocks;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;
@@ -24,7 +28,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.tools.nsc.transform.patmat.ScalaLogic.TreesAndTypesDomain.Var;
 
-public class BlockLTTransparentColored extends Block{
+public class BlockLTTransparentColored extends Block implements ISpecialLittleBlock {
 	
 	public static final PropertyEnum<BlockLTTransparentColored.EnumType> VARIANT = PropertyEnum.<BlockLTTransparentColored.EnumType>create("variant", BlockLTTransparentColored.EnumType.class);
 
@@ -122,6 +126,13 @@ public class BlockLTTransparentColored extends Block{
 		public String getName() {
 			return name();
 		}
+	}
+
+	@Override
+	public ArrayList<LittleTileBox> getCollisionBoxes(ArrayList<LittleTileBox> defaultBoxes, LittleTileBlock tile) {
+		if(tile.getBlockState().getValue(VARIANT) == EnumType.water)
+			return new ArrayList<>();
+		return defaultBoxes;
 	}
 
 }

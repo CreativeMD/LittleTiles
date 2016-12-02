@@ -10,6 +10,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
+import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.server.LittleTilesServer;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
@@ -56,9 +58,7 @@ public class LittleTilesClient extends LittleTilesServer{
 	public static boolean pressedRight = false;
 	public static KeyBinding left;
 	public static boolean pressedLeft = false;
-	
-	public static boolean optifineMode = FMLClientHandler.instance().hasOptifine();
-	private static VertexFormat optifineFormat = createOptifineBlockFormat();
+	/*private static VertexFormat optifineFormat = createOptifineBlockFormat();
 	
 	private static VertexFormat createOptifineBlockFormat()
 	{
@@ -70,13 +70,20 @@ public class LittleTilesClient extends LittleTilesServer{
 		format.addElement(PADDING_4S);
 		format.addElement(PADDING_4S);
 		return format;
-	}
+	}*/
 	
 	public static VertexFormat getBlockVertexFormat()
 	{
 		//if(optifineMode)
 			//return optifineFormat;
 		return DefaultVertexFormats.BLOCK;
+	}
+	
+	public static VertexBuffer createVertexBuffer(int size)
+	{
+		if(FMLClientHandler.instance().hasOptifine())
+			return new OptifineVertexBuffer(size);
+		return new VertexBuffer(size);
 	}
 	
 	@Override

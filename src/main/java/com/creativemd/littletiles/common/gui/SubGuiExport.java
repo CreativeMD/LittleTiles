@@ -32,6 +32,7 @@ public class SubGuiExport extends SubGui {
 		textfield = new GuiTextfield("export", "", 10, 30, 150, 14);
 		textfield.maxLength = Integer.MAX_VALUE;
 		controls.add(textfield);
+		
 		controls.add(new GuiButton("Copy", 10, 52) {
 			
 			@Override
@@ -39,6 +40,19 @@ public class SubGuiExport extends SubGui {
 				StringSelection stringSelection = new StringSelection(textfield.text);
 				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
 				clpbrd.setContents(stringSelection, null);
+			}
+		});
+		
+		controls.add(new GuiButton("Export model", 43, 52) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
+				if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
+				{
+					 textfield.text = StructureStringUtils.exportModel(stack);
+				}else
+					textfield.text = "";
 			}
 		});
 	}

@@ -339,9 +339,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		{
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-					AxisAlignedBB box = tile.boundingBoxes.get(i).getBox();
-					addCollisionBoxToList(pos, entityBox, list, box);
+				ArrayList<LittleTileBox> boxes = tile.getCollisionBoxes();
+				for (int i = 0; i < boxes.size(); i++) {
+					addCollisionBoxToList(pos, entityBox, list, boxes.get(i).getBox());
 				}
 				
 			}
@@ -774,6 +774,25 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				return new RayTraceResult(moving.hitVec, moving.sideHit, pos);
     	}
     	return null;
+    }
+    
+    @Override
+    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    {
+    	TileEntityLittleTiles te = loadTe(worldIn, pos);
+    	if(te != null && te.shouldCheckForCollision())
+    	{
+    		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+    			LittleTile tile = (LittleTile) iterator.next();
+    			if(tile.shouldCheckForCollision())
+    			{
+    				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+						if(tile.boundingBoxes.get(i).getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
+							tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+					}
+    			}
+    		}
+    	}
     }
     
 	@Override
