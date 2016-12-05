@@ -1,5 +1,6 @@
 package com.creativemd.littletiles;
 
+import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -14,6 +15,7 @@ import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
+import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubContainerExport;
 import com.creativemd.littletiles.common.gui.SubContainerImport;
@@ -72,6 +74,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -112,6 +115,8 @@ public class LittleTiles {
 		config.load();
 		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		config.save();
+		
+		proxy.loadSidePre();
 	}
 	
 	@EventHandler
@@ -327,6 +332,9 @@ public class LittleTiles {
 				{
 				"C", 'C', Blocks.CHEST
 				});
+		
+		//Entity
+		EntityRegistry.registerModEntity(EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
     }
 	
 	@EventHandler

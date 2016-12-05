@@ -1086,7 +1086,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				}
 			}
     		for (int i = 0; i < removeTiles.size(); i++) {
-    			te.removeTile(removeTiles.get(i));
+    			removeTiles.get(i).onTileExplodes(explosion);
+    			removeTiles.get(i).destroy();
+    			//te.removeTile(removeTiles.get(i));
 			}
     		te.update();
     	}

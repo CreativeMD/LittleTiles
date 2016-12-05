@@ -9,22 +9,32 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
+import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockGrass;
+import net.minecraft.block.BlockTNT;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -177,10 +187,51 @@ public class LittleTileBlock extends LittleTile{
 		block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
 	}
 	
+	public void explodeTile(EntityLivingBase entity, boolean randomFuse)
+	{
+		BlockPos pos = te.getPos();
+		LittleTileSize size = boundingBoxes.get(0).getSize();
+        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(te.getWorld(), (double)((float)pos.getX() + cornerVec.getPosX()/2 + size.getPosX()/2), (double)(pos.getY() + cornerVec.getPosY()/2 + size.getPosY()/2), (double)((float)pos.getZ() + cornerVec.getPosZ()/2 + size.getPosZ()/2), entity, size);
+        if(randomFuse)
+        	entitytntprimed.setFuse((short)(te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
+        te.getWorld().spawnEntityInWorld(entitytntprimed);
+        te.getWorld().playSound((EntityPlayer)null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+	}
+	
+	@Override
+	public void onTileExplodes(Explosion explosion)
+	{
+		if(block instanceof BlockTNT)
+			explodeTile(explosion.getExplosivePlacedBy(), true);
+	}
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			return true;
+		if(block instanceof BlockTNT)
+		{
+			if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE))
+	        {
+	            if (!worldIn.isRemote && !this.boundingBoxes.isEmpty())
+	            {
+	            	explodeTile(playerIn, false);
+	            }
+	            destroy();
+	            //worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
+
+	            if (heldItem.getItem() == Items.FLINT_AND_STEEL)
+	            {
+	                heldItem.damageItem(1, playerIn);
+	            }
+	            else if (!playerIn.capabilities.isCreativeMode)
+	            {
+	                --heldItem.stackSize;
+	            }
+
+	            return true;
+	        }
+		}
 		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 	

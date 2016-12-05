@@ -30,6 +30,16 @@ public class LittleTileSize {
 		}
 	}
 	
+	public LittleTileSize(String data)
+	{
+		String[] coords = data.split("\\.");
+		try{
+			set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
+		}catch(Exception e){
+			set(0, 0, 0);
+		}
+	}
+	
 	public LittleTileSize(int sizeX, int sizeY, int sizeZ)
 	{
 		this.sizeX = sizeX;
@@ -186,7 +196,7 @@ public class LittleTileSize {
 	@Override
 	public String toString()
 	{
-		return "[" + sizeX + "," + sizeY + "," + sizeZ + "]";
+		return sizeX+"."+sizeY+"."+sizeZ;
 	}
 
 	public LittleTileSize max(LittleTileSize size) {

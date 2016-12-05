@@ -94,8 +94,10 @@ public class RenderUploader {
 			}else if(!queue.shouldPushUpdate.get())
 				queue.shouldPushUpdate.set(false);
 			
-			if(!queue.blocks.contains(te))
-				queue.blocks.add(te);
+			synchronized (queue.blocks){
+				if(!queue.blocks.contains(te))
+					queue.blocks.add(te);
+			}
 		}
 		
 	}
