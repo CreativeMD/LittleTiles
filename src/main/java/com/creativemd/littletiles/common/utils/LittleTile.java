@@ -673,8 +673,8 @@ public abstract class LittleTile {
 		if(structure != null)
 			return true;
 		World world = te.getWorld();
-		//if(!world.isRemote)
-		//{
+		if(world != null)
+		{
 			BlockPos absoluteCoord = coord.getAbsolutePosition(te);
 			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
 			if(WorldUtils.checkIfChunkExists(chunk))
@@ -706,7 +706,7 @@ public abstract class LittleTile {
 				return structure != null;
 			}
 			
-		//}
+		}
 		return false;
 	}
 	

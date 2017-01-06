@@ -1,20 +1,27 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -27,6 +34,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
@@ -301,6 +309,19 @@ public class LittleDoor extends LittleStructure{
 		
 		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false, EnumFacing.EAST))
 		{
+			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
+			World fakeWorld = new WorldFake(world);
+			ItemBlockTiles.placeTiles(fakeWorld, player, previews, structure, pos, null, null, false, EnumFacing.EAST);
+			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
+				TileEntity te = (TileEntity) iterator.next();
+				if(te instanceof TileEntityLittleTiles)
+					blocks.add((TileEntityLittleTiles) te);
+			}
+			
+			EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, UUID.randomUUID());
+			animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
+			world.spawnEntityInWorld(animation);
+			//Implement send it to server, with a given UUID so that those entities will be synchronized!
 			return true;
 		}
 		return false;

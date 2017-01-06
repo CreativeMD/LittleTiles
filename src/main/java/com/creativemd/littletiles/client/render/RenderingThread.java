@@ -25,6 +25,9 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
+import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
+import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
+import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -33,6 +36,7 @@ import com.creativemd.littletiles.utils.TileList;
 import com.google.common.cache.LoadingCache;
 
 import it.unimi.dsi.fastutil.Hash;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.VertexBuffer;
@@ -44,6 +48,7 @@ import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -52,15 +57,18 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.ForgeBlockModelRenderer;
 import net.minecraftforge.client.model.pipeline.LightUtil;
+import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import shadersmod.client.SVertexBuilder;
 
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
 	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	public ConcurrentHashMap<BlockPos, AtomicInteger> chunks = new ConcurrentHashMap<>();
+	public ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
 	
 	//private static World lastWorld;
 	
@@ -68,27 +76,41 @@ public class RenderingThread extends Thread {
 	
 	public static int nearbyRenderDistance = 32*32;
 	
-	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
+	public static void addCoordToUpdate(TileEntityLittleTiles te, double distanceSq, boolean requiresUpdate)
 	{
-		double distance = mc.getRenderViewEntity().getDistanceSq(te.getPos());
 		RenderingThread renderer = nearbyRenderer;
-		if(distance > nearbyRenderDistance)
+		if(distanceSq > nearbyRenderDistance)
 			renderer = distanceRenderer;
 		if(!te.rendering.get())
 		{
 			te.rendering.set(true);
-			BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(te.getPos());
-			synchronized (renderer.chunks){
-				AtomicInteger count = renderer.chunks.get(chunk);
-				if(count == null)
+			if(requiresUpdate)
+			{
+				//BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(te.getPos());
+				RenderChunk chunk = te.lastRenderedChunk;
+				if(chunk == null)
 				{
-					count = new AtomicInteger(0);
-					renderer.chunks.put(chunk, count);
+					chunk = RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), RenderUploader.getRenderChunkPos(te.getPos()));
+					te.lastRenderedChunk = chunk;
 				}
-				count.addAndGet(1);
+				synchronized (renderer.chunks){
+					AtomicInteger count = renderer.chunks.get(chunk);
+					if(count == null)
+					{
+						count = new AtomicInteger(0);
+						renderer.chunks.put(chunk, count);
+					}
+					count.addAndGet(1);
+				}
 			}
-			renderer.updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos()));
+			renderer.updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos(), requiresUpdate));
 		}
+	}
+	
+	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
+	{
+		addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
+		
 	}
 	
 	public static RenderingThread nearbyRenderer = new RenderingThread();
@@ -146,6 +168,13 @@ public class RenderingThread extends Thread {
 						try {
 							layerBuffer.setDrawing();
 							
+							if(consumer.format != LittleTilesClient.getBlockVertexFormat())
+								consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
+							
+							consumer.setWorld(data.te.getWorld());
+							consumer.setBlockPos(pos);
+							consumer.getBlockInfo().updateLightMatrix();
+							
 							//Render vertex buffer
 							for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 								BlockRenderLayer layer = BlockRenderLayer.values()[i];
@@ -157,12 +186,8 @@ public class RenderingThread extends Thread {
 								
 								if(buffer != null)
 								{
-									if(consumer.format != LittleTilesClient.getBlockVertexFormat())
-										consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
-									consumer.setWorld(data.te.getWorld());
-									consumer.setBlockPos(pos);
 									consumer.buffer = buffer;
-									consumer.getBlockInfo().updateLightMatrix();
+									consumer.layer = layer;
 									
 									buffer.begin(7, LittleTilesClient.getBlockVertexFormat());
 									int chunkX = MathHelper.bucketInt(pos.getX(), 16);
@@ -181,6 +206,18 @@ public class RenderingThread extends Thread {
 										consumer.cube = cube;
 										consumer.setState(cube.getBlockState());
 										consumer.getBlockInfo().updateShift(false);
+										
+										if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+										{
+											IBlockState state = cube.getBlockState();
+											if(state.getBlock() instanceof BlockLTTransparentColored && state.getValue(BlockLTTransparentColored.VARIANT) == EnumType.water)
+											{
+												System.out.println("simulating water");
+												state = Blocks.WATER.getDefaultState();
+											}
+											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
+										}
+										
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 											List<BakedQuad> quads = cube.getQuad(EnumFacing.VALUES[h]);
 											if(quads != null && !quads.isEmpty())
@@ -193,10 +230,17 @@ public class RenderingThread extends Thread {
 											}
 											
 										}
+										
+										if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+											SVertexBuilder.popEntity(buffer);
 									}
 									
 									consumer.quad = null;
 									consumer.cube = null;
+									
+									if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+										SVertexBuilder.calcNormalChunkLayer(buffer);
+									
 							        buffer.finishDrawing();
 							        consumer.buffer = null; 
 							        
@@ -231,12 +275,12 @@ public class RenderingThread extends Thread {
 			}else if(!updateCoords.isEmpty()){
 				updateCoords.clear();
 			}else if(world != null && !chunks.isEmpty()){
-				synchronized (chunks){
+				/*synchronized (chunks){
 					for (Iterator iterator = chunks.keySet().iterator(); iterator.hasNext();) {
-						RenderUploader.finishChunkUpdate((BlockPos) iterator.next());
+						RenderUploader.finishChunkUpdate((RenderChunk) iterator.next());
 					}
 					chunks.clear();
-				}
+				}*/
 			}
 			try {
 				sleep(1);
@@ -293,26 +337,28 @@ public class RenderingThread extends Thread {
 	{
 		te.rendering.set(false);
 		
-		BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(coord);
+		//BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(coord);
+		RenderChunk chunk = te.lastRenderedChunk;
 		synchronized (chunks){
 			AtomicInteger count = chunks.get(chunk);
 			if(count != null)
 				count.getAndDecrement();
 			
 			boolean uploadDirectly = te.getBuffer() == null;
-			
+			uploadDirectly = false;
 			te.setBuffer(buffer);
 			
-			if(uploadDirectly)
-				RenderUploader.addBlockForUpdate(te, chunk, false);
+			//if(uploadDirectly)
+				//RenderUploader.addBlockForUpdate(te, chunk, false);
 			
 			if(count == null || count.intValue() <= 0)
 			{
 				chunks.remove(chunk);
-				if(uploadDirectly)
-					RenderUploader.finishChunkUpdate(chunk);
-				else
-					RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
+				//if(uploadDirectly)
+					//RenderUploader.finishChunkUpdate(chunk);
+				//else
+					//RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
+				chunk.setNeedsUpdate(true);
 				//RenderUploader.finishChunkUpdate(chunk);
 				//System.out.println("finish chunk:" + chunk);
 			}
@@ -325,10 +371,13 @@ public class RenderingThread extends Thread {
 		public IBlockState state;
 		public BlockPos pos;
 		
-		public RenderingData(TileEntityLittleTiles te, IBlockState state, BlockPos pos) {
+		public boolean requiresUpdate;
+		
+		public RenderingData(TileEntityLittleTiles te, IBlockState state, BlockPos pos, boolean requiresUpdate) {
 			this.te = te;
 			this.state = state;
 			this.pos = pos;
+			this.requiresUpdate = requiresUpdate;
 		}
 		
 		

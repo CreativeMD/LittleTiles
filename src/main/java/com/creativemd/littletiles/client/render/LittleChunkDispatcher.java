@@ -7,9 +7,12 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
 
+import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -29,7 +32,9 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import shadersmod.client.SVertexBuilder;
 
 public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 
@@ -37,7 +42,10 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		super();
 	}
 	
+	private static Method growBuffer = ReflectionHelper.findMethod(VertexBuffer.class, null, new String[]{"growBuffer",  "func_181670_b"}, int.class);
+	
 	private static Field rawIntBufferField = ReflectionHelper.findField(VertexBuffer.class, "rawIntBuffer", "field_178999_b");
+	private static Field vertexCountField = ReflectionHelper.findField(VertexBuffer.class, "vertexCount", "field_178997_d");
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, null, new String[]{"setLayerUsed", "func_178486_a"}, BlockRenderLayer.class);
 	
@@ -54,6 +62,8 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			
 			if(te instanceof TileEntityLittleTiles)
 			{
+				((TileEntityLittleTiles) te).updateQuadCache(chunk);
+				
 				BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
 				if(blockLayerBuffer != null)
 				{
@@ -84,8 +94,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			
 			if(buffer.getVertexFormat() != null)
 			{
-				//System.out.println("size:" + buffer.getVertexFormat().getNextOffset());
-				//System.out.println(buffer.getVertexFormat());
 				for (int i = 0; i < tiles.size(); i++) {
 					TileEntityLittleTiles te = tiles.get(i);
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
@@ -99,8 +107,14 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 							rawIntBuffer.limit(size);
 							int[] data = new int[size];
 							rawIntBuffer.get(data);
-							buffer.addVertexData(data);
-						} catch (IllegalArgumentException | IllegalAccessException e) {
+							
+							growBuffer.invoke(buffer, data.length * 4);
+							IntBuffer chunkIntBuffer = (IntBuffer) rawIntBufferField.get(buffer);
+					        chunkIntBuffer.position(buffer.getVertexFormat().getIntegerSize() * buffer.getVertexCount());
+					        chunkIntBuffer.put(data);
+					        vertexCountField.setInt(buffer, vertexCountField.getInt(buffer) + data.length / buffer.getVertexFormat().getIntegerSize());
+							
+						} catch (Exception e) {
 							e.printStackTrace();
 						}
 					}

@@ -12,11 +12,13 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
+import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -30,6 +32,7 @@ import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.renderer.entity.RenderEnderman;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -89,8 +92,8 @@ public class LittleTilesClient extends LittleTilesServer{
 	
 	public static VertexBuffer createVertexBuffer(int size)
 	{
-		if(FMLClientHandler.instance().hasOptifine())
-			return new OptifineVertexBuffer(size);
+		//if(FMLClientHandler.instance().hasOptifine())
+			//return new OptifineVertexBuffer(size);
 		return new VertexBuffer(size);
 	}
 	
@@ -102,6 +105,14 @@ public class LittleTilesClient extends LittleTilesServer{
 			@Override
 			public Render<? super EntitySizedTNTPrimed> createRenderFor(RenderManager manager) {
 				return new RenderSizedTNTPrimed(manager);
+			}
+		});
+		
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
+
+			@Override
+			public Render<? super EntityAnimation> createRenderFor(RenderManager manager) {
+				return new RenderAnimation(manager);
 			}
 		});
 	}

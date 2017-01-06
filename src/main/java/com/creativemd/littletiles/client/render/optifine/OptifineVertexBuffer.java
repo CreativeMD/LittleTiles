@@ -1,9 +1,16 @@
 package com.creativemd.littletiles.client.render.optifine;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.vertex.VertexFormat;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import shadersmod.client.SVertexBuilder;
 
 public class OptifineVertexBuffer extends VertexBuffer {
@@ -20,7 +27,7 @@ public class OptifineVertexBuffer extends VertexBuffer {
 		return null;
 	}
 	
-	private static boolean isShaders()
+	public static boolean isShaders()
 	{
 		try {
 			return (boolean) isShadersMethod.invoke(null);
@@ -37,31 +44,37 @@ public class OptifineVertexBuffer extends VertexBuffer {
 	@Override
 	public void addVertexData(int[] vertexData)
     {
-        if(isShaders())
-    	{
-    		System.out.println("adding data");
-        	SVertexBuilder.beginAddVertexData(this, vertexData);
-    	}else
-    		System.out.println("No shaders active");
+		try{
+			SVertexBuilder builder = (SVertexBuilder) this.getClass().getField("sVertexBuilder").get(this);
+			System.out.println(Arrays.toString((long[]) ReflectionHelper.getPrivateValue(SVertexBuilder.class, builder, "entityData")));
+			System.out.println((int) ReflectionHelper.getPrivateValue(SVertexBuilder.class, builder, "entityDataIndex"));
+			System.out.println((int) ReflectionHelper.getPrivateValue(SVertexBuilder.class, builder, "vertexSize"));
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+        //if(isShaders())
+        	//SVertexBuilder.beginAddVertexData(this, vertexData);
         super.addVertexData(vertexData);
-        if(isShaders())
-        	SVertexBuilder.endAddVertexData(this);
+        
+        //if(isShaders())
+        	//SVertexBuilder.endAddVertexData(this);
     }
 	
 	@Override
     public void endVertex()
     {
     	super.endVertex();
-    	if(isShaders())
-    		SVertexBuilder.endAddVertex(this);
+    	//if(isShaders())
+    		//SVertexBuilder.endAddVertex(this);
     	
     }
 	
 	@Override
     public VertexBuffer pos(double x, double y, double z)
     {
-        if(isShaders())
-        	SVertexBuilder.beginAddVertex(this);
+        //if(isShaders())
+        	//SVertexBuilder.beginAddVertex(this);
         
         return super.pos(x, y, z);
     }

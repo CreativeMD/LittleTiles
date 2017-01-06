@@ -197,20 +197,24 @@ public class RenderUploader {
 					}
 					directChunkUpdate.clear();
 				}*/
-				if(!chunksToUpdate.isEmpty())
-				{
-					ArrayList<BlockPos> deleted = new ArrayList<>();
-					for (Entry<BlockPos, ChunkQueue> element : chunksToUpdate.entrySet()) {
-						if(element.getValue().shouldPushUpdate.get())
-						{
-							updateRenderData(getRenderChunkByChunkPosition(getViewFrustum(), element.getKey()), element.getValue().blocks, format);
-							deleted.add(element.getKey());
-						}
-					}
-					if(!deleted.isEmpty())
+				synchronized (chunksToUpdate) {
+					if(!chunksToUpdate.isEmpty())
 					{
-						for (int i = 0; i < deleted.size(); i++) {
-							chunksToUpdate.remove(deleted.get(i));
+						ArrayList<BlockPos> deleted = new ArrayList<>();
+						for (Entry<BlockPos, ChunkQueue> element : chunksToUpdate.entrySet()) {
+							if(element.getValue().shouldPushUpdate.get())
+							{
+								synchronized (element.getValue().blocks) {
+									updateRenderData(getRenderChunkByChunkPosition(getViewFrustum(), element.getKey()), element.getValue().blocks, format);
+									deleted.add(element.getKey());
+								}
+							}
+						}
+						if(!deleted.isEmpty())
+						{
+							for (int i = 0; i < deleted.size(); i++) {
+								chunksToUpdate.remove(deleted.get(i));
+							}
 						}
 					}
 				}

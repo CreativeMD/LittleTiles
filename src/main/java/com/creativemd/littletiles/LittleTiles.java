@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubContainerExport;
@@ -335,6 +336,8 @@ public class LittleTiles {
 		
 		//Entity
 		EntityRegistry.registerModEntity(EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
+		
+		EntityRegistry.registerModEntity(EntityAnimation.class, "animation", 1, this, 2000, 250, true);
     }
 	
 	@EventHandler

@@ -29,6 +29,7 @@ import com.creativemd.littletiles.utils.TileList;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -142,8 +143,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return hasBeenAddedToBuffer;
 	}
 	
-	public void updateQuadCache()
+	public RenderChunk lastRenderedChunk;
+	
+	public void updateQuadCache(RenderChunk chunk)
 	{
+		lastRenderedChunk = chunk;
+		
 		getBeenAddedToBuffer().set(false);		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
 			
