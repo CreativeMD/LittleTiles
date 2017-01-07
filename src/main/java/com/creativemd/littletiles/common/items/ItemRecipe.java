@@ -321,6 +321,8 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			double scaler = 1/Math.max(1, stack.getTagCompound().getDouble("size"));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
+		
+		 //TODO Render recipe texture in background
 	}
 
 	@Override

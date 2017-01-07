@@ -318,9 +318,9 @@ public class LittleDoor extends LittleStructure{
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, UUID.randomUUID());
+			/*EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, UUID.randomUUID());
 			animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
-			world.spawnEntityInWorld(animation);
+			world.spawnEntityInWorld(animation);*/
 			//Implement send it to server, with a given UUID so that those entities will be synchronized!
 			return true;
 		}

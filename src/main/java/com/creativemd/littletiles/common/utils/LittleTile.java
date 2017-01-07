@@ -668,10 +668,18 @@ public abstract class LittleTile {
 	
 	public boolean isMainBlock = false;
 	
+	private boolean loadingStructure = false;
+	
 	public boolean checkForStructure()
 	{
+		if(loadingStructure)
+			return false;
+		
 		if(structure != null)
 			return true;
+		
+		loadingStructure = true;
+		
 		World world = te.getWorld();
 		if(world != null)
 		{
@@ -702,11 +710,15 @@ public abstract class LittleTile {
 				
 				//pos = null;
 				
+				loadingStructure = false;
 				
 				return structure != null;
 			}
 			
 		}
+		
+		loadingStructure = false;
+		
 		return false;
 	}
 	
