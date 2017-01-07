@@ -147,6 +147,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public void updateQuadCache(RenderChunk chunk)
 	{
+		//System.out.println("update cache at pos=" + getPos());
 		lastRenderedChunk = chunk;
 		
 		getBeenAddedToBuffer().set(false);		

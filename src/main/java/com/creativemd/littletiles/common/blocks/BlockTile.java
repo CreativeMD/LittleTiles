@@ -898,6 +898,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				{
 					for (BlockRenderLayer tempLayer : BlockRenderLayer.values()) {
 						List<RenderCubeObject> renderCubes = cache.getCubesByLayer(tempLayer);
+						if(renderCubes == null)
+							continue;
 						for (int i = 0; i < renderCubes.size(); i++) {
 							RenderCubeObject cube = renderCubes.get(i);
 							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
@@ -972,12 +974,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 								box = tile.boundingBoxes.get(j).copy().getSideOfBox(facing);
 							
 							//cubes.add(new RenderCubeObject(box.getCube(), Blocks.STONE, 0));
+							cube.customData = tile;
+							
 							if(box.isBoxInsideBlock())
 								cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
 							else{
 								updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
 							}
-							cube.customData = tile;
+							
 						}
 					}
 					cubes.addAll(tileCubes);

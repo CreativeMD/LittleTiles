@@ -135,7 +135,7 @@ public class LittleTileBlock extends LittleTile{
 		stack.setTagCompound(new NBTTagCompound());
 		//saveTile(stack.getTagCompound());
 		stack.getTagCompound().setString("tID", getID());
-		stack.getTagCompound().setInteger("bSize", 0);
+		//stack.getTagCompound().setInteger("bSize", 0);
 		saveTileExtra(stack.getTagCompound());
 		boundingBoxes.get(0).getSize().writeToNBT("size", stack.getTagCompound());
 		return stack;

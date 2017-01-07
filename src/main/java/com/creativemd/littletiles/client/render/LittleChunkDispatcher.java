@@ -62,7 +62,8 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			
 			if(te instanceof TileEntityLittleTiles)
 			{
-				((TileEntityLittleTiles) te).updateQuadCache(chunk);
+				if(layer == BlockRenderLayer.SOLID)
+					((TileEntityLittleTiles) te).updateQuadCache(chunk);
 				
 				BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
 				if(blockLayerBuffer != null)

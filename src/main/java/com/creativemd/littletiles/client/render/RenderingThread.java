@@ -263,7 +263,7 @@ public class RenderingThread extends Thread {
 						updateCoords.add(data);
 				}catch(Exception e){
 					updateCoords.add(data);
-					//e.printStackTrace();
+					e.printStackTrace();
 				}
 				
 				
