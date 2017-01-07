@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -26,12 +27,6 @@ public class PreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public Vec3d getPreviewColor()
-	{
-		return red;
-	}
-	
-	@Override
 	public boolean needsCollisionTest()
 	{
 		return false;
@@ -44,8 +39,9 @@ public class PreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public LittleTileBox getPreviewBox()
+	public ArrayList<ColoredCube> getPreviews()
 	{
+		ArrayList<ColoredCube> cubes = new ArrayList<>();
 		LittleTileBox preview = box.copy();
 		int max = 40*LittleTile.gridSize;
 		int min = -max;
@@ -66,7 +62,8 @@ public class PreviewTileAxis extends PlacePreviewTile{
 		default:
 			break;
 		}
-		return preview;
+		cubes.add(new ColoredCube(preview.getCube(), red));
+		return cubes;
 	}
 	
 	@Override

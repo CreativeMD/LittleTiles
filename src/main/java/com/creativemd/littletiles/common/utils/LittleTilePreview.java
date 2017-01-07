@@ -257,6 +257,11 @@ public class LittleTilePreview {
 		return this.getClass() != LittleTilePreview.class;
 	}
 	
+	public NBTTagCompound getTileData()
+	{
+		return tileData;
+	}
+	
 	public static LittleTilePreview loadPreviewFromNBT(NBTTagCompound nbt)
 	{
 		if(nbt == null)

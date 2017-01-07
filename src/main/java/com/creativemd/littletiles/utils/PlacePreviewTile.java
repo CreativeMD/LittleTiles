@@ -2,6 +2,9 @@ package com.creativemd.littletiles.utils;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.common.utils.ColoredCube;
+import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -36,20 +39,17 @@ public class PlacePreviewTile {
 		return new PlacePreviewTile(box.copy(), preview.copy());
 	}
 	
-	public Vec3d getPreviewColor()
-	{
-		return white;
-	}
-	
 	/**If false it will be placed after all regular tiles have been placed**/
 	public boolean needsCollisionTest()
 	{
 		return true;
 	}
 	
-	public LittleTileBox getPreviewBox()
+	public ArrayList<ColoredCube> getPreviews()
 	{
-		return box;
+		ArrayList<ColoredCube> cubes = new ArrayList<>();
+		cubes.add(new ColoredCube(box.getCube()));
+		return cubes;
 	}
 	
 	public LittleTile placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)

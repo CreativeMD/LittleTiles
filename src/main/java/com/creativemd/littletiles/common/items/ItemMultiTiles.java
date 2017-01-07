@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -102,7 +103,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void applyCustomOpenGLHackery(ItemStack stack)
+	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType)
 	{
 		if(stack.hasTagCompound())
 		{

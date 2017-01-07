@@ -15,6 +15,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.gui.SubContainerStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -28,11 +29,15 @@ import com.creativemd.littletiles.utils.TileList;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelManager;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -45,6 +50,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -312,8 +320,20 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void applyCustomOpenGLHackery(ItemStack stack)
+	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType)
 	{
+		Minecraft mc = Minecraft.getMinecraft();
+		GlStateManager.pushMatrix();
+		
+		if(cameraTransformType == TransformType.GUI)
+			GlStateManager.translate(0, 0, -10);
+		
+		IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
+		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
+		
+		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+		GlStateManager.popMatrix();
+		
 		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
 		{
 			if(!stack.getTagCompound().hasKey("size"))
@@ -322,18 +342,13 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 		
-		 //TODO Render recipe texture in background
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getSpecialBakedQuads(IBlockState state, TileEntity te, EnumFacing side, long rand,
 			ItemStack stack) {
-		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
-		/*int damage = stack.getItemDamage();
-		stack.setItemDamage(1);
-		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(stack);
-		stack.setItemDamage(damage);*/
+		/*IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
 		if(model != null)
 		{
 			List<BakedQuad> quads = model.getQuads(state, side, rand);
@@ -342,7 +357,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				newQuads.add(new CreativeBakedQuad(quads.get(i), null, -1, true, side));
 			}
 			return newQuads;
-		}
+		}*/
 		return new ArrayList<>();
 	}
 }

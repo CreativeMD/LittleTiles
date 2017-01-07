@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
@@ -29,6 +31,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderHandEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -40,27 +43,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class PreviewRenderer {
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
-	
-	//public static ForgeDirection direction = ForgeDirection.UP;
-	//public static ForgeDirection direction2 = ForgeDirection.EAST;
-	
-	/*public static void updateVertical()
-	{
-		if(direction == ForgeDirection.UNKNOWN)
-			direction = ForgeDirection.DOWN;
-		else if(direction == ForgeDirection.DOWN)
-			direction = ForgeDirection.UP;
-		else
-			direction = ForgeDirection.UNKNOWN;
-	}
-	
-	public static void updateHorizontal()
-	{
-		if(direction2 == ForgeDirection.WEST || direction2 == ForgeDirection.EAST)
-			direction2 = ForgeDirection.NORTH;
-		else
-			direction2 = ForgeDirection.EAST;
-	}*/
 	
 	public void processKey(EnumFacing direction)
 	{
@@ -301,30 +283,21 @@ public class PreviewRenderer {
 		            previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
 		            
 		            for (int i = 0; i < previews.size(); i++) {
-						GL11.glPushMatrix();
+						
 						PlacePreviewTile preview = previews.get(i);
-						LittleTileBox previewBox = preview.getPreviewBox();
-						CubeObject cube = previewBox.getCube();
-						Vec3d size = previewBox.getSizeD();
-						double cubeX = x+cube.minX+size.xCoord/2D;
-						//if(posX < 0 && side != ForgeDirection.WEST && side != ForgeDirection.EAST)
-							//cubeX = x+(1-cube.minX)+size.getPosX()/2D;
-						double cubeY = y+cube.minY+size.yCoord/2D;
-						//if(posY < 0 && side != ForgeDirection.DOWN)
-							//cubeY = y-cube.minY+size.getPosY()/2D;
-						double cubeZ = z+cube.minZ+size.zCoord/2D;
-						//if(posZ < 0 && side != ForgeDirection.NORTH)
-							//cubeZ = z-cube.minZ+size.getPosZ()/2D;
-						/*double cubeX = x;
-						if(posX < 0)
-							x -= 1;
-						double cubeY = y;
-						double cubeZ = z;*/
-						Vec3d color = preview.getPreviewColor();
-						RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.xCoord, size.yCoord, size.zCoord, 0, 0, 0, color.xCoord, color.yCoord, color.zCoord, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
-						GL11.glPopMatrix();
+						ArrayList<ColoredCube> cubes = preview.getPreviews();
+						for (int j = 0; j < cubes.size(); j++) {
+							GL11.glPushMatrix();
+							ColoredCube cube = cubes.get(j);
+							Vec3d size = cube.getSize();
+							double cubeX = x+cube.minX+size.xCoord/2D;
+							double cubeY = y+cube.minY+size.yCoord/2D;
+							double cubeZ = z+cube.minZ+size.zCoord/2D;
+							Vec3d color = ColorUtils.IntToVec(cube.color);
+							RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.xCoord, size.yCoord, size.zCoord, 0, 0, 0, color.xCoord, color.yCoord, color.zCoord, Math.sin(System.nanoTime()/200000000D)*0.2+0.5);
+							GL11.glPopMatrix();
+						}
 					}
-		            
 		            if(markedHit == null && mc.thePlayer.isSneaking())
 		            {
 		            	ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();

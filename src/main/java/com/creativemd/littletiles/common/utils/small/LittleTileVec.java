@@ -85,6 +85,11 @@ public class LittleTileVec {
 		this.z = z;
 	}
 	
+	public Vec3d getVec()
+	{
+		return new Vec3d(getPosX(), getPosY(), getPosZ());
+	}
+	
 	public double getPosX()
 	{
 		return (double)x/LittleTile.gridSize;
