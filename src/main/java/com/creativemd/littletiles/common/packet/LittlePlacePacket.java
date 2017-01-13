@@ -91,7 +91,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);
 			//helper.side = side;
 			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, pos, side, customPlacement, forced); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.world, playerPos, hitVec, helper, pos, side, customPlacement, forced); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);

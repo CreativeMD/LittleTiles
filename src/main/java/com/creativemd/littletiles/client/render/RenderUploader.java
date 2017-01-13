@@ -185,7 +185,7 @@ public class RenderUploader {
 	{
 		if(event.phase == Phase.START || event.phase == Phase.END)
 		{
-			World world = mc.theWorld;
+			World world = mc.world;
 			VertexFormat format = LittleTilesClient.getBlockVertexFormat();
 			
 			if(world != null)
@@ -249,9 +249,9 @@ public class RenderUploader {
 	
 	public static BlockPos getRenderChunkPos(BlockPos pos)
 	{
-		int i = MathHelper.bucketInt(pos.getX(), 16);
-        int j = MathHelper.bucketInt(pos.getY(), 16);
-        int k = MathHelper.bucketInt(pos.getZ(), 16);
+		int i = MathHelper.intFloorDiv(pos.getX(), 16);
+        int j = MathHelper.intFloorDiv(pos.getY(), 16);
+        int k = MathHelper.intFloorDiv(pos.getZ(), 16);
         return new BlockPos(i, j, k);
 	}
 	

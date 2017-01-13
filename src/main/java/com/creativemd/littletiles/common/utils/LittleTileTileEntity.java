@@ -53,7 +53,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	{
 		if(!isTileEntityLoaded && tileEntity != null)
 		{
-			tileEntity.setWorldObj(te.getWorld());
+			tileEntity.setWorld(te.getWorld());
 			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
 			isTileEntityLoaded = true;
 		}
@@ -86,7 +86,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		}else{
 			SPacketUpdateTileEntity packet = getTileEntity().getUpdatePacket();
 			NBTTagCompound newNBT = ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, packet, "nbt", "field_148860_e");
-			tileEntity.setWorldObj(te.getWorld());
+			tileEntity.setWorld(te.getWorld());
 	        if(newNBT != null)
 	        	nbt.setTag("tileentity", newNBT);
 		}
@@ -106,9 +106,9 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		super.receivePacket(nbt, net);
 		if(nbt.getBoolean("isFirst"))
 		{
-			tileEntity = TileEntity.func_190200_a(te.getWorld(), nbt.getCompoundTag("tileentity"));
+			tileEntity = TileEntity.create(te.getWorld(), nbt.getCompoundTag("tileentity"));
 			setMeta(meta);
-			tileEntity.setWorldObj(te.getWorld());
+			tileEntity.setWorld(te.getWorld());
 		}else{
 			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
 			if(tileEntity != null)
@@ -124,9 +124,9 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		NBTTagCompound tileNBT = nbt.getCompoundTag("tileEntity");
 		if(tileNBT != null)
 		{
-			tileEntity = TileEntity.func_190200_a(te.getWorld(), tileNBT);
+			tileEntity = TileEntity.create(te.getWorld(), tileNBT);
 			setMeta(meta);
-			tileEntity.setWorldObj(te.getWorld());
+			tileEntity.setWorld(te.getWorld());
 			tileEntity.setPos(new BlockPos(te.getPos()));
 			isTileEntityLoaded = te.getWorld() != null;
 			//if(tileEntity.isInvalid())
@@ -159,7 +159,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		{
 			if(tileEntity.getWorld() == null)
 			{
-				tileEntity.setWorldObj(te.getWorld());
+				tileEntity.setWorld(te.getWorld());
 				isTileEntityLoaded = true;
 			}
 			if(tileEntity instanceof ITickable)
@@ -173,7 +173,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileEntity != null)
 		{
 			Minecraft mc = Minecraft.getMinecraft();
-			if (te.getDistanceSq(mc.thePlayer.posX, mc.thePlayer.posY, mc.thePlayer.posZ) < getTileEntity().getMaxRenderDistanceSquared())
+			if (te.getDistanceSq(mc.player.posX, mc.player.posY, mc.player.posZ) < getTileEntity().getMaxRenderDistanceSquared())
 	        {
 				RenderHelper.enableStandardItemLighting();
 	            /*if(!TileEntityRendererDispatcher.instance.drawingBatch || !tileEntity.hasFastRenderer())
@@ -236,7 +236,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tile instanceof LittleTileTileEntity)
 		{
 			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
-			thisTile.tileEntity = TileEntity.func_190200_a(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
+			thisTile.tileEntity = TileEntity.create(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
 			thisTile.isTileEntityLoaded = false;
 		}
 	}

@@ -334,7 +334,7 @@ public class LittleDoor extends LittleStructure{
 		{
 			if(!hasLoaded())
 			{
-				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
+				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
 						

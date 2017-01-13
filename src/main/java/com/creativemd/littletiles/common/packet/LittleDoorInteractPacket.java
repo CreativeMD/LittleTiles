@@ -67,8 +67,8 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
-		World world = player.worldObj;
+		TileEntity tileEntity = player.world.getTileEntity(blockPos);
+		World world = player.world;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;

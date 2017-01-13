@@ -71,7 +71,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
 		{
 			this.setDead();
 			
-			if (!this.worldObj.isRemote)
+			if (!this.world.isRemote)
 			{
 				this.explode();
 			}
@@ -81,7 +81,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
 
 	protected void explode()
 	{
-	    this.worldObj.createExplosion(this, this.posX, this.posY + (double)(this.height / 16.0F), this.posZ, (float) (4.0D*size.getPercentVolume()), true);
+	    this.world.createExplosion(this, this.posX, this.posY + (double)(this.height / 16.0F), this.posZ, (float) (4.0D*size.getPercentVolume()), true);
 	}
 
 }

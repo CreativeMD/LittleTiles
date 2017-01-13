@@ -57,8 +57,9 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+		ItemStack stack = player.getHeldItem(hand);
 		if(hand == EnumHand.OFF_HAND)
 			return new ActionResult(EnumActionResult.PASS, stack); 
 		if(!world.isRemote && !player.isSneaking() && stack.hasTagCompound())
@@ -66,14 +67,15 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 			if(stack.getTagCompound().hasKey("x1") && stack.getTagCompound().hasKey("x2"))
 				GuiHandler.openGuiItem(player, world);
 			else
-				player.addChatMessage(new TextComponentTranslation("You have to select two positions first"));
+				player.sendMessage(new TextComponentTranslation("You have to select two positions first"));
 		}
 		return new ActionResult(EnumActionResult.SUCCESS, stack);
     }
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+		ItemStack stack = player.getHeldItem(hand);
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
@@ -84,12 +86,12 @@ public class ItemLittleChisel extends Item implements IGuiCreator{
 				stack.getTagCompound().setInteger("x2", pos.getX());
 				stack.getTagCompound().setInteger("y2", pos.getY());
 				stack.getTagCompound().setInteger("z2", pos.getZ());
-				player.addChatMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
+				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}else{
 				stack.getTagCompound().setInteger("x1", pos.getX());
 				stack.getTagCompound().setInteger("y1", pos.getY());
 				stack.getTagCompound().setInteger("z1", pos.getZ());
-				player.addChatMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ() + " sneak to set the second pos!"));
+				player.sendMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ() + " sneak to set the second pos!"));
 			}
 		}
 		return EnumActionResult.SUCCESS;

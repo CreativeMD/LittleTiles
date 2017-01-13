@@ -134,16 +134,6 @@ public class BlockLayerRenderBuffer {
 	
 	public void clear()
 	{
-		/*if(solid != null)
-			solid.deleteGlBuffers();
-		if(cutout_mipped != null)
-			cutout_mipped.deleteGlBuffers();
-		if(cutout != null)
-			cutout.deleteGlBuffers();
-		if(translucent != null)
-			translucent.deleteGlBuffers();*/
-		
-		//TODO Check if this causes memory leaks
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;

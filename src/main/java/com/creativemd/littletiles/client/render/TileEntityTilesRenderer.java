@@ -66,7 +66,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
         GlStateManager.disableBlend();
         //float f = entityIn.width / 2.0F;
         //AxisAlignedBB axisalignedbb = entityIn.getEntityBoundingBox();
-        RenderGlobal.func_189694_a(axisalignedbb.minX + x, axisalignedbb.minY + y, axisalignedbb.minZ + z, axisalignedbb.maxX + x, axisalignedbb.maxY + y, axisalignedbb.maxZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+        RenderGlobal.drawBoundingBox(axisalignedbb.minX + x, axisalignedbb.minY + y, axisalignedbb.minZ + z, axisalignedbb.maxX + x, axisalignedbb.maxY + y, axisalignedbb.maxZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
         GlStateManager.enableTexture2D();
         GlStateManager.enableLighting();
         GlStateManager.enableCull();
@@ -76,7 +76,6 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 	
 	@Override
 	public void renderTileEntityAt(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage) {
-		//TODO Add rendering boundbox for testing
 		/*AxisAlignedBB box = te.getRenderBoundingBox();
 		double sizeX = box.maxX-box.minX;
 		double sizeY = box.maxY-box.minY;
