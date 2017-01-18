@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.sorting;
+package com.creativemd.littletiles.common.utils.sorting;
 
 import java.util.HashMap;
 import java.util.Map.Entry;

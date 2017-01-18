@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -297,7 +298,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
 		if(canPlaceTiles(world, splitted, coordsToCheck, forced))
 		{
-			LittleTilePosition littlePos = null;
+			//LittleTilePosition littlePos = null;
 			//LittleTileCoord pos = null;
 			
 			ArrayList<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
@@ -337,13 +338,14 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 									soundsToBePlayed.add(LT.getSound());
 								if(structure != null)
 								{
-									if(littlePos == null)
+									if(!structure.hasMainTile())
 									{
 										structure.setMainTile(LT);
-										littlePos = new LittleTilePosition(coord, LT.cornerVec);
+										//littlePos = new LittleTilePosition(coord, LT.cornerVec);
 									}else
-										LT.coord = new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
+										LT.coord = structure.getMainTileCoord(LT); //new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
 								}
+								LT.isAllowedToSearchForStructure = false;
 							}
 						}
 						
@@ -362,11 +364,19 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			}
 			
 			if(structure != null)
+			{
+				structure.setMainTile(structure.getMainTile());
+				for (Iterator<LittleTile> iterator = structure.getTiles().iterator(); iterator.hasNext();) {
+					LittleTile tile = iterator.next();
+					tile.isAllowedToSearchForStructure = true;
+				}
 				structure.combineTiles();
+			}
 			
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {
 				world.playSound((EntityPlayer)null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 			}
+			
 			return true;
 		}
 		return false;

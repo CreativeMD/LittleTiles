@@ -2,6 +2,8 @@ package com.creativemd.littletiles.utils;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -33,7 +35,7 @@ public class PlacePreviewTile {
 		this.preview = preview;
 	}
 	
-	/**NEEDS TO OVERRIDEN! ALWAYS!**/
+	/**NEEDS TO BE OVERRIDEN! ALWAYS!**/
 	public PlacePreviewTile copy()
 	{
 		return new PlacePreviewTile(box.copy(), preview.copy());
@@ -52,7 +54,7 @@ public class PlacePreviewTile {
 		return cubes;
 	}
 	
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public LittleTile placeTile(@Nullable EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{
 		LittleTile LT = preview.getLittleTile(teLT);
 		if(LT == null)
