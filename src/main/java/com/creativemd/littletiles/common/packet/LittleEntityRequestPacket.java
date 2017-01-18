@@ -42,7 +42,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	@Override
 	public void executeClient(EntityPlayer player) {
 		EntityAnimation animation = null;
-		for (Iterator<Entity> iterator = player.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+		for (Iterator<Entity> iterator = player.worldObj.getLoadedEntityList().iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
 			if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
 			{
@@ -58,7 +58,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	@Override
 	public void executeServer(EntityPlayer player) {
 		EntityAnimation animation = null;
-		for (Iterator<Entity> iterator = player.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+		for (Iterator<Entity> iterator = player.worldObj.getLoadedEntityList().iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
 			if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
 			{

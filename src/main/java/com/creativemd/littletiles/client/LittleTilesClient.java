@@ -208,7 +208,7 @@ public class LittleTilesClient extends LittleTilesServer{
 				
 				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
 				EntityAnimation animation = null;
-				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+				for (Iterator<Entity> iterator = mc.theWorld.getLoadedEntityList().iterator(); iterator.hasNext();) {
 					Entity entity = iterator.next();
 					if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
 					{
@@ -219,7 +219,7 @@ public class LittleTilesClient extends LittleTilesServer{
 				
 				if(animation == null)
 				{
-					animation = new EntityAnimation(mc.world);
+					animation = new EntityAnimation(mc.theWorld);
 					animation.setUniqueId(uuid);
 					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound()));
 				}
