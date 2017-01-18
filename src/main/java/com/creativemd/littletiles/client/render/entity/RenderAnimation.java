@@ -7,11 +7,15 @@ import java.util.Map.Entry;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -22,11 +26,14 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 public class RenderAnimation extends Render<EntityAnimation> {
 	
@@ -40,6 +47,11 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+		
+		if(entity.renderData == null)
+		{
+			entity.createClient();
+		}
 		
 		if(entity.renderQueue == null)
 			return ;
@@ -59,7 +71,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 						VertexBuffer bufferToCreate = new VertexBuffer(LittleTilesClient.getBlockVertexFormat());
 						uploader.setVertexBuffer(bufferToCreate);
 						uploader.draw(tempBuffer);
-						entity.renderData.add(layer, new TERenderData(bufferToCreate, RenderUploader.getRenderChunkPos(te.getPos())));
+						entity.renderData.add(layer, new TERenderData(bufferToCreate, EntityAnimation.getRenderChunkPos(te.getPos())));
 					}
 				}
 				TEtoRemove.add(te);
@@ -98,7 +110,25 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				//Render buffer
 				GlStateManager.pushMatrix();
 				
-				GlStateManager.translate(x + data.chunkPos.getX(), y + data.chunkPos.getY(), z + data.chunkPos.getZ());
+				double posX = (data.chunkPos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
+				double posY = (data.chunkPos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
+				double posZ = (data.chunkPos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
+				
+				
+				
+				GlStateManager.translate(x, y, z);
+				
+				GlStateManager.translate(entity.getInsideBlockAxis().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosZ()+LittleTile.gridMCLength/2);
+				
+				Vec3d rotation = entity.getRotVector(partialTicks);
+				GL11.glRotated(rotation.xCoord, 1, 0, 0);
+				GL11.glRotated(rotation.yCoord, 0, 1, 0);
+				GL11.glRotated(rotation.zCoord, 0, 0, 1);
+				//GlStateManager.rotate((float)entity.progress/(float)entity.duration * 90F, 0, 1, 0);
+				
+				GlStateManager.translate(posX, posY, posZ);
+				
+				GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
 				
     			//Render
     			if ( layer == BlockRenderLayer.TRANSLUCENT )
@@ -121,31 +151,34 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					GlStateManager.glTexCoordPointer( 2, 5122, 28, 24 );
 					OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 				}
+				
 				data.buffer.drawArrays( GL11.GL_QUADS );
-				OpenGlHelper.glBindBuffer( OpenGlHelper.GL_ARRAY_BUFFER, 0 );
-				//GlStateManager.resetColor();
+				
+				data.buffer.unbindBuffer();
 
-				for ( final VertexFormatElement vertexformatelement : LittleTilesClient.getBlockVertexFormat().getElements())
-				{
-					final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
-					final int i1 = vertexformatelement.getIndex();
-
-					switch ( vertexformatelement$enumusage )
-					{
-						case POSITION:
-							GlStateManager.glDisableClientState( 32884 );
-							break;
-						case UV:
-							OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit + i1 );
-							GlStateManager.glDisableClientState( 32888 );
-							OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
-							break;
-						case COLOR:
-							GlStateManager.glDisableClientState( 32886 );
-							GlStateManager.resetColor();
-					}
-				}
+				
 				GlStateManager.popMatrix();
+			}
+		}
+		
+		for ( final VertexFormatElement vertexformatelement : LittleTilesClient.getBlockVertexFormat().getElements())
+		{
+			final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
+			final int i1 = vertexformatelement.getIndex();
+
+			switch ( vertexformatelement$enumusage )
+			{
+				case POSITION:
+					GlStateManager.glDisableClientState( 32884 );
+					break;
+				case UV:
+					OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit + i1 );
+					GlStateManager.glDisableClientState( 32888 );
+					OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
+					break;
+				case COLOR:
+					GlStateManager.glDisableClientState( 32886 );
+					GlStateManager.resetColor();
 			}
 		}
 		

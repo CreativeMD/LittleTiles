@@ -37,6 +37,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -154,6 +155,8 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
 	{
+		if(FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
+			return layer == BlockRenderLayer.SOLID; //Should fix an Optifine bug
 		//if(translucent)
 			//return layer == BlockRenderLayer.TRANSLUCENT;
 		return block.canRenderInLayer(getBlockState(), layer);
