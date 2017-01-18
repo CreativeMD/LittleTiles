@@ -69,7 +69,7 @@ public class SubContainerChisel extends SubContainer {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
 					BlockPos pos = new BlockPos(posX, posY, posZ);
-					TileEntity tileEntity = player.worldObj.getTileEntity(pos);
+					TileEntity tileEntity = player.world.getTileEntity(pos);
 					boolean hasChanged = false;
 					if(tileEntity instanceof TileEntityLittleTiles)
 					{
@@ -113,7 +113,7 @@ public class SubContainerChisel extends SubContainer {
 				}
 			}
 		}
-		player.addChatMessage(new TextComponentTranslation("Done! Effected " + effected + " tiles!"));
+		player.sendMessage(new TextComponentTranslation("Done! Effected " + effected + " tiles!"));
 	}
 
 }

@@ -15,6 +15,8 @@ import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
@@ -24,6 +26,7 @@ import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformation;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
@@ -60,6 +63,10 @@ public class LittleDoor extends LittleStructure{
 		}
 		axis = RotationUtils.getAxisFromIndex(nbt.getInteger("axis"));
 		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
+		if(nbt.hasKey("duration"))
+			duration = nbt.getInteger("duration");
+		else
+			duration = 50;
 	}
 
 	@Override
@@ -68,6 +75,7 @@ public class LittleDoor extends LittleStructure{
 		axisVec.writeToNBT("av", nbt);
 		nbt.setInteger("axis", RotationUtils.getAxisIndex(axis));
 		nbt.setInteger("ndirection", normalDirection.getIndex());
+		nbt.setInteger("duration", duration);
 	}
 
 	@Override
@@ -77,6 +85,7 @@ public class LittleDoor extends LittleStructure{
 		if(structure instanceof LittleDoor)
 			door = (LittleDoor) structure;
 		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
+		int duration = 50;
 		if(door != null)
 		{
 			tile.axisDirection = door.axis;
@@ -87,6 +96,7 @@ public class LittleDoor extends LittleStructure{
 			tile.axisY = door.axisVec.y;
 			tile.axisZ = door.axisVec.z;
 			tile.normalAxis = door.normalDirection.getAxis();
+			duration = door.duration;
 		}
 		tile.visibleAxis = true;
 		tile.updateViewDirection();
@@ -119,6 +129,9 @@ public class LittleDoor extends LittleStructure{
 			}
 			
 		}.setRotation(-90));
+		
+		gui.controls.add(new GuiLabel("Duration:", 0, 141));
+		gui.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, duration, 1, 500));
 		//gui.controls.add(new GuiButton("->", 190, 90, 20));
 		//gui.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20, "NORTH", "SOUTH", "WEST", "EAST"));
 	}
@@ -127,6 +140,7 @@ public class LittleDoor extends LittleStructure{
 	public EnumFacing.Axis axis;
 	public LittleTileVec axisVec;
 	public LittleTileVec lastMainTileVec = null;
+	public int duration = 50;
 	
 	public LittleTileVec getAxisVec()
 	{
@@ -264,7 +278,7 @@ public class LittleDoor extends LittleStructure{
 	}
 	
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid)
 	{
 		ArrayList<LittleTile> tiles = getTiles();
 		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
@@ -306,8 +320,10 @@ public class LittleDoor extends LittleStructure{
 		if(inverse)
 			rotationAxis = rotationAxis.getOpposite();
 		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, rotationAxis);
+		structure.duration = this.duration;
 		
-		if(ItemBlockTiles.placeTiles(world, player, previews, structure, pos, null, null, false, EnumFacing.EAST))
+		HashMapList<BlockPos, PlacePreviewTile> splitted = ItemBlockTiles.getSplittedTiles(previews, pos);
+		if(ItemBlockTiles.canPlaceTiles(world, splitted, new ArrayList<>(splitted.getKeys()), false))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = new WorldFake(world);
@@ -318,10 +334,9 @@ public class LittleDoor extends LittleStructure{
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			/*EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, UUID.randomUUID());
+			EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, structure.getAxisVec(), new OrdinaryDoorTransformation(direction), uuid);
 			animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
-			world.spawnEntityInWorld(animation);*/
-			//Implement send it to server, with a given UUID so that those entities will be synchronized!
+			world.spawnEntity(animation);
 			return true;
 		}
 		return false;
@@ -334,7 +349,7 @@ public class LittleDoor extends LittleStructure{
 		{
 			if(!hasLoaded())
 			{
-				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
+				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
 						
@@ -429,13 +444,14 @@ public class LittleDoor extends LittleStructure{
 			}
 			
 			//System.out.println("Sending packet");
-			PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse));
-			interactWithDoor(world, player, rotation, inverse);
+			UUID uuid = UUID.randomUUID();
+			PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse, uuid));
+			interactWithDoor(world, player, rotation, inverse, uuid);
 		}
 		return true;
 	}
 	
-	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse)
+	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
 	{
 		ArrayList<LittleTile> tiles = getTiles();
 		
@@ -448,12 +464,12 @@ public class LittleDoor extends LittleStructure{
 			tiles.get(i).te.removeTile(tiles.get(i));
 		}
 		
-		if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse))
+		if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse, uuid))
 		{
 			//System.out.println("Placing first! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation);
 			return true;
 		}
-		else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse))
+		else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse, uuid))
 		{
 			//System.out.println("Placing second! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation.getOpposite());
 			return true;
@@ -503,6 +519,9 @@ public class LittleDoor extends LittleStructure{
 		door.axisVec = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
 		door.axis = viewer.axisDirection;
 		door.normalDirection = RotationUtils.getFacingFromAxis(viewer.normalAxis);
+		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("duration_s");
+		door.duration = (int) slider.value;
+		
 		//door.updateNormalDirection();
 		return door; 
 	}

@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.client;
 
-import javax.swing.text.html.parser.Entity;
+import java.util.Iterator;
+import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
@@ -21,8 +23,10 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
+import com.google.common.base.Function;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
@@ -38,9 +42,12 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.MinecraftForge;
@@ -49,6 +56,10 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.internal.FMLMessage.EntityMessage;
+import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
+import net.minecraftforge.fml.common.registry.EntityRegistry;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -188,6 +199,46 @@ public class LittleTilesClient extends LittleTilesServer{
 		ClientRegistry.registerKeyBinding(left);
 		ClientRegistry.registerKeyBinding(flip);
 		ClientRegistry.registerKeyBinding(mark);
+		
+		EntityRegistry.instance().lookupModSpawn(EntityAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>(){
+
+			@Override
+			public Entity apply(EntitySpawnMessage input) {
+				//entity = cls.getConstructor(World.class).newInstance(wc);
+				
+				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
+				EntityAnimation animation = null;
+				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+					Entity entity = iterator.next();
+					if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
+					{
+						animation = (EntityAnimation) entity;
+						break;
+					}
+				}
+				
+				if(animation == null)
+				{
+					animation = new EntityAnimation(mc.world);
+					animation.setUniqueId(uuid);
+					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound()));
+				}
+				
+				if(animation != null)
+				{
+					animation.setEntityId(ReflectionHelper.getPrivateValue(EntityMessage.class, input, "entityId"));
+					double rawX = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawX");
+					double rawY = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawY");
+					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
+					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
+					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
+					animation.setLocationAndAngles(rawX, rawY, rawZ, scaledYaw, scaledPitch);
+				}
+
+				return animation;
+			}
+			
+		}, false);
 	}
 	
 }

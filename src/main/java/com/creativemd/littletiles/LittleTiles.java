@@ -39,11 +39,11 @@ import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
+import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -52,16 +52,23 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
+import com.creativemd.littletiles.common.utils.sorting.LittleTileSortingList;
 import com.creativemd.littletiles.server.LittleTilesServer;
+import com.google.common.base.Function;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -75,6 +82,7 @@ import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerAboutToStartEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
@@ -98,23 +106,23 @@ public class LittleTiles {
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile");
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock");
 	
-	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
-	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
-	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles");
-	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw");
-	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer");
-	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench");
-	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel");
-	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube");
-	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
-	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
+	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
+	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
+	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
+	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
+	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
+	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
+	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
+	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
+	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
+	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		config.save();
 		
 		proxy.loadSidePre();
@@ -125,29 +133,33 @@ public class LittleTiles {
     {
 		ForgeModContainer.fullBoundingBoxLadders = true;
 		
-		GameRegistry.registerItem(hammer, "hammer");
-		GameRegistry.registerItem(recipe, "recipe");
-		GameRegistry.registerItem(saw, "saw");
-		GameRegistry.registerItem(container, "container");
-		GameRegistry.registerItem(wrench, "wrench");
-		GameRegistry.registerItem(chisel, "chisel");
-		GameRegistry.registerItem(colorTube, "colorTube");
-		GameRegistry.registerItem(rubberMallet, "rubberMallet");
+		GameRegistry.register(hammer);
+		GameRegistry.register(recipe);
+		GameRegistry.register(saw);
+		GameRegistry.register(container);
+		GameRegistry.register(wrench);
+		GameRegistry.register(chisel);
+		GameRegistry.register(colorTube);
+		GameRegistry.register(rubberMallet);
 		
 		//GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
-		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class);
-		GameRegistry.registerBlock(transparentColoredBlock, ItemBlockTransparentColored.class);
-		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class);
-		GameRegistry.registerBlock(storageBlock);
+		GameRegistry.register(coloredBlock);
+		GameRegistry.register(new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()));
+		
+		GameRegistry.register(transparentColoredBlock);
+		GameRegistry.register(new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()));
+		
+		GameRegistry.register(blockTile);
+		GameRegistry.register(new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
+		
+		GameRegistry.registerWithItem(storageBlock);
 		//GameRegistry.registerBlock(particleBlock);
 		
-		GameRegistry.registerItem(multiTiles, "multiTiles");
-		GameRegistry.registerItem(utilityKnife, "utilityKnife");
+		GameRegistry.register(multiTiles);
+		GameRegistry.register(utilityKnife);
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
-		
-		proxy.loadSide();
 		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
@@ -206,6 +218,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
 		CreativeCorePacket.registerPacket(LittleBlockVanillaPacket.class, "LittleVanillaBlock");
 		CreativeCorePacket.registerPacket(LittleDoorInteractPacket.class, "LittleDoor");
+		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
 		
 		//FMLCommonHandler.instance().bus().register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
@@ -335,9 +348,11 @@ public class LittleTiles {
 				});
 		
 		//Entity
-		EntityRegistry.registerModEntity(EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
 		
-		EntityRegistry.registerModEntity(EntityAnimation.class, "animation", 1, this, 2000, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 1, this, 2000, 250, true);
+		
+		proxy.loadSide();
     }
 	
 	@EventHandler

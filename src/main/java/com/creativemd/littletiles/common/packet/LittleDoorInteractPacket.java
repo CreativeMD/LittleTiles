@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.util.UUID;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -26,11 +28,13 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 	public Vec3d pos;
 	public Vec3d look;
 	
+	public UUID uuid;
+	
 	public LittleDoorInteractPacket() {
 		
 	}
 	
-	public LittleDoorInteractPacket(BlockPos blockPos, EntityPlayer player, Rotation rotation, boolean inverse)
+	public LittleDoorInteractPacket(BlockPos blockPos, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
 	{
 		this.blockPos = blockPos;
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
@@ -39,6 +43,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		this.direction = rotation;
 		this.inverse = inverse;
+		this.uuid = uuid;
 	}
 
 	@Override
@@ -48,6 +53,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		writeVec3(look, buf);
 		buf.writeInt(direction.ordinal());
 		buf.writeBoolean(inverse);
+		writeString(buf, uuid.toString());
 	}
 
 	@Override
@@ -57,6 +63,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		look = readVec3(buf);
 		direction = Rotation.values()[buf.readInt()];
 		inverse = buf.readBoolean();
+		uuid = UUID.fromString(readString(buf));
 	}
 
 	@Override
@@ -67,15 +74,15 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
-		World world = player.worldObj;
+		TileEntity tileEntity = player.world.getTileEntity(blockPos);
+		World world = player.world;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
 			if(tile != null && tile.isStructureBlock && tile.structure instanceof LittleDoor)
 			{
-				((LittleDoor) tile.structure).interactWithDoor(world, player, direction, inverse);
+				((LittleDoor) tile.structure).interactWithDoor(world, player, direction, inverse, uuid);
 				//System.out.println("Open Door");
 			}//else
 				//System.out.println("No door found!");

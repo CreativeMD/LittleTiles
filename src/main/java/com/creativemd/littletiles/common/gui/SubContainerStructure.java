@@ -25,7 +25,7 @@ public class SubContainerStructure extends SubContainer{
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		stack.setTagCompound(nbt);
-		player.inventory.mainInventory[index] = stack;
+		player.inventory.mainInventory.set(index, stack);
 	}
 	
 	

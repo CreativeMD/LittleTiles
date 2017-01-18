@@ -100,8 +100,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
-		World world = player.worldObj;
+		TileEntity tileEntity = player.world.getTileEntity(blockPos);
+		World world = player.world;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
@@ -112,7 +112,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				{
 				case 0: //Activated
 					RayTraceResult moving = te.getMoving(pos, look);
-					if(tile.onBlockActivated(player.worldObj, blockPos, player.worldObj.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord))
+					if(tile.onBlockActivated(player.world, blockPos, player.world.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord))
 						BlockTile.cancelNext = true;
 					break;
 				case 1: //Destory tile
@@ -137,7 +137,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
     				{
 						tile.destroy();
 						if(!player.capabilities.isCreativeMode)
-							WorldUtils.dropItem(player.worldObj, tile.getDrops(), blockPos);
+							WorldUtils.dropItem(player.world, tile.getDrops(), blockPos);
 					}
     				
     				world.playSound((EntityPlayer)null, blockPos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
@@ -272,7 +272,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 									structure.selectMainTile();
 									structure.moveStructure(direction);
 								}else
-									player.addChatMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
+									player.sendMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
 							}
 						}else
 							if(ItemRubberMallet.moveTile(te, direction, tile, false))
