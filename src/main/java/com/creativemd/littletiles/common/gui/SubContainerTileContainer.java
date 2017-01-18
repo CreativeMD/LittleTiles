@@ -44,7 +44,7 @@ public class SubContainerTileContainer extends SubContainer{
 				
 				if(PlacementHelper.isLittleBlock(slot))
 				{
-					float ammount = slot.getCount();
+					float ammount = slot.stackSize;
 					ArrayList<LittleTilePreview> tiles = null;
 					if(slot.getItem() instanceof ILittleTile)
 					{
@@ -68,7 +68,7 @@ public class SubContainerTileContainer extends SubContainer{
 					}
 					ItemTileContainer.saveMap(slot, new ArrayList<BlockEntry>());
 				}else
-					ItemTileContainer.addBlock(stack, block, slot.getItemDamage(), basic.getStackInSlot(0).getCount());
+					ItemTileContainer.addBlock(stack, block, slot.getItemDamage(), basic.getStackInSlot(0).stackSize);
 				
 				NBTTagCompound nbt = stack.getTagCompound().copy();
 				//stack.writeToNBT(nbt);
@@ -76,7 +76,7 @@ public class SubContainerTileContainer extends SubContainer{
 				sendNBTToGui(nbt);
 				
 				if(!(slot.getItem() instanceof ItemTileContainer))
-					basic.setInventorySlotContents(0, ItemStack.EMPTY);
+					basic.setInventorySlotContents(0, null);
 			}
 		}
 	}
@@ -90,12 +90,12 @@ public class SubContainerTileContainer extends SubContainer{
 	@Override
 	public void onClosed()
 	{
-		player.inventory.mainInventory.set(index, stack);
+		player.inventory.mainInventory[player.inventory.currentItem] = stack;
 	}
 
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		ItemStack dropStack = new ItemStack(nbt);
+		ItemStack dropStack = ItemStack.loadItemStackFromNBT(nbt);
 		if(dropStack != null)
 		{
 			Block block = Block.getBlockFromItem(dropStack.getItem());
@@ -106,9 +106,9 @@ public class SubContainerTileContainer extends SubContainer{
 				{
 					if(entries.get(i).value > 1)
 					{
-						int drain = Math.min((int)entries.get(i).value, dropStack.getCount());
+						int drain = Math.min((int)entries.get(i).value, dropStack.stackSize);
 						entries.get(i).value -= drain;
-						dropStack.setCount(drain);
+						dropStack.stackSize = drain;
 						WorldUtils.dropItem(player, dropStack);
 					}
 					if(entries.get(i).value == 0)

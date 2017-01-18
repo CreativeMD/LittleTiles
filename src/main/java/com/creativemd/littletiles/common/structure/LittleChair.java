@@ -49,7 +49,7 @@ public class LittleChair extends LittleStructure{
 			{
 				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY(), vec.getPosZ());
 				player.startRiding(sit);
-				world.spawnEntity(sit);
+				world.spawnEntityInWorld(sit);
 			}
 			
 		}

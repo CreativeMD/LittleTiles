@@ -59,7 +59,6 @@ import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
@@ -263,9 +262,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity)
     {
 		AxisAlignedBB bb = entity.getEntityBoundingBox();
-        int mX = MathHelper.floor(bb.minX);
-        int mY = MathHelper.floor(bb.minY);
-        int mZ = MathHelper.floor(bb.minZ);
+        int mX = MathHelper.floor_double(bb.minX);
+        int mY = MathHelper.floor_double(bb.minY);
+        int mZ = MathHelper.floor_double(bb.minZ);
         for (int y2 = mY; y2 < bb.maxY; y2++)
         {
             for (int x2 = mX; x2 < bb.maxX; x2++)
@@ -318,13 +317,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
-		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
+		TEResult result = loadTeAndTile(worldIn, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
-			ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+			ItemStack stack = mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
-				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.player, result.te.getMoving(mc.player));
+				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.thePlayer, result.te.getMoving(mc.thePlayer));
 				if(box != null)
 					return box.getBox().offset(pos);
 			}
@@ -335,16 +334,16 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     }
 	
 	@Override
-	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_)
+	public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> list, @Nullable Entity entityIn)
     {
-		TileEntityLittleTiles te = loadTe(worldIn, pos);
+		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				ArrayList<LittleTileBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
-					addCollisionBoxToList(pos, entityBox, collidingBoxes, boxes.get(i).getBox());
+					addCollisionBoxToList(pos, entityBox, list, boxes.get(i).getBox());
 				}
 				
 			}
@@ -376,13 +375,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	public static boolean cancelNext = false;
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-	{
-		ItemStack heldItem = playerIn.getHeldItem(hand);
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+    {
 		if(heldItem != null && heldItem.getItem() instanceof ItemRubberMallet)
 			return false;
 		if(worldIn.isRemote)
-			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, facing, hitX, hitY, hitZ);
+			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		if(cancelNext)
 		{
 			cancelNext = false;
@@ -394,7 +392,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	@SideOnly(Side.CLIENT)
 	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
+		TEResult result = loadTeAndTile(worldIn, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
 			if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
@@ -435,7 +433,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     
 	@Override
     @SideOnly(Side.CLIENT)
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> items) {}
+    public void getSubBlocks(Item item, CreativeTabs tab, List items) {}
     
 	public boolean first = true;
 	
@@ -538,7 +536,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @SideOnly(Side.CLIENT)
     public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
     {
-    	TEResult result = loadTeAndTile(world, pos, mc.player);
+    	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
 		if(result.isComplete())
 		{
 			ArrayList<ItemStack> drops = result.tile.getDrops();
@@ -552,7 +550,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @SideOnly(Side.CLIENT)
     public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager)
     {
-		TEResult result = loadTeAndTile(worldObj, target.getBlockPos(), mc.player);
+		TEResult result = loadTeAndTile(worldObj, target.getBlockPos(), mc.thePlayer);
 		if(result.isComplete() && result.tile instanceof LittleTileBlock)
     	{
     		IBlockState state = ((LittleTileBlock)result.tile).getBlockState();
@@ -605,7 +603,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, BlockPos pos, net.minecraft.client.particle.ParticleManager manager)
     {
-    	TEResult result = loadTeAndTile(world, pos, mc.player);
+    	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
 		if(result.isComplete() && result.tile instanceof LittleTileBlock)
     	{
     		//overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
@@ -637,7 +635,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @SideOnly(Side.CLIENT)
     public SoundType getSoundTypeClient(IBlockState state, World world, BlockPos pos)
     {
-    	TEResult result = loadTeAndTile(world, pos, mc.player);
+    	TEResult result = loadTeAndTile(world, pos, mc.thePlayer);
     	if(result != null && result.tile != null)
 	    	return result.tile.getSound();
     	return null;
@@ -716,7 +714,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     }
     
     @Override
-    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos)
+    public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn)
     {
     	TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if(te != null)
@@ -726,7 +724,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			//System.out.println("Update Neighbor Changed");
     			te.onNeighBorChangedClient();
     		}else{
-    			PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos, fromPos), 100, pos);
+    			PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos), 100, pos);
 	    		/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
 	    			tile.onNeighborChangeOutside();;

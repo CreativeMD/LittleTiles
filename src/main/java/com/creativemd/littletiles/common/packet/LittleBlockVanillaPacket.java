@@ -70,7 +70,7 @@ public class LittleBlockVanillaPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		World world = player.world;
+		World world = player.worldObj;
 		IBlockState state = world.getBlockState(blockPos);
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(SubContainerHammer.isBlockValid(state.getBlock()) && stack != null && stack.getItem() instanceof ISpecialBlockSelector)

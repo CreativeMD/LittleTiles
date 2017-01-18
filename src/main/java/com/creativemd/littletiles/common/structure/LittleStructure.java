@@ -143,19 +143,9 @@ public abstract class LittleStructure {
 			{
 				stTile.te.markDirty();
 				stTile.isMainBlock = false;
-				stTile.coord = getMainTileCoord(stTile);
+				stTile.coord = new LittleTileCoord(stTile.te, mainTile.te.getPos(), mainTile.cornerVec);
 			}
 		}
-	}
-	
-	public LittleTileCoord getMainTileCoord(LittleTile tile)
-	{
-		return new LittleTileCoord(tile.te, mainTile.te.getPos(), mainTile.cornerVec);
-	}
-	
-	public boolean hasMainTile()
-	{
-		return mainTile != null;
 	}
 	
 	public void moveStructure(EnumFacing facing)
@@ -167,7 +157,7 @@ public abstract class LittleStructure {
 	{
 		ArrayList<TileEntityLittleTiles> tes = new ArrayList<>();
 		for (int i = 0; i < tiles.size(); i++) {
-			if(!tes.contains(tiles.get(i).te))
+			if(!tes.contains(tiles.get(i)))
 			{
 				tiles.get(i).te.combineTiles(this);
 				tes.add(tiles.get(i).te);

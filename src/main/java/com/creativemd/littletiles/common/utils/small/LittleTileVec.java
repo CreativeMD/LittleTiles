@@ -7,7 +7,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
@@ -84,11 +83,6 @@ public class LittleTileVec {
 		this.x = x;
 		this.y = y;
 		this.z = z;
-	}
-	
-	public BlockPos getBlockPos()
-	{
-		return new BlockPos((int) getPosX(), (int) getPosY(), (int) getPosZ());
 	}
 	
 	public Vec3d getVec()

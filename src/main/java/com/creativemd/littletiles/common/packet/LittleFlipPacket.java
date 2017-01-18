@@ -61,7 +61,7 @@ public class LittleFlipPacket extends CreativeCorePacket{
 				LittleStructure structure = itile.getLittleStructure(stack);
 				if(structure != null)
 				{
-					structure.onFlip(player.world, player, stack, direction);
+					structure.onFlip(player.worldObj, player, stack, direction);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
 					stack.getTagCompound().setTag("structure", nbt);

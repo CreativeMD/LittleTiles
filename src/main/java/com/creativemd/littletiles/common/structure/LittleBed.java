@@ -70,12 +70,13 @@ public class LittleBed extends LittleStructure{
 		if (world.isRemote)
             return true;
 
-        if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
+        if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
         {
         	LittleTileVec vec = getHighestCenterPoint();
         	LittleTiles.blockTile.sleepingTile = getMainTile();
             SleepResult enumstatus = player.trySleep(pos);
             LittleTiles.blockTile.sleepingTile = null;
+            
             if (enumstatus == SleepResult.OK)
             {
                 return true;
@@ -84,11 +85,11 @@ public class LittleBed extends LittleStructure{
             {
                 if (enumstatus == SleepResult.NOT_POSSIBLE_NOW)
                 {
-                    player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep"), true);
+                    player.addChatComponentMessage(new TextComponentTranslation("tile.bed.noSleep"));
                 }
                 else if (enumstatus == SleepResult.NOT_SAFE)
                 {
-                	player.sendStatusMessage(new TextComponentTranslation("tile.bed.notSafe"), true);
+                	player.addChatComponentMessage(new TextComponentTranslation("tile.bed.notSafe"));
                 }
 
                 return true;

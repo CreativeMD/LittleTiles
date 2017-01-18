@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -46,7 +45,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -93,12 +91,12 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
     }
 	
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
 		if(!worldIn.isRemote)
 			return EnumActionResult.FAIL;
 		
-		PlacementHelper helper = PlacementHelper.getInstance(player);
+		PlacementHelper helper = PlacementHelper.getInstance(playerIn);
 		
 		RayTraceResult moving = Minecraft.getMinecraft().objectMouseOver;
 		if(PreviewRenderer.markedHit != null)
@@ -123,18 +121,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			}
 		}else
 			pos = moving.getBlockPos().offset(facing);
-		
-		ItemStack stack = player.getHeldItem(hand);
-		
-		if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack)) //&& worldIn.canBlockBePlaced(this.block, pos, false, facing, (Entity)null, stack))
+		if (stack.stackSize != 0 && playerIn.canPlayerEdit(pos, facing, stack)) //&& worldIn.canBlockBePlaced(this.block, pos, false, facing, (Entity)null, stack))
         {
             /*int i = this.getMetadata(stack.getMetadata());
             IBlockState iblockstate1 = this.block.onBlockPlaced(worldIn, pos, facing, hitX, hitY, hitZ, i, playerIn);*/
             
             if(worldIn.isRemote)
-    			PacketHandler.sendPacketToServer(new LittlePlacePacket(/*stack,*/ player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
+    			PacketHandler.sendPacketToServer(new LittlePlacePacket(/*stack,*/ playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())); //, RotationUtils.getIndex(PreviewRenderer.direction), RotationUtils.getIndex(PreviewRenderer.direction2)));
     		
-            if(placeBlockAt(player, stack, worldIn, player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())) //, PreviewRenderer.direction, PreviewRenderer.direction2);
+            if(placeBlockAt(playerIn, stack, worldIn, playerIn.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, helper, pos, facing, PreviewRenderer.markedHit != null, GuiScreen.isCtrlKeyDown())) //, PreviewRenderer.direction, PreviewRenderer.direction2);
 	            PreviewRenderer.markedHit = null;
             
             /*if (placeBlockAt(stack, playerIn, worldIn, pos, facing, hitX, hitY, hitZ, iblockstate1))
@@ -154,7 +149,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item stack, CreativeTabs tab, NonNullList<ItemStack> list)
+    public void getSubItems(Item stack, CreativeTabs tab, List list)
     {
         
     }
@@ -302,7 +297,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
 		if(canPlaceTiles(world, splitted, coordsToCheck, forced))
 		{
-			//LittleTilePosition littlePos = null;
+			LittleTilePosition littlePos = null;
 			//LittleTileCoord pos = null;
 			
 			ArrayList<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
@@ -342,14 +337,13 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 									soundsToBePlayed.add(LT.getSound());
 								if(structure != null)
 								{
-									if(!structure.hasMainTile())
+									if(littlePos == null)
 									{
 										structure.setMainTile(LT);
-										//littlePos = new LittleTilePosition(coord, LT.cornerVec);
+										littlePos = new LittleTilePosition(coord, LT.cornerVec);
 									}else
-										LT.coord = structure.getMainTileCoord(LT); //new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
+										LT.coord = new LittleTileCoord(teLT, littlePos.coord, littlePos.position);
 								}
-								LT.isAllowedToSearchForStructure = false;
 							}
 						}
 						
@@ -368,19 +362,11 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			}
 			
 			if(structure != null)
-			{
-				structure.setMainTile(structure.getMainTile());
-				for (Iterator<LittleTile> iterator = structure.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = iterator.next();
-					tile.isAllowedToSearchForStructure = true;
-				}
 				structure.combineTiles();
-			}
 			
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {
 				world.playSound((EntityPlayer)null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 			}
-			
 			return true;
 		}
 		return false;
@@ -412,9 +398,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		{			
 			if(!player.capabilities.isCreativeMode)
 			{
-				player.inventory.getCurrentItem().shrink(1);
-				if(player.inventory.getCurrentItem().isEmpty())
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+				player.inventory.mainInventory[player.inventory.currentItem].stackSize--;
+				if(player.inventory.mainInventory[player.inventory.currentItem].stackSize == 0)
+					player.inventory.mainInventory[player.inventory.currentItem] = null;
 			}
 			
 			if(!world.isRemote)

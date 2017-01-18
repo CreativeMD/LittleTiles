@@ -153,7 +153,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		getBeenAddedToBuffer().set(false);		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
 			
-		int lightValue = world.getLight(pos);
+		int lightValue = worldObj.getLight(pos);
 		if(lightValue != lastRenderedLightValue)
 		{
 			this.lastRenderedLightValue = lightValue;
@@ -214,6 +214,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		boolean result = tiles.remove(tile);
 		updateTiles.remove(tile);
+		if(tile.shouldCheckForCollision())
+			collisionChecks--;
 		if(isClientSide())
 			removeLittleTileClient(tile);
 		return result;
@@ -222,10 +224,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	private void removeLittleTileClient(LittleTile tile)
 	{
-		synchronized (getRenderTiles())
-		{
-			getRenderTiles().remove(tile);
-		}
+		getRenderTiles().remove(tile);
 	}
 	
 	public boolean removeTile(LittleTile tile)
@@ -239,12 +238,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	private void addLittleTileClient(LittleTile tile)
 	{
 		if(tile.needCustomRendering())
-		{
-			synchronized (getRenderTiles())
-			{
-				getRenderTiles().add(tile);
-			}
-		}
+			getRenderTiles().add(tile);
 	}
 	
 	private boolean addLittleTile(LittleTile tile)
@@ -253,6 +247,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			addLittleTileClient(tile);
 		if(tile.shouldTick())
 			updateTiles.add(tile);
+		if(tile.shouldCheckForCollision())
+			collisionChecks++;
 		return tiles.add(tile);
 	}
 	
@@ -275,13 +271,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		if(preventUpdate)
 			return ;
 		
-		updateCollisionCache();
-		
-		if(world != null)
+		if(worldObj != null)
 		{
 			updateBlock();
 			updateNeighbor();
-			world.checkLight(getPos());
+			worldObj.checkLight(getPos());
 		}
 		if(isClientSide())
 			updateCustomRenderer();
@@ -364,7 +358,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.onNeighborChangeInside();
 		}
-		world.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile, true);
+		worldObj.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile);
 	}
 	
 	@Override
@@ -554,12 +548,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+			LittleTile tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 			if(tile != null)
 				addLittleTile(tile);
         }
-        
-        if(world != null)
+        if(worldObj != null)
         	updateBlock();
     }
 
@@ -632,38 +625,25 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			LittleTile tile = getTile(new LittleTileVec("cVec", tileNBT));
 			if(!exstingTiles.contains(tile))
 				tile = null;
-			
-			boolean fullUpdate = nbt.getBoolean("f" + i);
-			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !fullUpdate)
+			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !nbt.getBoolean("f" + i))
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);
 			}
 			else
 			{
-				if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && tile.isLoaded())
-					tile.structure.getTiles().remove(tile);
-				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+				tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 				if(tile != null)
 					tilesToAdd.add(tile);
 			}
 		}
-        
-        synchronized (tiles)
-        {
-        	synchronized(updateTiles)
-        	{
-		        for (int i = 0; i < exstingTiles.size(); i++) {
-		        	removeLittleTile(exstingTiles.get(i));
-				}
-		        for (int i = 0; i < tilesToAdd.size(); i++) {
-					addLittleTile(tilesToAdd.get(i));
-				}
-        	}
-        }
-        
+        for (int i = 0; i < exstingTiles.size(); i++) {
+        	removeLittleTile(exstingTiles.get(i));
+		}
+        for (int i = 0; i < tilesToAdd.size(); i++) {
+			addLittleTile(tilesToAdd.get(i));
+		}
         updateTiles();
-        
         super.onDataPacket(net, pkt);
     }
     
@@ -746,8 +726,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			tile.updateEntity();
 		}
 		
-		if(!world.isRemote && tiles.size() == 0)
-			world.setBlockToAir(getPos());
+		if(!worldObj.isRemote && tiles.size() == 0)
+			worldObj.setBlockToAir(getPos());
 	}
 	
 	public void combineTiles(LittleStructure structure) {
@@ -802,21 +782,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateTiles();
 	}
 	
-	public void updateCollisionCache()
-	{
-		collisionChecks = 0;
-		for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			if(tile.shouldCheckForCollision())
-				collisionChecks++;
-		}
-	}
-	
 	public void combineTiles() {
 		combineTilesList(tiles);
 		
-		updateBlock();
-		updateCollisionCache();
+		updateBlock();	
 	}
 
 	public static void combineTilesList(List<LittleTile> tiles) {

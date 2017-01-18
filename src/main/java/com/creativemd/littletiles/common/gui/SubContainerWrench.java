@@ -158,9 +158,9 @@ public class SubContainerWrench extends SubContainer{
 							{
 								ItemTileContainer.saveMap(stack2, entries);
 							}else{
-								stack2.shrink(1);
-								if(stack2.isEmpty())
-									basic.setInventorySlotContents(1, ItemStack.EMPTY);
+								stack2.stackSize--;
+								if(stack2.stackSize == 0)
+									basic.setInventorySlotContents(1, null);
 								if(entries.size() > 0){
 									for (int i = 0; i < entries.size(); i++) {
 										ItemTileContainer.addBlock(player, entries.get(i).block, entries.get(i).meta, entries.get(i).value);

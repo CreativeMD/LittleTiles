@@ -372,7 +372,7 @@ public abstract class LittleTile {
 	//public abstract ForgeDirection[] getValidRotation();
 	
 	/**stack may be null**/
-	public void onPlaced(@Nullable EntityPlayer player , ItemStack stack, EnumFacing facing)
+	public void onPlaced(EntityPlayer player , ItemStack stack, EnumFacing facing)
 	{
 		onNeighborChangeInside();
 	}
@@ -722,11 +722,9 @@ public abstract class LittleTile {
 		return false;
 	}
 	
-	public boolean isAllowedToSearchForStructure = true;
-	
 	public boolean isLoaded()
 	{
-		return isAllowedToSearchForStructure && isStructureBlock && checkForStructure();
+		return isStructureBlock && checkForStructure();
 	}
 	
 	@Deprecated
