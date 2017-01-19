@@ -103,16 +103,16 @@ public class LittleTiles {
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile");
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock");
 	
-	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
-	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
-	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
-	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
-	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
-	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
-	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
-	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
-	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
-	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
+	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
+	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
+	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles");
+	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw");
+	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer");
+	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench");
+	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel");
+	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube");
+	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
+	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
 	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
