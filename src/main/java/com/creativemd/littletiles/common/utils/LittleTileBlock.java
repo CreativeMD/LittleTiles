@@ -156,10 +156,18 @@ public class LittleTileBlock extends LittleTile{
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
 	{
 		if(FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
-			return layer == BlockRenderLayer.SOLID; //Should fix an Optifine bug
+			return layer == BlockRenderLayer.CUTOUT_MIPPED; //Should fix an Optifine bug
 		//if(translucent)
 			//return layer == BlockRenderLayer.TRANSLUCENT;
-		return block.canRenderInLayer(getBlockState(), layer);
+		try{
+			return block.canRenderInLayer(getBlockState(), layer);
+		}catch(Exception e){
+			try{
+				return block.getBlockLayer() == layer;
+			}catch(Exception e2){
+				return layer == BlockRenderLayer.SOLID;
+			}
+		}
 	}
 	
 	@Override
