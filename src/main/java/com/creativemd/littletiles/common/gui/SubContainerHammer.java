@@ -78,7 +78,7 @@ public class SubContainerHammer extends SubContainer{
 			Block block = Block.getBlockFromItem(stack.getItem());
 			if(isBlockValid(block) || stack.getItem() instanceof ItemBlockTiles)
 			{
-				double availableVolume = stack.stackSize;
+				double availableVolume = stack.getCount();
 				if(stack.getItem() instanceof ItemBlockTiles)
 				{
 					block = null;
@@ -89,7 +89,7 @@ public class SubContainerHammer extends SubContainer{
 							block = previews.get(i).getPreviewBlock();
 						volumePerItem += previews.get(i).size.getPercentVolume();
 					}
-					availableVolume = volumePerItem*stack.stackSize;
+					availableVolume = volumePerItem*stack.getCount();
 				}
 				
 				if(block.hasTileEntity(block.getStateFromMeta(stack.getItemDamage())))
@@ -99,13 +99,13 @@ public class SubContainerHammer extends SubContainer{
 				if(alltiles == 0 || block == null)
 					return ;
 				int blocks = (int) Math.ceil((tiles*size.getPercentVolume()/volumePerItem));
-				stack.stackSize -= blocks;
-				if(stack.stackSize <= 0)
-					basic.setInventorySlotContents(0, null);
+				stack.shrink(blocks);
+				if(stack.isEmpty())
+					basic.setInventorySlotContents(0, ItemStack.EMPTY);
 				
 				//LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
 				ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
-				dropstack.stackSize = tiles;
+				dropstack.setCount(tiles);
 				dropstack.setTagCompound(new NBTTagCompound());
 				size.writeToNBT("size", dropstack.getTagCompound());
 				

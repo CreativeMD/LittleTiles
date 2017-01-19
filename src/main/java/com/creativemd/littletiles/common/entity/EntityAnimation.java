@@ -70,9 +70,9 @@ public class EntityAnimation extends Entity {
         this.chunkOffset = getRenderChunkPos(baseOffset);
         
         
-        int chunkX = MathHelper.bucketInt(baseOffset.getX(), 16);
-		int chunkY = MathHelper.bucketInt(baseOffset.getY(), 16);
-		int chunkZ = MathHelper.bucketInt(baseOffset.getZ(), 16);
+        int chunkX = MathHelper.intFloorDiv(baseOffset.getX(), 16);
+		int chunkY = MathHelper.intFloorDiv(baseOffset.getY(), 16);
+		int chunkZ = MathHelper.intFloorDiv(baseOffset.getZ(), 16);
         
         inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX*16), baseOffset.getY() - (chunkY*16), baseOffset.getZ() - (chunkZ*16));
 	}
@@ -198,11 +198,11 @@ public class EntityAnimation extends Entity {
 			structure.normalDirection = this.structure.normalDirection;
 			structure.duration = this.structure.duration;
 			
-			if(ItemBlockTiles.placeTiles(worldObj, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+			if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
 			{
 				
-			}else if(!worldObj.isRemote)
-				WorldUtils.dropItem(worldObj, this.structure.getStructureDrop(), baseOffset);
+			}else if(!world.isRemote)
+				WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
 			
 			setDead();
 		}else
@@ -242,15 +242,15 @@ public class EntityAnimation extends Entity {
 		
 		setAxisVec(new LittleTileVec("axis", compound));
 		
-		World worldFake = new WorldFake(worldObj);
+		World worldFake = new WorldFake(world);
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		ArrayList<LittleTile> tiles = new ArrayList<>();
 		structure = null; 
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.func_190200_a(worldFake, nbt);
-			te.setWorldObj(worldFake);
+			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(worldFake, nbt);
+			te.setWorld(worldFake);
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();

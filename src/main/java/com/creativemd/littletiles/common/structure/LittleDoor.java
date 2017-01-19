@@ -336,7 +336,7 @@ public class LittleDoor extends LittleStructure{
 			
 			EntityAnimation animation = new EntityAnimation(world, this, blocks, previews, structure.getAxisVec(), new OrdinaryDoorTransformation(direction), uuid);
 			animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
-			world.spawnEntityInWorld(animation);
+			world.spawnEntity(animation);
 			return true;
 		}
 		return false;
@@ -349,7 +349,7 @@ public class LittleDoor extends LittleStructure{
 		{
 			if(!hasLoaded())
 			{
-				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
+				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
 						

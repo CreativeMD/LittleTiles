@@ -64,8 +64,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -103,23 +106,23 @@ public class LittleTiles {
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile");
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock");
 	
-	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer");
-	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe");
-	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles");
-	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw");
-	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer");
-	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench");
-	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel");
-	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube");
-	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
-	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
+	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
+	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
+	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
+	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
+	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
+	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
+	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
+	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
+	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
+	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		config.save();
 		
 		proxy.loadSidePre();
@@ -130,24 +133,30 @@ public class LittleTiles {
     {
 		ForgeModContainer.fullBoundingBoxLadders = true;
 		
-		GameRegistry.registerItem(hammer, "hammer");
-		GameRegistry.registerItem(recipe, "recipe");
-		GameRegistry.registerItem(saw, "saw");
-		GameRegistry.registerItem(container, "container");
-		GameRegistry.registerItem(wrench, "wrench");
-		GameRegistry.registerItem(chisel, "chisel");
-		GameRegistry.registerItem(colorTube, "colorTube");
-		GameRegistry.registerItem(rubberMallet, "rubberMallet");
+		GameRegistry.register(hammer);
+		GameRegistry.register(recipe);
+		GameRegistry.register(saw);
+		GameRegistry.register(container);
+		GameRegistry.register(wrench);
+		GameRegistry.register(chisel);
+		GameRegistry.register(colorTube);
+		GameRegistry.register(rubberMallet);
 		
 		//GameRegistry.registerBlock(coloredBlock, "LTColoredBlock");
-		GameRegistry.registerBlock(coloredBlock, ItemBlockColored.class);
-		GameRegistry.registerBlock(transparentColoredBlock, ItemBlockTransparentColored.class);
-		GameRegistry.registerBlock(blockTile, ItemBlockTiles.class);
-		GameRegistry.registerBlock(storageBlock);
+		GameRegistry.register(coloredBlock);
+		GameRegistry.register(new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()));
+		
+		GameRegistry.register(transparentColoredBlock);
+		GameRegistry.register(new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()));
+		
+		GameRegistry.register(blockTile);
+		GameRegistry.register(new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
+		
+		GameRegistry.registerWithItem(storageBlock);
 		//GameRegistry.registerBlock(particleBlock);
 		
-		GameRegistry.registerItem(multiTiles, "multiTiles");
-		GameRegistry.registerItem(utilityKnife, "utilityKnife");
+		GameRegistry.register(multiTiles);
+		GameRegistry.register(utilityKnife);
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
@@ -339,9 +348,9 @@ public class LittleTiles {
 				});
 		
 		//Entity
-		EntityRegistry.registerModEntity(EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
 		
-		EntityRegistry.registerModEntity(EntityAnimation.class, "animation", 1, this, 2000, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 1, this, 2000, 250, true);
 		
 		proxy.loadSide();
     }

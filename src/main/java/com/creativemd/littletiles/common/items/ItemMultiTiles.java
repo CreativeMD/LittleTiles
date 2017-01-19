@@ -22,6 +22,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -51,18 +52,19 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+		ItemStack stack = player.getHeldItem(hand);
 		if(stack.hasTagCompound())
 		{
-			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(stack, player, world, pos, hand, facing, hitX, hitY, hitZ);
+			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
 		}
 		return EnumActionResult.PASS;
     }
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item stack, CreativeTabs tab, List list)
+    public void getSubItems(Item stack, CreativeTabs tab, NonNullList<ItemStack> list)
     {
         
     }

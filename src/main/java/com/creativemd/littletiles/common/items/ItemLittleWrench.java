@@ -48,17 +48,17 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
-	{
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+    {
 		if(hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, itemStackIn); 
-		if(!worldIn.isRemote)
-			GuiHandler.openGuiItem(playerIn, worldIn);
-		return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
-	}
+			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand)); 
+		if(!world.isRemote)
+			GuiHandler.openGuiItem(player, world);
+        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+    }
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)

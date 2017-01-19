@@ -65,8 +65,9 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
+		ItemStack stack = player.getHeldItem(hand);
 		if(hand == EnumHand.OFF_HAND)
 			return new ActionResult(EnumActionResult.PASS, stack); 
 		if(!player.isSneaking() && stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
@@ -79,8 +80,9 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
     }
 	
 	@Override
-	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
+		ItemStack stack = player.getHeldItem(hand);
 		if(player.isSneaking())
 		{
 			if(!world.isRemote)
@@ -91,19 +93,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				
 			return EnumActionResult.SUCCESS;
 		}
-		
-		//onItemRightClick(stack, world, player);
-		/*if(stack.stackTagCompound != null && !stack.stackTagCompound.hasKey("x"))
-		{
-			if(player.capabilities.isCreativeMode)
-			{
-				ItemStack multiTiles = new ItemStack(LittleTiles.multiTiles);
-				multiTiles.stackTagCompound = stack.stackTagCompound;
-				WorldUtils.dropItem(player, multiTiles);
-				return true;
-			}
-			return false;
-		}*/
 		
 		if(stack.hasTagCompound() && stack.getTagCompound().hasKey("x"))
 		{
@@ -145,7 +134,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 						}
 					}
 				}
-				player.addChatMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
+				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 				saveTiles(world, tiles, stack);
 				stack.setItemDamage(1);
 			}
@@ -157,7 +146,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				stack.getTagCompound().setInteger("x", pos.getX());
 				stack.getTagCompound().setInteger("y", pos.getY());
 				stack.getTagCompound().setInteger("z", pos.getZ());
-				player.addChatMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
+				player.sendMessage(new TextComponentTranslation("First position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}
 			return EnumActionResult.SUCCESS;
 		}

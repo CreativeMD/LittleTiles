@@ -12,18 +12,18 @@ import net.minecraft.server.MinecraftServer;
 public class ExportCommand extends CommandBase {
 
 	@Override
-	public String getCommandName() {
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		GuiHandler.openGui("lt-export", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
+	}
+
+	@Override
+	public String getName() {
 		return "lt-export";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender) {
+	public String getUsage(ICommandSender sender) {
 		return "export little structures";
-	}
-
-	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		GuiHandler.openGui("lt-export", new NBTTagCompound(), (EntityPlayer) sender.getCommandSenderEntity());
 	}
 
 }

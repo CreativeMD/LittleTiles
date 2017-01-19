@@ -156,18 +156,10 @@ public class LittleTileBlock extends LittleTile{
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
 	{
 		if(FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
-			return layer == BlockRenderLayer.CUTOUT_MIPPED; //Should fix an Optifine bug
+			return layer == BlockRenderLayer.SOLID; //Should fix an Optifine bug
 		//if(translucent)
 			//return layer == BlockRenderLayer.TRANSLUCENT;
-		try{
-			return block.canRenderInLayer(getBlockState(), layer);
-		}catch(Exception e){
-			try{
-				return block.getBlockLayer() == layer;
-			}catch(Exception e2){
-				return layer == BlockRenderLayer.SOLID;
-			}
-		}
+		return block.canRenderInLayer(getBlockState(), layer);
 	}
 	
 	@Override
@@ -205,7 +197,7 @@ public class LittleTileBlock extends LittleTile{
         EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(te.getWorld(), (double)((float)pos.getX() + cornerVec.getPosX()/2 + size.getPosX()/2), (double)(pos.getY() + cornerVec.getPosY()/2 + size.getPosY()/2), (double)((float)pos.getZ() + cornerVec.getPosZ()/2 + size.getPosZ()/2), entity, size);
         if(randomFuse)
         	entitytntprimed.setFuse((short)(te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
-        te.getWorld().spawnEntityInWorld(entitytntprimed);
+        te.getWorld().spawnEntity(entitytntprimed);
         te.getWorld().playSound((EntityPlayer)null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 	}
 	
@@ -237,13 +229,13 @@ public class LittleTileBlock extends LittleTile{
 	            }
 	            else if (!playerIn.capabilities.isCreativeMode)
 	            {
-	                --heldItem.stackSize;
+	                heldItem.shrink(1);;
 	            }
 
 	            return true;
 	        }
 		}
-		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
 	}
 	
 	@Override

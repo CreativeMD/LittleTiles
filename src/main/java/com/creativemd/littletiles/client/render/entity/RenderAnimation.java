@@ -11,14 +11,12 @@ import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.RenderUploader;
-import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
@@ -36,8 +34,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.client.FMLClientHandler;
-import shadersmod.client.ShadersRender;
 
 public class RenderAnimation extends Render<EntityAnimation> {
 	
@@ -104,15 +100,9 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 		GlStateManager.glEnableClientState( 32886 );
 		
-		
-		
 		for (Iterator<BlockRenderLayer> iterator = entity.renderData.getKeys().iterator(); iterator.hasNext();) {
 			
 			BlockRenderLayer layer = iterator.next();
-			
-			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
-				ShadersRender.preRenderChunkLayer(layer);
-			
 			List<TERenderData> blocksToRender = entity.renderData.getValues(layer);
 			for (int i = 0; i < blocksToRender.size(); i++) {
 				TERenderData data = blocksToRender.get(i);
@@ -153,9 +143,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
     			}
 
     			data.buffer.bindBuffer();
-    			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
-    				ShadersRender.setupArrayPointersVbo();
-    			else
 				{
 					GlStateManager.glVertexPointer( 3, 5126, 28, 0 );
 					GlStateManager.glColorPointer( 4, 5121, 28, 12 );
@@ -172,12 +159,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				
 				GlStateManager.popMatrix();
 			}
-			
-			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
-				ShadersRender.postRenderChunkLayer(layer);
 		}
-		
-		
 		
 		for ( final VertexFormatElement vertexformatelement : LittleTilesClient.getBlockVertexFormat().getElements())
 		{
@@ -199,8 +181,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					GlStateManager.resetColor();
 			}
 		}
-		
-		Minecraft.getMinecraft().entityRenderer.disableLightmap();
 		
 		/**===Render dynamic part===**/
 		//Setup OPENGL
