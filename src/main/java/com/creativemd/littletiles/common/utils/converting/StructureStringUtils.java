@@ -232,6 +232,6 @@ public class StructureStringUtils {
 		}catch(Exception e){
 			//e.printStackTrace();
 		}
-		return ItemStack.EMPTY;
+		return null;
 	}
 }

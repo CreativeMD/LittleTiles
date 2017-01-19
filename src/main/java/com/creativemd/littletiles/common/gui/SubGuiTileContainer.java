@@ -62,9 +62,9 @@ public class SubGuiTileContainer extends SubGui{
 				{
 					NBTTagCompound nbt = new NBTTagCompound();
 					ItemStack stack = ((GuiItemListBox) get("items")).getSelectedStack();
-					stack.setCount(1);
+					stack.stackSize = 1;
 					if(GuiScreen.isCtrlKeyDown())
-						stack.setCount(64);
+						stack.stackSize = 64;
 					stack.writeToNBT(nbt);
 					sendPacketToServer(nbt);
 				}

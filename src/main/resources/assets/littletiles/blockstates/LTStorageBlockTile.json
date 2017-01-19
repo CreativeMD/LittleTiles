@@ -1,5 +1,5 @@
 {
     "variants": {
-        "normal": { "model": "littletiles:ltstorageblocktile" }
+        "normal": { "model": "littletiles:LTStorageBlockTile" }
     }
 }

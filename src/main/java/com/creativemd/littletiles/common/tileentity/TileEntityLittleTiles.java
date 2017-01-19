@@ -153,7 +153,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		getBeenAddedToBuffer().set(false);		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
 			
-		int lightValue = world.getLight(pos);
+		int lightValue = worldObj.getLight(pos);
 		if(lightValue != lastRenderedLightValue)
 		{
 			this.lastRenderedLightValue = lightValue;
@@ -277,11 +277,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		
 		updateCollisionCache();
 		
-		if(world != null)
+		if(worldObj != null)
 		{
 			updateBlock();
 			updateNeighbor();
-			world.checkLight(getPos());
+			worldObj.checkLight(getPos());
 		}
 		if(isClientSide())
 			updateCustomRenderer();
@@ -364,7 +364,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.onNeighborChangeInside();
 		}
-		world.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile, true);
+		worldObj.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile);
 	}
 	
 	@Override
@@ -554,12 +554,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+			LittleTile tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 			if(tile != null)
 				addLittleTile(tile);
         }
         
-        if(world != null)
+        if(worldObj != null)
         	updateBlock();
     }
 
@@ -643,7 +643,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			{
 				if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && tile.isLoaded())
 					tile.structure.getTiles().remove(tile);
-				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+				tile = LittleTile.CreateandLoadTile(this, worldObj, tileNBT);
 				if(tile != null)
 					tilesToAdd.add(tile);
 			}
@@ -746,8 +746,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			tile.updateEntity();
 		}
 		
-		if(!world.isRemote && tiles.size() == 0)
-			world.setBlockToAir(getPos());
+		if(!worldObj.isRemote && tiles.size() == 0)
+			worldObj.setBlockToAir(getPos());
 	}
 	
 	public void combineTiles(LittleStructure structure) {

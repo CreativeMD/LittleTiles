@@ -47,7 +47,7 @@ public class PreviewRenderer {
 	public void processKey(EnumFacing direction)
 	{
 		LittleRotatePacket packet = new LittleRotatePacket(direction);
-		packet.executeClient(mc.player);
+		packet.executeClient(mc.thePlayer);
 		PacketHandler.sendPacketToServer(packet);
 	}
 	
@@ -99,15 +99,15 @@ public class PreviewRenderer {
 	@SubscribeEvent
 	public void tick(RenderWorldLastEvent event)
 	{
-		if(mc.player != null && mc.inGameHasFocus)
+		if(mc.thePlayer != null && mc.inGameHasFocus)
 		{
 			//mc.theWorld
-			if(PlacementHelper.isLittleBlock(mc.player.getHeldItem(EnumHand.MAIN_HAND)))
+			if(PlacementHelper.isLittleBlock(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND)))
 			{
 				if(GameSettings.isKeyDown(LittleTilesClient.flip) && !LittleTilesClient.pressedFlip)
 				{
 					LittleTilesClient.pressedFlip = true;
-					int i4 = MathHelper.floor((double)(this.mc.player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+					int i4 = MathHelper.floor_double((double)(this.mc.thePlayer.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 					EnumFacing direction = null;
 					switch(i4)
 					{
@@ -124,13 +124,13 @@ public class PreviewRenderer {
 						direction = EnumFacing.EAST;
 						break;
 					}
-					if(mc.player.rotationPitch > 45)
+					if(mc.thePlayer.rotationPitch > 45)
 						direction = EnumFacing.DOWN;
-					if(mc.player.rotationPitch < -45)
+					if(mc.thePlayer.rotationPitch < -45)
 						direction = EnumFacing.UP;
 					//System.out.println("f: " + i4 + ", pitch: " + mc.thePlayer.rotationPitch + ", direction: " + direction);
 					LittleFlipPacket packet = new LittleFlipPacket(direction);
-					packet.executeClient(mc.player);
+					packet.executeClient(mc.thePlayer);
 					PacketHandler.sendPacketToServer(packet);
 				}else if(!GameSettings.isKeyDown(LittleTilesClient.flip)){
 					LittleTilesClient.pressedFlip = false;
@@ -140,9 +140,9 @@ public class PreviewRenderer {
 				if(markedHit != null)
 					look = markedHit;
 				
-				if(look != null && look.typeOfHit == RayTraceResult.Type.BLOCK && mc.player.getHeldItem(EnumHand.MAIN_HAND) != null)
+				if(look != null && look.typeOfHit == RayTraceResult.Type.BLOCK && mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND) != null)
 				{
-					PlacementHelper helper = PlacementHelper.getInstance(mc.player);
+					PlacementHelper helper = PlacementHelper.getInstance(mc.thePlayer);
 					
 					int posX = look.getBlockPos().getX();
 					int posY = look.getBlockPos().getY();
@@ -235,7 +235,7 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedUp = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
+		            		moveMarkedHit(mc.thePlayer.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
 		            	else
 		            		processKey(EnumFacing.UP);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.up))
@@ -245,7 +245,7 @@ public class PreviewRenderer {
 		            {
 		            	LittleTilesClient.pressedDown = true;
 		            	if(markedHit != null)
-		            		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
+		            		moveMarkedHit(mc.thePlayer.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
 		            	else
 		            		processKey(EnumFacing.DOWN);
 		            }else if(!GameSettings.isKeyDown(LittleTilesClient.down))
@@ -280,7 +280,7 @@ public class PreviewRenderer {
 		            
 		            ArrayList<PlacePreviewTile> previews = null;
 		            
-		            previews = helper.getPreviewTiles(mc.player.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
+		            previews = helper.getPreviewTiles(mc.thePlayer.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
 		            
 		            for (int i = 0; i < previews.size(); i++) {
 						
@@ -298,7 +298,7 @@ public class PreviewRenderer {
 							GL11.glPopMatrix();
 						}
 					}
-		            if(markedHit == null && mc.player.isSneaking())
+		            if(markedHit == null && mc.thePlayer.isSneaking())
 		            {
 		            	ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
 		            	

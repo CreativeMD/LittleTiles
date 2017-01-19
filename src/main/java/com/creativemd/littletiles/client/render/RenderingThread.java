@@ -127,7 +127,7 @@ public class RenderingThread extends Thread {
 	{
 		while(active)
 		{
-			World world = mc.world;
+			World world = mc.theWorld;
 			
 			if(world != null && updateCoords.size() > 0)
 			{
@@ -190,9 +190,9 @@ public class RenderingThread extends Thread {
 									consumer.layer = layer;
 									
 									buffer.begin(7, LittleTilesClient.getBlockVertexFormat());
-									int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-									int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-									int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+									int chunkX = MathHelper.bucketInt(pos.getX(), 16);
+									int chunkY = MathHelper.bucketInt(pos.getY(), 16);
+									int chunkZ = MathHelper.bucketInt(pos.getZ(), 16);
 									int offsetX = pos.getX() - (chunkX*16);//MathHelper.bucketInt(pos.getX(), 16);
 							        int offsetY = pos.getY() - (chunkY*16);//MathHelper.bucketInt(pos.getY(), 16);
 							        int offsetZ = pos.getZ() - (chunkZ*16);//MathHelper.bucketInt(pos.getZ(), 16);

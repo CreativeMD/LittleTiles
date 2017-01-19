@@ -36,7 +36,7 @@ public class PlacementHelper {
 			instance = new PlacementHelper(player);
 		else{
 			instance.player = player;
-			instance.world = player.world;
+			instance.world = player.worldObj;
 		}
 		return instance;
 	}
@@ -47,7 +47,7 @@ public class PlacementHelper {
 	public PlacementHelper(EntityPlayer player)
 	{
 		this.player = player;
-		this.world = player.world;
+		this.world = player.worldObj;
 	}
 	
 	public static ILittleTile getLittleInterface(ItemStack stack)
@@ -299,7 +299,7 @@ public class PlacementHelper {
 	
 	public boolean canBePlacedInsideBlock(BlockPos pos)
 	{
-		TileEntity tileEntity = player.world.getTileEntity(pos);
+		TileEntity tileEntity = player.worldObj.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 			return true;
 		
@@ -308,7 +308,7 @@ public class PlacementHelper {
 	
 	public boolean canBePlacedInside(BlockPos pos, Vec3d hitVec, EnumFacing side)
 	{
-		TileEntity tileEntity = player.world.getTileEntity(pos);
+		TileEntity tileEntity = player.worldObj.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			switch(side)

@@ -71,17 +71,16 @@ public class ItemColorTube extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
+	public EnumActionResult onItemUse(ItemStack stack, EntityPlayer playerIn, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
 		TileEntity tileEntity = worldIn.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			if(worldIn.isRemote)
 			{
-				ItemStack stack = player.getHeldItem(hand);
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setInteger("color", getColor(stack));
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 3, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 3, nbt));
 			}
 			return EnumActionResult.SUCCESS;
 		}
@@ -89,13 +88,13 @@ public class ItemColorTube extends Item implements IGuiCreator{
     }
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
     {
 		if(hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand)); 
-		if(!world.isRemote)
-			GuiHandler.openGuiItem(player, world);
-        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+			return new ActionResult(EnumActionResult.PASS, itemStackIn); 
+		if(!worldIn.isRemote)
+			GuiHandler.openGuiItem(playerIn, worldIn);
+        return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
     }
 
 	@Override

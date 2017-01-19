@@ -51,13 +51,13 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		par1 = nbt.getFloat("par1");
 		par2 = nbt.getFloat("par2");
 		par3 = nbt.getFloat("par3");
-		if(world.isRemote)
+		if(worldObj.isRemote)
 			particleType = null;
 	}
 
 	@Override
 	public void update() {
-		if(world.isRemote)
+		if(worldObj.isRemote)
 		{
 			if(particleType == null)
 			{
@@ -66,7 +66,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 					particleType = EnumParticleTypes.SMOKE_NORMAL;
 			}
 			
-			world.spawnParticle(particleType, getPos().getX()+0.5, getPos().getY()+1, getPos().getZ()+0.5, par1, par2, par3);
+			worldObj.spawnParticle(particleType, getPos().getX()+0.5, getPos().getY()+1, getPos().getZ()+0.5, par1, par2, par3);
 			
 		}
 	}

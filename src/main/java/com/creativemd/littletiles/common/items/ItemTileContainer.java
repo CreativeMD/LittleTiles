@@ -65,9 +65,9 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	public static ArrayList<BlockEntry> loadMap(EntityPlayer player)
 	{
 		ArrayList<BlockEntry> mainList = new ArrayList<BlockEntry>();
-		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-			ItemStack stack = player.inventory.getStackInSlot(i);
-			if(stack != ItemStack.EMPTY && stack.getItem() instanceof ItemTileContainer)
+		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+			ItemStack stack = player.inventory.mainInventory[i];
+			if(stack != null && stack.getItem() instanceof ItemTileContainer)
 			{
 				mergeMap(mainList, loadMap(stack));
 			}
@@ -112,8 +112,8 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		BlockEntry entry = new BlockEntry(block, meta, 0);
 		if(mainList.contains(entry) && mainList.get(mainList.indexOf(entry)).value >= ammount)
 		{
-			for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-				ItemStack stack = player.inventory.getStackInSlot(i);
+			for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+				ItemStack stack = player.inventory.mainInventory[i];
 				if(stack != null && stack.getItem() instanceof ItemTileContainer)
 				{
 					ArrayList<BlockEntry> stackMap = loadMap(stack);
@@ -158,8 +158,8 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	{
 		if(player.capabilities.isCreativeMode)
 			return true;
-		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-			ItemStack stack = player.inventory.getStackInSlot(i);
+		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
+			ItemStack stack = player.inventory.mainInventory[i];
 			if(stack != null && stack.getItem() instanceof ItemTileContainer)
 			{
 				addBlock(stack, block, meta, ammount);
@@ -193,11 +193,11 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	}
 	
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
+	public ActionResult<ItemStack> onItemRightClick(ItemStack itemStackIn, World worldIn, EntityPlayer playerIn, EnumHand hand)
 	{
-		if(!world.isRemote)
-			GuiHandler.openGuiItem(player, world);
-		return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+		if(!worldIn.isRemote)
+			GuiHandler.openGuiItem(playerIn, worldIn);
+		return new ActionResult(EnumActionResult.SUCCESS, itemStackIn);
 	}
 	
 	public static class BlockEntry {
