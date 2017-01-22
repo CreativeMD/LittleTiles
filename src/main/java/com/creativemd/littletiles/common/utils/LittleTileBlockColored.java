@@ -73,6 +73,12 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
+	public boolean isIdenticalToNBT(NBTTagCompound nbt)
+	{
+		return super.isIdenticalToNBT(nbt) && color == nbt.getInteger("color");
+	}
+	
+	@Override
 	public boolean canBeCombined(LittleTile tile) {
 		if(tile instanceof LittleTileBlockColored && super.canBeCombined(tile))
 		{

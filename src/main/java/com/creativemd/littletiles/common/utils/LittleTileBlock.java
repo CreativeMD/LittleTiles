@@ -129,6 +129,12 @@ public class LittleTileBlock extends LittleTile{
 				thisTile.translucent = translucent;
 		}
 	}
+	
+	@Override
+	public boolean isIdenticalToNBT(NBTTagCompound nbt)
+	{
+		return super.isIdenticalToNBT(nbt) && Block.REGISTRY.getNameForObject(block).toString().equals(nbt.getString("block")) && meta == nbt.getInteger("meta");
+	}
 
 	@Override
 	public ItemStack getDrop() {
