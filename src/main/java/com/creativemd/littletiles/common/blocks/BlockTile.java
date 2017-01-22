@@ -543,9 +543,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		{
 			ArrayList<ItemStack> drops = result.tile.getDrops();
 			if(drops.size() > 0)
-				return drops.get(0);
+				if(drops.get(0) != null)
+					return drops.get(0);
     	}
-    	return null;
+    	return ItemStack.EMPTY;
     }
     
     @Override

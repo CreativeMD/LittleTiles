@@ -212,7 +212,7 @@ public class RenderingThread extends Thread {
 											IBlockState state = cube.getBlockState();
 											if(state.getBlock() instanceof BlockLTTransparentColored && state.getValue(BlockLTTransparentColored.VARIANT) == EnumType.water)
 											{
-												System.out.println("simulating water");
+												//System.out.println("simulating water");
 												state = Blocks.WATER.getDefaultState();
 											}
 											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
