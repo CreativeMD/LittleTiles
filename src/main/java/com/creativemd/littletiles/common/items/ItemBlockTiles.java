@@ -447,9 +447,19 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
-		stack.setTagCompound(new NBTTagCompound());
 		if(previews.size() > 0)
-			previews.get(0).writeToNBT(stack.getTagCompound());
+		{
+			LittleTilePreview preview = previews.get(0);
+			NBTTagCompound nbt = preview.getTileData().copy();
+			
+			preview.size.writeToNBT("size", nbt);
+			
+			if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
+				nbt.setString("type", preview.getTypeID());
+			
+			stack.setTagCompound(nbt);
+		}else
+			stack.setTagCompound(new NBTTagCompound());
 	}
 	
 	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
