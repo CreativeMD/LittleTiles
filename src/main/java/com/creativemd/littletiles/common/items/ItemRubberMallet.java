@@ -84,9 +84,6 @@ public class ItemRubberMallet extends Item {
 		}else{
 			if(tryMoveTile(te.getWorld(), te.getPos().offset(facing), facing, box.createOutsideBlockBox(facing), tile, simulate))
 			{
-				/*if(tile.isMainBlock) BULLSHIT!
-					if(tile.structure.mainTile != tile)
-						tile.isMainBlock = false;*/
 				if(!simulate)
 				{
 					box.makeItFitInsideBlock();

@@ -265,8 +265,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 											return ;
 									}
 									for (int i = 0; i < tiles.size(); i++)
-										if(ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false))
-											tiles.get(i).te.updateTiles();
+										ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false);
+											//tiles.get(i).te.updateTiles();
 									
 									structure.combineTiles();
 									structure.selectMainTile();

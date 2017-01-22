@@ -274,6 +274,11 @@ public abstract class LittleTile {
 		updateCorner();
 	}
 	
+	public boolean isIdenticalToNBT(NBTTagCompound nbt)
+	{
+		return getID().equals(nbt.getString("tID"));
+	}
+	
 	//================Save & Loading================
 	
 	public void saveTile(NBTTagCompound nbt)
@@ -702,7 +707,7 @@ public abstract class LittleTile {
 					}
 				}
 				
-				if(structure == null)
+				if(structure == null && !world.isRemote)
 				{
 					te.removeTile(this);
 					te.updateBlock();

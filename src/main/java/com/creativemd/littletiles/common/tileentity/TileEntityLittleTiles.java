@@ -634,14 +634,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				tile = null;
 			
 			boolean fullUpdate = nbt.getBoolean("f" + i);
-			if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && !fullUpdate)
+			boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
+			if(isIdentical && !fullUpdate)
 			{
 				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				exstingTiles.remove(tile);
 			}
 			else
 			{
-				if(tile != null && tile.getID().equals(tileNBT.getString("tID")) && tile.isLoaded())
+				if(isIdentical && tile.isLoaded())
 					tile.structure.getTiles().remove(tile);
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
 				if(tile != null)
