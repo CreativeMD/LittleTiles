@@ -317,10 +317,13 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		if(cameraTransformType == TransformType.GUI)
 			GlStateManager.translate(0, 0, -10);
 		
-		IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
-		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-		
-		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+		if(cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || stack.getTagCompound().getInteger("tiles") == 0)
+		{
+			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
+			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
+			
+			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+		}
 		GlStateManager.popMatrix();
 		
 		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
