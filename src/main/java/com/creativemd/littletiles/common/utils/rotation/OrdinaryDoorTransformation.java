@@ -59,4 +59,11 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 		rotation = Rotation.getRotationByID(nbt.getInteger("rot"));
 	}
 
+	@Override
+	public boolean equals(Object object) {
+		if(object instanceof OrdinaryDoorTransformation)
+			return ((OrdinaryDoorTransformation) object).rotation == rotation;
+		return false;
+	}
+
 }

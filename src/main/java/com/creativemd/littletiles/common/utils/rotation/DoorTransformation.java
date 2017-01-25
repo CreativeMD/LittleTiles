@@ -66,4 +66,6 @@ public abstract class DoorTransformation {
 	
 	public abstract void performTransformation(EntityAnimation animation, double progress);
 	
+	public abstract boolean equals(Object object);
+	
 }
