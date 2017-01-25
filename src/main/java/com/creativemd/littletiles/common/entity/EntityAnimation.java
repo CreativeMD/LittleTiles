@@ -201,13 +201,13 @@ public class EntityAnimation extends Entity {
 			structure.normalDirection = this.structure.normalDirection;
 			structure.duration = this.structure.duration;
 			
-			if(!world.isRemote || approved)
+			if(!worldObj.isRemote || approved)
 			{
-				if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+				if(ItemBlockTiles.placeTiles(worldObj, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
 				{
 					
-				}else if(!world.isRemote)
-					WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+				}else if(!worldObj.isRemote)
+					WorldUtils.dropItem(worldObj, this.structure.getStructureDrop(), baseOffset);
 			}
 			
 			setDead();
