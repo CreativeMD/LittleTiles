@@ -153,7 +153,7 @@ public class RenderingThread extends Thread {
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0, false));
 									}else
 										cube.setQuad(facing, null);
 								}
