@@ -127,6 +127,8 @@ public class EntityAnimation extends Entity {
 	private int progress;
 	
 	public int duration;
+	
+	public boolean approved = true;
 
 	public EntityAnimation(World worldIn) {
 		super(worldIn);
@@ -170,6 +172,7 @@ public class EntityAnimation extends Entity {
 			te.rendering = new AtomicBoolean(false);
 			RenderingThread.addCoordToUpdate(te, 0, false);
 		}
+		approved = false;
 	}
 	
 	@Override
@@ -198,11 +201,14 @@ public class EntityAnimation extends Entity {
 			structure.normalDirection = this.structure.normalDirection;
 			structure.duration = this.structure.duration;
 			
-			if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+			if(!world.isRemote || approved)
 			{
-				
-			}else if(!world.isRemote)
-				WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+				if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+				{
+					
+				}else if(!world.isRemote)
+					WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+			}
 			
 			setDead();
 		}else

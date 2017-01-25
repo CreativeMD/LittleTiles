@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
@@ -21,21 +22,25 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	public UUID uuid;
 	public NBTTagCompound nbt;
+	public boolean completeData;
 	
-	public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt) {
+	public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt, boolean completeData) {
 		this.uuid = uuid;
 		this.nbt = nbt;
+		this.completeData = completeData;
 	}
 
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writeString(buf, uuid.toString());
+		buf.writeBoolean(completeData);
 		writeNBT(buf, nbt);
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
 		uuid = UUID.fromString(readString(buf));
+		completeData = buf.readBoolean();
 		nbt = readNBT(buf);
 	}
 
@@ -52,7 +57,17 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 		}
 		
 		if(animation != null)
-			animation.readFromNBT(nbt);
+		{
+			if(completeData)
+			{
+				animation.readFromNBT(nbt);
+				animation.approved = true;
+			}else{
+				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
+				animation.approved = animation.transformation.equals(transformation);					
+			}
+			
+		}
 	}
 
 	@Override
@@ -68,7 +83,13 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 		}
 		
 		if(animation != null)
-			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) player);
+		{
+			if(completeData)
+				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, animation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
+			else{
+				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid,  animation.transformation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
+			}
+		}
 	}
 
 	
