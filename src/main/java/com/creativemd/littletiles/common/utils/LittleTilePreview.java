@@ -122,7 +122,9 @@ public class LittleTilePreview {
 	/**Rendering inventory**/
 	public int getColor()
 	{
-		return tileData.getInteger("color");
+		if(tileData.hasKey("color"))
+			return tileData.getInteger("color");
+		return -1;
 	}
 	
 	/**Rendering inventory**/

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
@@ -108,7 +109,10 @@ public class SubGuiHammer extends SubGui {
 			{
 				ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
 				if(previews.size() > 0)
+				{
 					block = previews.get(0).getPreviewBlock();
+					meta = previews.get(0).getPreviewBlockMeta();
+				}
 				else
 					block = null;
 			}
@@ -124,6 +128,24 @@ public class SubGuiHammer extends SubGui {
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event)
 	{
+		ItemStack slotStack = container.getSlots().get(0).getStack();
+		Block block = Block.getBlockFromItem(slotStack.getItem());
+		if(block == LittleTiles.blockTile)
+		{
+			ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+			if(previews.size() > 0)
+			{
+				int colorInt = previews.get(0).getColor();
+				Vec3i color = ColorUtils.IntToRGB(colorInt);
+				if(colorInt == -1)
+					color = new Vec3i(255, 255, 255);
+				
+				((GuiSteppedSlider) get("colorX")).value = color.getX();
+				((GuiSteppedSlider) get("colorY")).value = color.getY();
+				((GuiSteppedSlider) get("colorZ")).value = color.getZ();
+				raiseEvent(new GuiControlChangedEvent((GuiControl) get("colorZ")));
+			}
+		}
 		updateLabel();
 	}
 	
