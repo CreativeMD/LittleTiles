@@ -139,6 +139,8 @@ public class RenderingThread extends Thread {
 					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 						BlockRenderLayer layer = BlockRenderLayer.values()[i];
 						//if(cubeCache.doesNeedUpdate())
+						if(data.te.getWorld() == null)
+							data.te.setWorld(world);
 						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
 					
 						ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
