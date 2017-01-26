@@ -267,15 +267,9 @@ public class RenderingThread extends Thread {
 					updateCoords.add(data);
 					e.printStackTrace();
 				}
-				
-				
-				try {
-					sleep(1);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}else if(!updateCoords.isEmpty()){
+			}else if(world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())){
 				updateCoords.clear();
+				chunks.clear();
 			}else if(world != null && !chunks.isEmpty()){
 				/*synchronized (chunks){
 					for (Iterator iterator = chunks.keySet().iterator(); iterator.hasNext();) {
@@ -339,7 +333,6 @@ public class RenderingThread extends Thread {
 	{
 		te.rendering.set(false);
 		
-		//BlockPos chunk = RenderUploader.getRenderChunkPos(te.getPos()); //getChunkCoords(coord);
 		RenderChunk chunk = te.lastRenderedChunk;
 		synchronized (chunks){
 			AtomicInteger count = chunks.get(chunk);
@@ -350,19 +343,10 @@ public class RenderingThread extends Thread {
 			uploadDirectly = false;
 			te.setBuffer(buffer);
 			
-			//if(uploadDirectly)
-				//RenderUploader.addBlockForUpdate(te, chunk, false);
-			
 			if(count == null || count.intValue() <= 0)
 			{
 				chunks.remove(chunk);
-				//if(uploadDirectly)
-					//RenderUploader.finishChunkUpdate(chunk);
-				//else
-					//RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), chunk).setNeedsUpdate(false); //Use the Render Uploader instead, if it has not uploaded anything before
 				chunk.setNeedsUpdate(true);
-				//RenderUploader.finishChunkUpdate(chunk);
-				//System.out.println("finish chunk:" + chunk);
 			}
 		}
 	}
