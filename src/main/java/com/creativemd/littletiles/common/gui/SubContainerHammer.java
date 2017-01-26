@@ -76,6 +76,7 @@ public class SubContainerHammer extends SubContainer{
 		{
 			double volumePerItem = 1;
 			Block block = Block.getBlockFromItem(stack.getItem());
+			int meta = stack.getItemDamage();
 			if(isBlockValid(block) || stack.getItem() instanceof ItemBlockTiles)
 			{
 				double availableVolume = stack.stackSize;
@@ -86,13 +87,16 @@ public class SubContainerHammer extends SubContainer{
 					ArrayList<LittleTilePreview> previews = ((ItemBlockTiles) stack.getItem()).getLittlePreview(stack);
 					for (int i = 0; i < previews.size(); i++) {
 						if(block == null)
+						{
 							block = previews.get(i).getPreviewBlock();
+							meta = previews.get(i).getPreviewBlockMeta();
+						}
 						volumePerItem += previews.get(i).size.getPercentVolume();
 					}
 					availableVolume = volumePerItem*stack.stackSize;
 				}
 				
-				if(block.hasTileEntity(block.getStateFromMeta(stack.getItemDamage())))
+				if(block.hasTileEntity(block.getStateFromMeta(meta)))
 					return ;
 				int alltiles = (int) (availableVolume/size.getPercentVolume());
 				int tiles = Math.min(alltiles, 64);
@@ -111,9 +115,9 @@ public class SubContainerHammer extends SubContainer{
 				
 				LittleTile tile = null;
 				if(nbt.hasKey("color") && nbt.getInteger("color") != ColorUtils.WHITE)
-					tile = new LittleTileBlockColored(block, stack.getItemDamage(), ColorUtils.IntToRGB(nbt.getInteger("color")));
+					tile = new LittleTileBlockColored(block, meta, ColorUtils.IntToRGB(nbt.getInteger("color")));
 				else
-					tile = new LittleTileBlock(block, stack.getItemDamage());
+					tile = new LittleTileBlock(block, meta);
 				tile.saveTileExtra(dropstack.getTagCompound());
 				if(tile instanceof LittleTileBlockColored)
 					dropstack.getTagCompound().setString("tID", "BlockTileColored");
@@ -122,7 +126,7 @@ public class SubContainerHammer extends SubContainer{
 				
 				float missingTiles = blocks-tiles*size.getPercentVolume();
 				if(missingTiles > 0)
-					ItemTileContainer.addBlock(player, block, stack.getItemDamage(), missingTiles);
+					ItemTileContainer.addBlock(player, block, meta, missingTiles);
 				//dropstack.stackTagCompound.setString("block", Block.blockRegistry.getNameForObject(block));
 				//dropstack.stackTagCompound.setInteger("meta", stack.getItemDamage());
 				//ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
