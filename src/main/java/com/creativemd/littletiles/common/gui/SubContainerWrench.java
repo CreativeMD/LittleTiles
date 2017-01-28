@@ -153,7 +153,7 @@ public class SubContainerWrench extends SubContainer{
 					
 					if(enough)
 					{
-						if(!stack2.isEmpty() && !player.capabilities.isCreativeMode)
+						if(stack2 != null && !player.capabilities.isCreativeMode)
 						{
 							if(stack2.getItem() instanceof ItemTileContainer)
 							{
@@ -178,16 +178,16 @@ public class SubContainerWrench extends SubContainer{
 				}
 			}else if(ChiselsAndBitsManager.isChiselsAndBitsStructure(stack1)){
 				ArrayList<LittleTilePreview> previews = ChiselsAndBitsManager.getPreviews(stack1);
-				if(previews != null && !previews.isEmpty() && stack2.isEmpty())
+				if(previews != null && !previews.isEmpty() && stack2 == null)
 				{
 					stack2 = new ItemStack(LittleTiles.multiTiles);
 					ItemRecipe.savePreviewTiles(previews, stack2);
-					basic.setInventorySlotContents(0, ItemStack.EMPTY);
+					basic.setInventorySlotContents(0, null);
 					basic.setInventorySlotContents(1, stack2);
 				}
 			}else{
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
-				if(tile != null && !stack2.isEmpty() && stack2.getItem() instanceof ItemRecipe)
+				if(tile != null && stack2 != null && stack2.getItem() instanceof ItemRecipe)
 				{
 					stack2.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
 				}
