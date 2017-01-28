@@ -460,17 +460,20 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-		int meta = stack.getTagCompound().getInteger("meta");
-		LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
-		if(!(block instanceof BlockAir))
+		if(stack.hasTagCompound())
 		{
-			RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getCube(), block, meta);
-			//cube.block = block;
-			//cube.meta = meta;
-			if(stack.getTagCompound().hasKey("color"))
-				cube.color = stack.getTagCompound().getInteger("color");
-			cubes.add(cube);
+			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
+			int meta = stack.getTagCompound().getInteger("meta");
+			LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
+			if(!(block instanceof BlockAir))
+			{
+				RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getCube(), block, meta);
+				//cube.block = block;
+				//cube.meta = meta;
+				if(stack.getTagCompound().hasKey("color"))
+					cube.color = stack.getTagCompound().getInteger("color");
+				cubes.add(cube);
+			}
 		}
 		return cubes;
 	}
