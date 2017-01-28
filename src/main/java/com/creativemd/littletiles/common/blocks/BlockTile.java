@@ -44,6 +44,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleDigging;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
@@ -68,6 +69,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.client.model.pipeline.BlockInfo;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -116,7 +118,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		if(world == null)
 			return null;
 		loadingTileEntityFromWorld = true;
-		TileEntity tileEntity = world.getTileEntity(pos);
+		TileEntity tileEntity = null;
+		try{
+			tileEntity = world.getTileEntity(pos);
+		}catch(Exception e){
+			return null;
+		}
 		loadingTileEntityFromWorld = false;
 		if(tileEntity instanceof TileEntityLittleTiles)
 			return (TileEntityLittleTiles) tileEntity;
@@ -152,7 +159,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	@Override
 	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-		return new TileEntityState(state, world.getTileEntity(pos));
+		return state;//new TileEntityState(state, world.getTileEntity(pos));
     }
 	
 	@Override
@@ -547,6 +554,31 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 					return drops.get(0);
     	}
     	return ItemStack.EMPTY;
+    }
+    
+    @Override
+    public boolean addLandingEffects(IBlockState state, net.minecraft.world.WorldServer world, BlockPos pos, IBlockState iblockstate, EntityLivingBase entity, int numberOfParticles )
+    {
+    	TileEntityLittleTiles te = loadTe(world, pos);
+    	if(te != null)
+    	{
+    		int heighest = 0;
+    		LittleTile heighestTile = null;
+    		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+					if(tile.boundingBoxes.get(i).maxY > heighest)
+					{
+						heighest = tile.boundingBoxes.get(i).maxY;
+						heighestTile = tile;
+					}
+				}
+    		}
+    		
+    		if(heighestTile != null && heighestTile instanceof LittleTileBlock)
+    			world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] {Block.getStateId(((LittleTileBlock)heighestTile).getBlockState())});
+    	}
+    	return true;
     }
     
     @Override

@@ -452,7 +452,7 @@ public abstract class LittleStructure {
 			stack.setTagCompound(nbt);
 			return stack;
 		}
-		return null;
+		return ItemStack.EMPTY;
 	}
 	
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
