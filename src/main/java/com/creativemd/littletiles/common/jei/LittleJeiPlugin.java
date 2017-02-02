@@ -2,12 +2,12 @@ package com.creativemd.littletiles.common.jei;
 
 import com.creativemd.littletiles.LittleTiles;
 
+import mezz.jei.api.IItemBlacklist;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
-import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import net.minecraft.item.ItemStack;
 
@@ -26,8 +26,8 @@ public class LittleJeiPlugin implements IModPlugin {
 
 	@Override
 	public void register(IModRegistry registry) {
-		IIngredientBlacklist itemBlacklist = registry.getJeiHelpers().getIngredientBlacklist();
-		itemBlacklist.addIngredientToBlacklist(LittleTiles.blockTile);
+		IItemBlacklist itemBlacklist = registry.getJeiHelpers().getItemBlacklist();
+		itemBlacklist.addItemToBlacklist(new ItemStack(LittleTiles.blockTile));
 		
 	}
 
