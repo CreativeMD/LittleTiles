@@ -334,6 +334,12 @@ public class RenderingThread extends Thread {
 		te.rendering.set(false);
 		
 		RenderChunk chunk = te.lastRenderedChunk;
+		if(chunk == null)
+		{
+			chunks.clear();
+			te.setBuffer(buffer);
+			return ;
+		}
 		synchronized (chunks){
 			AtomicInteger count = chunks.get(chunk);
 			if(count != null)

@@ -61,6 +61,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			if(completeData)
 			{
 				animation.readFromNBT(nbt);
+				animation.createClient();
 				animation.approved = true;
 			}else{
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);

@@ -165,12 +165,15 @@ public class EntityAnimation extends Entity {
 	@SideOnly(Side.CLIENT)
 	public void createClient()
 	{
-		this.renderData = new HashMapList<>();
-		this.renderQueue = new ArrayList<>(blocks);
-		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
-			te.rendering = new AtomicBoolean(false);
-			RenderingThread.addCoordToUpdate(te, 0, false);
+		if(blocks != null)
+		{
+			this.renderData = new HashMapList<>();
+			this.renderQueue = new ArrayList<>(blocks);
+			for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
+				TileEntityLittleTiles te = iterator.next();
+				te.rendering = new AtomicBoolean(false);
+				RenderingThread.addCoordToUpdate(te, 0, false);
+			}
 		}
 		approved = false;
 	}
