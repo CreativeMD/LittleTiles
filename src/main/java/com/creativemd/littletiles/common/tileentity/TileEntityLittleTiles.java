@@ -364,7 +364,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.onNeighborChangeInside();
 		}
-		hasNeighborChanged = true;
+		if(isClientSide())
+			hasNeighborChanged = true;
 		world.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile, true);
 	}
 	
