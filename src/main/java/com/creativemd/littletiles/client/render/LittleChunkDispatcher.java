@@ -28,6 +28,7 @@ import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ListedRenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -93,8 +94,8 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 					e1.printStackTrace();
 				}
 			
-			if(buffer.getVertexFormat() != null)
-			{
+			if(buffer.getVertexFormat() != null && !(compiled.getState() instanceof LittleVertexBufferState))
+			{				
 				for (int i = 0; i < tiles.size(); i++) {
 					TileEntityLittleTiles te = tiles.get(i);
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
@@ -129,8 +130,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		            float z = (float)entity.posZ;
 		            
 					buffer.sortVertexData(x, y, z);
-					
-					compiled.setState(buffer.getVertexState());
+					compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
 				}
 				
 				buffer.getByteBuffer().position(0);
@@ -139,4 +139,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		}
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
     }
+	
+	public static class LittleVertexBufferState extends VertexBuffer.State {
+
+		public LittleVertexBufferState(VertexBuffer buffer, VertexBuffer.State state) {
+			buffer.super(state.getRawBuffer(), state.getVertexFormat());
+		}
+		
+		
+	}
 }

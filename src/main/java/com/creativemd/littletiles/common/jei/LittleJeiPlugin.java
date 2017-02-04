@@ -27,7 +27,7 @@ public class LittleJeiPlugin implements IModPlugin {
 	@Override
 	public void register(IModRegistry registry) {
 		IIngredientBlacklist itemBlacklist = registry.getJeiHelpers().getIngredientBlacklist();
-		itemBlacklist.addIngredientToBlacklist(LittleTiles.blockTile);
+		itemBlacklist.addIngredientToBlacklist(new ItemStack(LittleTiles.blockTile));
 		
 	}
 

@@ -314,9 +314,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 		
-		//if(cameraTransformType == TransformType.GUI)
-			//GlStateManager.translate(0, 0, -10);
-		
 		if(cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || stack.getTagCompound().getInteger("tiles") == 0)
 		{
 			if(cameraTransformType == TransformType.GUI)
@@ -325,6 +322,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+			
 			if(cameraTransformType == TransformType.GUI)
 				GlStateManager.enableDepth();
 		}

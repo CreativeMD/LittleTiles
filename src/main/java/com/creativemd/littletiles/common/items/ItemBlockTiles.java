@@ -464,7 +464,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		if(stack.hasTagCompound())
+		if(stack != null && stack.hasTagCompound())
 		{
 			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
 			int meta = stack.getTagCompound().getInteger("meta");
