@@ -51,7 +51,7 @@ public class SubContainerHammer extends SubContainer{
 	@Override
 	public void onClosed()
 	{
-		if(basic.getStackInSlot(0) != null)
+		if(!basic.getStackInSlot(0).isEmpty())
 		{
 			player.dropItem(basic.getStackInSlot(0), false);
 		}
@@ -72,7 +72,7 @@ public class SubContainerHammer extends SubContainer{
 	public void onPacketReceive(NBTTagCompound nbt) {
 		LittleTileSize size = new LittleTileSize(nbt.getInteger("sizeX"), nbt.getInteger("sizeY"), nbt.getInteger("sizeZ"));
 		ItemStack stack = basic.getStackInSlot(0);
-		if(stack != null && stack.getItem() instanceof ItemBlock)
+		if(!stack.isEmpty() && stack.getItem() instanceof ItemBlock)
 		{
 			double volumePerItem = 1;
 			Block block = Block.getBlockFromItem(stack.getItem());
