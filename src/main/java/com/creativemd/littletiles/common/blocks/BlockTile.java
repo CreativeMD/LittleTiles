@@ -115,7 +115,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos)
 	{
-		if(world == null)
+		if(world == null && loadingTileEntityFromWorld)
 			return null;
 		loadingTileEntityFromWorld = true;
 		TileEntity tileEntity = null;
