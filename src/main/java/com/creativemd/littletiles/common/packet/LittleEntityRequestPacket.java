@@ -7,6 +7,7 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
+import com.google.common.base.Predicate;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
@@ -74,7 +75,14 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	@Override
 	public void executeServer(EntityPlayer player) {
 		EntityAnimation animation = null;
-		for (Iterator<Entity> iterator = player.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+		for (Iterator<EntityAnimation> iterator = player.world.getEntities(EntityAnimation.class, new Predicate<EntityAnimation>() {
+
+			@Override
+			public boolean apply(EntityAnimation input) {
+				return true;
+			}
+			
+		}).iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
 			if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
 			{

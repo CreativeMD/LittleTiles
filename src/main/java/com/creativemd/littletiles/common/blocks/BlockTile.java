@@ -115,7 +115,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos)
 	{
-		if(world == null && loadingTileEntityFromWorld)
+		if(world == null || loadingTileEntityFromWorld)
 			return null;
 		loadingTileEntityFromWorld = true;
 		TileEntity tileEntity = null;
@@ -773,8 +773,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
 	{
-    	if(loadingTileEntityFromWorld)
-    		return ;
     	TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
