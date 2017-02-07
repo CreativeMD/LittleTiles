@@ -7,12 +7,16 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubContainerUtilityKnife;
 import com.creativemd.littletiles.common.gui.SubGuiUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -69,6 +73,45 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 		//vec.subVec(new LittleTileVec(result.sideHit));
 		
 		return getMode(player.getHeldItemMainhand()).getBox(vec, getThickness(player.getHeldItemMainhand()), result.sideHit);
+	}
+	
+	@Override
+	public boolean onBlockStartBreak(ItemStack itemstack, BlockPos pos, EntityPlayer player)
+    {
+		World world = player.world;
+		ItemStack stack = player.getHeldItemMainhand();
+		IBlockState state = world.getBlockState(pos);
+		if(SubContainerHammer.isBlockValid(state.getBlock()) && stack != null && stack.getItem() instanceof ItemUtilityKnife && (state.getBlockHardness(world, pos) >= 0 || player.isCreative()))
+		{
+			if(world.isRemote)
+				destroyBlock(stack, player, world, pos, state);
+			return true;
+		}
+        return false;
+    }
+	
+	@SideOnly(Side.CLIENT)
+	public void destroyBlock(ItemStack stack, EntityPlayer player, World world, BlockPos pos, IBlockState state)
+	{
+		LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(world, pos, state, player, Minecraft.getMinecraft().objectMouseOver);
+		
+		world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+		TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
+		
+		LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+		tile.boundingBoxes.add(new LittleTileBox(0,0,0,LittleTile.maxPos,LittleTile.maxPos,LittleTile.maxPos));
+		tile.te = te;
+		tile.place();
+		te.removeBoxFromTiles(box);
+		if(!player.capabilities.isCreativeMode)
+		{
+			tile.boundingBoxes.clear();
+			tile.boundingBoxes.add(box.copy());
+			//WorldUtils.dropItem(player, tile.getDrops());
+		}
+		
+		PacketHandler.sendPacketToServer(new LittleBlockVanillaPacket(pos, player));
+		
 	}
 
 	@Override

@@ -32,8 +32,10 @@ import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.PlayerContainerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -51,43 +53,20 @@ public class LittleEvent {
 	}
 	
 	@SubscribeEvent
-	public void onInteract(LeftClickBlock event)
+	@SideOnly(Side.CLIENT)
+	public void speedEvent(BreakSpeed event)
 	{
 		EntityPlayer player = event.getEntityPlayer();
-		World world = player.getEntityWorld();
-		BlockPos pos = event.getPos();
-		IBlockState state = world.getBlockState(pos);
-		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-		if(event.getHand() == EnumHand.MAIN_HAND && SubContainerHammer.isBlockValid(state.getBlock()) && stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+		World world = player.world;
+		float hardness = event.getState().getBlockHardness(world, event.getPos());
+		ItemStack stack = player.getHeldItemMainhand();
+		if(SubContainerHammer.isBlockValid(event.getState().getBlock()) && stack != null && stack.getItem() instanceof ItemUtilityKnife)
 		{
-			if(world.isRemote)
-				onLeftInteractClient(stack, player, world, pos, state);
-			event.setCanceled(true);
+			float modifier = 2;
+			if(!ForgeHooks.canHarvestBlock(event.getState().getBlock(), player, world, event.getPos()))
+				modifier *= 3.333333333F;
+			event.setNewSpeed(event.getOriginalSpeed()*hardness*modifier);
 		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void onLeftInteractClient(ItemStack stack, EntityPlayer player, World world, BlockPos pos, IBlockState state)
-	{
-		LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(world, pos, state, player, Minecraft.getMinecraft().objectMouseOver);
-		
-		world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
-		TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
-		
-		LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-		tile.boundingBoxes.add(new LittleTileBox(0,0,0,LittleTile.maxPos,LittleTile.maxPos,LittleTile.maxPos));
-		tile.te = te;
-		tile.place();
-		te.removeBoxFromTiles(box);
-		if(!player.capabilities.isCreativeMode)
-		{
-			tile.boundingBoxes.clear();
-			tile.boundingBoxes.add(box.copy());
-			//WorldUtils.dropItem(player, tile.getDrops());
-		}
-		
-		PacketHandler.sendPacketToServer(new LittleBlockVanillaPacket(pos, player));
-		
 	}
 	
 	@SubscribeEvent
