@@ -70,12 +70,17 @@ public class EntityAnimation extends Entity {
         this.chunkOffset = getRenderChunkPos(baseOffset);
         
         
-        int chunkX = MathHelper.bucketInt(baseOffset.getX(), 16);
-		int chunkY = MathHelper.bucketInt(baseOffset.getY(), 16);
-		int chunkZ = MathHelper.bucketInt(baseOffset.getZ(), 16);
+        int chunkX = bucketInt(baseOffset.getX(), 16);
+		int chunkY = bucketInt(baseOffset.getY(), 16);
+		int chunkZ = bucketInt(baseOffset.getZ(), 16);
         
         inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX*16), baseOffset.getY() - (chunkY*16), baseOffset.getZ() - (chunkZ*16));
 	}
+	
+	public static int bucketInt(int p_76137_0_, int p_76137_1_)
+    {
+        return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
+    }
 	
 	private LittleTileVec axis;
 	private LittleTileVec inBlockAxis;
