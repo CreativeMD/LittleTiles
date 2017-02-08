@@ -326,7 +326,7 @@ public class LittleDoor extends LittleStructure{
 		if(ItemBlockTiles.canPlaceTiles(world, splitted, new ArrayList<>(splitted.getKeys()), false))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
-			World fakeWorld = new WorldFake(world);
+			World fakeWorld = WorldFake.createFakeWorld(world);
 			ItemBlockTiles.placeTiles(fakeWorld, player, previews, structure, pos, null, null, false, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
