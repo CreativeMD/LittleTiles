@@ -256,7 +256,7 @@ public class EntityAnimation extends Entity {
 		
 		setAxisVec(new LittleTileVec("axis", compound));
 		
-		World worldFake = new WorldFake(world);
+		World worldFake = WorldFake.createFakeWorld(world);
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		ArrayList<LittleTile> tiles = new ArrayList<>();
