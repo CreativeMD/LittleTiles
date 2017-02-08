@@ -86,7 +86,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			if(!world.isRemote)
 			{
 				stack.setTagCompound(null);
-				stack.setItemDamage(0);
 			}
 				
 			return EnumActionResult.SUCCESS;
@@ -147,7 +146,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				}
 				player.addChatMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 				saveTiles(world, tiles, stack);
-				stack.setItemDamage(1);
 			}
 			return EnumActionResult.SUCCESS;
 		}else if(!stack.hasTagCompound()){
