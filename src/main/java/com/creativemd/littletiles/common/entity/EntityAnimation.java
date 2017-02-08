@@ -187,7 +187,7 @@ public class EntityAnimation extends Entity {
 	public void onUpdate()
 	{
 		super.onUpdate();
-		if(blocks == null)
+		if(blocks == null && !world.isRemote)
 			setDead();
 		
 		prevWorldRotX = worldRotX;
