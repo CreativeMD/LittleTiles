@@ -115,7 +115,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos)
 	{
-		if(world == null || loadingTileEntityFromWorld)
+		if(world == null)
 			return null;
 		loadingTileEntityFromWorld = true;
 		TileEntity tileEntity = null;
@@ -726,6 +726,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @Override
     public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos)
     {
+    	if(loadingTileEntityFromWorld)
+    		return false;
     	for (int i = 0; i < 6; i++) {
 			if(!isSideSolid(state, world, pos, EnumFacing.getFront(i)))
 				return false;
@@ -773,6 +775,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
 	{
+    	if(loadingTileEntityFromWorld)
+    		return ;
     	TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
