@@ -213,7 +213,8 @@ public class EntityAnimation extends Entity {
 			{
 				if(ItemBlockTiles.placeTiles(worldObj, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
 				{
-					
+					if(worldObj.isRemote)
+						structure.isWaitingForApprove = true;
 				}else if(!worldObj.isRemote)
 					WorldUtils.dropItem(worldObj, this.structure.getStructureDrop(), baseOffset);
 			}

@@ -50,6 +50,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleDoor extends LittleStructure{
+	
+	public boolean isWaitingForApprove = false;
 
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -345,7 +347,7 @@ public class LittleDoor extends LittleStructure{
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
-		if(world.isRemote && axis != null)
+		if(world.isRemote && axis != null && !isWaitingForApprove)
 		{
 			if(!hasLoaded())
 			{
