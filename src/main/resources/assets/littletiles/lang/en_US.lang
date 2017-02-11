@@ -10,6 +10,7 @@ item.LTRubberMallet.name=Little Rubber Mallet
 item.LTColorTube.name=Little Color Tube
 item.LTUtilityKnife.name=Little Utility Knife
 
+tile.LTParticleBlock.name=Little Particle Block
 tile.LTColoredBlock.clean.name=Colored Block Clean
 tile.LTColoredBlock.floor.name=Colored Block Floor
 tile.LTColoredBlock.grainy_big.name=Colored Block Grainy Big

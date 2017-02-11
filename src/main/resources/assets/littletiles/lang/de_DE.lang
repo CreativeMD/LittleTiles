@@ -10,6 +10,7 @@ item.LTRubberMallet.name=Kleiner Gummihammer
 item.LTColorTube.name=Kleine Farbtube
 item.LTUtilityKnife.name=Kleines Cutter
 
+tile.LTParticleBlock.name=Kleiner Partikel Block
 tile.LTColoredBlock.clean.name=Gefärbter Block Rein
 tile.LTColoredBlock.floor.name=Gefärbter Block Boden
 tile.LTColoredBlock.grainy_big.name=Gefärbter Block Körnig Groß
