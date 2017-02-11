@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Queue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
@@ -38,6 +39,13 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import shadersmod.client.SVertexBuilder;
 
 public class LittleChunkDispatcher extends ChunkRenderDispatcher {
+	
+	public static AtomicInteger currentRenderIndex = new AtomicInteger(0);
+	
+	public static void onReloadRenderers()
+	{
+		currentRenderIndex.incrementAndGet();
+	}
 
 	public LittleChunkDispatcher() {
 		super();

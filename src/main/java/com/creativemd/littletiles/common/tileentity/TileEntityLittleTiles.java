@@ -18,6 +18,7 @@ import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -93,6 +94,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	//public boolean isRendering;
 	
 	@SideOnly(Side.CLIENT)
+	public int renderIndex;
+	
+	@SideOnly(Side.CLIENT)
 	private int lastRenderedLightValue;
 	
 	@SideOnly(Side.CLIENT)
@@ -144,23 +148,32 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return hasBeenAddedToBuffer;
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
 	
+	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(RenderChunk chunk)
 	{
 		//System.out.println("update cache at pos=" + getPos());
 		lastRenderedChunk = chunk;
 		
-		getBeenAddedToBuffer().set(false);		
+		getBeenAddedToBuffer().set(false);
+		
+		if(renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
+			getCubeCache().clearCache();
+		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
-			
-		int lightValue = world.getLight(pos);
-		if(lightValue != lastRenderedLightValue)
+		
+		if(!doesNeedUpdate)
 		{
-			this.lastRenderedLightValue = lightValue;
-			//if(getBuffer() != null)
-				//getBuffer().clear();
-			doesNeedUpdate = true;
+			int lightValue = world.getLight(pos);
+			if(lightValue != lastRenderedLightValue)
+			{
+				this.lastRenderedLightValue = lightValue;
+				//if(getBuffer() != null)
+					//getBuffer().clear();
+				doesNeedUpdate = true;
+			}
 		}
 		
 		if(doesNeedUpdate)
