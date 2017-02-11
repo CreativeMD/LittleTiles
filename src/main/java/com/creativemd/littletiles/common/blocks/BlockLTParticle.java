@@ -8,11 +8,14 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -20,6 +23,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -28,7 +32,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockLTParticle extends BlockContainer implements IGuiCreator /*,ILittleTile*/ {
+public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILittleTile {
 
 	public BlockLTParticle() {
 		super(Material.IRON);
@@ -67,9 +71,15 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator /*,IL
 		return true;
     }
 
-	/*@Override
+	@Override
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
-		return null;
+		ArrayList<LittleTilePreview> previews = new ArrayList<>();
+		NBTTagCompound nbt = new NBTTagCompound();
+		new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle()).saveTile(nbt);;
+		nbt.removeTag("bSize");
+		LittleTilePreview preview = new LittleTilePreview(new LittleTileSize(1, 1, 1), nbt);
+		previews.add(preview);
+		return previews;
 	}
 
 	@Override
@@ -85,6 +95,11 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator /*,IL
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return null;
-	}*/
+	}
+
+	@Override
+	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
+		
+	}
 
 }

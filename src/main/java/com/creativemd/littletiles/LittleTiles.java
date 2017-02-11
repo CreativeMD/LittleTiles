@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
+import com.creativemd.littletiles.common.blocks.LittleTileParticle;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -20,9 +21,11 @@ import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubContainerExport;
 import com.creativemd.littletiles.common.gui.SubContainerImport;
+import com.creativemd.littletiles.common.gui.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubContainerStorage;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
+import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -153,7 +156,7 @@ public class LittleTiles {
 		GameRegistry.register(new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
 		
 		GameRegistry.registerWithItem(storageBlock);
-		//GameRegistry.registerBlock(particleBlock);
+		GameRegistry.registerWithItem(particleBlock);
 		
 		GameRegistry.register(multiTiles);
 		GameRegistry.register(utilityKnife);
@@ -164,6 +167,8 @@ public class LittleTiles {
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
 		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
 		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
+		
+		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
 		
 		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
 			
@@ -179,6 +184,24 @@ public class LittleTiles {
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
 				if(tile.isStructureBlock && tile.structure instanceof LittleStorage)
 					return new SubContainerStorage(player, (LittleStorage) tile.structure);
+				return null;
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("littleparticle", new LittleGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
+				if(tile instanceof LittleTileParticle)
+					return new SubGuiParticle((TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
+				return null;
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
+				if(tile instanceof LittleTileParticle)
+					return new SubContainerParticle(player, (TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
 				return null;
 			}
 		});
@@ -335,6 +358,11 @@ public class LittleTiles {
 		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 1, 4),  new Object[]
 				{
 				"S", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
+				});
+		
+		GameRegistry.addRecipe(new ItemStack(particleBlock),  new Object[]
+				{
+				"XGX", "GLG", "XGX", 'X', Items.COAL, 'L', Items.DYE, 'G', Items.GUNPOWDER
 				});
 		
 		//Water block
