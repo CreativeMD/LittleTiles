@@ -171,6 +171,7 @@ public class RenderingThread extends Thread {
 		            BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
 		            if(!layerBuffer.isDrawing())
 					{
+		            	data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex.get();
 						try {
 							layerBuffer.setDrawing();
 							
