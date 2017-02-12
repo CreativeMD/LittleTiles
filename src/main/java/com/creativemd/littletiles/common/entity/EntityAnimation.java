@@ -7,6 +7,10 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix3f;
+import javax.vecmath.Vector3d;
+
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
@@ -39,6 +43,7 @@ import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.MathHelper;
@@ -60,6 +65,9 @@ public class EntityAnimation extends Entity {
 	
 	@SideOnly(Side.CLIENT)
 	public ArrayList<TileEntityLittleTiles> renderQueue;
+	
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB renderBoundingBox;
 	
 	public void setAxisVec(LittleTileVec axis)
 	{
@@ -174,11 +182,25 @@ public class EntityAnimation extends Entity {
 		{
 			this.renderData = new HashMapList<>();
 			this.renderQueue = new ArrayList<>(blocks);
+			int minX = Integer.MAX_VALUE;
+			int minY = Integer.MAX_VALUE;
+			int minZ = Integer.MAX_VALUE;
+			int maxX = Integer.MIN_VALUE;
+			int maxY = Integer.MIN_VALUE;
+			int maxZ = Integer.MIN_VALUE;
 			for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
 				te.rendering = new AtomicBoolean(false);
 				RenderingThread.addCoordToUpdate(te, 0, false);
+				
+				minX = Math.min(minX, te.getPos().getX());
+				minY = Math.min(minY, te.getPos().getY());
+				minZ = Math.min(minZ, te.getPos().getZ());
+				maxX = Math.max(maxX, te.getPos().getX());
+				maxY = Math.max(maxY, te.getPos().getY());
+				maxZ = Math.max(maxZ, te.getPos().getZ());
 			}
+			renderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX+1, maxY+1, maxZ+1);
 		}
 		approved = false;
 	}
@@ -198,6 +220,58 @@ public class EntityAnimation extends Entity {
 			transformation.performTransformation(this, progress/(double)duration);
 		else
 			return ;
+		
+		if(worldObj.isRemote)
+		{
+			if(prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ)
+			{
+				Matrix3d rotationX = new Matrix3d();
+				rotationX.rotX(Math.toRadians(worldRotX));
+				Matrix3d rotationY = new Matrix3d();
+				rotationY.rotY(Math.toRadians(worldRotY));
+				Matrix3d rotationZ = new Matrix3d();
+				rotationZ.rotZ(Math.toRadians(worldRotZ));
+				
+				ArrayList<Vector3d> boxPoints = new ArrayList<>();
+				boxPoints.add(new Vector3d(renderBoundingBox.minX, renderBoundingBox.minY, renderBoundingBox.minZ));
+				
+				boxPoints.add(new Vector3d(renderBoundingBox.maxX, renderBoundingBox.minY, renderBoundingBox.minZ));
+				boxPoints.add(new Vector3d(renderBoundingBox.minX, renderBoundingBox.maxY, renderBoundingBox.minZ));
+				boxPoints.add(new Vector3d(renderBoundingBox.minX, renderBoundingBox.minY, renderBoundingBox.maxZ));
+				
+				boxPoints.add(new Vector3d(renderBoundingBox.maxX, renderBoundingBox.maxY, renderBoundingBox.minZ));
+				boxPoints.add(new Vector3d(renderBoundingBox.maxX, renderBoundingBox.minY, renderBoundingBox.maxZ));
+				boxPoints.add(new Vector3d(renderBoundingBox.minX, renderBoundingBox.maxY, renderBoundingBox.maxZ));
+				
+				boxPoints.add(new Vector3d(renderBoundingBox.maxX, renderBoundingBox.maxY, renderBoundingBox.maxZ));
+				
+				double minX = Double.MAX_VALUE;
+				double minY = Double.MAX_VALUE;
+				double minZ = Double.MAX_VALUE;
+				double maxX = -Double.MAX_VALUE;
+				double maxY = -Double.MAX_VALUE;
+				double maxZ = -Double.MAX_VALUE;
+				
+				Vector3d origin = new Vector3d(axis.getPosX()+LittleTile.gridMCLength/2, axis.getPosY()+LittleTile.gridMCLength/2, axis.getPosZ()+LittleTile.gridMCLength/2);
+				
+				for (int i = 0; i < boxPoints.size(); i++) {
+					Vector3d vec = boxPoints.get(i);
+					vec.sub(origin);
+					rotationX.transform(vec);
+					rotationY.transform(vec);
+					rotationZ.transform(vec);
+					vec.add(origin);
+					
+					minX = Math.min(minX, vec.x);
+					minY = Math.min(minY, vec.y);
+					minZ = Math.min(minZ, vec.z);
+					maxX = Math.max(maxX, vec.x);
+					maxY = Math.max(maxY, vec.y);
+					maxZ = Math.max(maxZ, vec.z);
+				}
+				setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ));
+			}
+		}
 		
 		if(progress >= duration)
 		{
