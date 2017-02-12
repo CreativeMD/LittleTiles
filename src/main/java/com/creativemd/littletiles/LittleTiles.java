@@ -117,6 +117,8 @@ public class LittleTiles {
 	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet");
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
 	
+	public static boolean invertedShift = false;
+	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{

@@ -28,7 +28,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(/*ItemStack stack,*/ Vec3d playerPos, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean forced) //, int direction, int direction2)
+	public LittlePlacePacket(/*ItemStack stack,*/ Vec3d playerPos, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isSneaking, boolean forced) //, int direction, int direction2)
 	{
 		//this.stack = stack;
 		this.playerPos = playerPos;
@@ -36,6 +36,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		this.pos = pos;
 		this.side = side;
 		this.customPlacement = customPlacement;
+		this.isSneaking = isSneaking;
 		this.forced = forced;
 		//this.direction = direction;
 		//this.direction2 = direction2;
@@ -47,6 +48,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	public BlockPos pos;
 	public EnumFacing side;
 	public boolean customPlacement;
+	public boolean isSneaking;
 	public boolean forced;
 	//public int direction;
 	//public int direction2;
@@ -59,6 +61,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		writePos(buf, pos);
 		writeFacing(buf, side);
 		buf.writeBoolean(customPlacement);
+		buf.writeBoolean(isSneaking);
 		buf.writeBoolean(forced);
 		//buf.writeInt(direction);
 		//buf.writeInt(direction2);
@@ -72,6 +75,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		pos = readPos(buf);
 		this.side = readFacing(buf);
 		this.customPlacement = buf.readBoolean();
+		this.isSneaking = buf.readBoolean();
 		this.forced = buf.readBoolean();
 		//this.direction = buf.readInt();
 		//this.direction2 = buf.readInt();
@@ -91,7 +95,7 @@ public class LittlePlacePacket extends CreativeCorePacket{
 			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);
 			//helper.side = side;
 			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, pos, side, customPlacement, forced); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.worldObj, playerPos, hitVec, helper, pos, side, customPlacement, isSneaking, forced); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);

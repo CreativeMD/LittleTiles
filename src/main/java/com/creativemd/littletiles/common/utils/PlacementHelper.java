@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -74,7 +75,7 @@ public class PlacementHelper {
 	
 	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, false); //, rotation, rotation2);
+		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, LittleTiles.invertedShift != player.isSneaking(), false); //, rotation, rotation2);
 	}
 	
 	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)
@@ -124,12 +125,12 @@ public class PlacementHelper {
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).max(size);
 	}
 	
-	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, false);
+		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, isSneaking, false);
 	}
 	
-	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
 		ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
 		ArrayList<PlacePreviewTile> previews = new ArrayList<PlacePreviewTile>();
@@ -164,8 +165,8 @@ public class PlacementHelper {
 			
 			boolean canPlaceNormal = false;
 			
-			if(!customPlacement && player.isSneaking())
-			{			
+			if(!customPlacement && isSneaking)
+			{
 				if(!inside && !canBePlacedInside(pos, hitVec, side))
 				{
 					pos = pos.offset(side);
