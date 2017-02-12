@@ -120,12 +120,15 @@ public class LittleTiles {
 	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 	
+	public static boolean invertedShift = false;
+	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		invertedShift = config.getBoolean("invertedShift", "Core", invertedShift, "If shift behavior is inverted.");
 		config.save();
 		
 		proxy.loadSidePre();
