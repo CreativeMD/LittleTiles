@@ -8,6 +8,9 @@ import java.util.Map.Entry;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class DoorTransformation {
 	

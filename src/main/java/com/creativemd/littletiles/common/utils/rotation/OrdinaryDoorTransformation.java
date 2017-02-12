@@ -1,10 +1,13 @@
 package com.creativemd.littletiles.common.utils.rotation;
 
+import javax.vecmath.Matrix3f;
+
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class OrdinaryDoorTransformation extends DoorTransformation{
 	
