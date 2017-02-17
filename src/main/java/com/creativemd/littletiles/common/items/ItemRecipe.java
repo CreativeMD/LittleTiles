@@ -209,16 +209,17 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	public static LittleTileSize getSize(ItemStack stack)
 	{
 		ArrayList<LittleTilePreview> tiles = getPreview(stack);
-		int minX = LittleTile.maxPos;
-		int minY = LittleTile.maxPos;
-		int minZ = LittleTile.maxPos;
-		int maxX = LittleTile.minPos;
-		int maxY = LittleTile.minPos;
-		int maxZ = LittleTile.minPos;
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
 			minX = Math.min(minX, tile.box.minX);
 			minY = Math.min(minY, tile.box.minY);
+			minZ = Math.min(minZ, tile.box.minZ);
 			maxX = Math.max(maxX, tile.box.maxX);
 			maxY = Math.max(maxY, tile.box.maxY);
 			maxZ = Math.max(maxZ, tile.box.maxZ);
