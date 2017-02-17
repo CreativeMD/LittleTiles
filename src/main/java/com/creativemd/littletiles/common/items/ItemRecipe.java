@@ -141,16 +141,10 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 						}
 					}
 				}
-										tile.boundingBoxes.get(j).addOffset(offset);
-									}
-									tiles.add(tile);
-								}
-							}
-						}
-					}
-				}
 				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
-				saveTiles(world, tiles, stack);
+				savePreviewTiles(previews, stack);
+				if(world.isRemote)
+					updateSize(getCubes(stack), stack);
 			}
 			return EnumActionResult.SUCCESS;
 		}else if(!stack.hasTagCompound()){
