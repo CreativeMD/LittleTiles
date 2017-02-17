@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.Loader;
 
 public class ChiselsAndBitsManager {
@@ -36,4 +37,10 @@ public class ChiselsAndBitsManager {
 		return false;
 	}
 	
+	public static ArrayList<LittleTilePreview> getPreviews(TileEntity te)
+	{
+		if(isInstalled())
+			return ChiselsAndBitsInteractor.getPreviews(te);
+		return null;
+	}
 }
