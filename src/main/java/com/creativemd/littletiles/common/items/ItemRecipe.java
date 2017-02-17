@@ -18,6 +18,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.gui.SubContainerStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -107,7 +108,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				int minZ = Math.min(firstZ, pos.getZ());
 				int maxZ = Math.max(firstZ, pos.getZ());
 				
-				ArrayList<LittleTile> tiles = new ArrayList<LittleTile>();
+				ArrayList<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
 				
 				stack.getTagCompound().removeTag("x");
 				stack.getTagCompound().removeTag("y");
@@ -118,13 +119,28 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 						for (int posZ = minZ; posZ <= maxZ; posZ++) {
 							BlockPos newPos = new BlockPos(posX, posY, posZ);
 							TileEntity tileEntity = world.getTileEntity(newPos);
+							LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
 							if(tileEntity instanceof TileEntityLittleTiles)
 							{
-								LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-									LittleTile tile = ((LittleTile) iterator.next()).copy();
-									for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+									
+									LittleTilePreview preview = ((LittleTile) iterator.next()).getPreviewTile();
+									preview.box.addOffset(offset);
+									previews.add(preview);
+								}
+							}
+							ArrayList<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
+							if(specialPreviews != null)
+							{
+								for (int i = 0; i < specialPreviews.size(); i++) {
+									specialPreviews.get(i).box.addOffset(offset);
+									previews.add(specialPreviews.get(i));
+								}
+							}
+						}
+					}
+				}
 										tile.boundingBoxes.get(j).addOffset(offset);
 									}
 									tiles.add(tile);
