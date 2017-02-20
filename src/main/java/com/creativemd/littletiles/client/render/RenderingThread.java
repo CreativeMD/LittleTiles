@@ -143,10 +143,18 @@ public class RenderingThread extends Thread {
 					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 						BlockRenderLayer layer = BlockRenderLayer.values()[i];
 						//if(cubeCache.doesNeedUpdate())
-						if(data.te.getWorld() == null)
-							data.te.setWorld(world);
+						if(data.te.getWorld() == null || data.te.getTiles().size() == 0)
+						{
+							throw new RenderingException("Tileentity is not loaded yet!");
+						}
+						
+						
 						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
-					
+						/*if(cubeCache.getCubesByLayer(BlockRenderLayer.SOLID) != null && cubeCache.getCubesByLayer(BlockRenderLayer.SOLID).size() == 0)
+						{
+							System.out.println("ISSUE!");
+						}*/					
+						
 						ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
 						for (int j = 0; j < cubes.size(); j++) {
 							RenderCubeObject cube = cubes.get(j);
@@ -270,7 +278,7 @@ public class RenderingThread extends Thread {
 						updateCoords.add(data);
 				}catch(Exception e){
 					updateCoords.add(data);
-					e.printStackTrace();
+					//e.printStackTrace();
 				}
 			}else if(world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())){
 				updateCoords.clear();
@@ -359,6 +367,13 @@ public class RenderingThread extends Thread {
 				chunks.remove(chunk);
 				chunk.setNeedsUpdate(true);
 			}
+		}
+	}
+	
+	public static class RenderingException extends Exception {
+		
+		public RenderingException(String arg0) {
+			super(arg0);
 		}
 	}
 	
