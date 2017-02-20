@@ -59,14 +59,17 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 		
 		if(animation != null)
 		{
-			if(completeData)
+			if(nbt.getBoolean("failed"))
 			{
+				animation.setDead();
+			}else if(completeData){
 				animation.readFromNBT(nbt);
 				animation.createClient();
+				
 				animation.approved = true;
 			}else{
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
-				animation.approved = animation.transformation.equals(transformation);					
+				animation.approved = animation.transformation.equals(transformation);			
 			}
 			
 		}
@@ -98,6 +101,10 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			else{
 				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid,  animation.transformation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
 			}
+		}else{
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("failed", true);
+			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, nbt, false), (EntityPlayerMP) player);
 		}
 	}
 

@@ -7,6 +7,7 @@ import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleTileSize {
 	
@@ -204,6 +205,20 @@ public class LittleTileSize {
 		this.sizeY = Math.max(this.sizeY, size.sizeY);
 		this.sizeZ = Math.max(this.sizeZ, size.sizeZ);
 		return this;
+	}
+
+	public int getSizeOfAxis(Axis axis) {
+		switch(axis)
+		{
+		case X:
+			return sizeX;
+		case Y:
+			return sizeY;
+		case Z:
+			return sizeZ;
+		default:
+			return 0;
+		}
 	}
 	
 }

@@ -4,6 +4,8 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.plaf.ColorUIResource;
+
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.Color;
@@ -12,6 +14,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
@@ -44,6 +47,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3d;
 
 public class GuiTileViewer extends GuiParent{
@@ -250,6 +254,106 @@ public class GuiTileViewer extends GuiParent{
         GlStateManager.disableBlend();
         GlStateManager.disableLighting();
         GlStateManager.popMatrix();
+        
+        String xAxis = getXFacing().getAxis().name();
+        if(getXFacing().getAxisDirection() == AxisDirection.POSITIVE)
+        	xAxis += " ->";
+        else
+        	xAxis = "<- " + xAxis;
+        String yAxis = getYFacing().getAxis().name();
+        if(getYFacing().getAxisDirection() == AxisDirection.POSITIVE)
+        	yAxis += " ->";
+        else
+        	yAxis = "<- " + yAxis;
+        
+        /*switch(viewDirection){
+        case EAST:
+        	xAxis = "X ->";
+        	yAxis = "<- Y";
+			break;
+        case WEST:
+        	xAxis = "<- X";
+        	yAxis = "<- Y";
+			break;
+		case DOWN:
+			xAxis = "X ->";
+	        yAxis = "<- Z";
+			break;
+		case SOUTH:
+			xAxis = "<- Z";
+	        yAxis = "<- Y";
+			break;
+		case NORTH:
+			xAxis = "Z ->";
+	        yAxis = "<- Y";
+			break;
+        }*/
+        
+        helper.drawStringWithShadow(xAxis, 0, 0, width, 14, ColorUtils.WHITE);
+        
+        GlStateManager.pushMatrix();
+        GlStateManager.translate(14, 0, 0);
+        GlStateManager.rotate(90, 0, 0, 1);
+        helper.drawStringWithShadow(yAxis, 0, 0, width, 14, ColorUtils.WHITE);
+        GlStateManager.popMatrix();
+	}
+	
+	public EnumFacing getXFacing()
+	{
+		switch(viewDirection){
+        case EAST:
+        	return EnumFacing.EAST;
+        case WEST:
+        	return EnumFacing.WEST;
+        case UP:
+        	return EnumFacing.EAST;
+		case DOWN:
+			return EnumFacing.EAST;
+		case SOUTH:
+			return EnumFacing.NORTH;
+		case NORTH:
+			return EnumFacing.SOUTH;
+        }
+		return EnumFacing.EAST;
+	}
+	
+	public EnumFacing getYFacing()
+	{
+		switch(viewDirection){
+        case EAST:
+        	return EnumFacing.DOWN;
+        case WEST:
+        	return EnumFacing.DOWN;
+        case UP:
+        	return EnumFacing.SOUTH;
+		case DOWN:
+			return EnumFacing.NORTH;
+		case SOUTH:
+			return EnumFacing.DOWN;
+		case NORTH:
+			return EnumFacing.DOWN;
+        }
+		return EnumFacing.DOWN;
+	}
+	
+	public EnumFacing getZFacing()
+	{
+		switch(viewDirection)
+		{
+		case EAST:
+        	return EnumFacing.NORTH;
+        case WEST:
+        	return EnumFacing.NORTH;
+        case UP:
+        	return EnumFacing.DOWN;
+		case DOWN:
+			return EnumFacing.DOWN;
+		case SOUTH:
+			return EnumFacing.WEST;
+		case NORTH:
+			return EnumFacing.WEST;
+		}
+		return EnumFacing.NORTH;
 	}
 	
 	@Override

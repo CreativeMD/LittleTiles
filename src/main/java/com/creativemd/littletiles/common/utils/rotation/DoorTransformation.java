@@ -36,6 +36,7 @@ public abstract class DoorTransformation {
 	static
 	{
 		registerTransformationType("ordinary", OrdinaryDoorTransformation.class);
+		registerTransformationType("sliding", SlidingDoorTransformation.class);
 	}
 	
 	public static DoorTransformation loadFromNBT(NBTTagCompound nbt)

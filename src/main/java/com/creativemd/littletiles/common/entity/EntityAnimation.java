@@ -1,39 +1,28 @@
 package com.creativemd.littletiles.common.entity;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix3f;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.TERenderData;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.structure.LittleDoor;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.PreviewTileAxis;
+import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PlacePreviewTile;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -45,8 +34,6 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -56,7 +43,7 @@ public class EntityAnimation extends Entity {
 	
 	private static final DataParameter<Integer> ENTITY_PROGRESS = EntityDataManager.<Integer>createKey(EntityAnimation.class, DataSerializers.VARINT);
 	
-	public LittleDoor structure;
+	public LittleDoorBase structure;
 	public ArrayList<PlacePreviewTile> previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	
@@ -154,8 +141,12 @@ public class EntityAnimation extends Entity {
 	
 	public DoorTransformation transformation;
 	
-	public EntityAnimation(World world, LittleDoor structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, LittleTileVec axis, DoorTransformation transformation, UUID uuid) {
+	public BlockPos startOffset;
+	
+	public EntityAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, LittleTileVec axis, DoorTransformation transformation, UUID uuid) {
 		this(world);
+		
+		setPosition(pos.getX(), pos.getY(), pos.getZ());
 		
 		this.structure = structure;
 		this.blocks = blocks;
@@ -165,14 +156,49 @@ public class EntityAnimation extends Entity {
         this.cachedUniqueIdString = this.entityUniqueID.toString();
         
         setAxisVec(axis);
+        startOffset = pos.subtract(baseOffset);
         this.transformation = transformation;
         
         this.duration = structure.duration;
         
-        //TODO TAKE CARE OF BOUNDING BOX!!!! and position
-        
+        setTransformationStartOffset();
+                
         if(world.isRemote)
         	createClient();
+	}
+	
+	public void setTransformationStartOffset()
+	{
+		transformation.performTransformation(this, 0);
+		prevWorldRotX = worldRotX;
+		prevWorldRotY = worldRotY;
+		prevWorldRotZ = worldRotZ;
+		prevPosX = posX;
+		prevPosY = posY;
+		prevPosZ = posZ;
+	}
+	
+	public void updateRenderBoundingBox()
+	{
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
+			TileEntityLittleTiles te = iterator.next();
+			te.rendering = new AtomicBoolean(false);
+			RenderingThread.addCoordToUpdate(te, 0, false);
+			
+			minX = Math.min(minX, te.getPos().getX());
+			minY = Math.min(minY, te.getPos().getY());
+			minZ = Math.min(minZ, te.getPos().getZ());
+			maxX = Math.max(maxX, te.getPos().getX());
+			maxY = Math.max(maxY, te.getPos().getY());
+			maxZ = Math.max(maxZ, te.getPos().getZ());
+		}
+		renderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX+1, maxY+1, maxZ+1).offset(startOffset);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -182,28 +208,35 @@ public class EntityAnimation extends Entity {
 		{
 			this.renderData = new HashMapList<>();
 			this.renderQueue = new ArrayList<>(blocks);
-			int minX = Integer.MAX_VALUE;
-			int minY = Integer.MAX_VALUE;
-			int minZ = Integer.MAX_VALUE;
-			int maxX = Integer.MIN_VALUE;
-			int maxY = Integer.MIN_VALUE;
-			int maxZ = Integer.MIN_VALUE;
-			for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
-				TileEntityLittleTiles te = iterator.next();
-				te.rendering = new AtomicBoolean(false);
-				RenderingThread.addCoordToUpdate(te, 0, false);
-				
-				minX = Math.min(minX, te.getPos().getX());
-				minY = Math.min(minY, te.getPos().getY());
-				minZ = Math.min(minZ, te.getPos().getZ());
-				maxX = Math.max(maxX, te.getPos().getX());
-				maxY = Math.max(maxY, te.getPos().getY());
-				maxZ = Math.max(maxZ, te.getPos().getZ());
-			}
-			renderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX+1, maxY+1, maxZ+1);
+			updateRenderBoundingBox();
 		}
 		approved = false;
 	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
+    {
+        //this.setPosition(x, y, z);
+        //this.setRotation(yaw, pitch);
+    }
+	
+	@Override
+	public void setPosition(double x, double y, double z)
+    {
+		if(!world.isRemote)
+		{
+			super.setPosition(x, y, z);
+			return ;
+		}
+        this.posX = x;
+        this.posY = y;
+        this.posZ = z;
+        float f = this.width / 2.0F;
+        float f1 = this.height;
+        this.setEntityBoundingBox(new AxisAlignedBB(x - (double)f, y, z - (double)f, x + (double)f, y + (double)f1, z + (double)f));
+        //updateRenderBoundingBox();
+    }
 	
 	@Override
 	public void onUpdate()
@@ -216,7 +249,7 @@ public class EntityAnimation extends Entity {
 		prevWorldRotY = worldRotY;
 		prevWorldRotZ = worldRotZ;
 		
-		if(transformation != null) //Client side
+		if(transformation != null)
 			transformation.performTransformation(this, progress/(double)duration);
 		else
 			return ;
@@ -269,19 +302,39 @@ public class EntityAnimation extends Entity {
 					maxY = Math.max(maxY, vec.y);
 					maxZ = Math.max(maxZ, vec.z);
 				}
-				setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ));
+				BlockPos realStart = baseOffset.add(startOffset);
+				double offsetX = posX - realStart.getX();
+				double offsetY = posY - realStart.getY();
+				double offsetZ = posZ - realStart.getZ();
+				setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(offsetX, offsetY, offsetZ));
 			}
+		}
+		
+		
+		
+		for (int i = 0; i < blocks.size(); i++) {
+			if(i == 0)
+			{
+				WorldFake fakeWorld = (WorldFake) blocks.get(i).getWorld();
+				fakeWorld.offsetX = posX - (getAxisPos().getX() - startOffset.getX());
+				fakeWorld.offsetY = posY - (getAxisPos().getY() - startOffset.getY());
+				fakeWorld.offsetZ = posZ - (getAxisPos().getZ() - startOffset.getZ());
+				if(fakeWorld.axis == null)
+				{
+					Vec3d vec = getAxis().getVec();
+					fakeWorld.axis = new Vector3d(vec.xCoord, vec.yCoord, vec.zCoord);
+				}
+				fakeWorld.rotX = worldRotX;
+				fakeWorld.rotY = worldRotY;
+				fakeWorld.rotZ = worldRotZ;
+			}
+			blocks.get(i).update();
 		}
 		
 		if(progress >= duration)
 		{
 			//Try to place door, if not drop ItemStack
-			LittleDoor structure = new LittleDoor();
-			structure.axisVec = new LittleTileVec(0, 0, 0);
-			structure.setTiles(new ArrayList<LittleTile>());
-			structure.axis = this.structure.axis;
-			structure.normalDirection = this.structure.normalDirection;
-			structure.duration = this.structure.duration;
+			LittleDoorBase structure = this.structure.copyToPlaceDoor();
 			
 			if(!world.isRemote || approved)
 			{
@@ -298,10 +351,16 @@ public class EntityAnimation extends Entity {
 			setProgress(progress + 1);
 	}
 	
+	private int lastSendProgress = -1;
+	
 	public void setProgress(int progress)
 	{
 		this.progress = progress;
-		dataManager.set(ENTITY_PROGRESS, progress);
+		if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress == duration))
+		{
+			dataManager.set(ENTITY_PROGRESS, progress);
+			lastSendProgress = progress;
+		}		
 	}
 	
 	public int getProgress()
@@ -314,12 +373,14 @@ public class EntityAnimation extends Entity {
 		this.dataManager.register(ENTITY_PROGRESS, 0);
 	}
 	
-	 @Override
-	    public void notifyDataManagerChange(DataParameter<?> key)
-	    {
-	        if (ENTITY_PROGRESS.equals(key))
-	        	this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
-	    }
+	@Override
+    public void notifyDataManagerChange(DataParameter<?> key)
+    {
+        if (world.isRemote && ENTITY_PROGRESS.equals(key))
+        {
+        	this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
+        }
+    }
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
@@ -328,6 +389,8 @@ public class EntityAnimation extends Entity {
 		setProgress(compound.getInteger("progress"));
 		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
+		
+		startOffset = new BlockPos(compound.getInteger("strOffX"), compound.getInteger("strOffY"), compound.getInteger("strOffZ"));
 		
 		setAxisVec(new LittleTileVec("axis", compound));
 		
@@ -344,7 +407,7 @@ public class EntityAnimation extends Entity {
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
 				if(tile.isMainBlock)
-					this.structure = (LittleDoor) tile.structure;
+					this.structure = (LittleDoorBase) tile.structure;
 				tiles.add(tile);
 			}
 			worldFake.setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
@@ -368,7 +431,9 @@ public class EntityAnimation extends Entity {
 			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));
 		}
 		
-		defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, structure.axis));
+		defaultpreviews.addAll(structure.getAdditionalPreviews());
+		
+		//defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, structure.axis));
 		
 		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-baseOffset.getX()*LittleTile.gridSize, axisPoint.y-baseOffset.getY()*LittleTile.gridSize, axisPoint.z-baseOffset.getZ()*LittleTile.gridSize);
 		previews = new ArrayList<>();
@@ -389,6 +454,9 @@ public class EntityAnimation extends Entity {
 		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
 		
+		compound.setInteger("strOffX", startOffset.getX());
+		compound.setInteger("strOffY", startOffset.getY());
+		compound.setInteger("strOffZ", startOffset.getZ());
 		axis.writeToNBT("axis", compound);
 		
 		NBTTagList list = new NBTTagList();
@@ -399,6 +467,45 @@ public class EntityAnimation extends Entity {
 		}
 		
 		compound.setTag("tileEntity", list);
+		
+		setTransformationStartOffset();
+	}
+
+	public EntityAnimation copy()
+	{
+		EntityAnimation animation = new EntityAnimation(world);
+		animation.setUniqueId(getUniqueID());
+		animation.setAxisVec(getAxis());
+		animation.structure = structure;
+		animation.previews = previews;
+		animation.blocks = blocks;
+		
+		if(world.isRemote)
+		{
+			animation.renderData = renderData;
+			animation.renderQueue = renderQueue;
+			animation.renderBoundingBox = renderBoundingBox;
+		}
+		
+		animation.prevWorldRotX = prevWorldRotX;
+		animation.prevWorldRotY = prevWorldRotY;
+		animation.prevWorldRotZ = prevWorldRotZ;
+		
+		animation.worldRotX = worldRotX;
+		animation.worldRotY = worldRotY;
+		animation.worldRotZ = worldRotZ;
+		
+		animation.progress = progress;
+		
+		animation.duration = duration;
+		
+		animation.approved = approved;
+		
+		animation.transformation = transformation;
+		animation.startOffset = startOffset;
+		
+		animation.lastSendProgress = lastSendProgress;
+		return animation;
 	}
 	
 	

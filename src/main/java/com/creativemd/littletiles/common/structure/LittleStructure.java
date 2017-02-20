@@ -97,6 +97,7 @@ public abstract class LittleStructure {
 		registerLittleStructure("fixed", new LittleFixedStructure());
 		registerLittleStructure("chair", new LittleChair());
 		registerLittleStructure("door", new LittleDoor());
+		registerLittleStructure("slidingDoor", new LittleSlidingDoor());
 		registerLittleStructure("ladder", new LittleLadder());
 		registerLittleStructure("bed", new LittleBed());
 		registerLittleStructure("storage", new LittleStorage());

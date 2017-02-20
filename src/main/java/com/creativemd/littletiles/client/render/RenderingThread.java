@@ -261,7 +261,7 @@ public class RenderingThread extends Thread {
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
 						} catch (Exception e) {
-							e.printStackTrace();
+							//e.printStackTrace();
 							updateCoords.add(data);
 							if(layerBuffer != null)
 								layerBuffer.setFinishedDrawing();
