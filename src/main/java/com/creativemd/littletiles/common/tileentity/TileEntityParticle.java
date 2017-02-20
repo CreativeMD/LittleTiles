@@ -4,7 +4,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.vecmath.Vector3d;
+
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
+import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
@@ -108,8 +111,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			Vec3d offset = new Vec3d(0.5, 1, 0.5);
 			if(tile != null)
 				offset = tile.cornerVec.getVec().addVector(LittleTile.gridMCLength/2, LittleTile.gridMCLength, LittleTile.gridMCLength/2);
-			
-			
+				
 			if(speed >= 1)
 			{
 				for (int i = 0; i < speed; i++) {
@@ -144,7 +146,13 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");
 		
 		try {
-			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, false, getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
+			Vector3d pos = new Vector3d(getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord);
+			if(world instanceof WorldFake)
+			{
+				pos = ((WorldFake) world).getRotatedVector(pos);
+			}
+			
+			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
 			if(particle != null)
 				particle.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particle)*ageModifier)));
 		} catch (Exception e) {

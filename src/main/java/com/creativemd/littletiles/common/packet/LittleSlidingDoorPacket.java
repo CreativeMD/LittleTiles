@@ -6,12 +6,12 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.common.structure.LittleDoor;
+import com.creativemd.littletiles.common.structure.LittleSlidingDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -19,30 +19,25 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleDoorInteractPacket extends CreativeCorePacket {
-	
+public class LittleSlidingDoorPacket extends CreativeCorePacket {
 	
 	public BlockPos blockPos;
-	public Rotation direction;
-	public boolean inverse;
 	public Vec3d pos;
 	public Vec3d look;
 	
 	public UUID uuid;
 	
-	public LittleDoorInteractPacket() {
+	public LittleSlidingDoorPacket() {
 		
 	}
 	
-	public LittleDoorInteractPacket(BlockPos blockPos, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
+	public LittleSlidingDoorPacket(BlockPos blockPos, EntityPlayer player, UUID uuid)
 	{
 		this.blockPos = blockPos;
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
-		this.direction = rotation;
-		this.inverse = inverse;
 		this.uuid = uuid;
 	}
 
@@ -51,8 +46,6 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		writePos(buf, blockPos);
 		writeVec3(pos, buf);
 		writeVec3(look, buf);
-		buf.writeInt(direction.ordinal());
-		buf.writeBoolean(inverse);
 		writeString(buf, uuid.toString());
 	}
 
@@ -61,8 +54,6 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		blockPos = readPos(buf);
 		pos = readVec3(buf);
 		look = readVec3(buf);
-		direction = Rotation.values()[buf.readInt()];
-		inverse = buf.readBoolean();
 		uuid = UUID.fromString(readString(buf));
 	}
 
@@ -74,21 +65,20 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
-		World world = player.worldObj;
+		TileEntity tileEntity = player.world.getTileEntity(blockPos);
+		World world = player.world;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-			if(tile != null && tile.isLoaded() && tile.structure instanceof LittleDoor)
+			if(tile != null && tile.isLoaded() && tile.structure instanceof LittleSlidingDoor)
 			{
-				((LittleDoor) tile.structure).interactWithDoor(world, player, direction, inverse, uuid);
+				((LittleSlidingDoor) tile.structure).interactWithDoor(world, blockPos, player, uuid);
 				//System.out.println("Open Door");
-			}//else
-				//System.out.println("No door found!");
-		}
+			}else
+				System.out.println("No door found!");
+		
+		}else
+			System.out.println("No tileentity found!");
 	}
-	
-	
-	
 }

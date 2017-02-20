@@ -26,6 +26,7 @@ import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.tileentity.TileEntity;
@@ -84,6 +85,10 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		entity.renderQueue.removeAll(TEtoRemove);
 		
 		/**===Render static part===**/
+		
+		Vec3d rotation = entity.getRotVector(partialTicks);
+		
+		
 		//SETUP OPENGL
 		
 		bindTexture( TextureMap.LOCATION_BLOCKS_TEXTURE );
@@ -130,7 +135,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				
 				GlStateManager.translate(entity.getInsideBlockAxis().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosZ()+LittleTile.gridMCLength/2);
 				
-				Vec3d rotation = entity.getRotVector(partialTicks);
+				
 				GL11.glRotated(rotation.xCoord, 1, 0, 0);
 				GL11.glRotated(rotation.yCoord, 0, 1, 0);
 				GL11.glRotated(rotation.zCoord, 0, 0, 1);
@@ -200,17 +205,43 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			}
 		}
 		
-		Minecraft.getMinecraft().entityRenderer.disableLightmap();
+		//Minecraft.getMinecraft().entityRenderer.disableLightmap();
 		
 		/**===Render dynamic part===**/
-		//Setup OPENGL
 		
+		GlStateManager.enableRescaleNormal();
+		
+		//Setup OPENGL
 		for (Iterator<TileEntityLittleTiles> iterator = entity.blocks.iterator(); iterator.hasNext();) {
 			TileEntityLittleTiles te = iterator.next();
 			if(te.shouldRenderInPass(0))
 			{
+                GlStateManager.pushMatrix();
+                
+                BlockPos blockpos = te.getPos();
+                
+                BlockPos newpos = te.getPos().subtract(entity.getAxisPos());
+                
+                
+                GlStateManager.translate(x, y, z);
+        		
+        		GlStateManager.translate(entity.getInsideBlockAxis().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosZ()+LittleTile.gridMCLength/2);
+        		
+        		GL11.glRotated(rotation.xCoord, 1, 0, 0);
+        		GL11.glRotated(rotation.yCoord, 0, 1, 0);
+        		GL11.glRotated(rotation.zCoord, 0, 0, 1);
+        		
+        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
+        		
+				GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
 				//Render TileEntity
+        		
+        		//GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
+        		
+				TileEntityRendererDispatcher.instance.renderTileEntity(te, partialTicks, -1);
 				
+				GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
+				GlStateManager.popMatrix();
 			}
 		}
     }

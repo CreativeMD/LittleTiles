@@ -16,12 +16,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class PreviewTileAxis extends PlacePreviewTile{
+public class PlacePreviewTileAxis extends PlacePreviewTile{
 	
 	public static Vec3d red = new Vec3d(1, 0, 0);
 	public EnumFacing.Axis axis;
 
-	public PreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis) {
+	public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis) {
 		super(box, preview);
 		this.axis = axis;
 	}
@@ -35,7 +35,7 @@ public class PreviewTileAxis extends PlacePreviewTile{
 	@Override
 	public PlacePreviewTile copy()
 	{
-		return new PreviewTileAxis(box.copy(), null, axis);
+		return new PlacePreviewTileAxis(box.copy(), null, axis);
 	}
 	
 	@Override
