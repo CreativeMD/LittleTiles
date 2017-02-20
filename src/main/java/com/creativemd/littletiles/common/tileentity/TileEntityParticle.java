@@ -140,7 +140,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		if(spawnParticle0 == null)
-			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, mc.renderGlobal, new String[]{"spawnParticle0", "func_190571_b"}, int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
+			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, mc.renderGlobal, new String[]{"spawnEntityFX", "func_174974_b"}, int.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
 		
 		if(particleMaxAge == null)
 			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");
@@ -152,7 +152,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 				pos = ((WorldFake) worldObj).getRotatedVector(pos);
 			}
 			
-			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
+			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
 			if(particle != null)
 				particle.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particle)*ageModifier)));
 		} catch (Exception e) {
