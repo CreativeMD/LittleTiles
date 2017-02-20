@@ -82,7 +82,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 			
 			EntityAnimation animation = new EntityAnimation(world, pos, structure, blocks, previews, structure.getAxisVec(), transformation, uuid);
 			//animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
-			world.spawnEntity(animation);
+			world.spawnEntityInWorld(animation);
 			return true;
 		}
 		

@@ -224,7 +224,7 @@ public class EntityAnimation extends Entity {
 	@Override
 	public void setPosition(double x, double y, double z)
     {
-		if(!world.isRemote)
+		if(!worldObj.isRemote)
 		{
 			super.setPosition(x, y, z);
 			return ;
@@ -356,7 +356,7 @@ public class EntityAnimation extends Entity {
 	public void setProgress(int progress)
 	{
 		this.progress = progress;
-		if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress == duration))
+		if(!worldObj.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress == duration))
 		{
 			dataManager.set(ENTITY_PROGRESS, progress);
 			lastSendProgress = progress;
@@ -376,7 +376,7 @@ public class EntityAnimation extends Entity {
 	@Override
     public void notifyDataManagerChange(DataParameter<?> key)
     {
-        if (world.isRemote && ENTITY_PROGRESS.equals(key))
+        if (worldObj.isRemote && ENTITY_PROGRESS.equals(key))
         {
         	this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
         }
@@ -473,14 +473,14 @@ public class EntityAnimation extends Entity {
 
 	public EntityAnimation copy()
 	{
-		EntityAnimation animation = new EntityAnimation(world);
+		EntityAnimation animation = new EntityAnimation(worldObj);
 		animation.setUniqueId(getUniqueID());
 		animation.setAxisVec(getAxis());
 		animation.structure = structure;
 		animation.previews = previews;
 		animation.blocks = blocks;
 		
-		if(world.isRemote)
+		if(worldObj.isRemote)
 		{
 			animation.renderData = renderData;
 			animation.renderQueue = renderQueue;

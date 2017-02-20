@@ -84,7 +84,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		{
 			if(!hasLoaded())
 			{
-				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
+				player.addChatComponentMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"));
 				return true;
 			}
 			

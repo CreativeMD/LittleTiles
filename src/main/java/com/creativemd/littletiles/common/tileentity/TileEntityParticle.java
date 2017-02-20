@@ -147,9 +147,9 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		
 		try {
 			Vector3d pos = new Vector3d(getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord);
-			if(world instanceof WorldFake)
+			if(worldObj instanceof WorldFake)
 			{
-				pos = ((WorldFake) world).getRotatedVector(pos);
+				pos = ((WorldFake) worldObj).getRotatedVector(pos);
 			}
 			
 			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});

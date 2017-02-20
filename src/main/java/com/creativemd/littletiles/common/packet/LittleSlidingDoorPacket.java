@@ -65,8 +65,8 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.world.getTileEntity(blockPos);
-		World world = player.world;
+		TileEntity tileEntity = player.worldObj.getTileEntity(blockPos);
+		World world = player.worldObj;
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
