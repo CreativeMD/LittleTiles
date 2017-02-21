@@ -226,6 +226,7 @@ public class LittleTilesClient extends LittleTilesServer{
 					mc.theWorld.removeEntity(animation);
 					animation = animation.copy();
 					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), false));
+					animation.isDead = true;
 					mc.theWorld.loadedEntityList.remove(animation);
 					//mc.world.removeEntity(animation);
 					//animation.isDead = false;

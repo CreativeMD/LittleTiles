@@ -20,6 +20,7 @@ import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -81,6 +82,18 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return tiles;
 	}
 	
+	private boolean hasLoaded = false;
+	
+	public boolean hasLoaded()
+	{
+		return hasLoaded;
+	}
+	
+	public void setLoaded()
+	{
+		hasLoaded = true;
+	}
+	
 	/*public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
@@ -107,6 +120,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		return collisionChecks > 0;
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public EntityAnimation waitingAnimation;
 	
 	/*@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
@@ -160,6 +176,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		
 		if(renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
+		
+		if(waitingAnimation != null && !getCubeCache().doesNeedUpdate())
+		{
+			waitingAnimation.removeWaitingTe(this);
+			waitingAnimation = null;
+		}
 		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
 		
@@ -560,6 +582,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
+        
+        setLoaded();
+        
         if(tiles != null)
         	tiles.clear();
         if(updateTiles != null)
@@ -756,6 +781,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				forceChunkRenderUpdate = false;
 			}
 		}*/
+		
+		setLoaded();
 		
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
