@@ -362,17 +362,17 @@ public class EntityAnimation extends Entity {
 				//Try to place door, if not drop ItemStack
 				LittleDoorBase structure = this.structure.copyToPlaceDoor();
 				
-				if(!world.isRemote || approved)
+				if(!worldObj.isRemote || approved)
 				{
-					if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+					if(ItemBlockTiles.placeTiles(worldObj, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
 					{
-						if(world.isRemote)
+						if(worldObj.isRemote)
 						{
 							structure.isWaitingForApprove = true;
 							waitingForRender = new ArrayList<>();
 							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(ItemBlockTiles.getSplittedTiles(previews, baseOffset).getKeys());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
-								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
+								TileEntity te = worldObj.getTileEntity(coordsToCheck.get(i));
 								if(te instanceof TileEntityLittleTiles)
 								{
 									((TileEntityLittleTiles) te).waitingAnimation = this;
@@ -383,11 +383,12 @@ public class EntityAnimation extends Entity {
 							//System.out.println("Start waiting");
 							return ;
 						}
-					}else if(!world.isRemote)
-						WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+					}else if(!worldObj.isRemote)
+						WorldUtils.dropItem(worldObj, this.structure.getStructureDrop(), baseOffset);
 				}
 				
-				setDead();
+				isDead = true;
+				//setDead();
 			}else
 				setProgress(progress + 1);
 		}
@@ -425,7 +426,7 @@ public class EntityAnimation extends Entity {
 	@Override
     public void notifyDataManagerChange(DataParameter<?> key)
     {
-        if (world.isRemote && ENTITY_PROGRESS.equals(key))
+        if (worldObj.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
         {
         	this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
         }
