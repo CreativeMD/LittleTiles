@@ -22,6 +22,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeConsumer;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
@@ -100,7 +101,7 @@ public class RenderingThread extends Thread {
 						count = new AtomicInteger(0);
 						renderer.chunks.put(chunk, count);
 					}
-					count.addAndGet(1);
+					count.getAndIncrement();
 				}
 			}
 			renderer.updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos(), requiresUpdate));
@@ -143,9 +144,9 @@ public class RenderingThread extends Thread {
 					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 						BlockRenderLayer layer = BlockRenderLayer.values()[i];
 						//if(cubeCache.doesNeedUpdate())
-						if(data.te.getWorld() == null || data.te.getTiles().size() == 0)
+						if(data.te.getWorld() == null || !data.te.hasLoaded())
 						{
-							throw new RenderingException("Tileentity is not loaded yet!");
+							throw new RenderingException("Tileentity is not loaded yet!");							
 						}
 						
 						
@@ -186,7 +187,11 @@ public class RenderingThread extends Thread {
 							if(consumer.format != LittleTilesClient.getBlockVertexFormat())
 								consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
 							
-							consumer.setWorld(data.te.getWorld());
+							World renderWorld = data.te.getWorld();
+							if(renderWorld instanceof WorldFake && !((WorldFake) renderWorld).shouldRender)
+								renderWorld = ((WorldFake) renderWorld).parentWorld;
+							
+							consumer.setWorld(renderWorld);
 							consumer.setBlockPos(pos);
 							consumer.getBlockInfo().updateLightMatrix();
 							
@@ -264,7 +269,7 @@ public class RenderingThread extends Thread {
 							}
 							
 							layerBuffer.setFinishedDrawing();
-							setRendered(data.te, layerBuffer);							
+							setRendered(data, layerBuffer);							
 							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
@@ -342,30 +347,41 @@ public class RenderingThread extends Thread {
         }
 	}
 	
-	public synchronized void setRendered(TileEntityLittleTiles te, BlockLayerRenderBuffer buffer)
+	public synchronized void setRendered(RenderingData data, BlockLayerRenderBuffer buffer)
 	{
+		TileEntityLittleTiles te = data.te;
 		te.rendering.set(false);
 		
-		RenderChunk chunk = te.lastRenderedChunk;
-		if(chunk == null)
+		if(data.requiresUpdate)
 		{
-			chunks.clear();
-			te.setBuffer(buffer);
-			return ;
-		}
-		synchronized (chunks){
-			AtomicInteger count = chunks.get(chunk);
-			if(count != null)
-				count.getAndDecrement();
-			
-			boolean uploadDirectly = te.getBuffer() == null;
-			uploadDirectly = false;
-			te.setBuffer(buffer);
-			
-			if(count == null || count.intValue() <= 0)
+			RenderChunk chunk = te.lastRenderedChunk;
+			if(chunk == null)
 			{
-				chunks.remove(chunk);
-				chunk.setNeedsUpdate(true);
+				chunks.clear();
+				te.setBuffer(buffer);
+				return ;
+			}
+			
+			synchronized (chunks){
+				if(distanceRenderer.updateCoords.size() == 0 && nearbyRenderer.updateCoords.size() == 0)
+					chunks.clear();
+				
+				AtomicInteger count = chunks.get(chunk);
+				if(count != null)
+					count.getAndDecrement();
+				
+				//System.out.println("finished " + count);
+				
+				boolean uploadDirectly = te.getBuffer() == null;
+				uploadDirectly = false;
+				te.setBuffer(buffer);
+				
+				if(count == null || count.intValue() <= 0)
+				{
+					//System.out.println("updating chunks");
+					chunks.remove(chunk);
+					chunk.setNeedsUpdate(true);
+				}
 			}
 		}
 	}

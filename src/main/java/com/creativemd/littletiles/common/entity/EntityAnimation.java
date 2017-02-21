@@ -56,6 +56,21 @@ public class EntityAnimation extends Entity {
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB renderBoundingBox;
 	
+	@SideOnly(Side.CLIENT)
+	protected ArrayList<TileEntityLittleTiles> waitingForRender;
+	
+	@SideOnly(Side.CLIENT)
+	public boolean isWaitingForRender()
+	{
+		return waitingForRender != null;
+	}
+	
+	public void removeWaitingTe(TileEntityLittleTiles te)
+	{
+		waitingForRender.remove(te);
+		renderData.removeValue(new TERenderData(null, null, te.getPos()));
+	}
+	
 	public void setAxisVec(LittleTileVec axis)
 	{
 		this.axis = axis;
@@ -189,6 +204,7 @@ public class EntityAnimation extends Entity {
 		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
 			TileEntityLittleTiles te = iterator.next();
 			te.rendering = new AtomicBoolean(false);
+			te.setLoaded();
 			RenderingThread.addCoordToUpdate(te, 0, false);
 			
 			minX = Math.min(minX, te.getPos().getX());
@@ -331,25 +347,58 @@ public class EntityAnimation extends Entity {
 			blocks.get(i).update();
 		}
 		
-		if(progress >= duration)
+		if(world.isRemote && isWaitingForRender())
 		{
-			//Try to place door, if not drop ItemStack
-			LittleDoorBase structure = this.structure.copyToPlaceDoor();
-			
-			if(!world.isRemote || approved)
+			//System.out.println("waiting");
+			if(waitingForRender.size() == 0)
 			{
-				if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+				//System.out.println("KILL IT!");
+				isDead = true;
+			}else
+				isDead = false;
+		}else{
+			if(progress >= duration)
+			{
+				//Try to place door, if not drop ItemStack
+				LittleDoorBase structure = this.structure.copyToPlaceDoor();
+				
+				if(!world.isRemote || approved)
 				{
-					if(world.isRemote)
-						structure.isWaitingForApprove = true;
-				}else if(!world.isRemote)
-					WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
-			}
-			
-			setDead();
-		}else
-			setProgress(progress + 1);
+					if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+					{
+						if(world.isRemote)
+						{
+							structure.isWaitingForApprove = true;
+							waitingForRender = new ArrayList<>();
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(ItemBlockTiles.getSplittedTiles(previews, baseOffset).getKeys());
+							for (int i = 0; i < coordsToCheck.size(); i++) {
+								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
+								if(te instanceof TileEntityLittleTiles)
+								{
+									((TileEntityLittleTiles) te).waitingAnimation = this;
+									waitingForRender.add((TileEntityLittleTiles) te);
+								}
+							}
+							isDead = false;
+							//System.out.println("Start waiting");
+							return ;
+						}
+					}else if(!world.isRemote)
+						WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+				}
+				
+				setDead();
+			}else
+				setProgress(progress + 1);
+		}
 	}
+	
+	@Override
+	public void setDead()
+    {
+		if(!world.isRemote)
+			this.isDead = true;
+    }
 	
 	private int lastSendProgress = -1;
 	
