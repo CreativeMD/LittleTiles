@@ -1,7 +1,0 @@
-{
-    "parent": "item/generated",
-    "textures": {
-        "layer0": "littletiles:items/LTColorTube",
-        "layer1": "littletiles:items/LTColorTube-Overlay"
-    }
-}
