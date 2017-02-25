@@ -175,9 +175,9 @@ public class LittleEvent {
 	@SubscribeEvent
 	public void onPlayerSleep(PlayerSleepInBedEvent event)
 	{
-		if(event.getEntityPlayer().world.getBlockState(event.getPos()).getBlock() instanceof BlockTile)
+		if(event.getEntityPlayer().worldObj.getBlockState(event.getPos()).getBlock() instanceof BlockTile)
 		{
-			TileEntityLittleTiles te = BlockTile.loadTe(event.getEntityPlayer().world, event.getPos());
+			TileEntityLittleTiles te = BlockTile.loadTe(event.getEntityPlayer().worldObj, event.getPos());
 			if(te != null)
 			{
 				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {

@@ -52,10 +52,10 @@ public class LittleBedPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeClient(EntityPlayer player) {
-		Entity entity = playerID == -1 ? player : player.world.getEntityByID(playerID);
+		Entity entity = playerID == -1 ? player : player.worldObj.getEntityByID(playerID);
 		if(entity instanceof EntityPlayer)
 		{
-			TileEntityLittleTiles te = BlockTile.loadTe(player.world, pos);
+			TileEntityLittleTiles te = BlockTile.loadTe(player.worldObj, pos);
 			if(te != null)
 			{
 				LittleTile tile = te.getTile(vec);

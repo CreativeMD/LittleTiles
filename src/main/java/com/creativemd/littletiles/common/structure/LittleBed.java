@@ -152,10 +152,10 @@ public class LittleBed extends LittleStructure{
 			e.printStackTrace();
 		}
 		
-        IBlockState state = player.bedLocation == null ? null : player.world.getBlockState(player.bedLocation);
-        if (state != null && state.getBlock().isBed(state, player.world, player.bedLocation, player))
+        IBlockState state = player.playerLocation == null ? null : player.worldObj.getBlockState(player.playerLocation);
+        if (state != null && state.getBlock().isBed(state, player.worldObj, player.playerLocation, player))
         {
-            EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.world, player.bedLocation);
+            EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.worldObj, player.playerLocation);
 
             switch (enumfacing)
             {
@@ -184,26 +184,26 @@ public class LittleBed extends LittleStructure{
 	{		
 		BlockPos center = highest.getBlockPos();
 
-        if (!player.world.isRemote)
+        if (!player.worldObj.isRemote)
         {
             if (player.isPlayerSleeping() || !player.isEntityAlive())
             {
                 return EntityPlayer.SleepResult.OTHER_PROBLEM;
             }
 
-            if (!player.world.provider.isSurfaceWorld())
+            if (!player.worldObj.provider.isSurfaceWorld())
             {
                 return EntityPlayer.SleepResult.NOT_POSSIBLE_HERE;
             }
 
-            if (player.world.isDaytime())
+            if (player.worldObj.isDaytime())
             {
                 return EntityPlayer.SleepResult.NOT_POSSIBLE_NOW;
             }
 
             double d0 = 8.0D;
             double d1 = 5.0D;
-            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)center.getX() - 8.0D, (double)center.getY() - 5.0D, (double)center.getZ() - 8.0D, (double)center.getX() + 8.0D, (double)center.getY() + 5.0D, (double)center.getZ() + 8.0D));
+            List<EntityMob> list = player.worldObj.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)center.getX() - 8.0D, (double)center.getY() - 5.0D, (double)center.getZ() - 8.0D, (double)center.getX() + 8.0D, (double)center.getY() + 5.0D, (double)center.getZ() + 8.0D));
 
             if (!list.isEmpty())
             {
@@ -243,14 +243,14 @@ public class LittleBed extends LittleStructure{
 			e.printStackTrace();
 		}
         
-        player.bedLocation = getMainTile().te.getPos();
+        player.playerLocation = getMainTile().te.getPos();
         player.motionX = 0.0D;
         player.motionY = 0.0D;
         player.motionZ = 0.0D;
 
-        if (!player.world.isRemote)
+        if (!player.worldObj.isRemote)
         {
-            player.world.updateAllPlayersSleepingFlag();
+            player.worldObj.updateAllPlayersSleepingFlag();
         }
         return EntityPlayer.SleepResult.OK;
 	}
@@ -297,12 +297,12 @@ public class LittleBed extends LittleStructure{
 			hasBeenActivated = true;
 			return true;
 		}
-        if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
+        if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
         {
         	LittleTileVec vec = getHighestCenterPoint();
         	if(this.sleepingPlayer != null)
         	{
-        		player.sendStatusMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]), true);
+        		player.addChatComponentMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]));
         		return true;
         	}
         	
