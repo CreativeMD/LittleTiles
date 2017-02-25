@@ -1,13 +1,18 @@
 package com.creativemd.littletiles.common.events;
 
+import java.util.Iterator;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
+import com.creativemd.littletiles.common.structure.LittleBed;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
@@ -21,6 +26,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -38,9 +44,14 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
+import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -122,4 +133,64 @@ public class LittleEvent {
 		}
 	}
 	
+	@SubscribeEvent
+	public void isSleepingLocationAllowed(SleepingLocationCheckEvent event)
+	{
+		try {
+			LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getEntityPlayer());
+			if(bed instanceof LittleBed && ((LittleBed) bed).sleepingPlayer == event.getEntityPlayer())
+				event.setResult(Result.ALLOW);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPlayerLogout(PlayerLoggedOutEvent event)
+	{
+		try {
+			LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.player);
+			if(bed instanceof LittleBed)
+				((LittleBed) bed).sleepingPlayer = null;
+			LittleBed.littleBed.set(event.player, null);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onWakeUp(PlayerWakeUpEvent event)
+	{
+		try {
+			LittleStructure bed = (LittleStructure) LittleBed.littleBed.get(event.getEntityPlayer());
+			if(bed instanceof LittleBed)
+				((LittleBed) bed).sleepingPlayer = null;
+			LittleBed.littleBed.set(event.getEntityPlayer(), null);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void onPlayerSleep(PlayerSleepInBedEvent event)
+	{
+		if(event.getEntityPlayer().world.getBlockState(event.getPos()).getBlock() instanceof BlockTile)
+		{
+			TileEntityLittleTiles te = BlockTile.loadTe(event.getEntityPlayer().world, event.getPos());
+			if(te != null)
+			{
+				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+					LittleTile tile = (LittleTile) iterator.next();
+					if(tile.structure instanceof LittleBed && ((LittleBed) tile.structure).hasBeenActivated)
+					{
+						((LittleBed) tile.structure).trySleep(event.getEntityPlayer(), tile.structure.getHighestCenterPoint());
+						event.setResult(SleepResult.OK);
+						((LittleBed) tile.structure).hasBeenActivated = false;
+						return ;
+					}
+				}
+			}
+		}
+	}
 }

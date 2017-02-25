@@ -639,11 +639,6 @@ public abstract class LittleStructure {
 	{
 		return false;
 	}
-	
-	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos)
-    {
-        return EnumFacing.EAST;
-    }
 
 	public boolean isLadder()
 	{

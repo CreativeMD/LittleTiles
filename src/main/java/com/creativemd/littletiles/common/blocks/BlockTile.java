@@ -27,6 +27,8 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
+import com.creativemd.littletiles.common.structure.LittleBed;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
@@ -40,6 +42,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockHorizontal;
+import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -192,16 +195,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         return false;
     }
 	
-	public LittleTile sleepingTile = null;
-	
-	@Override
-	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos)
-    {
-		if(sleepingTile != null && sleepingTile.isStructureBlock && sleepingTile.structure != null)
-			return sleepingTile.structure.getBedDirection(state, world, pos);
-		return EnumFacing.EAST;
-    }
-	
 	@Override
 	public void setBedOccupied(IBlockAccess world, BlockPos pos, EntityPlayer player, boolean occupied)
     {
@@ -209,18 +202,30 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     }
 	
 	@Override
-	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, Entity player)
+	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player)
     {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
+			LittleStructure bed = null;
+			try {
+				bed = (LittleStructure) LittleBed.littleBed.get(player);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				if(tile.isBed(world, pos, (EntityLivingBase) player))
+				if(tile.structure == bed)
 					return true;
 			}
 		}
-        return false;
+		return false;
+    }
+	
+	@Override
+	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+		return EnumFacing.SOUTH;
     }
 	
 	@Override

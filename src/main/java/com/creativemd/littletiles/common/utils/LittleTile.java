@@ -627,13 +627,6 @@ public abstract class LittleTile {
 		return false;
 	}
 	
-	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
-	{
-		if(isLoaded())
-			return structure.isBed(world, pos, player);
-		return false;
-	}
-	
 	//================Collision================
 	
 	public ArrayList<LittleTileBox> getCollisionBoxes()
