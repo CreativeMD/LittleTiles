@@ -56,8 +56,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		//writeItemStack(buf, stack);
-		writeVec3(playerPos, buf);
-		writeVec3(hitVec, buf);
+		writeVec3d(playerPos, buf);
+		writeVec3d(hitVec, buf);
 		writePos(buf, pos);
 		writeFacing(buf, side);
 		buf.writeBoolean(customPlacement);
@@ -70,8 +70,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	@Override
 	public void readBytes(ByteBuf buf) {
 		//stack = readItemStack(buf);
-		playerPos = readVec3(buf);
-		hitVec = readVec3(buf);
+		playerPos = readVec3d(buf);
+		hitVec = readVec3d(buf);
 		pos = readPos(buf);
 		this.side = readFacing(buf);
 		this.customPlacement = buf.readBoolean();

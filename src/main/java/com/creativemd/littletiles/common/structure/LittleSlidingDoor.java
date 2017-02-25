@@ -235,14 +235,17 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			viewer.baked = null;
 		}
 		
-		GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) event.source.parent.get("relativeDirection");
-		
-		EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source.parent.get("direction")).getState());
-		
-		updateDirection(viewer, direction, relativeDirection);
+		if(event.source.parent instanceof SubGuiStructure)
+		{
+			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) event.source.parent.get("relativeDirection");
+			
+			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source.parent.get("direction")).getState());
+			
+			updateDirection(viewer, direction, relativeDirection);
+		}
 	}
 	
-	public void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection)
+	public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection)
 	{
 		EnumFacing newDirection = EnumFacing.EAST;
 		

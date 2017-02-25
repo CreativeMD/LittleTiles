@@ -51,15 +51,15 @@ public class LittleBlockVanillaPacket extends CreativeCorePacket {
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, blockPos);
-		writeVec3(pos, buf);
-		writeVec3(look, buf);
+		writeVec3d(pos, buf);
+		writeVec3d(look, buf);
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		blockPos = readPos(buf);
-		pos = readVec3(buf);
-		look = readVec3(buf);		
+		pos = readVec3d(buf);
+		look = readVec3d(buf);		
 	}
 
 	@Override

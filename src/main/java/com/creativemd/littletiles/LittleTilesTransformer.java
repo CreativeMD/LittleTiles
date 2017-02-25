@@ -1,11 +1,13 @@
 package com.creativemd.littletiles;
 
 import java.util.Iterator;
+import java.util.ListIterator;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -15,6 +17,10 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.creativemd.creativecore.transformer.CreativeTransformer;
 import com.creativemd.creativecore.transformer.Transformer;
+import com.creativemd.littletiles.common.structure.LittleBed;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+
+import net.minecraft.entity.player.EntityPlayer;
 
 public class LittleTilesTransformer extends CreativeTransformer {
 
@@ -49,46 +55,46 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		/*addTransformer(new Transformer("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher") {
+		addTransformer(new Transformer("net.minecraft.entity.player.EntityPlayer") {
 			
 			@Override
 			public void transform(ClassNode node) {
-				MethodNode m = new MethodNode(Opcodes.ACC_PUBLIC, "uploadChunk", patchDESC("(Lnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator$Type;Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/VertexBuffer;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)Lcom/google/common/util/concurrent/ListenableFuture;"), patchDESC("(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/VertexBuffer;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)Lcom/google/common/util/concurrent/ListenableFuture<Ljava/lang/Object;>;"), null);
-				m.instructions.add(new InsnNode(Opcodes.ACONST_NULL));
-				m.instructions.add(new InsnNode(Opcodes.ARETURN));
-				m.maxLocals = 8;
-				m.maxStack = 1;
-				node.methods.add(m);
-			}
-		});
-		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.ChunkRenderWorker") {
-			
-			@Override
-			public void transform(ClassNode clazz) {
-				MethodNode m = findMethod(clazz, "processTask", "(Lnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator;)V");
-				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
-					AbstractInsnNode node = (AbstractInsnNode) iterator.next();
-					if(node instanceof FieldInsnNode)
-					{
-						FieldInsnNode field = (FieldInsnNode) node;
-						if(field.getOpcode() == Opcodes.GETFIELD && field.name.equals(patchFieldName("chunkRenderDispatcher")) && field.owner.equals(patchClassName("net/minecraft/client/renderer/chunk/ChunkRenderWorker")) && field.desc.equals(patchDESC("Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher;")))
-						{
-							m.instructions.insert(field, new VarInsnNode(Opcodes.ALOAD, 6));
-						}
-					}
-					if(node instanceof MethodInsnNode)
-					{
-						MethodInsnNode method = (MethodInsnNode) node;
-						String desc = patchDESC("(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/VertexBuffer;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)Lcom/google/common/util/concurrent/ListenableFuture;");
-						if(method.getOpcode() == Opcodes.INVOKEVIRTUAL && method.name.equals(patchMethodName("uploadChunk", desc)) && method.desc.equals(desc) && method.owner.equals(patchClassName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher")))
-						{
-							method.name = "uploadChunk";
-							method.desc = patchDESC("(Lnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator$Type;Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/VertexBuffer;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)Lcom/google/common/util/concurrent/ListenableFuture;");
-						}
-					}
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleBed", "Lcom/creativemd/littletiles/common/structure/LittleStructure;", null, null));
+				
+				MethodNode m = findMethod(node, "getBedOrientationInDegrees", "()F");
+				if(m != null)
+				{
+					m.instructions.clear();
+					
+					m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+					m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleBed", "getBedOrientationInDegrees", patchDESC("(Lnet/minecraft/entity/player/EntityPlayer;)F"), false));
+					m.instructions.add(new InsnNode(Opcodes.FRETURN));
 				}
 			}
-		});*/
+		});
+		addTransformer(new Transformer("net.minecraftforge.client.ForgeHooksClient") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "orientBedCamera",  "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/entity/Entity;)V");
+				
+				ListIterator<AbstractInsnNode> iterator = m.instructions.iterator();
+				
+				boolean nextLabel = false;
+				while(iterator.hasNext())
+				{
+					AbstractInsnNode insn = iterator.next();
+					if(nextLabel && insn instanceof LabelNode)
+					{
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleBed", "setBedDirection", patchDESC("(Lnet/minecraft/entity/Entity;)V"), false));
+						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, 3));
+						break;
+					}
+					if(insn instanceof MethodInsnNode && ((MethodInsnNode) insn).owner.equals(patchDESC("org/lwjgl/opengl/GL11")) && ((MethodInsnNode) insn).name.equals(patchFieldName("glRotatef")))
+						nextLabel = true;
+				}
+			}
+		});
 	}
 
 }
