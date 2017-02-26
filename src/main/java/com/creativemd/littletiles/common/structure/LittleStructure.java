@@ -659,5 +659,10 @@ public abstract class LittleStructure {
     {
 		
     }
+
+	public void onUpdatePacketReceived()
+	{
+		
+	}
 	
 }

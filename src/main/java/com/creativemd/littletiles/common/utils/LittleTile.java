@@ -253,6 +253,8 @@ public abstract class LittleTile {
 	
 	public void updatePacket(NBTTagCompound nbt)
 	{
+		if(isLoaded() && isMainBlock)
+			this.structure.onUpdatePacketReceived();
 		nbt.setInteger("bSize", boundingBoxes.size());
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
