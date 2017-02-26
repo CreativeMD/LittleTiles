@@ -80,6 +80,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		isWaitingForApprove = false;
 		if(world.isRemote && !isWaitingForApprove)
 		{
 			if(!hasLoaded())

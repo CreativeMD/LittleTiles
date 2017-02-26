@@ -362,13 +362,15 @@ public class EntityAnimation extends Entity {
 				//Try to place door, if not drop ItemStack
 				LittleDoorBase structure = this.structure.copyToPlaceDoor();
 				
+				if(worldObj.isRemote)
+					structure.isWaitingForApprove = true;
+				
 				if(!worldObj.isRemote || approved)
 				{
 					if(ItemBlockTiles.placeTiles(worldObj, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
 					{
 						if(worldObj.isRemote)
 						{
-							structure.isWaitingForApprove = true;
 							waitingForRender = new ArrayList<>();
 							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(ItemBlockTiles.getSplittedTiles(previews, baseOffset).getKeys());
 							for (int i = 0; i < coordsToCheck.size(); i++) {

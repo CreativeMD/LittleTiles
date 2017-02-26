@@ -40,11 +40,18 @@ public abstract class LittleDoorBase extends LittleStructure {
 	public int duration = 50;
 	
 	@Override
+	public void onUpdatePacketReceived()
+	{
+		isWaitingForApprove = false;
+	}
+	
+	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		if(nbt.hasKey("duration"))
 			duration = nbt.getInteger("duration");
 		else
 			duration = 50;
+		isWaitingForApprove = false;
 	}
 	
 	@Override
