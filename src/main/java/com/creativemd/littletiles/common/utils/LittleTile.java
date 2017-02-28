@@ -239,11 +239,13 @@ public abstract class LittleTile {
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing)
 	{
 		return !invisible;
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile)
 	{
 		return this.invisible == tile.invisible;

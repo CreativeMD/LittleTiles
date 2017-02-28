@@ -166,10 +166,10 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							boolean success = false;
 							if(player.isSneaking())
 							{
-								if(ItemTileContainer.addBlock(player, ((LittleTileBlock)tile).block, ((LittleTileBlock)tile).meta, ammount))
+								if(ItemTileContainer.addBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), ammount))
 									success = true;
 							}else{
-								if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)tile).block, ((LittleTileBlock)tile).meta, -ammount))
+								if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), -ammount))
 									success = true;
 							}
 							
