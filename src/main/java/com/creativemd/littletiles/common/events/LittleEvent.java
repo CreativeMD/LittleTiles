@@ -58,12 +58,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleEvent {
 	
 	@SubscribeEvent
-	public void openContainer(PlayerContainerEvent event){
-		if(event.getContainer() instanceof ContainerWorkbench)
-			event.setResult(Result.ALLOW);
-	}
-	
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void speedEvent(BreakSpeed event)
 	{

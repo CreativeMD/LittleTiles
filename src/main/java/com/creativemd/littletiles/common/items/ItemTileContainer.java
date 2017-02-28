@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -54,7 +55,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			{
 				nbt.setString("b" + i, Block.REGISTRY.getNameForObject(entry.block).toString());
 				nbt.setInteger("m" + i, entry.meta);
-				nbt.setFloat("v" + i, entry.value);
+				nbt.setDouble("v" + i, entry.value);
 				i++;
 			}
 		}
@@ -100,13 +101,20 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 				Block block = Block.getBlockFromName(stack.getTagCompound().getString("b" + i));
 				int meta = stack.getTagCompound().getInteger("m" + i);
 				if(block != null && !(block instanceof BlockAir))
-					mainMap.add(new BlockEntry(block, meta, stack.getTagCompound().getFloat("v" + i)));
+				{
+					double value = 0;
+					if(stack.getTagCompound().getTag("v" + i) instanceof NBTTagFloat)
+						value = stack.getTagCompound().getFloat("v" + i);
+					else
+						value = stack.getTagCompound().getDouble("v" + i);
+					mainMap.add(new BlockEntry(block, meta, value));
+				}
 			}
 		}
 		return mainMap;
 	}
 	
-	public static boolean drainBlock(EntityPlayer player, Block block, int meta, float ammount)
+	public static boolean drainBlock(EntityPlayer player, Block block, int meta, double ammount)
 	{
 		ArrayList<BlockEntry> mainList = loadMap(player);
 		BlockEntry entry = new BlockEntry(block, meta, 0);
@@ -119,8 +127,8 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 					ArrayList<BlockEntry> stackMap = loadMap(stack);
 					if(stackMap.contains(entry))
 					{
-						float stored = stackMap.get(stackMap.indexOf(entry)).value;
-						float drain = Math.min(ammount, stored);
+						double stored = stackMap.get(stackMap.indexOf(entry)).value;
+						double drain = Math.min(ammount, stored);
 						stored -= drain;
 						ammount -= drain;
 						stackMap.get(stackMap.indexOf(entry)).value = stored;
@@ -135,14 +143,14 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		return false;
 	}
 	
-	public static boolean drainBlock(ItemStack stack, Block block, int meta, float ammount)
+	public static boolean drainBlock(ItemStack stack, Block block, int meta, double ammount)
 	{
 		BlockEntry entry = new BlockEntry(block, meta, 0);
 		ArrayList<BlockEntry> stackMap = loadMap(stack);
 		if(stackMap.contains(entry) && stackMap.get(stackMap.indexOf(entry)).value >= ammount)
 		{
-			float stored = stackMap.get(stackMap.indexOf(entry)).value;
-			float drain = Math.min(ammount, stored);
+			double stored = stackMap.get(stackMap.indexOf(entry)).value;
+			double drain = Math.min(ammount, stored);
 			stored -= drain;
 			ammount -= drain;
 			stackMap.get(stackMap.indexOf(entry)).value -= stored;
@@ -154,7 +162,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		return false;
 	}
 	
-	public static boolean addBlock(EntityPlayer player, Block block, int meta, float ammount)
+	public static boolean addBlock(EntityPlayer player, Block block, int meta, double ammount)
 	{
 		if(player.capabilities.isCreativeMode)
 			return true;
@@ -169,7 +177,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		return false;
 	}
 	
-	public static void addBlock(ItemStack stack, Block block, int meta, float ammount)
+	public static void addBlock(ItemStack stack, Block block, int meta, double ammount)
 	{
 		
 		BlockEntry entry = new BlockEntry(block, meta, ammount);
@@ -203,9 +211,9 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	public static class BlockEntry {
 		public Block block;
 		public int meta;
-		public float value;
+		public double value;
 		
-		public BlockEntry(Block block, int meta, float value)
+		public BlockEntry(Block block, int meta, double value)
 		{
 			this.block = block;
 			this.meta = meta;

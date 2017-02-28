@@ -6,6 +6,7 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
@@ -388,6 +389,8 @@ public class LittleTiles {
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 1, this, 2000, 250, true);
 		
 		proxy.loadSide();
+		
+		DefaultBlockHandler.initVanillaBlockHandlers();
     }
 	
 	@EventHandler

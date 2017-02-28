@@ -420,7 +420,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			if(!world.isRemote)
 			{
 				for (int j = 0; j < unplaceableTiles.size(); j++) {
-					if(!(unplaceableTiles.get(j) instanceof LittleTileBlock) && !ItemTileContainer.addBlock(player, ((LittleTileBlock)unplaceableTiles.get(j)).block, ((LittleTileBlock)unplaceableTiles.get(j)).meta, (float)((LittleTileBlock)unplaceableTiles.get(j)).getPercentVolume()))
+					if(!(unplaceableTiles.get(j) instanceof LittleTileBlock) && !ItemTileContainer.addBlock(player, ((LittleTileBlock)unplaceableTiles.get(j)).getBlock(), ((LittleTileBlock)unplaceableTiles.get(j)).getMeta(), (float)((LittleTileBlock)unplaceableTiles.get(j)).getPercentVolume()))
 						WorldUtils.dropItem(world, unplaceableTiles.get(j).getDrops(), pos);
 				}
 			}

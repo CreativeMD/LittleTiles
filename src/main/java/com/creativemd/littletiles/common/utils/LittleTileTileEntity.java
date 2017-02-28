@@ -54,7 +54,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(!isTileEntityLoaded && tileEntity != null)
 		{
 			tileEntity.setWorld(te.getWorld());
-			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, getMeta(), "blockMetadata", "field_145847_g");
 			isTileEntityLoaded = true;
 		}
 		return tileEntity;
@@ -65,10 +65,12 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		this.tileEntity = tileEntity;
 	}
 	
+	@Override
 	public void setMeta(int meta)
 	{
-		this.meta = meta;
-		ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+		super.setMeta(meta);
+		if(tileEntity != null)
+			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
 	}
 	
 	/**All information the client needs*/
@@ -107,12 +109,12 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(nbt.getBoolean("isFirst"))
 		{
 			tileEntity = TileEntity.create(te.getWorld(), nbt.getCompoundTag("tileentity"));
-			setMeta(meta);
+			setMeta(getMeta());
 			tileEntity.setWorld(te.getWorld());
 		}else{
 			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
 			if(tileEntity != null)
-				tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), meta, tileNBT));
+				tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), getMeta(), tileNBT));
 		}
 	}
 	
@@ -125,7 +127,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tileNBT != null)
 		{
 			tileEntity = TileEntity.create(te.getWorld(), tileNBT);
-			setMeta(meta);
+			setMeta(getMeta());
 			tileEntity.setWorld(te.getWorld());
 			tileEntity.setPos(new BlockPos(te.getPos()));
 			isTileEntityLoaded = te.getWorld() != null;

@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -44,8 +45,49 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileBlock extends LittleTile{
 	
-	public Block block;
-	public int meta;
+	private Block block;
+	private int meta;
+	
+	private SpecialBlockHandler handler;
+	
+	private void updateSpecialHandler()
+	{
+		handler = SpecialBlockHandler.getSpecialBlockHandler(block, meta);
+	}
+	
+	public boolean hasSpecialBlockHandler()
+	{
+		return handler != null;
+	}
+	
+	public void setBlock(Block block, int meta)
+	{
+		this.block = block;
+		this.meta = meta;
+		updateSpecialHandler();
+	}
+	
+	public void setMeta(int meta)
+	{
+		this.meta = meta;
+		updateSpecialHandler();
+	}
+	
+	public void setBlock(Block block)
+	{
+		this.block = block;
+		updateSpecialHandler();
+	}
+	
+	public Block getBlock()
+	{
+		return this.block;
+	}
+	
+	public int getMeta()
+	{
+		return this.meta;
+	}
 	
 	@SideOnly(Side.CLIENT)
 	private boolean translucent;
@@ -65,8 +107,7 @@ public class LittleTileBlock extends LittleTile{
 	public LittleTileBlock(Block block, int meta)
 	{
 		super();
-		this.block = block;
-		this.meta = meta;
+		setBlock(block, meta);
 		if(FMLCommonHandler.instance().getSide().isClient())
 			updateClient();
 	}
@@ -102,29 +143,18 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
-		block = Block.getBlockFromName(nbt.getString("block"));
-		meta = nbt.getInteger("meta");
-		if(block == null || block instanceof BlockAir){
-			//System.out.println("Invalid block name! name=" + nbt.getString("block"));
-			//throw new IllegalArgumentException("Invalid block name! name=" + nbt.getString("block"));
-		}
+		setBlock(Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
 		if(te.isClientSide())
 			updateClient();
 	}
-
-	/*@Override
-	public ForgeDirection[] getValidRotation() {
-		return null;
-	}*/
-
+	
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
 		if(tile instanceof LittleTileBlock)
 		{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
-			thisTile.block = block;
-			thisTile.meta = meta;
+			thisTile.setBlock(block, meta);
 			if(FMLCommonHandler.instance().getSide().isClient())
 				thisTile.translucent = translucent;
 		}
@@ -201,54 +231,26 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
 	{
-		block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
-	}
-	
-	public void explodeTile(EntityLivingBase entity, boolean randomFuse)
-	{
-		BlockPos pos = te.getPos();
-		LittleTileSize size = boundingBoxes.get(0).getSize();
-        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(te.getWorld(), (double)((float)pos.getX() + cornerVec.getPosX()/2 + size.getPosX()/2), (double)(pos.getY() + cornerVec.getPosY()/2 + size.getPosY()/2), (double)((float)pos.getZ() + cornerVec.getPosZ()/2 + size.getPosZ()/2), entity, size);
-        if(randomFuse)
-        	entitytntprimed.setFuse((short)(te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
-        te.getWorld().spawnEntity(entitytntprimed);
-        te.getWorld().playSound((EntityPlayer)null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+		if(hasSpecialBlockHandler())
+			handler.randomDisplayTick(this, stateIn, worldIn, pos, rand);
+		else
+			block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
+		
 	}
 	
 	@Override
 	public void onTileExplodes(Explosion explosion)
 	{
-		if(block instanceof BlockTNT)
-			explodeTile(explosion.getExplosivePlacedBy(), true);
+		if(hasSpecialBlockHandler())
+			handler.onTileExplodes(this, explosion);
 	}
 	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			return true;
-		if(block instanceof BlockTNT)
-		{
-			if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE))
-	        {
-	            if (!worldIn.isRemote && !this.boundingBoxes.isEmpty())
-	            {
-	            	explodeTile(playerIn, false);
-	            }
-	            destroy();
-	            //worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
-
-	            if (heldItem.getItem() == Items.FLINT_AND_STEEL)
-	            {
-	                heldItem.damageItem(1, playerIn);
-	            }
-	            else if (!playerIn.capabilities.isCreativeMode)
-	            {
-	                heldItem.shrink(1);;
-	            }
-
-	            return true;
-	        }
-		}
+		if(hasSpecialBlockHandler())
+			return handler.onBlockActivated(this, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
 	}
 	
@@ -282,11 +284,13 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
 		return super.doesProvideSolidFace(facing) && !translucent;
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;// && ((LittleTileBlock) tile).translucent == translucent;

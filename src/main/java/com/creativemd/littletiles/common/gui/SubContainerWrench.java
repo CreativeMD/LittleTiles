@@ -50,7 +50,7 @@ public class SubContainerWrench extends SubContainer{
 			{
 				if(blockofTile == entries.get(j).block && meta == entries.get(j).meta)
 				{
-					float amount = Math.min(entries.get(j).value, size);
+					double amount = Math.min(entries.get(j).value, size);
 					entries.get(j).value -= amount;
 					size -= amount;
 					
