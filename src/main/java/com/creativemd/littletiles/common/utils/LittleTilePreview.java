@@ -93,6 +93,12 @@ public class LittleTilePreview {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
 	
+	public boolean isOrdinaryTile()
+	{
+		String id = tileData.getString("tID");
+		return id.equals("BlockTileBlock") || id.equals("BlockTileColored");
+	}
+	
 	/**Rendering inventory**/
 	public String getPreviewBlockName()
 	{

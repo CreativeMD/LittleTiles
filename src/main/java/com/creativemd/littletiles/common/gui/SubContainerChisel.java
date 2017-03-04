@@ -79,9 +79,9 @@ public class SubContainerChisel extends SubContainer {
 							boolean shouldEffect = tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored;
 							if(filter != null)
 							{
-								if(((LittleTileBlock) tile).block != filter)
+								if(((LittleTileBlock) tile).getBlock() != filter)
 									shouldEffect = false;
-								if(meta != -1 && ((LittleTileBlock) tile).meta != meta)
+								if(meta != -1 && ((LittleTileBlock) tile).getMeta() != meta)
 									shouldEffect = false;
 							}
 							
@@ -91,9 +91,9 @@ public class SubContainerChisel extends SubContainer {
 								
 								if(replacement != null)
 								{
-									((LittleTileBlock) tile).block = replacement;
+									((LittleTileBlock) tile).setBlock(replacement);
 									if(metaReplacement != -1)
-										((LittleTileBlock) tile).meta = metaReplacement;
+										((LittleTileBlock) tile).setMeta(metaReplacement);
 									te.needFullUpdate = true;
 								}
 								

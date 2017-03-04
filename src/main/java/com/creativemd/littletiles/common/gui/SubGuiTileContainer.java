@@ -4,6 +4,8 @@ import java.util.ArrayList;
 
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
@@ -21,11 +23,11 @@ public class SubGuiTileContainer extends SubGui{
 	
 	public SubGuiTileContainer(ItemStack stack)
 	{
-		super();
+		super(250, 250);
 		this.stack = stack;
 	}
 	
-	public static String getStringOfValue(float value)
+	public static String getStringOfValue(double value)
 	{
 		String line = "";
 		if(value >= 1)
@@ -34,14 +36,52 @@ public class SubGuiTileContainer extends SubGui{
 		{
 			if(!line.equals(""))
 				line += " ";
-			line += ((int) ((value%1)*4096)) + " tiles";
+			int amount = (int) ((value%1)*4096);
+			line += amount + " tile";
+			if(amount != 1)
+				line += "s";
 		}
 		return line;
+	}
+	
+	@Override
+	public void addContainerControls()
+	{
+		GuiScrollBox box = (GuiScrollBox) get("items");
+		for (int i = 0; i < container.controls.size(); i++) {
+			container.controls.get(i).onOpened();
+			if(container.controls.get(i).name.startsWith("item"))
+				box.addControl(container.controls.get(i).getGuiControl());
+			else
+				controls.add(container.controls.get(i).getGuiControl());
+		}
 	}
 
 	@Override
 	public void createControls() {
-		ArrayList<String> lines = new ArrayList<String>();
+		
+		GuiScrollBox box = new GuiScrollBox("items", 0, 0, 245, 150);
+		
+		controls.add(box);
+		
+		//ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		ArrayList<BlockEntry> map = ItemTileContainer.loadMap(stack);
+		int i = 0;
+		int cols = 2;
+		for (BlockEntry entry : map) {
+			if(!(entry.block instanceof BlockAir) && entry.block != null)
+			{
+				//stacks.add(entry.getItemStack());
+				box.addControl(new GuiLabel(getStringOfValue(entry.value % 1), 28 + (i % cols) * 110, 11+(i/cols)*24));
+				i++;
+			}
+		}
+		
+		
+		/*ArrayList<String> lines = new ArrayList<String>();
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
@@ -70,18 +110,25 @@ public class SubGuiTileContainer extends SubGui{
 				}
 			}
 			
-		});
+		});*/
 	}
 	
 	@Override
 	public void receiveContainerPacket(NBTTagCompound nbt)
 	{
-		if(nbt.getBoolean("needUpdate"))
+		if(nbt.getBoolean("reload"))
 		{
-			nbt.removeTag("needUpdate");
+			nbt.removeTag("reload");
 			stack.setTagCompound(nbt);
 			controls.clear();
-			onOpened();
+			createControls();
+			refreshControls();
+			container.controls.clear();
+			((SubContainerTileContainer) container).stack = stack;
+			container.createControls();
+			container.refreshControls();
+			addContainerControls();
+			refreshControls();
 		}
 	}
 	

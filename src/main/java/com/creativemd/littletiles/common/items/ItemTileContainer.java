@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -11,6 +12,10 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.SubContainerTileContainer;
 import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
+import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -35,6 +40,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	public ItemTileContainer()
 	{
 		setCreativeTab(CreativeTabs.TOOLS);
+		setMaxStackSize(1);
 	}
 	
 	@Override
@@ -59,7 +65,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 				i++;
 			}
 		}
-		nbt.setInteger("count", i+1);
+		nbt.setInteger("count", i);
 		stack.setTagCompound(nbt);
 	}
 	
@@ -114,6 +120,16 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		return mainMap;
 	}
 	
+	public static double getVolume(ItemStack stack, Block block, int meta)
+	{
+		BlockEntry entry = new BlockEntry(block, meta, 0);
+		ArrayList<BlockEntry> stackMap = loadMap(stack);
+		int index = stackMap.indexOf(entry);
+		if(index != -1)
+			return stackMap.get(index).value;
+		return 0;
+	}
+	
 	public static boolean drainBlock(EntityPlayer player, Block block, int meta, double ammount)
 	{
 		ArrayList<BlockEntry> mainList = loadMap(player);
@@ -153,7 +169,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			double drain = Math.min(ammount, stored);
 			stored -= drain;
 			ammount -= drain;
-			stackMap.get(stackMap.indexOf(entry)).value -= stored;
+			stackMap.get(stackMap.indexOf(entry)).value = stored;
 			if(stored <= 0)
 				stackMap.remove(entry);
 			saveMap(stack, stackMap);
@@ -223,6 +239,22 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		public ItemStack getItemStack()
 		{
 			return new ItemStack(block, 1, meta);
+		}
+		
+		public ItemStack getTileItemStack()
+		{
+			ItemStack stack = new ItemStack(LittleTiles.blockTile);
+			NBTTagCompound nbt = new NBTTagCompound();
+			new LittleTileSize(1, 1, 1).writeToNBT("size", nbt);
+			
+			
+			LittleTile tile = new LittleTileBlock(block, meta);
+			tile.saveTileExtra(nbt);
+			nbt.setString("tID", "BlockTileBlock");
+			stack.setTagCompound(nbt);
+			
+			stack.setCount((int) (value/LittleTile.minimumTileSize));
+			return stack;
 		}
 		
 		@Override

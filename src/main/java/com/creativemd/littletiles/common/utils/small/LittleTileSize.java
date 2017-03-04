@@ -74,9 +74,9 @@ public class LittleTileSize {
 	}
 	
 	/**Returns how the volume in percent to a size of a normal block*/
-	public float getPercentVolume()
+	public double getPercentVolume()
 	{
-		return (float) getVolume() / (float) (LittleTile.maxTilesPerBlock);
+		return (double) getVolume() / (double) (LittleTile.maxTilesPerBlock);
 	}
 	
 	public LittleTileVec calculateInvertedCenter()

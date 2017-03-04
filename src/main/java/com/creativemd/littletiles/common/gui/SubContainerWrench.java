@@ -43,7 +43,7 @@ public class SubContainerWrench extends SubContainer{
 		for (int i = 0; i < tiles.size(); i++) {
 			Block blockofTile = tiles.get(i).getPreviewBlock();
 			int meta = tiles.get(i).getPreviewBlockMeta();
-			float size = tiles.get(i).size.getPercentVolume();
+			double size = tiles.get(i).size.getPercentVolume();
 			int j = 0;
 			boolean found = false;
 			while(j < entries.size())
