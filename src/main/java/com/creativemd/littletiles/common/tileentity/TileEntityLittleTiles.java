@@ -109,7 +109,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public int renderIndex;
 	
 	@SideOnly(Side.CLIENT)
-	private int lastRenderedLightValue;
+	public boolean hasLightChanged;
 	
 	@SideOnly(Side.CLIENT)
 	public boolean hasNeighborChanged;
@@ -183,19 +183,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			waitingAnimation = null;
 		}
 		
-		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged;
+		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
 		
-		if(!doesNeedUpdate)
-		{
-			int lightValue = worldObj.getLight(pos);
-			if(lightValue != lastRenderedLightValue)
-			{
-				this.lastRenderedLightValue = lightValue;
-				//if(getBuffer() != null)
-					//getBuffer().clear();
-				doesNeedUpdate = true;
-			}
-		}
+		hasLightChanged = false;
 		
 		if(doesNeedUpdate)
 			addToRenderUpdate(); //worldObj.getBlockState(pos).getActualState(worldObj, pos));

@@ -44,6 +44,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	public static void onReloadRenderers()
 	{
 		currentRenderIndex.incrementAndGet();
+		mc.world.addEventListener(new LightChangeEventListener());
 	}
 
 	public LittleChunkDispatcher() {
