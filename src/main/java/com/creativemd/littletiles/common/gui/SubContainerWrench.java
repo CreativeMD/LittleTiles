@@ -146,6 +146,9 @@ public class SubContainerWrench extends SubContainer{
 					ArrayList<BlockEntry> entries = getContentofStack(stack2);
 					ArrayList<LittleTilePreview> tiles = ItemRecipe.getPreview(stack1);
 					
+					if(tiles.isEmpty())
+						return ;
+					
 					if(!player.capabilities.isCreativeMode){
 						enough = getMissing(tiles, entries).size() == 0;
 					}
