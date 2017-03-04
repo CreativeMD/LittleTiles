@@ -346,6 +346,10 @@ public class LittleTiles {
 				{
 				"XGX", "GBG", "XGX", 'G', Items.GLOWSTONE_DUST, 'B', new ItemStack(coloredBlock, 1, 0)
 				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 8, 13),  new Object[]
+				{
+				"XXX", "XGX", "XXX", 'G', new ItemStack(Items.DYE, 1, 15), 'X', Blocks.PLANKS
+				});
 		
 		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 0),  new Object[]
 				{
@@ -376,7 +380,7 @@ public class LittleTiles {
 		//Water block
 		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.water.ordinal()), Items.WATER_BUCKET);
 		
-		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTColored.EnumType.lava.ordinal()), Items.LAVA_BUCKET);
+		GameRegistry.addShapelessRecipe(new ItemStack(coloredBlock, 1, BlockLTColored.EnumType.lava.ordinal()), Items.LAVA_BUCKET);
 		
 		GameRegistry.addRecipe(new ItemStack(storageBlock, 1),  new Object[]
 				{
