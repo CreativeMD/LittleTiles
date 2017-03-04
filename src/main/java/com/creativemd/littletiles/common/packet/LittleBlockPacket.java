@@ -162,7 +162,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						
 						if(box.isValidBox())
 						{
-							float ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
+							double ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
 							boolean success = false;
 							if(player.isSneaking())
 							{

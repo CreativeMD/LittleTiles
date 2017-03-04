@@ -7,6 +7,7 @@ import java.util.List;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -21,6 +22,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -456,6 +458,20 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			stack.setTagCompound(nbt);
 		}else
 			stack.setTagCompound(new NBTTagCompound());
+	}
+	
+	public static ItemStack getStackFromPreview(LittleTilePreview preview)
+	{
+		ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		NBTTagCompound nbt = preview.getTileData().copy();
+		
+		preview.size.writeToNBT("size", nbt);
+		
+		if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
+			nbt.setString("type", preview.getTypeID());
+		
+		stack.setTagCompound(nbt);
+		return stack;
 	}
 	
 	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {

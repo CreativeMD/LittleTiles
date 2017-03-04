@@ -52,6 +52,7 @@ public abstract class LittleTile {
 	public static int minPos = 0;
 	public static int maxPos = gridSize;
 	public static int maxTilesPerBlock = gridSize*gridSize*gridSize;
+	public static double minimumTileSize = 1D/maxTilesPerBlock;
 	
 	public static void setGridSize(int size)
 	{
@@ -61,6 +62,7 @@ public abstract class LittleTile {
 		minPos = 0;
 		maxPos = gridSize;
 		maxTilesPerBlock = gridSize*gridSize*gridSize;
+		minimumTileSize = 1D/maxTilesPerBlock;
 	}
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
