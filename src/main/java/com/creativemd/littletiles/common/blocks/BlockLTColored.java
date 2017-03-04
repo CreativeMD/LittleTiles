@@ -100,7 +100,8 @@ public class BlockLTColored extends Block implements ISpecialLittleBlock{
 		broken_brick_big,
 		clay,
 		light_clean,
-		lava;
+		lava,
+		plank;
 		
 		public static EnumType byMetadata(int meta)
 		{
