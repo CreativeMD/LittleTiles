@@ -253,7 +253,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			nbt.setString("tID", "BlockTileBlock");
 			stack.setTagCompound(nbt);
 			
-			stack.setCount((int) (value/LittleTile.minimumTileSize));
+			stack.stackSize = (int) (value/LittleTile.minimumTileSize);
 			return stack;
 		}
 		

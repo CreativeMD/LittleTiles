@@ -22,7 +22,7 @@ public class GuiSlotControlBlockEntry extends GuiSlotControl {
 	public ItemStack getStackToRender()
 	{
 		ItemStack stack = super.getStackToRender();
-		if(stack.getItem() instanceof ItemBlockTiles)
+		if(stack != null && stack.getItem() instanceof ItemBlockTiles)
 		{
 			stack = stack.copy();
 			new LittleTileSize(LittleTile.gridSize/4*3, LittleTile.gridSize/4*3, LittleTile.gridSize/4*3).writeToNBT("size", stack.getTagCompound());

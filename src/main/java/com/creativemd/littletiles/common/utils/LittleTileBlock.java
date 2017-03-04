@@ -251,7 +251,7 @@ public class LittleTileBlock extends LittleTile{
 			return true;
 		if(hasSpecialBlockHandler())
 			return handler.onBlockActivated(this, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
-		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
+		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 	
 	@Override

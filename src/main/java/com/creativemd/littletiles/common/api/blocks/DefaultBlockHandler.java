@@ -50,7 +50,7 @@ public class DefaultBlockHandler {
 		            }
 		            else if (!playerIn.capabilities.isCreativeMode)
 		            {
-		                heldItem.shrink(1);;
+		                heldItem.stackSize--;
 		            }
 
 		            return true;
@@ -71,7 +71,7 @@ public class DefaultBlockHandler {
 		        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), (double)((float)pos.getX() + tile.cornerVec.getPosX()/2 + size.getPosX()/2), (double)(pos.getY() + tile.cornerVec.getPosY()/2 + size.getPosY()/2), (double)((float)pos.getZ() + tile.cornerVec.getPosZ()/2 + size.getPosZ()/2), entity, size);
 		        if(randomFuse)
 		        	entitytntprimed.setFuse((short)(tile.te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
-		        tile.te.getWorld().spawnEntity(entitytntprimed);
+		        tile.te.getWorld().spawnEntityInWorld(entitytntprimed);
 		        tile.te.getWorld().playSound((EntityPlayer)null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 			}
 			

@@ -46,8 +46,13 @@ public class SubContainerTileContainer extends SubContainer{
 			SlotControlBlockEntry control = (SlotControlBlockEntry) event.source;
 			Slot slot = ((SlotControl) event.source).slot;
 			ItemStack input = slot.getStack();
-			Block block = Block.getBlockFromItem(input.getItem());
-			int meta = input.getItemDamage();
+			Block block = null;
+			int meta = 0;
+			if(input != null)
+			{
+				block = Block.getBlockFromItem(input.getItem());
+				meta = input.getItemDamage();
+			}
 			if(control.entry != null)
 			{
 				block = control.entry.block;
@@ -57,7 +62,7 @@ public class SubContainerTileContainer extends SubContainer{
 			{
 				if(control.entry == null)
 				{
-					if(!input.isEmpty())
+					if(input != null)
 					{
 						if(input.getItem() instanceof ItemTileContainer)
 						{
@@ -69,7 +74,7 @@ public class SubContainerTileContainer extends SubContainer{
 								}
 								ItemTileContainer.saveMap(input, new ArrayList<BlockEntry>());
 							}
-							slot.putStack(ItemStack.EMPTY);
+							slot.putStack(null);
 							if(player.inventory.addItemStackToInventory(input))
 								player.dropItem(input, false);
 						}else{
@@ -78,7 +83,7 @@ public class SubContainerTileContainer extends SubContainer{
 								ArrayList<LittleTilePreview> previews = PlacementHelper.getLittleInterface(input).getLittlePreview(input);
 								for (int i = 0; i < previews.size(); i++) {
 									if(previews.get(i).isOrdinaryTile())
-										ItemTileContainer.addBlock(stack, previews.get(i).getPreviewBlock(), previews.get(i).getPreviewBlockMeta(), previews.get(i).size.getPercentVolume()*input.getCount());
+										ItemTileContainer.addBlock(stack, previews.get(i).getPreviewBlock(), previews.get(i).getPreviewBlockMeta(), previews.get(i).size.getPercentVolume()*input.stackSize);
 									else
 									{
 										ItemStack unmergeable = ItemBlockTiles.getStackFromPreview(previews.get(i));
@@ -86,28 +91,29 @@ public class SubContainerTileContainer extends SubContainer{
 											player.dropItem(unmergeable, false);
 									}
 								}
-								input.setCount(0);
+								slot.putStack(null);
 							}else{
-								ItemTileContainer.addBlock(stack, block, meta, input.getCount());
-								input.setCount(0);
+								ItemTileContainer.addBlock(stack, block, meta, input.stackSize);
+								slot.putStack(null);
 							}
 						}
 					}
 				}else{
-					
+					int stackSize = input != null ? input.stackSize : 0;
 					if(control.entry.value < 1)
 					{
 						int countBefore = (int) (control.entry.value/LittleTile.minimumTileSize);
-						if(countBefore > input.getCount())
-							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-input.getCount()) * LittleTile.minimumTileSize);
-						else if(countBefore < input.getCount())
-							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (input.getCount()-countBefore) * LittleTile.minimumTileSize);
+						if(countBefore > stackSize)
+							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-stackSize) * LittleTile.minimumTileSize);
+						else if(countBefore < stackSize)
+							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (stackSize-countBefore) * LittleTile.minimumTileSize);
 					}else{
 						int countBefore = (int) control.entry.value;
-						if(countBefore > input.getCount())
-							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-input.getCount()));
-						else if(countBefore < input.getCount())
-							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (input.getCount()-countBefore));
+						
+						if(countBefore > stackSize)
+							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-stackSize));
+						else if(countBefore < stackSize)
+							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (stackSize-countBefore));
 					}
 				}
 			}
@@ -143,7 +149,7 @@ public class SubContainerTileContainer extends SubContainer{
 			{
 				ItemStack stack = entry.getItemStack();
 				if(entry.value >= 1)
-					stack.setCount((int) entry.value);
+					stack.stackSize = (int) entry.value;
 				else
 					stack = entry.getTileItemStack();
 				basic.setInventorySlotContents(index, stack);
@@ -158,7 +164,7 @@ public class SubContainerTileContainer extends SubContainer{
 				index++;
 			}
 		}
-		basic.setInventorySlotContents(index, ItemStack.EMPTY);
+		basic.setInventorySlotContents(index, null);
 		SlotControl control = new SlotControlBlockEntry(new Slot(basic, index, 8 + (index % cols) * 110, 8+(index/cols)*24), null);
 		control.name = "item-last" + index;
 		controls.add(control);

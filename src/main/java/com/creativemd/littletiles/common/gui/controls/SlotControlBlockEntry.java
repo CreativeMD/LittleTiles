@@ -25,7 +25,7 @@ public class SlotControlBlockEntry extends SlotControl {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public GuiControl createGuiControl() {
-		GuiControl control = new GuiSlotControlBlockEntry(slot.xPos, slot.yPos, this, entry);
+		GuiControl control = new GuiSlotControlBlockEntry(slot.xDisplayPosition, slot.yDisplayPosition, this, entry);
 		return control;
 	}
 	
