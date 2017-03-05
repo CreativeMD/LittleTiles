@@ -283,15 +283,18 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}
 					break;
 				case 5: //Glowing
-					if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
+					if(stack != null && stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
 					{
 						if(!player.isCreative())
 						{
 							if(tile.glowing){
 								if(!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
 									player.dropItem(new ItemStack(Items.GLOWSTONE_DUST), true);
-							}else
-								stack.shrink(1);
+							}else{
+								stack.stackSize--;
+								if(stack.stackSize <= 0)
+									player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+							}
 						}
 						if(tile.glowing)
 							player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);

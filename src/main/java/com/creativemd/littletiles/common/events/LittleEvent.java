@@ -82,9 +82,9 @@ public class LittleEvent {
 	public void onInteract(RightClickBlock event)
 	{
 		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
-		if(stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
+		if(stack != null && stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
 		{
-			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
+			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().worldObj, event.getPos(), event.getEntityPlayer());
 			if(te.isComplete())
 			{
 				if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
