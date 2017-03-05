@@ -29,7 +29,10 @@ import com.creativemd.littletiles.utils.TileList;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -108,6 +111,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			LittleTile tile = te.getFocusedTile(pos, look);
 			if(tile != null)
 			{
+				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				switch(action)
 				{
 				case 0: //Activated
@@ -118,7 +122,6 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				case 1: //Destory tile
 					LittleTileBox box = null;
 					moving = te.getMoving(pos, look);
-    				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
     				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
     				{
     					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
@@ -277,6 +280,25 @@ public class LittleBlockPacket extends CreativeCorePacket{
 						}else
 							if(ItemRubberMallet.moveTile(te, direction, tile, false))
 								te.updateTiles();												
+					}
+					break;
+				case 5: //Glowing
+					if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
+					{
+						if(!player.isCreative())
+						{
+							if(tile.glowing){
+								if(!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
+									player.dropItem(new ItemStack(Items.GLOWSTONE_DUST), true);
+							}else
+								stack.shrink(1);
+						}
+						if(tile.glowing)
+							player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
+						else
+							player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
+						tile.glowing = !tile.glowing;
+						te.updateLighting();
 					}
 					break;
 				}

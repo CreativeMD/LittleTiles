@@ -296,6 +296,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return result;
 	}
 	
+	public void updateLighting()
+	{
+		world.checkLight(getPos());
+	}
+	
 	public void updateTiles()
 	{
 		if(preventUpdate)
@@ -307,7 +312,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		{
 			updateBlock();
 			updateNeighbor();
-			world.checkLight(getPos());
+			updateLighting();
 		}
 		if(isClientSide())
 			updateCustomRenderer();

@@ -263,10 +263,9 @@ public class LittleTileBlock extends LittleTile{
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		//int light = block.getLightValue(world, x, y, z);
-		//if(light == 0)
+		if(glowing)
+			return super.getLightValue(state, world, pos);
 		return block.getLightValue(getBlockState());
-		//return light;
 	}
 	
 	@Override
