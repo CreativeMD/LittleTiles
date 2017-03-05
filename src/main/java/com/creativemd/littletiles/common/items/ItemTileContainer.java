@@ -69,12 +69,25 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		stack.setTagCompound(nbt);
 	}
 	
+	public static boolean canStoreRemains(EntityPlayer player)
+	{
+		ArrayList<BlockEntry> mainList = new ArrayList<BlockEntry>();
+		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+			ItemStack stack = player.inventory.getStackInSlot(i);
+			if(stack.isEmpty() && stack.getItem() instanceof ItemTileContainer)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public static ArrayList<BlockEntry> loadMap(EntityPlayer player)
 	{
 		ArrayList<BlockEntry> mainList = new ArrayList<BlockEntry>();
-		for (int i = 0; i < player.inventory.mainInventory.length; i++) {
-			ItemStack stack = player.inventory.mainInventory[i];
-			if(stack != null && stack.getItem() instanceof ItemTileContainer)
+		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+			ItemStack stack = player.inventory.getStackInSlot(i);
+			if(stack.isEmpty() && stack.getItem() instanceof ItemTileContainer)
 			{
 				mergeMap(mainList, loadMap(stack));
 			}
