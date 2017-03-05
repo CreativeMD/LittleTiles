@@ -6,10 +6,12 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -27,6 +29,8 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
+import net.minecraft.init.Items;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -77,10 +81,30 @@ public class LittleEvent {
 	@SubscribeEvent
 	public void onInteract(RightClickBlock event)
 	{
-		if(PlacementHelper.isLittleBlock(event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND)))
+		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
+		if(stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
+		{
+			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
+			if(te.isComplete())
+			{
+				if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
+				{
+					if(te.tile.glowing)
+						event.getEntityPlayer().playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
+					else
+						event.getEntityPlayer().playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
+					te.tile.glowing = !te.tile.glowing;
+					te.te.updateLighting();
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(event.getPos(), event.getEntityPlayer(), 5));
+				}
+				event.setCanceled(true);
+			}
+		}
+		
+		if(PlacementHelper.isLittleBlock(stack))
 		{
 			if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
-				onRightInteractClient(event.getEntityPlayer(), event.getHand(), event.getWorld(), event.getEntityPlayer().getHeldItem(event.getHand()), event.getPos(), event.getFace());
+				onRightInteractClient(event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
 			event.setCanceled(true);		
 		}
 	}

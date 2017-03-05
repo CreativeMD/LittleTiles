@@ -138,6 +138,8 @@ public abstract class LittleTile {
 	
 	public boolean invisible = false;
 	
+	public boolean glowing = false;
+	
 	public TileEntityLittleTiles te;
 	
 	/**Every LittleTile class has to have this constructor implemented**/
@@ -224,6 +226,9 @@ public abstract class LittleTile {
 		if(invisible != tile.invisible)
 			return false;
 		
+		if(glowing != tile.glowing)
+			return false;
+		
 		return true;
 	}
 	
@@ -282,7 +287,7 @@ public abstract class LittleTile {
 	
 	public boolean isIdenticalToNBT(NBTTagCompound nbt)
 	{
-		return getID().equals(nbt.getString("tID"));
+		return getID().equals(nbt.getString("tID")) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible");
 	}
 	
 	//================Save & Loading================
@@ -298,6 +303,8 @@ public abstract class LittleTile {
 	{
 		if(invisible)
 			nbt.setBoolean("invisible", invisible);
+		if(glowing)
+			nbt.setBoolean("glowing", glowing);
 	}
 	
 	public void saveTileCore(NBTTagCompound nbt)
@@ -334,6 +341,7 @@ public abstract class LittleTile {
 	public void loadTileExtra(NBTTagCompound nbt)
 	{
 		invisible = nbt.getBoolean("invisible");
+		glowing = nbt.getBoolean("glowing");
 	}
 	
 	public void loadTileCore(NBTTagCompound nbt)
@@ -453,6 +461,7 @@ public abstract class LittleTile {
 	public void copyExtra(LittleTile tile)
 	{
 		tile.invisible = this.invisible;
+		tile.glowing = this.glowing;
 	}
 	
 	public void copyCore(LittleTile tile)
@@ -619,7 +628,7 @@ public abstract class LittleTile {
 	}
 
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return 0;
+		return glowing ? 14 : 0;
 	}
 
 	public float getEnchantPowerBonus(World world, BlockPos pos) {
