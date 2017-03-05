@@ -29,7 +29,7 @@ public class SubGuiWrench extends SubGui {
 				GuiItemListBox listBox = (GuiItemListBox) get("missing");
 				listBox.clear();
 				
-				if(!stack1.isEmpty())
+				if(stack1 != null)
 				{
 					if(stack1.getItem() instanceof ItemRecipe)
 					{

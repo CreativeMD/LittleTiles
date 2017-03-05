@@ -74,7 +74,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		ArrayList<BlockEntry> mainList = new ArrayList<BlockEntry>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
-			if(stack.isEmpty() && stack.getItem() instanceof ItemTileContainer)
+			if(stack != null && stack.getItem() instanceof ItemTileContainer)
 			{
 				return true;
 			}
@@ -87,7 +87,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		ArrayList<BlockEntry> mainList = new ArrayList<BlockEntry>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
-			if(stack.isEmpty() && stack.getItem() instanceof ItemTileContainer)
+			if(stack != null && stack.getItem() instanceof ItemTileContainer)
 			{
 				mergeMap(mainList, loadMap(stack));
 			}

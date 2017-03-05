@@ -50,7 +50,7 @@ public class SubContainerWrench extends SubContainer{
 				if(index != -1)
 				{
 					BlockEntry ingredient = ingredients.get(index);
-					int takenStackSize = (int) Math.min(stack.getCount(), Math.ceil(ingredient.value / entry.value));
+					int takenStackSize = (int) Math.min(stack.stackSize, Math.ceil(ingredient.value / entry.value));
 					if(takenStackSize > 0)
 					{
 						double takenVolume = Math.min(ingredient.value, entry.value*takenStackSize);
@@ -58,7 +58,7 @@ public class SubContainerWrench extends SubContainer{
 						if(drain)
 						{
 							if(!(stack.getItem() instanceof ItemTileContainer))
-								stack.shrink(takenStackSize);
+								stack.stackSize -= takenStackSize;
 							else
 								ItemTileContainer.drainBlock(stack, entry.block, entry.meta, entry.value*takenStackSize);
 							if(takenVolume < entry.value*takenStackSize)
@@ -81,8 +81,8 @@ public class SubContainerWrench extends SubContainer{
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
 			boolean result = drainIngridients(ingredients, stack, drain, remaining, useStructures);
-			if(stack.isEmpty())
-				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+			if(stack.stackSize <= 0)
+				inventory.setInventorySlotContents(i, null);
 			if(result)
 				return true;
 		}
@@ -154,7 +154,7 @@ public class SubContainerWrench extends SubContainer{
 	public static ArrayList<BlockEntry> getContentofStack(ItemStack stack, boolean useStructures)
 	{
 		ArrayList<BlockEntry> entries = new ArrayList<BlockEntry>();
-		if(!stack.isEmpty())
+		if(stack != null)
 		{
 			if(useStructures)
 			{
