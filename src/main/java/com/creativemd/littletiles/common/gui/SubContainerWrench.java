@@ -80,11 +80,14 @@ public class SubContainerWrench extends SubContainer{
 	{
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
 			ItemStack stack = inventory.getStackInSlot(i);
-			boolean result = drainIngridients(ingredients, stack, drain, remaining, useStructures);
-			if(stack.stackSize <= 0)
-				inventory.setInventorySlotContents(i, null);
-			if(result)
-				return true;
+			if(stack != null)
+			{
+				boolean result = drainIngridients(ingredients, stack, drain, remaining, useStructures);
+				if(stack.stackSize <= 0)
+					inventory.setInventorySlotContents(i, null);
+				if(result)
+					return true;
+			}
 		}
 		return false;
 	}
@@ -221,6 +224,9 @@ public class SubContainerWrench extends SubContainer{
 					if(!player.isCreative()){
 						success = SubContainerWrench.drainIngridients(required, stack2, false, remaining, true) || SubContainerWrench.drainIngridients(required, getPlayer().inventory, false, remaining, false);
 					}
+					
+					if(stack2.stackSize <= 0)
+						basic.setInventorySlotContents(1, null);
 					
 					if(remaining.size() > 0 && !ItemTileContainer.canStoreRemains(getPlayer()))
 						success = false;
