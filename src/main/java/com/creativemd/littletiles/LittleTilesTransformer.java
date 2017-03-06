@@ -41,7 +41,8 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					AbstractInsnNode node = (AbstractInsnNode) iterator.next();
 					if(isNextLabel && node instanceof LabelNode)
 					{
-						m.instructions.insert(node, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onReloadRenderers", "()V", false));
+						m.instructions.insert(node, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onReloadRenderers", patchDESC("(Lnet/minecraft/client/renderer/RenderGlobal;)V"), false));
+						m.instructions.insert(node, new VarInsnNode(Opcodes.ALOAD, 0));
 						isNextLabel = false;
 					}
 					if(node instanceof TypeInsnNode && ((TypeInsnNode) node).getOpcode() == Opcodes.NEW && ((TypeInsnNode) node).desc.equals(className))

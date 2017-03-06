@@ -21,6 +21,7 @@ import com.google.common.util.concurrent.ListenableFutureTask;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator.Type;
@@ -41,10 +42,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
 	public static AtomicInteger currentRenderIndex = new AtomicInteger(0);
 	
-	public static void onReloadRenderers()
+	public static void onReloadRenderers(RenderGlobal renderGlobal)
 	{
-		currentRenderIndex.incrementAndGet();
-		mc.theWorld.addEventListener(new LightChangeEventListener());
+		if(mc.renderGlobal == renderGlobal)
+		{
+			currentRenderIndex.incrementAndGet();
+			mc.theWorld.addEventListener(new LightChangeEventListener());
+		}
 	}
 
 	public LittleChunkDispatcher() {
