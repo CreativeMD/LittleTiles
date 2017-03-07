@@ -111,7 +111,7 @@ public class RenderingThread extends Thread {
 	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
 	{
 		try{
-		addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
+			addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -383,7 +383,8 @@ public class RenderingThread extends Thread {
 					chunk.setNeedsUpdate(true);
 				}
 			}
-		}
+		}else
+			te.setBuffer(buffer);
 	}
 	
 	public static class RenderingException extends Exception {

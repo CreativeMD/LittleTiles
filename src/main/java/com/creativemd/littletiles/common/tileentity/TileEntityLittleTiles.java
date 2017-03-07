@@ -766,6 +766,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@Override
+	public void onLoad()
+    {
+		setLoaded();
+    }
+	
+	@Override
 	public void update()
 	{
 		/*if(isClientSide())
@@ -777,7 +783,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}*/
 		
-		setLoaded();
+		
 		
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
