@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.datasync.DataParameter;
@@ -58,6 +59,8 @@ public class EntityAnimation extends Entity {
 	
 	@SideOnly(Side.CLIENT)
 	protected ArrayList<TileEntityLittleTiles> waitingForRender;
+	
+	public EntityPlayer activator;
 	
 	@SideOnly(Side.CLIENT)
 	public boolean isWaitingForRender()
@@ -158,10 +161,12 @@ public class EntityAnimation extends Entity {
 	
 	public BlockPos startOffset;
 	
-	public EntityAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, LittleTileVec axis, DoorTransformation transformation, UUID uuid) {
+	public EntityAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, LittleTileVec axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator) {
 		this(world);
 		
 		setPosition(pos.getX(), pos.getY(), pos.getZ());
+		
+		this.activator = activator;
 		
 		this.structure = structure;
 		this.blocks = blocks;
