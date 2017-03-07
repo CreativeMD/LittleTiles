@@ -222,7 +222,7 @@ public class LittleTilesClient extends LittleTilesServer{
 					animation = new EntityAnimation(mc.world);
 					
 					animation.setUniqueId(uuid);
-					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), true));
+					//PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), true));
 				}else{
 					mc.world.removeEntity(animation);
 					animation = animation.copy();
