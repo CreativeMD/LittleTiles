@@ -60,6 +60,9 @@ public class EntityAnimation extends Entity {
 	@SideOnly(Side.CLIENT)
 	protected ArrayList<TileEntityLittleTiles> waitingForRender;
 	
+	@SideOnly(Side.CLIENT)
+	protected int ticksToWait;
+	
 	public EntityPlayer activator;
 	
 	@SideOnly(Side.CLIENT)
@@ -354,8 +357,8 @@ public class EntityAnimation extends Entity {
 		
 		if(worldObj.isRemote && isWaitingForRender())
 		{
-			//System.out.println("waiting");
-			if(waitingForRender.size() == 0)
+			ticksToWait--;
+			if(waitingForRender.size() == 0 || ticksToWait < 0)
 			{
 				//System.out.println("KILL IT!");
 				isDead = true;
@@ -386,6 +389,7 @@ public class EntityAnimation extends Entity {
 									waitingForRender.add((TileEntityLittleTiles) te);
 								}
 							}
+							ticksToWait = waitingForRender.size()*10;
 							isDead = false;
 							//System.out.println("Start waiting");
 							return ;
