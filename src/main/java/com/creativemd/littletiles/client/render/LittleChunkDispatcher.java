@@ -8,8 +8,10 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.creativemd.littletiles.client.LittleTilesClient;
@@ -29,6 +31,7 @@ import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.ListedRenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
@@ -63,16 +66,23 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, null, new String[]{"setLayerUsed", "func_178486_a"}, BlockRenderLayer.class);
 	
+	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, "setTileEntities", "field_181056_j");
+	
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
 	@Override
 	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final VertexBuffer buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_)
     {
-		List<TileEntity> tileEntities = compiled.getTileEntities();
+		Set<TileEntity> tileEntities = null;
+		try{
+			tileEntities = (Set<TileEntity>) setTileEntities.get(chunk);
+		}catch(IllegalAccessException e){
+			e.printStackTrace();
+		}
 		int bufferExpand = 0;
 		List<TileEntityLittleTiles> tiles = new ArrayList<>();
-		for (int i = 0; i < tileEntities.size(); i++) {
-			TileEntity te = tileEntities.get(i);
+		for (Iterator<TileEntity> iterator = tileEntities.iterator(); iterator.hasNext();) {
+			TileEntity te = iterator.next();
 			
 			if(te instanceof TileEntityLittleTiles)
 			{
