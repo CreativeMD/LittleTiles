@@ -457,6 +457,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			double maxX = Double.MIN_VALUE;
 			double maxY = Double.MIN_VALUE;
 			double maxZ = Double.MIN_VALUE;
+			boolean found = false;
 			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				if(tile.needCustomRendering())
@@ -468,9 +469,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 					maxX = Math.max(box.maxX, maxX);
 					maxY = Math.max(box.maxY, maxY);
 					maxZ = Math.max(box.maxZ, maxZ);
+					found = true;
 				}
 			}
-			cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+			if(found)
+				cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+			else
+				cachedRenderBoundingBox = new AxisAlignedBB(pos);
     	}
     	return cachedRenderBoundingBox;
     }
