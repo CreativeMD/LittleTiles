@@ -96,10 +96,7 @@ public class SubContainerWrench extends SubContainer{
 	{
 		ArrayList<BlockEntry> ingredients = new ArrayList<>();
 		for (int i = 0; i < previews.size(); i++) {
-			Block blockofTile = previews.get(i).getPreviewBlock();
-			int meta = previews.get(i).getPreviewBlockMeta();
-			double size = previews.get(i).size.getPercentVolume();
-			BlockEntry entry = new BlockEntry(blockofTile, meta, size);
+			BlockEntry entry = previews.get(i).getBlockEntry();
 			int index = ingredients.indexOf(entry);
 			if(index != -1)
 				ingredients.get(index).value += entry.value;
@@ -172,7 +169,7 @@ public class SubContainerWrench extends SubContainer{
 							
 							Block block2 = tiles.get(i).getPreviewBlock();
 							if(block2 != null && !(block2 instanceof BlockAir))
-								entries.add(new BlockEntry(block2, tiles.get(i).getPreviewBlockMeta(), tiles.get(i).size.getPercentVolume()));
+								entries.add(tiles.get(i).getBlockEntry());
 						}
 						return entries;
 					}
@@ -210,7 +207,7 @@ public class SubContainerWrench extends SubContainer{
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack1 = basic.getStackInSlot(0);
 		ItemStack stack2 = basic.getStackInSlot(1);
-		if(stack1 != null)
+		if(!stack1.isEmpty())
 		{
 			if(stack1.getItem() instanceof ItemRecipe)
 			{

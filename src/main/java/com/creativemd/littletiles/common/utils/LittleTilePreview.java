@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
@@ -268,6 +269,11 @@ public class LittleTilePreview {
 	public NBTTagCompound getTileData()
 	{
 		return tileData;
+	}
+	
+	public BlockEntry getBlockEntry()
+	{
+		return new BlockEntry(getPreviewBlock(), getPreviewBlockMeta(), size.getPercentVolume());
 	}
 	
 	public static LittleTilePreview loadPreviewFromNBT(NBTTagCompound nbt)
