@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -17,6 +18,7 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 import com.creativemd.creativecore.transformer.CreativeTransformer;
 import com.creativemd.creativecore.transformer.Transformer;
+import com.creativemd.creativecore.transformer.TransformerNames;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
@@ -93,6 +95,38 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 					if(insn instanceof MethodInsnNode && ((MethodInsnNode) insn).owner.equals(patchDESC("org/lwjgl/opengl/GL11")) && ((MethodInsnNode) insn).name.equals(patchFieldName("glRotatef")))
 						nextLabel = true;
+				}
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.RenderChunk") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleTiles", patchDESC("Ljava/util/List;"), patchDESC("Ljava/util/List<Lcom/creativemd/littletiles/common/tileentity/TileEntityLittleTiles;>;"), null));
+				
+				String owner = patchClassName("net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher");
+				String name = TransformerNames.patchFieldName("instance", owner);
+				MethodNode m = findMethod(node, "rebuildChunk", "(FFFLnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator;)V");
+				
+				m.instructions.insert(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onStartRendering", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V"), false));
+				m.instructions.insert(m.instructions.getFirst(), new VarInsnNode(Opcodes.ALOAD, 0));
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					if(insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals(owner) && ((FieldInsnNode) insn).name.equals(name))
+					{
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						int index = 17;
+						String varDesc = patchDESC("Lnet/minecraft/tileentity/TileEntity;");
+						for (Iterator<LocalVariableNode> iterator2 = m.localVariables.iterator(); iterator2.hasNext();) {
+							LocalVariableNode local = iterator2.next();
+							if(local.desc.equals(varDesc))
+								index = local.index;
+						}
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, index));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "addTileEntity", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/tileentity/TileEntity;)V"), false));
+						break;
+					}
 				}
 			}
 		});
