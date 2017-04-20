@@ -207,7 +207,7 @@ public class SubContainerWrench extends SubContainer{
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack1 = basic.getStackInSlot(0);
 		ItemStack stack2 = basic.getStackInSlot(1);
-		if(!stack1.isEmpty())
+		if(stack1 != null)
 		{
 			if(stack1.getItem() instanceof ItemRecipe)
 			{

@@ -152,10 +152,10 @@ public class LittleBed extends LittleStructure{
 			e.printStackTrace();
 		}
 		
-        IBlockState state = player.playerLocation == null ? null : player.worldObj.getBlockState(player.playerLocation);
-        if (state != null && state.getBlock().isBed(state, player.worldObj, player.playerLocation, player))
+        IBlockState state = player.bedLocation == null ? null : player.worldObj.getBlockState(player.bedLocation);
+        if (state != null && state.getBlock().isBed(state, player.worldObj, player.bedLocation, player))
         {
-            EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.worldObj, player.playerLocation);
+            EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.worldObj, player.bedLocation);
 
             switch (enumfacing)
             {
@@ -243,7 +243,7 @@ public class LittleBed extends LittleStructure{
 			e.printStackTrace();
 		}
         
-        player.playerLocation = getMainTile().te.getPos();
+        player.bedLocation = getMainTile().te.getPos();
         player.motionX = 0.0D;
         player.motionY = 0.0D;
         player.motionZ = 0.0D;
@@ -297,7 +297,7 @@ public class LittleBed extends LittleStructure{
 			hasBeenActivated = true;
 			return true;
 		}
-        if (world.provider.canRespawnHere() && world.getBiomeGenForCoords(pos) != Biomes.HELL)
+        if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
         {
         	LittleTileVec vec = getHighestCenterPoint();
         	if(this.sleepingPlayer != null)

@@ -150,11 +150,7 @@ public class RenderingThread extends Thread {
 						}
 						
 						
-						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
-						/*if(cubeCache.getCubesByLayer(BlockRenderLayer.SOLID) != null && cubeCache.getCubesByLayer(BlockRenderLayer.SOLID).size() == 0)
-						{
-							System.out.println("ISSUE!");
-						}*/					
+						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);				
 						
 						ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
 						for (int j = 0; j < cubes.size(); j++) {

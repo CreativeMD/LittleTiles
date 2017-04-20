@@ -108,7 +108,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		super.receivePacket(nbt, net);
 		if(nbt.getBoolean("isFirst"))
 		{
-			tileEntity = TileEntity.func_190200_a(te.getWorld(), nbt.getCompoundTag("tileentity"));
+			tileEntity = TileEntity.create(te.getWorld(), nbt.getCompoundTag("tileentity"));
 			setMeta(getMeta());
 			tileEntity.setWorldObj(te.getWorld());
 		}else{
@@ -126,7 +126,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		NBTTagCompound tileNBT = nbt.getCompoundTag("tileEntity");
 		if(tileNBT != null)
 		{
-			tileEntity = TileEntity.func_190200_a(te.getWorld(), tileNBT);
+			tileEntity = TileEntity.create(te.getWorld(), tileNBT);
 			setMeta(getMeta());
 			tileEntity.setWorldObj(te.getWorld());
 			tileEntity.setPos(new BlockPos(te.getPos()));
@@ -238,7 +238,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(tile instanceof LittleTileTileEntity)
 		{
 			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
-			thisTile.tileEntity = TileEntity.func_190200_a(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
+			thisTile.tileEntity = TileEntity.create(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
 			thisTile.isTileEntityLoaded = false;
 		}
 	}

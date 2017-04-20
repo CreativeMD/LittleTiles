@@ -189,8 +189,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		            float z = (float)entity.posZ;
 		            
 					buffer.sortVertexData(x, y, z);
-					
-					compiled.setState(buffer.getVertexState());
+					compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
 				}
 				
 				buffer.getByteBuffer().position(0);
@@ -199,4 +198,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		}
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
     }
+	
+	public static class LittleVertexBufferState extends VertexBuffer.State {
+
+		public LittleVertexBufferState(VertexBuffer buffer, VertexBuffer.State state) {
+			buffer.super(state.getRawBuffer(), state.getVertexFormat());
+		}
+		
+		
+	}
 }

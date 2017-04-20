@@ -582,9 +582,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-        
-        setLoaded();
-        
+
         if(tiles != null)
         	tiles.clear();
         if(updateTiles != null)
@@ -599,8 +597,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				addLittleTile(tile);
         }
         
+        setLoaded();
+        
         if(worldObj != null)
         	updateBlock();
+        
+        
     }
 
 	@Override
@@ -773,7 +775,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public void onLoad()
     {
-		setLoaded();
+		//setLoaded();
     }
 	
 	@Override

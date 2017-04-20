@@ -462,7 +462,7 @@ public class EntityAnimation extends Entity {
 		structure = null; 
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.func_190200_a(worldFake, nbt);
+			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(worldFake, nbt);
 			te.setWorldObj(worldFake);
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
