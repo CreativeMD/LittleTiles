@@ -8,6 +8,7 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
@@ -93,6 +94,12 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		if(isClientSide())
 			particleType = null;
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public boolean shouldSpawnParticles()
+	{
+		return !(Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench);
+	}
 
 	@Override
 	public void update() {
@@ -114,11 +121,15 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 				
 			if(speed >= 1)
 			{
-				for (int i = 0; i < speed; i++) {
-					spawnParticle(offset);
+				if(shouldSpawnParticles())
+				{
+					for (int i = 0; i < speed; i++) {
+						spawnParticle(offset);
+					}
 				}
 			}else if(ticksToWait == 0){
-				spawnParticle(offset);
+				if(shouldSpawnParticles())
+					spawnParticle(offset);
 				ticksToWait = (int) Math.ceil(1/speed);
 			}else
 				ticksToWait--;

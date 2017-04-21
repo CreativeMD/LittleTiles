@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -101,5 +102,12 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
 		
 	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
+    {
+		tooltip.add("Particles will not spawn if you are holding the wrench.");
+    }
 
 }
