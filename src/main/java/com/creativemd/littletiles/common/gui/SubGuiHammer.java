@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
+import org.lwjgl.util.Color;
+
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.GuiControl;
@@ -9,6 +11,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -48,12 +51,6 @@ public class SubGuiHammer extends SubGui {
 	
 	@Override
 	public void createControls() {
-		/*controls.add(new GuiIDButton("<", 45, 10, 0));
-		controls.add(new GuiIDButton(">", 75, 10, 1));
-		controls.add(new GuiIDButton("<", 45, 30, 2));
-		controls.add(new GuiIDButton(">", 75, 30, 3));
-		controls.add(new GuiIDButton("<", 45, 50, 4));
-		controls.add(new GuiIDButton(">", 75, 50, 5));*/
 		controls.add(new GuiSteppedSlider("sizeX", 35, 10, 50, 14, sizeX, 1, LittleTile.gridSize));
 		controls.add(new GuiSteppedSlider("sizeY", 35, 30, 50, 14, sizeY, 1, LittleTile.gridSize));
 		controls.add(new GuiSteppedSlider("sizeZ", 35, 50, 50, 14, sizeZ, 1, LittleTile.gridSize));
@@ -66,21 +63,16 @@ public class SubGuiHammer extends SubGui {
 				nbt.setInteger("sizeX", sizeX);
 				nbt.setInteger("sizeY", sizeY);
 				nbt.setInteger("sizeZ", sizeZ);
-				GuiColorPlate plate = (GuiColorPlate) get("plate");
-				//System.out.println(plate.getColor().getAlpha());
-				int color = ColorUtils.RGBAToInt(plate.getColor());
+				GuiColorPicker picker = (GuiColorPicker) get("picker");
+				int color = ColorUtils.RGBAToInt(picker.color);
 				if(color != -1 && color != ColorUtils.WHITE)
 					nbt.setInteger("color", color);
 				sendPacketToServer(nbt);
 			}
 			
 		});
-		controls.add(new GuiSteppedSlider("colorX", 5, 75, 100, 5, 255, 0, 255));
-		controls.add(new GuiSteppedSlider("colorY", 5, 85, 100, 5, 255, 0, 255));
-		controls.add(new GuiSteppedSlider("colorZ", 5, 95, 100, 5, 255, 0, 255));
-		controls.add(new GuiColorPlate("plate", 120, 80, 20, 20, new Vec3i(255, 255, 255)));
 		
-		//controls.add(new GuiCheckBox("translucent", 100, 30, false));
+		controls.add(new GuiColorPicker("picker", 5, 75, new Color(255, 255, 255)));
 		
 		GuiAvatarLabel label = new GuiAvatarLabel("", 100, 32, 0, null);
 		label.name = "avatar";
@@ -119,8 +111,8 @@ public class SubGuiHammer extends SubGui {
 		}
 		if(block instanceof BlockAir || block == null)
 			block = Blocks.STONE;
-		GuiColorPlate plate = (GuiColorPlate) get("plate");
-		new LittleTileBlockColored(block, meta, ColorUtils.colorToVec(plate.getColor())).saveTileExtra(dropstack.getTagCompound());
+		GuiColorPicker picker = (GuiColorPicker) get("picker");
+		new LittleTileBlockColored(block, meta, ColorUtils.colorToVec(picker.color)).saveTileExtra(dropstack.getTagCompound());
 		
 		label.avatar = new AvatarItemStack(dropstack);
 	}
@@ -158,8 +150,6 @@ public class SubGuiHammer extends SubGui {
 		sizeX = (int) ((GuiSteppedSlider) get("sizeX")).value;
 		sizeY = (int) ((GuiSteppedSlider) get("sizeY")).value;
 		sizeZ = (int) ((GuiSteppedSlider) get("sizeZ")).value;
-		GuiColorPlate plate = (GuiColorPlate) get("plate");
-		plate.setColor(new Vec3i((int) ((GuiSteppedSlider) get("colorX")).value, (int) ((GuiSteppedSlider) get("colorY")).value, (int) ((GuiSteppedSlider) get("colorZ")).value));
 		updateLabel();
 	}
 	

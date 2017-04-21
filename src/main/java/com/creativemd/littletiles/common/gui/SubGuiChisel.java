@@ -1,9 +1,12 @@
 package com.creativemd.littletiles.common.gui;
 
+import org.lwjgl.util.Color;
+
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
@@ -44,13 +47,10 @@ public class SubGuiChisel extends SubGui {
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
 		
-		Vec3i color = new Vec3i(255, 255, 255);
+		Color color = new Color(255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
 		
-		controls.add(new GuiSteppedSlider("colorX", 5, 160, 100, 5, (int)color.getX(), 0, 255));
-		controls.add(new GuiSteppedSlider("colorY", 5, 170, 100, 5, (int)color.getY(), 0, 255));
-		controls.add(new GuiSteppedSlider("colorZ", 5, 180, 100, 5, (int)color.getZ(), 0, 255));
-		controls.add(new GuiColorPlate("plate", 120, 163, 20, 20, color));
+		controls.add(new GuiColorPicker("picker", 5, 160, color));
 		
 		controls.add(new GuiButton("run", "Do it!", 150, 170, 40){
 			
@@ -100,8 +100,8 @@ public class SubGuiChisel extends SubGui {
 				
 				if(colorize)
 				{
-					GuiColorPlate plate = (GuiColorPlate) get("plate");
-					nbt.setInteger("color", ColorUtils.RGBAToInt(plate.getColor()));
+					GuiColorPicker picker = (GuiColorPicker) get("picker");
+					nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
 				}
 				
 				if(!replace && !colorize)
@@ -115,9 +115,6 @@ public class SubGuiChisel extends SubGui {
 	@CustomEventSubscribe
 	public void onChanged(GuiControlChangedEvent event)
 	{
-		GuiColorPlate plate = (GuiColorPlate) get("plate");
-		plate.setColor(new Vec3i((int) ((GuiSteppedSlider) get("colorX")).value, (int) ((GuiSteppedSlider) get("colorY")).value, (int) ((GuiSteppedSlider) get("colorZ")).value));
-		
 		if(event.source.is("search"))
 		{
 			GuiInvSelector inv = (GuiInvSelector) get("filter");
