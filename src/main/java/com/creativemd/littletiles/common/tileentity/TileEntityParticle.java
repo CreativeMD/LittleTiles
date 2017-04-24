@@ -98,7 +98,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	@SideOnly(Side.CLIENT)
 	public boolean shouldSpawnParticles()
 	{
-		return Minecraft.getMinecraft().thePlayer.getHeldItemMainhand() == null || !(Minecraft.getMinecraft().thePlayer.getHeldItemMainhand().getItem() instanceof ItemLittleWrench);
+		return !(Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench);
 	}
 
 	@Override
