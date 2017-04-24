@@ -71,30 +71,42 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, "setTileEntities", "field_181056_j");
 	
 	private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
+	//private static Field tempLittleTiles = ReflectionHelper.findField(RenderChunk.class, "tempLittleTiles");
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
-	public static void onStartRendering(RenderChunk chunk)
+	/*public static void onStartRendering(RenderChunk chunk)
 	{
-		List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
-		if(tiles == null)
-		{
-			tiles = new ArrayList<>();
-			try {
-				littleTiles.set(chunk, tiles);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
+		List<TileEntityLittleTiles> tiles = new ArrayList<>();
+		try {
+			tempLittleTiles.set(chunk, new ArrayList<>());
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
 		}
-		tiles.clear();
-	}
+	}*/
 	
-	public static void addTileEntity(RenderChunk chunk, TileEntity te)
+	public static void addTileEntity(List<TileEntityLittleTiles> tiles, TileEntity te)
 	{
 		if(te instanceof TileEntityLittleTiles)
 		{
-			getLittleTE(chunk).add((TileEntityLittleTiles) te);
+			tiles.add((TileEntityLittleTiles) te);
+			/*try {
+				((ArrayList<TileEntityLittleTiles>) tempLittleTiles.get(chunk)).add((TileEntityLittleTiles) te);
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}*/
 		}
+	}
+	
+	public static void onDoneRendering(RenderChunk chunk, List<TileEntityLittleTiles> tiles)
+	{
+		try {
+			littleTiles.set(chunk, tiles);
+			//littleTiles.set(chunk, tempLittleTiles.get(chunk));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public static List<TileEntityLittleTiles> getLittleTE(RenderChunk chunk)
