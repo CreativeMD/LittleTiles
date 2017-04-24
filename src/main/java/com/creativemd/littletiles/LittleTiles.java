@@ -82,6 +82,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -104,7 +105,7 @@ public class LittleTiles {
 	public static LittleTilesServer proxy;
 	
 	public static final String modid = "littletiles";
-	public static final String version = "1.3.0";
+	public static final String version = "1.4.8";
 	
 	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock");
@@ -128,12 +129,13 @@ public class LittleTiles {
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
+		event.getModMetadata().version = version;
+		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		invertedShift = config.getBoolean("invertedShift", "Core", invertedShift, "If shift behavior is inverted.");
 		config.save();
-		
 		proxy.loadSidePre();
 	}
 	
