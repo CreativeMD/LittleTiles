@@ -103,19 +103,32 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			@Override
 			public void transform(ClassNode node) {
 				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleTiles", patchDESC("Ljava/util/List;"), patchDESC("Ljava/util/List<Lcom/creativemd/littletiles/common/tileentity/TileEntityLittleTiles;>;"), null));
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "tempLittleTiles", patchDESC("Ljava/util/List;"), patchDESC("Ljava/util/List<Lcom/creativemd/littletiles/common/tileentity/TileEntityLittleTiles;>;"), null));
 				
-				String owner = patchClassName("net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher");
-				String name = TransformerNames.patchFieldName("instance", owner);
+				String ownerBefore = patchClassName("net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher");
+				String nameBefore = TransformerNames.patchFieldName("instance", ownerBefore);
+				
+				String ownerAfter = patchClassName("net/minecraft/client/renderer/chunk/VisGraph");
+				String descAfter = patchDESC("()Lnet/minecraft/client/renderer/chunk/SetVisibility;");
+				String nameAfter = TransformerNames.patchMethodName("computeVisibility", descAfter, ownerAfter);
+				
 				MethodNode m = findMethod(node, "rebuildChunk", "(FFFLnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator;)V");
 				
-				m.instructions.insert(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onStartRendering", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V"), false));
-				m.instructions.insert(m.instructions.getFirst(), new VarInsnNode(Opcodes.ALOAD, 0));
+				m.localVariables.add(new LocalVariableNode("tiles", patchDESC("Ljava/util/List;"), patchDESC("Ljava/util/List<Lcom/creativemd/littletiles/common/tileentity/TileEntityLittleTiles;>;"), (LabelNode) m.instructions.getFirst(), (LabelNode) m.instructions.getLast(), 40));
+				
+				m.instructions.insert(m.instructions.getFirst(), new VarInsnNode(Opcodes.ASTORE, 40));
+				m.instructions.insert(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESPECIAL, patchDESC("java/util/ArrayList"), "<init>", "()V", false));
+				m.instructions.insert(m.instructions.getFirst(), new InsnNode(Opcodes.DUP));
+				m.instructions.insert(m.instructions.getFirst(), new TypeInsnNode(Opcodes.NEW, patchDESC("java/util/ArrayList")));
+				
+				//m.instructions.insert(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onStartRendering", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V"), false));
+				//m.instructions.insert(m.instructions.getFirst(), new VarInsnNode(Opcodes.ALOAD, 0));
 				
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
-					if(insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals(owner) && ((FieldInsnNode) insn).name.equals(name))
+					if(insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals(ownerBefore) && ((FieldInsnNode) insn).name.equals(nameBefore))
 					{
-						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 40));
 						int index = 17;
 						String varDesc = patchDESC("Lnet/minecraft/tileentity/TileEntity;");
 						for (Iterator<LocalVariableNode> iterator2 = m.localVariables.iterator(); iterator2.hasNext();) {
@@ -124,8 +137,12 @@ public class LittleTilesTransformer extends CreativeTransformer {
 								index = local.index;
 						}
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, index));
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "addTileEntity", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/tileentity/TileEntity;)V"), false));
-						break;
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "addTileEntity", patchDESC("(Ljava/util/List;Lnet/minecraft/tileentity/TileEntity;)V"), false));
+					}else if(insn instanceof MethodInsnNode && ((MethodInsnNode) insn).desc.equals(descAfter) && ((MethodInsnNode) insn).owner.equals(ownerAfter) && ((MethodInsnNode) insn).name.equals(nameAfter)){
+						AbstractInsnNode before = insn.getPrevious().getPrevious();
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 40));
+						m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onDoneRendering", patchDESC("(Lnet/minecraft/client/renderer/chunk/RenderChunk;Ljava/util/List;)V"), false));
 					}
 				}
 			}
