@@ -535,14 +535,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune)
     {
     	ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-    	TileEntityLittleTiles te = loadTe(world, pos);
+    	/*TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
     		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				stacks.addAll(tile.getDrops());
 			}
-    	}
+    	}*/
     	return stacks;
     }
     
