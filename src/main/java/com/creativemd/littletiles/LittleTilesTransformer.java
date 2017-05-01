@@ -24,7 +24,6 @@ import com.creativemd.creativecore.transformer.TransformerNames;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
-import lombok.experimental.var;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.DependsOn;
 
