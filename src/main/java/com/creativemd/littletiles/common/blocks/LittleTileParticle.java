@@ -1,7 +1,11 @@
 package com.creativemd.littletiles.common.blocks;
 
+import java.util.ArrayList;
+
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
@@ -37,6 +41,13 @@ public class LittleTileParticle extends LittleTileTileEntity {
 		if(!worldIn.isRemote)
 				LittleGuiHandler.openGui("littleparticle", new NBTTagCompound(), player, this);
 		return true;
+	}
+	
+	@Override
+	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
+		if(!LittleTiles.hideParticleBlock)
+			return super.getInternalRenderingCubes();
+		return new ArrayList<>();
 	}
 	
 	@Override

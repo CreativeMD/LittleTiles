@@ -122,6 +122,7 @@ public class LittleTiles {
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife");
 	
 	public static boolean invertedShift = false;
+	public static boolean hideParticleBlock = false;
 	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
@@ -130,7 +131,9 @@ public class LittleTiles {
 		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		invertedShift = config.getBoolean("invertedShift", "Core", invertedShift, "If shift behavior is inverted.");
+		hideParticleBlock = config.getBoolean("hideParticleBlock", "Rendering", hideParticleBlock, "Can be used for cinematics");
 		config.save();
 		proxy.loadSidePre();
 	}
