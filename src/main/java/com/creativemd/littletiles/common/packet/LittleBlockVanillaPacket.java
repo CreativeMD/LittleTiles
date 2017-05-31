@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -72,6 +73,13 @@ public class LittleBlockVanillaPacket extends CreativeCorePacket {
 	public void executeServer(EntityPlayer player) {
 		World world = player.world;
 		IBlockState state = world.getBlockState(blockPos);
+		
+		if(!LittleBlockPacket.isAllowedToInteract(player, blockPos, false, EnumFacing.EAST))
+		{
+			world.notifyBlockUpdate(blockPos, state, state, 3);
+			return ;
+		}
+			
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(SubContainerHammer.isBlockValid(state.getBlock()) && stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 		{

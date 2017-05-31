@@ -1,5 +1,8 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -45,6 +48,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -99,6 +103,45 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
 		
+	
+	}
+	
+	private static Method loadWorldEditEvent()
+	{
+		try
+		{
+			Class clazz = Class.forName("com.sk89q.worldedit.forge.ForgeWorldEdit");
+			worldEditInstance = clazz.getField("inst").get(null);
+			return clazz.getMethod("onPlayerInteract", PlayerInteractEvent.class);
+		}catch(Exception e){
+			
+		}
+		return null;
+	}
+	
+	private static Method WorldEditEvent = loadWorldEditEvent();
+	private static Object worldEditInstance = null;
+	
+	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing)
+	{
+		if(WorldEditEvent != null)
+		{
+			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
+			try {
+				if(worldEditInstance == null)
+				{
+					loadWorldEditEvent();
+				}
+				WorldEditEvent.invoke(worldEditInstance, event);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			if(event.isCanceled())
+				return false;
+		}
+		
+		return !player.getServer().isBlockProtected(player.world, pos, player);
+		
 	}
 	
 	@Override
@@ -109,6 +152,13 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
+			
+			if(!isAllowedToInteract(player, blockPos, action != 1, EnumFacing.EAST))
+			{
+				te.updateBlock();
+				return ;
+			}
+			
 			if(tile != null)
 			{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
@@ -251,7 +301,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				case 4: //RUBBER MALLET
 					side = nbt.getInteger("side");
 					direction = EnumFacing.getFront(side).getOpposite();
-					if(player.isSneaking())
+					boolean push = !player.isSneaking();
+					if(!push)
 						direction = direction.getOpposite();
 					if(tile.canBeMoved(direction))
 					{
@@ -264,11 +315,11 @@ public class LittleBlockPacket extends CreativeCorePacket{
 								{
 									ArrayList<LittleTile> tiles = new ArrayList(structure.getTiles());
 									for (int i = 0; i < tiles.size(); i++) {
-										if(!ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), true))
+										if(!ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), true, push))
 											return ;
 									}
 									for (int i = 0; i < tiles.size(); i++)
-										ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false);
+										ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false, push);
 											//tiles.get(i).te.updateTiles();
 									
 									structure.combineTiles();
@@ -278,7 +329,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 									player.sendMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
 							}
 						}else
-							if(ItemRubberMallet.moveTile(te, direction, tile, false))
+							if(ItemRubberMallet.moveTile(te, direction, tile, false, push))
 								te.updateTiles();												
 					}
 					break;

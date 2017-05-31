@@ -132,10 +132,8 @@ public class SubGuiHammer extends SubGui {
 				if(colorInt == -1)
 					color = new Vec3i(255, 255, 255);
 				
-				((GuiSteppedSlider) get("colorX")).value = color.getX();
-				((GuiSteppedSlider) get("colorY")).value = color.getY();
-				((GuiSteppedSlider) get("colorZ")).value = color.getZ();
-				raiseEvent(new GuiControlChangedEvent((GuiControl) get("colorZ")));
+				GuiColorPicker picker = (GuiColorPicker) get("picker");
+				picker.color.set(color.getX(), color.getY(), color.getZ());
 			}
 		}
 		updateLabel();
