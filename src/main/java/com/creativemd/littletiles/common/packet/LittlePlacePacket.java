@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.utils.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
@@ -90,6 +91,14 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	@Override
 	public void executeServer(EntityPlayer player) {
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+		
+		if(!LittleBlockPacket.isAllowedToInteract(player, pos, true, EnumFacing.EAST))
+		{
+			IBlockState state = player.world.getBlockState(pos);
+			player.world.notifyBlockUpdate(pos, state, state, 3);
+			return ;
+		}
+		
 		if(PlacementHelper.isLittleBlock(stack))
 		{
 			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);

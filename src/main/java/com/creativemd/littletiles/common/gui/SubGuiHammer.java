@@ -126,19 +126,16 @@ public class SubGuiHammer extends SubGui {
 			Block block = Block.getBlockFromItem(slotStack.getItem());
 			if(block == LittleTiles.blockTile)
 			{
-				ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
-				if(previews.size() > 0)
-				{
-					int colorInt = previews.get(0).getColor();
-					Vec3i color = ColorUtils.IntToRGB(colorInt);
-					if(colorInt == -1)
-						color = new Vec3i(255, 255, 255);
-					
-					((GuiSteppedSlider) get("colorX")).value = color.getX();
-					((GuiSteppedSlider) get("colorY")).value = color.getY();
-					((GuiSteppedSlider) get("colorZ")).value = color.getZ();
-					raiseEvent(new GuiControlChangedEvent((GuiControl) get("colorZ")));
-				}
+			ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+			if(previews.size() > 0)
+			{
+				int colorInt = previews.get(0).getColor();
+				Vec3i color = ColorUtils.IntToRGB(colorInt);
+				if(colorInt == -1)
+					color = new Vec3i(255, 255, 255);
+				
+				GuiColorPicker picker = (GuiColorPicker) get("picker");
+				picker.color.set(color.getX(), color.getY(), color.getZ());
 			}
 		}
 		updateLabel();

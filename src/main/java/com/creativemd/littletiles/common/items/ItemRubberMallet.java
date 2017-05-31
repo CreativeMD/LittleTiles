@@ -73,8 +73,42 @@ public class ItemRubberMallet extends Item {
 		return EnumActionResult.PASS;
     }
 	
-	public static boolean moveTile(TileEntityLittleTiles te, EnumFacing facing, LittleTile tile, boolean simulate)
+	public static boolean reverseMoveTile(TileEntityLittleTiles te, EnumFacing facing, LittleTile tile, boolean simulate, LittleTileBox box)
 	{
+		if(box == null)
+		{
+			LittleTileVec vec = new LittleTileVec(facing.getOpposite());
+			box = tile.boundingBoxes.get(0).copy();
+			box.addOffset(vec);
+		}
+		
+		
+		if(tile.isStructureBlock)
+			return moveTile(te, facing, tile, simulate, true);
+		else if(box.isBoxInsideBlock()){
+			LittleTile intersecting = te.getIntersectingTile(box, tile);
+			
+			if(intersecting != null && intersecting.canBeMoved(facing.getOpposite()) && !intersecting.isStructureBlock && intersecting.canBeCombined(tile) && tile.canBeCombined(intersecting) && intersecting.boundingBoxes.get(0).doesMatchTwoSides(box, facing.getOpposite()))
+			{
+				return reverseMoveTile(te, facing, intersecting, simulate, null);
+			}else{
+				 return moveTile(te, facing, tile, simulate, true);
+			}
+		}else{
+			box = box.createOutsideBlockBox(facing.getOpposite());
+			TileEntity tileEntity = te.getWorld().getTileEntity(te.getPos().offset(facing.getOpposite()));
+			if(tileEntity instanceof TileEntityLittleTiles)
+			{
+				return reverseMoveTile((TileEntityLittleTiles) tileEntity, facing, tile, simulate, box);
+			}else
+				return moveTile(te, facing, tile, simulate, true);
+		}
+	}
+	
+	public static boolean moveTile(TileEntityLittleTiles te, EnumFacing facing, LittleTile tile, boolean simulate, boolean push)
+	{
+		if(!push)
+			return reverseMoveTile(te, facing, tile, simulate, null);
 		LittleTileVec vec = new LittleTileVec(facing);
 		LittleTileBox box = tile.boundingBoxes.get(0).copy();
 		box.addOffset(vec);
@@ -183,7 +217,7 @@ public class ItemRubberMallet extends Item {
 				}else if(movingTile.canBeCombined(tile) && tile.canBeCombined(movingTile)){
 					if(tile.boundingBoxes.get(0).doesMatchTwoSides(box, facing))
 					{
-						if(moveTile(littleTE, facing, tile, simulate))
+						if(moveTile(littleTE, facing, tile, simulate, true))
 						{
 							if(!simulate)
 							{

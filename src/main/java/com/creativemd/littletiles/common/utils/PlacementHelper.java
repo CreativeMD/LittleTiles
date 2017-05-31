@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.utils;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -340,6 +342,19 @@ public class PlacementHelper {
 		return false;
 	}
 	
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
+	}
+	
+	public static double round(double value)
+	{
+		return round(value, 6);
+	}
+	
 	public LittleTileVec getHitVec(Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isInside, boolean checkIfPlacedInside)
 	{
 		if(customPlacement && !isInside)
@@ -348,7 +363,7 @@ public class PlacementHelper {
 			double posY = hitVec.yCoord - pos.getY();
 			double posZ = hitVec.zCoord - pos.getZ();
 			
-			LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
+			LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));
 			if(checkIfPlacedInside && !canBePlacedInside(pos, hitVec, side))
 			{
 				switch(side)
@@ -387,7 +402,8 @@ public class PlacementHelper {
 		double posZ = hitVec.zCoord - pos.getZ();
 		//if(hitVec.zCoord < 0)
 			//posZ = 1-posZ;
-		LittleTileVec vec = new LittleTileVec((int)(posX*LittleTile.gridSize), (int)(posY*LittleTile.gridSize), (int)(posZ*LittleTile.gridSize));
+		double test = posX*LittleTile.gridSize;
+		LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));
 		if(!customPlacement && checkIfPlacedInside && !canBePlacedInside(pos, hitVec, side))
 		{
 			switch(side)
