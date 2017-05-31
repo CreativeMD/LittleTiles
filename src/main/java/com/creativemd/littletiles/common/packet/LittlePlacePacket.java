@@ -94,8 +94,8 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 		if(!LittleBlockPacket.isAllowedToInteract(player, pos, true, EnumFacing.EAST))
 		{
-			IBlockState state = player.world.getBlockState(pos);
-			player.world.notifyBlockUpdate(pos, state, state, 3);
+			IBlockState state = player.worldObj.getBlockState(pos);
+			player.worldObj.notifyBlockUpdate(pos, state, state, 3);
 			return ;
 		}
 		

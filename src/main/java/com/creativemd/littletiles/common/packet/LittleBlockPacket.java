@@ -126,7 +126,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	{
 		if(WorldEditEvent != null)
 		{
-			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
+			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, player.getHeldItemMainhand(), pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
 			try {
 				if(worldEditInstance == null)
 				{
@@ -140,7 +140,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				return false;
 		}
 		
-		return !player.getServer().isBlockProtected(player.world, pos, player);
+		return !player.getServer().isBlockProtected(player.worldObj, pos, player);
 		
 	}
 	
