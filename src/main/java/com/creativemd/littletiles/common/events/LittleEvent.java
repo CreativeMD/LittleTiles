@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
@@ -23,12 +24,14 @@ import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.world.WorldInteractor;
 
 import net.minecraft.block.BlockPortal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
@@ -56,10 +59,13 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBloc
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
+import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -69,9 +75,9 @@ public class LittleEvent {
 	@SubscribeEvent
 	public void trackEntity(StartTracking event)
 	{
-		if(event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).activator != event.getEntityPlayer())
+		if(event.getTarget() instanceof EntityDoorAnimation && ((EntityDoorAnimation) event.getTarget()).activator != event.getEntityPlayer())
 		{
-			EntityAnimation animation = (EntityAnimation) event.getTarget();
+			EntityDoorAnimation animation = (EntityDoorAnimation) event.getTarget();
 			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), true), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
@@ -225,5 +231,24 @@ public class LittleEvent {
 				}
 			}
 		}
+	}
+	
+	@SubscribeEvent
+	public void worldCollision(GetCollisionBoxesEvent event)
+	{
+		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) {
+			Entity entity = event.getWorld().loadedEntityList.get(i);
+			if(entity instanceof EntityDoorAnimation)
+			{
+				
+			}
+		}
+		
+	}
+	
+	@SubscribeEvent
+	public void ChunkUnload(ChunkEvent.Unload event)
+	{
+		WorldInteractor.addChunkToBeRemoved(event.getWorld(), event.getChunk());
 	}
 }

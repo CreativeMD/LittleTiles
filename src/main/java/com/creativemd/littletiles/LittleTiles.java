@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.blocks.LittleTileParticle;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubContainerExport;
@@ -394,7 +395,7 @@ public class LittleTiles {
 		//Entity
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
 		
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 1, this, 2000, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
 		
 		proxy.loadSide();
 		

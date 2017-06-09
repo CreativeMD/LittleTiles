@@ -13,6 +13,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -87,7 +88,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			EntityAnimation animation = new EntityAnimation(world, pos, structure, blocks, previews, structure.getAxisVec(), transformation, uuid, player);
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, pos, structure, blocks, previews, structure.getAxisVec(), transformation, uuid, player);
 			//animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
 			world.spawnEntity(animation);
 			return true;

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.utils.rotation;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -33,7 +34,7 @@ public class SlidingDoorTransformation extends DoorTransformation {
 	}
 
 	@Override
-	public void performTransformation(EntityAnimation animation, double progress) {
+	public void performTransformation(EntityDoorAnimation animation, double progress) {
 		switch(direction)
 		{
 		case EAST:

@@ -6,6 +6,7 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 import com.google.common.base.Predicate;
 
@@ -47,12 +48,12 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = null;
+		EntityDoorAnimation animation = null;
 		for (Iterator<Entity> iterator = player.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
-			if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
+			if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
 			{
-				animation = (EntityAnimation) entity;
+				animation = (EntityDoorAnimation) entity;
 				break;
 			}
 		}
@@ -77,19 +78,19 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 
 	@Override
 	public void executeServer(EntityPlayer player) {
-		EntityAnimation animation = null;
-		for (Iterator<EntityAnimation> iterator = player.world.getEntities(EntityAnimation.class, new Predicate<EntityAnimation>() {
+		EntityDoorAnimation animation = null;
+		for (Iterator<EntityDoorAnimation> iterator = player.world.getEntities(EntityDoorAnimation.class, new Predicate<EntityDoorAnimation>() {
 
 			@Override
-			public boolean apply(EntityAnimation input) {
+			public boolean apply(EntityDoorAnimation input) {
 				return true;
 			}
 			
 		}).iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
-			if(entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
+			if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
 			{
-				animation = (EntityAnimation) entity;
+				animation = (EntityDoorAnimation) entity;
 				break;
 			}
 		}

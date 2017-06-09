@@ -378,7 +378,7 @@ public class RenderingThread extends Thread {
 				
 				if(count == null || count.intValue() <= 0)
 				{
-					//System.out.println("updating chunks");
+					//System.out.println("updating chunk " + chunk.boundingBox);
 					chunks.remove(chunk);
 					chunk.setNeedsUpdate(true);
 				}

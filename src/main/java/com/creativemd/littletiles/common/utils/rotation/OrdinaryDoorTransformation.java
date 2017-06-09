@@ -5,6 +5,7 @@ import javax.vecmath.Matrix3f;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -22,7 +23,7 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 	}
 
 	@Override
-	public void performTransformation(EntityAnimation animation, double progress) {
+	public void performTransformation(EntityDoorAnimation animation, double progress) {
 		switch(rotation)
 		{
 		/*case EAST:

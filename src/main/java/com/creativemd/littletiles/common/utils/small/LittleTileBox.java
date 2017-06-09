@@ -78,6 +78,12 @@ public class LittleTileBox {
 		set(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
+	public AxisAlignedBB getBox(BlockPos offset)
+	{
+		return new AxisAlignedBB(minX/(double)LittleTile.gridSize + offset.getX(), minY/(double)LittleTile.gridSize + offset.getY(), minZ/(double)LittleTile.gridSize + offset.getZ(),
+				maxX/(double)LittleTile.gridSize + offset.getX(), maxY/(double)LittleTile.gridSize + offset.getY(), maxZ/(double)LittleTile.gridSize + offset.getZ());
+	}
+	
 	public AxisAlignedBB getBox()
 	{
 		return new AxisAlignedBB(minX/(double)LittleTile.gridSize, minY/(double)LittleTile.gridSize, minZ/(double)LittleTile.gridSize, maxX/(double)LittleTile.gridSize, maxY/(double)LittleTile.gridSize, maxZ/(double)LittleTile.gridSize);

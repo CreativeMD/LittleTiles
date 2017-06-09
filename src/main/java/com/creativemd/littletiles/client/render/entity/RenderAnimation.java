@@ -13,6 +13,7 @@ import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
@@ -40,7 +41,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import shadersmod.client.ShadersRender;
 
-public class RenderAnimation extends Render<EntityAnimation> {
+public class RenderAnimation extends Render<EntityDoorAnimation> {
 	
 	public static final VertexBufferUploader uploader = new VertexBufferUploader();
 	
@@ -49,7 +50,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	}
 	
 	@Override
-	public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks)
+	public void doRender(EntityDoorAnimation entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
@@ -78,7 +79,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 							VertexBuffer bufferToCreate = new VertexBuffer(LittleTilesClient.getBlockVertexFormat());
 							uploader.setVertexBuffer(bufferToCreate);
 							uploader.draw(tempBuffer);
-							entity.renderData.add(layer, new TERenderData(bufferToCreate, EntityAnimation.getRenderChunkPos(te.getPos()), te.getPos()));
+							entity.renderData.add(layer, new TERenderData(bufferToCreate, EntityDoorAnimation.getRenderChunkPos(te.getPos()), te.getPos()));
 						}
 					}
 					TEtoRemove.add(te);
@@ -136,7 +137,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				
 				GlStateManager.translate(x, y, z);
 				
-				GlStateManager.translate(entity.getInsideBlockAxis().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosZ()+LittleTile.gridMCLength/2);
+				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
 				
 				
 				GL11.glRotated(rotation.xCoord, 1, 0, 0);
@@ -146,7 +147,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				
 				GlStateManager.translate(posX, posY, posZ);
 				
-				GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
+				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
 				
     			//Render
     			if ( layer == BlockRenderLayer.TRANSLUCENT )
@@ -230,7 +231,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	                
 	                GlStateManager.translate(x, y, z);
 	        		
-	        		GlStateManager.translate(entity.getInsideBlockAxis().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockAxis().getPosZ()+LittleTile.gridMCLength/2);
+	        		GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
 	        		
 	        		GL11.glRotated(rotation.xCoord, 1, 0, 0);
 	        		GL11.glRotated(rotation.yCoord, 0, 1, 0);
@@ -238,14 +239,14 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	        		
 	        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 	        		
-					GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
+					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
 					//Render TileEntity
 	        		
 	        		//GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
 	        		
 					TileEntityRendererDispatcher.instance.renderTileEntity(te, partialTicks, -1);
 					
-					GlStateManager.translate(-entity.getInsideBlockAxis().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockAxis().getPosZ()-LittleTile.gridMCLength/2);
+					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
 					GlStateManager.popMatrix();
 				}
 			}
@@ -255,7 +256,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
     }
 
 	@Override
-	protected ResourceLocation getEntityTexture(EntityAnimation entity) {
+	protected ResourceLocation getEntityTexture(EntityDoorAnimation entity) {
 		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 
