@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -68,7 +69,7 @@ public abstract class DoorTransformation {
 	
 	protected abstract void readFromNBT(NBTTagCompound nbt);
 	
-	public abstract void performTransformation(EntityAnimation animation, double progress);
+	public abstract void performTransformation(EntityDoorAnimation animation, double progress);
 	
 	public abstract boolean equals(Object object);
 	
