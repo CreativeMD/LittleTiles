@@ -122,50 +122,46 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
 	@Override
 	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final VertexBuffer buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_)
-    {		
-		List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
-		/*try{
-			tileEntities = compiled.getTileEntities();
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		List<TileEntityLittleTiles> tiles = new ArrayList<>();*/
-		if(tiles == null)
-			tiles = new ArrayList<>();
-		int bufferExpand = 0;
-		for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
-			if(layer == BlockRenderLayer.SOLID)
-				((TileEntityLittleTiles) te).updateQuadCache(chunk);
+    {
+		if(layer != BlockRenderLayer.TRANSLUCENT || buffer.getVertexFormat() == null || (compiled.getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))
+		{
+			//System.out.println("LittleTiles updating " + chunk.boundingBox + " layer=" + layer + " state=" + compiled.getState());
+			List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
 			
-			BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
-			if(blockLayerBuffer != null)
-			{
-				VertexBuffer teBuffer = blockLayerBuffer.getBufferByLayer(layer);
-				if(teBuffer != null && (layer != BlockRenderLayer.TRANSLUCENT || !((TileEntityLittleTiles) te).getBeenAddedToBuffer().get()))
+			if(tiles == null)
+				tiles = new ArrayList<>();
+			int bufferExpand = 0;
+			for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
+				TileEntityLittleTiles te = iterator.next();
+				if(layer == BlockRenderLayer.SOLID)
+					((TileEntityLittleTiles) te).updateQuadCache(chunk);
+				
+				BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
+				if(blockLayerBuffer != null)
 				{
-					bufferExpand += teBuffer.getByteBuffer().limit();
-					if(layer == BlockRenderLayer.TRANSLUCENT)
-						((TileEntityLittleTiles) te).getBeenAddedToBuffer().set(true);
+					VertexBuffer teBuffer = blockLayerBuffer.getBufferByLayer(layer);
+					if(teBuffer != null && (layer != BlockRenderLayer.TRANSLUCENT || !((TileEntityLittleTiles) te).getBeenAddedToBuffer().get()))
+					{
+						bufferExpand += teBuffer.getByteBuffer().limit();
+						if(layer == BlockRenderLayer.TRANSLUCENT)
+							((TileEntityLittleTiles) te).getBeenAddedToBuffer().set(true);
+					}
 				}
 			}
-		}
-		
-		
-		if(bufferExpand > 0)
-		{			
-			if(compiled.isLayerEmpty(layer))
-				try {
-					if(compiled != CompiledChunk.DUMMY)
-						setLayerUseMethod.invoke(compiled, layer);
-					if(chunk.getCompiledChunk() != CompiledChunk.DUMMY)
-						setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-					e1.printStackTrace();
-				}
 			
-			if(buffer.getVertexFormat() != null && !(compiled.getState() instanceof LittleVertexBufferState))
-			{				
+			
+			if(bufferExpand > 0)
+			{
+				if(compiled.isLayerEmpty(layer))
+					try {
+						if(compiled != CompiledChunk.DUMMY)
+							setLayerUseMethod.invoke(compiled, layer);
+						if(chunk.getCompiledChunk() != CompiledChunk.DUMMY)
+							setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
+					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+						e1.printStackTrace();
+					}
+				
 				for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
 					TileEntityLittleTiles te = iterator.next();
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
@@ -192,24 +188,58 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 							e.printStackTrace();
 						}
 					}
+					
+					if(layer == BlockRenderLayer.TRANSLUCENT)
+					{
+						Entity entity = mc.getRenderViewEntity();
+						float x = (float)entity.posX;
+			            float y = (float)entity.posY + entity.getEyeHeight();
+			            float z = (float)entity.posZ;
+			            
+						buffer.sortVertexData(x, y, z);
+						//System.out.println("Updating little sorting");
+						compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
+					}
+					
+					buffer.getByteBuffer().position(0);
+					buffer.getByteBuffer().limit(buffer.getVertexFormat().getIntegerSize() * buffer.getVertexCount() * 4);
 				}
-				
-				if(layer == BlockRenderLayer.TRANSLUCENT)
-				{
-					Entity entity = mc.getRenderViewEntity();
-					float x = (float)entity.posX;
-		            float y = (float)entity.posY + entity.getEyeHeight();
-		            float z = (float)entity.posZ;
-		            
-					buffer.sortVertexData(x, y, z);
-					compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
-				}
-				
-				buffer.getByteBuffer().position(0);
-				buffer.getByteBuffer().limit(buffer.getVertexFormat().getIntegerSize() * buffer.getVertexCount() * 4);
 			}
 		}
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
+    }
+	
+	public static VertexBuffer.State emptyState = loadEmptyState();
+	
+	private static VertexBuffer.State loadEmptyState()
+	{
+		VertexBuffer buffer = new VertexBuffer(0);
+		buffer.begin(7, DefaultVertexFormats.BLOCK);
+		VertexBuffer.State state = buffer.getVertexState();
+		buffer.finishDrawing();
+		return state;
+	}
+	
+	public static void resortTransparency(RenderChunk chunk, float x, float y, float z, ChunkCompileTaskGenerator generator)
+    {
+        CompiledChunk compiledchunk = generator.getCompiledChunk();
+
+        if (compiledchunk.getState() != null && !compiledchunk.isLayerEmpty(BlockRenderLayer.TRANSLUCENT))
+        {
+        	VertexBuffer worldRendererIn = generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT);
+        	BlockPos pos = chunk.getPosition();
+        	worldRendererIn.begin(7, DefaultVertexFormats.BLOCK);
+            worldRendererIn.setTranslation((double)(-pos.getX()), (double)(-pos.getY()), (double)(-pos.getZ()));
+            
+            generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT).setVertexState(compiledchunk.getState());
+            
+            worldRendererIn.sortVertexData(x, y, z);
+            compiledchunk.setState(new LittleVertexBufferState(worldRendererIn, worldRendererIn.getVertexState()));
+
+            worldRendererIn.finishDrawing();
+        }else
+        	compiledchunk.setState(emptyState);
+        
     }
 	
 	public static class LittleVertexBufferState extends VertexBuffer.State {
