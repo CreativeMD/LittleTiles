@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
@@ -26,6 +27,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -91,6 +93,20 @@ public abstract class LittleTile {
 		return CreateandLoadTile(te, world, nbt, false, null);
 	}
 	
+	public static LittleTile CreateEmptyTile(String id)
+	{
+		Class<? extends LittleTile> TileClass = getClassByID(id);
+		if(TileClass != null)
+		{
+			try {
+				return TileClass.getConstructor().newInstance();
+			} catch (Exception e) {
+				System.out.println("Found invalid tileID=" + id);
+			}
+		}
+		return null;
+	}
+	
 	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt, boolean isPacket, NetworkManager net)
 	{
 		if(nbt.hasKey("tileID")) //If it's the old tileentity
@@ -107,17 +123,7 @@ public abstract class LittleTile {
 				return tile;
 			}
 		}else{
-			String id = nbt.getString("tID");
-			Class<? extends LittleTile> TileClass = getClassByID(id);
-			LittleTile tile = null;
-			if(TileClass != null)
-			{
-				try {
-					tile = TileClass.getConstructor().newInstance();
-				} catch (Exception e) {
-					System.out.println("Found invalid tileID=" + id);
-				}
-			}
+			LittleTile tile = CreateEmptyTile(nbt.getString("tID"));
 			if(tile != null)
 				if(isPacket)
 					tile.receivePacket(nbt, net);
@@ -292,6 +298,57 @@ public abstract class LittleTile {
 	
 	//================Save & Loading================
 	
+	public NBTTagCompound startNBTGrouping()
+	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		saveTile(nbt);
+		int bSize = nbt.getInteger("bSize");
+		
+		nbt.setInteger("bSize", boundingBoxes.size());
+		for (int i = 0; i < bSize; i++) {
+			nbt.removeTag("bBox" + i);
+		}
+		nbt.removeTag("bSize");
+		
+		NBTTagList list = new NBTTagList();
+		
+		for (int i = 0; i < boundingBoxes.size(); i++) {
+			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
+		}
+		nbt.setTag("boxes", list);
+		
+		return nbt;
+	}
+	
+	public boolean canBeNBTGrouped(LittleTile tile)
+	{
+		return tile.canBeCombined(this) && this.canBeCombined(tile) && !tile.isMainBlock && !this.isMainBlock;
+	}
+	
+	public void groupNBTTile(NBTTagCompound nbt, LittleTile tile)
+	{
+		NBTTagList list = nbt.getTagList("boxes", 11);
+		
+		for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+			list.appendTag(tile.boundingBoxes.get(i).getNBTIntArray());
+		}
+	}
+	
+	public List<NBTTagCompound> extractNBTFromGroup(NBTTagCompound nbt)
+	{
+		List<NBTTagCompound> tags = new ArrayList<>();
+		NBTTagList list = nbt.getTagList("boxes", 11);
+		
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound copy = nbt.copy();
+			NBTTagList small = new NBTTagList();
+			small.appendTag(list.get(i));
+			copy.setTag("boxes", small);
+			tags.add(copy);
+		}		
+		return tags;
+	}
+	
 	public void saveTile(NBTTagCompound nbt)
 	{
 		saveTileCore(nbt);
@@ -310,12 +367,19 @@ public abstract class LittleTile {
 	public void saveTileCore(NBTTagCompound nbt)
 	{
 		nbt.setString("tID", getID());
-		if(cornerVec != null)
-			cornerVec.writeToNBT("cVec", nbt);
-		nbt.setInteger("bSize", boundingBoxes.size());
+		//if(cornerVec != null)
+			//cornerVec.writeToNBT("cVec", nbt);
+		
+		NBTTagList list = new NBTTagList();
+		for (int i = 0; i < boundingBoxes.size(); i++) {
+			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
+		}
+		nbt.setTag("boxes", list);
+		
+		/*nbt.setInteger("bSize", boundingBoxes.size());
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
-		}
+		}*/
 		
 		if(isStructureBlock)
 		{
@@ -346,12 +410,22 @@ public abstract class LittleTile {
 	
 	public void loadTileCore(NBTTagCompound nbt)
 	{
-		cornerVec = new LittleTileVec("cVec", nbt);
-		int count = nbt.getInteger("bSize");
-		boundingBoxes.clear();
-		for (int i = 0; i < count; i++) {
-			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
+		//cornerVec = new LittleTileVec("cVec", nbt);
+		if(nbt.hasKey("bSize"))
+		{
+			int count = nbt.getInteger("bSize");
+			boundingBoxes.clear();
+			for (int i = 0; i < count; i++) {
+				boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
+			}
+		}else{
+			NBTTagList list = nbt.getTagList("boxes", 11);
+			boundingBoxes.clear();
+			for (int i = 0; i < list.tagCount(); i++) {
+				boundingBoxes.add(new LittleTileBox(list.getIntArrayAt(i)));
+			}
 		}
+		
 		updateCorner();
 		
 		isStructureBlock = nbt.getBoolean("isStructure");
