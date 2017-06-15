@@ -1,11 +1,15 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import java.security.InvalidParameterException;
+
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 
@@ -21,7 +25,14 @@ public class LittleTileSize {
 			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
 		else if(nbt.getTag(name + "x") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
-		else{
+		else if(nbt.getTag(name) instanceof NBTTagIntArray){
+			int[] array = nbt.getIntArray(name);
+			if(array.length == 3)
+				set(array[0], array[1], array[2]);
+			else
+				throw new InvalidParameterException("No valid coords given " + nbt);
+		}
+		else if(nbt.getTag(name) instanceof NBTTagString){
 			String[] coords = nbt.getString(name).split("\\.");
 			try{
 				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
@@ -190,8 +201,8 @@ public class LittleTileSize {
 		/*nbt.setInteger(name+"x", sizeX);
 		nbt.setInteger(name+"y", sizeY);
 		nbt.setInteger(name+"z", sizeZ);*/
-		nbt.setString(name, sizeX+"."+sizeY+"."+sizeZ);
-		
+		//nbt.setString(name, sizeX+"."+sizeY+"."+sizeZ);
+		nbt.setIntArray(name, new int[]{sizeX, sizeY, sizeZ});
 	}
 	
 	@Override

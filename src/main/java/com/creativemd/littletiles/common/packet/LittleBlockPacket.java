@@ -5,6 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -288,8 +289,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 							if(tile.isStructureBlock)
 							{
 								newTile.isStructureBlock = true;
-								newTile.structure.getTiles().remove(tile);
-								newTile.structure.getTiles().add(newTile);
+								newTile.structure.removeTile(tile);
+								newTile.structure.addTile(newTile);
 								if(tile.isMainBlock)
 									newTile.structure.setMainTile(newTile);
 								newTile.structure.getMainTile().te.updateBlock();
@@ -313,7 +314,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 								LittleStructure structure = tile.structure;
 								if(structure.hasLoaded())
 								{
-									ArrayList<LittleTile> tiles = new ArrayList(structure.getTiles());
+									List<LittleTile> tiles = structure.copyOfTiles();
 									for (int i = 0; i < tiles.size(); i++) {
 										if(!ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), true, push))
 											return ;

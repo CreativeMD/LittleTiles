@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
@@ -21,6 +22,7 @@ import com.creativemd.littletiles.utils.ShiftHandler;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -69,18 +71,18 @@ public class PlacementHelper {
 		if(stack == null)
 			return false;
 		if(stack.getItem() instanceof ILittleTile)
-			return ((ILittleTile) stack.getItem()).getLittlePreview(stack) != null;
+			return ((ILittleTile) stack.getItem()).hasLittlePreview(stack);
 		if(Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile)
-			return ((ILittleTile)Block.getBlockFromItem(stack.getItem())).getLittlePreview(stack) != null;
+			return ((ILittleTile)Block.getBlockFromItem(stack.getItem())).hasLittlePreview(stack);
 		return false;
 	}
 	
-	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement) //, ForgeDirection rotation, ForgeDirection rotation2)
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, RayTraceResult moving, boolean customPlacement, boolean allowLowResolution) //, ForgeDirection rotation, ForgeDirection rotation2)
 	{
-		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, LittleTiles.invertedShift != player.isSneaking(), false); //, rotation, rotation2);
+		return getPreviewTiles(stack, moving.getBlockPos(), player.getPositionEyes(TickUtils.getPartialTickTime()), moving.hitVec, moving.sideHit, customPlacement, LittleTiles.invertedShift != player.isSneaking(), false, allowLowResolution); //, rotation, rotation2);
 	}
 	
-	public static LittleTileVec getInternalOffset(ArrayList<LittleTilePreview> tiles)
+	public static LittleTileVec getInternalOffset(List<LittleTilePreview> tiles)
 	{
 		int minX = LittleTile.maxPos;
 		int minY = LittleTile.maxPos;
@@ -99,7 +101,7 @@ public class PlacementHelper {
 		return new LittleTileVec(minX, minY, minZ);
 	}
 	
-	public static LittleTileSize getSize(ArrayList<LittleTilePreview> tiles)
+	public static LittleTileSize getSize(List<LittleTilePreview> tiles)
 	{
 		int minX = LittleTile.maxPos;
 		int minY = LittleTile.maxPos;
@@ -127,22 +129,25 @@ public class PlacementHelper {
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).max(size);
 	}
 	
-	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking) //, ForgeDirection rotation, ForgeDirection rotation2)
-	{
-		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, isSneaking, false);
-	}
+	public NBTTagCompound lastCached;
+	public ArrayList<LittleTilePreview> lastPreviews;
 	
-	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking, boolean inside) //, ForgeDirection rotation, ForgeDirection rotation2)
+	/*public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking) 
+	{
+		return getPreviewTiles(stack, pos, playerPos, hitVec, side, customPlacement, isSneaking, false, false);
+	}*/
+	
+	public ArrayList<PlacePreviewTile> getPreviewTiles(ItemStack stack, BlockPos pos, Vec3d playerPos, Vec3d hitVec, EnumFacing side, boolean customPlacement, boolean isSneaking, boolean inside, boolean allowLowResolution) 
 	{
 		ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
 		ArrayList<PlacePreviewTile> previews = new ArrayList<PlacePreviewTile>();
-		ArrayList<LittleTilePreview> tiles = null;
+		List<LittleTilePreview> tiles = allowLowResolution && lastCached != null && lastCached.equals(stack.getTagCompound()) ? new ArrayList<>(lastPreviews) : null;
 		
 		LittleTilePreview tempPreview = null;
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
-		if(iTile != null)
-			tiles = iTile.getLittlePreview(stack);
+		if(tiles == null && iTile != null)
+			tiles = iTile.getLittlePreview(stack, allowLowResolution);
 		
 		if(tiles != null)
 		{
@@ -262,6 +267,12 @@ public class PlacementHelper {
 					preview.add(previewTile);
 				}*/
 			}
+		}
+		
+		if(allowLowResolution)
+		{
+			lastCached = stack.getTagCompound().copy();
+			lastPreviews = new ArrayList<>(tiles);
 		}
 		
 		return previews;

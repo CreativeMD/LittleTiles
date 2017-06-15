@@ -7,18 +7,22 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -47,7 +51,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 			if(stack.getTagCompound().hasKey("structure"))
 				id = stack.getTagCompound().getCompoundTag("structure").getString("id");
 			list.add("structure: " + id);
-			list.add("contains " + stack.getTagCompound().getInteger("tiles") + " tiles");
+			list.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
 		}
 	}
 	
@@ -70,13 +74,24 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     }
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
-		ItemRecipe.savePreviewTiles(previews, stack);
+	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
+		LittleTilePreview.savePreviewTiles(previews, stack);
+	}
+	
+	@Override
+	public boolean hasLittlePreview(ItemStack stack) {
+		return true;
 	}
 
 	@Override
-	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
-		return ItemRecipe.getPreview(stack);
+	public List<LittleTilePreview> getLittlePreview(ItemStack stack) {
+		return LittleTilePreview.getPreview(stack);
+	}
+	
+	@Override
+	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution)
+	{
+		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
 
 	/*@Override
@@ -100,7 +115,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return ItemRecipe.getCubes(stack);
+		return LittleTilePreview.getCubes(stack);
 	}
 	
 	@Override
@@ -109,11 +124,24 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	{
 		if(stack.hasTagCompound())
 		{
-			if(!stack.getTagCompound().hasKey("size"))
-				ItemRecipe.updateSize(ItemRecipe.getCubes(stack), stack);
-			double scaler = 1/Math.max(1, stack.getTagCompound().getDouble("size"));
+			LittleTileSize size = LittleTilePreview.getSize(stack);
+			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(), Math.max(size.getPosY(), size.getPosZ()))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
+	{
+		ItemModelCache.cacheModel(stack, facing, cachedQuads);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
+	{
+		return ItemModelCache.getCache(stack, facing);
 	}
 	
 	/*@Override

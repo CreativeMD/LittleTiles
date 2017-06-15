@@ -68,7 +68,7 @@ public class PlacePreviewTile {
 		{
 			LT.isStructureBlock = true;
 			LT.structure = structure;
-			structure.getTiles().add(LT);
+			structure.addTileFast(LT);
 		}
 		
 		if(teLT.isSpaceForLittleTile(box.copy()))

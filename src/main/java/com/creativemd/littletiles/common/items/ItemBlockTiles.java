@@ -372,7 +372,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			if(structure != null)
 			{
 				structure.setMainTile(structure.getMainTile());
-				for (Iterator<LittleTile> iterator = structure.getTiles().iterator(); iterator.hasNext();) {
+				for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
 					LittleTile tile = iterator.next();
 					tile.isAllowedToSearchForStructure = true;
 				}
@@ -405,7 +405,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			forced = false;
 		}
 		
-		ArrayList<PlacePreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, isSneaking, true); //, direction, direction2);
+		ArrayList<PlacePreviewTile> previews = helper.getPreviewTiles(stack, pos, playerPos, hitVec, facing, customPlacement, isSneaking, true, false); //, direction, direction2);
 		
 		//System.out.println("Creating " + previews.size() + " tiles");
 		
@@ -439,7 +439,12 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		}
        return false;
     }
-
+	
+	@Override
+	public boolean hasLittlePreview(ItemStack stack) {
+		return true;
+	}
+	
 	@Override
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
 		ArrayList<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
@@ -448,7 +453,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	}
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
+	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
 		if(previews.size() > 0)
 		{
 			LittleTilePreview preview = previews.get(0);
@@ -521,6 +526,6 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			this.pos = pos;
 		}
 		
-	}
+	}	
 
 }

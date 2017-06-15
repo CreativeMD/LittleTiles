@@ -100,7 +100,6 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid)
 	{
-		ArrayList<LittleTile> tiles = getTiles();
 		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
 		
 		placedAxis = new LittleTileVec(pos);
@@ -144,9 +143,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
-	{
-		ArrayList<LittleTile> tiles = getTiles();
-		
+	{		
 		for (int i = 0; i < tiles.size(); i++) {
 			tiles.get(i).te.removeTile(tiles.get(i));
 		}
@@ -196,7 +193,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
 			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
 			
-			LittleTileSize size = ItemRecipe.getSize(gui.stack);
+			LittleTileSize size = LittleTilePreview.getSize(gui.stack);
 			
 			slider.minValue = 1;
 			slider.maxValue = size.getSizeOfAxis(direction.getAxis())+1;
@@ -276,7 +273,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		if(structure instanceof LittleSlidingDoor)
 			door = (LittleSlidingDoor) structure;
 		
-		LittleTileSize size = ItemRecipe.getSize(((SubGuiStructure) gui).stack);
+		LittleTileSize size = LittleTilePreview.getSize(((SubGuiStructure) gui).stack);
 		
 		int index = EnumFacing.UP.ordinal();
 		if(door != null)

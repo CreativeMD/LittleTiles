@@ -248,7 +248,7 @@ public abstract class LittleTile {
 	{
 		if(isLoaded())
 		{
-			structure.getTiles().remove(tile);
+			structure.removeTile(tile);
 		}
 	}
 	
@@ -783,8 +783,8 @@ public abstract class LittleTile {
 						if(tile.isMainBlock)
 						{
 							this.structure = tile.structure;
-							if(this.structure != null && this.structure.getTiles() != null && !this.structure.getTiles().contains(this))
-								this.structure.getTiles().add(this);
+							if(this.structure != null && this.structure.LoadList() && !this.structure.containsTile(this))
+								this.structure.addTile(this);
 						}
 					}
 				}

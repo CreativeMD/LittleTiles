@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
@@ -33,7 +34,7 @@ public class SubGuiWrench extends SubGui {
 				{
 					if(stack1.getItem() instanceof ItemRecipe)
 					{
-						ArrayList<LittleTilePreview> tiles = ItemRecipe.getPreview(stack1);
+						List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
 						ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
 						ArrayList<BlockEntry> remaining = new ArrayList<>();
 						

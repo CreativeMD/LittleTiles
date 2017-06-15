@@ -264,15 +264,14 @@ public class LittleDoor extends LittleDoorBase{
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid)
 	{
-		ArrayList<LittleTile> tiles = getTiles();
 		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
 		LittleTileVec axisPoint = getAxisVec();
 		
 		LittleTileVec invaxis = axisPoint.copy();
 		invaxis.invert();
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tileOfList = tiles.get(i);
+		for (Iterator iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tileOfList = (LittleTile) iterator.next();
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			LittleTilePreview preview = tileOfList.getPreviewTile();
@@ -418,8 +417,8 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
-	{
-		ArrayList<LittleTile> tiles = getTiles();
+	{		
+		LoadList();
 		
 		LittleTileVec axisPoint = getAxisVec();
 		int mainX = axisPoint.x/LittleTile.gridSize;

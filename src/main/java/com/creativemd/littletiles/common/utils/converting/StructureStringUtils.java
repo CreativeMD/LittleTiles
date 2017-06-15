@@ -45,11 +45,11 @@ public class StructureStringUtils {
 		{
 			JsonObject object = new JsonObject();
 			NBTTagCompound nbt = new NBTTagCompound();
-			ArrayList<LittleTilePreview> previews = null;
+			List<LittleTilePreview> previews = null;
 			LittleStructure structure = null;
 			if(stack.getItem() instanceof ItemRecipe)
 			{
-				previews = ItemRecipe.getPreview(stack);
+				previews = LittleTilePreview.getPreview(stack);
 				structure = ItemMultiTiles.getLTStructure(stack);
 			}else{
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
@@ -145,11 +145,11 @@ public class StructureStringUtils {
 		if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
-			ArrayList<LittleTilePreview> previews = null;
+			List<LittleTilePreview> previews = null;
 			LittleStructure structure = null;
 			if(stack.getItem() instanceof ItemRecipe)
 			{
-				previews = ItemRecipe.getPreview(stack);
+				previews = LittleTilePreview.getPreview(stack);
 				structure = ItemMultiTiles.getLTStructure(stack);
 			}else{
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);

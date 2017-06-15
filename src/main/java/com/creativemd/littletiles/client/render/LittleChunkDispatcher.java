@@ -123,7 +123,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	@Override
 	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final VertexBuffer buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_)
     {
-		if(layer != BlockRenderLayer.TRANSLUCENT || buffer.getVertexFormat() == null || (compiled.getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))
+		if(buffer.getVertexFormat() != null && (layer != BlockRenderLayer.TRANSLUCENT || (compiled.getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState))))
 		{
 			//System.out.println("LittleTiles updating " + chunk.boundingBox + " layer=" + layer + " state=" + compiled.getState());
 			List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
@@ -189,7 +189,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 						}
 					}
 					
-					if(layer == BlockRenderLayer.TRANSLUCENT)
+					if(layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null)
 					{
 						Entity entity = mc.getRenderViewEntity();
 						float x = (float)entity.posX;

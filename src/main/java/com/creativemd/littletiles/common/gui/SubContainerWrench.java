@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -89,7 +90,7 @@ public class SubContainerWrench extends SubContainer{
 		return false;
 	}
 	
-	public static ArrayList<BlockEntry> getRequiredIngredients(ArrayList<LittleTilePreview> previews)
+	public static ArrayList<BlockEntry> getRequiredIngredients(List<LittleTilePreview> previews)
 	{
 		ArrayList<BlockEntry> ingredients = new ArrayList<>();
 		for (int i = 0; i < previews.size(); i++) {
@@ -159,7 +160,7 @@ public class SubContainerWrench extends SubContainer{
 				
 				if(tile != null)
 				{
-					ArrayList<LittleTilePreview> tiles = tile.getLittlePreview(stack);
+					List<LittleTilePreview> tiles = tile.getLittlePreview(stack);
 					if(tiles != null)
 					{
 						for (int i = 0; i < tiles.size(); i++) {
@@ -210,7 +211,7 @@ public class SubContainerWrench extends SubContainer{
 			{
 				if(stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x"))
 				{
-					ArrayList<LittleTilePreview> tiles = ItemRecipe.getPreview(stack1);
+					List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
 					ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
 					ArrayList<BlockEntry> remaining = new ArrayList<>();
 					
@@ -248,7 +249,7 @@ public class SubContainerWrench extends SubContainer{
 				if(previews != null && !previews.isEmpty() && stack2.isEmpty())
 				{
 					stack2 = new ItemStack(LittleTiles.multiTiles);
-					ItemRecipe.savePreviewTiles(previews, stack2);
+					LittleTilePreview.savePreviewTiles(previews, stack2);
 					basic.setInventorySlotContents(0, ItemStack.EMPTY);
 					basic.setInventorySlotContents(1, stack2);
 				}

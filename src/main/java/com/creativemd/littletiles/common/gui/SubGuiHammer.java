@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.lwjgl.util.Color;
 
@@ -99,7 +100,7 @@ public class SubGuiHammer extends SubGui {
 			meta = slotStack.getItemDamage();
 			if(block == LittleTiles.blockTile)
 			{
-				ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+				List<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
 				if(previews.size() > 0)
 				{
 					block = previews.get(0).getPreviewBlock();
@@ -124,7 +125,7 @@ public class SubGuiHammer extends SubGui {
 		Block block = Block.getBlockFromItem(slotStack.getItem());
 		if(block == LittleTiles.blockTile)
 		{
-			ArrayList<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
+			List<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
 			if(previews.size() > 0)
 			{
 				int colorInt = previews.get(0).getColor();

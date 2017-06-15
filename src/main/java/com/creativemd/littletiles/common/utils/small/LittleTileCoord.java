@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import java.security.InvalidParameterException;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -32,7 +34,16 @@ public class LittleTileCoord {
 	
 	public LittleTileCoord(String id, NBTTagCompound nbt)
 	{
-		coord = new BlockPos(nbt.getInteger(id + "coordX"), nbt.getInteger(id + "coordY"), nbt.getInteger(id + "coordZ"));
+		if(nbt.hasKey(id + "coord"))
+		{
+			int[] array = nbt.getIntArray(id + "coord");
+			if(array.length == 3)
+				coord = new BlockPos(array[0], array[1], array[2]);
+			else
+				throw new InvalidParameterException("No valid coord given " + nbt);
+		}
+		else if(nbt.hasKey(id + "coordX"))
+			coord = new BlockPos(nbt.getInteger(id + "coordX"), nbt.getInteger(id + "coordY"), nbt.getInteger(id + "coordZ"));
 		position = new LittleTileVec(id + "pos", nbt);
 	}
 	
@@ -58,9 +69,10 @@ public class LittleTileCoord {
 	
 	public void writeToNBT(String id, NBTTagCompound nbt)
 	{
-		nbt.setInteger(id + "coordX", coord.getX());
+		/*nbt.setInteger(id + "coordX", coord.getX());
 		nbt.setInteger(id + "coordY", coord.getY());
-		nbt.setInteger(id + "coordZ", coord.getZ());
+		nbt.setInteger(id + "coordZ", coord.getZ());*/
+		nbt.setIntArray(id + "coord", new int[]{coord.getX(), coord.getY(), coord.getZ()});
 		position.writeToNBT(id + "pos", nbt);
 	}
 	

@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -100,7 +101,7 @@ public class LittleBed extends LittleStructure{
 		tile.viewDirection = EnumFacing.UP;
 		gui.addControl(tile);
 		
-		LittleTileSize size = ItemRecipe.getSize(((SubGuiStructure) gui).stack);
+		LittleTileSize size = LittleTilePreview.getSize(((SubGuiStructure) gui).stack);
 		int index = EnumFacing.EAST.getHorizontalIndex();
 		if(size.sizeX < size.sizeZ)
 			index = EnumFacing.SOUTH.getHorizontalIndex();

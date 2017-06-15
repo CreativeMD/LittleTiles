@@ -16,6 +16,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.gui.SubContainerStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
@@ -44,6 +45,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -142,9 +144,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 					}
 				}
 				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
-				savePreviewTiles(previews, stack);
-				if(world.isRemote)
-					updateSize(getCubes(stack), stack);
+				LittleTilePreview.savePreviewTiles(previews, stack);
 			}
 			return EnumActionResult.SUCCESS;
 		}else if(!stack.hasTagCompound()){
@@ -161,124 +161,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
         return EnumActionResult.PASS;
     }
 	
-	/*public static void flipPreview(ItemStack stack, EnumFacing direction)
-	{
-		int tiles = stack.getTagCompound().getInteger("tiles");
-		for (int i = 0; i < tiles; i++) {
-			NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-			LittleTilePreview.flipPreview(nbt, direction);
-			stack.getTagCompound().setTag("tile" + i, nbt);
-		}
-	}
-	
-	public static void rotatePreview(ItemStack stack, EnumFacing direction)
-	{
-		int tiles = stack.getTagCompound().getInteger("tiles");
-		for (int i = 0; i < tiles; i++) {
-			NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-			LittleTilePreview.rotatePreview(nbt, direction);
-			stack.getTagCompound().setTag("tile" + i, nbt);
-		}
-	}*/
-	
-	public static ArrayList<LittleTilePreview> getPreview(ItemStack stack)
-	{
-		ArrayList<LittleTilePreview> result = new ArrayList<LittleTilePreview>();
-		int tiles = stack.getTagCompound().getInteger("tiles");
-		for (int i = 0; i < tiles; i++) {
-			NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-			LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
-			if(preview != null)
-				result.add(preview);
-		}
-		return result;
-	}
-	
-	public static LittleTileSize getSize(ItemStack stack)
-	{
-		ArrayList<LittleTilePreview> tiles = getPreview(stack);
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int minZ = Integer.MAX_VALUE;
-		int maxX = Integer.MIN_VALUE;
-		int maxY = Integer.MIN_VALUE;
-		int maxZ = Integer.MIN_VALUE;
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTilePreview tile = tiles.get(i);
-			minX = Math.min(minX, tile.box.minX);
-			minY = Math.min(minY, tile.box.minY);
-			minZ = Math.min(minZ, tile.box.minZ);
-			maxX = Math.max(maxX, tile.box.maxX);
-			maxY = Math.max(maxY, tile.box.maxY);
-			maxZ = Math.max(maxZ, tile.box.maxZ);
-		}
-		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ);
-	}
-	
-	public static ArrayList<LittleTile> loadTiles(TileEntityLittleTiles te, ItemStack stack)
-	{
-		ArrayList<LittleTile> result = new ArrayList<LittleTile>();
-		int tiles = stack.getTagCompound().getInteger("tiles");
-		for (int i = 0; i < tiles; i++) {
-			NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(te, te.getWorld(), nbt);
-			//if(tile != null && tile.isValid())
-			result.add(tile);
-		}
-		return result;
-	}
-	
-	public static void savePreviewTiles(List<LittleTilePreview> previews, ItemStack stack)
-	{
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		stack.getTagCompound().setInteger("tiles", previews.size());
-		for (int i = 0; i < previews.size(); i++) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			previews.get(i).writeToNBT(nbt);			
-			stack.getTagCompound().setTag("tile" + i, nbt);
-		}
-	}
-	
-	public static void saveTiles(World world, List<LittleTile> tiles, ItemStack stack)
-	{
-		stack.setTagCompound(new NBTTagCompound());
-		stack.getTagCompound().setInteger("tiles", tiles.size());
-		List cubes = null;
-		if(world.isRemote)
-			cubes = new ArrayList<RenderCubeObject>();
-		for (int i = 0; i < tiles.size(); i++) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			tiles.get(i).getPreviewTile().writeToNBT(nbt);;
-			if(world.isRemote)
-				cubes.addAll(tiles.get(i).getRenderingCubes());
-			stack.getTagCompound().setTag("tile" + i, nbt);
-		}
-		if(world.isRemote)
-			updateSize((ArrayList<RenderCubeObject>) cubes, stack);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public static void updateSize(ArrayList<RenderCubeObject> cubes, ItemStack stack)
-	{
-		if(stack.hasTagCompound())
-		{
-			Vec3d size = CubeObject.getSizeOfCubes(cubes);
-			stack.getTagCompound().setDouble("size", Math.max(1, Math.max(size.xCoord, Math.max(size.yCoord, size.zCoord))));
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack)
-	{
-		ArrayList<LittleTilePreview> preview = getPreview(stack);
-		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		for (int i = 0; i < preview.size(); i++) {
-			cubes.add(preview.get(i).getCubeBlock());
-		}
-		return cubes;
-	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
     public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
@@ -292,7 +174,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				if(stack.getTagCompound().hasKey("structure"))
 					id = stack.getTagCompound().getCompoundTag("structure").getString("id");
 				list.add("structure: " + id);
-				list.add("contains " + stack.getTagCompound().getInteger("tiles") + " tiles");
+				list.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
 			}
 		}
 	}
@@ -312,7 +194,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	@SideOnly(Side.CLIENT)
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
-			return getCubes(stack);
+			return LittleTilePreview.getCubes(stack);
 		return new ArrayList<RenderCubeObject>();
 	}
 	
@@ -339,9 +221,8 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		
 		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
 		{
-			if(!stack.getTagCompound().hasKey("size"))
-				updateSize(getCubes(stack), stack);
-			double scaler = 1/Math.max(1, stack.getTagCompound().getDouble("size"));
+			LittleTileSize size = LittleTilePreview.getSize(stack);
+			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(), Math.max(size.getPosY(), size.getPosZ()))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 		
@@ -351,16 +232,20 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getSpecialBakedQuads(IBlockState state, TileEntity te, EnumFacing side, long rand,
 			ItemStack stack) {
-		/*IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
-		if(model != null)
-		{
-			List<BakedQuad> quads = model.getQuads(state, side, rand);
-			ArrayList<BakedQuad> newQuads = new ArrayList<>();
-			for (int i = 0; i < quads.size(); i++) {
-				newQuads.add(new CreativeBakedQuad(quads.get(i), null, -1, true, side));
-			}
-			return newQuads;
-		}*/
 		return new ArrayList<>();
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
+	{
+		ItemModelCache.cacheModel(stack, facing, cachedQuads);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
+	{
+		return ItemModelCache.getCache(stack, facing);
 	}
 }

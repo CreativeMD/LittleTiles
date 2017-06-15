@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.blocks;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -11,13 +12,20 @@ import net.minecraft.util.EnumFacing;
 
 public interface ILittleTile {
 	
-	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack);
+	public boolean hasLittlePreview(ItemStack stack);
 	
-	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews);
+	public List<LittleTilePreview> getLittlePreview(ItemStack stack);
+	
+	public default List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution)
+	{
+		return getLittlePreview(stack);
+	}
+	
+	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews);
 	
 	public default void rotateLittlePreview(ItemStack stack, EnumFacing facing)
 	{
-		ArrayList<LittleTilePreview> previews = getLittlePreview(stack);
+		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.rotatePreview(facing);
@@ -27,7 +35,7 @@ public interface ILittleTile {
 	
 	public default void flipLittlePreview(ItemStack stack, EnumFacing facing)
 	{
-		ArrayList<LittleTilePreview> previews = getLittlePreview(stack);
+		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.flipPreview(facing);

@@ -165,7 +165,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			maxY = Math.max(maxY, te.getPos().getY());
 			maxZ = Math.max(maxZ, te.getPos().getZ());
 			
-			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator.hasNext();) {
+			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
 				LittleTile tile = iterator2.next();
 				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
 					worldCollisionBoxes.add(tile.boundingBoxes.get(i).getBox(te.getPos()));
@@ -217,8 +217,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public EntityAnimation(World world, BlockPos pos, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, UUID uuid, LittleTileVec center) {
 		this(world);
 		
-		setPosition(pos.getX(), pos.getY(), pos.getZ());
-		
 		this.blocks = blocks;
 		this.previews = previews;
 		
@@ -233,6 +231,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         	createClient();
         
         updateWorldCollision();
+        
+        setPosition(pos.getX(), pos.getY(), pos.getZ());
         
 	}
 	

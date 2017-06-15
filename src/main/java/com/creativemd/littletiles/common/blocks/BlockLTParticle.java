@@ -99,7 +99,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	}
 
 	@Override
-	public void saveLittlePreview(ItemStack stack, ArrayList<LittleTilePreview> previews) {
+	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
 		
 	}
 	
@@ -109,5 +109,10 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
     {
 		tooltip.add("Particles will not spawn if you are holding the wrench.");
     }
+
+	@Override
+	public boolean hasLittlePreview(ItemStack stack) {
+		return true;
+	}
 
 }

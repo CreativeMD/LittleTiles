@@ -1,56 +1,43 @@
 package com.creativemd.littletiles.common.tileentity;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.client.rendering.model.QuadCache;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
-import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
-import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.TileList;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.model.pipeline.BlockInfo;
-import net.minecraftforge.common.util.Constants.NBT;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class TileEntityLittleTiles extends TileEntityCreative implements ITickable{
 	
@@ -123,7 +110,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public EntityAnimation waitingAnimation;
+	public EntityDoorAnimation waitingAnimation;
 	
 	/*@SideOnly(Side.CLIENT)
 	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
@@ -301,6 +288,30 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		world.checkLight(getPos());
 	}
 	
+	private static Field processingLoadedTiles = ReflectionHelper.findField(World.class, "processingLoadedTiles", "field_147481_N");
+	
+	private void customTilesUpdate()
+	{
+		if(updateTiles.isEmpty() == ticking)
+		{
+			try {
+				if(!processingLoadedTiles.getBoolean(world))
+				{
+					if(updateTiles.isEmpty())
+						world.tickableTileEntities.remove(this);
+					else
+						world.tickableTileEntities.add(this);
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		if(!world.isRemote && tiles.size() == 0) //Be very careful with that!!! MIght cause a lot of issues!!!!
+			world.setBlockToAir(getPos());
+		
+	}
+	
 	public void updateTiles()
 	{
 		if(preventUpdate)
@@ -317,6 +328,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		if(isClientSide())
 			updateCustomRenderer();
 		
+		customTilesUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -584,31 +596,45 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     {
         super.readFromNBT(nbt);
         
-        setLoaded();
-        
         if(tiles != null)
         	tiles.clear();
         if(updateTiles != null)
         	updateTiles.clear();
         collisionChecks = 0;
-        int count = nbt.getInteger("tilesCount");
-        for (int i = 0; i < count; i++) {
-        	NBTTagCompound tileNBT = new NBTTagCompound();
-        	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
-			if(tile != null)
-				addLittleTile(tile);
+        preventUpdate = true;
+        
+        if(nbt.hasKey("tilesCount"))
+        {
+        
+	        int count = nbt.getInteger("tilesCount");
+	        for (int i = 0; i < count; i++) {
+	        	NBTTagCompound tileNBT = new NBTTagCompound();
+	        	tileNBT = nbt.getCompoundTag("t" + i);
+				LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+				if(tile != null)
+					addLittleTile(tile);
+	        }
+        }else{
+        	List<LittleTile> tiles = LittleNBTCompressionTools.readTiles(nbt.getTagList("tiles", 10), this);
+        	
+        	for (int i = 0; i < tiles.size(); i++) {
+				addLittleTile(tiles.get(i));
+			}
         }
         
+        preventUpdate = false;
         if(world != null)
+        {
         	updateBlock();
+        }
     }
 
 	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-        int i = 0;
+        
+    	/*int i = 0;
         for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			NBTTagCompound tileNBT = new NBTTagCompound();
@@ -616,7 +642,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			nbt.setTag("t" + i, tileNBT);
 			i++;
 		}
-        nbt.setInteger("tilesCount", tiles.size());
+        nbt.setInteger("tilesCount", tiles.size());*/
+        
+        nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(tiles));
+        
+        
 		return nbt;
     }
     
@@ -684,7 +714,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			else
 			{
 				if(isIdentical && tile.isLoaded())
-					tile.structure.getTiles().remove(tile);
+					tile.structure.removeTile(tile);
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
 				if(tile != null)
 					tilesToAdd.add(tile);
@@ -777,6 +807,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		setLoaded();
     }
 	
+	public boolean ticking = true;
+	
 	@Override
 	public void update()
 	{
@@ -789,15 +821,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}*/
 		
-		
+		/*if(updateTiles.isEmpty()) Add it later!!!!
+		{
+			System.out.println("Ticking tileentity which shouldn't " + world.isRemote);
+			return ;
+		}*/
 		
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.updateEntity();
 		}
 		
-		if(!world.isRemote && tiles.size() == 0)
-			world.setBlockToAir(getPos());
+		/*if(!world.isRemote && tiles.size() == 0)
+			world.setBlockToAir(getPos());*/
 	}
 	
 	public void combineTiles(LittleStructure structure) {

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.small;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -9,6 +10,9 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -34,6 +38,14 @@ public class LittleTileBox {
 		maxZ = (int) (minZ+size.sizeZ);
 	}
 	
+	public LittleTileBox(int[] array)
+	{
+		if(array.length == 6)
+			set(array[0], array[1], array[2], array[3], array[4], array[5]);
+		else
+			throw new InvalidParameterException("No valid coords given " + array);
+	}
+	
 	public LittleTileBox(String name, NBTTagCompound nbt)
 	{
 		if(nbt.getTag(name + "minX") instanceof NBTTagByte)
@@ -43,7 +55,13 @@ public class LittleTileBox {
 		}
 		else if(nbt.getTag(name + "minX") instanceof NBTTagInt)
 			set(nbt.getInteger(name+"minX"), nbt.getInteger(name+"minY"), nbt.getInteger(name+"minZ"), nbt.getInteger(name+"maxX"), nbt.getInteger(name+"maxY"), nbt.getInteger(name+"maxZ"));
-		else{
+		else if(nbt.getTag(name) instanceof NBTTagIntArray){
+			int[] array = nbt.getIntArray(name);
+			if(array.length == 6)
+				set(array[0], array[1], array[2], array[3], array[4], array[5]);
+			else
+				throw new InvalidParameterException("No valid coords given " + array);
+		}else if(nbt.getTag(name) instanceof NBTTagString){
 			String[] coords = nbt.getString(name).split("\\.");
 			try{
 				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(coords[5]));
@@ -94,6 +112,11 @@ public class LittleTileBox {
 		return new CubeObject(minX/(float)LittleTile.gridSize, minY/(float)LittleTile.gridSize, minZ/(float)LittleTile.gridSize, maxX/(float)LittleTile.gridSize, maxY/(float)LittleTile.gridSize, maxZ/(float)LittleTile.gridSize);
 	}
 	
+	public NBTTagIntArray getNBTIntArray()
+	{
+		return new NBTTagIntArray(new int[]{minX, minY, minZ, maxX, maxY, maxZ});
+	}
+	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
 		/*nbt.setInteger(name+"minX", minX);
@@ -102,7 +125,8 @@ public class LittleTileBox {
 		nbt.setInteger(name+"maxX", maxX);
 		nbt.setInteger(name+"maxY", maxY);
 		nbt.setInteger(name+"maxZ", maxZ);*/
-		nbt.setString(name, minX+"."+minY+"."+minZ+"."+maxX+"."+maxY+"."+maxZ);
+		//nbt.setString(name, minX+"."+minY+"."+minZ+"."+maxX+"."+maxY+"."+maxZ);
+		nbt.setIntArray(name, new int[]{minX, minY, minZ, maxX, maxY, maxZ});
 	}
 	
 	public Vec3d getSizeD()

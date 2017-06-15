@@ -285,7 +285,7 @@ public class PreviewRenderer {
 		            
 		            ArrayList<PlacePreviewTile> previews = null;
 		            
-		            previews = helper.getPreviewTiles(mc.player.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null); //, direction, direction2);
+		            previews = helper.getPreviewTiles(mc.player.getHeldItem(EnumHand.MAIN_HAND), look, markedHit != null, true); //, direction, direction2);
 		            
 		            for (int i = 0; i < previews.size(); i++) {
 						

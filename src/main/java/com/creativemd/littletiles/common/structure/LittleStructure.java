@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -136,15 +137,21 @@ public abstract class LittleStructure {
 		this.mainTile.isMainBlock = true;
 		this.mainTile.updateCorner();
 		this.mainTile.coord = null;
-		if(!tiles.contains(tile))
-			tiles.add(tile);
+		if(!containsTile(tile))
+			addTile(tile);
+		
+		BlockPos lastPos = null;
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTile stTile = tiles.get(i);
 			if(stTile != mainTile)
 			{
-				stTile.te.markDirty();
 				stTile.isMainBlock = false;
 				stTile.coord = getMainTileCoord(stTile);
+			}
+			if(lastPos == null || !lastPos.equals(stTile.te.getPos()))
+			{
+				stTile.te.getWorld().markChunkDirty(stTile.te.getPos(), stTile.te);
+				lastPos = stTile.te.getPos();
 			}
 		}
 	}
@@ -166,12 +173,12 @@ public abstract class LittleStructure {
 	
 	public void combineTiles()
 	{
-		ArrayList<TileEntityLittleTiles> tes = new ArrayList<>();
+		BlockPos pos = null;
 		for (int i = 0; i < tiles.size(); i++) {
-			if(!tes.contains(tiles.get(i).te))
+			if(pos == null || !pos.equals(tiles.get(i).te.getPos()))
 			{
 				tiles.get(i).te.combineTiles(this);
-				tes.add(tiles.get(i).te);
+				pos = tiles.get(i).te.getPos();
 			}
 		}
 	}
@@ -192,14 +199,65 @@ public abstract class LittleStructure {
 		return mainTile;
 	}
 	
-	private ArrayList<LittleTile> tiles = null;
+	protected ArrayList<LittleTile> tiles = null;
 	
 	public void setTiles(ArrayList<LittleTile> tiles)
 	{
 		this.tiles = tiles;
 	}
 	
-	public ArrayList<LittleTile> getTiles()
+	public boolean LoadList()
+	{
+		if(tiles == null)
+			return loadTiles();
+		return true;
+	}
+	
+	public boolean containsTile(LittleTile tile)
+	{
+		return tiles.contains(tile);
+	}
+	
+	public List<LittleTile> copyOfTiles()
+	{
+		if(tiles == null)
+			if(!loadTiles())
+				return new ArrayList<LittleTile>();
+		return new ArrayList<>(tiles);
+	}
+	
+	public Iterator<LittleTile> getTiles()
+	{
+		if(tiles == null)
+			if(!loadTiles())
+				return new ArrayList<LittleTile>().iterator();
+		return tiles.iterator();
+	}
+	
+	public void removeTile(LittleTile tile)
+	{
+		tiles.remove(tile);
+	}
+	
+	/**This should not be used!!! The list needs to be sorted. Only used during placing**/
+	public void addTileFast(LittleTile tile)
+	{
+		tiles.add(tile);
+	}
+	
+	public void addTile(LittleTile tile)
+	{
+		for (int i = 0; i < tiles.size(); i++) {
+			if(tiles.get(i).te.getPos().equals(tile.te.getPos()))
+			{
+				tiles.add(i, tile);
+				return ;
+			}
+		}
+		tiles.add(tile);
+	}
+	
+	/*public ArrayList<LittleTile> getTiles()
 	{
 		if(tiles == null)
 			if(!loadTiles())
@@ -208,7 +266,7 @@ public abstract class LittleStructure {
 				return tiles;
 			}
 		return tiles;
-	}
+	}*/
 	
 	public boolean hasLoaded()
 	{
@@ -358,7 +416,7 @@ public abstract class LittleStructure {
 				if(tile != null && tile.isStructureBlock)
 				{
 					if(!tiles.contains(tile))
-						tiles.add(tile);
+						addTile(tile);
 					tile.structure = this;
 					return true;
 				}
@@ -406,10 +464,9 @@ public abstract class LittleStructure {
 	
 	public void onLittleTileDestory()
 	{
-		ArrayList<LittleTile> tiles = getTiles();
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).te.removeTile(tiles.get(i));
-			//tiles.get(i).destroy();
+		for (Iterator iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			tile.te.removeTile(tile);
 		}
 	}
 	
@@ -466,9 +523,9 @@ public abstract class LittleStructure {
 	public HashMapList<BlockPos, LittleTile> getTilesSortedPerBlock()
 	{
 		HashMapList<BlockPos, LittleTile> coords = new HashMapList<>();
-		ArrayList<LittleTile> tiles = getTiles();
-		for (int i = 0; i < tiles.size(); i++) {
-			coords.add(tiles.get(i).te.getPos(), tiles.get(i));
+		for (Iterator iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			coords.add(tile.te.getPos(), tile);
 		}
 		return coords;
 	}

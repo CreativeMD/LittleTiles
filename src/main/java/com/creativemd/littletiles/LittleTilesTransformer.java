@@ -16,6 +16,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -256,6 +257,30 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(toInsert, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(toInsert, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/world/WorldInteractor", "removeTileEntities", patchDESC("(Lnet/minecraft/world/World;)V"), false));
 				
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.network.PacketBuffer") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "readCompoundTag", "()Lnet/minecraft/nbt/NBTTagCompound;");
+				
+				Iterator<AbstractInsnNode> iterator = m.instructions.iterator();
+				while(iterator.hasNext())
+				{
+					AbstractInsnNode insn = iterator.next();
+					if(insn instanceof LdcInsnNode && ((LdcInsnNode) insn).cst instanceof Long)
+					{
+						m.instructions.remove(insn.getPrevious().getPrevious());
+						m.instructions.remove(insn.getPrevious());
+						m.instructions.remove(insn.getNext());
+						
+						
+						m.instructions.insert(insn, new FieldInsnNode(Opcodes.GETSTATIC, patchDESC("net/minecraft/nbt/NBTSizeTracker"), "INFINITE", patchDESC("Lnet/minecraft/nbt/NBTSizeTracker;")));
+						m.instructions.remove(insn);
+						break;
+					}
+				}
 			}
 		});
 	}

@@ -128,7 +128,7 @@ public class ItemRubberMallet extends Item {
 						te.updateBlock();
 					}else{
 						if(tile.isStructureBlock)
-							tile.structure.getTiles().remove(tile);
+							tile.structure.removeTile(tile);;
 						te.removeTile(tile);
 					}
 				}
@@ -162,7 +162,7 @@ public class ItemRubberMallet extends Item {
 			
 			if(movingTile.isStructureBlock)
 			{
-				tile.structure.getTiles().add(tile);
+				tile.structure.addTile(tile);
 				//littleTE.combineTiles(tile.structure);
 			}
 		}

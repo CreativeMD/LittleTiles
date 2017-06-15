@@ -5,6 +5,7 @@ import java.util.Iterator;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
@@ -65,6 +66,8 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -244,6 +247,15 @@ public class LittleEvent {
 			}
 		}
 		
+	}
+	
+	@SubscribeEvent
+	public void onClientTick(ClientTickEvent event)
+	{
+		if(event.phase == Phase.END)
+		{
+			ItemModelCache.tick();
+		}
 	}
 	
 	@SubscribeEvent

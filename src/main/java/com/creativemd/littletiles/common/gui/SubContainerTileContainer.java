@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -75,7 +76,7 @@ public class SubContainerTileContainer extends SubContainer{
 						}else{
 							if(PlacementHelper.isLittleBlock(input))
 							{
-								ArrayList<LittleTilePreview> previews = PlacementHelper.getLittleInterface(input).getLittlePreview(input);
+								List<LittleTilePreview> previews = PlacementHelper.getLittleInterface(input).getLittlePreview(input);
 								for (int i = 0; i < previews.size(); i++) {
 									if(previews.get(i).isOrdinaryTile())
 										ItemTileContainer.addBlock(stack, previews.get(i).getPreviewBlock(), previews.get(i).getPreviewBlockMeta(), previews.get(i).size.getPercentVolume()*input.getCount());
