@@ -102,9 +102,17 @@ public class LittleEvent {
 		}
 	}
 	
+	public static boolean cancelNext = false;
+	
 	@SubscribeEvent
 	public void onInteract(RightClickBlock event)
 	{
+		if(cancelNext)
+		{
+			cancelNext = false;
+			event.setCanceled(true);
+		}
+		
 		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
 		if(stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
 		{

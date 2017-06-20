@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
@@ -16,6 +17,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
+import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
@@ -314,14 +316,19 @@ public class LittleBlockPacket extends CreativeCorePacket{
 								LittleStructure structure = tile.structure;
 								if(structure.hasLoaded())
 								{
-									List<LittleTile> tiles = structure.copyOfTiles();
-									for (int i = 0; i < tiles.size(); i++) {
-										if(!ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), true, push))
+									HashMapList<TileEntityLittleTiles, LittleTile> tiles = structure.copyOfTiles();
+									for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
+									{
+										LittleTile tileOfCopy = iterator.next();
+										if(!ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, true, push))
 											return ;
 									}
-									for (int i = 0; i < tiles.size(); i++)
-										ItemRubberMallet.moveTile(tiles.get(i).te, direction, tiles.get(i), false, push);
-											//tiles.get(i).te.updateTiles();
+									
+									for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
+									{
+										LittleTile tileOfCopy = iterator.next();
+										ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, false, push);
+									}
 									
 									structure.combineTiles();
 									structure.selectMainTile();
@@ -355,7 +362,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					break;
 				}
 			}
-		}
+		}else if(action == 0)
+			LittleEvent.cancelNext = true;
 	}
 	
 }
