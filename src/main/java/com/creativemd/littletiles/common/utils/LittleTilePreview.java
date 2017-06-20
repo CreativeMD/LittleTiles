@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -401,12 +402,15 @@ public class LittleTilePreview {
 		if(previews.size() >= lowResolutionMode)
 		{
 			NBTTagList list = new NBTTagList();
-			BlockPos lastPos = null;
-			for (int i = 0; i < previews.size(); i++) {
+			//BlockPos lastPos = null;
+			
+			HashSet<BlockPos> positions = new HashSet<>();
+			
+			for (int i = 0; i < previews.size(); i++) { //Will not be sorted after rotating
 				BlockPos pos = previews.get(i).box.getMinVec().getBlockPos();
-				if(lastPos == null || !lastPos.equals(pos))
+				if(!positions.contains(pos))
 				{
-					lastPos = pos;
+					positions.add(pos);
 					list.appendTag(new NBTTagIntArray(new int[]{pos.getX(), pos.getY(), pos.getZ()}));
 				}
 			}

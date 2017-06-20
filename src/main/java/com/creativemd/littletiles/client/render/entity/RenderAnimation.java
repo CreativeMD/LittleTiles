@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
@@ -53,6 +54,26 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	public void doRender(EntityDoorAnimation entity, double x, double y, double z, float entityYaw, float partialTicks)
     {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
+		
+        /*double d0 = entityIn.posX - this.prevRenderSortX;
+        double d1 = entityIn.posY - this.prevRenderSortY;
+        double d2 = entityIn.posZ - this.prevRenderSortZ;
+
+        if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
+        {
+            this.prevRenderSortX = entityIn.posX;
+            this.prevRenderSortY = entityIn.posY;
+            this.prevRenderSortZ = entityIn.posZ;
+            int k = 0;
+
+            for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation : this.renderInfos)
+            {
+                if (renderglobal$containerlocalrenderinformation.renderChunk.compiledChunk.isLayerStarted(blockLayerIn) && k++ < 15)
+                {
+                    this.renderDispatcher.updateTransparencyLater(renderglobal$containerlocalrenderinformation.renderChunk);
+                }
+            }
+        }*/
 		
 		if(entity.renderData == null)
 		{

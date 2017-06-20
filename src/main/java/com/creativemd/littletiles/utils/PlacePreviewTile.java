@@ -54,7 +54,7 @@ public class PlacePreviewTile {
 		return cubes;
 	}
 	
-	public LittleTile placeTile(@Nullable EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public LittleTile placeTile(@Nullable EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
 	{
 		LittleTile LT = preview.getLittleTile(teLT);
 		if(LT == null)
@@ -68,10 +68,10 @@ public class PlacePreviewTile {
 		{
 			LT.isStructureBlock = true;
 			LT.structure = structure;
-			structure.addTileFast(LT);
+			structure.addTile(LT);
 		}
 		
-		if(teLT.isSpaceForLittleTile(box.copy()))
+		if(!requiresCollisionTest || teLT.isSpaceForLittleTile(box.copy()))
 		{
 			LT.place();
 			LT.onPlaced(player, stack, facing);
@@ -149,48 +149,50 @@ public class PlacePreviewTile {
 				posZ = pos.getZ()+offZ;
 				for (int h = 0; spaceZ+size.sizeZ > h*LittleTile.gridSize; h++) {
 					
-					PlacePreviewTile tile = this.copy();
+					LittleTileBox box = this.box.copy();
 					if(i > 0)
-						tile.box.minX =	0;
+						box.minX =	0;
 					else
-						tile.box.minX = spaceX;
+						box.minX = spaceX;
 					if(i*LittleTile.gridSize+LittleTile.gridSize > spaceX+size.sizeX)
 					{
-						tile.box.maxX = (box.maxX-box.maxX/LittleTile.gridSize*LittleTile.gridSize);
+						box.maxX = (box.maxX-box.maxX/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxX < 0)
-							tile.box.maxX = LittleTile.gridSize+tile.box.maxX;
+							box.maxX = LittleTile.gridSize+box.maxX;
 					}
 					else
-						tile.box.maxX = LittleTile.gridSize;
+						box.maxX = LittleTile.gridSize;
 					
 					if(j > 0)
-						tile.box.minY =	0;
+						box.minY =	0;
 					else
-						tile.box.minY = spaceY;
+						box.minY = spaceY;
 					if(j*LittleTile.gridSize+LittleTile.gridSize > spaceY+size.sizeY)
 					{
-						tile.box.maxY = (box.maxY-box.maxY/LittleTile.gridSize*LittleTile.gridSize);
+						box.maxY = (box.maxY-box.maxY/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxY < 0)
-							tile.box.maxY = LittleTile.gridSize+tile.box.maxY;
+							box.maxY = LittleTile.gridSize+box.maxY;
 					}
 					else
-						tile.box.maxY = LittleTile.gridSize;
+						box.maxY = LittleTile.gridSize;
 					
 					if(h > 0)
-						tile.box.minZ =	0;
+						box.minZ =	0;
 					else
-						tile.box.minZ = spaceZ;
+						box.minZ = spaceZ;
 					if(h*LittleTile.gridSize+LittleTile.gridSize > spaceZ+size.sizeZ)
 					{
-						tile.box.maxZ = (box.maxZ-box.maxZ/LittleTile.gridSize*LittleTile.gridSize);
+						box.maxZ = (box.maxZ-box.maxZ/LittleTile.gridSize*LittleTile.gridSize);
 						if(box.maxZ < 0)
-							tile.box.maxZ = LittleTile.gridSize+tile.box.maxZ;
+							box.maxZ = LittleTile.gridSize+box.maxZ;
 					}
 					else
-						tile.box.maxZ = LittleTile.gridSize;
+						box.maxZ = LittleTile.gridSize;
 					
-					if(tile.box.isValidBox())
+					if(box.isValidBox())
 					{
+						PlacePreviewTile tile = this.copy();
+						tile.box = box;
 						tiles.add(new BlockPos(posX, posY, posZ), tile);
 					}
 					posZ++;

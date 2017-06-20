@@ -1,9 +1,11 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
@@ -19,6 +21,7 @@ import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
+import com.creativemd.littletiles.common.utils.small.LittleTilePos;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import com.creativemd.littletiles.utils.PlacePreviewTile;
@@ -30,6 +33,8 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagIntArray;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -140,20 +145,21 @@ public abstract class LittleStructure {
 		if(!containsTile(tile))
 			addTile(tile);
 		
-		BlockPos lastPos = null;
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile stTile = tiles.get(i);
-			if(stTile != mainTile)
-			{
-				stTile.isMainBlock = false;
-				stTile.coord = getMainTileCoord(stTile);
-			}
-			if(lastPos == null || !lastPos.equals(stTile.te.getPos()))
-			{
-				stTile.te.getWorld().markChunkDirty(stTile.te.getPos(), stTile.te);
-				lastPos = stTile.te.getPos();
+		for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
+			Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry = iterator.next();
+			entry.getKey().getWorld().markChunkDirty(entry.getKey().getPos(), entry.getKey());
+			
+			for (Iterator iterator2 = entry.getValue().iterator(); iterator2.hasNext();) {
+				LittleTile stTile = (LittleTile) iterator2.next();
+				
+				if(stTile != mainTile)
+				{
+					stTile.isMainBlock = false;
+					stTile.coord = getMainTileCoord(stTile);
+				}
 			}
 		}
+		
 	}
 	
 	public LittleTileCoord getMainTileCoord(LittleTile tile)
@@ -174,20 +180,19 @@ public abstract class LittleStructure {
 	public void combineTiles()
 	{
 		BlockPos pos = null;
-		for (int i = 0; i < tiles.size(); i++) {
-			if(pos == null || !pos.equals(tiles.get(i).te.getPos()))
-			{
-				tiles.get(i).te.combineTiles(this);
-				pos = tiles.get(i).te.getPos();
-			}
+
+		for (Iterator<TileEntityLittleTiles> iterator = tiles.getKeys().iterator(); iterator.hasNext();) {
+			iterator.next().combineTiles(this);
 		}
 	}
 	
 	public void selectMainTile()
 	{
-		if(tiles.size() > 0)
+		if(hasLoaded())
 		{
-			setMainTile(tiles.get(0));
+			LittleTile first = tiles.getFirst();
+			if(first != null)
+				setMainTile(first);
 		}
 	}
 	
@@ -199,9 +204,9 @@ public abstract class LittleStructure {
 		return mainTile;
 	}
 	
-	protected ArrayList<LittleTile> tiles = null;
+	protected HashMapList<TileEntityLittleTiles, LittleTile> tiles = null;
 	
-	public void setTiles(ArrayList<LittleTile> tiles)
+	public void setTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles)
 	{
 		this.tiles = tiles;
 	}
@@ -215,46 +220,46 @@ public abstract class LittleStructure {
 	
 	public boolean containsTile(LittleTile tile)
 	{
-		return tiles.contains(tile);
+		return tiles.contains(tile.te, tile);
 	}
-	
-	public List<LittleTile> copyOfTiles()
+
+	public HashMapList<TileEntityLittleTiles, LittleTile> copyOfTiles()
 	{
 		if(tiles == null)
 			if(!loadTiles())
-				return new ArrayList<LittleTile>();
-		return new ArrayList<>(tiles);
+				return new HashMapList<>();
+		return new HashMapList<>(tiles);
 	}
 	
 	public Iterator<LittleTile> getTiles()
 	{
 		if(tiles == null)
 			if(!loadTiles())
-				return new ArrayList<LittleTile>().iterator();
+				return new Iterator<LittleTile>() {
+					
+					@Override
+					public boolean hasNext() {
+						return false;
+					}
+				
+					@Override
+					public LittleTile next() {
+						return null;
+					}
+				
+				};
+		
 		return tiles.iterator();
 	}
 	
 	public void removeTile(LittleTile tile)
 	{
-		tiles.remove(tile);
-	}
-	
-	/**This should not be used!!! The list needs to be sorted. Only used during placing**/
-	public void addTileFast(LittleTile tile)
-	{
-		tiles.add(tile);
+		tiles.removeValue(tile.te, tile);
 	}
 	
 	public void addTile(LittleTile tile)
 	{
-		for (int i = 0; i < tiles.size(); i++) {
-			if(tiles.get(i).te.getPos().equals(tile.te.getPos()))
-			{
-				tiles.add(i, tile);
-				return ;
-			}
-		}
-		tiles.add(tile);
+		tiles.add(tile.te, tile);
 	}
 	
 	/*public ArrayList<LittleTile> getTiles()
@@ -281,21 +286,28 @@ public abstract class LittleStructure {
 			//System.out.println("loading Structure");
 			if(tiles == null)
 			{
-				tiles = new ArrayList<LittleTile>();
-				tiles.add(mainTile);
+				tiles = new HashMapList<>();
+				addTile(mainTile);
 			}
 			
 			if(tilesToLoad == null)
 				return true;
 			
 			//long time = System.nanoTime();
-			int i = 0;
+			
+			for (Iterator<Entry<BlockPos, Integer>> iterator = tilesToLoad.entrySet().iterator(); iterator.hasNext();) {
+				Entry<BlockPos, Integer> entry = iterator.next();
+				if(checkForTiles(mainTile.te.getWorld(), entry.getKey(), entry.getValue()))
+					iterator.remove();
+			}
+			
+			/*int i = 0;
 			while (i < tilesToLoad.size()) {
 				if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
 					tilesToLoad.remove(i);
 				else
 					i++;
-			}
+			}*/
 			//System.out.println("LOADING Structure! time=" + (System.nanoTime()-time));
 			
 			if(tilesToLoad.size() == 0)
@@ -305,10 +317,7 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	//public ArrayList<LittleTilePosition> tilesToLoad = null;
-	public ArrayList<LittleTileCoord> tilesToLoad = null;
-	
-	//public ItemStack dropStack;
+	public HashMap<BlockPos, Integer> tilesToLoad = null;
 	
 	public LittleStructure()
 	{
@@ -327,11 +336,11 @@ public abstract class LittleStructure {
 			}
 		}*/
 		
+		tilesToLoad = new HashMap<>();
 		
 		//LoadTiles
 		if(nbt.hasKey("count"))
 		{
-			tilesToLoad = new ArrayList<>();
 			int count = nbt.getInteger("count");
 			for (int i = 0; i < count; i++) {
 				LittleTileCoord coord = null;
@@ -343,9 +352,30 @@ public abstract class LittleStructure {
 					coord = new LittleTileCoord("i" + i, nbt);
 				}
 				
-				tilesToLoad.add(coord);
+				BlockPos pos = coord.getAbsolutePosition(mainTile.te);
+				Integer insideBlock = tilesToLoad.get(pos);
+				if(insideBlock == null)
+					insideBlock = new Integer(1);
+				else
+					insideBlock = insideBlock + 1;
+				tilesToLoad.put(pos, insideBlock);
+			}
+			
+		}else if(nbt.hasKey("tiles")){
+			NBTTagList list = nbt.getTagList("tiles", 11);
+			for (int i = 0; i < list.tagCount(); i++) {
+				int[] array = list.getIntArrayAt(i);
+				if(array.length == 4)
+				{
+					LittleTilePos pos = new LittleTilePos(array);
+					tilesToLoad.put(pos.getAbsolutePos(mainTile.te), array[3]);
+				}
+				else
+					System.out.println("Found invalid array! " + nbt);
 			}
 		}
+		
+		
 		
 		loadFromNBTExtra(nbt);
 	}
@@ -371,14 +401,38 @@ public abstract class LittleStructure {
 		nbt.setString("id", getIDOfStructure());
 		
 		//SaveTiles
+		HashMap<BlockPos, Integer> positions = new HashMap<>();
 		if(tiles != null)
+		{
+			for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
+				Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry = iterator.next();
+				if(entry.getValue().size() > 0)
+					positions.put(entry.getKey().getPos(), entry.getValue().size());
+			}
+		}
+		
+		if(tilesToLoad != null)
+			positions.putAll(tilesToLoad);
+		
+		if(positions.size() > 0)
+		{
+			NBTTagList list = new NBTTagList();
+			for (Iterator<Entry<BlockPos, Integer>> iterator = positions.entrySet().iterator(); iterator.hasNext();) {
+				Entry<BlockPos, Integer> entry = iterator.next();
+				LittleTilePos pos = new LittleTilePos(mainTile.te, entry.getKey());
+				list.appendTag(new NBTTagIntArray(new int[]{pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue()}));
+			}
+			nbt.setTag("tiles", list);
+		}
+		
+		/*if(tiles != null)
 		{
 			nbt.setInteger("count", tiles.size());
 			for (int i = 0; i < tiles.size(); i++) {
 				if(tiles.get(i).isStructureBlock)
 				{
 					tiles.get(i).updateCorner();
-					new LittleTileCoord(mainTile.te, tiles.get(i).te.getPos(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);;
+					new LittleTileCoord(mainTile.te, tiles.get(i).te.getPos(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);
 					//new LittleTilePosition().writeToNBT("i" + i, nbt);
 				}
 				//tiles.get(i).pos.writeToNBT("i" + i, nbt);
@@ -392,7 +446,7 @@ public abstract class LittleStructure {
 			for (int i = 0; i < tilesToLoad.size(); i++) {
 				tilesToLoad.get(i).writeToNBT("i" + (i + start), nbt);
 			}
-		}
+		}*/
 		
 		//if(mainTile == null)
 			//System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
@@ -402,7 +456,47 @@ public abstract class LittleStructure {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
-	public boolean checkForTile(World world, LittleTileCoord pos)
+	public boolean doesLinkToMainTile(LittleTile tile)
+	{
+		try{
+			return tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && tile.coord.position.equals(mainTile.cornerVec);
+		}catch(Exception e){
+			
+		}
+		return false;
+	}
+	
+	public boolean checkForTiles(World world, BlockPos pos, Integer expectedCount)
+	{
+		Chunk chunk = world.getChunkFromBlockCoords(pos);
+		if(WorldUtils.checkIfChunkExists(chunk))
+		{
+			//chunk.isChunkLoaded
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if(tileEntity instanceof TileEntityLittleTiles)
+			{
+				if(!((TileEntityLittleTiles) tileEntity).hasLoaded())
+					return false;
+				int found = 0;
+				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
+					LittleTile tile = (LittleTile) iterator.next();
+					if(tile.isStructureBlock && (tile.structure == this || doesLinkToMainTile(tile)))
+					{
+						if(!tiles.contains((TileEntityLittleTiles) tileEntity, tile))
+							tiles.add((TileEntityLittleTiles) tileEntity, tile);
+						tile.structure = this;
+						found++;
+					}
+				}
+				
+				if(found == expectedCount)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	/*public boolean checkForTile(World world, LittleTileCoord pos)
 	{
 		BlockPos coord = pos.getAbsolutePosition(mainTile.te);
 		Chunk chunk = world.getChunkFromBlockCoords(coord);
@@ -423,7 +517,7 @@ public abstract class LittleStructure {
 			}
 		}
 		return false;
-	}
+	}*/
 	
 	/*@Deprecated
 	public boolean checkForTile(World world, LittleTilePosition pos)
@@ -479,35 +573,32 @@ public abstract class LittleStructure {
 			int y = pos.getY();
 			int z = pos.getZ();
 			
-			for (int i = 0; i < tiles.size(); i++) {
-				x = Math.min(x, tiles.get(i).te.getPos().getX());
-				y = Math.min(y, tiles.get(i).te.getPos().getY());
-				z = Math.min(z, tiles.get(i).te.getPos().getZ());
+			for (Iterator<TileEntityLittleTiles> iterator = tiles.getKeys().iterator(); iterator.hasNext();) {
+				TileEntityLittleTiles te = iterator.next();
+				x = Math.min(x, te.getPos().getX());
+				y = Math.min(y, te.getPos().getY());
+				z = Math.min(z, te.getPos().getZ());
 			}
 			
 			pos = new BlockPos(x, y, z);
 			
 			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setInteger("tiles", tiles.size());
-			for (int i = 0; i < tiles.size(); i++) {
-				NBTTagCompound tileNBT = new NBTTagCompound();
-				/*LittleTileBox box = tiles.get(i).boundingBoxes.get(0).copy();
-				box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
-				box.writeToNBT("bBox", tileNBT);
-				tileNBT.setString("tID", tiles.get(i).getID());
-				tiles.get(i).saveTileExtra(tileNBT);*/
-				LittleTilePreview preview = tiles.get(i).getPreviewTile();
-				preview.box.addOffset(new LittleTileVec(tiles.get(i).te.getPos().subtract(pos)));
-				preview.writeToNBT(tileNBT);
-				nbt.setTag("tile" + i, tileNBT);
+			
+			List<LittleTilePreview> previews = new ArrayList<>();
+			
+			for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+				LittleTile tile = iterator.next();
+				LittleTilePreview preview = tile.getPreviewTile();
+				preview.box.addOffset(new LittleTileVec(tile.te.getPos().subtract(pos)));
+				previews.add(preview);
 			}
+			
+			LittleTilePreview.savePreviewTiles(previews, stack);
 			
 			NBTTagCompound structureNBT = new NBTTagCompound();
 			
 			this.writeToNBTPreview(structureNBT, pos);
-			nbt.setTag("structure", structureNBT);
-			stack.setTagCompound(nbt);
+			stack.getTagCompound().setTag("structure", structureNBT);
 			return stack;
 		}
 		return ItemStack.EMPTY;

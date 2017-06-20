@@ -86,6 +86,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	@SideOnly(Side.CLIENT)
 	public void createClient()
 	{
+		super.createClient();
 		approved = false;
 	}
 	
@@ -134,13 +135,14 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	{
 		if(transformation != null)
 			transformation.performTransformation(this, progress/(double)duration);
-		else
-			return ;
 	}
 	
 	@Override
 	public void onPostTick()
 	{
+		if(transformation == null)
+			return ;
+		
 		if(world.isRemote && isWaitingForRender())
 		{
 			ticksToWait--;

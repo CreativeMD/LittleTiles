@@ -111,8 +111,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		LittleTileVec offset = new LittleTileVec(moveDirection);
 		offset.scale(moveDistance);
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tileOfList = tiles.get(i);
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tileOfList = iterator.next();
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			LittleTilePreview preview = tileOfList.getPreviewTile();
@@ -136,23 +136,25 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.duration = duration;
 		structure.moveDirection = moveDirection.getOpposite();
 		structure.moveDistance = moveDistance;
-		structure.setTiles(new ArrayList<LittleTile>());
+		structure.setTiles(new HashMapList<>());
 		
 		
 		return place(world, structure, player, previews, pos, new SlidingDoorTransformation(moveDirection, moveDistance), uuid);
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
-	{		
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).te.removeTile(tiles.get(i));
+	{
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			tile.te.removeTile(tile);
 		}
 		
 		if(tryToPlacePreviews(world, player, pos, uuid))
 			return true;
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).te.addTile(tiles.get(i));
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			tile.te.addTile(tile);
 		}
 		
 		return false;
@@ -316,7 +318,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
 		LittleSlidingDoor structure = new LittleSlidingDoor();
-		structure.setTiles(new ArrayList<LittleTile>());
+		structure.setTiles(new HashMapList<>());
 		structure.moveDirection = moveDirection;
 		structure.moveDistance = moveDistance;
 		structure.duration = this.duration;

@@ -63,42 +63,7 @@ public class WorldChunkedTileEntityList implements List<TileEntity> {
 
 	@Override
 	public Iterator<TileEntity> iterator() {
-		List<Iterator<TileEntity>> iterators = new ArrayList<>();
-		for (Iterator<ArrayList<TileEntity>> iterator = content.getValues().iterator(); iterator.hasNext();) {
-			ArrayList<TileEntity> list = iterator.next();
-			iterators.add(list.iterator());
-		}
-		
-		return new Iterator<TileEntity>() {
-			
-			public int index = -1;
-
-			@Override
-			public boolean hasNext() {
-				int index = this.index+1;
-				while(index < iterators.size())
-				{
-					Iterator<TileEntity> iterator = iterators.get(index);
-					if(iterator.hasNext())
-						return true;
-					index++;
-				}
-				return false;
-			}
-
-			@Override
-			public TileEntity next() {
-				this.index++;
-				while(index < iterators.size())
-				{
-					Iterator<TileEntity> iterator = iterators.get(index);
-					if(iterator.hasNext())
-						return iterator.next();;
-					index++;
-				}
-				return null;
-			}
-		};
+		return content.iterator();
 	}
 
 	@Override

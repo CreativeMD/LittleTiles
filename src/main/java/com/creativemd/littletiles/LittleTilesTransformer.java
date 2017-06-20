@@ -130,6 +130,25 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			}
 			
 		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.VertexBuffer") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleTilesAdded", "Z", null, Boolean.FALSE));
+				
+				MethodNode m = findMethod(node, "reset", "()V");
+				
+				AbstractInsnNode start = m.instructions.getFirst();
+				
+				m.instructions.insertBefore(start, new LabelNode());
+				m.instructions.insertBefore(start, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_0));
+				m.instructions.insertBefore(start, new FieldInsnNode(Opcodes.PUTFIELD, patchClassName("net/minecraft/client/renderer/VertexBuffer"), "littleTilesAdded", "Z"));
+
+				
+			}
+		});
 		addTransformer(new Transformer("net.minecraft.network.NettyCompressionDecoder") {
 			
 			@Override
@@ -275,8 +294,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.remove(insn.getPrevious());
 						m.instructions.remove(insn.getNext());
 						
-						
-						m.instructions.insert(insn, new FieldInsnNode(Opcodes.GETSTATIC, patchDESC("net/minecraft/nbt/NBTSizeTracker"), "INFINITE", patchDESC("Lnet/minecraft/nbt/NBTSizeTracker;")));
+						m.instructions.insert(insn, new FieldInsnNode(Opcodes.GETSTATIC, patchDESC("net/minecraft/nbt/NBTSizeTracker"), TransformerNames.patchFieldName("INFINITE", patchClassName("net/minecraft/nbt/NBTSizeTracker")), patchDESC("Lnet/minecraft/nbt/NBTSizeTracker;")));
 						m.instructions.remove(insn);
 						break;
 					}

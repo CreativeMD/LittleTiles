@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +16,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.entity.TERenderData;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
@@ -154,6 +156,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		worldCollisionBoxes = new ArrayList<>();
 		
 		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
+			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
+			
 			TileEntityLittleTiles te = iterator.next();
 			
 			onScanningTE(te);
@@ -168,9 +172,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
 				LittleTile tile = iterator2.next();
 				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-					worldCollisionBoxes.add(tile.boundingBoxes.get(i).getBox(te.getPos()));
+					boxes.add(tile.boundingBoxes.get(i).getBox(te.getPos()));
 				}
 			}
+			
+			BoxUtils.compressBoxes(boxes, 1.0F);
+			
+			worldCollisionBoxes.addAll(boxes);
 		}
 		
 		BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
@@ -179,6 +187,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	}
 	
 	//================Rendering================
+	
+	@SideOnly(Side.CLIENT)
+	public HashMap<BlockPos, LittleRenderChunk> chunk;
 	
 	@SideOnly(Side.CLIENT)
 	public HashMapList<BlockRenderLayer, TERenderData> renderData;
@@ -270,6 +281,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void updateBoundingBox()
 	{
+		if(worldBoundingBox == null)
+			return ;
+		
 		boolean rotated = prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ;
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
@@ -341,7 +355,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public void onUpdate()
 	{
 		if(blocks == null && !world.isRemote)
-			setDead();
+			isDead = true;
 		
 		prevWorldRotX = worldRotX;
 		prevWorldRotY = worldRotY;
@@ -350,6 +364,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		handleForces();
 		
 		super.onUpdate();
+		
+		onTick();
 		
 		onPostTick();
 		
@@ -373,8 +389,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			}
 			blocks.get(i).update();
 		}
-		
-		onPostTick();
 		
 		
 	}
@@ -426,7 +440,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		animation.worldBoundingBox = worldBoundingBox;
 		animation.worldCollisionBoxes = new ArrayList<>(worldCollisionBoxes);
-		animation.collisionBoxes = new ArrayList<>(collisionBoxes);
+		if(collisionBoxes != null)
+			animation.collisionBoxes = new ArrayList<>(collisionBoxes);
 		
 		if(world.isRemote)
 		{

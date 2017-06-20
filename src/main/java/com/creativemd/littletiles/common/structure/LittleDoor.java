@@ -295,7 +295,7 @@ public class LittleDoor extends LittleDoorBase{
 		
 		LittleDoor structure = new LittleDoor();
 		structure.axisVec = new LittleTileVec(0, 0, 0);
-		structure.setTiles(new ArrayList<LittleTile>());
+		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		
 		EnumFacing rotationAxis = RotationUtils.getFacingFromAxis(this.axis);
@@ -425,8 +425,9 @@ public class LittleDoor extends LittleDoorBase{
 		int mainY = axisPoint.y/LittleTile.gridSize;
 		int mainZ = axisPoint.z/LittleTile.gridSize;
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).te.removeTile(tiles.get(i));
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			tile.te.removeTile(tile);
 		}
 		
 		if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse, uuid))
@@ -440,8 +441,9 @@ public class LittleDoor extends LittleDoorBase{
 			return true;
 		}
 		
-		for (int i = 0; i < tiles.size(); i++) {
-			tiles.get(i).te.addTile(tiles.get(i));
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			tile.te.addTile(tile);
 		}
 		
 		return false;
@@ -492,7 +494,7 @@ public class LittleDoor extends LittleDoorBase{
 	public LittleDoorBase copyToPlaceDoor() {
 		LittleDoor structure = new LittleDoor();
 		structure.axisVec = new LittleTileVec(0, 0, 0);
-		structure.setTiles(new ArrayList<LittleTile>());
+		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		structure.normalDirection = this.normalDirection;
 		structure.duration = this.duration;

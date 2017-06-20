@@ -63,8 +63,9 @@ public abstract class LittleDoorBase extends LittleStructure {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void createControls(SubGui gui, LittleStructure structure) {
+		
 		gui.controls.add(new GuiLabel("Duration:", 0, 141));
-		gui.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, duration, 1, 500));
+		gui.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 	}
 	
 	@Override
@@ -89,7 +90,6 @@ public abstract class LittleDoorBase extends LittleStructure {
 			}
 			
 			EntityDoorAnimation animation = new EntityDoorAnimation(world, pos, structure, blocks, previews, structure.getAxisVec(), transformation, uuid, player);
-			//animation.setPosition(pos.getX(), pos.getY(), pos.getZ());
 			world.spawnEntity(animation);
 			return true;
 		}

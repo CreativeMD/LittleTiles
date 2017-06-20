@@ -327,8 +327,12 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 				}
 				if(hascollideBlock)
 				{
+					boolean requiresCollisionTest = true;
 					if(!(world.getBlockState(coord).getBlock() instanceof BlockTile) && world.getBlockState(coord).getMaterial().isReplaceable())
+					{
+						requiresCollisionTest = false;
 						world.setBlockState(coord, LittleTiles.blockTile.getDefaultState());
+					}
 					
 					TileEntity te = world.getTileEntity(coord);
 					if(te instanceof TileEntityLittleTiles)
@@ -337,7 +341,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
 						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							LittleTile LT = placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing);
+							LittleTile LT = placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing, requiresCollisionTest);
 							if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
 							{
 								if(!soundsToBePlayed.contains(LT.getSound()))
@@ -366,7 +370,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			}
 			
 			for (int j = 0; j < lastPlacedTiles.size(); j++) {
-				lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing);
+				lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing, true);
 			}
 			
 			if(structure != null)
@@ -401,7 +405,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(structure != null)
 		{
 			//structure.dropStack = stack.copy();
-			structure.setTiles(new ArrayList<LittleTile>());
+			structure.setTiles(new HashMapList<>());
 			forced = false;
 		}
 		

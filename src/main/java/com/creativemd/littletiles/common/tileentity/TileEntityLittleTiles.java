@@ -141,7 +141,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return null;
 	}*/
 	
-	@SideOnly(Side.CLIENT)
+	/*@SideOnly(Side.CLIENT)
 	private AtomicBoolean hasBeenAddedToBuffer;
 	
 	public AtomicBoolean getBeenAddedToBuffer()
@@ -149,7 +149,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		if(hasBeenAddedToBuffer == null)
 			hasBeenAddedToBuffer = new AtomicBoolean(false);
 		return hasBeenAddedToBuffer;
-	}
+	}*/
 	
 	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
@@ -160,7 +160,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		//System.out.println("update cache at pos=" + getPos());
 		lastRenderedChunk = chunk;
 		
-		getBeenAddedToBuffer().set(false);
+		//getBeenAddedToBuffer().set(false);
 		
 		if(renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
@@ -499,12 +499,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public LittleTile getTileFromPosition(int x, int y, int z)
 	{
-		LittleTileBox box = new LittleTileBox(new LittleTileVec(x, y, z));
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(box.intersectsWith(tile.boundingBoxes.get(j)))
+				LittleTileBox box = tile.boundingBoxes.get(j);
+				if(x >= box.minX && x < box.maxX && y >= box.minY && y < box.maxY && z >= box.minZ && z < box.maxZ)
 					return tile;
+				
 			}
 		}
 		return null;
