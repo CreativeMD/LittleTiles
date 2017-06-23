@@ -74,6 +74,7 @@ public class SubContainerChisel extends SubContainer {
 					if(tileEntity instanceof TileEntityLittleTiles)
 					{
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+						((TileEntityLittleTiles) tileEntity).preventUpdate = true;
 						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 							LittleTile tile = (LittleTile) iterator.next();
 							boolean shouldEffect = tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored;
@@ -107,8 +108,9 @@ public class SubContainerChisel extends SubContainer {
 								effected++;
 							}
 						}
+						((TileEntityLittleTiles) tileEntity).preventUpdate = false;
 						if(hasChanged)
-							te.updateBlock();
+							te.updateTiles();
 					}
 				}
 			}

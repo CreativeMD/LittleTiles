@@ -61,20 +61,23 @@ public class ItemHammer extends Item implements IGuiCreator{
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		if(!world.isRemote && player.isSneaking())
+		if(player.isSneaking())
 		{
 			TileEntity tileEntity = world.getTileEntity(pos);
 			if(tileEntity instanceof TileEntityLittleTiles)
 			{
-				if(((TileEntityLittleTiles) tileEntity).getTiles().size() <= 1)
+				if(!world.isRemote)
 				{
-					LittleTiles.blockTile.dropBlockAsItem(world, pos, world.getBlockState(pos), 0);
-				}else{
-					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-					LittleTilePreview.saveTiles(world, ((TileEntityLittleTiles) tileEntity).getTiles(), drop);
-					WorldUtils.dropItem(world, drop, pos);
+					if(((TileEntityLittleTiles) tileEntity).getTiles().size() <= 1)
+					{
+						WorldUtils.dropItem(world, ((TileEntityLittleTiles) tileEntity).getTiles().get(0).getDrops(), pos);
+					}else{
+						ItemStack drop = new ItemStack(LittleTiles.multiTiles);
+						LittleTilePreview.saveTiles(world, ((TileEntityLittleTiles) tileEntity).getTiles(), drop);
+						WorldUtils.dropItem(world, drop, pos);
+					}
+					world.setBlockToAir(pos);
 				}
-				world.setBlockToAir(pos);
 				return EnumActionResult.SUCCESS;
 			}
 		}

@@ -938,6 +938,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 	
 	public void removeBoxFromTiles(LittleTileBox box) {
+		preventUpdate = true;
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if(tile.canBeSplitted())
@@ -945,6 +946,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			else
 				tile.destroy();
 		}
+		preventUpdate = false;
 		combineTiles();
 	}
 

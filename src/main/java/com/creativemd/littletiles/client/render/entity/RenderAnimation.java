@@ -134,8 +134,6 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 		GlStateManager.glEnableClientState( 32886 );
 		
-		
-		
 		for (Iterator<BlockRenderLayer> iterator = entity.renderData.getKeys().iterator(); iterator.hasNext();) {
 			
 			BlockRenderLayer layer = iterator.next();

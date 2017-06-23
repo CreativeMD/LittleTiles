@@ -169,8 +169,9 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				{
 				case 0: //Activated
 					RayTraceResult moving = te.getMoving(pos, look);
-					if(tile.onBlockActivated(player.world, blockPos, player.world.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord))
-						BlockTile.cancelNext = true;
+					tile.onBlockActivated(player.world, blockPos, player.world.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+					
+					BlockTile.cancelNext = true;
 					break;
 				case 1: //Destory tile
 					LittleTileBox box = null;
@@ -281,7 +282,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 								color = ((LittleTileBlockColored) tile).color;
 							ItemColorTube.setColor(player.getHeldItemMainhand(), color);
 						}else{
-							
+							tile.te.preventUpdate = true;
 							LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 							if(newTile != null)
 							{
@@ -297,7 +298,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 									newTile.structure.setMainTile(newTile);
 								newTile.structure.getMainTile().te.updateBlock();
 							}
-							te.updateBlock();
+							tile.te.preventUpdate = false;
+							te.updateTiles();
 						}
 					}
 					break;

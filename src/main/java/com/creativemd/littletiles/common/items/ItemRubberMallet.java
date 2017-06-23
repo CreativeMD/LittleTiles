@@ -120,6 +120,7 @@ public class ItemRubberMallet extends Item {
 			{
 				if(!simulate)
 				{
+					te.preventUpdate = true;
 					box.makeItFitInsideBlock();
 					if(box.isValidBox())
 					{
@@ -131,6 +132,8 @@ public class ItemRubberMallet extends Item {
 							tile.structure.removeTile(tile);;
 						te.removeTile(tile);
 					}
+					te.preventUpdate = false;
+					te.updateTiles();
 				}
 				return true;
 			}
@@ -140,6 +143,7 @@ public class ItemRubberMallet extends Item {
 	
 	private static void placeMovingTile(LittleTile movingTile, TileEntityLittleTiles littleTE, LittleTileBox box)
 	{
+		
 		LittleTile tile = movingTile;
 		if(movingTile.te != littleTE)
 			tile = movingTile.copy();
@@ -155,15 +159,7 @@ public class ItemRubberMallet extends Item {
 			if(movingTile.isStructureBlock)
 			{
 				tile.isStructureBlock = true;
-				//if(mo)
-				//tile.isMainBlock = movingTile.isMainBlock;
-				//tile.structure.mainTile = tile;
-			}
-			
-			if(movingTile.isStructureBlock)
-			{
 				tile.structure.addTile(tile);
-				//littleTE.combineTiles(tile.structure);
 			}
 		}
 	}
@@ -186,12 +182,13 @@ public class ItemRubberMallet extends Item {
 			{
 				if(!simulate)
 				{
-					placeMovingTile(movingTile, littleTE, box);
 					if(state.getBlock() != LittleTiles.blockTile)
 					{
 						world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
 						world.setTileEntity(pos, littleTE);
 					}
+					placeMovingTile(movingTile, littleTE, box);
+					
 				}
 				return true;
 			}else{
@@ -220,6 +217,7 @@ public class ItemRubberMallet extends Item {
 						{
 							if(!simulate)
 							{
+								littleTE.preventUpdate = true;
 								LittleTileBox newBox = tile.boundingBoxes.get(0).copy();
 								newBox.makeItFitInsideBlock();
 								newBox = newBox.combineBoxes(box);
@@ -237,8 +235,8 @@ public class ItemRubberMallet extends Item {
 										tile.updateCorner();
 									}
 								}
-								
-								littleTE.updateBlock();
+								littleTE.preventUpdate = false;
+								littleTE.updateTiles();
 							}
 							return true;
 						}
