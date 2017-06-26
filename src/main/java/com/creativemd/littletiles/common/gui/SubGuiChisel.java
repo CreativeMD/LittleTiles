@@ -11,10 +11,13 @@ import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -35,14 +38,27 @@ public class SubGuiChisel extends SubGui {
 		if(stack.getTagCompound() == null)
 			stack.setTagCompound(new NBTTagCompound());
 		
+		StackSelector selector = new StackSelector() {
+			
+			@Override
+			public boolean allow(ItemStack stack)
+			{
+				Block block = Block.getBlockFromItem(stack.getItem());
+				if(block != null && !(block instanceof BlockAir))
+					return SubContainerHammer.isBlockValid(block);
+				return false;
+			}
+			
+		};
+		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
-		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, true));
+		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, selector));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 50, true));
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
-		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, true));
+		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, selector));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		

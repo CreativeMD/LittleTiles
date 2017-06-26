@@ -362,6 +362,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		if(blocks == null && !world.isRemote)
 			isDead = true;
 		
+		if(blocks == null)
+			return ;
+		
 		prevWorldRotX = worldRotX;
 		prevWorldRotY = worldRotY;
 		prevWorldRotZ = worldRotZ;
@@ -392,7 +395,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				fakeWorld.rotY = worldRotY;
 				fakeWorld.rotZ = worldRotZ;
 			}
-			blocks.get(i).update();
+			if(blocks.get(i).shouldTick())
+				blocks.get(i).update();
 		}
 		
 		
