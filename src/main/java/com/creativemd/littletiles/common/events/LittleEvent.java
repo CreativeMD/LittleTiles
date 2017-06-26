@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.common.world.WorldInteractor;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -25,7 +26,6 @@ import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.common.world.WorldInteractor;
 
 import net.minecraft.block.BlockPortal;
 import net.minecraft.block.state.IBlockState;
@@ -264,11 +264,5 @@ public class LittleEvent {
 		{
 			ItemModelCache.tick();
 		}
-	}
-	
-	@SubscribeEvent
-	public void ChunkUnload(ChunkEvent.Unload event)
-	{
-		WorldInteractor.addChunkToBeRemoved(event.getWorld(), event.getChunk());
 	}
 }

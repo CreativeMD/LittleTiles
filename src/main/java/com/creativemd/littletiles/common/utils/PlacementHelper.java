@@ -271,8 +271,14 @@ public class PlacementHelper {
 		
 		if(allowLowResolution)
 		{
-			lastCached = stack.getTagCompound().copy();
-			lastPreviews = new ArrayList<>(tiles);
+			if(stack.getTagCompound() == null)
+			{
+				lastCached = null;
+				lastPreviews = null;
+			}else{
+				lastCached = stack.getTagCompound().copy();
+				lastPreviews = new ArrayList<>(tiles);
+			}
 		}
 		
 		return previews;

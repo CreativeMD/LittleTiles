@@ -149,6 +149,8 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				
 			}
 		});
+		
+		//Remove packet limits
 		addTransformer(new Transformer("net.minecraft.network.NettyCompressionDecoder") {
 			
 			@Override
@@ -177,105 +179,6 @@ public class LittleTilesTransformer extends CreativeTransformer {
 							break;
 					}
 				}
-			}
-		});
-		addTransformer(new Transformer("net.minecraft.world.chunk.Chunk") {
-			
-			@Override
-			public void transform(ClassNode node) {
-				MethodNode m = findMethod(node, "onChunkUnload", "()V");
-				
-				String fieldOwner = patchClassName("net/minecraft/world/chunk/Chunk");
-				String fieldName = patchFieldName("chunkTileEntityMap");
-				
-				boolean found = false;
-				
-				Iterator<AbstractInsnNode> iterator = m.instructions.iterator();
-				while(iterator.hasNext())
-				{
-					AbstractInsnNode insn = iterator.next();
-					if(insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.GETFIELD && ((FieldInsnNode) insn).owner.equals(fieldOwner) && ((FieldInsnNode) insn).name.equals(fieldName))
-						found = true;
-					if(found)
-					{
-						iterator.remove();
-						if(insn instanceof JumpInsnNode && insn.getOpcode() == Opcodes.GOTO)
-							break;
-					}
-				}
-			}
-		});
-		
-		addTransformer(new Transformer("net.minecraft.world.World") {
-			
-			@Override
-			public void transform(ClassNode node) {
-				
-				String worldClassName = patchClassName("net/minecraft/world/World");
-				String fieldDESC = patchDESC("Ljava/util/List;");
-				String fieldNameTicking = patchFieldName("tickableTileEntities");
-				String fieldNameLoaded = patchFieldName("loadedTileEntityList");
-				
-				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC + Opcodes.ACC_FINAL, "tileEntitiesFromChunkToBeRemoved",  patchDESC("Ljava/util/List;"), patchDESC("Ljava/util/List<Lnet/minecraft/tileentity/TileEntity;>;"), null));
-				
-				Iterator<MethodNode> iterator = node.methods.iterator();
-				while(iterator.hasNext())
-				{
-					AbstractInsnNode toInsert = null;
-					MethodNode m = iterator.next();
-					if(m.name.equals("<init>"))
-					{
-						Iterator<AbstractInsnNode> iterator2 = m.instructions.iterator();
-						while(iterator2.hasNext())
-						{
-							AbstractInsnNode insn = iterator2.next();
-							if(insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.PUTFIELD && ((FieldInsnNode) insn).owner.equals(worldClassName) && (((FieldInsnNode) insn).name.equals(fieldNameLoaded) || ((FieldInsnNode) insn).name.equals(fieldNameTicking)))
-							{
-								MethodInsnNode m2 = (MethodInsnNode) insn.getPrevious();
-								m2.name = "createTileEntity";
-								m2.owner = "com/creativemd/littletiles/common/world/WorldInteractor";
-								m2.desc = patchDESC("()Ljava/util/List;");
-								m2.setOpcode(Opcodes.INVOKESTATIC);
-								if(toInsert == null)
-									toInsert = insn;
-							}
-						}
-						if(toInsert != null)
-						{
-							m.instructions.insert(toInsert, new FieldInsnNode(Opcodes.PUTFIELD, worldClassName, "tileEntitiesFromChunkToBeRemoved", fieldDESC));
-							m.instructions.insert(toInsert, new MethodInsnNode(Opcodes.INVOKESPECIAL, patchDESC("java/util/ArrayList"), "<init>", "()V", false));
-							m.instructions.insert(toInsert, new InsnNode(Opcodes.DUP));
-							m.instructions.insert(toInsert, new TypeInsnNode(Opcodes.NEW, patchDESC("java/util/ArrayList")));
-							m.instructions.insert(toInsert, new VarInsnNode(Opcodes.ALOAD, 0));
-							m.instructions.insert(new LabelNode());
-							toInsert = null;
-						}
-					}
-					
-				}
-				
-				String fieldName = patchFieldName("tileEntitiesToBeRemoved");
-				String methodOwner = patchClassName("java/util/List");
-				
-				MethodNode m = findMethod(node, "updateEntities", "()V");
-				Iterator<AbstractInsnNode> iterator2 = m.instructions.iterator();
-				AbstractInsnNode toInsert = null;
-				while(iterator2.hasNext())
-				{
-					AbstractInsnNode insn = iterator2.next();
-					if(insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.GETFIELD && ((FieldInsnNode) insn).owner.equals(worldClassName) && ((FieldInsnNode) insn).name.equals(fieldName))
-					{
-						AbstractInsnNode next = insn.getNext();
-						if(next instanceof MethodInsnNode && ((MethodInsnNode) next).owner.equals(methodOwner) && ((MethodInsnNode) next).name.equals("isEmpty"))
-						{
-							toInsert = insn.getPrevious();
-						}
-					}
-				}
-				
-				m.instructions.insertBefore(toInsert, new VarInsnNode(Opcodes.ALOAD, 0));
-				m.instructions.insertBefore(toInsert, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/world/WorldInteractor", "removeTileEntities", patchDESC("(Lnet/minecraft/world/World;)V"), false));
-				
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.network.PacketBuffer") {

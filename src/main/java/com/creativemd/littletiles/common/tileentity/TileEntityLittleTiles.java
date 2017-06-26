@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
+import com.creativemd.creativecore.common.tileentity.ICustomTickable;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -29,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -39,7 +41,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityLittleTiles extends TileEntityCreative implements ITickable{
+public class TileEntityLittleTiles extends TileEntityCreative implements ICustomTickable{
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -301,6 +303,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 						world.tickableTileEntities.remove(this);
 					else
 						world.tickableTileEntities.add(this);
+					
+					ticking = !updateTiles.isEmpty();
 				}
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
@@ -811,6 +815,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean ticking = true;
 	
 	@Override
+	public boolean shouldTick() {
+		if(!updateTiles.isEmpty())
+			return true;
+		ticking = false;
+		return false;
+	}
+	
+	@Override
 	public void update()
 	{
 		/*if(isClientSide())
@@ -822,11 +834,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}*/
 		
-		/*if(updateTiles.isEmpty()) Add it later!!!!
+		if(updateTiles.isEmpty())
 		{
-			System.out.println("Ticking tileentity which shouldn't " + world.isRemote);
+			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return ;
-		}*/
+		}
 		
 		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
