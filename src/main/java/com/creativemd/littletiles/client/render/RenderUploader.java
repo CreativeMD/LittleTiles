@@ -186,7 +186,7 @@ public class RenderUploader {
 		if(event.phase == Phase.START || event.phase == Phase.END)
 		{
 			World world = mc.world;
-			VertexFormat format = LittleTilesClient.getBlockVertexFormat();
+			VertexFormat format = DefaultVertexFormats.BLOCK;
 			
 			if(world != null)
 			{

@@ -184,8 +184,8 @@ public class RenderingThread extends Thread {
 						try {
 							layerBuffer.setDrawing();
 							
-							if(consumer.format != LittleTilesClient.getBlockVertexFormat())
-								consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
+							if(!consumer.format.equals(DefaultVertexFormats.BLOCK))
+								consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 							
 							World renderWorld = data.te.getWorld();
 							if(renderWorld instanceof WorldFake && !((WorldFake) renderWorld).shouldRender)
@@ -209,7 +209,7 @@ public class RenderingThread extends Thread {
 									consumer.buffer = buffer;
 									consumer.layer = layer;
 									
-									buffer.begin(7, LittleTilesClient.getBlockVertexFormat());
+									buffer.begin(7, DefaultVertexFormats.BLOCK);
 									int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
 									int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
 									int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
@@ -313,7 +313,7 @@ public class RenderingThread extends Thread {
 		return formatMaps;
 	}
 	
-	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(LittleTilesClient.getBlockVertexFormat(), mc.getBlockColors());
+	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 	
 	private synchronized void renderQuad(VertexBuffer buffer, BakedQuad quad)
 	{

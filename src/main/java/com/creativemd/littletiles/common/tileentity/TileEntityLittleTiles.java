@@ -836,7 +836,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		
 		if(updateTiles.isEmpty())
 		{
-			System.out.println("Ticking tileentity which shouldn't " + pos);
+			//System.out.println("Ticking tileentity which shouldn't " + pos);
 			return ;
 		}
 		

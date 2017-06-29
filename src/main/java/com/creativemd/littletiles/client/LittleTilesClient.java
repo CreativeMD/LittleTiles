@@ -95,19 +95,6 @@ public class LittleTilesClient extends LittleTilesServer{
 		return format;
 	}*/
 	
-	public static VertexFormat getBlockVertexFormat()
-	{
-		//if(optifineMode)
-			//return optifineFormat;
-		return DefaultVertexFormats.BLOCK;
-	}
-	
-	public static VertexBuffer createVertexBuffer(int size)
-	{
-		//if(FMLClientHandler.instance().hasOptifine())
-			//return new OptifineVertexBuffer(size);
-		return new VertexBuffer(size);
-	}
 	
 	@Override
 	public void loadSidePre()

@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.tileentity.TileEntity;
@@ -97,7 +98,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 						net.minecraft.client.renderer.VertexBuffer tempBuffer = layers.getBufferByLayer(layer);
 						if(tempBuffer != null)
 						{
-							VertexBuffer bufferToCreate = new VertexBuffer(LittleTilesClient.getBlockVertexFormat());
+							VertexBuffer bufferToCreate = new VertexBuffer(DefaultVertexFormats.BLOCK);
 							uploader.setVertexBuffer(bufferToCreate);
 							uploader.draw(tempBuffer);
 							entity.renderData.add(layer, new TERenderData(bufferToCreate, EntityDoorAnimation.getRenderChunkPos(te.getPos()), te.getPos()));
@@ -207,7 +208,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		
 		
 		
-		for ( final VertexFormatElement vertexformatelement : LittleTilesClient.getBlockVertexFormat().getElements())
+		for ( final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
 		{
 			final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
 			final int i1 = vertexformatelement.getIndex();

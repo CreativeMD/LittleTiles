@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.google.common.collect.Lists;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
@@ -134,13 +135,16 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@SideOnly(Side.CLIENT)
 	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
 	{
-		ItemModelCache.cacheModel(stack, facing, cachedQuads);
+		if(stack != null)
+			ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
 	{
+		if(stack == null)
+			return null;
 		return ItemModelCache.getCache(stack, facing);
 	}
 	

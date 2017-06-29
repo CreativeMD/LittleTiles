@@ -204,7 +204,7 @@ public class GuiTileViewer extends GuiParent{
         	//stack.setTagCompound(this.stack.getTagCompound().copy());
 	        CreativeBakedModel.setLastItemStack(stack);        
 	        
-	        baked = CreativeBakedModel.getBlockQuads(null, facing, 0, false);
+	        baked = new ArrayList<>(CreativeBakedModel.getBlockQuads(null, facing, 0, false));
 	        CreativeBakedModel.setLastItemStack(null);
         }
         
@@ -239,7 +239,7 @@ public class GuiTileViewer extends GuiParent{
         	
         	
         	
-        	CreativeBakedModel.getBlockQuads(cubes, quads, (ICreativeRendered) LittleTiles.multiTiles, facing, null, BlockRenderLayer.SOLID, Blocks.WOOL, null, 0, stack, false);
+        	CreativeBakedModel.getBlockQuads(cubes, quads, (ICreativeRendered) LittleTiles.multiTiles, facing, null, BlockRenderLayer.SOLID, Blocks.WOOL, null, 0, null, false);
         }
         
         helper.renderBakedQuads(baked);
