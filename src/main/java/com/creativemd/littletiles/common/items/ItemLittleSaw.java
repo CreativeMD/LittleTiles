@@ -5,6 +5,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -24,7 +25,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemLittleSaw extends Item{
 	
 	public ItemLittleSaw(){
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
 	
@@ -48,7 +49,7 @@ public class ItemLittleSaw extends Item{
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setInteger("side", facing.getIndex());
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 2, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.SAW, nbt));
 			}
 			return EnumActionResult.SUCCESS;
 		}

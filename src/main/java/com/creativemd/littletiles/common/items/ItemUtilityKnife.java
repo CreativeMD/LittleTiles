@@ -9,8 +9,8 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
-import com.creativemd.littletiles.common.gui.SubContainerUtilityKnife;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerUtilityKnife;
 import com.creativemd.littletiles.common.gui.SubGuiUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
@@ -47,7 +47,7 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 	
 	public ItemUtilityKnife()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
@@ -65,12 +65,16 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 	public LittleTileBox getBox(TileEntityLittleTiles te, LittleTile tile, BlockPos pos, EntityPlayer player, RayTraceResult result) {
 		if(tile.isStructureBlock)
 			return null;
-		LittleTileVec vec = PlacementHelper.getInstance(player).getHitVec(result.hitVec, pos, result.sideHit, false, false, false);
-		//LittleTileVec vec = new LittleTileVec(result.hitVec);
-		//vec.subVec(new LittleTileVec(pos));
+		
+		double posX = result.hitVec.xCoord - pos.getX();
+		double posY = result.hitVec.yCoord - pos.getY();
+		double posZ = result.hitVec.zCoord - pos.getZ();
+		LittleTileVec vec = new LittleTileVec((int)PlacementHelper.round(posX*LittleTile.gridSize), (int)PlacementHelper.round(posY*LittleTile.gridSize), (int)PlacementHelper.round(posZ*LittleTile.gridSize));
+		
+		//LittleTileVec vec = PlacementHelper.getPosition(player.world, result).hit;
+		
 		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
 			vec.subVec(new LittleTileVec(result.sideHit));
-		//vec.subVec(new LittleTileVec(result.sideHit));
 		
 		return getMode(player.getHeldItemMainhand()).getBox(vec, getThickness(player.getHeldItemMainhand()), result.sideHit);
 	}
@@ -107,7 +111,6 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 		{
 			tile.boundingBoxes.clear();
 			tile.boundingBoxes.add(box.copy());
-			//WorldUtils.dropItem(player, tile.getDrops());
 		}
 		
 		PacketHandler.sendPacketToServer(new LittleBlockVanillaPacket(pos, player));
@@ -117,12 +120,13 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 	@Override
 	public LittleTileBox getBox(World world, BlockPos pos, IBlockState state, EntityPlayer player,
 			RayTraceResult result) {
-		/*LittleTileVec vec = new LittleTileVec(result.hitVec);
-		vec.subVec(new LittleTileVec(pos));
-		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-			vec.subVec(new LittleTileVec(result.sideHit));
-		return new LittleTileBox(vec);*/
-		LittleTileVec vec = PlacementHelper.getInstance(player).getHitVec(result.hitVec, pos, result.sideHit, false, false, false);
+		double posX = result.hitVec.xCoord - pos.getX();
+		double posY = result.hitVec.yCoord - pos.getY();
+		double posZ = result.hitVec.zCoord - pos.getZ();
+		
+		LittleTileVec vec = new LittleTileVec((int)PlacementHelper.round(posX*LittleTile.gridSize), (int)PlacementHelper.round(posY*LittleTile.gridSize), (int)PlacementHelper.round(posZ*LittleTile.gridSize));
+		
+		//LittleTileVec vec = PlacementHelper.getPosition(player.world, result).hit;
 		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
 			vec.subVec(new LittleTileVec(result.sideHit));
 		

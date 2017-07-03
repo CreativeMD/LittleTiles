@@ -5,10 +5,16 @@ import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ILittleTile {
 	
@@ -44,4 +50,27 @@ public interface ILittleTile {
 	}
 	
 	public LittleStructure getLittleStructure(ItemStack stack);
+	
+	@SideOnly(Side.CLIENT)
+	public default float getPreviewAlphaFactor()
+	{
+		return 1;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default boolean shouldCache()
+	{
+		return true;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position) {}
+	
+	/**
+	 * absolute previews cannot be placed directly
+	 */
+	public default boolean arePreviewsAbsolute()
+	{
+		return false;
+	}
 }

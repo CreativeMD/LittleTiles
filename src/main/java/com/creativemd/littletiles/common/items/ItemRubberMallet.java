@@ -7,8 +7,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
@@ -41,7 +42,7 @@ public class ItemRubberMallet extends Item {
 	
 	public ItemRubberMallet()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
@@ -65,7 +66,7 @@ public class ItemRubberMallet extends Item {
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setInteger("side", facing.getIndex());
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 4, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.RUBBER_MALLET, nbt));
 			}
 			return EnumActionResult.SUCCESS;
 		}

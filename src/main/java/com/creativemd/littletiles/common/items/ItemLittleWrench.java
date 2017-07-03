@@ -8,7 +8,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerWrench;
+import com.creativemd.littletiles.common.container.SubContainerWrench;
 import com.creativemd.littletiles.common.gui.SubGuiWrench;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -32,7 +32,7 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 	
 	public ItemLittleWrench()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
 	

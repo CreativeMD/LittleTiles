@@ -14,7 +14,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public abstract class BoxShiftHandler extends ShiftHandler{
+public abstract class BoxFixedHandler extends FixedHandler{
 	
 	public ArrayList<LittleTileBox> boxes = new ArrayList<LittleTileBox>();
 	

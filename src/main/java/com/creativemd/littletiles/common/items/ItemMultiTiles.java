@@ -39,7 +39,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	{
 		//super(LittleTiles.blockTile);
 		hasSubtypes = true;
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 	}
 	
 	@Override

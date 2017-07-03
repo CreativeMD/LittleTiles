@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.gui;
+package com.creativemd.littletiles.common.container;
 
 import java.util.ArrayList;
 import java.util.List;

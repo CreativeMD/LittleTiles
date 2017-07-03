@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.gui;
+package com.creativemd.littletiles.common.container;
 
 import java.util.Iterator;
 
@@ -16,9 +16,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 
-public class SubContainerChisel extends SubContainer {
+public class SubContainerScrewdriver extends SubContainer {
 
-	public SubContainerChisel(EntityPlayer player) {
+	public SubContainerScrewdriver(EntityPlayer player) {
 		super(player);
 	}
 

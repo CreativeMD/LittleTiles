@@ -10,7 +10,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerParticle;
+import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
@@ -38,7 +38,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	public BlockLTParticle() {
 		super(Material.IRON);
 		setHardness(0.4F);
-		setCreativeTab(CreativeTabs.DECORATIONS);
+		setCreativeTab(LittleTiles.littleTab);
 	}
 
 	@Override

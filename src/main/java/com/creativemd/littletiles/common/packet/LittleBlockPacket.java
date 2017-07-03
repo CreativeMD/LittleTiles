@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -57,10 +58,240 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleBlockPacket extends CreativeCorePacket{
 	
+	public static enum BlockPacketAction {
+		
+		ACTIVATED(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+				
+				BlockTile.cancelNext = true;
+			}
+		},
+		DESTROY(false) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
+					RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				LittleTileBox box = null;
+				
+				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+				{
+					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
+					if(box != null)
+					{
+						te.removeBoxFromTiles(box);
+						if(!player.capabilities.isCreativeMode)
+						{
+							tile.boundingBoxes.clear();
+							tile.boundingBoxes.add(box.copy());
+							WorldUtils.dropItem(player, tile.getDrops());
+						}
+					}
+				}
+				if(box == null)
+				{
+					tile.destroy();
+					if(!player.capabilities.isCreativeMode)
+						WorldUtils.dropItem(player.world, tile.getDrops(), pos);
+				}
+				
+				world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
+			}
+		},
+		SAW(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				int side = nbt.getInteger("side");
+				EnumFacing direction = EnumFacing.getFront(side);
+				if(tile.canSawResizeTile(direction, player))
+				{
+					LittleTileBox box = null;
+					if(player.isSneaking())
+						box = tile.boundingBoxes.get(0).shrink(direction);
+					else
+						box = tile.boundingBoxes.get(0).expand(direction);
+					
+					if(box.isValidBox())
+					{
+						double ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
+						boolean success = false;
+						if(player.isSneaking())
+						{
+							if(ItemTileContainer.addBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), ammount))
+								success = true;
+						}else{
+							if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), -ammount))
+								success = true;
+						}
+						
+						if(player.capabilities.isCreativeMode || success)
+						{
+							if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box.getBox(), tile))
+							{
+								tile.boundingBoxes.set(0, box);
+								tile.updateCorner();
+								te.updateBlock();
+							}else if(!box.isBoxInsideBlock()){
+								box = box.createOutsideBlockBox(direction);
+								BlockPos newPos = pos.offset(direction);
+								IBlockState state = world.getBlockState(newPos);
+								TileEntityLittleTiles littleTe = null;
+								TileEntity newTE = world.getTileEntity(newPos);
+								if(newTE instanceof TileEntityLittleTiles)
+									littleTe = (TileEntityLittleTiles) newTE;
+								if(state.getMaterial().isReplaceable())
+								{
+									//new TileEntityLittleTiles();
+									world.setBlockState(newPos, LittleTiles.blockTile.getDefaultState());
+									littleTe = (TileEntityLittleTiles) world.getTileEntity(newPos);
+								}
+								if(littleTe != null)
+								{
+									LittleTile newTile = tile.copy();
+									newTile.boundingBoxes.clear();
+									newTile.boundingBoxes.add(box);
+									newTile.te = littleTe;
+									
+									if(littleTe.isSpaceForLittleTile(box))
+									{
+										newTile.place();
+										//littleTe.addTile(newTile);
+										littleTe.updateBlock();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		COLOR_TUBE(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				if((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored))
+				{
+					int color = nbt.getInteger("color");
+					
+					if(player.isSneaking())
+					{
+						color = ColorUtils.WHITE;
+						if(tile instanceof LittleTileBlockColored)
+							color = ((LittleTileBlockColored) tile).color;
+						ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+					}else{
+						tile.te.preventUpdate = true;
+						LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
+						if(newTile != null)
+						{
+							tile.te.removeTile(tile);
+							tile.te.addTile(newTile);
+						}
+						if(tile.isStructureBlock)
+						{
+							newTile.isStructureBlock = true;
+							newTile.structure.removeTile(tile);
+							newTile.structure.addTile(newTile);
+							if(tile.isMainBlock)
+								newTile.structure.setMainTile(newTile);
+							newTile.structure.getMainTile().te.updateBlock();
+						}
+						tile.te.preventUpdate = false;
+						te.updateTiles();
+					}
+				}
+			}
+		},
+		RUBBER_MALLET(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				int side = nbt.getInteger("side");
+				EnumFacing direction = EnumFacing.getFront(side).getOpposite();
+				boolean push = !player.isSneaking();
+				if(!push)
+					direction = direction.getOpposite();
+				if(tile.canBeMoved(direction))
+				{
+					if(tile.isStructureBlock)
+					{
+						if(tile.checkForStructure())
+						{
+							LittleStructure structure = tile.structure;
+							if(structure.hasLoaded())
+							{
+								HashMapList<TileEntityLittleTiles, LittleTile> tiles = structure.copyOfTiles();
+								for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
+								{
+									LittleTile tileOfCopy = iterator.next();
+									if(!ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, true, push))
+										return ;
+								}
+								
+								for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
+								{
+									LittleTile tileOfCopy = iterator.next();
+									ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, false, push);
+								}
+								
+								structure.combineTiles();
+								structure.selectMainTile();
+								structure.moveStructure(direction);
+							}else
+								player.sendMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
+						}
+					}else
+						if(ItemRubberMallet.moveTile(te, direction, tile, false, push))
+							te.updateTiles();												
+				}
+			}
+		},
+		GLOWING(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
+				{
+					if(!player.isCreative())
+					{
+						if(tile.glowing){
+							if(!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
+								player.dropItem(new ItemStack(Items.GLOWSTONE_DUST), true);
+						}else
+							stack.shrink(1);
+					}
+					if(tile.glowing)
+						player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
+					else
+						player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
+					tile.glowing = !tile.glowing;
+					te.updateLighting();
+				}
+			}
+		},
+		CHISEL(true) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				if(player.isSneaking() && tile instanceof LittleTileBlock)
+					ItemLittleChisel.setBlockState(stack, ((LittleTileBlock) tile).getBlockState());
+			}
+		};
+		
+		public final boolean rightClick;
+		
+		private BlockPacketAction(boolean rightClick) {
+			this.rightClick = rightClick;
+		}
+		
+		public abstract void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt);
+	}
+	
 	public BlockPos blockPos;
 	public Vec3d pos;
 	public Vec3d look;
-	public int action;
+	public BlockPacketAction action;
 	public NBTTagCompound nbt;
 	
 	public LittleBlockPacket()
@@ -68,12 +299,12 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, int action)
+	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action)
 	{
 		this(blockPos, player, action, new NBTTagCompound());
 	}
 	
-	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, int action, NBTTagCompound nbt)
+	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action, NBTTagCompound nbt)
 	{
 		this.blockPos = blockPos;
 		this.action = action;
@@ -89,7 +320,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		writePos(buf, blockPos);
 		writeVec3d(pos, buf);
 		writeVec3d(look, buf);
-		buf.writeInt(action);
+		buf.writeInt(action.ordinal());
 		writeNBT(buf, nbt);
 	}
 	
@@ -97,8 +328,8 @@ public class LittleBlockPacket extends CreativeCorePacket{
 	public void readBytes(ByteBuf buf) {
 		blockPos = readPos(buf);
 		pos = readVec3d(buf);
-		look = readVec3d(buf);		
-		action = buf.readInt();
+		look = readVec3d(buf);
+		action = BlockPacketAction.values()[buf.readInt()];
 		nbt = readNBT(buf);
 	}
 	
@@ -156,7 +387,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
 			
-			if(!isAllowedToInteract(player, blockPos, action != 1, EnumFacing.EAST))
+			if(!isAllowedToInteract(player, blockPos, action.rightClick, EnumFacing.EAST))
 			{
 				te.updateBlock();
 				return ;
@@ -165,206 +396,10 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			if(tile != null)
 			{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				switch(action)
-				{
-				case 0: //Activated
-					RayTraceResult moving = te.getMoving(pos, look);
-					tile.onBlockActivated(player.world, blockPos, player.world.getBlockState(blockPos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
-					
-					BlockTile.cancelNext = true;
-					break;
-				case 1: //Destory tile
-					LittleTileBox box = null;
-					moving = te.getMoving(pos, look);
-    				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
-    				{
-    					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
-    					if(box != null)
-    					{
-    						te.removeBoxFromTiles(box);
-    						if(!player.capabilities.isCreativeMode)
-    						{
-    							tile.boundingBoxes.clear();
-    							tile.boundingBoxes.add(box.copy());
-    							WorldUtils.dropItem(player, tile.getDrops());
-    						}
-    					}
-    				}
-    				if(box == null)
-    				{
-						tile.destroy();
-						if(!player.capabilities.isCreativeMode)
-							WorldUtils.dropItem(player.world, tile.getDrops(), blockPos);
-					}
-    				
-    				world.playSound((EntityPlayer)null, blockPos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
-    				
-    				/*for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-    					LittleTile tileNeighbor = (LittleTile) iterator.next();
-						tileNeighbor.onNeighborChangeInside();
-					}*/
-    				
-	    			//te.updateBlock();
-					break;
-				case 2: //Saw
-					int side = nbt.getInteger("side");
-					EnumFacing direction = EnumFacing.getFront(side);
-					if(tile.canSawResizeTile(direction, player))
-					{
-						box = null;
-						if(player.isSneaking())
-							box = tile.boundingBoxes.get(0).shrink(direction);
-						else
-							box = tile.boundingBoxes.get(0).expand(direction);
-						
-						if(box.isValidBox())
-						{
-							double ammount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
-							boolean success = false;
-							if(player.isSneaking())
-							{
-								if(ItemTileContainer.addBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), ammount))
-									success = true;
-							}else{
-								if(ItemTileContainer.drainBlock(player, ((LittleTileBlock)tile).getBlock(), ((LittleTileBlock)tile).getMeta(), -ammount))
-									success = true;
-							}
-							
-							if(player.capabilities.isCreativeMode || success)
-							{
-								if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box.getBox(), tile))
-								{
-									tile.boundingBoxes.set(0, box);
-									tile.updateCorner();
-									te.updateBlock();
-								}else if(!box.isBoxInsideBlock()){
-									box = box.createOutsideBlockBox(direction);
-									BlockPos newPos = blockPos.offset(direction);
-									IBlockState state = world.getBlockState(newPos);
-									TileEntityLittleTiles littleTe = null;
-									TileEntity newTE = world.getTileEntity(newPos);
-									if(newTE instanceof TileEntityLittleTiles)
-										littleTe = (TileEntityLittleTiles) newTE;
-									if(state.getMaterial().isReplaceable())
-									{
-										//new TileEntityLittleTiles();
-										world.setBlockState(newPos, LittleTiles.blockTile.getDefaultState());
-										littleTe = (TileEntityLittleTiles) world.getTileEntity(newPos);
-									}
-									if(littleTe != null)
-									{
-										LittleTile newTile = tile.copy();
-										newTile.boundingBoxes.clear();
-										newTile.boundingBoxes.add(box);
-										newTile.te = littleTe;
-										
-										if(littleTe.isSpaceForLittleTile(box))
-										{
-											newTile.place();
-											//littleTe.addTile(newTile);
-											littleTe.updateBlock();
-										}
-									}
-								}
-							}
-						}
-					}
-					break;
-				case 3: //COLOR TUBE set Color
-					if((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored))
-					{
-						int color = nbt.getInteger("color");
-						
-						if(player.isSneaking())
-						{
-							color = ColorUtils.WHITE;
-							if(tile instanceof LittleTileBlockColored)
-								color = ((LittleTileBlockColored) tile).color;
-							ItemColorTube.setColor(player.getHeldItemMainhand(), color);
-						}else{
-							tile.te.preventUpdate = true;
-							LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
-							if(newTile != null)
-							{
-								tile.te.removeTile(tile);
-								tile.te.addTile(newTile);
-							}
-							if(tile.isStructureBlock)
-							{
-								newTile.isStructureBlock = true;
-								newTile.structure.removeTile(tile);
-								newTile.structure.addTile(newTile);
-								if(tile.isMainBlock)
-									newTile.structure.setMainTile(newTile);
-								newTile.structure.getMainTile().te.updateBlock();
-							}
-							tile.te.preventUpdate = false;
-							te.updateTiles();
-						}
-					}
-					break;
-				case 4: //RUBBER MALLET
-					side = nbt.getInteger("side");
-					direction = EnumFacing.getFront(side).getOpposite();
-					boolean push = !player.isSneaking();
-					if(!push)
-						direction = direction.getOpposite();
-					if(tile.canBeMoved(direction))
-					{
-						if(tile.isStructureBlock)
-						{
-							if(tile.checkForStructure())
-							{
-								LittleStructure structure = tile.structure;
-								if(structure.hasLoaded())
-								{
-									HashMapList<TileEntityLittleTiles, LittleTile> tiles = structure.copyOfTiles();
-									for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
-									{
-										LittleTile tileOfCopy = iterator.next();
-										if(!ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, true, push))
-											return ;
-									}
-									
-									for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();)
-									{
-										LittleTile tileOfCopy = iterator.next();
-										ItemRubberMallet.moveTile(tileOfCopy.te, direction, tileOfCopy, false, push);
-									}
-									
-									structure.combineTiles();
-									structure.selectMainTile();
-									structure.moveStructure(direction);
-								}else
-									player.sendMessage(new TextComponentString("Cannot move structure (not all tiles are loaded)."));
-							}
-						}else
-							if(ItemRubberMallet.moveTile(te, direction, tile, false, push))
-								te.updateTiles();												
-					}
-					break;
-				case 5: //Glowing
-					if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
-					{
-						if(!player.isCreative())
-						{
-							if(tile.glowing){
-								if(!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
-									player.dropItem(new ItemStack(Items.GLOWSTONE_DUST), true);
-							}else
-								stack.shrink(1);
-						}
-						if(tile.glowing)
-							player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
-						else
-							player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
-						tile.glowing = !tile.glowing;
-						te.updateLighting();
-					}
-					break;
-				}
+				RayTraceResult moving = te.getMoving(pos, look);
+				action.action(world, te, tile, stack, player, moving, blockPos, nbt);
 			}
-		}else if(action == 0)
+		}else if(action == BlockPacketAction.ACTIVATED)
 			LittleEvent.cancelNext = true;
 	}
 	

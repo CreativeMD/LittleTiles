@@ -1,5 +1,6 @@
 package com.creativemd.littletiles;
 
+import java.io.PrintWriter;
 import java.util.Iterator;
 
 import org.objectweb.asm.Opcodes;
@@ -14,6 +15,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.creativemd.creativecore.transformer.CreativeTransformer;
 import com.creativemd.creativecore.transformer.Transformer;

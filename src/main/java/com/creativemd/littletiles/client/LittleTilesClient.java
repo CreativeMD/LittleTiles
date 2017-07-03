@@ -7,6 +7,7 @@ import org.lwjgl.input.Keyboard;
 
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
+import com.creativemd.creativecore.client.rendering.model.CreativeCustomModelLoader;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
@@ -51,6 +52,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
@@ -137,6 +139,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.chisel);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.screwdriver);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
@@ -147,6 +150,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 1, new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
 		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.modid + ":chisel", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 		
 		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
         {

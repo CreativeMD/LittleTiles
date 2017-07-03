@@ -35,7 +35,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialLittleBl
 
 	public BlockLTTransparentColored() {
 		super(Material.ROCK);
-		setCreativeTab(CreativeTabs.DECORATIONS);
+		setCreativeTab(LittleTiles.littleTab);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTTransparentColored.EnumType.clean));
 	}
 	

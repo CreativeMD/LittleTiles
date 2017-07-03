@@ -9,15 +9,18 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
+import com.creativemd.littletiles.common.packet.LittleCustomPlacePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -44,6 +47,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -105,6 +109,39 @@ public class LittleEvent {
 	public static boolean cancelNext = false;
 	
 	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onLeftClick(LeftClickBlock event)
+	{
+		if(event.getWorld().isRemote)
+		{
+			ItemStack stack = event.getItemStack();
+			if(stack.getItem() instanceof ItemLittleChisel)
+			{
+				if(!ItemLittleChisel.hasClicked)
+				{
+					LittleTileVec vec = PlacementHelper.getPosition(event.getWorld(), new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos())).getAbsoluteVec();
+					if(ItemLittleChisel.min == null)
+					{
+						if(event.getFace().getAxisDirection() == AxisDirection.NEGATIVE)
+							vec.addVec(new LittleTileVec(event.getFace()));
+						ItemLittleChisel.min = vec;
+					}else if(event.getEntityPlayer().isSneaking())
+						ItemLittleChisel.min = null;
+					else{
+						//Place!!!!
+						LittleTileBox newBox = ItemLittleChisel.getBox();
+						ItemLittleChisel.placePreviews(event.getWorld(), newBox.getMinVec(), newBox.getMaxVec(), event.getEntityPlayer(), stack, event.getFace());
+						PacketHandler.sendPacketToServer(new LittleCustomPlacePacket(newBox.getMinVec(), newBox.getMaxVec(), event.getFace()));
+						ItemLittleChisel.min = null;
+						ItemLittleChisel.lastMax = null;
+					}
+				}
+				ItemLittleChisel.hasClicked = ItemLittleChisel.isClicking = true;
+			}
+		}
+	}
+	
+	@SubscribeEvent
 	public void onInteract(RightClickBlock event)
 	{
 		if(cancelNext)
@@ -127,13 +164,13 @@ public class LittleEvent {
 						event.getEntityPlayer().playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
 					te.tile.glowing = !te.tile.glowing;
 					te.te.updateLighting();
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(event.getPos(), event.getEntityPlayer(), 5));
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(event.getPos(), event.getEntityPlayer(), BlockPacketAction.GLOWING));
 				}
 				event.setCanceled(true);
 			}
 		}
 		
-		if(PlacementHelper.isLittleBlock(stack))
+		if(PlacementHelper.isLittleBlock(stack) && !PlacementHelper.getLittleInterface(stack).arePreviewsAbsolute())
 		{
 			if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
 				onRightInteractClient(event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
@@ -244,7 +281,7 @@ public class LittleEvent {
 		}
 	}
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event)
 	{
 		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) {
@@ -255,14 +292,24 @@ public class LittleEvent {
 			}
 		}
 		
-	}
+	}*/
 	
 	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
 	public void onClientTick(ClientTickEvent event)
 	{
 		if(event.phase == Phase.END)
 		{
 			ItemModelCache.tick();
-		}
+			
+			if(Minecraft.getMinecraft().player != null && !(Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() instanceof ItemLittleChisel))
+			{
+				ItemLittleChisel.min = null;
+				ItemLittleChisel.lastMax = null;
+			}
+			if(!ItemLittleChisel.isClicking)
+				ItemLittleChisel.hasClicked = false;
+		}else
+			ItemLittleChisel.isClicking = false;
 	}
 }

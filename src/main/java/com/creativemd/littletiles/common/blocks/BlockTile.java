@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -145,7 +146,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 
 	public BlockTile(Material material) {
 		super(material);
-		setCreativeTab(CreativeTabs.DECORATIONS);
+		setCreativeTab(LittleTiles.littleTab);
 		setResistance(3.0F);
 		setSoundType(SILENT);
 	}
@@ -412,7 +413,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			{
 				if(worldIn.isRemote)
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, 0));
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, BlockPacketAction.ACTIVATED));
 				return true;
 			}
 			return false;
@@ -516,7 +517,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				result.tile.destroy();
 				result.te.updateRender();
 			}
-			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 1));
+			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.DESTROY));
 			
 		}
     }

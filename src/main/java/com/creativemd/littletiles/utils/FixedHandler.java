@@ -9,7 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class ShiftHandler {
+public abstract class FixedHandler {
 	
 	@SideOnly(Side.CLIENT)
 	public abstract void handleRendering(Minecraft mc, double x, double y, double z);

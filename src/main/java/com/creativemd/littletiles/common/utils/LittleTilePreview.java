@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
@@ -17,8 +16,8 @@ import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.utils.FixedHandler;
 import com.creativemd.littletiles.utils.PlacePreviewTile;
-import com.creativemd.littletiles.utils.ShiftHandler;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -69,7 +68,7 @@ public class LittleTilePreview {
 	
 	public LittleTileBox box;
 	
-	public ArrayList<ShiftHandler> shifthandlers = new ArrayList<ShiftHandler>();
+	public ArrayList<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
 	
 	//================Constructors================
 	
@@ -199,7 +198,7 @@ public class LittleTilePreview {
 				preview = new LittleTilePreview(size != null ? size.copy() : null, tileData.copy());
 		}
 		preview.canSplit = this.canSplit;
-		preview.shifthandlers = new ArrayList<ShiftHandler>(this.shifthandlers);
+		preview.fixedhandlers = new ArrayList<>(this.fixedhandlers);
 		return preview;
 	}
 	
@@ -211,13 +210,13 @@ public class LittleTilePreview {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
 	
-	public PlacePreviewTile getPlaceableTile(LittleTileBox box, boolean canPlaceNormal, LittleTileVec offset)
+	public PlacePreviewTile getPlaceableTile(LittleTileBox box, boolean fixed, LittleTileVec offset)
 	{
 		if(this.box == null)
 			return new PlacePreviewTile(box.copy(), this);
 		else{
 			LittleTileBox newBox = this.box.copy();
-			if(!canPlaceNormal)
+			if(!fixed)
 				newBox.addOffset(offset);
 			return new PlacePreviewTile(newBox, this);
 		}

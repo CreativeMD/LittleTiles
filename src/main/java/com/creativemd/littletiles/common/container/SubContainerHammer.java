@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.gui;
+package com.creativemd.littletiles.common.container;
 
 import java.awt.Color;
 import java.util.ArrayList;

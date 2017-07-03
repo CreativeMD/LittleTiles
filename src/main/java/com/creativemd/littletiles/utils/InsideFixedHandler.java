@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class InsideShiftHandler extends ShiftHandler{
+public class InsideFixedHandler extends FixedHandler{
 
 	@Override
 	public double getDistance(LittleTileVec suggestedPos) {

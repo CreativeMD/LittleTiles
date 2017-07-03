@@ -9,7 +9,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
@@ -34,7 +34,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 	
 	public ItemHammer()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
 	

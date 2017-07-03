@@ -17,7 +17,7 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.ItemModelCache;
-import com.creativemd.littletiles.common.gui.SubContainerStructure;
+import com.creativemd.littletiles.common.container.SubContainerStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -63,7 +63,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiCreator{
 	
 	public ItemRecipe(){
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 	}
 	

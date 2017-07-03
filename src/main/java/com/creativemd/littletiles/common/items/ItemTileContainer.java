@@ -10,7 +10,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerTileContainer;
+import com.creativemd.littletiles.common.container.SubContainerTileContainer;
 import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
@@ -39,7 +39,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	
 	public ItemTileContainer()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
 	

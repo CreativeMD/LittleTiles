@@ -10,9 +10,10 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.gui.SubContainerColorTube;
+import com.creativemd.littletiles.common.container.SubContainerColorTube;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;
@@ -37,7 +38,7 @@ public class ItemColorTube extends Item implements IGuiCreator{
 
 	public ItemColorTube()
 	{
-		setCreativeTab(CreativeTabs.TOOLS);
+		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
@@ -81,7 +82,7 @@ public class ItemColorTube extends Item implements IGuiCreator{
 				ItemStack stack = player.getHeldItem(hand);
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setInteger("color", getColor(stack));
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, 3, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.COLOR_TUBE, nbt));
 			}
 			return EnumActionResult.SUCCESS;
 		}

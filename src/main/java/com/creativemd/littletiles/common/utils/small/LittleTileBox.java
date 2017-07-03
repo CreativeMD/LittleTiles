@@ -2,8 +2,12 @@ package com.creativemd.littletiles.common.utils.small;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
 
@@ -17,6 +21,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import scala.collection.generic.BitOperations.Int;
 
 public class LittleTileBox {
 	
@@ -79,6 +84,20 @@ public class LittleTileBox {
 	public LittleTileBox(AxisAlignedBB box)
 	{
 		this((int)(box.minX*LittleTile.gridSize), (int)(box.minY*LittleTile.gridSize), (int)(box.minZ*LittleTile.gridSize), (int)(box.maxX*LittleTile.gridSize), (int)(box.maxY*LittleTile.gridSize), (int)(box.maxZ*LittleTile.gridSize));
+	}
+	
+	public LittleTileBox(LittleTileBox... boxes)
+	{
+		this(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+		
+		for (int i = 0; i < boxes.length; i++) {
+			this.minX = Math.min(boxes[i].minX, this.minX);
+			this.minY = Math.min(boxes[i].minY, this.minY);
+			this.minZ = Math.min(boxes[i].minZ, this.minZ);
+			this.maxX = Math.max(boxes[i].maxX, this.maxX);
+			this.maxY = Math.max(boxes[i].maxY, this.maxY);
+			this.maxZ = Math.max(boxes[i].maxZ, this.maxZ);
+		}
 	}
 	
 	public LittleTileBox(LittleTileVec min, LittleTileVec max)
@@ -669,8 +688,21 @@ public class LittleTileBox {
 		return new LittleTileBox(cube.offset(new BlockPos(0, 0, 0).offset(facing)));
 	}
 	
+	public static void combineBoxesBlocks(ArrayList<LittleTileBox> boxes) {
+		
+		HashMapList<BlockPos, LittleTileBox> chunked = new HashMapList<>();
+		for (int i = 0; i < boxes.size(); i++) {
+			chunked.add(boxes.get(i).getMinVec().getBlockPos(), boxes.get(i));
+		}
+		boxes.clear();
+		for (Iterator<ArrayList<LittleTileBox>> iterator = chunked.getValues().iterator(); iterator.hasNext();) {
+			ArrayList<LittleTileBox> list = iterator.next();
+			combineBoxes(list);
+			boxes.addAll(list);
+		}
+	}
 	
-	public static void combineBoxes(ArrayList<LittleTileBox> boxes) {
+	public static void combineBoxes(List<LittleTileBox> boxes) {
 		//ArrayList<LittleTile> newTiles = new ArrayList<>();
 		int size = 0;
 		while(size != boxes.size())

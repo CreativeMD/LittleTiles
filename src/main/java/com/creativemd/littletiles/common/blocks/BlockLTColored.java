@@ -32,7 +32,7 @@ public class BlockLTColored extends Block implements ISpecialLittleBlock{
 
 	public BlockLTColored() {
 		super(Material.ROCK);
-		setCreativeTab(CreativeTabs.DECORATIONS);
+		setCreativeTab(LittleTiles.littleTab);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored.EnumType.clean));
 	}
 	

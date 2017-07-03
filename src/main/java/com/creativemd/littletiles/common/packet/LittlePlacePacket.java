@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
+import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -29,57 +30,34 @@ public class LittlePlacePacket extends CreativeCorePacket{
 		
 	}
 	
-	public LittlePlacePacket(/*ItemStack stack,*/ Vec3d playerPos, Vec3d hitVec, BlockPos pos, EnumFacing side, boolean customPlacement, boolean isSneaking, boolean forced) //, int direction, int direction2)
+	public LittlePlacePacket(PositionResult position, boolean centered, boolean fixed, boolean forced)
 	{
-		//this.stack = stack;
-		this.playerPos = playerPos;
-		this.hitVec = hitVec;
-		this.pos = pos;
-		this.side = side;
-		this.customPlacement = customPlacement;
-		this.isSneaking = isSneaking;
+		this.position = position;
+		this.centered = centered;
+		this.fixed = fixed;
 		this.forced = forced;
-		//this.direction = direction;
-		//this.direction2 = direction2;
 	}
 	
-	//public ItemStack stack;
-	public Vec3d hitVec;
-	public Vec3d playerPos;
-	public BlockPos pos;
-	public EnumFacing side;
-	public boolean customPlacement;
-	public boolean isSneaking;
+	public PositionResult position;
+	public boolean centered;
+	public boolean fixed;
 	public boolean forced;
-	//public int direction;
-	//public int direction2;
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		//writeItemStack(buf, stack);
-		writeVec3d(playerPos, buf);
-		writeVec3d(hitVec, buf);
-		writePos(buf, pos);
-		writeFacing(buf, side);
-		buf.writeBoolean(customPlacement);
-		buf.writeBoolean(isSneaking);
+		position.writeToBytes(buf);
+		buf.writeBoolean(centered);
+		buf.writeBoolean(fixed);
 		buf.writeBoolean(forced);
-		//buf.writeInt(direction);
-		//buf.writeInt(direction2);
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		//stack = readItemStack(buf);
-		playerPos = readVec3d(buf);
-		hitVec = readVec3d(buf);
-		pos = readPos(buf);
-		this.side = readFacing(buf);
-		this.customPlacement = buf.readBoolean();
-		this.isSneaking = buf.readBoolean();
+		position = PositionResult.readFromBytes(buf);
+		this.centered = buf.readBoolean();
+		this.fixed = buf.readBoolean();
 		this.forced = buf.readBoolean();
-		//this.direction = buf.readInt();
-		//this.direction2 = buf.readInt();
+		
 	}
 
 	@Override
@@ -92,19 +70,16 @@ public class LittlePlacePacket extends CreativeCorePacket{
 	public void executeServer(EntityPlayer player) {
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		
-		if(!LittleBlockPacket.isAllowedToInteract(player, pos, true, EnumFacing.EAST))
+		if(!LittleBlockPacket.isAllowedToInteract(player, position.pos, true, EnumFacing.EAST))
 		{
-			IBlockState state = player.world.getBlockState(pos);
-			player.world.notifyBlockUpdate(pos, state, state, 3);
+			IBlockState state = player.world.getBlockState(position.pos);
+			player.world.notifyBlockUpdate(position.pos, state, state, 3);
 			return ;
 		}
 		
 		if(PlacementHelper.isLittleBlock(stack))
 		{
-			PlacementHelper helper = PlacementHelper.getInstance(player); //new PlacementHelper(player, x, y, z);
-			//helper.side = side;
-			
-			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.world, playerPos, hitVec, helper, pos, side, customPlacement, isSneaking, forced); //, ForgeDirection.getOrientation(direction), ForgeDirection.getOrientation(direction2));
+			((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).placeBlockAt(player, stack, player.world, position, centered, fixed, forced);
 			
 			EntityPlayerMP playerMP = (EntityPlayerMP) player;
 			Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);

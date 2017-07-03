@@ -87,7 +87,7 @@ public class StructureStringUtils {
 				JsonObject faces = new JsonObject();
 				for (int j = 0; j < EnumFacing.VALUES.length; j++) {
 					EnumFacing facing = EnumFacing.VALUES[j];
-					List<BakedQuad> quads = CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0);
+					List<BakedQuad> quads = CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0, true);
 					if(!quads.isEmpty()) //No support for grass!!!
 					{
 						JsonObject face = new JsonObject();

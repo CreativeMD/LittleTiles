@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;

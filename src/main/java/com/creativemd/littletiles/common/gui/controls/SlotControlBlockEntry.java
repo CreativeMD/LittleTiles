@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.gui.controls;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.gui.controls.container.client.GuiSlotControl;
-import com.creativemd.littletiles.common.gui.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.utils.PlacementHelper;

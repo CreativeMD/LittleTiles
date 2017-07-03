@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.gui;
+package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.gui.container.SubContainer;
 

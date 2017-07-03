@@ -457,16 +457,20 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 	private AxisAlignedBB cachedRenderBoundingBox;
 	
 	@SideOnly(Side.CLIENT)
+	private boolean requireRenderingBoundingBoxUpdate;
+	
+	@SideOnly(Side.CLIENT)
 	public void updateRenderBoundingBox()
 	{
-		cachedRenderBoundingBox = null;
+		//cachedRenderBoundingBox = null;
+		requireRenderingBoundingBoxUpdate = true;
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-    	if(cachedRenderBoundingBox == null)
+    	if(requireRenderingBoundingBoxUpdate || cachedRenderBoundingBox == null)
     	{
 			double minX = Double.MAX_VALUE;
 			double minY = Double.MAX_VALUE;
@@ -493,6 +497,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 				cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 			else
 				cachedRenderBoundingBox = new AxisAlignedBB(pos);
+			
+			requireRenderingBoundingBoxUpdate = false;
     	}
     	return cachedRenderBoundingBox;
     }
