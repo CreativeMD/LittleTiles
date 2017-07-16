@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils.small;
 import java.security.InvalidParameterException;
 
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.PlacementHelper;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -47,7 +48,20 @@ public class LittleTileVec {
 	
 	public LittleTileVec(Vec3d vec)
 	{
-		this((int) (vec.xCoord*LittleTile.gridSize), (int) (vec.yCoord*LittleTile.gridSize), (int) (vec.zCoord*LittleTile.gridSize));
+		double posX = PlacementHelper.round(vec.xCoord*LittleTile.gridSize);
+		double posY = PlacementHelper.round(vec.yCoord*LittleTile.gridSize);
+		double posZ = PlacementHelper.round(vec.zCoord*LittleTile.gridSize);
+		
+		if(vec.xCoord < 0)
+			posX = Math.floor(posX);
+		if(vec.yCoord < 0)
+			posY = Math.floor(posY);
+		if(vec.zCoord < 0)
+			posZ = Math.floor(posZ);
+		
+		this.x = (int) posX;
+		this.y = (int) posY;
+		this.z = (int) posZ;
 	}
 	
 	public LittleTileVec(EnumFacing facing)
@@ -93,6 +107,14 @@ public class LittleTileVec {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+	
+	public LittleTileVec getRelativeVec(BlockPos pos)
+	{
+		LittleTileVec vec = new LittleTileVec(pos);
+		vec.invert();
+		vec.addVec(this);
+		return vec;
 	}
 	
 	public BlockPos getBlockPos()

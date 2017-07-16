@@ -12,8 +12,8 @@ import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;

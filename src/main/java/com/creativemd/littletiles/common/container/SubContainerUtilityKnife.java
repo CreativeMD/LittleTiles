@@ -22,11 +22,7 @@ public class SubContainerUtilityKnife extends SubContainer {
 
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		stack.getTagCompound().setInteger("mode", nbt.getInteger("mode"));
-		stack.getTagCompound().setInteger("thick", nbt.getInteger("thick"));
-		//player.inventory.mainInventory[player.inventory.currentItem] = stack;
+		stack.setTagCompound(nbt);
 	}
 
 }

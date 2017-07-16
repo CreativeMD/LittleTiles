@@ -1,49 +1,30 @@
 package com.creativemd.littletiles.client.render;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.ListenableFutureTask;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator.Type;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
-import net.minecraft.client.renderer.chunk.ListedRenderChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import shadersmod.client.SVertexBuilder;
 
 public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
@@ -62,12 +43,12 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		super();
 	}
 	
-	private static Method growBuffer = ReflectionHelper.findMethod(VertexBuffer.class, null, new String[]{"growBuffer",  "func_181670_b"}, int.class);
+	private static Method growBuffer = ReflectionHelper.findMethod(VertexBuffer.class, "growBuffer",  "func_181670_b", int.class);
 	
 	private static Field rawIntBufferField = ReflectionHelper.findField(VertexBuffer.class, "rawIntBuffer", "field_178999_b");
 	private static Field vertexCountField = ReflectionHelper.findField(VertexBuffer.class, "vertexCount", "field_178997_d");
 	
-	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, null, new String[]{"setLayerUsed", "func_178486_a"}, BlockRenderLayer.class);
+	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	
 	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, "setTileEntities", "field_181056_j");
 	

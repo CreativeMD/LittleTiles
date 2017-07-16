@@ -29,12 +29,12 @@ import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformation;
 import com.creativemd.littletiles.common.utils.rotation.SlidingDoorTransformation;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;

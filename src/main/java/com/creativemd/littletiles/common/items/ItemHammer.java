@@ -51,7 +51,7 @@ public class ItemHammer extends Item implements IGuiCreator{
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
     {
-		if(hand == EnumHand.OFF_HAND)
+		if(hand == EnumHand.OFF_HAND || player.isSneaking())
 			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand)); 
 		if(!world.isRemote)
 			GuiHandler.openGuiItem(player, world);

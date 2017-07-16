@@ -6,10 +6,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -276,24 +279,69 @@ public class LittleTileBox {
 		return new LittleTileVec(maxX, maxY, maxZ);
 	}
 	
-	/*public void rotateBoxby(EnumFacing direction)
+	/**
+	 * @param cutout a list of boxes which have been cut out.
+	 * @return all remaining boxes or null if the box remains as it is
+	 */
+	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout)
 	{
-		switch(direction)
-		{
-		case SOUTH:
-		case NORTH:
-			set(minZ, minY, minX, maxZ, maxY, maxX);
-			break;
-		case UP:
-			set(minX, minZ, minY, maxX, maxZ, maxY);
-			break;
-		case DOWN:
-			set(minY, minX, minZ, maxY, maxX, maxZ);
-			break;
-		default:
-			break;
+		ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
+		
+		for (int littleX = minX; littleX < maxX; littleX++) {
+			for (int littleY = minY; littleY < maxY; littleY++) {
+				for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
+					LittleTileVec min = new LittleTileVec(littleX, littleY, littleZ);
+					boolean isInside = false;
+					for (int i = 0; i < boxes.size(); i++) {
+						if(boxes.get(i).isVecInsideBox(min))
+						{
+							isInside = true;
+							break;
+						}
+					}
+					
+					if(isInside)
+						cutout.add(new LittleTileBox(min));
+					else
+						newBoxes.add(new LittleTileBox(min));
+				}
+			}
 		}
-	}*/
+		
+		combineBoxes(newBoxes);
+		
+		if(newBoxes.size() == 1 && newBoxes.get(0).equals(this))
+			return null;
+		
+		combineBoxes(cutout);
+		
+		return newBoxes;
+	}
+	
+	/**
+	 * @return all remaining boxes or null if the box remains as it is
+	 */
+	public List<LittleTileBox> cutOut(LittleTileBox box)
+	{
+		if(intersectsWith(box))
+		{
+			ArrayList<LittleTileBox> boxes = new ArrayList<>();
+			for (int littleX = minX; littleX < maxX; littleX++) {
+				for (int littleY = minY; littleY < maxY; littleY++) {
+					for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
+						if(!(littleX >= minX && littleX < maxX && littleY >= minY && littleY < maxY && littleZ >= minZ && littleZ < maxZ))
+							boxes.add(new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1));
+					}
+				}
+			}
+			
+			combineBoxes(boxes);
+			
+			return boxes;
+		}
+		
+		return null;
+	}
 	
 	public void rotateBoxWithCenter(Rotation direction, Vec3d center)
 	{
@@ -743,6 +791,82 @@ public class LittleTileBox {
 
 	public LittleTileVec getCenter() {
 		return new LittleTileVec((maxX + minX)/2, (maxY + minY)/2, (maxZ + minZ)/2);
+	}
+	
+	public void split(HashMapList<BlockPos, LittleTileBox> boxes)
+	{
+		LittleTileSize size = getSize();
+		
+		int offX = minX/LittleTile.gridSize;
+		if(minX < 0)
+			offX = (int) Math.floor(minX/(double)LittleTile.gridSize);
+		int offY = minY/LittleTile.gridSize;
+		if(minY < 0)
+			offY = (int) Math.floor(minY/(double)LittleTile.gridSize);
+		int offZ = minZ/LittleTile.gridSize;
+		if(minZ < 0)
+			offZ = (int) Math.floor(minZ/(double)LittleTile.gridSize);
+		
+		int posX = offX;
+		
+		int spaceX = minX-offX*LittleTile.gridSize;
+		int spaceY = minY-offY*LittleTile.gridSize;
+		int spaceZ = minZ-offZ*LittleTile.gridSize;
+		
+		for (int i = 0; spaceX+size.sizeX > i*LittleTile.gridSize; i++) {
+			int posY = offY;
+			for (int j = 0; spaceY+size.sizeY > j*LittleTile.gridSize; j++) {
+				int posZ = offZ;
+				for (int h = 0; spaceZ+size.sizeZ > h*LittleTile.gridSize; h++) {
+					
+					LittleTileBox box = copy();
+					if(i > 0)
+						box.minX =	0;
+					else
+						box.minX = spaceX;
+					if(i*LittleTile.gridSize+LittleTile.gridSize > spaceX+size.sizeX)
+					{
+						box.maxX = (box.maxX-box.maxX/LittleTile.gridSize*LittleTile.gridSize);
+						if(box.maxX < 0)
+							box.maxX = LittleTile.gridSize+box.maxX;
+					}
+					else
+						box.maxX = LittleTile.gridSize;
+					
+					if(j > 0)
+						box.minY =	0;
+					else
+						box.minY = spaceY;
+					if(j*LittleTile.gridSize+LittleTile.gridSize > spaceY+size.sizeY)
+					{
+						box.maxY = (box.maxY-box.maxY/LittleTile.gridSize*LittleTile.gridSize);
+						if(box.maxY < 0)
+							box.maxY = LittleTile.gridSize+box.maxY;
+					}
+					else
+						box.maxY = LittleTile.gridSize;
+					
+					if(h > 0)
+						box.minZ =	0;
+					else
+						box.minZ = spaceZ;
+					if(h*LittleTile.gridSize+LittleTile.gridSize > spaceZ+size.sizeZ)
+					{
+						box.maxZ = (box.maxZ-box.maxZ/LittleTile.gridSize*LittleTile.gridSize);
+						if(box.maxZ < 0)
+							box.maxZ = LittleTile.gridSize+box.maxZ;
+					}
+					else
+						box.maxZ = LittleTile.gridSize;
+					
+					if(box.isValidBox())
+						boxes.add(new BlockPos(posX, posY, posZ), box);
+					posZ++;
+				}
+				posY++;
+			}
+			posX++;
+		}
 	}
 	
 }

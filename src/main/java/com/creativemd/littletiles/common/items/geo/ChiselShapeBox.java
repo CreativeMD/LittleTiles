@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.shapes;
+package com.creativemd.littletiles.common.items.geo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,14 +19,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DefaultShapeBox extends ChiselShape {
+public class ChiselShapeBox extends ChiselShape {
 
-	public DefaultShapeBox() {
+	public ChiselShapeBox() {
 		super("box");
 	}
 
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview) {
+	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
 		List<LittleTileBox> boxes = new ArrayList<>();
 		LittleTileBox box = new LittleTileBox(min, max);
 		if(nbt.getBoolean("hollow"))
@@ -63,8 +63,8 @@ public class DefaultShapeBox extends ChiselShape {
 	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
 		List<GuiControl> controls = new ArrayList<>();
 		
-		controls.add(new GuiCheckBox("hollow", 0, 0, nbt.getBoolean("hollow")));			
-		controls.add(new GuiSteppedSlider("thickness", 0, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
+		controls.add(new GuiCheckBox("hollow", 5, 0, nbt.getBoolean("hollow")));			
+		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
 		
 		return controls;
 	}

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.shapes;
+package com.creativemd.littletiles.common.items.geo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,14 +20,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ShapeSphere extends ChiselShape {
+public class ChiselShapeSphere extends ChiselShape {
 
-	public ShapeSphere() {
+	public ChiselShapeSphere() {
 		super("sphere");
 	}
 
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview) {
+	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
 		ArrayList<LittleTileBox> boxes = new ArrayList<>();
 		LittleTileBox box = new LittleTileBox(min, max);
 		
@@ -38,9 +38,11 @@ public class ShapeSphere extends ChiselShape {
 			boxes.add(box);
 			return boxes;
 		}
+		
 		LittleTileVec center = size.calculateCenter();
 		LittleTileVec invCenter = size.calculateInvertedCenter();
 		invCenter.invert();
+		
 		double a = Math.pow(Math.max(1, size.sizeX/2), 2);
 		double b = Math.pow(Math.max(1, size.sizeY/2), 2);
 		double c = Math.pow(Math.max(1, size.sizeZ/2), 2);
@@ -53,20 +55,54 @@ public class ShapeSphere extends ChiselShape {
 		
 		if(hollow && size.sizeX > thickness*2 && size.sizeY > thickness*2 && size.sizeZ > thickness*2)
 		{
+			int all = size.sizeX+size.sizeY+size.sizeZ;
 			
-			a2 = Math.pow(Math.max(1, (size.sizeX-thickness*2)/2), 2);
-			b2 = Math.pow(Math.max(1, (size.sizeY-thickness*2)/2), 2);
-			c2 = Math.pow(Math.max(1, (size.sizeZ-thickness*2)/2), 2);
+			double sizeXValue = (double)size.sizeX/all;
+			double sizeYValue = (double)size.sizeY/all;
+			double sizeZValue = (double)size.sizeZ/all;
+			
+			if(sizeXValue > 0.5)
+				sizeXValue = 0.5;
+			if(sizeYValue > 0.5)
+				sizeYValue = 0.5;
+			if(sizeZValue > 0.5)
+				sizeZValue = 0.5;
+			
+			a2 = Math.pow(Math.max(1, (sizeXValue*all-thickness*2)/2), 2);
+			b2 = Math.pow(Math.max(1, (sizeYValue*all-thickness*2)/2), 2);
+			c2 = Math.pow(Math.max(1, (sizeZValue*all-thickness*2)/2), 2);
 		}else
 			hollow = false;
 		
-		for (int x = invCenter.x; x < center.x; x++) {
-			for (int y = invCenter.y; y < center.y; y++) {
-				for (int z = invCenter.z; z < center.z; z++) {
-					if((Math.pow(x, 2))/a + (Math.pow(y, 2))/b + (Math.pow(z, 2))/c <= 1)
+		boolean stretchedX = size.sizeX % 2 == 0;
+		boolean stretchedY = size.sizeY % 2 == 0;
+		boolean stretchedZ = size.sizeZ % 2 == 0;
+		
+		double centerX = size.sizeX/2;
+		double centerY = size.sizeY/2;
+		double centerZ = size.sizeZ/2;
+		
+		min = box.getMinVec();
+		
+		for (int x = 0; x < size.sizeX; x++) {
+			for (int y = 0; y < size.sizeY; y++) {
+				for (int z = 0; z < size.sizeZ; z++) {
+					
+					double posX = x - centerX + (stretchedX ? 0.5 : 0);
+					double posY = y - centerY + (stretchedY ? 0.5 : 0);
+					double posZ = z - centerZ + (stretchedZ ? 0.5 : 0);
+					
+					double valueA = Math.pow(posX, 2)/a;
+					double valueB = Math.pow(posY, 2)/b;
+					double valueC = Math.pow(posZ, 2)/c;
+					
+					if(valueA + valueB + valueC <= 1)
 					{
-						if(!hollow || (Math.pow(x, 2))/a2 + (Math.pow(y, 2))/b2 + (Math.pow(z, 2))/c2 > 1)
-							boxes.add(new LittleTileBox(new LittleTileVec(x-invCenter.x+min.x, y-invCenter.y+min.y, z-invCenter.z+min.z)));
+						double valueA2 = Math.pow(posX, 2)/a2;
+						double valueB2 = Math.pow(posY, 2)/b2;
+						double valueC2 = Math.pow(posZ, 2)/c2;
+						if(!hollow || valueA2 + valueB2 + valueC2 > 1)
+							boxes.add(new LittleTileBox(new LittleTileVec(min.x + x, min.y + y, min.z + z)));
 					}
 				}
 			}
@@ -92,8 +128,8 @@ public class ShapeSphere extends ChiselShape {
 	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
 		List<GuiControl> controls = new ArrayList<>();
 		
-		controls.add(new GuiCheckBox("hollow", 0, 0, nbt.getBoolean("hollow")));			
-		controls.add(new GuiSteppedSlider("thickness", 0, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
+		controls.add(new GuiCheckBox("hollow", 5, 0, nbt.getBoolean("hollow")));			
+		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
 		
 		return controls;
 	}
@@ -110,7 +146,5 @@ public class ShapeSphere extends ChiselShape {
 			nbt.setInteger("thickness", (int) slider.value);
 		}
 	}
-	
-	
 
 }

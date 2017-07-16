@@ -12,6 +12,7 @@ import java.util.Random;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
@@ -126,7 +127,7 @@ public abstract class LittleTile {
 			LittleTile tile = CreateEmptyTile(nbt.getString("tID"));
 			if(tile != null)
 				if(isPacket)
-					tile.receivePacket(nbt, net);
+					tile.receivePacket(nbt, net, nbt);
 				else{
 					try {
 						tile.loadTile(te, nbt);
@@ -238,6 +239,14 @@ public abstract class LittleTile {
 		return true;
 	}
 	
+	/**
+	 * Will become more important with further update, right now it should not be touched
+	 */
+	public boolean canHaveMultipleBoundingBoxes()
+	{
+		return false;
+	}
+	
 	public boolean canBeSplitted()
 	{
 		return true;
@@ -276,7 +285,7 @@ public abstract class LittleTile {
 		}
 	}
 	
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net, NBTTagCompound completeData)
 	{
 		int count = nbt.getInteger("bSize");
 		
@@ -288,6 +297,9 @@ public abstract class LittleTile {
 		}
 		if(te.isClientSide())
 			te.addTile(this);
+		
+		if(isMainBlock)
+			structure = LittleStructure.createAndLoadStructure(completeData, this);
 		updateCorner();
 	}
 	
@@ -571,6 +583,9 @@ public abstract class LittleTile {
 	}
 	
 	public abstract ItemStack getDrop();
+	
+	/**Used for LittleTileContainer. Can return null.**/
+	public abstract BlockEntry getBlockEntry();
 	
 	//================Notifcations/Events================
 	

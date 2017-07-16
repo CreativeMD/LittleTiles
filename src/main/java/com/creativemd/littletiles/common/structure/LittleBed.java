@@ -174,7 +174,7 @@ public class LittleBed extends LittleStructure{
         return 0.0F;
     }
 	
-	public static Method setSize = ReflectionHelper.findMethod(Entity.class, null, new String[]{"setSize", "func_70105_a"}, float.class, float.class);
+	public static Method setSize = ReflectionHelper.findMethod(Entity.class, "setSize", "func_70105_a", float.class, float.class);
 	
 	public static Field sleeping = ReflectionHelper.findField(EntityPlayer.class, "sleeping", "field_71083_bS");
 	public static Field sleepTimer = ReflectionHelper.findField(EntityPlayer.class, "sleepTimer", "field_71076_b");

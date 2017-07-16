@@ -14,15 +14,19 @@ public class LittleCustomPlacePacket extends CreativeCorePacket {
 	public LittleTileVec min;
 	public LittleTileVec max;
 	public EnumFacing facing;
+	public LittleTileVec originalMin;
+	public LittleTileVec originalMax;
 	
 	public LittleCustomPlacePacket() {
 		
 	}
 	
-	public LittleCustomPlacePacket(LittleTileVec min, LittleTileVec max, EnumFacing facing) {
+	public LittleCustomPlacePacket(LittleTileVec min, LittleTileVec max, EnumFacing facing, LittleTileVec originalMin, LittleTileVec originalMax) {
 		this.min = min;
 		this.max = max;
 		this.facing = facing;
+		this.originalMin = originalMin;
+		this.originalMax = originalMax;
 	}
 	
 
@@ -36,7 +40,15 @@ public class LittleCustomPlacePacket extends CreativeCorePacket {
 		buf.writeInt(max.y);
 		buf.writeInt(max.z);
 		
-		writeFacing(buf, facing);	
+		writeFacing(buf, facing);
+		
+		buf.writeInt(originalMin.x);
+		buf.writeInt(originalMin.y);
+		buf.writeInt(originalMin.z);
+		
+		buf.writeInt(originalMax.x);
+		buf.writeInt(originalMax.y);
+		buf.writeInt(originalMax.z);
 	}
 
 	@Override
@@ -45,6 +57,9 @@ public class LittleCustomPlacePacket extends CreativeCorePacket {
 		max = new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
 		
 		facing = readFacing(buf);
+		
+		originalMin = new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+		originalMax = new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
 	}
 
 	@Override
@@ -57,7 +72,7 @@ public class LittleCustomPlacePacket extends CreativeCorePacket {
 		ItemStack stack = player.getHeldItemMainhand();
 		if(stack.getItem() instanceof ItemLittleChisel)
 		{
-			ItemLittleChisel.placePreviews(player.world, min, max, player, stack, facing);
+			ItemLittleChisel.placePreviews(player.world, min, max, player, stack, facing, originalMin, originalMax);
 		}
 	}
 

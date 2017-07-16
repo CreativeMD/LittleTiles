@@ -13,11 +13,11 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.utils.place.FixedHandler;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.FixedHandler;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

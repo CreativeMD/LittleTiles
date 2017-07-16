@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.utils;
+package com.creativemd.littletiles.common.utils.place;
 
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;

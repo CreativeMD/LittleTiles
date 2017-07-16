@@ -1,24 +1,17 @@
 package com.creativemd.littletiles.common.packet;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.events.LittleEvent;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
@@ -28,15 +21,10 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.TileList;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
@@ -50,7 +38,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -74,7 +61,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				LittleTileBox box = null;
 				
-				if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+				/*if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 				{
 					box = ((ISpecialBlockSelector) stack.getItem()).getBox(te, tile, te.getPos(), player, moving);
 					if(box != null)
@@ -89,11 +76,11 @@ public class LittleBlockPacket extends CreativeCorePacket{
 					}
 				}
 				if(box == null)
-				{
+				{*/
 					tile.destroy();
 					if(!player.capabilities.isCreativeMode)
 						WorldUtils.dropItem(player.world, tile.getDrops(), pos);
-				}
+				//}
 				
 				world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
 			}
@@ -275,7 +262,10 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				if(player.isSneaking() && tile instanceof LittleTileBlock)
+				{
 					ItemLittleChisel.setBlockState(stack, ((LittleTileBlock) tile).getBlockState());
+					ItemLittleChisel.setColor(stack, tile instanceof LittleTileBlockColored ? ((LittleTileBlockColored) tile).color : ColorUtils.WHITE);
+				}
 			}
 		};
 		

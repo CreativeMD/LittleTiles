@@ -11,6 +11,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
+import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 
@@ -318,6 +319,11 @@ public class LittleTileBlock extends LittleTile{
 		if(block instanceof ISpecialLittleBlock)
 			return ((ISpecialLittleBlock) block).getCollisionBoxes(super.getCollisionBoxes(), this);
 		return super.getCollisionBoxes();
+	}
+
+	@Override
+	public BlockEntry getBlockEntry() {
+		return new BlockEntry(block, meta, getPercentVolume());
 	}
 	
 }

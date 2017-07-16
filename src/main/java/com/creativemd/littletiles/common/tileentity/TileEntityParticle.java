@@ -151,7 +151,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		if(spawnParticle0 == null)
-			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, mc.renderGlobal, new String[]{"spawnParticle0", "func_190571_b"}, int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
+			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, "spawnParticle0", "func_190571_b", int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
 		
 		if(particleMaxAge == null)
 			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");

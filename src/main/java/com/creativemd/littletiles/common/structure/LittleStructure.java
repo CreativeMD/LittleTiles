@@ -19,12 +19,12 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.LittleTile.LittleTilePosition;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
 import com.creativemd.littletiles.common.utils.small.LittleTilePos;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
@@ -135,6 +135,14 @@ public abstract class LittleStructure {
 		return null;
 	}
 	
+	/**
+	 * This will notify every client that the structure has changed
+	 */
+	public void updateStructure()
+	{
+		mainTile.te.updateBlock();
+	}
+	
 	public void setMainTile(LittleTile tile)
 	{
 		this.mainTile = tile;
@@ -142,6 +150,8 @@ public abstract class LittleStructure {
 		this.mainTile.isMainBlock = true;
 		this.mainTile.updateCorner();
 		this.mainTile.coord = null;
+		this.mainTile.te.updateBlock();
+		
 		if(!containsTile(tile))
 			addTile(tile);
 		
@@ -478,12 +488,15 @@ public abstract class LittleStructure {
 				if(!((TileEntityLittleTiles) tileEntity).hasLoaded())
 					return false;
 				int found = 0;
+				
+				if(tiles.getKeys().contains(tileEntity))
+					tiles.removeKey((TileEntityLittleTiles) tileEntity);
+				
 				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
 					if(tile.isStructureBlock && (tile.structure == this || doesLinkToMainTile(tile)))
 					{
-						if(!tiles.contains((TileEntityLittleTiles) tileEntity, tile))
-							tiles.add((TileEntityLittleTiles) tileEntity, tile);
+						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						tile.structure = this;
 						found++;
 					}

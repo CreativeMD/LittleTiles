@@ -34,9 +34,9 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net, NBTTagCompound completeData)
 	{
-		super.receivePacket(nbt, net);
+		super.receivePacket(nbt, net, completeData);
 		color = nbt.getInteger("color");
 	}
 	

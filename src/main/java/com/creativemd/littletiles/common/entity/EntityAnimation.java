@@ -23,9 +23,9 @@ import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;

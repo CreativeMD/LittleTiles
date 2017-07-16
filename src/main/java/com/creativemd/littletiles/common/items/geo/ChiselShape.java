@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.shapes;
+package com.creativemd.littletiles.common.items.geo;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -19,8 +19,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class ChiselShape {
 	
 	public static LinkedHashMap<String, ChiselShape> shapes = new LinkedHashMap<>();
-	public static ChiselShape defaultShape = new DefaultShapeBox();
-	public static ChiselShape sphere = new ShapeSphere();
+	
+	public static ChiselShape box = new ChiselShapeBox();
+	public static ChiselShape sphere = new ChiselShapeSphere();
+	public static ChiselShape cylinder = new ChiselShapeCylinder();
+	public static ChiselShape wall = new ChiselShapeWall();
+	
+	public static ChiselShape defaultShape = box;
 	
 	public static ChiselShape getShape(String name)
 	{
@@ -33,9 +38,10 @@ public abstract class ChiselShape {
 	public ChiselShape(String name) {
 		shapes.put(name, this);
 		this.key = name;
+		new SelectShape.ChiselSelectShape(this);
 	}
 	
-	public abstract List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview);
+	public abstract List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax);
 	
 	public abstract void addExtraInformation(NBTTagCompound nbt, List<String> list);
 	

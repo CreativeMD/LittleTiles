@@ -7,7 +7,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;

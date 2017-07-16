@@ -42,7 +42,6 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
 import com.creativemd.littletiles.common.packet.LittleCustomPlacePacket;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
@@ -50,6 +49,7 @@ import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
+import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -253,7 +253,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
-		CreativeCorePacket.registerPacket(LittleBlockVanillaPacket.class, "LittleVanillaBlock");
+		CreativeCorePacket.registerPacket(LittleSelectShapePacket.class, "LittleSelect");
 		CreativeCorePacket.registerPacket(LittleDoorInteractPacket.class, "LittleDoor");
 		CreativeCorePacket.registerPacket(LittleSlidingDoorPacket.class, "LittleSlidingDoor");
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
@@ -302,6 +302,11 @@ public class LittleTiles {
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(utilityKnife),  new Object[]
+				{
+				"XAA", "AXA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
+				});
+		
+		GameRegistry.addRecipe(new ItemStack(chisel),  new Object[]
 				{
 				"XAA", "ALA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
 				});

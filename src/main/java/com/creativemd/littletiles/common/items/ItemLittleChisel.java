@@ -1,12 +1,16 @@
 package com.creativemd.littletiles.common.items;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -15,33 +19,39 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.container.SubContainerWrench;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.items.shapes.ChiselShape;
+import com.creativemd.littletiles.common.items.geo.ChiselShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleCustomPlacePacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -56,14 +66,17 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.collection.parallel.ParIterableLike.Min;
 
-public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRendered, ILittleTile {
+public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRendered, ILittleTile, ISpecialBlockSelector {
 	
 	public ItemLittleChisel()
 	{
@@ -94,7 +107,10 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		{
 			IBlockState state = worldIn.getBlockState(pos);
 			if(SubContainerHammer.isBlockValid(state.getBlock()))
+			{
 				setBlockState(player.getHeldItemMainhand(), state);
+				setColor(player.getHeldItemMainhand(), ColorUtils.WHITE);
+			}
 			else if(state.getBlock() instanceof BlockTile)
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.CHISEL, new NBTTagCompound()));
 			return EnumActionResult.SUCCESS;
@@ -102,21 +118,15 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
         return EnumActionResult.PASS;
     }
 	
-	@SideOnly(Side.CLIENT)
-	public static boolean isClicking;
-	
-	@SideOnly(Side.CLIENT)
-	public static boolean hasClicked;
-	
 	public static LittleTileVec min;
 	
 	@SideOnly(Side.CLIENT)
 	public static LittleTileVec lastMax;
 	
-	public static void placePreviews(World world, LittleTileVec min, LittleTileVec max, EntityPlayer player, ItemStack stack, EnumFacing facing)
+	public static void placePreviews(World world, LittleTileVec min, LittleTileVec max, EntityPlayer player, ItemStack stack, EnumFacing facing, LittleTileVec originalMin, LittleTileVec originalMax)
 	{
 		ChiselShape shape = getShape(stack);
-		List<LittleTileBox> boxes = shape.getBoxes(min, max, player, stack.getTagCompound(), false);
+		List<LittleTileBox> boxes = shape.getBoxes(min, max, player, stack.getTagCompound(), false, originalMin, originalMax);
 		if(boxes.size() > 0)
 		{
 			IBlockState state = getBlockState(stack);
@@ -157,7 +167,9 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			LittleTileVec zero = new LittleTileVec(0, 0, 0);
 			ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 			
-			LittleTileBlock tile = new LittleTileBlock(block, meta);
+			int color = getColor(stack);
+			
+			LittleTileBlock tile = color != ColorUtils.WHITE && color != -1 ? new LittleTileBlockColored(block, meta, ColorUtils.IntToRGB(color)) : new LittleTileBlock(block, meta);
 			
 			for (int i = 0; i < boxes.size(); i++) {
 				tile.boundingBoxes.clear();
@@ -216,6 +228,22 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		return ChiselShape.getShape(stack.getTagCompound().getString("shape"));
 	}
 	
+	public static void setColor(ItemStack stack, int color)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		stack.getTagCompound().setInteger("color", color);
+	}
+	
+	public static int getColor(ItemStack stack)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		return stack.getTagCompound().getInteger("color");
+	}
+	
 	public static void setBlockState(ItemStack stack, IBlockState state)
 	{
 		if(!stack.hasTagCompound())
@@ -255,6 +283,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		{
 			GlStateManager.scale(0.9, 0.9, 0.9);
 			
+			
+			
 			IBlockState state = getBlockState(stack);
 			ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
 			model =  mc.getRenderItem().getItemModelMesher().getItemModel(blockStack);
@@ -262,7 +292,23 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			
 			GlStateManager.disableDepth();
 			
-			mc.getRenderItem().renderItem(blockStack, model);
+			//Vec3d color = ColorUtils.IntToVec(getColor(stack));
+			
+			//GlStateManager.color((float) color.xCoord, (float) color.yCoord, (float) color.zCoord);
+			GlStateManager.pushMatrix();
+	        GlStateManager.translate(-0.5F, -0.5F, -0.5F);
+	        
+			try {
+				Color color = ColorUtils.IntToRGBA(getColor(stack));
+				color.setAlpha(255);
+				ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				e.printStackTrace();
+			}
+			
+			GlStateManager.popMatrix();
+			
+			//mc.getRenderItem().renderItem(blockStack, model);
 			
 			GlStateManager.enableDepth();
 		}
@@ -305,7 +351,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 				
 				ChiselShape shape = getShape(stack);
 				LittleTileBox newBox = getBox();
-				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), true);
+				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), true, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = new ArrayList<>(boxes);
 			}else
@@ -368,6 +414,47 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	@Override
 	public boolean arePreviewsAbsolute()
 	{
+		return true;
+	}
+
+	@Override
+	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
+		min = null;
+		lastMax = null;
+	}
+
+	@Override
+	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state,
+			RayTraceResult result, LittleTileVec absoluteHit) {
+		return false;
+	}
+
+	@Override
+	public List<LittleTileBox> getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
+			LittleTileVec absoluteHit) {
+		return null;
+	}
+
+	@Override
+	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
+			LittleTileVec absoluteHit) {
+		if(ItemLittleChisel.min == null)
+		{
+			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
+				absoluteHit.addVec(new LittleTileVec(result.sideHit));
+			ItemLittleChisel.min = absoluteHit;
+		}else if(player.isSneaking())
+			ItemLittleChisel.min = null;
+		else{
+			//Place!!!!
+			LittleTileBox newBox = ItemLittleChisel.getBox();
+			ChiselShape shape = getShape(stack);
+			ItemLittleChisel.placePreviews(world, newBox.getMinVec(), newBox.getMaxVec(), player, stack, result.sideHit, min, lastMax);
+			PacketHandler.sendPacketToServer(new LittleCustomPlacePacket(newBox.getMinVec(), newBox.getMaxVec(), result.sideHit, min, lastMax));
+			
+			ItemLittleChisel.min = null;
+			ItemLittleChisel.lastMax = null;
+		}
 		return true;
 	}
 	

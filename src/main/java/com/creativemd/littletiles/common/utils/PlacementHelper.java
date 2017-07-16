@@ -16,12 +16,12 @@ import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.place.FixedHandler;
+import com.creativemd.littletiles.common.utils.place.InsideFixedHandler;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.FixedHandler;
-import com.creativemd.littletiles.utils.InsideFixedHandler;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -479,9 +479,11 @@ public class PlacementHelper {
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
 
-	    BigDecimal bd = new BigDecimal(value);
-	    bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    return bd.doubleValue();
+	    //BigDecimal bd = new BigDecimal(value);
+	    //bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    //return bd.doubleValue();
+	   double precision = Math.pow(10, places);
+	   return Math.round(value * precision) / precision;
 	}
 	
 	public static double round(double value)

@@ -10,12 +10,10 @@ import net.minecraft.nbt.NBTTagCompound;
 public class SubContainerColorTube extends SubContainer{
 	
 	public ItemStack stack;
-	public int index;
 	
 	public SubContainerColorTube(EntityPlayer player, ItemStack stack) {
 		super(player);
 		this.stack = stack;
-		this.index = player.inventory.currentItem;
 	}
 
 	@Override
@@ -25,8 +23,7 @@ public class SubContainerColorTube extends SubContainer{
 	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		ItemColorTube.setColor(stack, nbt.getInteger("color"));
-		player.inventory.mainInventory.set(index, stack);
+		stack.setTagCompound(nbt);
 	}
 
 }

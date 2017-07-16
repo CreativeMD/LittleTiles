@@ -1,6 +1,5 @@
 package com.creativemd.littletiles.common.blocks;
 
-import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,44 +12,29 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.CreativeModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.client.rendering.model.ICustomCachedCreativeRendered;
-import com.creativemd.creativecore.client.rendering.model.QuadCache;
-import com.creativemd.creativecore.common.block.TileEntityState;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
 import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.TileList;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockBed;
 import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockHorizontal;
-import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.particle.ParticleDigging;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -73,14 +57,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.client.MinecraftForgeClient;
-import net.minecraftforge.client.model.pipeline.BlockInfo;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class BlockTile extends BlockContainer implements ICreativeRendered {//ICustomCachedCreativeRendered {
 	
@@ -311,13 +291,15 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     }
 	
 	@Override
+	public float getBlockHardness(IBlockState blockState, World worldIn, BlockPos pos)
+    {
+        return 0.1F;
+    }
+	
+	@Override
 	public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos)
     {
-		/*if(loadTileEntity(worldIn, pos) && tempEntity.updateLoadedTile(player) && tempEntity.loadedTile instanceof LittleTileBlock)
-		{
-			return ((LittleTileBlock)tempEntity.loadedTile).block.getBlockHardness(((LittleTileBlock)tempEntity.loadedTile).getBlockState(), worldIn, pos);
-		}*/
-        return 0.1F;
+		return super.getPlayerRelativeBlockHardness(state, player, worldIn, pos);
     }
 	
 	@Override
@@ -334,14 +316,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
-			ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
+			/*ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
 				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.player, result.te.getMoving(mc.player));
 				if(box != null)
 					return box.getBox().offset(pos);
 			}
-			
+			*/
 			return result.tile.getSelectedBox().offset(pos);
 		}
 		return new AxisAlignedBB(pos);
@@ -500,23 +482,23 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(world, pos, player);
 		if(result.isComplete())
 		{				
-			LittleTileBox box = null;
+			/*LittleTileBox box = null;
 			
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
 			{
 				box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player, result.te.getMoving(player));
-				/*if(box != null)
+				if(box != null)
 				{
 					tempEntity.removeBoxFromTile(loaded, box);
-				}*/
+				}
 			}
 			
 			if(box == null)
-			{
-				result.tile.destroy();
-				result.te.updateRender();
-			}
+			{*/
+			result.tile.destroy();
+			result.te.updateRender();
+			//}
 			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.DESTROY));
 			
 		}
@@ -715,6 +697,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         	}
     	}
     	
+    	if(sound == null)
+    		sound = SoundType.STONE;
         return sound;
     }
     

@@ -19,9 +19,9 @@ import com.creativemd.littletiles.common.utils.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.PlacementHelper.PreviewResult;
+import com.creativemd.littletiles.common.utils.place.FixedHandler;
+import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
-import com.creativemd.littletiles.utils.FixedHandler;
-import com.creativemd.littletiles.utils.PlacePreviewTile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;

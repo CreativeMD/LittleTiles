@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -711,15 +712,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
         for (int i = 0; i < count; i++) {
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
-			LittleTile tile = getTile(new LittleTileVec("cVec", tileNBT));
+        	
+        	NBTTagList list = tileNBT.getTagList("boxes", 11);
+        	LittleTile tile = null;
+        	if(list.tagCount() > 0)
+        	{
+        		int[] minVec = list.getIntArrayAt(0);
+        		tile = getTile(new LittleTileVec(minVec[0], minVec[1], minVec[2]));
+        	}
 			if(!exstingTiles.contains(tile))
 				tile = null;
 			
 			boolean fullUpdate = nbt.getBoolean("f" + i);
 			boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
 			if(isIdentical && !fullUpdate)
-			{
-				tile.receivePacket(tileNBT.getCompoundTag("update"), net);
+			{				
+				tile.receivePacket(tileNBT.getCompoundTag("update"), net, tileNBT);
 				exstingTiles.remove(tile);
 			}
 			else
@@ -737,10 +745,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
         	synchronized(updateTiles)
         	{
 		        for (int i = 0; i < exstingTiles.size(); i++) {
+		        	if(exstingTiles.get(i).isStructureBlock && exstingTiles.get(i).isLoaded())
+		        		exstingTiles.get(i).structure.removeTile(exstingTiles.get(i));
 		        	removeLittleTile(exstingTiles.get(i));
 				}
 		        for (int i = 0; i < tilesToAdd.size(); i++) {
+		        	
 					addLittleTile(tilesToAdd.get(i));
+					if(tilesToAdd.get(i).isStructureBlock)
+		        		tilesToAdd.get(i).checkForStructure();
 				}
         	}
         }
@@ -955,22 +968,27 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		
 	}
 	
-	public void removeBoxFromTiles(LittleTileBox box) {
+	/*public List<LittleTile> removeBoxFromTiles(LittleTileBox box) {
 		preventUpdate = true;
+		List<LittleTile> removed = new ArrayList<>();
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			if(tile.canBeSplitted())
-				removeBoxFromTile(tile, box);
-			else
+			if(!tile.isStructureBlock && tile.canBeSplitted())
+				removeBoxFromTile(tile, box, removed);
+			else{
 				tile.destroy();
+				removed.add(tile);
+			}
 		}
 		preventUpdate = false;
 		combineTiles();
+		return removed;
 	}
 
-	private void removeBoxFromTile(LittleTile loaded, LittleTileBox box) {
+	public void removeBoxFromTile(LittleTile loaded, LittleTileBox box, List<LittleTile> removed) {
 		ArrayList<LittleTileBox> boxes = new ArrayList<>(loaded.boundingBoxes);
 		ArrayList<LittleTile> newTiles = new ArrayList<>();
+		ArrayList<LittleTileBox> removedBoxes = new ArrayList<>();
 		boolean isIntersecting = false;
 		for (int i = 0; i < boxes.size(); i++) {
 			if(box.intersectsWith(boxes.get(i)))
@@ -986,7 +1004,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 								newTile.boundingBoxes.clear();
 								newTile.boundingBoxes.add(new LittleTileBox(vec));
 								newTiles.add(newTile);
-							}
+							}else
+								removedBoxes.add(new LittleTileBox(vec));
 						}
 					}
 				}
@@ -995,6 +1014,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		
 		if(isIntersecting)
 		{
+			LittleTileBox.combineBoxes(removedBoxes);
+			LittleTile removedPart = loaded.copy();
+			removedPart.boundingBoxes.clear();
+			removedPart.boundingBoxes.addAll(removedBoxes);
+			removed.add(removedPart);
+			
 			loaded.destroy();
 			
 			TileEntityLittleTiles.combineTilesList(newTiles);
@@ -1002,7 +1027,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 				addTile(newTiles.get(i));
 			}
 		}
-	}
+	}*/
 
 	
 }

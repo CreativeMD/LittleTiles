@@ -1,62 +1,49 @@
 package com.creativemd.littletiles.common.events;
 
 import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.creativecore.common.world.WorldInteractor;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockVanillaPacket;
-import com.creativemd.littletiles.common.packet.LittleCustomPlacePacket;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
 import com.creativemd.littletiles.common.utils.PlacementHelper;
 import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
-import net.minecraft.block.BlockPortal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.event.entity.player.PlayerContainerEvent;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
@@ -64,16 +51,11 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBloc
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
-import net.minecraftforge.event.world.ChunkEvent;
-import net.minecraftforge.event.world.GetCollisionBoxesEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -89,56 +71,49 @@ public class LittleEvent {
 		}
 	}
 	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void speedEvent(BreakSpeed event)
-	{
-		EntityPlayer player = event.getEntityPlayer();
-		World world = player.world;
-		float hardness = event.getState().getBlockHardness(world, event.getPos());
-		ItemStack stack = player.getHeldItemMainhand();
-		if(SubContainerHammer.isBlockValid(event.getState().getBlock()) && stack != null && stack.getItem() instanceof ItemUtilityKnife)
-		{
-			float modifier = 2;
-			if(!ForgeHooks.canHarvestBlock(event.getState().getBlock(), player, world, event.getPos()))
-				modifier *= 3.333333333F;
-			event.setNewSpeed(event.getOriginalSpeed()*hardness*modifier);
-		}
-	}
-	
 	public static boolean cancelNext = false;
 	
-	@SubscribeEvent
+	public static ItemStack lastItemBlockSelector = null;
+	public static ISpecialBlockSelector blockSelector = null;
+	
 	@SideOnly(Side.CLIENT)
+	private boolean leftClicked;
+	
+	@SubscribeEvent
 	public void onLeftClick(LeftClickBlock event)
 	{
 		if(event.getWorld().isRemote)
 		{
-			ItemStack stack = event.getItemStack();
-			if(stack.getItem() instanceof ItemLittleChisel)
+			if(!leftClicked)
 			{
-				if(!ItemLittleChisel.hasClicked)
+				ItemStack stack = event.getItemStack();
+				RayTraceResult ray = new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos());
+				if(blockSelector != null && blockSelector != stack.getItem())
 				{
-					LittleTileVec vec = PlacementHelper.getPosition(event.getWorld(), new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos())).getAbsoluteVec();
-					if(ItemLittleChisel.min == null)
-					{
-						if(event.getFace().getAxisDirection() == AxisDirection.NEGATIVE)
-							vec.addVec(new LittleTileVec(event.getFace()));
-						ItemLittleChisel.min = vec;
-					}else if(event.getEntityPlayer().isSneaking())
-						ItemLittleChisel.min = null;
-					else{
-						//Place!!!!
-						LittleTileBox newBox = ItemLittleChisel.getBox();
-						ItemLittleChisel.placePreviews(event.getWorld(), newBox.getMinVec(), newBox.getMaxVec(), event.getEntityPlayer(), stack, event.getFace());
-						PacketHandler.sendPacketToServer(new LittleCustomPlacePacket(newBox.getMinVec(), newBox.getMaxVec(), event.getFace()));
-						ItemLittleChisel.min = null;
-						ItemLittleChisel.lastMax = null;
-					}
+					blockSelector.onDeselect(event.getWorld(), lastItemBlockSelector, event.getEntityPlayer());
+					blockSelector = null;
+					lastItemBlockSelector = null;
 				}
-				ItemLittleChisel.hasClicked = ItemLittleChisel.isClicking = true;
+				
+				if(stack.getItem() instanceof ISpecialBlockSelector)
+				{
+					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTileVec(ray.hitVec)))
+						event.setCanceled(true);
+					blockSelector = (ISpecialBlockSelector) stack.getItem();
+					lastItemBlockSelector = stack;
+				}
+				leftClicked = true;
 			}
-		}
+		}else if(event.getItemStack().getItem() instanceof ISpecialBlockSelector)
+			event.setCanceled(true);
+	}
+	
+	@SubscribeEvent
+	public void breakSpeed(BreakSpeed event)
+	{
+		ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
+		if(stack.getItem() instanceof ISpecialBlockSelector)
+			event.setNewSpeed(0);
 	}
 	
 	@SubscribeEvent
@@ -196,20 +171,23 @@ public class LittleEvent {
 			BlockPos pos = event.getTarget().getBlockPos();
 			IBlockState state = world.getBlockState(pos);
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(SubContainerHammer.isBlockValid(state.getBlock()) && stack != null && stack.getItem() instanceof ISpecialBlockSelector)
+			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget().hitVec)))
 			{
 				double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
 		        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
 		        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
-		        LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(world, pos, state, player, event.getTarget());
-		        box.addOffset(new LittleTileVec(pos));
+		        List<LittleTileBox> boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), new LittleTileVec(event.getTarget().hitVec));
+		        //box.addOffset(new LittleTileVec(pos));
 		        
 		        GlStateManager.enableBlend();
 	            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 	            GlStateManager.glLineWidth(2.0F);
 	            GlStateManager.disableTexture2D();
 	            GlStateManager.depthMask(false);
-				RenderGlobal.drawSelectionBoundingBox(box.getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+	            for (int i = 0; i < boxes.size(); i++) {
+	            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+				}
+				
 				GlStateManager.depthMask(true);
 	            GlStateManager.enableTexture2D();
 	            GlStateManager.disableBlend();
@@ -300,16 +278,26 @@ public class LittleEvent {
 	{
 		if(event.phase == Phase.END)
 		{
+			Minecraft mc = Minecraft.getMinecraft();
+			
 			ItemModelCache.tick();
 			
-			if(Minecraft.getMinecraft().player != null && !(Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() instanceof ItemLittleChisel))
+			if(leftClicked && !mc.gameSettings.keyBindAttack.isKeyDown())
 			{
-				ItemLittleChisel.min = null;
-				ItemLittleChisel.lastMax = null;
+				leftClicked = false;
 			}
-			if(!ItemLittleChisel.isClicking)
-				ItemLittleChisel.hasClicked = false;
-		}else
-			ItemLittleChisel.isClicking = false;
+			
+			if(mc.player != null)
+			{
+				ItemStack stack = mc.player.getHeldItemMainhand();
+				
+				if(blockSelector != null && blockSelector != stack.getItem())
+				{
+					blockSelector.onDeselect(mc.world, lastItemBlockSelector, mc.player);
+					blockSelector = null;
+					lastItemBlockSelector = null;
+				}
+			}
+		}		
 	}
 }
