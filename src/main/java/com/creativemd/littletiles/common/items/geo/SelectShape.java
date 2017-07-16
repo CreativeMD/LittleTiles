@@ -165,7 +165,7 @@ public abstract class SelectShape {
 		@Override
 		public List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
-			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), nbt.getInteger("thick"), result.sideHit);
+			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
 			box.addOffset(new LittleTileVec(result.getBlockPos()));
 			boxes.add(box);
 			return boxes;
@@ -174,7 +174,7 @@ public abstract class SelectShape {
 		@Override
 		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
-			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), nbt.getInteger("thick"), result.sideHit);
+			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
 			box.addOffset(new LittleTileVec(result.getBlockPos()));
 			boxes.add(box);
 			return boxes;
@@ -182,7 +182,7 @@ public abstract class SelectShape {
 		
 		@Override
 		public void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list) {
-			list.add("thickness: " + nbt.getInteger("thick"));
+			list.add("thickness: " + Math.max(1, nbt.getInteger("thick")));
 		}
 
 		public abstract LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side);
@@ -191,7 +191,7 @@ public abstract class SelectShape {
 		public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
 			List<GuiControl> controls = new ArrayList<>();
 			controls.add(new GuiLabel("Size:", 0, 6));
-			controls.add(new GuiSteppedSlider("thickness", 35, 5, 68, 10, nbt.getInteger("thick"), 1, LittleTile.gridSize));
+			controls.add(new GuiSteppedSlider("thickness", 35, 5, 68, 10, Math.max(1, nbt.getInteger("thick")), 1, LittleTile.gridSize));
 			return controls;
 		}
 		

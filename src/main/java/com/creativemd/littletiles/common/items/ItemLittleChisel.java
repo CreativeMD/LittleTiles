@@ -241,6 +241,9 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
+		if(!stack.getTagCompound().hasKey("color"))
+			setColor(stack, ColorUtils.WHITE);
+		
 		return stack.getTagCompound().getInteger("color");
 	}
 	
