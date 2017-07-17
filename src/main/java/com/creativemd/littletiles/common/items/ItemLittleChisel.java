@@ -4,6 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -52,6 +54,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.entity.Render;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -93,11 +96,11 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		ChiselShape shape = getShape(stack);
-		list.add("shape: " + shape.key);
-		shape.addExtraInformation(stack.getTagCompound(), list);
+		tooltip.add("shape: " + shape.key);
+		shape.addExtraInformation(stack.getTagCompound(), tooltip);
 	}
 	
 	@Override
@@ -304,7 +307,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			try {
 				Color color = ColorUtils.IntToRGBA(getColor(stack));
 				color.setAlpha(255);
-				ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+				ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}

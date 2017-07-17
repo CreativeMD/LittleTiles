@@ -50,7 +50,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		ACTIVATED(true) {
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
-				tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+				tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.x, (float)moving.hitVec.y, (float)moving.hitVec.z);
 				
 				BlockTile.cancelNext = true;
 			}
@@ -301,7 +301,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.nbt = nbt;
 	}
 	

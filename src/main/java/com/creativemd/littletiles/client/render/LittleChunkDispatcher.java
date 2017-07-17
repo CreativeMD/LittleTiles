@@ -13,8 +13,8 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
@@ -43,10 +43,10 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		super();
 	}
 	
-	private static Method growBuffer = ReflectionHelper.findMethod(VertexBuffer.class, "growBuffer",  "func_181670_b", int.class);
+	private static Method growBuffer = ReflectionHelper.findMethod(BufferBuilder.class, "growBuffer",  "func_181670_b", int.class);
 	
-	private static Field rawIntBufferField = ReflectionHelper.findField(VertexBuffer.class, "rawIntBuffer", "field_178999_b");
-	private static Field vertexCountField = ReflectionHelper.findField(VertexBuffer.class, "vertexCount", "field_178997_d");
+	private static Field rawIntBufferField = ReflectionHelper.findField(BufferBuilder.class, "rawIntBuffer", "field_178999_b");
+	private static Field vertexCountField = ReflectionHelper.findField(BufferBuilder.class, "vertexCount", "field_178997_d");
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	
@@ -101,10 +101,10 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		return null;
 	}
 	
-	public static Field added = ReflectionHelper.findField(VertexBuffer.class, "littleTilesAdded");
+	public static Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
 	
 	@Override
-	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final VertexBuffer buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_)
+	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_)
     {
 		try {
 			if(added.getBoolean(buffer))
@@ -136,7 +136,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
 					if(blockLayerBuffer != null)
 					{
-						VertexBuffer teBuffer = blockLayerBuffer.getBufferByLayer(layer);
+						BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
 						if(teBuffer != null)
 							expanded += teBuffer.getVertexCount();
 					}
@@ -169,7 +169,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
 					if(blockLayerBuffer == null)
 						continue;
-					VertexBuffer teBuffer = blockLayerBuffer.getBufferByLayer(layer);
+					BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
 					if(teBuffer != null)
 					{
 						int size = teBuffer.getVertexFormat().getIntegerSize() * teBuffer.getVertexCount();
@@ -220,13 +220,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
     }
 	
-	public static VertexBuffer.State emptyState = loadEmptyState();
+	public static BufferBuilder.State emptyState = loadEmptyState();
 	
-	private static VertexBuffer.State loadEmptyState()
+	private static BufferBuilder.State loadEmptyState()
 	{
-		VertexBuffer buffer = new VertexBuffer(0);
+		BufferBuilder buffer = new BufferBuilder(0);
 		buffer.begin(7, DefaultVertexFormats.BLOCK);
-		VertexBuffer.State state = buffer.getVertexState();
+		BufferBuilder.State state = buffer.getVertexState();
 		buffer.finishDrawing();
 		return state;
 	}
@@ -237,7 +237,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 
         if (compiledchunk.getState() != null && !compiledchunk.isLayerEmpty(BlockRenderLayer.TRANSLUCENT))
         {
-        	VertexBuffer worldRendererIn = generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT);
+        	BufferBuilder worldRendererIn = generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT);
         	BlockPos pos = chunk.getPosition();
         	worldRendererIn.begin(7, DefaultVertexFormats.BLOCK);
             worldRendererIn.setTranslation((double)(-pos.getX()), (double)(-pos.getY()), (double)(-pos.getZ()));
@@ -253,9 +253,9 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
         
     }
 	
-	public static class LittleVertexBufferState extends VertexBuffer.State {
+	public static class LittleVertexBufferState extends BufferBuilder.State {
 
-		public LittleVertexBufferState(VertexBuffer buffer, VertexBuffer.State state) {
+		public LittleVertexBufferState(BufferBuilder buffer, BufferBuilder.State state) {
 			buffer.super(state.getRawBuffer(), state.getVertexFormat());
 		}
 		

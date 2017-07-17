@@ -1,0 +1,20 @@
+{
+  "result": {
+    "item": "littletiles:hammer"
+  },
+  "pattern": [
+    "XXX",
+    " L ",
+    " L "
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:dye",
+      "data": 4
+    }
+  }
+}

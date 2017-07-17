@@ -11,5 +11,10 @@ public class LittleTilesServer {
 	{
 		
 	}
+
+	public void loadSidePost()
+	{
+		
+	}
 	
 }

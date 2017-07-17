@@ -157,7 +157,7 @@ public class LittleEvent {
 	public void onRightInteractClient(EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
 	{
 		RayTraceResult moving = Minecraft.getMinecraft().objectMouseOver;
-		((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).onItemUse(player, world, pos, hand, facing, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord);
+		((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).onItemUse(player, world, pos, hand, facing, (float)moving.hitVec.x, (float)moving.hitVec.y, (float)moving.hitVec.z);
 	}
 	
 	@SubscribeEvent
@@ -185,7 +185,7 @@ public class LittleEvent {
 	            GlStateManager.disableTexture2D();
 	            GlStateManager.depthMask(false);
 	            for (int i = 0; i < boxes.size(); i++) {
-	            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+	            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox().grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 				}
 				
 				GlStateManager.depthMask(true);

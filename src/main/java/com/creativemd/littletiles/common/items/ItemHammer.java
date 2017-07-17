@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -15,6 +17,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -40,12 +43,12 @@ public class ItemHammer extends Item implements IGuiCreator{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("used for hammering normal");
-		list.add("blocks into small pieces");
-		list.add("shift+rightclick will harvest and");
-		list.add("drop all tiles inside one block");
+		tooltip.add("used for hammering normal");
+		tooltip.add("blocks into small pieces");
+		tooltip.add("shift+rightclick will harvest and");
+		tooltip.add("drop all tiles inside one block");
 	}
 	
 	@Override

@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -20,6 +22,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileBox;
 import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -44,12 +47,12 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("can be used to chisel blocks");
+		tooltip.add("can be used to chisel blocks");
 		SelectShape shape = getShape(stack);
-		list.add("mode: " + shape.key);
-		shape.addExtraInformation(player, stack.getTagCompound(), list);
+		tooltip.add("mode: " + shape.key);
+		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip);
 	}
 	
 	@Override

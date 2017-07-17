@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -105,7 +106,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
+    public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, ITooltipFlag advanced)
     {
 		tooltip.add("Particles will not spawn if you are holding the wrench.");
     }

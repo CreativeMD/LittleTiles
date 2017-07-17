@@ -20,6 +20,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -135,7 +136,7 @@ public abstract class SelectShape {
 	
 	public abstract List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result);
 	
-	public abstract void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list);
+	public abstract void addExtraInformation(World world, NBTTagCompound nbt, List<String> list);
 	
 	@SideOnly(Side.CLIENT)
 	public abstract List<GuiControl> getCustomSettings(NBTTagCompound nbt);
@@ -181,7 +182,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list) {
+		public void addExtraInformation(World world, NBTTagCompound nbt, List<String> list) {
 			list.add("thickness: " + Math.max(1, nbt.getInteger("thick")));
 		}
 
@@ -268,7 +269,7 @@ public abstract class SelectShape {
 		}
 
 		@Override
-		public void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list) {
+		public void addExtraInformation(World world, NBTTagCompound nbt, List<String> list) {
 			shape.addExtraInformation(nbt, list);
 		}
 

@@ -1,0 +1,16 @@
+{
+  "result": {
+    "item": "littletiles:lttransparentcoloredblock",
+    "data": 4
+  },
+  "pattern": [
+    "S"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "S": {
+      "item": "minecraft:stained_glass",
+      "data": 0
+    }
+  }
+}

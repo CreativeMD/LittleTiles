@@ -1,0 +1,14 @@
+{
+  "result": {
+    "item": "littletiles:ltstorageblocktile"
+  },
+  "pattern": [
+    "C"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "C": {
+      "item": "minecraft:chest"
+    }
+  }
+}

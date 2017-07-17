@@ -1,0 +1,19 @@
+{
+  "result": {
+    "item": "littletiles:container"
+  },
+  "pattern": [
+    "XXX",
+    "XHX",
+    "XXX"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:iron_ingot"
+    },
+    "H": {
+      "item": "littletiles:hammer"
+    }
+  }
+}

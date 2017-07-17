@@ -152,15 +152,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         return true;
     }
 	
-	/**
-     * Checks if an IBlockState represents a block that is opaque and a full cube.
-     */
-	@Override
-    public boolean isFullyOpaque(IBlockState state)
-    {
-        return false;
-    }
-
     /**
      * Used to determine ambient occlusion and culling when rebuilding chunks for render
      */
@@ -249,7 +240,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos)
     {
-        return worldIn.getBlockState(pos.down()).isFullyOpaque() && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
+        return worldIn.getBlockState(pos.down()).isFullBlock() && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
 	
 	@Override
@@ -277,7 +268,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	                				LittleTileBox box = tile.boundingBoxes.get(j).copy();
 	                				box.addOffset(new LittleTileVec(x2*LittleTile.gridSize, y2*LittleTile.gridSize, z2*LittleTile.gridSize));
 	                				double expand = 0.0001;
-	                				if(bb.intersectsWith(box.getBox().expand(expand, expand, expand)))
+	                				if(bb.intersects(box.getBox().expand(expand, expand, expand)))
 	                					return true;
 								}
                 			}
@@ -430,7 +421,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     
 	@Override
     @SideOnly(Side.CLIENT)
-    public void getSubBlocks(Item item, CreativeTabs tab, NonNullList<ItemStack> items) {}
+    public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {}
     
 	public boolean first = true;
 	
@@ -820,7 +811,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			if(tile.shouldCheckForCollision())
     			{
     				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-						if(tile.boundingBoxes.get(i).getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
+						if(tile.boundingBoxes.get(i).getBox().offset(pos).intersects(entityIn.getEntityBoundingBox()))
 							tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 					}
     			}

@@ -1,0 +1,21 @@
+{
+  "result": {
+    "item": "littletiles:utilityknife",
+    "data": 0
+  },
+  "pattern": [
+    "X  ",
+    " X ",
+    "  L"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:dye",
+      "data": 4
+    }
+  }
+}

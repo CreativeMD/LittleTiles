@@ -2,12 +2,15 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -31,11 +34,11 @@ public class ItemLittleSaw extends Item{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("rightclick to increase and");
-		list.add("shift+rightclick to decrease");
-		list.add("the size of a placed tile");
+		tooltip.add("rightclick to increase and");
+		tooltip.add("shift+rightclick to decrease");
+		tooltip.add("the size of a placed tile");
 	}
 	
 	@Override

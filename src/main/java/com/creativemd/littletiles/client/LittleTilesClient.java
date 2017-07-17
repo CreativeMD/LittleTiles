@@ -5,9 +5,7 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
-import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
-import com.creativemd.creativecore.client.rendering.model.CreativeCustomModelLoader;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
@@ -17,11 +15,9 @@ import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
-import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.items.ItemColorTube;
@@ -30,44 +26,33 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemMeshDefinition;
-import net.minecraft.client.renderer.VertexBuffer;
-import net.minecraft.client.renderer.block.model.ModelBakery;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderEnderman;
 import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.init.Items;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.internal.FMLMessage.EntityMessage;
 import net.minecraftforge.fml.common.network.internal.FMLMessage.EntitySpawnMessage;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
 public class LittleTilesClient extends LittleTilesServer{
+	
+	Minecraft mc = Minecraft.getMinecraft();
 	
 	public static KeyBinding flip;
 	public static boolean pressedFlip = false;
@@ -119,41 +104,8 @@ public class LittleTilesClient extends LittleTilesServer{
 	}
 	
 	@Override
-	public void loadSide()
-	{		
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new TileEntityTilesRenderer());
-		
-		Minecraft mc = Minecraft.getMinecraft();
-		
-		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
-		
-		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
-		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
-		
-		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
-		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
-		
-		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.chisel);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.screwdriver);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
-		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
-		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);	
-		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 1, new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
-		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);	
-		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.modid + ":chisel", "inventory"));
-		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
-		
+	public void loadSidePost()
+	{
 		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
@@ -242,6 +194,44 @@ public class LittleTilesClient extends LittleTilesServer{
 			}
 			
 		}, false);
+		
+		CreativeCoreClient.registerItemColorHandler(LittleTiles.recipe);
+		CreativeCoreClient.registerItemColorHandler(LittleTiles.chisel);
+	}
+	
+	@Override
+	public void loadSide()
+	{		
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new TileEntityTilesRenderer());
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
+		
+		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
+		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
+		
+		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
+		
+		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.chisel);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.screwdriver);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 1, new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.modid + ":chisel", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 	}
 	
 }

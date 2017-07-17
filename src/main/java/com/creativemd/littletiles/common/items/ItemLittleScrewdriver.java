@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -11,6 +13,7 @@ import com.creativemd.littletiles.common.container.SubContainerScrewdriver;
 import com.creativemd.littletiles.common.gui.SubGuiScrewdriver;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -35,22 +38,22 @@ public class ItemLittleScrewdriver extends Item implements IGuiCreator{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
 		if(stack.getTagCompound().hasKey("x1"))
-			list.add("1: x=" + stack.getTagCompound().getInteger("x1") + ",y=" + stack.getTagCompound().getInteger("y1")+ ",z=" + stack.getTagCompound().getInteger("z1"));
+			tooltip.add("1: x=" + stack.getTagCompound().getInteger("x1") + ",y=" + stack.getTagCompound().getInteger("y1")+ ",z=" + stack.getTagCompound().getInteger("z1"));
 		else
-			list.add("1: undefinded");
+			tooltip.add("1: undefinded");
 		
 		if(stack.getTagCompound().hasKey("x2"))
-			list.add("2: x=" + stack.getTagCompound().getInteger("x2") + ",y=" + stack.getTagCompound().getInteger("y2")+ ",z=" + stack.getTagCompound().getInteger("z2"));
+			tooltip.add("2: x=" + stack.getTagCompound().getInteger("x2") + ",y=" + stack.getTagCompound().getInteger("y2")+ ",z=" + stack.getTagCompound().getInteger("z2"));
 		else
-			list.add("2: undefinded");
+			tooltip.add("2: undefinded");
 		
-		list.add("creative mode only");
+		tooltip.add("creative mode only");
 	}
 	
 	@Override

@@ -26,7 +26,7 @@ import com.google.common.cache.LoadingCache;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -180,7 +180,7 @@ public class RenderingThread extends Thread {
 								BlockRenderLayer layer = BlockRenderLayer.values()[i];
 								
 								ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
-								VertexBuffer buffer = null;
+								BufferBuilder buffer = null;
 								if(cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes.size());
 								
@@ -205,7 +205,7 @@ public class RenderingThread extends Thread {
 										RenderCubeObject cube = cubes.get(j);
 										consumer.cube = cube;
 										consumer.setState(cube.getBlockState());
-										consumer.getBlockInfo().updateShift(false);
+										consumer.getBlockInfo().updateShift();
 										
 										if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
 										{
@@ -295,7 +295,7 @@ public class RenderingThread extends Thread {
 	
 	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 	
-	private synchronized void renderQuad(VertexBuffer buffer, BakedQuad quad)
+	private synchronized void renderQuad(BufferBuilder buffer, BakedQuad quad)
 	{
 		if(quad.hasTintIndex())
         {

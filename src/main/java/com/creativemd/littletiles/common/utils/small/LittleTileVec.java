@@ -48,15 +48,15 @@ public class LittleTileVec {
 	
 	public LittleTileVec(Vec3d vec)
 	{
-		double posX = PlacementHelper.round(vec.xCoord*LittleTile.gridSize);
-		double posY = PlacementHelper.round(vec.yCoord*LittleTile.gridSize);
-		double posZ = PlacementHelper.round(vec.zCoord*LittleTile.gridSize);
+		double posX = PlacementHelper.round(vec.x*LittleTile.gridSize);
+		double posY = PlacementHelper.round(vec.y*LittleTile.gridSize);
+		double posZ = PlacementHelper.round(vec.z*LittleTile.gridSize);
 		
-		if(vec.xCoord < 0)
+		if(vec.x < 0)
 			posX = Math.floor(posX);
-		if(vec.yCoord < 0)
+		if(vec.y < 0)
 			posY = Math.floor(posY);
-		if(vec.zCoord < 0)
+		if(vec.z < 0)
 			posZ = Math.floor(posZ);
 		
 		this.x = (int) posX;

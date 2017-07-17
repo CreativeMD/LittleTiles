@@ -389,7 +389,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				if(fakeWorld.axis == null)
 				{
 					Vec3d vec = getCenter().getVec();
-					fakeWorld.axis = new Vector3d(vec.xCoord, vec.yCoord, vec.zCoord);
+					fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
 				}
 				fakeWorld.rotX = worldRotX;
 				fakeWorld.rotY = worldRotY;

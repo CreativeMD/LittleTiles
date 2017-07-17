@@ -95,7 +95,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				{
 					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 						BlockRenderLayer layer = BlockRenderLayer.values()[i];
-						net.minecraft.client.renderer.VertexBuffer tempBuffer = layers.getBufferByLayer(layer);
+						net.minecraft.client.renderer.BufferBuilder tempBuffer = layers.getBufferByLayer(layer);
 						if(tempBuffer != null)
 						{
 							VertexBuffer bufferToCreate = new VertexBuffer(DefaultVertexFormats.BLOCK);
@@ -160,9 +160,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
 				
 				
-				GL11.glRotated(rotation.xCoord, 1, 0, 0);
-				GL11.glRotated(rotation.yCoord, 0, 1, 0);
-				GL11.glRotated(rotation.zCoord, 0, 0, 1);
+				GL11.glRotated(rotation.x, 1, 0, 0);
+				GL11.glRotated(rotation.y, 0, 1, 0);
+				GL11.glRotated(rotation.z, 0, 0, 1);
 				//GlStateManager.rotate((float)entity.progress/(float)entity.duration * 90F, 0, 1, 0);
 				
 				GlStateManager.translate(posX, posY, posZ);
@@ -253,9 +253,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        		
 	        		GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
 	        		
-	        		GL11.glRotated(rotation.xCoord, 1, 0, 0);
-	        		GL11.glRotated(rotation.yCoord, 0, 1, 0);
-	        		GL11.glRotated(rotation.zCoord, 0, 0, 1);
+	        		GL11.glRotated(rotation.x, 1, 0, 0);
+	        		GL11.glRotated(rotation.y, 0, 1, 0);
+	        		GL11.glRotated(rotation.z, 0, 0, 1);
 	        		
 	        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 	        		
@@ -264,7 +264,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        		
 	        		//GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
 	        		
-					TileEntityRendererDispatcher.instance.renderTileEntity(te, partialTicks, -1);
+					TileEntityRendererDispatcher.instance.render(te, partialTicks, -1);
 					
 					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
 					GlStateManager.popMatrix();

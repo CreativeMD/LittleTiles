@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -13,6 +15,7 @@ import com.creativemd.littletiles.common.gui.SubGuiWrench;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -38,13 +41,13 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("used to create structures");
-		list.add("from recipes and");
-		list.add("create recipes from structures");
-		list.add("rightclick on a block");
-		list.add("will combine tiles");
+		tooltip.add("used to create structures");
+		tooltip.add("from recipes and");
+		tooltip.add("create recipes from structures");
+		tooltip.add("rightclick on a block");
+		tooltip.add("will combine tiles");
 	}
 	
 	@Override

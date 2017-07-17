@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "littletiles:ltcoloredblock",
+    "data": 2,
+    "count": 9
+  },
+  "pattern": [
+    "XXX",
+    "XAX",
+    "XXX"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "A": {
+      "item": "minecraft:cobblestone"
+    },
+    "X": {
+      "item": "minecraft:quartz_block",
+      "data": 0
+    }
+  }
+}

@@ -1,11 +1,8 @@
 package com.creativemd.littletiles.client.render;
 
-import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.creativemd.littletiles.client.LittleTilesClient;
-
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
@@ -47,19 +44,19 @@ public class BlockLayerRenderBuffer {
 		bufferSizePerQuad = format.getIntegerSize() * 4;
 	}
 	
-	private VertexBuffer solid;
-	private VertexBuffer cutout_mipped;
-	private VertexBuffer cutout;
-	private VertexBuffer translucent;
+	private BufferBuilder solid;
+	private BufferBuilder cutout_mipped;
+	private BufferBuilder cutout;
+	private BufferBuilder translucent;
 	
 	public int getBufferSizeForLayer(int tilesOfType)
 	{
 		return bufferSizePerQuad * 6 * tilesOfType;
 	}
 	
-	public VertexBuffer createVertexBuffer(int tilesOfType)
+	public BufferBuilder createVertexBuffer(int tilesOfType)
 	{
-		return new VertexBuffer(getBufferSizeForLayer(tilesOfType));
+		return new BufferBuilder(getBufferSizeForLayer(tilesOfType));
 	}
 	
 	/*public VertexBuffer getTemporaryBufferByLayer(BlockRenderLayer layer)
@@ -97,7 +94,7 @@ public class BlockLayerRenderBuffer {
 		}
 	}*/
 	
-	public VertexBuffer getBufferByLayer(BlockRenderLayer layer)
+	public BufferBuilder getBufferByLayer(BlockRenderLayer layer)
 	{
 		switch(layer)
 		{
@@ -113,7 +110,7 @@ public class BlockLayerRenderBuffer {
 		return null;
 	}
 	
-	public void setBufferByLayer(VertexBuffer buffer, BlockRenderLayer layer)
+	public void setBufferByLayer(BufferBuilder buffer, BlockRenderLayer layer)
 	{
 		switch(layer)
 		{

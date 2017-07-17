@@ -3,6 +3,8 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -20,6 +22,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileSize;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -45,11 +48,11 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("can store little pieces and");
-		list.add("can be used to provide");
-		list.add("needed materials");
+		tooltip.add("can store little pieces and");
+		tooltip.add("can be used to provide");
+		tooltip.add("needed materials");
 	}
 	
 	public static void saveMap(ItemStack stack, ArrayList<BlockEntry> map)

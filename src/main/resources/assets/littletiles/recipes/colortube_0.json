@@ -1,0 +1,21 @@
+{
+  "result": {
+    "item": "littletiles:colortube",
+    "data": 0
+  },
+  "pattern": [
+    "XXX",
+    "XLX",
+    "XXX"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:dye",
+      "data": 0
+    },
+    "L": {
+      "item": "minecraft:iron_ingot"
+    }
+  }
+}

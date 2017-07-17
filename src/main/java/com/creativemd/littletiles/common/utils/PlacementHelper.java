@@ -462,13 +462,13 @@ public class PlacementHelper {
 			{
 			case EAST:
 			case WEST:
-				return (int)hitVec.xCoord != hitVec.xCoord;
+				return (int)hitVec.x != hitVec.x;
 			case UP:
 			case DOWN:
-				return (int)hitVec.yCoord != hitVec.yCoord;
+				return (int)hitVec.y != hitVec.y;
 			case SOUTH:
 			case NORTH:
-				return (int)hitVec.zCoord != hitVec.zCoord;
+				return (int)hitVec.z != hitVec.z;
 			default:
 				return false;
 			}
@@ -493,9 +493,9 @@ public class PlacementHelper {
 	
 	public static LittleTileVec getHitVec(RayTraceResult result, boolean isInsideOfBlock)
 	{
-		double posX = result.hitVec.xCoord - result.getBlockPos().getX();
-		double posY = result.hitVec.yCoord - result.getBlockPos().getY();
-		double posZ = result.hitVec.zCoord - result.getBlockPos().getZ();
+		double posX = result.hitVec.x - result.getBlockPos().getX();
+		double posY = result.hitVec.y - result.getBlockPos().getY();
+		double posZ = result.hitVec.z - result.getBlockPos().getZ();
 		
 		LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));
 		

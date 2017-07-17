@@ -111,20 +111,20 @@ public class PreviewRenderer {
 							GL11.glPushMatrix();
 							ColoredCube cube = cubes.get(j);
 							Vec3d size = cube.getSize();
-							double cubeX = x+cube.minX+size.xCoord/2D;
+							double cubeX = x+cube.minX+size.x/2D;
 							if(absolute)
 								cubeX -= x+TileEntityRendererDispatcher.staticPlayerX;
 							
-							double cubeY = y+cube.minY+size.yCoord/2D;
+							double cubeY = y+cube.minY+size.y/2D;
 							if(absolute)
 								cubeY -= y+TileEntityRendererDispatcher.staticPlayerY;
 							
-							double cubeZ = z+cube.minZ+size.zCoord/2D;
+							double cubeZ = z+cube.minZ+size.z/2D;
 							if(absolute)
 								cubeZ -= z+TileEntityRendererDispatcher.staticPlayerZ;
 							
 							Vec3d color = ColorUtils.IntToVec(cube.color);
-							RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.xCoord, size.yCoord, size.zCoord, 0, 0, 0, color.xCoord, color.yCoord, color.zCoord, (Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
+							RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.x, size.y, size.z, 0, 0, 0, color.x, color.y, color.z, (Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
 							GL11.glPopMatrix();
 						}
 					}

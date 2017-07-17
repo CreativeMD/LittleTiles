@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -27,6 +29,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -149,18 +152,18 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		if(stack.hasTagCompound())
 		{
 			if(stack.getTagCompound().hasKey("x"))
-				list.add("First pos: x=" + stack.getTagCompound().getInteger("x") + ",y=" + stack.getTagCompound().getInteger("y")+ ",z=" + stack.getTagCompound().getInteger("z"));
+				tooltip.add("First pos: x=" + stack.getTagCompound().getInteger("x") + ",y=" + stack.getTagCompound().getInteger("y")+ ",z=" + stack.getTagCompound().getInteger("z"));
 			else{
 				String id = "none";
 				if(stack.getTagCompound().hasKey("structure"))
 					id = stack.getTagCompound().getCompoundTag("structure").getString("id");
-				list.add("structure: " + id);
-				list.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
+				tooltip.add("structure: " + id);
+				tooltip.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
 			}
 		}
 	}

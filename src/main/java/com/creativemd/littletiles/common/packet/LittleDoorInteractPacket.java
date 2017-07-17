@@ -40,7 +40,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.direction = rotation;
 		this.inverse = inverse;
 		this.uuid = uuid;

@@ -1,0 +1,12 @@
+{
+  "result": {
+    "item": "littletiles:ltcoloredblock",
+    "data": 12
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:lava_bucket"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless"
+}

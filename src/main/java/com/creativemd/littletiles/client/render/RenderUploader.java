@@ -120,7 +120,7 @@ public class RenderUploader {
 			
 			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
-				net.minecraft.client.renderer.VertexBuffer tempBuffer = te.getBuffer().getBufferByLayer(layer);
+				net.minecraft.client.renderer.BufferBuilder tempBuffer = te.getBuffer().getBufferByLayer(layer);
 				if(tempBuffer != null)
 				{
 					buffers.add(tempBuffer.getByteBuffer());

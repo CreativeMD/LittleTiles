@@ -550,7 +550,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(ignoreTile != tile && alignedBB.intersectsWith(tile.boundingBoxes.get(j).getBox()))
+				if(ignoreTile != tile && alignedBB.intersects(tile.boundingBoxes.get(j).getBox()))
 					return false;
 			}
 			
@@ -770,7 +770,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		return getMoving(pos, vec32);
     }
     
@@ -800,7 +800,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
-		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		return getFocusedTile(pos, vec32);
 	}
 	

@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -24,6 +26,7 @@ import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.color.IItemColor;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -84,12 +87,12 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		list.add("click: dyes a tile");
-		list.add("shift+click: copies tile's color");
+		tooltip.add("click: dyes a tile");
+		tooltip.add("shift+click: copies tile's color");
 		SelectShape shape = getShape(stack);
-		list.add("shape: " + (shape == null ? "tile" : shape.key));
+		tooltip.add("shape: " + (shape == null ? "tile" : shape.key));
 	}
 	
 	@Override

@@ -1,0 +1,12 @@
+{
+  "result": {
+    "item": "littletiles:lttransparentcoloredblock",
+    "data": 5
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:water_bucket"
+    }
+  ],
+  "type": "minecraft:crafting_shapeless"
+}
