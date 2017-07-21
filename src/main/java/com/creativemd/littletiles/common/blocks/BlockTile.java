@@ -268,7 +268,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	                				LittleTileBox box = tile.boundingBoxes.get(j).copy();
 	                				box.addOffset(new LittleTileVec(x2*LittleTile.gridSize, y2*LittleTile.gridSize, z2*LittleTile.gridSize));
 	                				double expand = 0.0001;
-	                				if(bb.intersects(box.getBox().expand(expand, expand, expand)))
+	                				if(bb.intersects(box.getBox().grow(expand)))
 	                					return true;
 								}
                 			}
