@@ -345,11 +345,13 @@ public abstract class LittleStructure {
 				dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
 			}
 		}*/
+		if(tiles != null)
+			tiles.clear();
 		
 		tilesToLoad = new HashMap<>();
 		
 		//LoadTiles
-		if(nbt.hasKey("count"))
+		if(nbt.hasKey("count")) //Old way
 		{
 			int count = nbt.getInteger("count");
 			for (int i = 0; i < count; i++) {
@@ -371,7 +373,7 @@ public abstract class LittleStructure {
 				tilesToLoad.put(pos, insideBlock);
 			}
 			
-		}else if(nbt.hasKey("tiles")){
+		}else if(nbt.hasKey("tiles")){ //new way
 			NBTTagList list = nbt.getTagList("tiles", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
