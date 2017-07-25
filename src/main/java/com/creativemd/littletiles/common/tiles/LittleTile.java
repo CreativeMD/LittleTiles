@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.tiles;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -459,7 +460,17 @@ public abstract class LittleTile {
 			if(nbt.getBoolean("main"))
 			{
 				isMainBlock = true;
-				structure = LittleStructure.createAndLoadStructure(nbt, this);
+				if(structure == null)
+					structure = LittleStructure.createAndLoadStructure(nbt, this);
+				else{
+					structure.setMainTile(this);
+					for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
+						LittleTile tile = iterator.next();
+						if(tile != this && tile.isLoaded())
+							tile.structure = null;
+					}
+					structure.loadFromNBT(nbt);
+				}
 			}else{
 				if(nbt.hasKey("coX"))
 				{
