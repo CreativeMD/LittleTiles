@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.utils.PlacementHelper;
-import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;

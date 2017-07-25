@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

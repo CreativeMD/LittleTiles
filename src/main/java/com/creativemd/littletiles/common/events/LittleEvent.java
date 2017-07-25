@@ -19,10 +19,10 @@ import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.PlacementHelper;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;

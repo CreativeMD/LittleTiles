@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -12,12 +12,12 @@ import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.place.FixedHandler;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
-import com.creativemd.littletiles.common.utils.place.FixedHandler;
-import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;

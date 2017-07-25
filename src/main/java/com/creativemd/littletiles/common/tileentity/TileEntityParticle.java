@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
-import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
@@ -146,7 +146,6 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			LittleParticleType littleType = LittleParticleType.valueOf(particle);
 			additional = littleType.type.randomize(par1, par2, par3);
 		}
-		//world.spawnParticle(particleType, getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord, red, green, blue);
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		

@@ -4,8 +4,8 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;

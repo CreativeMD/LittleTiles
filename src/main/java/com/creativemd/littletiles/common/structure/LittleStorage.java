@@ -14,9 +14,9 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

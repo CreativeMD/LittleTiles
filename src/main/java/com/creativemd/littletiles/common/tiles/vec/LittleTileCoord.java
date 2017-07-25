@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.small;
+package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 

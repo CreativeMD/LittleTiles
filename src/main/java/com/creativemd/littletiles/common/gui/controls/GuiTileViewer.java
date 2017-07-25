@@ -24,11 +24,11 @@ import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.java.games.input.Component.Identifier.Axis;
 import net.minecraft.block.state.IBlockState;

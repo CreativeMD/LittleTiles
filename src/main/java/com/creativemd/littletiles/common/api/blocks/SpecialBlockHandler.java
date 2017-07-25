@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

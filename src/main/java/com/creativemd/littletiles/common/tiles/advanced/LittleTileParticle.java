@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.blocks;
+package com.creativemd.littletiles.common.tiles.advanced;
 
 import java.util.ArrayList;
 
@@ -8,7 +8,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
+import com.creativemd.littletiles.common.tiles.LittleTileTE;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -24,7 +24,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTileParticle extends LittleTileTileEntity {
+public class LittleTileParticle extends LittleTileTE {
 	
 	public LittleTileParticle()
 	{

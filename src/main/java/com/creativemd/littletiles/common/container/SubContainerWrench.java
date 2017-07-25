@@ -12,8 +12,8 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.PlacementHelper;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.PlacementHelper;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;

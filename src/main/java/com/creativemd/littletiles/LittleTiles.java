@@ -13,7 +13,6 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
-import com.creativemd.littletiles.common.blocks.LittleTileParticle;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.container.SubContainerExport;
@@ -51,15 +50,16 @@ import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
+import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
-import com.creativemd.littletiles.common.utils.sorting.LittleTileSortingList;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.LittleTileTE;
+import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -80,7 +80,6 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
@@ -98,7 +97,7 @@ public class LittleTiles {
 	public static LittleTilesServer proxy;
 	
 	public static final String modid = "littletiles";
-	public static final String version = "1.4.8";
+	public static final String version = "1.5.0";
 	
 	public static CreativeTabs littleTab = new CreativeTabs("littletiles") {
 		
@@ -178,7 +177,7 @@ public class LittleTiles {
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
-		LittleTile.registerLittleTile(LittleTileTileEntity.class, "BlockTileEntity");
+		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity");
 		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
 		
 		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
@@ -258,9 +257,8 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleSlidingDoorPacket.class, "LittleSlidingDoor");
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
+		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		
-		
-		//FMLCommonHandler.instance().bus().register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		
 		LittleStructure.initStructures();
@@ -417,10 +415,4 @@ public class LittleTiles {
 		event.registerServerCommand(new ExportCommand());
 		event.registerServerCommand(new ImportCommand());
 	}
-	
-	@EventHandler
-    public void LoadComplete(FMLLoadCompleteEvent event)
-    {
-		LittleTileSortingList.initVanillaBlocks();
-    }
 }

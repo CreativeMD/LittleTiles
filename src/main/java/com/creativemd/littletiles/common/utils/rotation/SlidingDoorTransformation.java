@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.utils.rotation;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;

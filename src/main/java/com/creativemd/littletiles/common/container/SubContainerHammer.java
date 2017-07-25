@@ -8,12 +8,12 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;

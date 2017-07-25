@@ -1,6 +1,7 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 
 import org.lwjgl.opengl.GL11;
 
@@ -29,14 +30,14 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTileTileEntity extends LittleTileBlock {
+public class LittleTileTE extends LittleTileBlock {
 	
-	public LittleTileTileEntity()
+	public LittleTileTE()
 	{
 		super();
 	}
 	
-	public LittleTileTileEntity(Block block, int meta, TileEntity tileEntity)
+	public LittleTileTE(Block block, int meta, TileEntity tileEntity)
 	{
 		super(block, meta);
 		this.tileEntity = tileEntity;
@@ -54,7 +55,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		if(!isTileEntityLoaded && tileEntity != null)
 		{
 			tileEntity.setWorld(te.getWorld());
-			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, getMeta(), "blockMetadata", "field_145847_g");
+			setTEMetadata(getMeta());
 			isTileEntityLoaded = true;
 		}
 		return tileEntity;
@@ -65,57 +66,49 @@ public class LittleTileTileEntity extends LittleTileBlock {
 		this.tileEntity = tileEntity;
 	}
 	
+	private static Field metadataField = ReflectionHelper.findField(TileEntity.class, "blockMetadata", "field_145847_g");
+	
+	protected void setTEMetadata(int meta)
+	{
+		try {
+			metadataField.setInt(tileEntity, meta);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
 	@Override
 	public void setMeta(int meta)
 	{
 		super.setMeta(meta);
 		if(tileEntity != null)
-			ReflectionHelper.setPrivateValue(TileEntity.class, tileEntity, meta, "blockMetadata", "field_145847_g");
+			setTEMetadata(meta);
 	}
 	
-	/**All information the client needs*/
 	@Override
-	public void updatePacket(NBTTagCompound nbt)
+	public boolean supportsUpdatePacket()
 	{
-		super.updatePacket(nbt);
-		if(!firstSended)
-		{
-			firstSended = true;
-			NBTTagCompound nbtTag = new NBTTagCompound();
-			tileEntity.writeToNBT(nbtTag);
-			nbt.setTag("tileentity", nbtTag);
-			nbt.setBoolean("isFirst", true);
-		}else{
-			SPacketUpdateTileEntity packet = getTileEntity().getUpdatePacket();
-			NBTTagCompound newNBT = ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, packet, "nbt", "field_148860_e");
-			tileEntity.setWorld(te.getWorld());
-	        if(newNBT != null)
-	        	nbt.setTag("tileentity", newNBT);
-		}
+		return true;
+	}
+	
+	@Override
+	public NBTTagCompound getUpdateNBT()
+	{
+		tileEntity.setWorld(te.getWorld());
+		return ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, getTileEntity().getUpdatePacket(), "nbt", "field_148860_e");
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	{
+		tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), getMeta(), nbt));
 	}
 	
 	@Override
 	public boolean canBeSplitted()
 	{
 		return false;
-	}
-	
-	/**Should apply all information from sendToCLient**/
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net, NBTTagCompound completeData)
-	{
-		super.receivePacket(nbt, net, completeData);
-		if(nbt.getBoolean("isFirst"))
-		{
-			tileEntity = TileEntity.create(te.getWorld(), nbt.getCompoundTag("tileentity"));
-			setMeta(getMeta());
-			tileEntity.setWorld(te.getWorld());
-		}else{
-			NBTTagCompound tileNBT = nbt.getCompoundTag("tileentity");
-			if(tileEntity != null)
-				tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), getMeta(), tileNBT));
-		}
 	}
 	
 	
@@ -178,32 +171,15 @@ public class LittleTileTileEntity extends LittleTileBlock {
 			if (te.getDistanceSq(mc.player.posX, mc.player.posY, mc.player.posZ) < getTileEntity().getMaxRenderDistanceSquared())
 	        {
 				RenderHelper.enableStandardItemLighting();
-	            /*if(!TileEntityRendererDispatcher.instance.drawingBatch || !tileEntity.hasFastRenderer())
-	            {*/
+	            
 	            int i = te.getWorld().getCombinedLight(te.getPos(), 0);
 	            int j = i % 65536;
 	            int k = i / 65536;
 	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j, (float)k);
 	            GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-	            //}
 	            BlockPos blockpos = te.getPos();
 	            
-	            /*int i = te.getWorld().getLightBrightnessForSkyBlocks(te.getPos(), 0);
-	            int j = i % 65536;
-	            int k = i / 65536;
-	            OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float)j / 1.0F, (float)k / 1.0F);
-	            GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-	            double posX = (double)te.xCoord - TileEntityRendererDispatcher.staticPlayerX;
-	            double posY = (double)te.yCoord - TileEntityRendererDispatcher.staticPlayerY;
-	            double posZ = (double)te.zCoord - TileEntityRendererDispatcher.staticPlayerZ;
-	            
-	            posX += cornerVec.getPosX() - 0.5;
-	            posY += cornerVec.getPosY() - 0.5;
-	            posZ += cornerVec.getPosZ() - 0.5;
-	            
-	            tileEntity.blockMetadata = meta;*/
 	            renderTileEntity(x, y, z, partialTickTime);
-	            //TileEntityRendererDispatcher.instance.renderTileEntityAt(tileEntity, posX, posY, posZ, partialTickTime);
 	        }
 		}
 	}
@@ -235,27 +211,13 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
-		if(tile instanceof LittleTileTileEntity)
+		if(tile instanceof LittleTileTE)
 		{
-			LittleTileTileEntity thisTile = (LittleTileTileEntity) tile;
+			LittleTileTE thisTile = (LittleTileTE) tile;
 			thisTile.tileEntity = TileEntity.create(te.getWorld(), getTileEntity().writeToNBT(new NBTTagCompound()));
 			thisTile.isTileEntityLoaded = false;
 		}
 	}
-	
-	/*public boolean loadTileEntity()
-	{
-		if(tileEntity != null && tileEntity.getWorld() != null)
-		{
-			TileEntity Tempte = tileEntity.getWorld().getTileEntity(tileEntity.getPos());
-			if(Tempte instanceof TileEntityLittleTiles)
-			{
-				te = (TileEntityLittleTiles) Tempte;
-				return true;
-			}
-		}
-		return false;
-	}*/
 	
 	@Override
 	protected boolean canSawResize(EnumFacing direction, EntityPlayer player) {
@@ -265,7 +227,7 @@ public class LittleTileTileEntity extends LittleTileBlock {
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
 		if(super.canBeCombined(tile))
-			return tile instanceof LittleTileTileEntity && getTileEntity() == ((LittleTileTileEntity) tile).getTileEntity();
+			return tile instanceof LittleTileTE && getTileEntity() == ((LittleTileTE) tile).getTileEntity();
 		return false;
 	}
 }

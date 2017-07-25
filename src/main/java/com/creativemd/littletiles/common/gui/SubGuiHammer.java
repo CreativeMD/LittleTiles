@@ -22,10 +22,10 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;

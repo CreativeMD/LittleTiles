@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.place;
+package com.creativemd.littletiles.common.tiles.place;
 
 import java.util.ArrayList;
 
@@ -6,9 +6,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;

@@ -7,7 +7,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

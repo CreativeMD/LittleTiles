@@ -16,8 +16,8 @@ import com.creativemd.littletiles.common.items.geo.SelectShape;
 import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectShapePacket.LittleSelectShapeAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

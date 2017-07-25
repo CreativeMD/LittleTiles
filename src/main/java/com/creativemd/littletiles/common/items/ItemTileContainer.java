@@ -12,10 +12,10 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.container.SubContainerTileContainer;
 import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.LittleTileBlockColored;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;

@@ -17,7 +17,7 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
-import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
+import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -207,7 +207,7 @@ public class RenderingThread extends Thread {
 										consumer.setState(cube.getBlockState());
 										consumer.getBlockInfo().updateShift(false);
 										
-										if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+										if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 										{
 											IBlockState state = cube.getBlockState();
 											if(state.getBlock() instanceof BlockLTTransparentColored && state.getValue(BlockLTTransparentColored.VARIANT) == EnumType.water)
@@ -231,14 +231,14 @@ public class RenderingThread extends Thread {
 											
 										}
 										
-										if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+										if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 											SVertexBuilder.popEntity(buffer);
 									}
 									
 									consumer.quad = null;
 									consumer.cube = null;
 									
-									if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+									if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 										SVertexBuilder.calcNormalChunkLayer(buffer);
 									
 							        buffer.finishDrawing();

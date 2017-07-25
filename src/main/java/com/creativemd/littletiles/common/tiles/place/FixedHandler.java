@@ -1,7 +1,7 @@
-package com.creativemd.littletiles.common.utils.place;
+package com.creativemd.littletiles.common.tiles.place;
 
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;

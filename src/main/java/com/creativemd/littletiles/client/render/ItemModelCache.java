@@ -55,9 +55,7 @@ public class ItemModelCache {
 	{
 		lastUsed = System.currentTimeMillis();
 		return quads;
-	}
-	
-	
+	}	
 
 	private static HashMap<ItemModelCacheKey, ItemModelCache> caches = new HashMap<>();
 	
