@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.common.structure.LittleDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;

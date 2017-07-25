@@ -7,9 +7,9 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

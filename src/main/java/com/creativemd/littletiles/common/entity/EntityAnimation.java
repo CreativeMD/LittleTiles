@@ -21,11 +21,11 @@ import com.creativemd.littletiles.client.render.entity.TERenderData;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;

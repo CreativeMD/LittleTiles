@@ -14,7 +14,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,13 +15,13 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.utils.place.FixedHandler;
-import com.creativemd.littletiles.common.utils.place.InsideFixedHandler;
-import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.tiles.place.FixedHandler;
+import com.creativemd.littletiles.common.tiles.place.InsideFixedHandler;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;

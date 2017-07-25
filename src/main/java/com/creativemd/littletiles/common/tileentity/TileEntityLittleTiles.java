@@ -19,11 +19,11 @@ import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.utils.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,6 +34,8 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -504,7 +506,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
     	return cachedRenderBoundingBox;
     }
 	
-	public boolean needFullUpdate = true;
+	//public boolean needFullUpdate = true;
 
 	public boolean preventUpdate = false;
 	
@@ -671,18 +673,18 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 			NBTTagCompound tileNBT = new NBTTagCompound();
 			NBTTagCompound packet = new NBTTagCompound();
 			tile.saveTile(tileNBT);
-			tile.updatePacket(packet);
-			tileNBT.setTag("update", packet);
-			nbt.setTag("t" + i, tileNBT);
-			if(needFullUpdate || tile.needsFullUpdate)
+			if(tile.supportsUpdatePacket())
 			{
-				tile.needsFullUpdate = false;
-				nbt.setBoolean("f" + i, true);
+				if(tile.needsFullUpdate)
+					tile.needsFullUpdate = false;
+				else
+					tileNBT.setTag("update", tile.getUpdateNBT());
 			}
+			
+			nbt.setTag("t" + i, tileNBT);
 			i++;
 		}
         nbt.setInteger("tilesCount", tiles.size());
-        needFullUpdate = false;
     }
     
     public LittleTile getTile(LittleTileVec vec)
@@ -723,11 +725,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 			if(!exstingTiles.contains(tile))
 				tile = null;
 			
-			boolean fullUpdate = nbt.getBoolean("f" + i);
 			boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
-			if(isIdentical && !fullUpdate)
-			{				
-				tile.receivePacket(tileNBT.getCompoundTag("update"), net, tileNBT);
+			if(isIdentical)
+			{
+				if(tile.supportsUpdatePacket() && tileNBT.hasKey("update"))
+					tile.receivePacket(tileNBT.getCompoundTag("update"), net);
+				else
+					tile.loadTile(this, tileNBT);
+				
 				exstingTiles.remove(tile);
 			}
 			else

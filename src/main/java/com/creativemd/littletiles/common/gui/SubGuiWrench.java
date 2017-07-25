@@ -10,7 +10,7 @@ import com.creativemd.littletiles.common.container.SubContainerWrench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.FontRenderer;

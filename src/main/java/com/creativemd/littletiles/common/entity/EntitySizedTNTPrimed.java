@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.entity;
 
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityTNTPrimed;

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.small;
+package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;

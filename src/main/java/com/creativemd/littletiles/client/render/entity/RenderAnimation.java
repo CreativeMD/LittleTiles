@@ -3,26 +3,17 @@ package com.creativemd.littletiles.client.render.entity;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
-import com.creativemd.littletiles.client.render.RenderUploader;
-import com.creativemd.littletiles.client.render.optifine.OptifineVertexBuffer;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
@@ -32,14 +23,10 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import shadersmod.client.ShadersRender;
 
@@ -139,7 +126,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			
 			BlockRenderLayer layer = iterator.next();
 			
-			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 				ShadersRender.preRenderChunkLayer(layer);
 			
 			List<TERenderData> blocksToRender = entity.renderData.getValues(layer);
@@ -182,7 +169,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     			}
 
     			data.buffer.bindBuffer();
-    			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+    			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
     				ShadersRender.setupArrayPointersVbo();
     			else
 				{
@@ -202,7 +189,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				GlStateManager.popMatrix();
 			}
 			
-			if(FMLClientHandler.instance().hasOptifine() && OptifineVertexBuffer.isShaders())
+			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 				ShadersRender.postRenderChunkLayer(layer);
 		}
 		

@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockPlanks;

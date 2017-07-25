@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -12,8 +12,8 @@ import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -194,8 +194,7 @@ public class LittleTileBlock extends LittleTile{
 	{
 		if(FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
 			return layer == BlockRenderLayer.CUTOUT_MIPPED; //Should fix an Optifine bug
-		//if(translucent)
-			//return layer == BlockRenderLayer.TRANSLUCENT;
+		
 		try{
 			return block.canRenderInLayer(getBlockState(), layer);
 		}catch(Exception e){
@@ -213,7 +212,6 @@ public class LittleTileBlock extends LittleTile{
 		super.onPlaced(player, stack, facing);
 		try{
 			block.onBlockPlacedBy(te.getWorld(), te.getPos(), getBlockState(), player, stack);
-			//block.onPostBlockPlaced(te.getWorld(), te.getPos(), getBlockState());
 		}catch(Exception e){
 			
 		}
@@ -223,11 +221,6 @@ public class LittleTileBlock extends LittleTile{
 	public SoundType getSound() {
 		return block.getSoundType();
 	}
-
-	/*@Override
-	public IIcon getIcon(int side) {
-		return block.getIcon(side, meta);
-	}*/
 	
 	@Override
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
@@ -236,7 +229,6 @@ public class LittleTileBlock extends LittleTile{
 			handler.randomDisplayTick(this, stateIn, worldIn, pos, rand);
 		else
 			block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
-		
 	}
 	
 	@Override
@@ -293,15 +285,9 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
-			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;// && ((LittleTileBlock) tile).translucent == translucent;
+			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
 		return false;
 	}
-
-	/*@Override
-	public boolean canBlockBeThreaded() {
-		//return false;
-		return block.getRenderType() == 0 && !(block instanceof BlockGrass);
-	}*/
 	
 	@Override
 	protected boolean canSawResize(EnumFacing facing, EntityPlayer player) {

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
 import java.util.ArrayList;
 
@@ -24,20 +24,6 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	public LittleTileBlockColored()
 	{
 		super();
-	}
-	
-	@Override
-	public void updatePacket(NBTTagCompound nbt)
-	{
-		super.updatePacket(nbt);
-		nbt.setInteger("color", color);
-	}
-	
-	@Override
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net, NBTTagCompound completeData)
-	{
-		super.receivePacket(nbt, net, completeData);
-		color = nbt.getInteger("color");
 	}
 	
 	@Override

@@ -1,5 +1,6 @@
-package com.creativemd.littletiles.common.utils;
+package com.creativemd.littletiles.common.tiles;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,15 +11,17 @@ import javax.annotation.Nullable;
 import java.util.Random;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
+import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.small.LittleTileBox;
-import com.creativemd.littletiles.common.utils.small.LittleTileCoord;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
-import com.creativemd.littletiles.common.utils.small.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -26,22 +29,28 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.server.management.PlayerChunkMap;
+import net.minecraft.server.management.PlayerChunkMapEntry;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.chunk.EmptyChunk;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -89,11 +98,6 @@ public abstract class LittleTile {
 		tileIDs.put(LittleClass, id);
 	}
 	
-	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt)
-	{
-		return CreateandLoadTile(te, world, nbt, false, null);
-	}
-	
 	public static LittleTile CreateEmptyTile(String id)
 	{
 		Class<? extends LittleTile> TileClass = getClassByID(id);
@@ -108,7 +112,7 @@ public abstract class LittleTile {
 		return null;
 	}
 	
-	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt, boolean isPacket, NetworkManager net)
+	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt)
 	{
 		if(nbt.hasKey("tileID")) //If it's the old tileentity
 		{
@@ -126,22 +130,18 @@ public abstract class LittleTile {
 		}else{
 			LittleTile tile = CreateEmptyTile(nbt.getString("tID"));
 			if(tile != null)
-				if(isPacket)
-					tile.receivePacket(nbt, net, nbt);
-				else{
-					try {
-						tile.loadTile(te, nbt);
-					}catch(Exception e){
-						e.printStackTrace();
-						return null;
-					}
+			{
+				try {
+					tile.loadTile(te, nbt);
+				}catch(Exception e){
+					e.printStackTrace();
+					return null;
 				}
+			}
 			return tile;		
 		}
 		return null;
 	}
-	
-	public boolean needsFullUpdate = false;
 	
 	public boolean invisible = false;
 	
@@ -222,11 +222,11 @@ public abstract class LittleTile {
 		return size;
 	}
 	
-	public boolean canBeCombined(LittleTile tile) {
-		//if(isStructureBlock && isMainBlock)
-			//return false;
+	public boolean canBeCombined(LittleTile tile)
+	{	
 		if(isStructureBlock != tile.isStructureBlock)
 			return false;
+		
 		if(isStructureBlock && structure != tile.structure)
 			return false;
 		
@@ -251,7 +251,6 @@ public abstract class LittleTile {
 	{
 		return true;
 	}
-	//public abstract boolean canBeCombined(LittleTile tile);
 	
 	public void combineTiles(LittleTile tile)
 	{
@@ -275,32 +274,54 @@ public abstract class LittleTile {
 	
 	//================Packets================
 	
-	public void updatePacket(NBTTagCompound nbt)
+	protected static Field playerInChunkMapEntry = ReflectionHelper.findField(PlayerChunkMapEntry.class, "players", "field_187283_c");
+	
+	/**
+	 * Only works for tiles which support update packets. Example: LittleTileTE
+	 * @return
+	 */
+	public boolean sendUpdatePacketToClient()
 	{
-		if(isLoaded() && isMainBlock)
-			this.structure.onUpdatePacketReceived();
-		nbt.setInteger("bSize", boundingBoxes.size());
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
+		if(supportsUpdatePacket())
+		{
+			if(!te.getWorld().isRemote && te.getWorld() instanceof WorldServer)
+			{
+				PlayerChunkMap map = ((WorldServer) te.getWorld()).getPlayerChunkMap();
+				ChunkPos pos = new ChunkPos(te.getPos());
+				PlayerChunkMapEntry entry = map.getEntry(pos.chunkXPos, pos.chunkZPos);
+				try {
+					List<EntityPlayerMP> players = (List<EntityPlayerMP>) playerInChunkMapEntry.get(entry);
+					PacketHandler.sendPacketToPlayers(new LittleTileUpdatePacket(this, getUpdateNBT()), players);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				
+			}
+			
+			return true;
 		}
+		return false;
 	}
 	
-	public void receivePacket(NBTTagCompound nbt, NetworkManager net, NBTTagCompound completeData)
+	/**
+	 * Can be used to force a complete update on client for tiles which support update packet (example: LittleTileTE)
+	 */
+	public boolean needsFullUpdate = false;
+	
+	public boolean supportsUpdatePacket()
 	{
-		int count = nbt.getInteger("bSize");
+		return false;
+	}
+	
+	public NBTTagCompound getUpdateNBT()
+	{
+		return null;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void receivePacket(NBTTagCompound nbt, NetworkManager net)
+	{
 		
-		if(te.isClientSide())
-			te.removeTile(this);
-		boundingBoxes.clear();
-		for (int i = 0; i < count; i++) {
-			boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
-		}
-		if(te.isClientSide())
-			te.addTile(this);
-		
-		if(isMainBlock)
-			structure = LittleStructure.createAndLoadStructure(completeData, this);
-		updateCorner();
 	}
 	
 	public boolean isIdenticalToNBT(NBTTagCompound nbt)
@@ -379,19 +400,12 @@ public abstract class LittleTile {
 	public void saveTileCore(NBTTagCompound nbt)
 	{
 		nbt.setString("tID", getID());
-		//if(cornerVec != null)
-			//cornerVec.writeToNBT("cVec", nbt);
 		
 		NBTTagList list = new NBTTagList();
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
 		}
 		nbt.setTag("boxes", list);
-		
-		/*nbt.setInteger("bSize", boundingBoxes.size());
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			boundingBoxes.get(i).writeToNBT("bBox" + i, nbt);
-		}*/
 		
 		if(isStructureBlock)
 		{
@@ -402,7 +416,6 @@ public abstract class LittleTile {
 				structure.writeToNBT(nbt);
 			}else{
 				coord.writeToNBT(nbt);
-				//pos.writeToNBT(nbt);
 			}
 		}
 	}
@@ -422,7 +435,6 @@ public abstract class LittleTile {
 	
 	public void loadTileCore(NBTTagCompound nbt)
 	{
-		//cornerVec = new LittleTileVec("cVec", nbt);
 		if(nbt.hasKey("bSize"))
 		{
 			int count = nbt.getInteger("bSize");
@@ -448,7 +460,6 @@ public abstract class LittleTile {
 			{
 				isMainBlock = true;
 				structure = LittleStructure.createAndLoadStructure(nbt, this);
-				//structure.mainTile = this;
 			}else{
 				if(nbt.hasKey("coX"))
 				{
@@ -473,9 +484,6 @@ public abstract class LittleTile {
 	
 	//================Placing================
 	
-	/**return null for any rotation**/
-	//public abstract ForgeDirection[] getValidRotation();
-	
 	/**stack may be null**/
 	public void onPlaced(@Nullable EntityPlayer player , ItemStack stack, EnumFacing facing)
 	{
@@ -499,15 +507,11 @@ public abstract class LittleTile {
 	
 	public void place()
 	{
-		//LittleTileBox box = new LittleTileBox(getSelectedBox());
 		updateCorner();
 		te.addTile(this);
-		//te.getWorldObj().playSoundEffect((double)((float)te.xCoord + 0.5F), (double)((float)te.yCoord + 0.5F), (double)((float)te.zCoord + 0.5F), getSound().func_150496_b(), (getSound().getVolume() + 1.0F) / 2.0F, getSound().getPitch() * 0.8F);
 	}
 	
 	//================Destroying================
-	
-	public void onDestoryed(){}
 	
 	public void destroy()
 	{
@@ -587,6 +591,14 @@ public abstract class LittleTile {
 	/**Used for LittleTileContainer. Can return null.**/
 	public abstract BlockEntry getBlockEntry();
 	
+	public LittleTilePreview getPreviewTile()
+	{
+		NBTTagCompound nbt = new NBTTagCompound();
+		saveTileExtra(nbt);
+		nbt.setString("tID", getID());		
+		return new LittleTilePreview(boundingBoxes.get(0).copy(), nbt);
+	}
+	
 	//================Notifcations/Events================
 	
 	public void onNeighborChangeOutside()
@@ -603,19 +615,10 @@ public abstract class LittleTile {
 	
 	//================Rendering================
 	
-	/*@SideOnly(Side.CLIENT)
-	public boolean isRendering;
-	
-	@SideOnly(Side.CLIENT)
-	public ArrayList<LittleBlockVertex> lastRendered;*/
-	
 	public boolean needCustomRendering()
 	{
 		return false;
 	}
-	
-	/*@SideOnly(Side.CLIENT)
-	public abstract boolean canBlockBeThreaded();*/
 	
 	@SideOnly(Side.CLIENT)
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
@@ -654,29 +657,6 @@ public abstract class LittleTile {
 	public abstract SoundType getSound();
 	
 	//================Tick================
-	
-	/*public static final int ticksBetweenRefresh = 1200;
-	
-	public int ticks = 0;
-	
-	public void updateEntity()
-	{
-		ticks++;
-		if(ticks > ticksBetweenRefresh)
-		{
-			ticks = 0;
-			if(isStructureBlock && isMainBlock && structure.tilesToLoad != null)
-			{
-				//System.out.println("Loading structure x=" + te.xCoord + " y=" + te.yCoord + " z=" + te.zCoord + "");
-				structure.loadTiles();
-			}
-		}
-	}
-	
-	public boolean shouldTick()
-	{
-		return isStructureBlock && isMainBlock;
-	}*/
 	
 	public void updateEntity()
 	{
@@ -761,16 +741,11 @@ public abstract class LittleTile {
 	
 	public LittleStructure structure;
 	
-	/*
-	 * Removed positions are now saved relative to the current position
-	 * @Deprecated
-	 * public LittleTilePosition pos;*/
-	
 	public LittleTileCoord coord;
 	
 	public boolean isMainBlock = false;
 	
-	private boolean loadingStructure = false;
+	protected boolean loadingStructure = false;
 	
 	public boolean checkForStructure()
 	{
@@ -878,13 +853,6 @@ public abstract class LittleTile {
 			return new LittleTilePosition(new BlockPos(coord), position.copy());
 		}
 		
-	}
-
-	public LittleTilePreview getPreviewTile() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		saveTileExtra(nbt);
-		nbt.setString("tID", getID());		
-		return new LittleTilePreview(boundingBoxes.get(0).copy(), nbt);
 	}
 	
 }

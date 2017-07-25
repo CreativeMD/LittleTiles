@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.api.blocks;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.utils.LittleTileBlock;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.BlockTNT;
 import net.minecraft.block.BlockWorkbench;

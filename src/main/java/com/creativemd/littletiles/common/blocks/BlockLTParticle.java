@@ -14,9 +14,10 @@ import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.utils.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.LittleTileTileEntity;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.LittleTileTE;
+import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;

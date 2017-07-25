@@ -4,8 +4,8 @@ import com.creativemd.creativecore.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.gui.controls.container.client.GuiSlotControl;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.small.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.item.ItemStack;
 

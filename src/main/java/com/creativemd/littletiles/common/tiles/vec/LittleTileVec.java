@@ -1,9 +1,9 @@
-package com.creativemd.littletiles.common.utils.small;
+package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.littletiles.common.utils.LittleTile;
-import com.creativemd.littletiles.common.utils.PlacementHelper;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.PlacementHelper;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
