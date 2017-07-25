@@ -288,7 +288,7 @@ public abstract class LittleTile {
 			{
 				PlayerChunkMap map = ((WorldServer) te.getWorld()).getPlayerChunkMap();
 				ChunkPos pos = new ChunkPos(te.getPos());
-				PlayerChunkMapEntry entry = map.getEntry(pos.chunkXPos, pos.chunkZPos);
+				PlayerChunkMapEntry entry = map.getEntry(pos.x, pos.z);
 				try {
 					List<EntityPlayerMP> players = (List<EntityPlayerMP>) playerInChunkMapEntry.get(entry);
 					PacketHandler.sendPacketToPlayers(new LittleTileUpdatePacket(this, getUpdateNBT()), players);
