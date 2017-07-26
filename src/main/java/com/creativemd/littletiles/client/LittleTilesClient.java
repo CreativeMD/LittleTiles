@@ -106,13 +106,13 @@ public class LittleTilesClient extends LittleTilesServer{
 	@Override
 	public void loadSidePost()
 	{
-		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
+		/*mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)
             {
                 return new ModelResourceLocation("LTChisel", "inventory");
             }
-        });
+        });*/
 		mc.getItemColors().registerItemColorHandler(new IItemColor() {
 			
 			@Override
@@ -197,6 +197,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.recipe);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.chisel);
+		CreativeCoreClient.registerItemColorHandler(LittleTiles.multiTiles);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTile);
 	}
 	
 	@Override
