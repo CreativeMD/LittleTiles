@@ -39,7 +39,7 @@ public class LittlePatchingLoader implements IFMLLoadingPlugin {
 
 	@Override
 	public String getAccessTransformerClass() {
-		return null;
+		return LittleTilesAfterTransformer.class.getName();
 	}
 
 }
