@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
-import com.creativemd.creativecore.common.tileentity.ICustomTickable;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -31,11 +30,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -44,7 +40,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityLittleTiles extends TileEntityCreative implements ICustomTickable{
+public class TileEntityLittleTiles extends TileEntityCreative implements ITickable{
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -314,9 +310,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 			}
 		}
 		
-		if(!world.isRemote && tiles.size() == 0) //Be very careful with that!!! MIght cause a lot of issues!!!!
-			world.setBlockToAir(getPos());
-		
 	}
 	
 	public void updateTiles()
@@ -336,6 +329,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 			updateCustomRenderer();
 		
 		customTilesUpdate();
+		
+		if(!world.isRemote && tiles.size() == 0)
+			world.setBlockToAir(getPos());
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -640,6 +636,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
         if(world != null)
         {
         	updateBlock();
+        	customTilesUpdate();
         }
     }
 
@@ -834,17 +831,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 	public void onLoad()
     {
 		setLoaded();
+		
+		customTilesUpdate();
     }
 	
 	public boolean ticking = true;
-	
-	@Override
-	public boolean shouldTick() {
-		if(!updateTiles.isEmpty())
-			return true;
-		ticking = false;
-		return false;
-	}
 	
 	@Override
 	public void update()
@@ -860,7 +851,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 		
 		if(updateTiles.isEmpty())
 		{
-			//System.out.println("Ticking tileentity which shouldn't " + pos);
+			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return ;
 		}
 		
@@ -971,6 +962,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ICustom
 			}
 		}
 		
+	}
+
+	public boolean shouldTick() {
+		return !updateTiles.isEmpty();
 	}
 	
 	/*public List<LittleTile> removeBoxFromTiles(LittleTileBox box) {

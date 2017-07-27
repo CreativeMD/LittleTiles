@@ -395,7 +395,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				fakeWorld.rotY = worldRotY;
 				fakeWorld.rotZ = worldRotZ;
 			}
-			if(blocks.get(i).shouldTick())
+			
+			if(blocks.get(i).shouldTick()) //place enhance this since it's quite horrible for larger animations
 				blocks.get(i).update();
 		}
 		
