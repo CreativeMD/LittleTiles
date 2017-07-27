@@ -716,13 +716,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     @Override
     public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos)
     {
-    	if(loadingTileEntityFromWorld)
+    	/*if(loadingTileEntityFromWorld) if is normal cube player will be pushed out of the block (bad for no-clip structure or water
     		return false;
     	for (int i = 0; i < 6; i++) {
 			if(!isSideSolid(state, world, pos, EnumFacing.getFront(i)))
 				return false;
 		}
-    	return true;
+    	return true;*/
+    	return false;
     }
     
     @Override
