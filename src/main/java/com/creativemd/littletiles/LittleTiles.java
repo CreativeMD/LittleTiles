@@ -7,6 +7,16 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
+import com.creativemd.littletiles.common.action.tool.LittleActionRubberMallet;
+import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
@@ -17,6 +27,7 @@ import com.creativemd.littletiles.common.blocks.ItemBlockColored;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
+import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
@@ -24,6 +35,7 @@ import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
@@ -43,14 +55,11 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleCustomPlacePacket;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittlePlacePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
@@ -62,6 +71,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -97,9 +107,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles",acceptedMinecraftVersions="")
 public class LittleTiles {
-	
-	@Instance(LittleTiles.modid)
-	public static LittleTiles instance = new LittleTiles();
 	
 	@SidedProxy(clientSide = "com.creativemd.littletiles.client.LittleTilesClient", serverSide = "com.creativemd.littletiles.server.LittleTilesServer")
 	public static LittleTilesServer proxy;
@@ -184,11 +191,11 @@ public class LittleTiles {
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
-		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
-		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity");
-		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
+		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored", LittleTilePreviewHandler.defaultHandler);
 		
-		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
+		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle", LittleTilePreviewHandler.defaultHandler);
 		
 		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
 			
@@ -226,6 +233,20 @@ public class LittleTiles {
 			}
 		});
 		
+		GuiHandler.registerGuiHandler("chisel", new CustomGuiHandler(){
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubGuiChisel(player.getHeldItemMainhand());
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerChisel(player, player.getHeldItemMainhand());
+			}
+		});
+		
 		GuiHandler.registerGuiHandler("lt-import", new CustomGuiHandler() {
 			
 			@Override
@@ -254,18 +275,26 @@ public class LittleTiles {
 			}
 		});
 		
-		CreativeCorePacket.registerPacket(LittlePlacePacket.class, "LittlePlace");
-		CreativeCorePacket.registerPacket(LittleCustomPlacePacket.class, "LittleCustomPlace");
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
-		CreativeCorePacket.registerPacket(LittleSelectShapePacket.class, "LittleSelect");
 		CreativeCorePacket.registerPacket(LittleDoorInteractPacket.class, "LittleDoor");
 		CreativeCorePacket.registerPacket(LittleSlidingDoorPacket.class, "LittleSlidingDoor");
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
+		
+		LittleAction.registerLittleAction("act", LittleActionActivated.class);
+		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class);
+		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class);
+		LittleAction.registerLittleAction("des", LittleActionDestroy.class);
+		LittleAction.registerLittleAction("plR", LittleActionPlaceRelative.class);
+		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class);
+		
+		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class);
+		LittleAction.registerLittleAction("rub", LittleActionRubberMallet.class);
+		LittleAction.registerLittleAction("saw", LittleActionSaw.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		

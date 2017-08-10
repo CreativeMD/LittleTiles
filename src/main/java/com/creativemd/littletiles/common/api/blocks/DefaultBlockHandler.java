@@ -30,7 +30,7 @@ public class DefaultBlockHandler {
 	
 	public static void initVanillaBlockHandlers()
 	{
-		SpecialBlockHandler.registerSpecialHandler(BlockTNT.class, new SpecialBlockHandler() {
+		SpecialBlockHandler.registerSpecialHandler(BlockTNT.class, new ISpecialBlockHandler() {
 			
 			@Override
 			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
@@ -77,7 +77,7 @@ public class DefaultBlockHandler {
 			
 		});
 		
-		SpecialBlockHandler.registerSpecialHandler(Blocks.CRAFTING_TABLE, new SpecialBlockHandler() {
+		SpecialBlockHandler.registerSpecialHandler(Blocks.CRAFTING_TABLE, new ISpecialBlockHandler() {
 			
 			@Override
 			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)

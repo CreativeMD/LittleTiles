@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.mods.chiselsandbits;
 
 import java.util.ArrayList;
 
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

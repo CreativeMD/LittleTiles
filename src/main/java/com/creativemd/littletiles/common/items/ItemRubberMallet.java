@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.tool.LittleActionRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -12,6 +13,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -51,9 +54,7 @@ public class ItemRubberMallet extends Item {
 		{
 			if(world.isRemote)
 			{
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setInteger("side", facing.getIndex());
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.RUBBER_MALLET, nbt));
+				new LittleActionRubberMallet(pos, player, GuiContainer.isCtrlKeyDown()).execute();
 			}
 			return EnumActionResult.SUCCESS;
 		}

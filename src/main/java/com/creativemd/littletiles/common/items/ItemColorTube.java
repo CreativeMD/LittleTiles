@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.List;
 
-import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -10,30 +9,25 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerColorTube;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
-import com.creativemd.littletiles.common.packet.LittleSelectShapePacket.LittleSelectShapeAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.color.IItemColor;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -163,9 +157,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 				return true;
 			}
 		}else if(shape.leftClick(player, stack.getTagCompound(), result)){
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setInteger("color", getColor(stack));
-			PacketHandler.sendPacketToServer(new LittleSelectShapePacket(shape.getBoxes(player, stack.getTagCompound(), result), LittleSelectShapeAction.COLOR_TUBE, nbt));
+			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack)).execute();
 		}
 		return true;
 	}

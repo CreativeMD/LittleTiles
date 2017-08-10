@@ -3,30 +3,29 @@ package com.creativemd.littletiles.common.container;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.gui.controls.SlotControlBlockEntry;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient;
+import com.creativemd.littletiles.common.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.OreDictionary;
 
 public class SubContainerTileContainer extends SubContainer{
 	
@@ -42,77 +41,86 @@ public class SubContainerTileContainer extends SubContainer{
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event)
 	{
-		if(event.source instanceof SlotControlBlockEntry)
+		if(event.source instanceof SlotControl)
 		{
-			SlotControlBlockEntry control = (SlotControlBlockEntry) event.source;
-			Slot slot = ((SlotControl) event.source).slot;
-			ItemStack input = slot.getStack();
-			Block block = Block.getBlockFromItem(input.getItem());
-			int meta = input.getItemDamage();
-			if(control.entry != null)
+			if(event.source instanceof SlotControlBlockIngredient)
 			{
-				block = control.entry.block;
-				meta = control.entry.meta;
-			}
-			if((!(block instanceof BlockAir) && SubContainerHammer.isBlockValid(block)) || PlacementHelper.isLittleBlock(input) || input.getItem() instanceof ItemTileContainer)
-			{
-				if(control.entry == null)
-				{
-					if(!input.isEmpty())
-					{
-						if(input.getItem() instanceof ItemTileContainer)
-						{
-							if(stack != input)
-							{
-								ArrayList<BlockEntry> map = ItemTileContainer.loadMap(input);
-								for (int i = 0; i < map.size(); i++) {
-									ItemTileContainer.addBlock(stack, map.get(i).block, map.get(i).meta, map.get(i).value);
-								}
-								ItemTileContainer.saveMap(input, new ArrayList<BlockEntry>());
-							}
-							slot.putStack(ItemStack.EMPTY);
-							if(player.inventory.addItemStackToInventory(input))
-								player.dropItem(input, false);
-						}else{
-							if(PlacementHelper.isLittleBlock(input))
-							{
-								List<LittleTilePreview> previews = PlacementHelper.getLittleInterface(input).getLittlePreview(input);
-								for (int i = 0; i < previews.size(); i++) {
-									if(previews.get(i).isOrdinaryTile())
-										ItemTileContainer.addBlock(stack, previews.get(i).getPreviewBlock(), previews.get(i).getPreviewBlockMeta(), previews.get(i).size.getPercentVolume()*input.getCount());
-									else
-									{
-										ItemStack unmergeable = ItemBlockTiles.getStackFromPreview(previews.get(i));
-										if(player.inventory.addItemStackToInventory(unmergeable))
-											player.dropItem(unmergeable, false);
-									}
-								}
-								input.setCount(0);
-							}else{
-								ItemTileContainer.addBlock(stack, block, meta, input.getCount());
-								input.setCount(0);
-							}
-						}
-					}
-				}else{
-					
-					if(control.entry.value < 1)
-					{
-						int countBefore = (int) (control.entry.value/LittleTile.minimumTileSize);
-						if(countBefore > input.getCount())
-							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-input.getCount()) * LittleTile.minimumTileSize);
-						else if(countBefore < input.getCount())
-							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (input.getCount()-countBefore) * LittleTile.minimumTileSize);
-					}else{
-						int countBefore = (int) control.entry.value;
-						if(countBefore > input.getCount())
-							ItemTileContainer.drainBlock(stack, control.entry.block, control.entry.meta, (countBefore-input.getCount()));
-						else if(countBefore < input.getCount())
-							ItemTileContainer.addBlock(stack, control.entry.block, control.entry.meta, (input.getCount()-countBefore));
+				SlotControlBlockIngredient slot = (SlotControlBlockIngredient) event.source;
+				
+				if(slot.slot.getStack().isEmpty())
+					slot.ingredient = null;
+				else if(slot.ingredient != null)
+					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleTile.maxTilesPerBlock;
+				
+				List<BlockIngredient> inventory = new ArrayList<>();
+				for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
+					for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
+						int index = x + y*ItemTileContainer.inventoryWidth;
+						BlockIngredient ingredient = ((SlotControlBlockIngredient) get("item" + index)).ingredient;
+						if(ingredient != null)
+							inventory.add(ingredient);
 					}
 				}
+				
+				ItemTileContainer.saveInventory(stack, inventory);
+				
+				reloadControls();
+			}else if(event.source.name.startsWith("input")){
+				
+				ItemStack input = ((SlotControl) event.source).slot.getStack();
+				
+				CombinedIngredients ingredients = LittleAction.getIngredientsOfStack(input);
+				
+				boolean containedColor = false;
+				
+				if(ingredients != null)
+				{
+					ColorUnit result = ItemTileContainer.storeColor(stack, ingredients.color, true);
+					if(result != null && result.equals(ingredients.color))
+						return ;
+					
+					containedColor = !ingredients.color.isEmpty();
+					
+					while(!input.isEmpty())
+					{
+						if(ItemTileContainer.storeBlocks(stack, ingredients.block.copy(), true) != null)
+							break;
+						input.shrink(1);
+						ItemTileContainer.storeBlocks(stack, ingredients.block.copy(), false);
+						if(ItemTileContainer.storeColor(stack, ingredients.color, false) != null)
+							break;
+					}
+					
+					updateSlots();
+						
+					
+					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
+				}else if(input.getItem() instanceof ItemDye){
+					ColorUnit color = ColorUnit.getColors(ItemDye.DYE_COLORS[input.getItemDamage()]);
+					ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
+					if(result != null && result.equals(color))
+						return ;
+					while(!input.isEmpty())
+					{
+						input.shrink(1);
+						if(ItemTileContainer.storeColor(stack, color, false) != null)
+							break;
+					}
+					
+					containedColor = true;
+					
+				}
+				
+				if(containedColor)
+				{
+					reloadControls();
+					
+					player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
+				}
 			}
-			reloadControls();
+			
+			
+			
 		}
 	}
 	
@@ -125,51 +133,61 @@ public class SubContainerTileContainer extends SubContainer{
 		nbt.setBoolean("reload", true);
 		sendNBTToGui(nbt);
 	}
+	
+	public InventoryBasic bagInventory;
+	
+	public void updateSlots()
+	{
+		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
+		for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
+			for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
+				int index = x + y*ItemTileContainer.inventoryWidth;
+				bagInventory.setInventorySlotContents(index, index < inventory.size() ? inventory.get(index).getTileItemStack() : ItemStack.EMPTY);
+				((SlotControlBlockIngredient) get("item" + index)).ingredient = index < inventory.size() ? inventory.get(index) : null;
+			}
+		}
+	}
 
 	@Override
 	public void createControls() {
-		int index = 0;
-		ArrayList<BlockEntry> map = ItemTileContainer.loadMap(stack);
-		InventoryBasic basic = new InventoryBasic("item", false, map.size()+1)
+		
+		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
+		bagInventory = new InventoryBasic("item", false, ItemTileContainer.inventorySize)
 		{
 			@Override
 			public int getInventoryStackLimit()
 		    {
-		        return 4098;
+		        return ItemTileContainer.maxStackSizeOfTiles;
 		    }
 		};
-		int cols = 2;
-		for (BlockEntry entry : map) {
-			if(!(entry.block instanceof BlockAir) && entry.block != null)
-			{
-				ItemStack stack = entry.getItemStack();
-				if(entry.value >= 1)
-					stack.setCount((int) entry.value);
-				else
-					stack = entry.getTileItemStack();
-				basic.setInventorySlotContents(index, stack);
-				controls.add(new SlotControlBlockEntry(new Slot(basic, index, 8 + (index % cols) * 110, 8+(index/cols)*24){
+		for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
+			for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
+				int index = x + y*ItemTileContainer.inventoryWidth;
+				bagInventory.setInventorySlotContents(index, index < inventory.size() ? inventory.get(index).getTileItemStack() : ItemStack.EMPTY);
+				controls.add(new SlotControlBlockIngredient(new Slot(bagInventory, index, 5+x*18, 5+y*18){
 					@Override
-					public boolean isItemValid(ItemStack stack)
-					{
-						return SubContainerHammer.isBlockValid(Block.getBlockFromItem(stack.getItem())) || PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemTileContainer;
+					public boolean isItemValid(ItemStack stack) {
+						return false;
 					}
-					
-				}, entry));
-				index++;
+				}, index < inventory.size() ? inventory.get(index) : null));
 			}
 		}
-		basic.setInventorySlotContents(index, ItemStack.EMPTY);
-		SlotControl control = new SlotControlBlockEntry(new Slot(basic, index, 8 + (index % cols) * 110, 8+(index/cols)*24), null);
-		control.name = "item-last" + index;
-		controls.add(control);
-		addPlayerSlotsToContainer(player, 50, 170, this.index);
+		
+		InventoryBasic input = new InventoryBasic("input", false, 1);
+		addSlotToContainer(new Slot(input, 0, 120, 5));
+		
+		addPlayerSlotsToContainer(player);
+		
 	}
 	
 	@Override
 	public void onClosed()
 	{
 		player.inventory.mainInventory.set(index, stack);
+		ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
+		if(stack.isEmpty())
+			if(!player.inventory.addItemStackToInventory(stack))
+				WorldUtils.dropItem(player, stack);
 	}
 
 	@Override

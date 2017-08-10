@@ -942,7 +942,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			while(i < tiles.size()){
 				int j = 0;
 				while(j < tiles.size()) {
-					if(i != j && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
+					if(i != j && !tiles.get(i).isStructureBlock && !tiles.get(j).isStructureBlock && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
 					{
 						LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
 						if(box != null)

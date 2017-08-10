@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -26,7 +27,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.tools.nsc.transform.patmat.ScalaLogic.TreesAndTypesDomain.Var;
 
-public class BlockLTColored extends Block implements ISpecialLittleBlock{
+public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	public static final PropertyEnum<BlockLTColored.EnumType> VARIANT = PropertyEnum.<BlockLTColored.EnumType>create("variant", BlockLTColored.EnumType.class);
 
@@ -121,7 +122,7 @@ public class BlockLTColored extends Block implements ISpecialLittleBlock{
 	}
 	
 	@Override
-	public ArrayList<LittleTileBox> getCollisionBoxes(ArrayList<LittleTileBox> defaultBoxes, LittleTileBlock tile) {
+	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
 		if(tile.getBlockState().getValue(VARIANT) == EnumType.lava)
 			return new ArrayList<>();
 		return defaultBoxes;

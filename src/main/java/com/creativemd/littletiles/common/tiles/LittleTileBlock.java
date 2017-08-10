@@ -1,40 +1,27 @@
 package com.creativemd.littletiles.common.tiles;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
-import com.creativemd.littletiles.common.blocks.ISpecialLittleBlock;
-import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
+import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockGlass;
-import net.minecraft.block.BlockGrass;
-import net.minecraft.block.BlockTNT;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.item.EntityTNTPrimed;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
@@ -49,7 +36,7 @@ public class LittleTileBlock extends LittleTile{
 	private Block block;
 	private int meta;
 	
-	private SpecialBlockHandler handler;
+	private ISpecialBlockHandler handler;
 	
 	private void updateSpecialHandler()
 	{
@@ -300,16 +287,16 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
-	public ArrayList<LittleTileBox> getCollisionBoxes()
+	public List<LittleTileBox> getCollisionBoxes()
 	{
-		if(block instanceof ISpecialLittleBlock)
-			return ((ISpecialLittleBlock) block).getCollisionBoxes(super.getCollisionBoxes(), this);
+		if(hasSpecialBlockHandler())
+			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
 	}
 
 	@Override
-	public BlockEntry getBlockEntry() {
-		return new BlockEntry(block, meta, getPercentVolume());
+	public BlockIngredient getIngredient() {
+		return new BlockIngredient(block, meta, getPercentVolume());
 	}
 	
 }

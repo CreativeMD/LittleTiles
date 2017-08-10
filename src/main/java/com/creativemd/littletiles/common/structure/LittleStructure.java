@@ -17,9 +17,9 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -189,6 +189,9 @@ public abstract class LittleStructure {
 	
 	public void combineTiles()
 	{
+		if(!hasLoaded())
+			return ;
+		
 		BlockPos pos = null;
 
 		for (Iterator<TileEntityLittleTiles> iterator = tiles.getKeys().iterator(); iterator.hasNext();) {
@@ -571,11 +574,14 @@ public abstract class LittleStructure {
 	
 	//====================LittleTile-Stuff====================
 	
-	public void onLittleTileDestory()
+	public void onLittleTileDestroy()
 	{
-		for (Iterator iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			tile.te.removeTile(tile);
+		if(hasLoaded())
+		{
+			for (Iterator iterator = getTiles(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				tile.te.removeTile(tile);
+			}
 		}
 	}
 	
