@@ -3,9 +3,13 @@ package com.creativemd.littletiles.common.blocks;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,6 +17,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -51,6 +57,40 @@ public interface ILittleTile {
 	
 	public LittleStructure getLittleStructure(ItemStack stack);
 	
+	/**
+	 * @return Whether it should try to place it or not.
+	 */
+	@SideOnly(Side.CLIENT)
+	public default boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	{
+		return true;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default void onDeselect(EntityPlayer player, ItemStack stack) {}
+	
+	public default boolean arePreviewsAbsolute()
+	{
+		return false;
+	}
+	
+	public default boolean containsIngredients(ItemStack stack)
+	{
+		return !arePreviewsAbsolute();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {}
+	
+	/**
+	 * Only used for none absolute previews
+	 */
+	public default boolean drainIngredients(EntityPlayer player, ItemStack stack, List<PlacePreviewTile> previews) throws NotEnoughIngredientsException
+	{
+		stack.shrink(1);
+		return true;
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public default float getPreviewAlphaFactor()
 	{
@@ -65,12 +105,4 @@ public interface ILittleTile {
 	
 	@SideOnly(Side.CLIENT)
 	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position) {}
-	
-	/**
-	 * absolute previews cannot be placed directly
-	 */
-	public default boolean arePreviewsAbsolute()
-	{
-		return false;
-	}
 }

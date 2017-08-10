@@ -10,13 +10,12 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.container.SubContainerUtilityKnife;
 import com.creativemd.littletiles.common.gui.SubGuiUtilityKnife;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
-import com.creativemd.littletiles.common.packet.LittleSelectShapePacket;
-import com.creativemd.littletiles.common.packet.LittleSelectShapePacket.LittleSelectShapeAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -78,7 +77,7 @@ public class ItemUtilityKnife extends Item implements ISpecialBlockSelector, IGu
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTileVec absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if(shape.leftClick(player, stack.getTagCompound(), result))
-			PacketHandler.sendPacketToServer(new LittleSelectShapePacket(shape.getBoxes(player, stack.getTagCompound(), result), LittleSelectShapeAction.UTILITY_KNIFE, new NBTTagCompound()));
+			new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result)).execute();
 		return true;
 	}
 	

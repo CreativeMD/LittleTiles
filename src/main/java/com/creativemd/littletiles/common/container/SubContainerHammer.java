@@ -11,8 +11,8 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.Block;
@@ -125,8 +125,9 @@ public class SubContainerHammer extends SubContainer{
 					dropstack.getTagCompound().setString("tID", "BlockTileBlock");
 				
 				double missingTiles = blocks-tiles*size.getPercentVolume();
-				if(missingTiles > 0)
-					ItemTileContainer.addBlock(player, block, meta, missingTiles);
+				//if(missingTiles > 0)
+					//ItemTileContainer.addBlock(player, block, meta, missingTiles);
+				
 				//dropstack.stackTagCompound.setString("block", Block.blockRegistry.getNameForObject(block));
 				//dropstack.stackTagCompound.setInteger("meta", stack.getItemDamage());
 				//ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);

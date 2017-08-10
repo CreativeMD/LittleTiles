@@ -1,19 +1,13 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.container.SubContainerWrench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
-import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -35,7 +29,7 @@ public class SubGuiWrench extends SubGui {
 				{
 					if(stack1.getItem() instanceof ItemRecipe)
 					{
-						List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
+						/*List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
 						ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
 						ArrayList<BlockEntry> remaining = new ArrayList<>();
 						
@@ -53,7 +47,7 @@ public class SubGuiWrench extends SubGui {
 						}
 						
 						if(!success)
-							return ;
+							return ;*/
 					}
 				}
 				sendPacketToServer(new NBTTagCompound());

@@ -5,20 +5,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import java.util.Random;
-
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
+import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -28,7 +27,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -49,8 +47,6 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -58,6 +54,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class LittleTile {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
+	private static HashMap<String, Class<? extends LittleTile>> invTileIDs = new HashMap<String, Class<? extends LittleTile>>();
+	private static HashMap<String, LittleTilePreviewHandler> previewHandlers = new HashMap<String, LittleTilePreviewHandler>();
 	
 	public static int gridSize = 16;
 	public static int halfGridSize = gridSize/2;
@@ -80,12 +78,7 @@ public abstract class LittleTile {
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
 	{
-		 for (Entry<Class<? extends LittleTile>, String> entry : tileIDs.entrySet()) {
-		        if (id.equals(entry.getValue())) {
-		            return entry.getKey();
-		        }
-		    }
-		    return null;
+		return invTileIDs.get(id);
 	}
 	
 	public static String getIDByClass(Class<? extends LittleTile> LittleClass)
@@ -93,10 +86,22 @@ public abstract class LittleTile {
 		return tileIDs.get(LittleClass);
 	}
 	
+	public static LittleTilePreviewHandler getPreviewHandler(LittleTile tile)
+	{
+		return getPreviewHandler(tile.getID());
+	}
+	
+	public static LittleTilePreviewHandler getPreviewHandler(String id)
+	{
+		return previewHandlers.get(id);
+	}
+	
 	/**The id has to be unique and cannot be changed!**/
-	public static void registerLittleTile(Class<? extends LittleTile> LittleClass, String id)
+	public static void registerLittleTile(Class<? extends LittleTile> LittleClass, String id, LittleTilePreviewHandler handler)
 	{
 		tileIDs.put(LittleClass, id);
+		invTileIDs.put(id, LittleClass);
+		previewHandlers.put(id, handler);
 	}
 	
 	public static LittleTile CreateEmptyTile(String id)
@@ -529,7 +534,7 @@ public abstract class LittleTile {
 		if(isStructureBlock)
 		{
 			if(!te.getWorld().isRemote && isLoaded())
-				structure.onLittleTileDestory();
+				structure.onLittleTileDestroy();
 		}else
 			te.removeTile(this);
 	}
@@ -599,8 +604,7 @@ public abstract class LittleTile {
 	
 	public abstract ItemStack getDrop();
 	
-	/**Used for LittleTileContainer. Can return null.**/
-	public abstract BlockEntry getBlockEntry();
+	public abstract BlockIngredient getIngredient();
 	
 	public LittleTilePreview getPreviewTile()
 	{
@@ -724,7 +728,7 @@ public abstract class LittleTile {
 	
 	//================Collision================
 	
-	public ArrayList<LittleTileBox> getCollisionBoxes()
+	public List<LittleTileBox> getCollisionBoxes()
 	{
 		if(shouldCheckForCollision())
 			return new ArrayList<>();

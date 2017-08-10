@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles;
+package com.creativemd.littletiles.common.tiles.preview;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -10,8 +10,10 @@ import java.util.Map.Entry;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
+import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -20,7 +22,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -68,7 +69,9 @@ public class LittleTilePreview {
 	
 	public LittleTileBox box;
 	
-	public ArrayList<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
+	public List<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
+	
+	public final LittleTilePreviewHandler handler;
 	
 	//================Constructors================
 	
@@ -83,13 +86,15 @@ public class LittleTilePreview {
 		else
 			new LittleTileSize(0,0,0);
 		
-		if(nbt.hasKey("tile"))
+		if(nbt.hasKey("tile")) //new way
 			tileData = nbt.getCompoundTag("tile");
-		else{
+		else{ //Old way
 			tileData = nbt.copy();
 			tileData.removeTag("bBox");
 			tileData.removeTag("size");
 		}
+		
+		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
 	
 	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData)
@@ -102,65 +107,46 @@ public class LittleTilePreview {
 	{
 		this.size = size;
 		this.tileData = tileData;
+		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
 	
 	//================Preview================
 	
-	public boolean isOrdinaryTile()
+	public boolean canBeConvertedToBlockEntry()
 	{
-		String id = tileData.getString("tID");
-		return id.equals("BlockTileBlock") || id.equals("BlockTileColored");
+		return handler.canBeConvertedToBlockEntry(this);
 	}
 	
-	/**Rendering inventory**/
 	public String getPreviewBlockName()
 	{
-		return tileData.getString("block");
+		return handler.getPreviewBlockName(this);
 	}
 	
-	/**Rendering inventory**/
 	public Block getPreviewBlock()
 	{
-		if(tileData.hasKey("block"))
-			return Block.getBlockFromName(getPreviewBlockName());
-		return Blocks.AIR;
+		return handler.getPreviewBlock(this);
 	}
 	
-	/**Rendering inventory**/
 	public int getPreviewBlockMeta()
 	{
-		return tileData.getInteger("meta");
+		return handler.getPreviewBlockMeta(this);
 	}
 	
-	/**Rendering inventory**/
 	public boolean hasColor()
 	{
-		return tileData.hasKey("color");
+		return handler.hasColor(this);
 	}
 	
-	/**Rendering inventory**/
 	public int getColor()
 	{
-		if(tileData.hasKey("color"))
-			return tileData.getInteger("color");
-		return -1;
+		return handler.getColor(this);
 	}
 	
 	/**Rendering inventory**/
 	@SideOnly(Side.CLIENT)
 	public RenderCubeObject getCubeBlock()
 	{
-		RenderCubeObject cube = new RenderCubeObject(box.getCube(), null);
-		if(tileData.hasKey("block"))
-		{
-			cube.block = getPreviewBlock();
-			cube.meta = getPreviewBlockMeta();
-		}else{
-			cube.block = Blocks.STONE;
-		}
-		if(tileData.hasKey("color"))
-			cube.color = tileData.getInteger("color");
-		return cube;
+		return handler.getCubeBlock(this);
 	}
 	
 	public boolean isInvisible()
@@ -178,9 +164,9 @@ public class LittleTilePreview {
 		return tileData;
 	}
 	
-	public BlockEntry getBlockEntry()
+	public BlockIngredient getBlockIngredient()
 	{
-		return new BlockEntry(getPreviewBlock(), getPreviewBlockMeta(), size.getPercentVolume());
+		return handler.getBlockIngredient(this);
 	}
 	
 	//================Copy================
@@ -193,7 +179,7 @@ public class LittleTilePreview {
 		if(preview == null)
 		{
 			if(this.box != null)
-				preview = new LittleTilePreview(box, tileData.copy());
+				preview = new LittleTilePreview(box.copy(), tileData.copy());
 			else
 				preview = new LittleTilePreview(size != null ? size.copy() : null, tileData.copy());
 		}
@@ -228,6 +214,7 @@ public class LittleTilePreview {
 	{
 		if(box != null)
 			box.flipBoxWithCenter(direction, null);
+		handler.flipPreview(direction, this);
 	}
 	
 	public void rotatePreview(Rotation direction)
@@ -235,9 +222,10 @@ public class LittleTilePreview {
 		size.rotateSize(direction);
 		if(box != null)
 		{
-			box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
+			box.rotateBoxWithCenter(direction, new Vec3d(LittleTile.gridMCLength/2, LittleTile.gridMCLength/2, LittleTile.gridMCLength/2));
 			size = box.getSize();
 		}
+		handler.rotatePreview(direction, this);
 	}
 	
 	public void rotatePreview(EnumFacing direction)
@@ -245,6 +233,7 @@ public class LittleTilePreview {
 		size.rotateSize(direction);
 		if(box != null)
 			box.rotateBox(direction);
+		handler.rotatePreview(direction, this);
 	}
 	
 	//================Save & Loading================
@@ -301,7 +290,7 @@ public class LittleTilePreview {
 	
 	public boolean canBeNBTGrouped(LittleTilePreview preview)
 	{
-		return this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
+		return handler.canBeNBTGrouped() && this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
 	}
 	
 	public NBTTagCompound startNBTGrouping()

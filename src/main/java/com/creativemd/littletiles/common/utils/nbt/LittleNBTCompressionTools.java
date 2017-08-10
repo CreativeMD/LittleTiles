@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.nbt.CompressedStreamTools;

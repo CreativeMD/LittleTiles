@@ -1,13 +1,16 @@
 package com.creativemd.littletiles.common.api.blocks;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -19,7 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-public abstract class SpecialBlockHandler {
+public class SpecialBlockHandler {
 	
 	private static int layers = 0;
 	
@@ -119,13 +122,13 @@ public abstract class SpecialBlockHandler {
 		
 	}
 	
-	public static HashMap<BlockSelector, SpecialBlockHandler> specialHandlers = new HashMap<>();
+	public static HashMap<BlockSelector, ISpecialBlockHandler> specialHandlers = new HashMap<>();
 	
-	public static SpecialBlockHandler getSpecialBlockHandler(Block block, int meta)
+	public static ISpecialBlockHandler getSpecialBlockHandler(Block block, int meta)
 	{
-		SpecialBlockHandler[] specialLayers = new SpecialBlockHandler[layers];
-		for (Iterator<Entry<BlockSelector, SpecialBlockHandler>> iterator = specialHandlers.entrySet().iterator(); iterator.hasNext();) {
-			Entry<BlockSelector, SpecialBlockHandler> entry = iterator.next();
+		ISpecialBlockHandler[] specialLayers = new ISpecialBlockHandler[layers];
+		for (Iterator<Entry<BlockSelector, ISpecialBlockHandler>> iterator = specialHandlers.entrySet().iterator(); iterator.hasNext();) {
+			Entry<BlockSelector, ISpecialBlockHandler> entry = iterator.next();
 			if(entry.getKey().isBlock(block, meta))
 			{
 				if(entry.getKey().getLayer() < layers)
@@ -138,43 +141,31 @@ public abstract class SpecialBlockHandler {
 			if(specialLayers[i] != null)
 				return specialLayers[i];
 		}
+		
+		if(block instanceof ISpecialBlockHandler)
+			return (ISpecialBlockHandler) block;		
 		return null;
 	}
 	
-	public static void registerSpecialHandler(Class<? extends Block> clazz, SpecialBlockHandler handler)
+	public static void registerSpecialHandler(Class<? extends Block> clazz, ISpecialBlockHandler handler)
 	{
 		registerSpecialHandler(new BlockSelectorClass(clazz), handler);
 	}
 	
-	public static void registerSpecialHandler(Block block, int meta, SpecialBlockHandler handler)
+	public static void registerSpecialHandler(Block block, int meta, ISpecialBlockHandler handler)
 	{
 		registerSpecialHandler(new BlockSelectorAdvanced(block, meta), handler);
 	}
 	
-	public static void registerSpecialHandler(Block block, SpecialBlockHandler handler)
+	public static void registerSpecialHandler(Block block, ISpecialBlockHandler handler)
 	{
 		registerSpecialHandler(new BlockSelectorBasic(block), handler);
 	}
 	
-	public static void registerSpecialHandler(BlockSelector selector, SpecialBlockHandler handler)
+	public static void registerSpecialHandler(BlockSelector selector, ISpecialBlockHandler handler)
 	{
 		layers = Math.max(layers, selector.getLayer());
 		specialHandlers.put(selector, handler); //It is intentional that you can override existing SpecialHandlers
-	}
-	
-	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-	{
-		return false;
-	}
-	
-	public void onTileExplodes(LittleTileBlock tile, Explosion explosion)
-	{
-		
-	}
-	
-	public void randomDisplayTick(LittleTileBlock tile, IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
-	{
-		
 	}
 	
 }

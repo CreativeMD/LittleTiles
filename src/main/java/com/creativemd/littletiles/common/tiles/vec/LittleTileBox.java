@@ -14,6 +14,7 @@ import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
@@ -134,9 +135,14 @@ public class LittleTileBox {
 		return new CubeObject(minX/(float)LittleTile.gridSize, minY/(float)LittleTile.gridSize, minZ/(float)LittleTile.gridSize, maxX/(float)LittleTile.gridSize, maxY/(float)LittleTile.gridSize, maxZ/(float)LittleTile.gridSize);
 	}
 	
+	public int[] getArray()
+	{
+		return new int[]{minX, minY, minZ, maxX, maxY, maxZ};
+	}
+	
 	public NBTTagIntArray getNBTIntArray()
 	{
-		return new NBTTagIntArray(new int[]{minX, minY, minZ, maxX, maxY, maxZ});
+		return new NBTTagIntArray(getArray());
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
@@ -572,27 +578,49 @@ public class LittleTileBox {
 	
 	public LittleTileBox expand(EnumFacing direction)
 	{
+		return expand(direction, false);
+	}
+	
+	public LittleTileBox expand(EnumFacing direction, boolean toLimit)
+	{
 		LittleTileBox result = this.copy();
 		switch(direction)
 		{
-		
 		case EAST:
-			result.maxX++;
+			if(!toLimit || result.maxX > LittleTile.gridSize)
+				result.maxX++;
+			else
+				result.maxX = LittleTile.gridSize;
 			break;
 		case WEST:
-			result.minX--;
+			if(!toLimit || result.maxX <= 0)
+				result.minX--;
+			else
+				result.minX = 0;
 			break;
 		case UP:
-			result.maxY++;
+			if(!toLimit || result.maxY < LittleTile.gridSize)
+				result.maxY++;
+			else
+				result.maxY = LittleTile.gridSize;
 			break;
 		case DOWN:
-			result.minY--;
+			if(!toLimit || result.minY <= 0)
+				result.minY--;
+			else
+				result.minY = 0;
 			break;
 		case SOUTH:
-			result.maxZ++;
+			if(!toLimit || result.maxZ < LittleTile.gridSize)
+				result.maxZ++;
+			else
+				result.maxZ = LittleTile.gridSize;
 			break;
 		case NORTH:
-			result.minZ--;
+			if(!toLimit || result.minZ <= 0)
+				result.minZ--;
+			else
+				result.minZ = 0;
 			break;
 		default:
 			break;
@@ -602,26 +630,49 @@ public class LittleTileBox {
 	
 	public LittleTileBox shrink(EnumFacing direction)
 	{
+		return shrink(direction, false);
+	}
+	
+	public LittleTileBox shrink(EnumFacing direction, boolean toLimit)
+	{
 		LittleTileBox result = this.copy();
 		switch(direction)
 		{
 		case EAST:
-			result.maxX--;
+			if(!toLimit)
+				result.maxX--;
+			else
+				result.maxX = result.minX+1;
 			break;
 		case WEST:
-			result.minX++;
+			if(!toLimit)
+				result.minX++;
+			else
+				result.minX = result.maxX-1;
 			break;
 		case UP:
-			result.maxY--;
+			if(!toLimit)
+				result.maxY--;
+			else
+				result.maxY = result.minY+1;
 			break;
 		case DOWN:
-			result.minY++;
+			if(!toLimit)
+				result.minY++;
+			else
+				result.minY = result.maxY-1;
 			break;
 		case SOUTH:
-			result.maxZ--;
+			if(!toLimit)
+				result.maxZ--;
+			else
+				result.maxZ = result.minZ+1;
 			break;
 		case NORTH:
-			result.minZ++;
+			if(!toLimit)
+				result.minZ++;
+			else
+				result.minZ = result.maxZ-1;
 			break;
 		default:
 			break;
@@ -867,6 +918,21 @@ public class LittleTileBox {
 			}
 			posX++;
 		}
+	}
+	
+	public static void toBytes(ByteBuf buf, LittleTileBox box)
+	{
+		buf.writeInt(box.minX);
+		buf.writeInt(box.minY);
+		buf.writeInt(box.minZ);
+		buf.writeInt(box.maxX);
+		buf.writeInt(box.maxY);
+		buf.writeInt(box.maxZ);
+	}
+	
+	public static LittleTileBox fromBytes(ByteBuf buf)
+	{
+		return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
 	}
 	
 }

@@ -4,15 +4,15 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
+import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.items.ItemLittleChisel;
-import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +34,6 @@ import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -43,7 +43,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
@@ -73,8 +72,9 @@ public class LittleEvent {
 	
 	public static boolean cancelNext = false;
 	
-	public static ItemStack lastItemBlockSelector = null;
+	public static ItemStack lastSelectedItem = null;
 	public static ISpecialBlockSelector blockSelector = null;
+	public static ILittleTile iLittleTile = null;
 	
 	@SideOnly(Side.CLIENT)
 	private boolean leftClicked;
@@ -88,11 +88,21 @@ public class LittleEvent {
 			{
 				ItemStack stack = event.getItemStack();
 				RayTraceResult ray = new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos());
-				if(blockSelector != null && blockSelector != stack.getItem())
+				if(lastSelectedItem != null && lastSelectedItem != stack)
 				{
-					blockSelector.onDeselect(event.getWorld(), lastItemBlockSelector, event.getEntityPlayer());
-					blockSelector = null;
-					lastItemBlockSelector = null;
+					if(blockSelector != null)
+					{
+						blockSelector.onDeselect(event.getWorld(), lastSelectedItem, event.getEntityPlayer());
+						blockSelector = null;
+					}
+					
+					if(iLittleTile != null)
+					{
+						iLittleTile.onDeselect(event.getEntityPlayer(), lastSelectedItem);
+						iLittleTile = null;
+					}
+					
+					lastSelectedItem = null;
 				}
 				
 				if(stack.getItem() instanceof ISpecialBlockSelector)
@@ -100,8 +110,17 @@ public class LittleEvent {
 					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTileVec(ray.hitVec)))
 						event.setCanceled(true);
 					blockSelector = (ISpecialBlockSelector) stack.getItem();
-					lastItemBlockSelector = stack;
+					lastSelectedItem = stack;
 				}
+				
+				iLittleTile = PlacementHelper.getLittleInterface(stack);
+				
+				if(iLittleTile != null)
+				{
+					iLittleTile.onClickBlock(event.getEntityPlayer(), stack, ray);
+					lastSelectedItem = stack;
+				}
+				
 				leftClicked = true;
 			}
 		}else if(event.getItemStack().getItem() instanceof ISpecialBlockSelector)
@@ -131,33 +150,36 @@ public class LittleEvent {
 			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
 			if(te.isComplete())
 			{
-				if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
-				{
-					if(te.tile.glowing)
-						event.getEntityPlayer().playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
-					else
-						event.getEntityPlayer().playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
-					te.tile.glowing = !te.tile.glowing;
-					te.te.updateLighting();
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(event.getPos(), event.getEntityPlayer(), BlockPacketAction.GLOWING));
-				}
+				new LittleActionGlowstone(event.getPos(), event.getEntityPlayer()).execute();
 				event.setCanceled(true);
 			}
 		}
 		
-		if(PlacementHelper.isLittleBlock(stack) && !PlacementHelper.getLittleInterface(stack).arePreviewsAbsolute())
+		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+		
+		if(iTile != null )
 		{
 			if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
-				onRightInteractClient(event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
-			event.setCanceled(true);		
+				onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
+			event.setCanceled(true);
 		}
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void onRightInteractClient(EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
+	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
 	{
-		RayTraceResult moving = Minecraft.getMinecraft().objectMouseOver;
-		((ItemBlockTiles)Item.getItemFromBlock(LittleTiles.blockTile)).onItemUse(player, world, pos, hand, facing, (float)moving.hitVec.x, (float)moving.hitVec.y, (float)moving.hitVec.z);
+		if(iTile.onRightClick(player, stack, Minecraft.getMinecraft().objectMouseOver))
+		{
+			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
+	        {
+				if(iTile.arePreviewsAbsolute())
+				{
+					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false), true).execute();
+				}else if(new LittleActionPlaceRelative(PreviewRenderer.markedPosition != null ? PreviewRenderer.markedPosition : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), GuiScreen.isCtrlKeyDown()).execute())
+					PreviewRenderer.markedPosition = null;
+	        }
+			iTile.onDeselect(player, stack);
+		}
 	}
 	
 	@SubscribeEvent
@@ -291,11 +313,21 @@ public class LittleEvent {
 			{
 				ItemStack stack = mc.player.getHeldItemMainhand();
 				
-				if(blockSelector != null && blockSelector != stack.getItem())
+				if(lastSelectedItem != null && lastSelectedItem != stack)
 				{
-					blockSelector.onDeselect(mc.world, lastItemBlockSelector, mc.player);
-					blockSelector = null;
-					lastItemBlockSelector = null;
+					if(blockSelector != null)
+					{
+						blockSelector.onDeselect(mc.world, lastSelectedItem, mc.player);
+						blockSelector = null;
+					}
+					
+					if(iLittleTile != null)
+					{
+						iLittleTile.onDeselect(mc.player, lastSelectedItem);
+						iLittleTile = null;
+					}
+					
+					lastSelectedItem = null;
 				}
 			}
 		}		

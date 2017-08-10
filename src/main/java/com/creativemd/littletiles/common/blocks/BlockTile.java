@@ -15,6 +15,8 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRen
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
@@ -328,7 +330,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		{
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				ArrayList<LittleTileBox> boxes = tile.getCollisionBoxes();
+				List<LittleTileBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
 					addCollisionBoxToList(pos, entityBox, collidingBoxes, boxes.get(i).getBox());
 				}
@@ -386,7 +388,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			{
 				if(worldIn.isRemote)
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, playerIn, BlockPacketAction.ACTIVATED));
+					new LittleActionActivated(pos, playerIn).execute();
 				return true;
 			}
 			return false;
@@ -473,25 +475,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(world, pos, player);
 		if(result.isComplete())
 		{				
-			/*LittleTileBox box = null;
-			
-			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
-			{
-				box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, player, result.te.getMoving(player));
-				if(box != null)
-				{
-					tempEntity.removeBoxFromTile(loaded, box);
-				}
-			}
-			
-			if(box == null)
-			{*/
-			result.tile.destroy();
-			result.te.updateRender();
-			//}
-			PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.DESTROY));
-			
+			new LittleActionDestroy(pos, player).execute();
 		}
     }
     

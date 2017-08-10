@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.WorldUtils;
@@ -9,16 +8,11 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
-import com.creativemd.littletiles.common.items.ItemTileContainer.BlockEntry;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -39,70 +33,7 @@ public class SubContainerWrench extends SubContainer{
 		
 		addPlayerSlotsToContainer(player);
 	}
-	
-	public static boolean drainIngridients(ArrayList<BlockEntry> ingredients, ItemStack stack, boolean drain, ArrayList<BlockEntry> remaining, boolean useStructures)
-	{
-		ArrayList<BlockEntry> content = getContentofStack(stack, useStructures);
-		for (int i = 0; i < content.size(); i++) {
-			if(!ingredients.isEmpty())
-			{
-				BlockEntry entry = content.get(i);
-				int index = ingredients.indexOf(entry);
-				if(index != -1)
-				{
-					BlockEntry ingredient = ingredients.get(index);
-					int takenStackSize = (int) Math.min(stack.getCount(), Math.ceil(ingredient.value / entry.value));
-					if(takenStackSize > 0)
-					{
-						double takenVolume = Math.min(ingredient.value, entry.value*takenStackSize);
-						ingredient.value -= takenVolume;
-						if(drain)
-						{
-							if(!(stack.getItem() instanceof ItemTileContainer))
-								stack.shrink(takenStackSize);
-							else
-								ItemTileContainer.drainBlock(stack, entry.block, entry.meta, entry.value*takenStackSize);
-							if(takenVolume < entry.value*takenStackSize)
-							{
-								entry.value = entry.value*takenStackSize - takenVolume;
-								remaining.add(entry);
-							}
-						}
-					}
-					if(ingredient.value <= 0)
-						ingredients.remove(ingredient);
-				}
-			}
-		}
-		return ingredients.isEmpty();
-	}
-	
-	public static boolean drainIngridients(ArrayList<BlockEntry> ingredients, IInventory inventory, boolean drain, ArrayList<BlockEntry> remaining, boolean useStructures)
-	{
-		for (int i = 0; i < inventory.getSizeInventory(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
-			boolean result = drainIngridients(ingredients, stack, drain, remaining, useStructures);
-			if(stack.isEmpty())
-				inventory.setInventorySlotContents(i, ItemStack.EMPTY);
-			if(result)
-				return true;
-		}
-		return false;
-	}
-	
-	public static ArrayList<BlockEntry> getRequiredIngredients(List<LittleTilePreview> previews)
-	{
-		ArrayList<BlockEntry> ingredients = new ArrayList<>();
-		for (int i = 0; i < previews.size(); i++) {
-			BlockEntry entry = previews.get(i).getBlockEntry();
-			int index = ingredients.indexOf(entry);
-			if(index != -1)
-				ingredients.get(index).value += entry.value;
-			else
-				ingredients.add(entry);
-		}
-		return ingredients;
-	}
+
 	
 	/*public static ArrayList<BlockEntry> getMissing(ArrayList<LittleTilePreview> tiles, ArrayList<BlockEntry> entries)
 	{
@@ -149,49 +80,6 @@ public class SubContainerWrench extends SubContainer{
 		return missing;
 	}*/
 	
-	public static ArrayList<BlockEntry> getContentofStack(ItemStack stack, boolean useStructures)
-	{
-		ArrayList<BlockEntry> entries = new ArrayList<BlockEntry>();
-		if(!stack.isEmpty())
-		{
-			if(useStructures)
-			{
-				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
-				
-				if(tile != null)
-				{
-					List<LittleTilePreview> tiles = tile.getLittlePreview(stack);
-					if(tiles != null)
-					{
-						for (int i = 0; i < tiles.size(); i++) {
-							
-							Block block2 = tiles.get(i).getPreviewBlock();
-							if(block2 != null && !(block2 instanceof BlockAir))
-								entries.add(tiles.get(i).getBlockEntry());
-						}
-						return entries;
-					}
-				}
-			}
-			
-			if(stack.getItem() instanceof ItemTileContainer)
-			{
-				entries.addAll(ItemTileContainer.loadMap(stack));
-			}else{
-				Block block = Block.getBlockFromItem(stack.getItem());
-						
-				if(block != null && !(block instanceof BlockAir))
-				{
-					if(SubContainerHammer.isBlockValid(block))
-					{
-						entries.add(new BlockEntry(block, stack.getItemDamage(), 1));
-					}
-				}
-			}
-		}
-		return entries;
-	}
-	
 	@Override
 	public void onClosed()
 	{
@@ -212,20 +100,20 @@ public class SubContainerWrench extends SubContainer{
 				if(stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x"))
 				{
 					List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
-					ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
-					ArrayList<BlockEntry> remaining = new ArrayList<>();
+					//ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
+					//ArrayList<BlockEntry> remaining = new ArrayList<>();
 					
 					boolean success = true;
-					if(!player.isCreative()){
+					/*if(!player.isCreative()){
 						success = SubContainerWrench.drainIngridients(required, stack2, false, remaining, true) || SubContainerWrench.drainIngridients(required, getPlayer().inventory, false, remaining, false);
 					}
 					
 					if(remaining.size() > 0 && !ItemTileContainer.canStoreRemains(getPlayer()))
-						success = false;
+						success = false;*/
 					
 					if(success)
 					{
-						if(!player.isCreative()){
+						/*if(!player.isCreative()){
 							required = SubContainerWrench.getRequiredIngredients(tiles);
 							remaining = new ArrayList<>();
 							if(SubContainerWrench.drainIngridients(required, stack2, true, remaining, true) || SubContainerWrench.drainIngridients(required, getPlayer().inventory, true, remaining, false))
@@ -236,7 +124,7 @@ public class SubContainerWrench extends SubContainer{
 								}
 								
 							}
-						}
+						}*/
 						
 						ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 						stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());

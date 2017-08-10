@@ -15,12 +15,12 @@ import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.client.Minecraft;

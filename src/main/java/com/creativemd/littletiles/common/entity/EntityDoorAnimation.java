@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -163,12 +165,12 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				if(!world.isRemote || approved)
 				{
-					if(ItemBlockTiles.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST))
+					if(LittleActionPlaceRelative.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST) != null)
 					{
 						if(world.isRemote)
 						{
 							waitingForRender = new ArrayList<>();
-							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(ItemBlockTiles.getSplittedTiles(previews, baseOffset).getKeys());
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews, baseOffset).getKeys());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 								if(te instanceof TileEntityLittleTiles)

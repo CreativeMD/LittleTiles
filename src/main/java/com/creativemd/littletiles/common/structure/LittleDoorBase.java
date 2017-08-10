@@ -12,14 +12,15 @@ import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
@@ -77,12 +78,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, ArrayList<PlacePreviewTile> previews, BlockPos pos, DoorTransformation transformation, UUID uuid)
 	{
-		HashMapList<BlockPos, PlacePreviewTile> splitted = ItemBlockTiles.getSplittedTiles(previews, pos);
-		if(ItemBlockTiles.canPlaceTiles(world, splitted, new ArrayList<>(splitted.getKeys()), false))
+		HashMapList<BlockPos, PlacePreviewTile> splitted = LittleActionPlaceRelative.getSplittedTiles(previews, pos);
+		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, new ArrayList<>(splitted.getKeys()), false))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = WorldFake.createFakeWorld(world);
-			ItemBlockTiles.placeTiles(fakeWorld, player, previews, structure, pos, null, null, false, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTiles(fakeWorld, player, previews, structure, pos, null, null, false, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
 				if(te instanceof TileEntityLittleTiles)

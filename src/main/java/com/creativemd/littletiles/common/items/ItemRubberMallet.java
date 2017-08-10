@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.tool.LittleActionRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -54,9 +55,7 @@ public class ItemRubberMallet extends Item {
 		{
 			if(world.isRemote)
 			{
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setInteger("side", facing.getIndex());
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.RUBBER_MALLET, nbt));
+				new LittleActionRubberMallet(pos, player, GuiContainer.isCtrlKeyDown()).execute();
 			}
 			return EnumActionResult.SUCCESS;
 		}
