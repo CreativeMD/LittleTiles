@@ -167,6 +167,17 @@ public class LittleTileBox {
 		return new LittleTileSize((int)(maxX - minX), (int)(maxY - minY), (int)(maxZ - minZ));
 	}
 	
+	public int getVolume()
+	{
+		return (int)(maxX - minX) * (int)(maxY - minY) * (int)(maxZ - minZ);
+	}
+	
+	/**@return the volume in percent to a size of a normal block*/
+	public double getPercentVolume()
+	{
+		return (double) getVolume() / (double) (LittleTile.maxTilesPerBlock);
+	}
+	
 	public LittleTileBox copy()
 	{
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
@@ -587,7 +598,7 @@ public class LittleTileBox {
 		switch(direction)
 		{
 		case EAST:
-			if(!toLimit || result.maxX > LittleTile.gridSize)
+			if(!toLimit || result.maxX == LittleTile.gridSize)
 				result.maxX++;
 			else
 				result.maxX = LittleTile.gridSize;
@@ -599,7 +610,7 @@ public class LittleTileBox {
 				result.minX = 0;
 			break;
 		case UP:
-			if(!toLimit || result.maxY < LittleTile.gridSize)
+			if(!toLimit || result.maxY == LittleTile.gridSize)
 				result.maxY++;
 			else
 				result.maxY = LittleTile.gridSize;
@@ -611,7 +622,7 @@ public class LittleTileBox {
 				result.minY = 0;
 			break;
 		case SOUTH:
-			if(!toLimit || result.maxZ < LittleTile.gridSize)
+			if(!toLimit || result.maxZ == LittleTile.gridSize)
 				result.maxZ++;
 			else
 				result.maxZ = LittleTile.gridSize;

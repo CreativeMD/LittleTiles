@@ -9,8 +9,8 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -127,23 +127,23 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 		
-		if(!iTile.drainIngredients(player, stack, result.previews))
-			return null;
+		ItemStack toPlace = stack.copy();
+		
+		if(needIngredients(player))
+		{
+			if(iTile.containsIngredients(stack))
+			{
+				if(!iTile.drainIngredients(player, stack, result.placePreviews))
+					return null;
+			}else
+				drainPreviews(player, result.previews);
+		}
 			
-		placedTiles = placeTiles(world, player, result.previews, structure, position.pos, stack, unplaceableTiles, forced, position.facing);
+		placedTiles = placeTiles(world, player, result.placePreviews, structure, position.pos, toPlace, unplaceableTiles, forced, position.facing);
 		placedStructure = structure;
 		
 		if(placedTiles != null)
 		{
-			
-			
-			if(!player.capabilities.isCreativeMode)
-			{
-				player.inventory.getCurrentItem().shrink(1);
-				if(player.inventory.getCurrentItem().isEmpty())
-					player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
-			}
-			
 			if(!world.isRemote)
 			{
 				for (int j = 0; j < unplaceableTiles.size(); j++) {

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.blocks;
+package com.creativemd.littletiles.common.api;
 
 import java.util.List;
 

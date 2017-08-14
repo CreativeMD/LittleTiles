@@ -58,7 +58,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if(box.isValidBox())
 			{
-				double amount = tile.boundingBoxes.get(0).getSize().getPercentVolume()-box.getSize().getPercentVolume();
+				double amount = Math.abs(box.getSize().getPercentVolume()-tile.boundingBoxes.get(0).getSize().getPercentVolume());
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
 				BlockIngredient ingredient = preview.getBlockIngredient();
@@ -75,7 +75,10 @@ public class LittleActionSaw extends LittleActionInteract {
 					unit.BLUE *= amount;
 				}
 				
-				drainIngredients(player, ingredients, unit);
+				if(player.isSneaking())
+					addIngredients(player, ingredients, unit);
+				else
+					drainIngredients(player, ingredients, unit);
 				
 				if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box.getBox(), tile))
 				{

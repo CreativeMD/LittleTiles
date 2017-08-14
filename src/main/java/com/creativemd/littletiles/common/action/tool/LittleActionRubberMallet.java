@@ -44,13 +44,13 @@ public class LittleActionRubberMallet extends LittleActionInteract {
 			EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException {
 		boolean push = !player.isSneaking();
 		EnumFacing direction = moving.sideHit;
-		if(!push)
+		if(push)
 			direction = direction.getOpposite();
 		if(tile.canBeMoved(direction))
 		{
-			int times = wholeBlock ? LittleTile.gridSize : 1;
+			/*int times = wholeBlock ? LittleTile.gridSize : 1;
 			while(times > 0)
-			{
+			{*/
 				if(tile.isStructureBlock)
 				{
 					if(tile.checkForStructure())
@@ -83,8 +83,8 @@ public class LittleActionRubberMallet extends LittleActionInteract {
 						te.updateTiles();
 					else
 						return true;
-				times--;
-			}
+				//times--;
+			//}
 			return true;
 		}
 		return false;

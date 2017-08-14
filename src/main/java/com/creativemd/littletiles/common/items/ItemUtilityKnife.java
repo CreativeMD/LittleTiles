@@ -11,7 +11,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
-import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.container.SubContainerUtilityKnife;
 import com.creativemd.littletiles.common.gui.SubGuiUtilityKnife;

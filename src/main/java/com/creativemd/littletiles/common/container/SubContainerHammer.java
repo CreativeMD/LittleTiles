@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -103,9 +106,7 @@ public class SubContainerHammer extends SubContainer{
 				if(alltiles == 0 || block == null)
 					return ;
 				int blocks = (int) Math.ceil((tiles*size.getPercentVolume()/volumePerItem));
-				stack.shrink(blocks);
-				if(stack.isEmpty())
-					basic.setInventorySlotContents(0, ItemStack.EMPTY);
+				
 				
 				//LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
 				ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
@@ -125,6 +126,16 @@ public class SubContainerHammer extends SubContainer{
 					dropstack.getTagCompound().setString("tID", "BlockTileBlock");
 				
 				double missingTiles = blocks-tiles*size.getPercentVolume();
+				
+				try {
+					LittleAction.addPreviewToInventory(player, ((ILittleTile) dropstack.getItem()).getLittlePreview(dropstack, false));
+				} catch (NotEnoughIngredientsException e) {
+					e.printStackTrace();
+				}
+				
+				stack.shrink(blocks);
+				if(stack.isEmpty())
+					basic.setInventorySlotContents(0, ItemStack.EMPTY);
 				//if(missingTiles > 0)
 					//ItemTileContainer.addBlock(player, block, meta, missingTiles);
 				

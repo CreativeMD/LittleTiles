@@ -240,7 +240,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			stack.getTagCompound().setInteger("blue", maxBlue);
 		}
 		
-		if(result.BLACK == 0 && result.RED == 0 && result.GREEN == 0 && result.BLUE == 0)
+		if(result.isEmpty())
 			return null;
 		
 		return result;
@@ -273,6 +273,8 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			stack.getTagCompound().setInteger("blue", stack.getTagCompound().getInteger("blue") - drainBlue);
 		}
 		
+		if(result.isEmpty())
+			return null;
 		return result;
 	}
 

@@ -6,13 +6,15 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.gui.GuiControl;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
-import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerColorTube;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
@@ -116,7 +118,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 			stack.setTagCompound(new NBTTagCompound());
 		String shape = stack.getTagCompound().getString("shape");
 		if(shape.equals("tile") || shape.equals(""))
-			return null;
+			return SelectShape.tileShape;
 		return SelectShape.getShape(shape);
 	}
 
@@ -140,13 +142,13 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 		
 		return shape.getHighlightBoxes(player, stack.getTagCompound(), result);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
 			LittleTileVec absoluteHit) {
 		SelectShape shape = getShape(stack);
-		if(shape == null || player.isSneaking())
+		if(player.isSneaking())
 		{
 			TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
 			if(tileEntity instanceof TileEntityLittleTiles)

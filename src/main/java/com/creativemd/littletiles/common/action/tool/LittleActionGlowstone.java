@@ -50,6 +50,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
 			
 			tile.glowing = !tile.glowing;
+			te.updateBlock();
 			te.updateLighting();
 			
 			return true;

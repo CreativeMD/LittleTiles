@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
@@ -136,7 +136,8 @@ public class PlacementHelper {
 	
 	public static class PreviewResult {
 		
-		public List<PlacePreviewTile> previews = new ArrayList<>();
+		public List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		public List<LittleTilePreview> previews = null;
 		public LittleTileBox box;
 		public LittleTileSize size;
 		public boolean usedSize = false;
@@ -297,6 +298,8 @@ public class PlacementHelper {
 		
 		if(tiles != null && tiles.size() > 0)
 		{
+			result.previews = tiles;
+			
 			result.size = getSize(tiles);
 			
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
@@ -374,7 +377,7 @@ public class PlacementHelper {
 				{
 					PlacePreviewTile preview = tile.getPlaceableTile(result.box, canBePlaceFixed, offset);
 					if(preview != null)
-						result.previews.add(preview);
+						result.placePreviews.add(preview);
 				}
 			}
 			
@@ -388,7 +391,7 @@ public class PlacementHelper {
 						newBoxes.get(i).box.addOffset(offset);
 				}
 				
-				result.previews.addAll(newBoxes);
+				result.placePreviews.addAll(newBoxes);
 			}
 			
 			if(allowLowResolution)

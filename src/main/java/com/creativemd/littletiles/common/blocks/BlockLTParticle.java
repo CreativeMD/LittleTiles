@@ -11,6 +11,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.structure.LittleStructure;

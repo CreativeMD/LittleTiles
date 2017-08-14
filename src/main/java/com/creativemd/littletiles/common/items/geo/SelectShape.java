@@ -8,6 +8,8 @@ import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -26,7 +28,68 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SelectShape {
 	
-	public static LinkedHashMap<String, SelectShape> shapes = new LinkedHashMap<>();	
+	public static LinkedHashMap<String, SelectShape> shapes = new LinkedHashMap<>();
+	
+	public static SelectShape tileShape = new SelectShape("tile") {
+		
+		@Override
+		public boolean shouldBeRegistered()
+		{
+			return false;
+		}
+		
+		@Override
+		public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt) {
+			
+		}
+		
+		@Override
+		public boolean rightClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
+			return false;
+		}
+		
+		@Override
+		public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
+			return true;
+		}
+		
+		@Override
+		public List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
+			return getBoxes(player, nbt, result);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
+			return new ArrayList<>();
+		}
+		
+		@Override
+		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
+			TEResult te = BlockTile.loadTeAndTile(player.world, result.getBlockPos(), player);
+			List<LittleTileBox> boxes = new ArrayList<>();
+			if(te.isComplete())
+			{
+				LittleTileVec offset = new LittleTileVec(result.getBlockPos());
+				for (LittleTileBox box : te.tile.boundingBoxes) {
+					box = box.copy();
+					box.addOffset(offset);
+					boxes.add(box);
+				}
+			}
+			return boxes;
+		}
+		
+		@Override
+		public void deselect(EntityPlayer player, NBTTagCompound nbt) {
+			
+		}
+		
+		@Override
+		public void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list) {
+			
+		}
+	};
 	
 	public static BasicSelectShape CUBE = new BasicSelectShape("cube"){
 		
@@ -116,8 +179,14 @@ public abstract class SelectShape {
 	public final String key;
 	
 	public SelectShape(String name) {
-		shapes.put(name, this);
+		if(shouldBeRegistered())
+			shapes.put(name, this);
 		this.key = name;
+	}
+	
+	public boolean shouldBeRegistered()
+	{
+		return true;
 	}
 	
 	public abstract List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result);
