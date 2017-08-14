@@ -15,8 +15,8 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -251,7 +252,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			List<LittleTilePreview> previews = new ArrayList<>();
 			
 			IBlockState state = getBlockState(stack);
-			LittleTileBlock tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			int color = getColor(stack);
+			LittleTileBlock tile = color != -1 ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			
 			for (int i = 0; i < boxes.size(); i++) {
 				tile.boundingBoxes.clear();

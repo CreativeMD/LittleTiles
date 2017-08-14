@@ -17,8 +17,13 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	
 	public LittleTileBlockColored(Block block, int meta, Vec3i color)
 	{
+		this(block, meta, ColorUtils.RGBToInt(color));
+	}
+	
+	public LittleTileBlockColored(Block block, int meta, int color)
+	{
 		super(block, meta);
-		this.color = ColorUtils.RGBToInt(color);
+		this.color = color;
 	}
 	
 	public LittleTileBlockColored()

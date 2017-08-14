@@ -50,7 +50,6 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		
 		if(drainPreviews(player, previews))
 		{
-			
 			BlockPos pos = previews.get(0).box.getMinVec().getBlockPos();
 			LittleTileVec offset = new LittleTileVec(pos);
 			LittleTileVec zero = new LittleTileVec(0, 0, 0);

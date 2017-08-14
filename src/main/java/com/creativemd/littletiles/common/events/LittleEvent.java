@@ -9,9 +9,9 @@ import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
+import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
-import com.creativemd.littletiles.common.blocks.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
@@ -145,7 +145,7 @@ public class LittleEvent {
 		}
 		
 		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
-		if(stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
+		if(event.getWorld().isRemote && event.getHand() == EnumHand.MAIN_HAND && stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking())
 		{
 			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
 			if(te.isComplete())

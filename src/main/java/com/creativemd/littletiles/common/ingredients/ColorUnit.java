@@ -74,6 +74,14 @@ public class ColorUnit {
 		return BLACK + RED + GREEN + BLUE;
 	}
 	
+	public void scale(double scale)
+	{
+		this.BLACK *= scale;
+		this.RED *= scale;
+		this.GREEN *= scale;
+		this.BLUE *= scale;
+	}
+	
 	public void subColorUnit(ColorUnit unit)
 	{
 		if(unit == null)
@@ -111,6 +119,20 @@ public class ColorUnit {
         return new ColorUnit(maxPerColor - r + maxPerColor - g + maxPerColor - b, r, g, b);
 	}
 	
+	public static ColorUnit getRequiredColors(LittleTilePreview preview, double volume)
+	{
+		if(preview.hasColor())
+		{
+			ColorUnit color = getRequiredColors(preview.getColor());
+			color.BLACK *= volume;
+			color.RED *= volume;
+			color.GREEN *= volume;
+			color.BLUE *= volume;
+			return color;
+		}
+		return null;
+	}
+	
 	public static ColorUnit getRequiredColors(LittleTilePreview preview)
 	{
 		if(preview.hasColor())
@@ -143,6 +165,25 @@ public class ColorUnit {
 
 	public boolean isEmpty() {
 		return BLACK == 0 && RED == 0 && GREEN == 0 && BLUE == 0;
+	}
+
+	public void drain(ColorUnit toDrain)
+	{
+		int drain = Math.min(BLACK, toDrain.BLACK);
+		BLACK -= drain;
+		toDrain.BLACK -= drain;
+		
+		drain = Math.min(RED, toDrain.RED);
+		RED -= drain;
+		toDrain.RED -= drain;
+		
+		drain = Math.min(GREEN, toDrain.GREEN);
+		GREEN -= drain;
+		toDrain.GREEN -= drain;
+		
+		drain = Math.min(BLUE, toDrain.BLUE);
+		BLUE -= drain;
+		toDrain.BLUE -= drain;
 	}
 	
 }

@@ -11,7 +11,7 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -89,7 +89,7 @@ public class PreviewRenderer {
 	            	result = new PreviewResult();
 	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true);
 	            	for (int i = 0; i < tiles.size(); i++) {
-	            		result.previews.add(tiles.get(i).getPlaceableTile(null, true, null));
+	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
 					}	            	
 	            }else
 	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true);
@@ -103,9 +103,9 @@ public class PreviewRenderer {
 					double y = (double)position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
 					double z = (double)position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
 		            
-		            for (int i = 0; i < result.previews.size(); i++) {
+		            for (int i = 0; i < result.placePreviews.size(); i++) {
 						
-						PlacePreviewTile preview = result.previews.get(i);
+						PlacePreviewTile preview = result.placePreviews.get(i);
 						ArrayList<ColoredCube> cubes = preview.getPreviews();
 						for (int j = 0; j < cubes.size(); j++) {
 							GL11.glPushMatrix();
@@ -133,9 +133,9 @@ public class PreviewRenderer {
 		            {
 		            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 		            	
-		            	 for (int i = 0; i < result.previews.size(); i++) 
-		            		 if(result.previews.get(i).preview != null)
-		            			 shifthandlers.addAll(result.previews.get(i).preview.fixedhandlers);
+		            	 for (int i = 0; i < result.placePreviews.size(); i++) 
+		            		 if(result.placePreviews.get(i).preview != null)
+		            			 shifthandlers.addAll(result.placePreviews.get(i).preview.fixedhandlers);
 		            	 
 		            	 for (int i = 0; i < shifthandlers.size(); i++) {
 		            		//GL11.glPushMatrix();

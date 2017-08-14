@@ -8,7 +8,7 @@ import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;

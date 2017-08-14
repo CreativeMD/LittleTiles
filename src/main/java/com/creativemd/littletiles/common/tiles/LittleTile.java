@@ -202,7 +202,7 @@ public abstract class LittleTile {
 	{
 		int percent = 0;
 		for (int i = 0; i < boundingBoxes.size(); i++) {
-			percent += boundingBoxes.get(i).getSize().getVolume();
+			percent += boundingBoxes.get(i).getVolume();
 		}
 		return percent;
 	}
@@ -211,7 +211,7 @@ public abstract class LittleTile {
 	{
 		double percent = 0;
 		for (int i = 0; i < boundingBoxes.size(); i++) {
-			percent += boundingBoxes.get(i).getSize().getPercentVolume();
+			percent += boundingBoxes.get(i).getPercentVolume();
 		}
 		return percent;
 	}

@@ -6,7 +6,10 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
@@ -100,36 +103,17 @@ public class SubContainerWrench extends SubContainer{
 				if(stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x"))
 				{
 					List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
-					//ArrayList<BlockEntry> required = SubContainerWrench.getRequiredIngredients(tiles);
-					//ArrayList<BlockEntry> remaining = new ArrayList<>();
 					
-					boolean success = true;
-					/*if(!player.isCreative()){
-						success = SubContainerWrench.drainIngridients(required, stack2, false, remaining, true) || SubContainerWrench.drainIngridients(required, getPlayer().inventory, false, remaining, false);
-					}
-					
-					if(remaining.size() > 0 && !ItemTileContainer.canStoreRemains(getPlayer()))
-						success = false;*/
-					
-					if(success)
-					{
-						/*if(!player.isCreative()){
-							required = SubContainerWrench.getRequiredIngredients(tiles);
-							remaining = new ArrayList<>();
-							if(SubContainerWrench.drainIngridients(required, stack2, true, remaining, true) || SubContainerWrench.drainIngridients(required, getPlayer().inventory, true, remaining, false))
-							{
-								
-								for (int i = 0; i < remaining.size(); i++) {
-									ItemTileContainer.addBlock(player, remaining.get(i).block, remaining.get(i).meta, remaining.get(i).value);
-								}
-								
-							}
-						}*/
-						
-						ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-						stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
-						if(!player.inventory.addItemStackToInventory(stack))
-							WorldUtils.dropItem(player, stack);
+					try {
+						if(LittleAction.drainPreviews(player, tiles))
+						{
+							ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+							stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+							if(!player.inventory.addItemStackToInventory(stack))
+								WorldUtils.dropItem(player, stack);
+						}
+					} catch (NotEnoughIngredientsException e) {
+						e.printStackTrace();
 					}
 				}
 			}else if(ChiselsAndBitsManager.isChiselsAndBitsStructure(stack1)){

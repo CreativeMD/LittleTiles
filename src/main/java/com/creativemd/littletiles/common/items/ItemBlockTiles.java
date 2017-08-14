@@ -7,7 +7,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;

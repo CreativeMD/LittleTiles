@@ -10,7 +10,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.blocks.ILittleTile;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;

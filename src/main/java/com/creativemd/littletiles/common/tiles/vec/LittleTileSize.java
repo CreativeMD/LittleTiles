@@ -84,7 +84,7 @@ public class LittleTileSize {
 		return sizeX * sizeY * sizeZ;
 	}
 	
-	/**Returns how the volume in percent to a size of a normal block*/
+	/**@return the volume in percent to a size of a normal block*/
 	public double getPercentVolume()
 	{
 		return (double) getVolume() / (double) (LittleTile.maxTilesPerBlock);
