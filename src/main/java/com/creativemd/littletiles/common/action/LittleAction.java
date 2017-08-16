@@ -53,9 +53,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		lastActions.add(0, action);
 	}
 	
-	public static void registerLittleAction(String id, Class<? extends LittleAction> classType)
+	public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes)
 	{
-		CreativeCorePacket.registerPacket(classType, "ac" + id);
+		for (int i = 0; i < classTypes.length; i++) {
+			CreativeCorePacket.registerPacket(classTypes[i], "ac" + id + i);
+		}
 	}	
 	
 	/**Must be implemented by every action**/
@@ -71,7 +73,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	 * @return null if an revert action is not available
 	 */
 	@SideOnly(Side.CLIENT)
-	public abstract LittleAction revert();
+	public abstract LittleAction revert() throws LittleActionException;
 	
 	protected abstract boolean action(EntityPlayer player) throws LittleActionException;
 	
@@ -134,7 +136,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing)
 	{
-		if(player.world.isRemote)
+		if(player == null || player.world.isRemote)
 			return true;
 		if(WorldEditEvent != null)
 		{
@@ -153,7 +155,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		
 		return !player.getServer().isBlockProtected(player.world, pos, player);
-		
+	}
+	
+	public static boolean isTileStillInPlace(LittleTile tile)
+	{
+		return tile.te.getTiles().contains(tile);
 	}
 	
 	public static boolean needIngredients(EntityPlayer player)
