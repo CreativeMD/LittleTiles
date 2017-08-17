@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngred
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.state.IBlockState;
@@ -57,6 +58,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			if(!tile.isStructureBlock && tile.canBeSplitted())
 			{
 				double volume = 0;
+				LittleTilePreview preview = tile.getPreviewTile();
 				if(tile.canHaveMultipleBoundingBoxes())
 				{
 					int i = 0;
@@ -121,7 +123,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				}
 				
 				if(volume > 0)
-					ingredients.addPreview(tile.getPreviewTile(), volume);
+					ingredients.addPreview(preview, volume);
 			}else{
 				if(!simulate)
 					tile.destroy();
