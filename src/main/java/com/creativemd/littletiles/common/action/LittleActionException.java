@@ -14,4 +14,28 @@ public class LittleActionException extends Exception {
 		return I18n.translateToLocal(getMessage());
 	}
 	
+	public static class TileNotThereException extends LittleActionException {
+		
+		public TileNotThereException() {
+			super("action.tile.notthere");
+		}
+		
+	}
+	
+	public static class TileNotFoundException extends LittleActionException {
+		
+		public TileNotFoundException() {
+			super("action.tile.notfound");
+		}
+		
+	}
+	
+	public static class TileEntityNotFoundException extends LittleActionException {
+		
+		public TileEntityNotFoundException() {
+			super("action.tileentity.notfound");
+		}
+		
+	}
+	
 }

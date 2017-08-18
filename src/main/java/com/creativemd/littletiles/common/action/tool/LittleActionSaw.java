@@ -1,10 +1,16 @@
 package com.creativemd.littletiles.common.action.tool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
+import com.creativemd.littletiles.common.action.tool.LittleActionMove.LittleActionMoveRevert;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
@@ -14,6 +20,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -44,17 +51,23 @@ public class LittleActionSaw extends LittleActionInteract {
 	protected boolean isRightClick() {
 		return true;
 	}
-
+	
+	public LittleTileBox oldBox = null;
+	public LittleTileBox newBox = null;
+	public LittleTileVec position = null;
+	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 			EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException {
-		if(tile.canSawResizeTile(moving.sideHit, player))
+		EnumFacing facing = moving.sideHit;
+		if(tile.canSawResizeTile(facing, player))
 		{
 			LittleTileBox box = null;
+			oldBox = tile.boundingBoxes.get(0);
 			if(player.isSneaking())
-				box = tile.boundingBoxes.get(0).shrink(moving.sideHit, toLimit);
+				box = tile.boundingBoxes.get(0).shrink(facing, toLimit);
 			else
-				box = tile.boundingBoxes.get(0).expand(moving.sideHit, toLimit);
+				box = tile.boundingBoxes.get(0).expand(facing, toLimit);
 			
 			if(box.isValidBox())
 			{
@@ -85,9 +98,10 @@ public class LittleActionSaw extends LittleActionInteract {
 					tile.boundingBoxes.set(0, box);
 					tile.updateCorner();
 					te.updateBlock();
+					return true;
 				}else if(!box.isBoxInsideBlock()){
-					box = box.createOutsideBlockBox(moving.sideHit);
-					BlockPos newPos = pos.offset(moving.sideHit);
+					box = box.createOutsideBlockBox(facing);
+					BlockPos newPos = te.getPos().offset(facing);
 					IBlockState state = world.getBlockState(newPos);
 					TileEntityLittleTiles littleTe = null;
 					TileEntity newTE = world.getTileEntity(newPos);
@@ -111,10 +125,13 @@ public class LittleActionSaw extends LittleActionInteract {
 							newTile.place();
 							//littleTe.addTile(newTile);
 							littleTe.updateBlock();
+							position = newTile.getAbsoluteCoordinates();
+							newBox = box.copy();
+							newBox.addOffset(new LittleTileVec(littleTe.getPos()));
+							return true;
 						}
 					}
 				}
-				return true;
 			}
 		}
 		return false;
@@ -127,8 +144,13 @@ public class LittleActionSaw extends LittleActionInteract {
 
 	@Override
 	public LittleAction revert() {
-		// TODO Auto-generated method stub
-		return null;
+		if(newBox != null)
+		{
+			List<LittleTileBox> boxes = new ArrayList<>();
+			boxes.add(newBox);
+			return new LittleActionDestroyBoxes(boxes);
+		}
+		return new LittleActionSawRevert(position, oldBox);
 	}
 	
 	@Override
@@ -141,5 +163,52 @@ public class LittleActionSaw extends LittleActionInteract {
 	public void readBytes(ByteBuf buf) {
 		super.readBytes(buf);
 		toLimit = buf.readBoolean();
+	}
+	
+	public static class LittleActionSawRevert extends LittleAction {
+		
+		public LittleTileBox oldBox;
+		public LittleTileVec position;
+		
+		public LittleActionSawRevert(LittleTileVec position, LittleTileBox oldBox) {
+			this.position = position;
+			this.oldBox = oldBox;
+		}
+		
+		public LittleActionSawRevert() {
+			
+		}
+
+		@Override
+		public boolean canBeReverted() {
+			return true;
+		}
+
+		@Override
+		public LittleAction revert() throws LittleActionException {
+			return null;
+		}
+
+		@Override
+		protected boolean action(EntityPlayer player) throws LittleActionException {
+			
+			LittleTile tile = getTileAtPosition(player.world, position);
+			if(tile == null)
+				throw new LittleActionException.TileNotFoundException();
+			
+			return false;
+		}
+
+		@Override
+		public void writeBytes(ByteBuf buf) {
+			writeLittleVec(position, buf);
+			writeLittleBox(oldBox, buf);
+		}
+
+		@Override
+		public void readBytes(ByteBuf buf) {
+			position = readLittleVec(buf);
+			oldBox = readLittleBox(buf);
+		}
 	}
 }

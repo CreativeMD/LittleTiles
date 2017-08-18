@@ -26,9 +26,17 @@ public class LittleActionActivated extends LittleActionInteract{
 	}
 	
 	@Override
-	protected void onTileEntityNotFound()
+	protected void onTileNotFound() throws LittleActionException
 	{
 		LittleEvent.cancelNext = true;
+		BlockTile.cancelNext = true;
+	}
+	
+	@Override
+	protected void onTileEntityNotFound() throws LittleActionException
+	{
+		LittleEvent.cancelNext = true;
+		BlockTile.cancelNext = true;
 	}
 
 	@Override
@@ -40,6 +48,12 @@ public class LittleActionActivated extends LittleActionInteract{
 			return true;
 		}
 		return false;
+	}
+	
+	@Override
+	protected boolean action(EntityPlayer player) throws LittleActionException {
+		super.action(player);
+		return true;
 	}
 
 	@Override

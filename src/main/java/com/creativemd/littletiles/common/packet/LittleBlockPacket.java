@@ -27,10 +27,13 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -65,7 +68,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
-				if(player.isSneaking() && tile instanceof LittleTileBlock)
+				if(tile instanceof LittleTileBlock)
 				{
 					ItemLittleChisel.setBlockState(stack, ((LittleTileBlock) tile).getBlockState());
 					ItemLittleChisel.setColor(stack, tile instanceof LittleTileBlockColored ? ((LittleTileBlockColored) tile).color : ColorUtils.WHITE);
@@ -154,6 +157,13 @@ public class LittleBlockPacket extends CreativeCorePacket{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = te.getMoving(pos, look);
 				action.action(world, te, tile, stack, player, moving, blockPos, nbt);
+				
+				if(!player.world.isRemote)
+				{
+					EntityPlayerMP playerMP = (EntityPlayerMP) player;
+					Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);
+					playerMP.connection.sendPacket(new SPacketSetSlot(playerMP.openContainer.windowId, slot.slotNumber, playerMP.inventory.getCurrentItem()));
+				}
 			}
 		}
 	}

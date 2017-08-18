@@ -22,7 +22,9 @@ import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.items.geo.ChiselShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
@@ -253,7 +255,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			
 			IBlockState state = getBlockState(stack);
 			int color = getColor(stack);
-			LittleTileBlock tile = color != -1 ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			LittleTileBlock tile = !ColorUtils.isWhite(color) ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			
 			for (int i = 0; i < boxes.size(); i++) {
 				tile.boundingBoxes.clear();
@@ -342,8 +344,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			IBlockState state = player.world.getBlockState(result.getBlockPos());
 			if(SubContainerHammer.isBlockValid(state.getBlock()))
 			{
-				setBlockState(player.getHeldItemMainhand(), state);
-				setColor(player.getHeldItemMainhand(), ColorUtils.WHITE);
+				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
 			}
 			else if(state.getBlock() instanceof BlockTile)
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));

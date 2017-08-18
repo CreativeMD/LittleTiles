@@ -2,6 +2,7 @@ package com.creativemd.littletiles;
 
 import java.io.File;
 
+import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -15,8 +16,10 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
-import com.creativemd.littletiles.common.action.tool.LittleActionRubberMallet;
+import com.creativemd.littletiles.common.action.tool.LittleActionMove;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
+import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
+import com.creativemd.littletiles.common.action.tool.LittleActionMove.LittleActionMoveRevert;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
@@ -62,6 +65,7 @@ import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -284,6 +288,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
+		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
 		
 		LittleAction.registerLittleAction("act", LittleActionActivated.class);
 		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class);
@@ -292,8 +297,8 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("plR", LittleActionPlaceRelative.class);
 		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class);
 		
-		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class);
-		LittleAction.registerLittleAction("rub", LittleActionRubberMallet.class);
+		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
+		LittleAction.registerLittleAction("rub", LittleActionMove.class, LittleActionMoveRevert.class);
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());

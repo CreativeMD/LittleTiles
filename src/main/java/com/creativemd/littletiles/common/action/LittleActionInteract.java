@@ -80,16 +80,21 @@ public abstract class LittleActionInteract extends LittleAction {
 				RayTraceResult moving = te.getMoving(pos, look);
 				return action(world, te, tile, stack, player, moving, blockPos);
 			}else
-				throw new LittleActionException("action.tile.notfound");
+				onTileNotFound();
 		}else
 			onTileEntityNotFound();
 		return false;
 			
 	}
 	
+	protected void onTileNotFound() throws LittleActionException
+	{
+		throw new LittleActionException.TileNotFoundException();
+	}
+	
 	protected void onTileEntityNotFound() throws LittleActionException
 	{
-		throw new LittleActionException("action.tileentity.notfound");
+		throw new LittleActionException.TileEntityNotFoundException();
 	}
 	
 }

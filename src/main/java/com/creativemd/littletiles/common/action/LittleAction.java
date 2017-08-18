@@ -15,20 +15,26 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngred
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -160,6 +166,42 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static boolean isTileStillInPlace(LittleTile tile)
 	{
 		return tile.te.getTiles().contains(tile);
+	}
+	
+	public static LittleTile getTileAtPosition(World world, LittleTileVec vec)
+	{
+		BlockPos pos = vec.getBlockPos();
+		TileEntity te = world.getTileEntity(pos);
+		if(te instanceof TileEntityLittleTiles)
+			return ((TileEntityLittleTiles) te).getTileFromPosition(vec.x - pos.getX() * LittleTile.gridSize, vec.y - pos.getY() * LittleTile.gridSize, vec.z - pos.getZ() * LittleTile.gridSize);
+		return null;
+	}
+	
+	public static void writeLittleVec(LittleTileVec vec, ByteBuf buf)
+	{
+		buf.writeInt(vec.x);
+		buf.writeInt(vec.y);
+		buf.writeInt(vec.z);
+	}
+	
+	public static LittleTileVec readLittleVec(ByteBuf buf)
+	{
+		return new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+	}
+	
+	public static void writeLittleBox(LittleTileBox box, ByteBuf buf)
+	{
+		buf.writeInt(box.minX);
+		buf.writeInt(box.minY);
+		buf.writeInt(box.minZ);
+		buf.writeInt(box.maxX);
+		buf.writeInt(box.maxY);
+		buf.writeInt(box.maxZ);
+	}
+	
+	public static LittleTileBox readLittleBox(ByteBuf buf)
+	{
+		return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
 	}
 	
 	public static boolean needIngredients(EntityPlayer player)
