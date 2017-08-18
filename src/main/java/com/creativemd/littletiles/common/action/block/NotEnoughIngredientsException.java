@@ -5,6 +5,8 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 
+import net.minecraft.item.ItemStack;
+
 public abstract class NotEnoughIngredientsException extends LittleActionException {
 
 	public NotEnoughIngredientsException(String msg) {
@@ -49,7 +51,7 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 					first = false;
 				message += ingredient.block.getLocalizedName();
 			}
-			return message;
+			return message + ")";
 		}
 		
 	}
@@ -59,13 +61,28 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 		public NotEnoughVolumeSpaceException() {
 			super("exception.ingredient.space.volume");
 		}
-		
 	}
 	
 	public static class NotEnoughColorSpaceException extends NotEnoughIngredientsException {
 		
 		public NotEnoughColorSpaceException() {
 			super("exception.ingredient.space.color");
+		}
+	}
+	
+	public static class NotEnoughStackException extends NotEnoughIngredientsException {
+		
+		public ItemStack stack;
+		
+		public NotEnoughStackException(ItemStack stack) {
+			super("exception.ingredient.stack");
+			this.stack = stack;
+		}
+		
+		@Override
+		public String getLocalizedMessage()
+		{
+			return super.getLocalizedMessage() + " " + stack.getDisplayName();
 		}
 		
 	}

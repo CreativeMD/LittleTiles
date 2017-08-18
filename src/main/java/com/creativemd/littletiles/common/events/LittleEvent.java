@@ -142,6 +142,7 @@ public class LittleEvent {
 		{
 			cancelNext = false;
 			event.setCanceled(true);
+			return ;
 		}
 		
 		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
