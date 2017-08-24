@@ -69,10 +69,9 @@ public abstract class SelectShape {
 			List<LittleTileBox> boxes = new ArrayList<>();
 			if(te.isComplete())
 			{
-				LittleTileVec offset = new LittleTileVec(result.getBlockPos());
 				for (LittleTileBox box : te.tile.boundingBoxes) {
 					box = box.copy();
-					box.addOffset(offset);
+					box.addOffset(result.getBlockPos());
 					boxes.add(box);
 				}
 			}
@@ -235,7 +234,7 @@ public abstract class SelectShape {
 		public List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
 			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
-			box.addOffset(new LittleTileVec(result.getBlockPos()));
+			box.addOffset(result.getBlockPos());
 			boxes.add(box);
 			return boxes;
 		}
@@ -244,7 +243,7 @@ public abstract class SelectShape {
 		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
 			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
-			box.addOffset(new LittleTileVec(result.getBlockPos()));
+			box.addOffset(result.getBlockPos());
 			boxes.add(box);
 			return boxes;
 		}

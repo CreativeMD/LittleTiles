@@ -9,6 +9,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionMove;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
 import com.creativemd.littletiles.common.action.tool.LittleActionMove.LittleActionMoveRevert;
+import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
@@ -290,6 +292,8 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
 		
+		LittleAction.registerLittleAction("com", LittleActionCombined.class);
+		
 		LittleAction.registerLittleAction("act", LittleActionActivated.class);
 		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class);
 		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class);
@@ -299,7 +303,7 @@ public class LittleTiles {
 		
 		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
 		LittleAction.registerLittleAction("rub", LittleActionMove.class, LittleActionMoveRevert.class);
-		LittleAction.registerLittleAction("saw", LittleActionSaw.class);
+		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		

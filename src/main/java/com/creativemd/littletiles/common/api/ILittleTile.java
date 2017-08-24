@@ -82,15 +82,6 @@ public interface ILittleTile {
 	@SideOnly(Side.CLIENT)
 	public default void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {}
 	
-	/**
-	 * Only used for none absolute previews
-	 */
-	public default boolean drainIngredients(EntityPlayer player, ItemStack stack, List<PlacePreviewTile> previews) throws NotEnoughIngredientsException
-	{
-		stack.shrink(1);
-		return true;
-	}
-	
 	@SideOnly(Side.CLIENT)
 	public default float getPreviewAlphaFactor()
 	{

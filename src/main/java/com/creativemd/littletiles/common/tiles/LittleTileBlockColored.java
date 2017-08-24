@@ -87,6 +87,13 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		return false;
 	}
 	
+	public static boolean needsToBeRecolored(LittleTileBlock tile, int color)
+	{
+		if(ColorUtils.isWhite(color))
+			return tile.getClass() != LittleTileBlock.class;
+		return tile.getClass() != LittleTileBlockColored.class || ((LittleTileBlockColored) tile).color != color;
+	}
+	
 	public static LittleTileBlock setColor(LittleTileBlock tile, int color)
 	{
 		if(ColorUtils.isWhite(color))
@@ -112,6 +119,11 @@ public class LittleTileBlockColored extends LittleTileBlock{
 			return newTile;
 		}
 		return null;
+	}
+
+	public static int getColor(LittleTileBlock tile)
+	{
+		return tile instanceof LittleTileBlockColored ? ((LittleTileBlockColored) tile).color : -1;
 	}
 	
 }

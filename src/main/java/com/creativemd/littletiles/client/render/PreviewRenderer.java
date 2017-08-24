@@ -11,6 +11,8 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
@@ -24,16 +26,19 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -57,6 +62,29 @@ public class PreviewRenderer {
 		return LittleTiles.invertedShift != player.isSneaking() && markedPosition == null;
 	}
 	
+	public static void handleUndoAndRedo(EntityPlayer player)
+	{
+		while (LittleTilesClient.undo.isPressed())
+		{
+			try {
+				if(LittleAction.undo())
+					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_CLOTH_BREAK, 1.0F));
+			} catch (LittleActionException e) {
+				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+			}
+		}
+		
+		while (LittleTilesClient.redo.isPressed())
+		{
+			try {
+				if(LittleAction.redo())
+					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_CLOTH_PLACE, 1.0F));
+			} catch (LittleActionException e) {
+				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+			}
+		}
+	}
+	
 	@SubscribeEvent
 	public void tick(RenderWorldLastEvent event)
 	{
@@ -65,6 +93,8 @@ public class PreviewRenderer {
 			World world = mc.world;
 			EntityPlayer player = mc.player;
 			ItemStack stack = mc.player.getHeldItemMainhand();
+			
+			handleUndoAndRedo(player);
 			
 			if(PlacementHelper.isLittleBlock(stack) && (markedPosition != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK)))
 			{
@@ -155,9 +185,8 @@ public class PreviewRenderer {
 	
 	public void processMarkKey(EntityPlayer player, PositionResult result, PreviewResult preview)
 	{
-		if(GameSettings.isKeyDown(LittleTilesClient.mark) && !LittleTilesClient.pressedMark)
+		while (LittleTilesClient.mark.isPressed())
 		{
-			LittleTilesClient.pressedMark = true;
 			if(markedPosition == null)
 			{
 				boolean centered = isCentered(player);
@@ -198,8 +227,6 @@ public class PreviewRenderer {
 			}
 			else
 				markedPosition = null;
-		}else if(!GameSettings.isKeyDown(LittleTilesClient.mark)){
-			LittleTilesClient.pressedMark = false;
 		}
 	}
 	
@@ -212,9 +239,8 @@ public class PreviewRenderer {
 	
 	public void processRoateKeys()
 	{
-		if(GameSettings.isKeyDown(LittleTilesClient.flip) && !LittleTilesClient.pressedFlip)
+		while (LittleTilesClient.flip.isPressed())
 		{
-			LittleTilesClient.pressedFlip = true;
 			int i4 = MathHelper.floor((double)(this.mc.player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
 			EnumFacing direction = null;
 			switch(i4)
@@ -240,50 +266,40 @@ public class PreviewRenderer {
 			LittleFlipPacket packet = new LittleFlipPacket(direction);
 			packet.executeClient(mc.player);
 			PacketHandler.sendPacketToServer(packet);
-		}else if(!GameSettings.isKeyDown(LittleTilesClient.flip)){
-			LittleTilesClient.pressedFlip = false;
 		}
 		
 		//Rotate Block
-        if(GameSettings.isKeyDown(LittleTilesClient.up) && !LittleTilesClient.pressedUp)
+        while (LittleTilesClient.up.isPressed())
         {
-        	LittleTilesClient.pressedUp = true;
         	if(markedPosition != null)
         		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
         	else
         		processRotateKey(EnumFacing.UP);
-        }else if(!GameSettings.isKeyDown(LittleTilesClient.up))
-        	LittleTilesClient.pressedUp = false;
+        }
         
-        if(GameSettings.isKeyDown(LittleTilesClient.down) && !LittleTilesClient.pressedDown)
+        while (LittleTilesClient.down.isPressed())
         {
-        	LittleTilesClient.pressedDown = true;
         	if(markedPosition != null)
         		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
         	else
         		processRotateKey(EnumFacing.DOWN);
-        }else if(!GameSettings.isKeyDown(LittleTilesClient.down))
-        	LittleTilesClient.pressedDown = false;
+        }
         
-        if(GameSettings.isKeyDown(LittleTilesClient.right) && !LittleTilesClient.pressedRight)
+        while (LittleTilesClient.right.isPressed())
         {
-        	LittleTilesClient.pressedRight = true;
         	if(markedPosition != null)
         		moveMarkedHit(EnumFacing.SOUTH);
         	else
         		processRotateKey(EnumFacing.SOUTH);
-        }else if(!GameSettings.isKeyDown(LittleTilesClient.right))
-        	LittleTilesClient.pressedRight = false;
+        }
         
-        if(GameSettings.isKeyDown(LittleTilesClient.left) && !LittleTilesClient.pressedLeft)
+        while (LittleTilesClient.left.isPressed())
         {
-        	LittleTilesClient.pressedLeft = true;
         	if(markedPosition != null)
         		moveMarkedHit(EnumFacing.NORTH);
         	else
         		processRotateKey(EnumFacing.NORTH);
-        }else if(!GameSettings.isKeyDown(LittleTilesClient.left))
-        	LittleTilesClient.pressedLeft = false;
+        }
 	}
 
 	private void moveMarkedHit(EnumFacing facing)

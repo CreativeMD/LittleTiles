@@ -1,11 +1,16 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
+import com.creativemd.creativecore.common.utils.HashMapDouble;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
@@ -15,6 +20,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -26,10 +32,12 @@ import net.minecraft.world.World;
 public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	public int color;
+	public boolean toVanilla;
 	
-	public LittleActionColorBoxes(List<LittleTileBox> boxes, int color) {
+	public LittleActionColorBoxes(List<LittleTileBox> boxes, int color, boolean toVanilla) {
 		super(boxes);
 		this.color = color;
+		this.toVanilla = toVanilla;
 	}
 	
 	public LittleActionColorBoxes() {
@@ -40,16 +48,33 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	public void writeBytes(ByteBuf buf) {
 		super.writeBytes(buf);
 		buf.writeInt(color);
+		buf.writeBoolean(toVanilla);
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		super.readBytes(buf);
 		color = buf.readInt();
+		toVanilla = buf.readBoolean();
+	}
+	
+	public HashMapList<Integer, LittleTileBox> revertList;
+	
+	public void addRevert(int color, List<LittleTileBox> boxes, LittleTileVec offset)
+	{
+		List<LittleTileBox> newBoxes = new ArrayList<>();
+		for (LittleTileBox box : boxes) {
+			box = box.copy();
+			box.addOffset(offset);
+			newBoxes.add(box);
+		}
+		revertList.add(color, newBoxes);
 	}
 	
 	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate)
 	{
+		LittleTileVec offset = new LittleTileVec(te.getPos());
+		
 		double colorVolume = 0;
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -69,7 +94,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			if(!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isStructureBlock && (!tile.isLoaded() || !tile.structure.hasLoaded())))
 				continue;
 			
-			if(tile.canBeSplitted())
+			if(tile.canBeSplitted() && LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
 			{
 				if(tile.canHaveMultipleBoundingBoxes())
 				{
@@ -91,6 +116,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						int i = 0;
 						int max = tile.boundingBoxes.size();
 						
+						int originalColor = LittleTileBlockColored.getColor((LittleTileBlock) tile);
+						
 						LittleTile tempTile = tile.copy();
 						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
 						if(changedTile == null)
@@ -108,6 +135,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 							{
 								tile.boundingBoxes.remove(i);
 								tile.boundingBoxes.addAll(newBoxes);
+								
+								addRevert(originalColor, cutout, offset);
 								
 								changedTile.boundingBoxes.addAll(cutout);
 								
@@ -160,6 +189,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						{
 							tile.boundingBoxes.clear();
 							
+							addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), cutout, offset);
+							
 							LittleTile tempTile = tile.copy();
 							LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
 							if(changedTile == null)
@@ -201,6 +232,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					colorVolume += tile.getPercentVolume();
 					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), tile.getPercentVolume()));
 				}else{
+					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), tile.boundingBoxes, offset);
+					
 					LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 					if(changedTile != null)
 					{
@@ -274,7 +307,16 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			te.preventUpdate = false;
 			
 			te.combineTiles();
+			
+			if(toVanilla)
+				te.convertBlockToVanilla();
 		}
+	}
+	
+	@Override
+	protected boolean action(EntityPlayer player) throws LittleActionException {
+		revertList = new HashMapList<>();
+		return super.action(player);
 	}
 
 	@Override
@@ -284,8 +326,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 
 	@Override
 	public LittleAction revert() {
-		// TODO Auto-generated method stub
-		return null;
+		LittleAction[] actions = new LittleAction[revertList.size()];
+		int i = 0;
+		for (Entry<Integer, ArrayList<LittleTileBox>> entry : revertList.entrySet()) {
+			actions[i] = new LittleActionColorBoxes(entry.getValue(), entry.getKey(), true);
+			i++;
+		}
+		return new LittleActionCombined(actions);
 	}
 	
 }

@@ -38,4 +38,11 @@ public class LittleActionException extends Exception {
 		
 	}
 	
+	public static class StructureNotLoadedException extends LittleActionException {
+
+		public StructureNotLoadedException() {
+			super("action.structure.notloaded");
+		}
+		
+	}
 }

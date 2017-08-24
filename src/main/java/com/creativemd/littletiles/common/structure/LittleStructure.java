@@ -610,7 +610,7 @@ public abstract class LittleStructure {
 			for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
 				LittleTilePreview preview = tile.getPreviewTile();
-				preview.box.addOffset(new LittleTileVec(tile.te.getPos().subtract(pos)));
+				preview.box.addOffset(tile.te.getPos().subtract(pos));
 				previews.add(preview);
 			}
 			
@@ -832,6 +832,13 @@ public abstract class LittleStructure {
 	public void onUpdatePacketReceived()
 	{
 		
+	}
+
+	public void removeWorldProperties()
+	{
+		mainTile = null;
+		tiles = new HashMapList<>();
+		tilesToLoad = null;
 	}
 	
 }
