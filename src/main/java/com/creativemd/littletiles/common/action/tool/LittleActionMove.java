@@ -102,7 +102,7 @@ public class LittleActionMove extends LittleActionInteract {
 
 	@Override
 	public LittleAction revert() {
-		return new LittleActionMoveRevert(position, side.getOpposite(), !push);
+		return new LittleActionMoveRevert(position, side, !push);
 	}
 	
 	@Override
@@ -140,7 +140,7 @@ public class LittleActionMove extends LittleActionInteract {
 		public LittleAction revert() throws LittleActionException {
 			LittleTileVec position = this.position.copy();
 			position.addVec(new LittleTileVec(push ? side.getOpposite() : side));
-			return new LittleActionMoveRevert(position, side.getOpposite(), !push);
+			return new LittleActionMoveRevert(position, side, !push);
 		}
 
 		@Override

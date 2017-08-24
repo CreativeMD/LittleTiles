@@ -514,7 +514,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			LittleTilePreview preview = tileOfList.getPreviewTile();
-			preview.box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
+			preview.box.addOffset(tileOfList.te.getPos());
 			preview.box.addOffset(invaxis);
 			
 			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));

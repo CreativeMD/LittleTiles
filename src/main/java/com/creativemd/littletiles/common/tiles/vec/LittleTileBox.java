@@ -25,6 +25,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import scala.collection.generic.BitOperations.Int;
 
 public class LittleTileBox {
@@ -256,6 +257,16 @@ public class LittleTileBox {
 		return null;
 	}
 	
+	public void addOffset(Vec3i vec)
+	{
+		minX += vec.getX() * LittleTile.gridSize;
+		minY += vec.getY() * LittleTile.gridSize;
+		minZ += vec.getZ() * LittleTile.gridSize;
+		maxX += vec.getX() * LittleTile.gridSize;
+		maxY += vec.getY() * LittleTile.gridSize;
+		maxZ += vec.getZ() * LittleTile.gridSize;
+	}
+	
 	public void addOffset(LittleTileVec vec)
 	{
 		minX += vec.x;
@@ -264,6 +275,16 @@ public class LittleTileBox {
 		maxX += vec.x;
 		maxY += vec.y;
 		maxZ += vec.z;
+	}
+	
+	public void subOffset(Vec3i vec)
+	{
+		minX -= vec.getX() * LittleTile.gridSize;
+		minY -= vec.getY() * LittleTile.gridSize;
+		minZ -= vec.getZ() * LittleTile.gridSize;
+		maxX -= vec.getX() * LittleTile.gridSize;
+		maxY -= vec.getY() * LittleTile.gridSize;
+		maxZ -= vec.getZ() * LittleTile.gridSize;
 	}
 	
 	public void subOffset(LittleTileVec vec)
@@ -428,6 +449,11 @@ public class LittleTileBox {
 		cube.minZ += z;
 		cube.maxZ += z;*/
 		assignCube(cube);
+	}
+	
+	@Override
+	public int hashCode() {
+		return minX + minY + minZ + maxX + maxY + maxZ;
 	}
 	
 	@Override
@@ -944,6 +970,11 @@ public class LittleTileBox {
 	public static LittleTileBox fromBytes(ByteBuf buf)
 	{
 		return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
+	}
+
+	public boolean doesFullEntireBlock()
+	{
+		return minX == 0 && minY == 0 && minZ == 0 && maxX == LittleTile.gridSize && maxY == LittleTile.gridSize && maxZ == LittleTile.gridSize;
 	}
 	
 }

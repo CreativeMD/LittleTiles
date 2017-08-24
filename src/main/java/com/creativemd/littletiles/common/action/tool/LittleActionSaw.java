@@ -55,11 +55,12 @@ public class LittleActionSaw extends LittleActionInteract {
 	public LittleTileBox oldBox = null;
 	public LittleTileBox newBox = null;
 	public LittleTileVec position = null;
+	public EnumFacing facing;
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 			EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException {
-		EnumFacing facing = moving.sideHit;
+		facing = moving.sideHit;
 		if(tile.canSawResizeTile(facing, player))
 		{
 			LittleTileBox box = null;
@@ -93,7 +94,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				else
 					drainIngredients(player, ingredients, unit);
 				
-				if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box.getBox(), tile))
+				if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box, tile))
 				{
 					tile.boundingBoxes.set(0, box);
 					tile.updateCorner();
@@ -127,7 +128,7 @@ public class LittleActionSaw extends LittleActionInteract {
 							littleTe.updateBlock();
 							position = newTile.getAbsoluteCoordinates();
 							newBox = box.copy();
-							newBox.addOffset(new LittleTileVec(littleTe.getPos()));
+							newBox.addOffset(littleTe.getPos());
 							return true;
 						}
 					}
@@ -150,7 +151,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			boxes.add(newBox);
 			return new LittleActionDestroyBoxes(boxes);
 		}
-		return new LittleActionSawRevert(position, oldBox);
+		return new LittleActionSawRevert(position, oldBox, facing);
 	}
 	
 	@Override
@@ -169,10 +170,12 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		public LittleTileBox oldBox;
 		public LittleTileVec position;
+		public EnumFacing facing;
 		
-		public LittleActionSawRevert(LittleTileVec position, LittleTileBox oldBox) {
+		public LittleActionSawRevert(LittleTileVec position, LittleTileBox oldBox, EnumFacing facing) {
 			this.position = position;
 			this.oldBox = oldBox;
+			this.facing = facing;
 		}
 		
 		public LittleActionSawRevert() {
@@ -186,7 +189,7 @@ public class LittleActionSaw extends LittleActionInteract {
 
 		@Override
 		public LittleAction revert() throws LittleActionException {
-			return null;
+			return new LittleActionSawRevert(position, oldBox, facing);
 		}
 
 		@Override
@@ -195,6 +198,39 @@ public class LittleActionSaw extends LittleActionInteract {
 			LittleTile tile = getTileAtPosition(player.world, position);
 			if(tile == null)
 				throw new LittleActionException.TileNotFoundException();
+			
+			if(tile.canSawResizeTile(facing, player))
+			{
+				double amount = Math.abs(oldBox.getPercentVolume()-tile.boundingBoxes.get(0).getPercentVolume());
+				BlockIngredients ingredients = new BlockIngredients();
+				LittleTilePreview preview = tile.getPreviewTile();
+				BlockIngredient ingredient = preview.getBlockIngredient();
+				ingredient.value = amount;
+				ingredients.addIngredient(ingredient);
+				
+				ColorUnit unit = null;
+				if(preview.hasColor())
+				{
+					unit = ColorUnit.getRequiredColors(preview.getColor());
+					unit.BLACK *= amount;
+					unit.RED *= amount;
+					unit.GREEN *= amount;
+					unit.BLUE *= amount;
+				}
+				
+				if(oldBox.getVolume() < tile.boundingBoxes.get(0).getVolume())
+					addIngredients(player, ingredients, unit);
+				else
+					drainIngredients(player, ingredients, unit);
+				
+				LittleTileBox newBox = oldBox;
+				oldBox = tile.boundingBoxes.get(0);
+				tile.boundingBoxes.set(0, newBox);
+				
+				tile.updateCorner();
+				position = tile.getAbsoluteCoordinates();
+				return true;
+			}
 			
 			return false;
 		}

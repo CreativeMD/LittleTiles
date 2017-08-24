@@ -275,7 +275,7 @@ public class LittleDoor extends LittleDoorBase{
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			LittleTilePreview preview = tileOfList.getPreviewTile();
-			preview.box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
+			preview.box.addOffset(tileOfList.te.getPos());
 			preview.box.addOffset(invaxis);
 			
 			preview.rotatePreview(direction);

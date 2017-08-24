@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -41,9 +42,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleAction extends CreativeCorePacket {
 	
-	public static int maxSavedActions = 10;
+	public static int maxSavedActions = 20;
 	
-	private static List<LittleAction> lastActions = new ArrayList<>(maxSavedActions);
+	private static List<LittleAction> lastActions = new ArrayList<>();
 	
 	private static int index = 0;
 	
@@ -52,11 +53,68 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if(!action.canBeReverted())
 			return ;
 		
+		if(index > 0)
+		{
+			if(index < lastActions.size())
+				lastActions = lastActions.subList(index, lastActions.size()-1);
+			else
+				lastActions = new ArrayList<>();
+		}
+		
 		index = 0;
+		
 		if(lastActions.size() == maxSavedActions)
 			lastActions.remove(maxSavedActions-1);
 		
 		lastActions.add(0, action);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean undo() throws LittleActionException
+	{
+		if(lastActions.size() > index)
+		{
+			EntityPlayer player = Minecraft.getMinecraft().player;
+			
+			LittleAction reverted = lastActions.get(index).revert();
+			
+			if(reverted == null)
+				throw new LittleActionException("action.revert.notavailable");
+			
+			if(reverted.action(player))
+			{
+				PacketHandler.sendPacketToServer(reverted);
+				lastActions.set(index, reverted);
+				index++;
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean redo() throws LittleActionException
+	{
+		if(index > 0 && index <= lastActions.size())
+		{
+			EntityPlayer player = Minecraft.getMinecraft().player;
+			
+			index--;
+			
+			LittleAction reverted = lastActions.get(index).revert();
+			
+			if(reverted == null)
+				throw new LittleActionException("action.revert.notavailable");
+			
+			if(reverted.action(player))
+			{
+				PacketHandler.sendPacketToServer(reverted);
+				lastActions.set(index, reverted);
+				
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes)

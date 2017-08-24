@@ -165,7 +165,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				if(!world.isRemote || approved)
 				{
-					if(LittleActionPlaceRelative.placeTiles(world, null, previews, structure, baseOffset, null, null, false, EnumFacing.EAST) != null)
+					if(LittleActionPlaceRelative.placeTiles(world, null, previews, structure, false, baseOffset, null, null, false, EnumFacing.EAST) != null)
 					{
 						if(world.isRemote)
 						{

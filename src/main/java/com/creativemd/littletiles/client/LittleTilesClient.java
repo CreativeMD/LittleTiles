@@ -37,6 +37,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
@@ -54,34 +55,15 @@ public class LittleTilesClient extends LittleTilesServer{
 	
 	Minecraft mc = Minecraft.getMinecraft();
 	
-	public static KeyBinding flip;
-	public static boolean pressedFlip = false;
-	
+	public static KeyBinding flip;	
 	public static KeyBinding mark;
-	public static boolean pressedMark = false;
-	
 	public static KeyBinding up;
-	public static boolean pressedUp = false;
 	public static KeyBinding down;
-	public static boolean pressedDown = false;
 	public static KeyBinding right;
-	public static boolean pressedRight = false;
 	public static KeyBinding left;
-	public static boolean pressedLeft = false;
-	/*private static VertexFormat optifineFormat = createOptifineBlockFormat();
 	
-	private static VertexFormat createOptifineBlockFormat()
-	{
-		VertexFormat format = new VertexFormat(DefaultVertexFormats.BLOCK);
-		format.addElement(DefaultVertexFormats.NORMAL_3B);
-		format.addElement(DefaultVertexFormats.PADDING_1B);
-		format.addElement(new VertexFormatElement(0, VertexFormatElement.EnumType.FLOAT, VertexFormatElement.EnumUsage.PADDING, 2));
-		VertexFormatElement PADDING_4S = new VertexFormatElement(0, VertexFormatElement.EnumType.SHORT, VertexFormatElement.EnumUsage.PADDING, 4);
-		format.addElement(PADDING_4S);
-		format.addElement(PADDING_4S);
-		return format;
-	}*/
-	
+	public static KeyBinding undo;
+	public static KeyBinding redo;	
 	
 	@Override
 	public void loadSidePre()
@@ -137,7 +119,10 @@ public class LittleTilesClient extends LittleTilesServer{
 		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
 		
 		flip = new KeyBinding("key.flip", Keyboard.KEY_G, "key.categories.littletiles");
-		mark = new KeyBinding("key.mark", Keyboard.KEY_M, "key.categories.littletiles");
+		mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
+		
+		undo = new KeyBinding("key.little.undo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Z, "key.categories.littletiles");
+		redo = new KeyBinding("key.little.redo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Y, "key.categories.littletiles");
 		
 		ClientRegistry.registerKeyBinding(up);
 		ClientRegistry.registerKeyBinding(down);
@@ -145,6 +130,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		ClientRegistry.registerKeyBinding(left);
 		ClientRegistry.registerKeyBinding(flip);
 		ClientRegistry.registerKeyBinding(mark);
+		
+		ClientRegistry.registerKeyBinding(undo);
+		ClientRegistry.registerKeyBinding(redo);
 		
 		EntityRegistry.instance().lookupModSpawn(EntityDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>(){
 

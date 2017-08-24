@@ -116,7 +116,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			NBTTagCompound nbt = new NBTTagCompound();
 			
 			LittleTilePreview preview = tileOfList.getPreviewTile();
-			preview.box.addOffset(new LittleTileVec(tileOfList.te.getPos()));
+			preview.box.addOffset(tileOfList.te.getPos());
 			preview.box.addOffset(invaxis);
 			preview.box.addOffset(offset);
 			

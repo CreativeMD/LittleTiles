@@ -19,6 +19,7 @@ import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -370,6 +371,64 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			RenderingThread.addCoordToUpdate(this);
 	}
 	
+	/**
+	 * Tries to convert the TileEntity to a vanilla block
+	 * @return whether it could convert it or not
+	 */
+	public boolean convertBlockToVanilla()
+	{
+		if(tiles.isEmpty())
+		{
+			world.setBlockToAir(pos);
+			return true;
+		}else if(tiles.size() == 1){
+			LittleTile tile = tiles.get(0);
+			if(tile.boundingBoxes.size() == 1)
+			{
+				if(!tile.boundingBoxes.get(0).doesFullEntireBlock())
+					return false;
+			}else
+				return false;
+		}
+		
+		LittleTile firstTile = null;
+		boolean[][][] filled = new boolean[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
+		for (LittleTile tile : tiles) {
+			if(firstTile == null)
+			{
+				if(tile.getClass() != LittleTileBlock.class)
+					return false;
+				
+				firstTile = tile;
+			}else if(!firstTile.canBeCombined(tile) || !tile.canBeCombined(firstTile))
+				return false;
+			
+			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
+				LittleTileBox box = tile.boundingBoxes.get(j);
+				for (int x = box.minX; x < box.maxX; x++) {
+					for (int y = box.minY; y < box.maxY; y++) {
+						for (int z = box.minZ; z < box.maxZ; z++) {
+							filled[x][y][z] = true;
+						}
+					}
+				}
+			}
+		}
+		
+		for (int x = 0; x < filled.length; x++) {
+			for (int y = 0; y < filled[x].length; y++) {
+				for (int z = 0; z < filled[x][y].length; z++) {
+					if(!filled[x][y][z])
+						return false;
+				}
+			}
+		}
+		
+		world.setBlockState(pos, ((LittleTileBlock) firstTile).getBlockState());
+		
+		return true;
+	}
+	
 	public boolean isBoxFilled(LittleTileBox box)
 	{
 		LittleTileSize size = box.getSize();
@@ -536,13 +595,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return false;
 	}
 	
-	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
+	/*
 	public boolean isSpaceForLittleTile(CubeObject cube)
 	{
 		return isSpaceForLittleTile(cube.getAxis());
 	}
 	
-	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
 	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB, LittleTile ignoreTile)
 	{
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
@@ -556,11 +614,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return true;
 	}
 	
-	/**Used for placing a tile and can be used if a "cable" can connect to a direction*/
 	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB)
 	{
 		return isSpaceForLittleTile(alignedBB, null);
-	}
+	}*/
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box)
 	{
@@ -825,7 +882,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		return tileFocus;
-	}
+	}	
 	
 	@Override
 	public void onLoad()

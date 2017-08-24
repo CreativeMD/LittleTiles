@@ -20,6 +20,8 @@ import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -62,13 +64,11 @@ public class LittleActionPlaceRelative extends LittleAction {
 
 	@Override
 	public LittleAction revert() {
-		// TODO Auto-generated method stub
-		return null;
+		return new LittleActionDestroyBoxes(boxes);
 	}
 	
-	public LittleStructure placedStructure;
-	public List<LittleTile> placedTiles;
-
+	public List<LittleTileBox> boxes;
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		ItemStack stack = player.getHeldItemMainhand();
@@ -133,14 +133,12 @@ public class LittleActionPlaceRelative extends LittleAction {
 		{
 			if(iTile.containsIngredients(stack))
 			{
-				if(!iTile.drainIngredients(player, stack, result.placePreviews))
-					return null;
+				stack.shrink(1);
 			}else
 				drainPreviews(player, result.previews);
 		}
 			
-		placedTiles = placeTiles(world, player, result.placePreviews, structure, position.pos, toPlace, unplaceableTiles, forced, position.facing);
-		placedStructure = structure;
+		List<LittleTile> placedTiles = placeTiles(world, player, result.placePreviews, structure, false, position.pos, toPlace, unplaceableTiles, forced, position.facing);
 		
 		if(placedTiles != null)
 		{
@@ -150,18 +148,26 @@ public class LittleActionPlaceRelative extends LittleAction {
 					addTileToInventory(player, unplaceableTiles.get(j));
 				}
 			}
+			boxes = new ArrayList<>();
+			for (LittleTile tile : placedTiles) {
+				for (LittleTileBox box : tile.boundingBoxes) {
+					box = box.copy();
+					box.addOffset(tile.te.getPos());
+					boxes.add(box);
+				}
+			}
 			return placedTiles;
 		}
        return placedTiles;
     }
 	
-	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
 	{		
 		HashMapList<BlockPos, PlacePreviewTile> splitted = getSplittedTiles(previews, pos);
 		if(splitted == null)
 			return null;
 		ArrayList<BlockPos> coordsToCheck = new ArrayList<BlockPos>();
-		if(structure != null)
+		if(structure != null || placeAll)
 		{
 			coordsToCheck.addAll(splitted.getKeys());
 		}else{
@@ -323,7 +329,6 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		public final PlacePreviewTile tile;
 		public final BlockPos pos;
-		
 		
 		public LastPlacedTile(PlacePreviewTile tile, BlockPos pos) {
 			this.tile = tile;

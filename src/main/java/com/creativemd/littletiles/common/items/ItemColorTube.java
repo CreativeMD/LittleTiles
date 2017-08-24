@@ -162,7 +162,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 				return true;
 			}
 		}else if(shape.leftClick(player, stack.getTagCompound(), result)){
-			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack)).execute();
+			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack), false).execute();
 		}
 		return true;
 	}
