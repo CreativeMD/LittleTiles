@@ -86,7 +86,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public void addExtraInformation(EntityPlayer player, NBTTagCompound nbt, List<String> list) {
+		public void addExtraInformation(World world, NBTTagCompound nbt, List<String> list) {
 			
 		}
 	};
