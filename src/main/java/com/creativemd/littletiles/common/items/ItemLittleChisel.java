@@ -72,7 +72,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	}
 	
 	@Override
-	public float getStrVsBlock(ItemStack stack, IBlockState state)
+	public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         return 0F;
     }

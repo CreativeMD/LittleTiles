@@ -99,7 +99,7 @@ public class LittleTilesClient extends LittleTilesServer{
 			
 			@Override
 			@SideOnly(Side.CLIENT)
-		    public int getColorFromItemstack(ItemStack stack, int color)
+		    public int colorMultiplier(ItemStack stack, int color)
 		    {
 				if (color == 0)
 		        	return ColorUtils.WHITE;

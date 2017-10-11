@@ -76,7 +76,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
     }
 	
 	@Override
-	public float getStrVsBlock(ItemStack stack, IBlockState state)
+	public float getDestroySpeed(ItemStack stack, IBlockState state)
     {
         return 0F;
     }
