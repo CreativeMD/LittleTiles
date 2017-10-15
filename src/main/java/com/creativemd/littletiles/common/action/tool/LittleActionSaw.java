@@ -54,7 +54,10 @@ public class LittleActionSaw extends LittleActionInteract {
 	@Override
 	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile)
 	{
-		return new LittleTileBox(tile.box).calculateIntercept(te.getPos(), pos, look);
+		RayTraceResult result = new LittleTileBox(tile.box).calculateIntercept(te.getPos(), pos, look);
+		if(result != null)
+			return result;
+		return super.rayTrace(te, tile);
 	}
 	
 	@Override
