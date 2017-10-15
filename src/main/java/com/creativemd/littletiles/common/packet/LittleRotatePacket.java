@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
@@ -19,20 +20,20 @@ public class LittleRotatePacket extends CreativeCorePacket{
 		
 	}
 	
-	public EnumFacing direction;
+	public Rotation rotation;
 	
-	public LittleRotatePacket(EnumFacing direction) {
-		this.direction = direction;
+	public LittleRotatePacket(Rotation rotation) {
+		this.rotation = rotation;
 	}
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		writeFacing(buf, direction);
+		buf.writeInt(rotation.ordinal());
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		direction = readFacing(buf);
+		rotation = Rotation.values()[buf.readInt()];
 	}
 
 	@Override
@@ -57,11 +58,11 @@ public class LittleRotatePacket extends CreativeCorePacket{
 			
 			if(itile != null)
 			{
-				itile.rotateLittlePreview(stack, direction);
+				itile.rotateLittlePreview(stack, rotation);
 				LittleStructure structure = itile.getLittleStructure(stack);
 				if(structure != null)
 				{
-					structure.onRotate(player.world, player, stack, direction);
+					structure.onRotate(player.world, player, stack, rotation);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
 					stack.getTagCompound().setTag("structure", nbt);

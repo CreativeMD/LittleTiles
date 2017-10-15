@@ -15,6 +15,7 @@ import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -63,7 +64,7 @@ public class GuiTileViewer extends GuiParent{
 	
 	public void updateNormalAxis()
 	{
-		List<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
+		List<? extends RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double minZ = Integer.MAX_VALUE;

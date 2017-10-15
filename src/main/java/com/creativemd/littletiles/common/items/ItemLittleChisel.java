@@ -12,6 +12,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -22,7 +23,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
-import com.creativemd.littletiles.common.items.geo.ChiselShape;
+import com.creativemd.littletiles.common.items.geo.DragShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
@@ -30,6 +31,7 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.Vanilla
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -53,6 +55,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -81,8 +84,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
-		ChiselShape shape = getShape(stack);
-		tooltip.add("shape: " + shape.key);
+		DragShape shape = getShape(stack);
+		list.add("shape: " + shape.key);
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
 	}
 	
@@ -109,12 +112,12 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		return new SubContainerChisel(player, stack);
 	}
 	
-	public static ChiselShape getShape(ItemStack stack)
+	public static DragShape getShape(ItemStack stack)
 	{
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
-		return ChiselShape.getShape(stack.getTagCompound().getString("shape"));
+		return DragShape.getShape(stack.getTagCompound().getString("shape"));
 	}
 	
 	public static void setColor(ItemStack stack, int color)
@@ -246,7 +249,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			if(cachedPos == null || !cachedPos.equals(lastMax))
 			{
 				
-				ChiselShape shape = getShape(stack);
+				DragShape shape = getShape(stack);
 				LittleTileBox newBox = getBox();
 				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
@@ -261,8 +264,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			LittleTileBlock tile = !ColorUtils.isWhite(color) ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			
 			for (int i = 0; i < boxes.size(); i++) {
-				tile.boundingBoxes.clear();
-				tile.boundingBoxes.add(boxes.get(i).copy());
+				tile.box = boxes.get(i);
 				previews.add(tile.getPreviewTile());
 			}
 			
@@ -275,10 +277,10 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {}
 	
 	@Override
-	public void rotateLittlePreview(ItemStack stack, EnumFacing facing) {}
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {}
 	
 	@Override
-	public void flipLittlePreview(ItemStack stack, EnumFacing facing) {}
+	public void flipLittlePreview(ItemStack stack, Axis axis) {}
 	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack)
@@ -295,11 +297,13 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position)
+	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
-		lastMax = position.getAbsoluteVec();
-		if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			lastMax.addVec(new LittleTileVec(position.facing));
+		lastMax = new LittleTileVec(result);
+		lastMax.add(result.sideHit);
+		//lastMax = position.getAbsoluteVec();
+		//if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
+			//lastMax.addVec(new LittleTileVec(position.facing));
 	}
 	
 	@Override
@@ -324,9 +328,11 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	@Override
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
-		LittleTileVec absoluteHit = new LittleTileVec(result.hitVec);
+		LittleTileVec absoluteHit = new LittleTileVec(result);
 		if(ItemLittleChisel.min == null)
 		{
+			absoluteHit.add(result.sideHit);
+			//absoluteHit.add(result.sideHit);
 			//if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
 				//absoluteHit.addVec(new LittleTileVec(result.sideHit));
 			ItemLittleChisel.min = absoluteHit;

@@ -77,7 +77,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			if(tile != null)
 			{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				RayTraceResult moving = te.getMoving(pos, look);
+				RayTraceResult moving = rayTrace(te, tile);
 				return action(world, te, tile, stack, player, moving, blockPos);
 			}else
 				onTileNotFound();
@@ -85,6 +85,11 @@ public abstract class LittleActionInteract extends LittleAction {
 			onTileEntityNotFound();
 		return false;
 			
+	}
+	
+	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile)
+	{
+		return te.rayTrace(pos, look);
 	}
 	
 	protected void onTileNotFound() throws LittleActionException

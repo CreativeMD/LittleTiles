@@ -9,8 +9,10 @@ import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
@@ -23,6 +25,7 @@ import com.creativemd.littletiles.common.tiles.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.client.Minecraft;
@@ -67,8 +70,7 @@ public class PreviewRenderer {
 		while (LittleTilesClient.undo.isPressed())
 		{
 			try {
-				if(LittleAction.undo())
-					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_CLOTH_BREAK, 1.0F));
+				LittleAction.undo();
 			} catch (LittleActionException e) {
 				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			}
@@ -77,8 +79,7 @@ public class PreviewRenderer {
 		while (LittleTilesClient.redo.isPressed())
 		{
 			try {
-				if(LittleAction.redo())
-					mc.getSoundHandler().playSound(PositionedSoundRecord.getMasterRecord(SoundEvents.BLOCK_CLOTH_PLACE, 1.0F));
+				LittleAction.redo();
 			} catch (LittleActionException e) {
 				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			}
@@ -109,7 +110,7 @@ public class PreviewRenderer {
 	            GL11.glDepthMask(false);
 	            
 	            ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-	            iTile.tickPreview(player, stack, position);
+	            iTile.tickPreview(player, stack, position, mc.objectMouseOver);
 	            
 	            boolean absolute = iTile.arePreviewsAbsolute();
 	            
@@ -136,30 +137,15 @@ public class PreviewRenderer {
 		            for (int i = 0; i < result.placePreviews.size(); i++) {
 						
 						PlacePreviewTile preview = result.placePreviews.get(i);
-						ArrayList<ColoredCube> cubes = preview.getPreviews();
-						for (int j = 0; j < cubes.size(); j++) {
+						List<LittleRenderingCube> cubes = preview.getPreviews();
+						for (LittleRenderingCube cube : cubes) {
 							GL11.glPushMatrix();
-							ColoredCube cube = cubes.get(j);
-							Vec3d size = cube.getSize();
-							double cubeX = x+cube.minX+size.x/2D;
-							if(absolute)
-								cubeX -= x+TileEntityRendererDispatcher.staticPlayerX;
-							
-							double cubeY = y+cube.minY+size.y/2D;
-							if(absolute)
-								cubeY -= y+TileEntityRendererDispatcher.staticPlayerY;
-							
-							double cubeZ = z+cube.minZ+size.z/2D;
-							if(absolute)
-								cubeZ -= z+TileEntityRendererDispatcher.staticPlayerZ;
-							
-							Vec3d color = ColorUtils.IntToVec(cube.color);
-							RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.x, size.y, size.z, 0, 0, 0, color.x, color.y, color.z, (Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
+							cube.renderCubePreview(absolute, x, y, z, iTile);
 							GL11.glPopMatrix();
 						}
 					}
 		            
-		            if(!absolute && markedPosition == null && player.isSneaking() && result.usedSize)
+		            if(!absolute && markedPosition == null && player.isSneaking() && result.singleMode)
 		            {
 		            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 		            	
@@ -220,9 +206,9 @@ public class PreviewRenderer {
 					break;
 				}
 				
-				if(!preview.usedSize && preview.placedFixed)
+				if(!preview.singleMode && preview.placedFixed)
 				{
-					markedPosition.hit.subVec(preview.offset);
+					markedPosition.hit.sub(preview.offset);
 				}
 			}
 			else
@@ -230,9 +216,9 @@ public class PreviewRenderer {
 		}
 	}
 	
-	public void processRotateKey(EnumFacing direction)
+	public void processRotateKey(Rotation rotation)
 	{
-		LittleRotatePacket packet = new LittleRotatePacket(direction);
+		LittleRotatePacket packet = new LittleRotatePacket(rotation);
 		packet.executeClient(mc.player);
 		PacketHandler.sendPacketToServer(packet);
 	}
@@ -263,7 +249,7 @@ public class PreviewRenderer {
 			if(mc.player.rotationPitch < -45)
 				direction = EnumFacing.UP;
 			
-			LittleFlipPacket packet = new LittleFlipPacket(direction);
+			LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
 			packet.executeClient(mc.player);
 			PacketHandler.sendPacketToServer(packet);
 		}
@@ -274,7 +260,7 @@ public class PreviewRenderer {
         	if(markedPosition != null)
         		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
         	else
-        		processRotateKey(EnumFacing.UP);
+        		processRotateKey(Rotation.Z_CLOCKWISE);
         }
         
         while (LittleTilesClient.down.isPressed())
@@ -282,7 +268,7 @@ public class PreviewRenderer {
         	if(markedPosition != null)
         		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
         	else
-        		processRotateKey(EnumFacing.DOWN);
+        		processRotateKey(Rotation.Z_COUNTER_CLOCKWISE);
         }
         
         while (LittleTilesClient.right.isPressed())
@@ -290,7 +276,7 @@ public class PreviewRenderer {
         	if(markedPosition != null)
         		moveMarkedHit(EnumFacing.SOUTH);
         	else
-        		processRotateKey(EnumFacing.SOUTH);
+        		processRotateKey(Rotation.Y_COUNTER_CLOCKWISE);
         }
         
         while (LittleTilesClient.left.isPressed())
@@ -298,7 +284,7 @@ public class PreviewRenderer {
         	if(markedPosition != null)
         		moveMarkedHit(EnumFacing.NORTH);
         	else
-        		processRotateKey(EnumFacing.NORTH);
+        		processRotateKey(Rotation.Y_CLOCKWISE);
         }
 	}
 
@@ -308,4 +294,14 @@ public class PreviewRenderer {
 		vec.scale(GuiScreen.isCtrlKeyDown() ? LittleTile.gridSize : 1);
 		markedPosition.subVec(vec);
 	}
+	
+	/*
+	{
+		Axis [x, y, z]
+		Clockwise <=> counterClockWise
+		[1 0 0]
+		[0 0 -1]
+		[0 1 0]
+	}
+	*/
 }

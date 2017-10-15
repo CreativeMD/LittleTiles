@@ -89,7 +89,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		
 		public LittleActionGlowstoneRevert(LittleTile tile) {
 			this.pos = tile.te.getPos();
-			this.corner = tile.cornerVec;
+			this.corner = tile.getCornerVec();
 		}
 		
 		public LittleActionGlowstoneRevert() {

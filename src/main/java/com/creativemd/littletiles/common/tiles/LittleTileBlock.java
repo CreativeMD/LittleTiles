@@ -8,9 +8,11 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
@@ -156,22 +158,19 @@ public class LittleTileBlock extends LittleTile{
 
 	@Override
 	public ItemStack getDrop() {
-		ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		/*ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		stack.setTagCompound(new NBTTagCompound());
-		//saveTile(stack.getTagCompound());
 		stack.getTagCompound().setString("tID", getID());
-		//stack.getTagCompound().setInteger("bSize", 0);
 		saveTileExtra(stack.getTagCompound());
-		boundingBoxes.get(0).getSize().writeToNBT("size", stack.getTagCompound());
-		return stack;
+		box.getSize().writeToNBT("size", stack.getTagCompound());
+		return stack;*/
+		return ItemBlockTiles.getStackFromPreview(getPreviewTile());
 	}
 
 	@Override
-	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
-		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			cubes.add(new RenderCubeObject(boundingBoxes.get(i).getCube(), block, meta));
-		}
+	public List<LittleRenderingCube> getInternalRenderingCubes() {
+		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
+		cubes.add(box.getRenderingCube(block, meta));
 		return cubes;
 	}
 	

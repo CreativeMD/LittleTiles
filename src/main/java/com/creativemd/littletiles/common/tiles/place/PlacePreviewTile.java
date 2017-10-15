@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.common.tiles.place;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
@@ -8,9 +10,11 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -47,11 +51,11 @@ public class PlacePreviewTile {
 		return true;
 	}
 	
-	public ArrayList<ColoredCube> getPreviews()
+	public List<LittleRenderingCube> getPreviews()
 	{
-		ArrayList<ColoredCube> cubes = new ArrayList<>();
-		cubes.add(new ColoredCube(box.getCube()));
-		return cubes;
+		ArrayList<LittleRenderingCube> previews = new ArrayList<>();
+		previews.add(box.getRenderingCube(null, 0));
+		return previews;
 	}
 	
 	public LittleTile placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
@@ -60,9 +64,7 @@ public class PlacePreviewTile {
 		if(LT == null)
 			return null;
 		
-		LT.boundingBoxes.clear();
-		LT.boundingBoxes.add(box.copy());
-		LT.updateCorner();
+		LT.box = box.copy();
 		
 		if(structure != null)
 		{
@@ -71,7 +73,7 @@ public class PlacePreviewTile {
 			structure.addTile(LT);
 		}
 		
-		if(!requiresCollisionTest || teLT.isSpaceForLittleTile(box.copy()))
+		if(!requiresCollisionTest || teLT.isSpaceForLittleTile(box))
 		{
 			LT.place();
 			LT.onPlaced(player, stack, facing);
@@ -82,32 +84,33 @@ public class PlacePreviewTile {
 			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
 				for (int littleY = box.minY; littleY < box.maxY; littleY++) {
 					for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-						LittleTileBox newBox = new LittleTileBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1);
-						if(teLT.isSpaceForLittleTile(newBox))
-							newBoxes.add(newBox);
-						else
-							unplaceableBoxes.add(newBox);
+						LittleTileBox newBox = box.extractBox(littleX, littleY, littleZ);
+						if(newBox != null)
+						{
+							if(teLT.isSpaceForLittleTile(newBox))
+								newBoxes.add(newBox);
+							else
+								unplaceableBoxes.add(newBox);
+						}
 					}
 				}
 			}
 			
-			LittleTileBox.combineBoxes(newBoxes);
+			BasicCombiner.combineBoxes(newBoxes);
 			LittleTile first = null;
 			for (int i = 0; i < newBoxes.size(); i++) {
 				LittleTile newTile = LT.copy();
-				newTile.boundingBoxes.clear();
-				newTile.boundingBoxes.add(newBoxes.get(i));
+				newTile.box = newBoxes.get(i);
 				newTile.place();
 				newTile.onPlaced(player, stack, facing);
 				if(i == 0)
 					first = newTile;
 			}
 			
-			LittleTileBox.combineBoxes(unplaceableBoxes);
+			BasicCombiner.combineBoxes(unplaceableBoxes);
 			for (int i = 0; i < unplaceableBoxes.size(); i++) {
 				LittleTile newTile = LT.copy();
-				newTile.boundingBoxes.clear();
-				newTile.boundingBoxes.add(unplaceableBoxes.get(i));
+				newTile.box = unplaceableBoxes.get(i);
 				unplaceableTiles.add(newTile);
 			}
 			
@@ -123,7 +126,17 @@ public class PlacePreviewTile {
 		if(preview != null && !preview.canSplit && box.needsMultipleBlocks())
 			return false;
 		
-		LittleTileSize size = box.getSize();
+		HashMapList<BlockPos, LittleTileBox> boxes = new HashMapList<>();
+		this.box.split(boxes);
+		for (Entry<BlockPos, ArrayList<LittleTileBox>> entry : boxes.entrySet()) {
+			for (LittleTileBox box : entry.getValue()) {
+				PlacePreviewTile tile = this.copy();
+				tile.box = box;
+				tiles.add(entry.getKey().add(pos), tile);
+			}
+		}
+		
+		/*LittleTileSize size = box.getSize();
 		
 		int offX = box.minX/LittleTile.gridSize;
 		if(box.minX < 0)
@@ -200,7 +213,7 @@ public class PlacePreviewTile {
 				posY++;
 			}
 			posX++;
-		}
+		}*/
 		
 		return true;
 	}

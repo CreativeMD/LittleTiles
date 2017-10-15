@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -20,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.block.BlockContainer;
@@ -32,6 +34,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -81,20 +84,20 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
 		ArrayList<LittleTilePreview> previews = new ArrayList<>();
 		NBTTagCompound nbt = new NBTTagCompound();
-		new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle()).saveTile(nbt);;
+		new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle()).saveTile(nbt);
 		nbt.removeTag("bSize");
-		LittleTilePreview preview = new LittleTilePreview(new LittleTileSize(1, 1, 1), nbt);
+		LittleTilePreview preview = new LittleTilePreview(new LittleTileBox(0, 0, 0, 1, 1, 1), nbt);
 		previews.add(preview);
 		return previews;
 	}
 
 	@Override
-	public void rotateLittlePreview(ItemStack stack, EnumFacing facing) {
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
 		
 	}
 
 	@Override
-	public void flipLittlePreview(ItemStack stack, EnumFacing facing) {
+	public void flipLittlePreview(ItemStack stack, Axis axis) {
 		
 	}
 

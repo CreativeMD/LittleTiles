@@ -1,10 +1,12 @@
 package com.creativemd.littletiles.common.tiles;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -32,8 +34,8 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
-	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
-		ArrayList<RenderCubeObject> cubes = super.getInternalRenderingCubes();
+	public List<LittleRenderingCube> getInternalRenderingCubes() {
+		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes();
 		int color = this.color;
 		for (int i = 0; i < cubes.size(); i++) {
 			cubes.get(i).color = color;

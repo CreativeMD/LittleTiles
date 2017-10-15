@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.container;
 
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -16,7 +17,10 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;
@@ -94,38 +98,38 @@ public class SubContainerHammer extends SubContainer{
 							block = previews.get(i).getPreviewBlock();
 							meta = previews.get(i).getPreviewBlockMeta();
 						}
-						volumePerItem += previews.get(i).size.getPercentVolume();
+						volumePerItem += previews.get(i).getPercentVolume();
 					}
 					availableVolume = volumePerItem*stack.getCount();
 				}
 				
 				if(block.hasTileEntity(block.getStateFromMeta(meta)))
 					return ;
-				int alltiles = (int) (availableVolume/size.getPercentVolume());
+				
+				LittleTileBox box = null;
+				if(nbt.getBoolean("sliced"))
+					box = new LittleTileSlicedOrdinaryBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ, LittleSlice.X_DS_UN_LEFT);
+				else
+					box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
+				
+				int alltiles = (int) (availableVolume/box.getPercentVolume());
 				int tiles = Math.min(alltiles, 64);
 				if(alltiles == 0 || block == null)
 					return ;
-				int blocks = (int) Math.ceil((tiles*size.getPercentVolume()/volumePerItem));
-				
-				
-				//LittleTile tile = new LittleTile(block, stack.getItemDamage(), size);
-				ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
-				dropstack.setCount(tiles);
-				dropstack.setTagCompound(new NBTTagCompound());
-				size.writeToNBT("size", dropstack.getTagCompound());
+				int blocks = (int) Math.ceil((tiles*box.getPercentVolume()/volumePerItem));
 				
 				LittleTile tile = null;
 				if(nbt.hasKey("color") && nbt.getInteger("color") != ColorUtils.WHITE)
 					tile = new LittleTileBlockColored(block, meta, ColorUtils.IntToRGB(nbt.getInteger("color")));
 				else
 					tile = new LittleTileBlock(block, meta);
-				tile.saveTileExtra(dropstack.getTagCompound());
-				if(tile instanceof LittleTileBlockColored)
-					dropstack.getTagCompound().setString("tID", "BlockTileColored");
-				else
-					dropstack.getTagCompound().setString("tID", "BlockTileBlock");
 				
-				double missingTiles = blocks-tiles*size.getPercentVolume();
+				tile.box = box;
+				
+				ItemStack dropstack = ItemBlockTiles.getStackFromPreview(tile.getPreviewTile());
+				dropstack.setCount(tiles);
+				
+				double missingTiles = blocks-tiles*box.getPercentVolume();
 				
 				try {
 					LittleAction.addPreviewToInventory(player, ((ILittleTile) dropstack.getItem()).getLittlePreview(dropstack, false));
@@ -136,13 +140,9 @@ public class SubContainerHammer extends SubContainer{
 				stack.shrink(blocks);
 				if(stack.isEmpty())
 					basic.setInventorySlotContents(0, ItemStack.EMPTY);
-				//if(missingTiles > 0)
-					//ItemTileContainer.addBlock(player, block, meta, missingTiles);
 				
-				//dropstack.stackTagCompound.setString("block", Block.blockRegistry.getNameForObject(block));
-				//dropstack.stackTagCompound.setInteger("meta", stack.getItemDamage());
-				//ItemBlockTiles.saveLittleTile(player.worldObj, dropstack, tile);
 				player.inventory.addItemStackToInventory(dropstack);
+				
 			}
 		}
 	}

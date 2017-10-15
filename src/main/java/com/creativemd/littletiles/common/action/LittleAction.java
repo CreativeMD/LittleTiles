@@ -42,7 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleAction extends CreativeCorePacket {
 	
-	public static int maxSavedActions = 20;
+	public static int maxSavedActions = 32;
 	
 	private static List<LittleAction> lastActions = new ArrayList<>();
 	
@@ -249,17 +249,21 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static void writeLittleBox(LittleTileBox box, ByteBuf buf)
 	{
-		buf.writeInt(box.minX);
-		buf.writeInt(box.minY);
-		buf.writeInt(box.minZ);
-		buf.writeInt(box.maxX);
-		buf.writeInt(box.maxY);
-		buf.writeInt(box.maxZ);
+		int[] array = box.getArray();
+		buf.writeInt(array.length);
+		for (int i = 0; i < array.length; i++) {
+			buf.writeInt(array[i]);
+		}
 	}
 	
 	public static LittleTileBox readLittleBox(ByteBuf buf)
 	{
-		return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
+		//return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
+		int[] array = new int[buf.readInt()];
+		for (int i = 0; i < array.length; i++) {
+			array[i] = buf.readInt();
+		}
+		return LittleTileBox.createBox(array);
 	}
 	
 	public static boolean needIngredients(EntityPlayer player)

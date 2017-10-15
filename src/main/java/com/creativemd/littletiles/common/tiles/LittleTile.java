@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -42,6 +43,8 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -129,8 +132,7 @@ public abstract class LittleTile {
 				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
 				box.addOffset(new LittleTileVec(halfGridSize, halfGridSize, halfGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
-				tile.boundingBoxes.add(box);
-				tile.cornerVec = box.getMinVec();
+				tile.box = box;
 				return tile;
 			}
 		}else{
@@ -158,7 +160,7 @@ public abstract class LittleTile {
 	/**Every LittleTile class has to have this constructor implemented**/
 	public LittleTile()
 	{
-		boundingBoxes = new ArrayList<LittleTileBox>();
+		
 	}
 	
 	public String getID()
@@ -168,65 +170,131 @@ public abstract class LittleTile {
 	
 	//================Position & Size================
 	
-	public LittleTileVec cornerVec;
-	
 	/**Might cause issues in regions x, y or z above 134,217,728**/
 	public LittleTileVec getAbsoluteCoordinates()
 	{
 		LittleTileVec coord = new LittleTileVec(te.getPos());
-		coord.addVec(cornerVec);
+		coord.add(box.getMinVec());
 		return coord;
 	}
 	
-	public ArrayList<LittleTileBox> boundingBoxes;
+	//public ArrayList<LittleTileBox> boundingBoxes; Major Change!!! Does methods below should still allow you to implement multiple boxes
+	public LittleTileBox box;
 	
-	public AxisAlignedBB getSelectedBox()
+	public LittleTileVec getCornerVec()
 	{
-		if(boundingBoxes.size() > 0)
-		{
-			LittleTileBox box = boundingBoxes.get(0).copy();
-			for (int i = 1; i < boundingBoxes.size(); i++) {
-				box.minX = Math.min(box.minX, boundingBoxes.get(i).minX);
-				box.minY = Math.min(box.minY, boundingBoxes.get(i).minY);
-				box.minZ = Math.min(box.minZ, boundingBoxes.get(i).minZ);
-				box.maxX = Math.max(box.maxX, boundingBoxes.get(i).maxX);
-				box.maxY = Math.max(box.maxY, boundingBoxes.get(i).maxY);
-				box.maxZ = Math.max(box.maxZ, boundingBoxes.get(i).maxZ);
-			}
-			return box.getBox();
-		}else
-			return new AxisAlignedBB(0, 0, 0, 0, 0, 0);
+		return box.getMinVec();
 	}
 	
-	public int getVolume()
+	public AxisAlignedBB getSelectedBox(BlockPos pos)
 	{
-		int percent = 0;
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			percent += boundingBoxes.get(i).getVolume();
-		}
-		return percent;
+		return box.getSelectionBox(pos);
+	}
+	
+	public double getVolume()
+	{
+		return box.getVolume();
 	}
 	
 	public double getPercentVolume()
 	{
-		double percent = 0;
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			percent += boundingBoxes.get(i).getPercentVolume();
-		}
-		return percent;
+		return box.getPercentVolume();
 	}
 	
 	public LittleTileSize getSize()
 	{
-		LittleTileSize size = new LittleTileSize(0, 0, 0);
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			LittleTileSize tempSize = boundingBoxes.get(i).getSize();
-			size.sizeX = Math.max(size.sizeX, tempSize.sizeX);
-			size.sizeY = Math.max(size.sizeY, tempSize.sizeY);
-			size.sizeZ = Math.max(size.sizeZ, tempSize.sizeZ);
-		}
-		return size;
+		return box.getSize();
 	}
+	
+	public boolean doesFillEntireBlock()
+	{
+		return box.doesFillEntireBlock();
+	}
+	
+	public void fillInSpace(boolean[][][] filled)
+	{
+		for (int x = box.minX; x < box.maxX; x++) {
+			for (int y = box.minY; y < box.maxY; y++) {
+				for (int z = box.minZ; z < box.maxZ; z++) {
+					filled[x][y][z] = true;
+				}
+			}
+		}
+	}
+	
+	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled)
+	{
+		int minX = Math.max(box.minX, otherBox.minX);
+		int maxX = Math.min(box.maxX, otherBox.maxX);
+		int minY = Math.max(box.minY, otherBox.minY);
+		int maxY = Math.min(box.maxY, otherBox.maxY);
+		int minZ = Math.max(box.minZ, otherBox.minZ);
+		int maxZ = Math.min(box.maxZ, otherBox.maxZ);
+		for (int x = minX; x < maxX; x++) {
+			for (int y = minY; y < maxY; y++) {
+				for (int z = minZ; z < maxZ; z++) {
+					filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+				}
+			}
+		}
+	}
+	
+	/**
+	 * It's faster than isAt()
+	 * @return if the min vec of the box equals the given coordinates
+	 */
+	public boolean isCornerAt(int x, int y, int z)
+	{
+		return box.minX == x && box.minY == y && box.minZ == z;
+	}
+	
+	/**
+	 * It's faster than isAt()
+	 * @return if the min vec of the box equals the given coordinates
+	 */
+	public boolean isCornerAt(LittleTileVec vec)
+	{
+		return isCornerAt(vec.x, vec.y, vec.z);
+	}
+	
+	/**
+	 * It's slower than isCornerAt()
+	 * @return if the coordinates are inside the box(es) of the tile
+	 */
+	public boolean isAt(int x, int y, int z)
+	{
+		return box.isVecInsideBox(x, y, z);
+	}
+	
+	public boolean intersectsWith(LittleTileBox box)
+	{
+		return LittleTileBox.intersectsWith(this.box, box);
+	}
+	
+	public List<LittleTileBox> cutOut(LittleTileBox box)
+	{
+		return this.box.cutOut(box);
+	}
+	
+	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout)
+	{
+		return this.box.cutOut(boxes, cutout);
+	}
+	
+	public LittleTileBox getCompleteBox()
+	{
+		return box;
+	}
+	
+	public LittleTileVec getCenter()
+	{
+		return box.getCenter();
+	}
+	
+	public RayTraceResult rayTrace(Vec3d pos, Vec3d look)
+    {
+		return box.calculateIntercept(te.getPos(), pos, look);
+    }
 	
 	public boolean canBeCombined(LittleTile tile)
 	{	
@@ -243,14 +311,6 @@ public abstract class LittleTile {
 			return false;
 		
 		return true;
-	}
-	
-	/**
-	 * Will become more important with further update, right now it should not be touched
-	 */
-	public boolean canHaveMultipleBoundingBoxes()
-	{
-		return false;
 	}
 	
 	public boolean canBeSplitted()
@@ -341,19 +401,11 @@ public abstract class LittleTile {
 	{
 		NBTTagCompound nbt = new NBTTagCompound();
 		saveTile(nbt);
-		int bSize = nbt.getInteger("bSize");
 		
-		nbt.setInteger("bSize", boundingBoxes.size());
-		for (int i = 0; i < bSize; i++) {
-			nbt.removeTag("bBox" + i);
-		}
-		nbt.removeTag("bSize");
+		nbt.removeTag("box");
 		
 		NBTTagList list = new NBTTagList();
-		
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
-		}
+		list.appendTag(box.getNBTIntArray());
 		nbt.setTag("boxes", list);
 		
 		return nbt;
@@ -368,9 +420,10 @@ public abstract class LittleTile {
 	{
 		NBTTagList list = nbt.getTagList("boxes", 11);
 		
-		for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+		/*for (int i = 0; i < tile.boundingBoxes.size(); i++) {
 			list.appendTag(tile.boundingBoxes.get(i).getNBTIntArray());
-		}
+		}*/
+		list.appendTag(tile.box.getNBTIntArray());
 	}
 	
 	public List<NBTTagCompound> extractNBTFromGroup(NBTTagCompound nbt)
@@ -407,11 +460,12 @@ public abstract class LittleTile {
 	{
 		nbt.setString("tID", getID());
 		
-		NBTTagList list = new NBTTagList();
+		/*NBTTagList list = new NBTTagList();
 		for (int i = 0; i < boundingBoxes.size(); i++) {
 			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
 		}
-		nbt.setTag("boxes", list);
+		nbt.setTag("boxes", list);*/
+		nbt.setIntArray("box", box.getArray());
 		
 		if(isStructureBlock)
 		{
@@ -441,22 +495,16 @@ public abstract class LittleTile {
 	
 	public void loadTileCore(NBTTagCompound nbt)
 	{
-		if(nbt.hasKey("bSize"))
+		if(nbt.hasKey("bSize")) //Old (used till 1.4)
 		{
 			int count = nbt.getInteger("bSize");
-			boundingBoxes.clear();
-			for (int i = 0; i < count; i++) {
-				boundingBoxes.add(new LittleTileBox("bBox" + i, nbt));
-			}
-		}else{
+			box = LittleTileBox.loadBox("bBox" + 0, nbt);
+		}else if(nbt.hasKey("boxes")){ //Out of date (used in pre-releases of 1.5)
 			NBTTagList list = nbt.getTagList("boxes", 11);
-			boundingBoxes.clear();
-			for (int i = 0; i < list.tagCount(); i++) {
-				boundingBoxes.add(new LittleTileBox(list.getIntArrayAt(i)));
-			}
+			box = LittleTileBox.createBox(list.getIntArrayAt(0));
+		}else if(nbt.hasKey("box")){ //Active one
+			box = LittleTileBox.createBox(nbt.getIntArray("box"));
 		}
-		
-		updateCorner();
 		
 		isStructureBlock = nbt.getBoolean("isStructure");
 		
@@ -506,24 +554,8 @@ public abstract class LittleTile {
 		onNeighborChangeInside();
 	}
 	
-	public void updateCorner()
-	{
-		if(boundingBoxes.size() > 0)
-		{
-			LittleTileBox box = boundingBoxes.get(0);
-			if(cornerVec != null){
-				cornerVec.x = box.minX;
-				cornerVec.y = box.minY;
-				cornerVec.z = box.minZ;
-			}else
-				cornerVec = new LittleTileVec(box.minX, box.minY, box.minZ);
-		}else
-			cornerVec = new LittleTileVec(0, 0, 0);
-	}
-	
 	public void place()
 	{
-		updateCorner();
 		te.addTile(this);
 	}
 	
@@ -572,10 +604,7 @@ public abstract class LittleTile {
 	
 	public void copyCore(LittleTile tile)
 	{
-		for (int i = 0; i < this.boundingBoxes.size(); i++) {
-			tile.boundingBoxes.add(this.boundingBoxes.get(i).copy());
-		}
-		tile.cornerVec = this.cornerVec.copy();
+		tile.box = box != null ? box.copy() : null;
 		tile.te = this.te;
 		
 		tile.isStructureBlock = this.isStructureBlock;
@@ -611,7 +640,7 @@ public abstract class LittleTile {
 		NBTTagCompound nbt = new NBTTagCompound();
 		saveTileExtra(nbt);
 		nbt.setString("tID", getID());		
-		return new LittleTilePreview(boundingBoxes.get(0).copy(), nbt);
+		return new LittleTilePreview(box.copy(), nbt);
 	}
 	
 	//================Notifcations/Events================
@@ -642,7 +671,7 @@ public abstract class LittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public final ArrayList<RenderCubeObject> getRenderingCubes()
+	public final List<LittleRenderingCube> getRenderingCubes()
 	{
 		if(invisible)
 			return new ArrayList<>();
@@ -650,7 +679,7 @@ public abstract class LittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	protected abstract ArrayList<RenderCubeObject> getInternalRenderingCubes();
+	protected abstract List<LittleRenderingCube> getInternalRenderingCubes();
 	
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {}
@@ -689,12 +718,12 @@ public abstract class LittleTile {
 	
 	public boolean canSawResizeTile(EnumFacing facing, EntityPlayer player)
 	{
-		return boundingBoxes.size() == 1 && !isStructureBlock && canSawResize(facing, player);
+		return !isStructureBlock && canSawResize(facing, player);
 	}
 	
 	public boolean canBeMoved(EnumFacing facing)
 	{
-		return boundingBoxes.size() == 1;
+		return true;
 	}
 	
 	//================Block Event================
@@ -734,7 +763,9 @@ public abstract class LittleTile {
 			return new ArrayList<>();
 		if(isLoaded() && structure.noCollisionBoxes())
 			return new ArrayList<>();
-		return this.boundingBoxes;
+		List<LittleTileBox> boxes = new ArrayList<>();
+		boxes.add(box);
+		return boxes;
 	}
 	
 	public boolean shouldCheckForCollision()

@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
+import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 
@@ -11,7 +13,10 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
@@ -46,22 +51,23 @@ public class LittleTileVec {
 		}
 	}
 	
-	public LittleTileVec(Vec3d vec)
+	public LittleTileVec(RayTraceResult result)
 	{
-		double posX = PlacementHelper.round(vec.x*LittleTile.gridSize);
-		double posY = PlacementHelper.round(vec.y*LittleTile.gridSize);
-		double posZ = PlacementHelper.round(vec.z*LittleTile.gridSize);
-		
-		if(vec.x < 0)
-			posX = Math.floor(posX);
-		if(vec.y < 0)
-			posY = Math.floor(posY);
-		if(vec.z < 0)
-			posZ = Math.floor(posZ);
-		
-		this.x = (int) posX;
-		this.y = (int) posY;
-		this.z = (int) posZ;
+		this(result.hitVec, result.sideHit);
+	}
+	
+	public LittleTileVec(Vec3d vec, EnumFacing facing)
+	{
+		this(vec);
+		if(facing.getAxisDirection() == AxisDirection.POSITIVE && LittleUtils.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
+			setAxis(facing.getAxis(), getAxis(facing.getAxis()) - 1);
+	}
+	
+	public LittleTileVec(Vec3d vec)
+	{		
+		this.x = LittleUtils.toGrid(vec.xCoord);
+		this.y = LittleUtils.toGrid(vec.yCoord);
+		this.z = LittleUtils.toGrid(vec.zCoord);
 	}
 	
 	public LittleTileVec(EnumFacing facing)
@@ -113,7 +119,7 @@ public class LittleTileVec {
 	{
 		LittleTileVec vec = new LittleTileVec(pos);
 		vec.invert();
-		vec.addVec(this);
+		vec.add(this);
 		return vec;
 	}
 	
@@ -142,39 +148,83 @@ public class LittleTileVec {
 		return (double)z/LittleTile.gridSize;
 	}
 	
-	public void addVec(LittleTileVec vec)
+	public void setAxis(Axis axis, int value)
+	{
+		switch(axis)
+		{
+		case X:
+			x = value;
+			break;
+		case Y:
+			y = value;
+			break;
+		case Z:
+			z = value;
+			break;
+		}
+		
+	}
+	
+	public int getAxis(Axis axis)
+	{
+		switch(axis)
+		{
+		case X:
+			return x;
+		case Y:
+			return y;
+		case Z:
+			return z;
+		}
+		return 0;
+	}
+	
+	public void add(Vec3i vec)
+	{
+		x += LittleUtils.toGrid(vec.getX());
+		y += LittleUtils.toGrid(vec.getY());
+		z += LittleUtils.toGrid(vec.getZ());
+	}
+	
+	public void add(EnumFacing facing)
+	{
+		setAxis(facing.getAxis(), getAxis(facing.getAxis()) + facing.getAxisDirection().getOffset());
+	}
+	
+	public void add(LittleTileVec vec)
 	{
 		this.x += vec.x;
 		this.y += vec.y;
 		this.z += vec.z;
 	}
 	
-	public void subVec(LittleTileVec vec)
+	public void sub(Vec3i vec)
+	{
+		x -= LittleUtils.toGrid(vec.getX());
+		y -= LittleUtils.toGrid(vec.getY());
+		z -= LittleUtils.toGrid(vec.getZ());
+	}
+	
+	public void sub(EnumFacing facing)
+	{
+		setAxis(facing.getAxis(), getAxis(facing.getAxis()) - facing.getAxisDirection().getOffset());
+	}
+	
+	public void sub(LittleTileVec vec)
 	{
 		this.x -= vec.x;
 		this.y -= vec.y;
 		this.z -= vec.z;
 	}
 	
-	public void rotateVec(EnumFacing direction)
+	public void rotateVec(Rotation rotation)
 	{
-		switch(direction)
-		{
-		case UP:
-		case DOWN:
-			int tempY = y;
-			y = x;
-			x = tempY;
-			break;
-		case SOUTH:
-		case NORTH:
-			int tempZ = z;
-			z = x;
-			x = tempZ;
-			break;
-		default:
-			break;
-		}
+		int tempX = x;
+		int tempY = y;
+		int tempZ = z;
+		this.x = rotation.getMatrix().getX(tempX, tempY, tempZ);
+		this.y = rotation.getMatrix().getY(tempX, tempY, tempZ);
+		this.z = rotation.getMatrix().getZ(tempX, tempY, tempZ);
 	}
 	
 	public double distanceTo(LittleTileVec vec)
@@ -197,10 +247,6 @@ public class LittleTileVec {
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		/*nbt.setInteger(name+"x", x);
-		nbt.setInteger(name+"y", y);
-		nbt.setInteger(name+"z", z);*/
-		//nbt.setString(name, x+"."+y+"."+z);
 		nbt.setIntArray(name, new int[]{x, y, z});
 	}
 	

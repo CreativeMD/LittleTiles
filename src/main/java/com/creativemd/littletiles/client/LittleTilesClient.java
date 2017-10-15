@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.OverlayRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
@@ -110,6 +111,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		BlockTile.mc = mc;
 		
+		MinecraftForge.EVENT_BUS.register(new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 		MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		

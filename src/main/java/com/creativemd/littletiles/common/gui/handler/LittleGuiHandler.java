@@ -24,9 +24,9 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		nbt.setInteger("y", tile.te.getPos().getY());
 		nbt.setInteger("z", tile.te.getPos().getZ());
 		
-		nbt.setInteger("tX", tile.cornerVec.x);
-		nbt.setInteger("tY", tile.cornerVec.y);
-		nbt.setInteger("tZ", tile.cornerVec.z);
+		nbt.setInteger("tX", tile.box.minX);
+		nbt.setInteger("tY", tile.box.minY);
+		nbt.setInteger("tZ", tile.box.minZ);
 		
 		GuiHandler.openGui(id, nbt, player);
 	}

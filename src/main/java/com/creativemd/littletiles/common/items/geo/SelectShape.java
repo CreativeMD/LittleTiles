@@ -70,11 +70,9 @@ public abstract class SelectShape {
 			List<LittleTileBox> boxes = new ArrayList<>();
 			if(te.isComplete())
 			{
-				for (LittleTileBox box : te.tile.boundingBoxes) {
-					box = box.copy();
-					box.addOffset(result.getBlockPos());
-					boxes.add(box);
-				}
+				LittleTileBox box = te.tile.box.copy();
+				box.addOffset(result.getBlockPos());
+				boxes.add(box);
 			}
 			return boxes;
 		}
@@ -96,9 +94,9 @@ public abstract class SelectShape {
 		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side) {
 			LittleTileVec offset = new LittleTileVec(side);
 			offset.scale((int) (thickness-1)/2);
-			vec.subVec(offset);
+			vec.sub(offset);
 			if(((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE) || side.getAxisDirection() == AxisDirection.POSITIVE)
-				vec.subVec(new LittleTileVec(side));
+				vec.sub(new LittleTileVec(side));
 			
 			LittleTileBox box = new LittleTileBox(vec, new LittleTileSize(thickness, thickness, thickness));
 			//box.makeItFitInsideBlock();
@@ -234,7 +232,7 @@ public abstract class SelectShape {
 		@Override
 		public List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
-			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
+			LittleTileBox box = getBox(new LittleTileVec(result).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
 			box.addOffset(result.getBlockPos());
 			boxes.add(box);
 			return boxes;
@@ -243,7 +241,7 @@ public abstract class SelectShape {
 		@Override
 		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			List<LittleTileBox> boxes = new ArrayList<>();
-			LittleTileBox box = getBox(new LittleTileVec(result.hitVec).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
+			LittleTileBox box = getBox(new LittleTileVec(result).getRelativeVec(result.getBlockPos()), Math.max(1, nbt.getInteger("thick")), result.sideHit);
 			box.addOffset(result.getBlockPos());
 			boxes.add(box);
 			return boxes;
@@ -272,11 +270,11 @@ public abstract class SelectShape {
 		
 	}
 	
-	public static class ChiselSelectShape extends SelectShape {
+	public static class DragSelectShape extends SelectShape {
 		
-		private final ChiselShape shape;
+		private final DragShape shape;
 		
-		public ChiselSelectShape(ChiselShape shape) {
+		public DragSelectShape(DragShape shape) {
 			super("drag" + shape.key);
 			this.shape = shape;
 		}
@@ -294,16 +292,10 @@ public abstract class SelectShape {
 			if(first == null)
 			{
 				ArrayList<LittleTileBox> boxes = new ArrayList<>();
-				LittleTileVec vec = new LittleTileVec(result.hitVec);
-				if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-					vec.subVec(new LittleTileVec(result.sideHit));
-				boxes.add(new LittleTileBox(vec));
+				boxes.add(new LittleTileBox(new LittleTileVec(result)));
 				return boxes;
 			}
-			LittleTileVec vec = new LittleTileVec(result.hitVec);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-				vec.subVec(new LittleTileVec(result.sideHit));
-			return getBoxes(player, nbt, first, vec, true);
+			return getBoxes(player, nbt, first, new LittleTileVec(result), true);
 		}
 
 		@Override
@@ -315,9 +307,7 @@ public abstract class SelectShape {
 		public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
 			if(first != null)
 				return true;
-			first = new LittleTileVec(result.hitVec);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-				first.subVec(new LittleTileVec(result.sideHit));
+			first = new LittleTileVec(result);
 			return false;
 		}
 
@@ -328,10 +318,7 @@ public abstract class SelectShape {
 
 		@Override
 		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
-			LittleTileVec vec = new LittleTileVec(result.hitVec);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-				vec.subVec(new LittleTileVec(result.sideHit));
-			List<LittleTileBox> boxes = getBoxes(player, nbt, first, vec, false);
+			List<LittleTileBox> boxes = getBoxes(player, nbt, first, new LittleTileVec(result), false);
 			first = null;
 			return boxes;
 		}

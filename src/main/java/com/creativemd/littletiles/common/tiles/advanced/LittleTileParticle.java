@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.common.tiles.advanced;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
@@ -44,7 +46,7 @@ public class LittleTileParticle extends LittleTileTE {
 	}
 	
 	@Override
-	public ArrayList<RenderCubeObject> getInternalRenderingCubes() {
+	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		if(!LittleTiles.hideParticleBlock)
 			return super.getInternalRenderingCubes();
 		return new ArrayList<>();

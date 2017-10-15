@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
@@ -16,6 +17,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -35,22 +37,22 @@ public interface ILittleTile {
 	
 	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews);
 	
-	public default void rotateLittlePreview(ItemStack stack, EnumFacing facing)
+	public default void rotateLittlePreview(ItemStack stack, Rotation rotation)
 	{
 		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.rotatePreview(facing);
+			preview.rotatePreview(rotation);
 		}
 		saveLittlePreview(stack, previews);
 	}
 	
-	public default void flipLittlePreview(ItemStack stack, EnumFacing facing)
+	public default void flipLittlePreview(ItemStack stack, Axis axis)
 	{
 		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.flipPreview(facing);
+			preview.flipPreview(axis);
 		}
 		saveLittlePreview(stack, previews);
 	}
@@ -95,5 +97,5 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position) {}
+	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
 }

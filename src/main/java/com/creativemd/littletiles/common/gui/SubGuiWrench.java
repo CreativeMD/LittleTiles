@@ -71,6 +71,8 @@ public class SubGuiWrench extends SubGui {
 						}
 						
 						
+					}else{
+						sendPacketToServer(new NBTTagCompound());
 					}
 				}
 				

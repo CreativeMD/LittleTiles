@@ -22,9 +22,9 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ChiselShapeWall extends ChiselShape {
+public class DragShapeWall extends DragShape {
 
-	public ChiselShapeWall() {
+	public DragShapeWall() {
 		super("wall");
 	}
 

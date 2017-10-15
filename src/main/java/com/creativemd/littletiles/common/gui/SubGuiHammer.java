@@ -22,10 +22,14 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -64,6 +68,7 @@ public class SubGuiHammer extends SubGui {
 				nbt.setInteger("sizeX", sizeX);
 				nbt.setInteger("sizeY", sizeY);
 				nbt.setInteger("sizeZ", sizeZ);
+				nbt.setBoolean("sliced", ((GuiCheckBox) get("sliced")).value);
 				GuiColorPicker picker = (GuiColorPicker) get("picker");
 				int color = ColorUtils.RGBAToInt(picker.color);
 				if(color != -1 && color != ColorUtils.WHITE)
@@ -72,6 +77,8 @@ public class SubGuiHammer extends SubGui {
 			}
 			
 		});
+		
+		controls.add(new GuiCheckBox("sliced", 100, 30, false));
 		
 		controls.add(new GuiColorPicker("picker", 5, 75, new Color(255, 255, 255)));
 		
@@ -88,9 +95,9 @@ public class SubGuiHammer extends SubGui {
 		
 		LittleTileSize size = new LittleTileSize(sizeX, sizeY, sizeZ);
 		
-		ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
-		dropstack.setTagCompound(new NBTTagCompound());
-		size.writeToNBT("size", dropstack.getTagCompound());
+		//ItemStack dropstack = new ItemStack(LittleTiles.blockTile);
+		//dropstack.setTagCompound(new NBTTagCompound());
+		//size.writeToNBT("size", dropstack.getTagCompound());
 		Block block = null;
 		ItemStack slotStack = container.getSlots().get(0).getStack();
 		int meta = 0;
@@ -113,9 +120,14 @@ public class SubGuiHammer extends SubGui {
 		if(block instanceof BlockAir || block == null)
 			block = Blocks.STONE;
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		new LittleTileBlockColored(block, meta, ColorUtils.colorToVec(picker.color)).saveTileExtra(dropstack.getTagCompound());
+		LittleTile tile = new LittleTileBlockColored(block, meta, ColorUtils.colorToVec(picker.color));
 		
-		label.avatar = new AvatarItemStack(dropstack);
+		if(((GuiCheckBox) get("sliced")).value)
+			tile.box = new LittleTileSlicedOrdinaryBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ, LittleSlice.X_DS_UN_LEFT);
+		else
+			tile.box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
+		
+		label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(tile.getPreviewTile()));
 	}
 	
 	@CustomEventSubscribe

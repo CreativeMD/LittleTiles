@@ -9,12 +9,13 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -266,8 +267,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         					LittleTile tile = (LittleTile) iterator.next();
                 			if(tile.isLadder())
                 			{
-	                			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-	                				LittleTileBox box = tile.boundingBoxes.get(j).copy();
+                				List<LittleTileBox> collision = tile.getCollisionBoxes();
+	                			for (int j = 0; j < collision.size(); j++) {
+	                				LittleTileBox box = collision.get(j).copy();
 	                				box.addOffset(new LittleTileVec(x2*LittleTile.gridSize, y2*LittleTile.gridSize, z2*LittleTile.gridSize));
 	                				double expand = 0.0001;
 	                				if(bb.intersects(box.getBox().grow(expand)))
@@ -309,15 +311,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
-			/*ItemStack stack = mc.player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector)
-			{
-				LittleTileBox box = ((ISpecialBlockSelector) stack.getItem()).getBox(result.te, result.tile, pos, mc.player, result.te.getMoving(mc.player));
-				if(box != null)
-					return box.getBox().offset(pos);
-			}
-			*/
-			return result.tile.getSelectedBox().offset(pos);
+			return result.tile.getSelectedBox(pos);
 		}
 		return new AxisAlignedBB(pos);
     }
@@ -332,7 +326,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				LittleTile tile = (LittleTile) iterator.next();
 				List<LittleTileBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
-					addCollisionBoxToList(pos, entityBox, collidingBoxes, boxes.get(i).getBox());
+					boxes.get(i).addCollisionBoxes(entityBox, collidingBoxes, pos);
 				}
 				
 			}
@@ -454,8 +448,30 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
-			LittleTileBox box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
-			box.rotateBox(side.getOpposite());
+			LittleTileBox box = null;
+			switch(side)
+			{
+			case EAST:
+				box = new LittleTileBox(LittleTile.gridSize-1, 0, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case WEST:
+				box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case UP:
+				box = new LittleTileBox(0, LittleTile.gridSize-1, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case DOWN:
+				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, 1, LittleTile.gridSize);
+				break;
+			case NORTH:
+				box = new LittleTileBox(0, 0, LittleTile.gridSize-1, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case SOUTH:
+				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, LittleTile.gridSize, 1);
+				break;
+			default:
+				break;
+			}
 			return te.isBoxFilled(box);
 		}
 		return false;
@@ -529,10 +545,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     		LittleTile heighestTile = null;
     		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-					if(tile.boundingBoxes.get(i).maxY > heighest)
+				List<LittleTileBox> collision = tile.getCollisionBoxes();
+				for (int i = 0; i < collision.size(); i++) {
+					if(collision.get(i).maxY > heighest)
 					{
-						heighest = tile.boundingBoxes.get(i).maxY;
+						heighest = collision.get(i).maxY;
 						heighestTile = tile;
 					}
 				}
@@ -557,7 +574,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
             int j = pos.getY();
             int k = pos.getZ();
             float f = 0.1F;
-            AxisAlignedBB axisalignedbb = result.tile.getSelectedBox();
+            AxisAlignedBB axisalignedbb = result.tile.getSelectedBox(BlockPos.ORIGIN);
             double d0 = (double)i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
             double d1 = (double)j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
             double d2 = (double)k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
@@ -658,10 +675,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         		LittleTile heighestTile = null;
         		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
     				LittleTile tile = (LittleTile) iterator.next();
-    				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-						if(tile.boundingBoxes.get(i).maxY > heighest)
+    				List<LittleTileBox> collision = tile.getCollisionBoxes();
+    				for (int i = 0; i < collision.size(); i++) {
+						if(collision.get(i).maxY > heighest)
 						{
-							heighest = tile.boundingBoxes.get(i).maxY;
+							heighest = collision.get(i).maxY;
 							heighestTile = tile;
 						}
 					}
@@ -764,21 +782,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if(te != null)
 		{
-			RayTraceResult moving = null;
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
-				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-					RayTraceResult tempMoving = tile.boundingBoxes.get(i).getBox().offset(pos).calculateIntercept(start, end);
-	    			
-	    			if(tempMoving != null)
-	    			{
-	    				if(moving == null || moving.hitVec.distanceTo(start) > tempMoving.hitVec.distanceTo(start))
-	    					moving = tempMoving;
-	    			}
-				}
-				
-			}
-			
+			RayTraceResult moving = te.rayTrace(start, end);			
 			if(moving != null)
 				return new RayTraceResult(moving.hitVec, moving.sideHit, pos);
     	}
@@ -795,8 +799,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			LittleTile tile = (LittleTile) iterator.next();
     			if(tile.shouldCheckForCollision())
     			{
-    				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-						if(tile.boundingBoxes.get(i).getBox().offset(pos).intersects(entityIn.getEntityBoundingBox()))
+    				List<LittleTileBox> collision = tile.getCollisionBoxes();
+    				for (int i = 0; i < collision.size(); i++) {
+						if(collision.get(i).getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
 							tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 					}
     			}
@@ -849,6 +854,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	@SideOnly(Side.CLIENT)
 	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileBox box)
 	{
+		if(box == null)
+		{
+			cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
+			return ;
+		}
 		Boolean shouldRender = neighbors.get(facing);
 		if(shouldRender == null)
 		{
@@ -873,18 +883,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if(te instanceof TileEntityLittleTiles)
-		{
-			//((TileEntityLittleTiles) te).updateQuadCache();			
+		{	
 			return Collections.emptyList();
 		}
 		return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
-		ArrayList<RenderCubeObject> cubes = new ArrayList<>();
+	public static List<LittleRenderingCube> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
+		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		if(te instanceof TileEntityLittleTiles)
 		{
 			
@@ -894,22 +903,22 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
 			
 			RenderCubeLayerCache cache = tileEntity.getCubeCache();
-			ArrayList<RenderCubeObject> cachedCubes = cache.getCubesByLayer(layer);
+			List<LittleRenderingCube> cachedCubes = cache.getCubesByLayer(layer);
 			if(cachedCubes != null)
 			{
 				if(tileEntity.hasNeighborChanged)
 				{
 					for (BlockRenderLayer tempLayer : BlockRenderLayer.values()) {
-						List<RenderCubeObject> renderCubes = cache.getCubesByLayer(tempLayer);
+						List<LittleRenderingCube> renderCubes = cache.getCubesByLayer(tempLayer);
 						if(renderCubes == null)
 							continue;
 						for (int i = 0; i < renderCubes.size(); i++) {
-							RenderCubeObject cube = renderCubes.get(i);
+							LittleRenderingCube cube = renderCubes.get(i);
 							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 								EnumFacing facing = EnumFacing.VALUES[k];
 								if(cube.getSidedRendererType(facing).outside)
 								{
-									LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
+									LittleTileBox box = cube.box.createNeighbourBox(facing);
 									
 									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
@@ -929,62 +938,31 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				
 				return cachedCubes;
 			}
-			/*HashMap<BlockRenderLayer, List<RenderCubeObject>> cached = tileEntity.cachedCubes;
-			if(cached != null)
-			{
-				List<RenderCubeObject> cachedCubes = cached.get(layer);
-				if(cachedCubes != null)
-				{
-					if(tileEntity.hasNeighborChanged)
-					{
-						for (List<RenderCubeObject> renderCubes : cached.values()) {
-							for (int i = 0; i < renderCubes.size(); i++) {
-								RenderCubeObject cube = renderCubes.get(i);
-								for (int k = 0; k < EnumFacing.VALUES.length; k++) {
-									EnumFacing facing = EnumFacing.VALUES[k];
-									if(cube.getSidedRendererType(facing).outside)
-									{
-										LittleTileBox box = new LittleTileBox(cube).getSideOfBox(facing);
-										
-										updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
-									}
-								}
-							}
-						}
-						
-						tileEntity.hasNeighborChanged = false;
-					}
-					
-					return cachedCubes;
-				}
-			}*/
 			
 			for (Iterator iterator = tileEntity.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				if(tile.shouldBeRenderedInLayer(layer))
 				{
 					//Check for sides which does not need to be rendered
-					ArrayList<RenderCubeObject> tileCubes = tile.getRenderingCubes();
-					boolean canUseBoundingBoxes = tile.boundingBoxes.size() == tileCubes.size();
+					List<LittleRenderingCube> tileCubes = tile.getRenderingCubes();
 					for (int j = 0; j < tileCubes.size(); j++) {
-						RenderCubeObject cube = tileCubes.get(j);
+						LittleRenderingCube cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
-							LittleTileBox box = null;
-							if(!canUseBoundingBoxes)
-								box = new LittleTileBox(cube).getSideOfBox(facing);
-							else
-								box = tile.boundingBoxes.get(j).copy().getSideOfBox(facing);
+							LittleTileBox box = cube.box.createNeighbourBox(facing);
 							
-							//cubes.add(new RenderCubeObject(box.getCube(), Blocks.STONE, 0));
 							cube.customData = tile;
 							
-							if(box.isBoxInsideBlock())
-								cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
-							else{
-								updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+							if(box == null)
+							{
+								cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
+							}else{
+								if(box.isBoxInsideBlock())
+									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
+								else{
+									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+								}
 							}
-							
 						}
 					}
 					cubes.addAll(tileCubes);
@@ -993,77 +971,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			
 			cache.setCubesByLayer(cubes, layer);
 			
-			//return !blockAccess.getBlockState(pos.offset(side)).doesSideBlockRendering(blockAccess, pos.offset(side), side.getOpposite());
-			
 		}else if(stack != null){
 			return ItemBlockTiles.getItemRenderingCubes(stack);
 		}
 		return cubes;
 	}
-	
-	/*@Override
-	@SideOnly(Side.CLIENT)
-	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
-	{
-		if(te instanceof TileEntityLittleTiles)
-		{
-			TileEntityLittleTiles littleTe = (TileEntityLittleTiles) te;
-			if(threaded && littleTe.cachedQuads == null)
-			{
-				if(!littleTe.isRendering)
-					RenderingThread.addCoordToUpdate(littleTe, state);
-				littleTe.isRendering = true;
-				return new ArrayList<>();
-			}else{
-				if(littleTe.cachedQuads == null)
-					return null;
-				HashMap<EnumFacing, List<BakedQuad>> quads = littleTe.cachedQuads.get(layer);
-				if(quads != null)
-				{
-					if(layer == BlockRenderLayer.SOLID)
-						littleTe.updateQuadCache();
-					return quads.get(facing);
-				}
-			}
-		}
-		return null;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
-	{
-		if(te instanceof TileEntityLittleTiles)
-		{
-			TileEntityLittleTiles littleTe = (TileEntityLittleTiles) te;
-			if(littleTe.cachedQuads == null)
-				littleTe.cachedQuads = new HashMap<>();
-			HashMap<EnumFacing, List<BakedQuad>> quads = littleTe.cachedQuads.get(layer);
-			if(quads == null)
-			{
-				quads = new HashMap<>();
-				littleTe.cachedQuads.put(layer, quads);
-			}
-			
-			quads.put(facing, cachedQuads);
-				
-		}
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public QuadCache[] getCustomCachedQuads(BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
-		if(te instanceof TileEntityLittleTiles)
-			return ((TileEntityLittleTiles) te).getQuadCache(layer, facing);
-		return null;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void saveCachedQuads(QuadCache[] quads, BlockRenderLayer layer, EnumFacing facing, TileEntity te, ItemStack stack) {
-		if(te instanceof TileEntityLittleTiles)
-			((TileEntityLittleTiles) te).setQuadCache(quads, layer, facing);
-	}*/
 	
 	@Override
 	public boolean canDropFromExplosion(Explosion explosionIn)
@@ -1082,18 +994,16 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     		ArrayList<LittleTile> removeTiles = new ArrayList<>();
     		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				if(tile.boundingBoxes.size() > 0 && !tile.isStructureBlock)
+				if(!tile.isStructureBlock)
 				{
-					LittleTileVec vec = tile.boundingBoxes.get(0).getCenter();
-					Vec3d newVec = new Vec3d(pos);//.addVector(0.5, 0.5, 0.5);
+					LittleTileVec vec = tile.getCenter();
+					Vec3d newVec = new Vec3d(pos);
 					newVec = newVec.addVector(vec.getPosX(), vec.getPosY(), vec.getPosZ());
 					
 					int explosionStrength = (int) ((50D/center.distanceTo(newVec))*size);
 					double random = Math.random()*explosionStrength;
 					if(random > tile.getExplosionResistance())
 					{
-						//System.out.println("strength="+explosionStrength+",random="+random+",resistance=" +tile.getExplosionResistance());
-						
 						removeTiles.add(tile);
 					}
 				}

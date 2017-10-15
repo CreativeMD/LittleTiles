@@ -28,6 +28,7 @@ import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -79,12 +80,15 @@ public class LittleTilePreview {
 	public LittleTilePreview(NBTTagCompound nbt) {
 		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{
-			box = new LittleTileBox("bBox", nbt);
+			box = LittleTileBox.loadBox("bBox", nbt);
 			size = box.getSize();
 		}else if(nbt.hasKey("sizex") || nbt.hasKey("size"))
 			size = new LittleTileSize("size", nbt);
 		else
 			new LittleTileSize(0,0,0);
+		
+		if(box == null)
+			box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
 		
 		if(nbt.hasKey("tile")) //new way
 			tileData = nbt.getCompoundTag("tile");
@@ -99,16 +103,18 @@ public class LittleTilePreview {
 	
 	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData)
 	{
-		this(box.getSize(), tileData);
 		this.box = box;
+		this.size = box.getSize();
+		this.tileData = tileData;
+		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
 	
-	public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData)
+	/*public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData)
 	{
 		this.size = size;
 		this.tileData = tileData;
 		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
-	}
+	}*/
 	
 	//================Preview================
 	
@@ -169,6 +175,20 @@ public class LittleTilePreview {
 		return handler.getBlockIngredient(this);
 	}
 	
+	public double getPercentVolume()
+	{
+		if(box != null)
+			return box.getPercentVolume();
+		return size.getPercentVolume();
+	}
+	
+	public double getVolume()
+	{
+		if(box != null)
+			return box.getVolume();
+		return size.getVolume();
+	}
+	
 	//================Copy================
 	
 	public LittleTilePreview copy() {
@@ -178,10 +198,10 @@ public class LittleTilePreview {
 		
 		if(preview == null)
 		{
-			if(this.box != null)
-				preview = new LittleTilePreview(box.copy(), tileData.copy());
-			else
-				preview = new LittleTilePreview(size != null ? size.copy() : null, tileData.copy());
+			//if(this.box != null)
+				preview = new LittleTilePreview(box.copy(), tileData.copy()); //Maybe causes some crashes.
+			//else
+				//preview = new LittleTilePreview(size != null ? size.copy() : null, tileData.copy());
 		}
 		preview.canSplit = this.canSplit;
 		preview.fixedhandlers = new ArrayList<>(this.fixedhandlers);
@@ -198,42 +218,35 @@ public class LittleTilePreview {
 	
 	public PlacePreviewTile getPlaceableTile(LittleTileBox box, boolean fixed, LittleTileVec offset)
 	{
-		if(this.box == null)
+		/*if(this.box == null)
 			return new PlacePreviewTile(box.copy(), this);
-		else{
+		else{*/
 			LittleTileBox newBox = this.box.copy();
 			if(!fixed)
 				newBox.addOffset(offset);
 			return new PlacePreviewTile(newBox, this);
-		}
+		//}
 	}
 	
 	//================Rotating/Flipping================
 	
-	public void flipPreview(EnumFacing direction)
+	public void flipPreview(Axis axis)
 	{
 		if(box != null)
-			box.flipBoxWithCenter(direction, null);
-		handler.flipPreview(direction, this);
+			box.flipBox(axis);
+		handler.flipPreview(axis, this);
 	}
 	
-	public void rotatePreview(Rotation direction)
+	public void rotatePreview(Rotation rotation)
 	{
-		size.rotateSize(direction);
 		if(box != null)
 		{
-			box.rotateBoxWithCenter(direction, new Vec3d(LittleTile.gridMCLength/2, LittleTile.gridMCLength/2, LittleTile.gridMCLength/2));
+			box.rotateBox(rotation);
 			size = box.getSize();
-		}
-		handler.rotatePreview(direction, this);
-	}
-	
-	public void rotatePreview(EnumFacing direction)
-	{
-		size.rotateSize(direction);
-		if(box != null)
-			box.rotateBox(direction);
-		handler.rotatePreview(direction, this);
+		}else
+			size.rotateSize(rotation);
+		
+		handler.rotatePreview(rotation, this);
 	}
 	
 	//================Save & Loading================
@@ -346,7 +359,7 @@ public class LittleTilePreview {
 					int[] array = list.getIntArrayAt(i);
 					BlockPos pos = new BlockPos(array[0], array[1], array[2]);
 					LittleTileVec max = new LittleTileVec(pos);
-					max.addVec(new LittleTileVec(LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize));
+					max.add(new LittleTileVec(LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize));
 					result.add(new LittleTilePreview(new LittleTileBox(new LittleTileVec(pos), max), tileData));
 				}
 				return result;

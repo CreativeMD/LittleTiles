@@ -1,13 +1,11 @@
 package com.creativemd.littletiles;
 
-import java.io.File;
-
-import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.littletiles.client.render.OverlayRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -17,10 +15,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
-import com.creativemd.littletiles.common.action.tool.LittleActionMove;
-import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
-import com.creativemd.littletiles.common.action.tool.LittleActionMove.LittleActionMoveRevert;
+import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
@@ -78,6 +74,8 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
+import com.creativemd.littletiles.common.tiles.vec.LittleTile2DLine;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -94,15 +92,14 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.common.ForgeModContainer;
-import net.minecraftforge.common.ForgeVersion;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
-import net.minecraftforge.fml.common.Mod.Instance;
-import net.minecraftforge.fml.common.discovery.ModDiscoverer;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -110,8 +107,6 @@ import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.FMLLaunchHandler;
-import net.minecraftforge.fml.relauncher.ModListHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -163,6 +158,7 @@ public class LittleTiles {
 		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		invertedShift = config.getBoolean("invertedShift", "Core", invertedShift, "If shift behavior is inverted.");
 		hideParticleBlock = config.getBoolean("hideParticleBlock", "Rendering", hideParticleBlock, "Can be used for cinematics");
+		LittleAction.maxSavedActions = config.getInt("maxSavedActions", "Building", LittleAction.maxSavedActions, 1, Integer.MAX_VALUE, "Number of actions which can be reverted");
 		config.save();
 		proxy.loadSidePre();
 		
@@ -298,7 +294,6 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class);
 		
 		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
-		LittleAction.registerLittleAction("rub", LittleActionMove.class, LittleActionMoveRevert.class);
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());

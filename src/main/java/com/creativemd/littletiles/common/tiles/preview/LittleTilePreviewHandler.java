@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -54,14 +55,7 @@ public abstract class LittleTilePreviewHandler {
 		@SideOnly(Side.CLIENT)
 		public RenderCubeObject getCubeBlock(LittleTilePreview preview)
 		{
-			RenderCubeObject cube = new RenderCubeObject(preview.box.getCube(), null);
-			if(preview.getTileData().hasKey("block"))
-			{
-				cube.block = getPreviewBlock(preview);
-				cube.meta = getPreviewBlockMeta(preview);
-			}else{
-				cube.block = Blocks.STONE;
-			}
+			RenderCubeObject cube = preview.box.getRenderingCube(getPreviewBlock(preview), getPreviewBlockMeta(preview));
 			if(preview.getTileData().hasKey("color"))
 				cube.color = preview.getTileData().getInteger("color");
 			return cube;
@@ -69,21 +63,16 @@ public abstract class LittleTilePreviewHandler {
 
 		@Override
 		public BlockIngredient getBlockIngredient(LittleTilePreview preview) {
-			return new BlockIngredient(preview.getPreviewBlock(), preview.getPreviewBlockMeta(), preview.size.getPercentVolume());
+			return new BlockIngredient(preview.getPreviewBlock(), preview.getPreviewBlockMeta(), preview.getPercentVolume());
 		}
 
 		@Override
-		public void flipPreview(EnumFacing directio, LittleTilePreview previewn) {
+		public void flipPreview(Axis axis, LittleTilePreview previewn) {
 			
 		}
 
 		@Override
 		public void rotatePreview(Rotation direction, LittleTilePreview preview) {
-			
-		}
-
-		@Override
-		public void rotatePreview(EnumFacing direction, LittleTilePreview preview) {
 			
 		}
 
@@ -112,11 +101,9 @@ public abstract class LittleTilePreviewHandler {
 	
 	public abstract BlockIngredient getBlockIngredient(LittleTilePreview preview);
 	
-	public abstract void flipPreview(EnumFacing directio, LittleTilePreview previewn);
+	public abstract void flipPreview(Axis axis, LittleTilePreview previewn);
 	
 	public abstract void rotatePreview(Rotation direction, LittleTilePreview preview);
-	
-	public abstract void rotatePreview(EnumFacing direction, LittleTilePreview preview);
 	
 	public abstract boolean canBeNBTGrouped();
 }

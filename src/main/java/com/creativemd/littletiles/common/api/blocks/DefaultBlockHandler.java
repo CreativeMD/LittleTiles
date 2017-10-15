@@ -5,6 +5,7 @@ import javax.annotation.Nullable;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.BlockTNT;
 import net.minecraft.block.BlockWorkbench;
@@ -37,7 +38,7 @@ public class DefaultBlockHandler {
 			{
 				if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE))
 		        {
-		            if (!worldIn.isRemote && !tile.boundingBoxes.isEmpty())
+		            if (!worldIn.isRemote)
 		            {
 		            	explodeTile(tile, playerIn, false);
 		            }
@@ -67,8 +68,9 @@ public class DefaultBlockHandler {
 			public void explodeTile(LittleTileBlock tile, EntityLivingBase entity, boolean randomFuse)
 			{
 				BlockPos pos = tile.te.getPos();
-				LittleTileSize size = tile.boundingBoxes.get(0).getSize();
-		        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), (double)((float)pos.getX() + tile.cornerVec.getPosX()/2 + size.getPosX()/2), (double)(pos.getY() + tile.cornerVec.getPosY()/2 + size.getPosY()/2), (double)((float)pos.getZ() + tile.cornerVec.getPosZ()/2 + size.getPosZ()/2), entity, size);
+				LittleTileSize size = tile.box.getSize();
+				LittleTileVec min = tile.box.getMinVec();
+		        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), (double)((float)pos.getX() + min.getPosX() + size.getPosX()/2), (double)(pos.getY() + min.getPosY() + size.getPosY()/2), (double)((float)pos.getZ() + min.getPosZ() + size.getPosZ()/2), entity, size);
 		        if(randomFuse)
 		        	entitytntprimed.setFuse((short)(tile.te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
 		        tile.te.getWorld().spawnEntity(entitytntprimed);

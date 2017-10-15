@@ -155,7 +155,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			if(tile != null)
 			{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				RayTraceResult moving = te.getMoving(pos, look);
+				RayTraceResult moving = te.rayTrace(pos, look);
 				action.action(world, te, tile, stack, player, moving, blockPos, nbt);
 				
 				if(!player.world.isRemote)

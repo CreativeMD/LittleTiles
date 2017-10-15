@@ -150,11 +150,9 @@ public class LittleActionPlaceRelative extends LittleAction {
 			}
 			boxes = new ArrayList<>();
 			for (LittleTile tile : placedTiles) {
-				for (LittleTileBox box : tile.boundingBoxes) {
-					box = box.copy();
-					box.addOffset(tile.te.getPos());
-					boxes.add(box);
-				}
+				LittleTileBox box = tile.box.copy();
+				box.addOffset(tile.te.getPos());
+				boxes.add(box);
 			}
 			return placedTiles;
 		}

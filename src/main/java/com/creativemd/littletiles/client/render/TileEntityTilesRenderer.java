@@ -1,5 +1,15 @@
 package com.creativemd.littletiles.client.render;
 
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.lwjgl.opengl.GL11;
+
+import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -63,7 +73,6 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 		//Render.renderOffsetAABB(te.getRenderBoundingBox(), x*2, y*2, z*2);
 		
 		for (LittleTile	tile : te.getRenderTiles()) {
-			LittleTileVec cornerVec = tile.cornerVec;
 			tile.renderTick(x, y, z, partialTicks);
 		}
 		

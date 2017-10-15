@@ -10,6 +10,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
@@ -49,6 +50,7 @@ import net.minecraft.network.play.server.SPacketUseBed;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -311,8 +313,8 @@ public class LittleBed extends LittleStructure{
             if (enumstatus == SleepResult.OK)
             {
             	player.addStat(StatList.SLEEP_IN_BED);
-            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(pos, getMainTile().cornerVec), (EntityPlayerMP) player);
-            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(pos, getMainTile().cornerVec, player), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(pos, getMainTile().getCornerVec()), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(pos, getMainTile().getCornerVec(), player), (EntityPlayerMP) player);
                 return true;
             }
             else
@@ -333,17 +335,17 @@ public class LittleBed extends LittleStructure{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, EnumFacing direction)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
 	{
-		if(direction.getAxis() == this.direction.getAxis())
+		if(axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
 	}
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, EnumFacing direction) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
 	{
-		this.direction = RotationUtils.rotateFacing(this.direction, direction);
+		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}
 
 }

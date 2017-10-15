@@ -28,8 +28,6 @@ public abstract class BoxFixedHandler extends FixedHandler{
 	@Override
 	public void handleRendering(Minecraft mc, double x, double y, double z) {
 		for (int i = 0; i < boxes.size(); i++) {
-			if(!boxes.get(i).isValidBox())
-				continue;
 			GL11.glPushMatrix();
 			CubeObject cube = boxes.get(i).getCube();
 			LittleTileSize size = boxes.get(i).getSize();

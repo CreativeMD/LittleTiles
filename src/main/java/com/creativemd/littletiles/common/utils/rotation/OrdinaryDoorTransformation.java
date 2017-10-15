@@ -26,30 +26,24 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 	public void performTransformation(EntityDoorAnimation animation, double progress) {
 		switch(rotation)
 		{
-		/*case EAST:
-			animation.worldRotY = progress*90;
-			break;
-		case WEST:
-			animation.worldRotY = progress*90;
-			break;*/
-		case NORTH:
-			animation.worldRotY = -90+progress*90;
-			break;
-		case SOUTH:
-			animation.worldRotY = (1-progress)*90;
-			break;
-		case UP:
-			animation.worldRotZ = -90+progress*90;
-			break;
-		case DOWN:
-			animation.worldRotZ = (1-progress)*90;
-			break;	
-		case UPX:
+		case X_CLOCKWISE:
 			animation.worldRotX = (1-progress)*90;
 			break;
-		case DOWNX:
+		case X_COUNTER_CLOCKWISE:
 			animation.worldRotX = -90+progress*90;
 			break;
+		case Y_CLOCKWISE:
+			animation.worldRotY = -90+progress*90;
+			break;
+		case Y_COUNTER_CLOCKWISE:
+			animation.worldRotY = (1-progress)*90;
+			break;
+		case Z_CLOCKWISE:
+			animation.worldRotZ = -90+progress*90;
+			break;
+		case Z_COUNTER_CLOCKWISE:
+			animation.worldRotZ = (1-progress)*90;
+			break;	
 		}
 	}
 
@@ -60,7 +54,7 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 
 	@Override
 	protected void readFromNBT(NBTTagCompound nbt) {
-		rotation = Rotation.getRotationByID(nbt.getInteger("rot"));
+		rotation = Rotation.values()[nbt.getInteger("rot")];
 	}
 
 	@Override
