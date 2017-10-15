@@ -153,6 +153,13 @@ public class SubGuiHammer extends SubGui {
 	}
 	
 	@CustomEventSubscribe
+	public void onClick(GuiControlClickEvent event)
+	{
+		if(event.source.is("sliced"))
+			updateLabel();
+	}
+	
+	@CustomEventSubscribe
 	public void onChange(GuiControlChangedEvent event)
 	{
 		sizeX = (int) ((GuiSteppedSlider) get("sizeX")).value;
