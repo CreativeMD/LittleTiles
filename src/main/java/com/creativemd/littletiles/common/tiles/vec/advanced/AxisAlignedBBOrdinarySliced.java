@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -245,7 +246,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     		
     		if (offset > 0.0D)
             {
-    			if (d0 >= 0 && d0 < offset)
+    			if ((d0 > 0 || LittleUtils.equals(d0, 0)) && d0 < offset)
     			{
     				return d0;
     			}
@@ -253,7 +254,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
             }
             else if (offset < 0.0D)
             {            		
-            	if (d0 <= 0 && d0 > offset)
+            	if ((d0 < 0 || LittleUtils.equals(d0, 0))&& d0 > offset)
             	{
             		return d0;
             	}
