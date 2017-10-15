@@ -1,12 +1,19 @@
 package com.creativemd.littletiles.common.tiles.vec.advanced;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.client.tiles.LittleCorner;
+import com.creativemd.littletiles.client.tiles.LittleDynamicCube;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.google.common.annotations.VisibleForTesting;
 
+import mezz.jei.util.MathUtil;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
@@ -15,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 	
@@ -88,7 +97,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     }
 
     @Override
-    public AxisAlignedBBOrdinarySliced expand(double x, double y, double z)
+    public AxisAlignedBBOrdinarySliced addCoord(double x, double y, double z)
     {
         double d0 = this.minX;
         double d1 = this.minY;
@@ -128,7 +137,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     }
 
     @Override
-    public AxisAlignedBB grow(double x, double y, double z)
+    public AxisAlignedBB expand(double x, double y, double z)
     {
         double d0 = this.minX - x;
         double d1 = this.minY - y;
@@ -305,7 +314,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     
     public boolean isVecInsideBoxEdge(Vec3d vec)
 	{
-    	if(vec.x >= this.minX && vec.x <= this.maxX ? (vec.y >= this.minY && vec.y <= this.maxY ? vec.z >= this.minZ && vec.z <= this.maxZ : false) : false)
+    	if(vec.xCoord >= this.minX && vec.xCoord <= this.maxX ? (vec.yCoord >= this.minY && vec.yCoord <= this.maxY ? vec.zCoord >= this.minZ && vec.zCoord <= this.maxZ : false) : false)
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -381,7 +390,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     }
     
     @Override
-    public boolean intersects(AxisAlignedBB other)
+    public boolean intersectsWith(AxisAlignedBB other)
     {
     	if(!super.intersects(other.minX, other.minY, other.minZ, other.maxX, other.maxY, other.maxZ))
 			return false;
@@ -393,9 +402,9 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     }
     
     @Override
-    public boolean contains(Vec3d vec)
+    public boolean isVecInside(Vec3d vec)
     {
-    	if(super.contains(vec))
+    	if(super.isVecInside(vec))
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
