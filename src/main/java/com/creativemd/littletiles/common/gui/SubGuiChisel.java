@@ -13,7 +13,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
-import com.creativemd.littletiles.common.items.geo.ChiselShape;
+import com.creativemd.littletiles.common.items.geo.DragShape;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -35,7 +35,7 @@ public class SubGuiChisel extends SubGui {
 	public void onClosed() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		ChiselShape shape = ChiselShape.getShape(box.caption);
+		DragShape shape = DragShape.getShape(box.caption);
 		
 		NBTTagCompound nbt = new NBTTagCompound();
 		
@@ -59,7 +59,7 @@ public class SubGuiChisel extends SubGui {
 		color.setAlpha(255);
 		controls.add(new GuiColorPicker("picker", 2, 2, color));
 		
-		GuiComboBox box = new GuiComboBox("shape", 0, 40, 134, new ArrayList<>(ChiselShape.shapes.keySet()));
+		GuiComboBox box = new GuiComboBox("shape", 0, 40, 134, new ArrayList<>(DragShape.shapes.keySet()));
 		box.select(ItemLittleChisel.getShape(stack).key);
 		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 63, 134, 80);
 		controls.add(box);
@@ -79,7 +79,7 @@ public class SubGuiChisel extends SubGui {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		
-		ChiselShape shape = ChiselShape.getShape(box.caption);
+		DragShape shape = DragShape.getShape(box.caption);
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound()));
 		scroll.refreshControls();

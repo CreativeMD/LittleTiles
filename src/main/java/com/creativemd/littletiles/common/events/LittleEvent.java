@@ -107,7 +107,7 @@ public class LittleEvent {
 				
 				if(stack.getItem() instanceof ISpecialBlockSelector)
 				{
-					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTileVec(ray.hitVec)))
+					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTileVec(ray)))
 						event.setCanceled(true);
 					blockSelector = (ISpecialBlockSelector) stack.getItem();
 					lastSelectedItem = stack;
@@ -194,12 +194,12 @@ public class LittleEvent {
 			BlockPos pos = event.getTarget().getBlockPos();
 			IBlockState state = world.getBlockState(pos);
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget().hitVec)))
+			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget())))
 			{
 				double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
 		        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
 		        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
-		        List<LittleTileBox> boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), new LittleTileVec(event.getTarget().hitVec));
+		        List<LittleTileBox> boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), new LittleTileVec(event.getTarget()));
 		        //box.addOffset(new LittleTileVec(pos));
 		        
 		        GlStateManager.enableBlend();

@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 
 import io.netty.buffer.Unpooled;
 import net.minecraft.block.Block;
@@ -204,7 +205,7 @@ public class LittleTileTE extends LittleTileBlock {
     public AxisAlignedBB getRenderBoundingBox()
     {
 		if(tileEntity != null)
-			return getTileEntity().getRenderBoundingBox().offset(cornerVec.getPosX(), cornerVec.getPosY(), cornerVec.getPosZ());
+			return getTileEntity().getRenderBoundingBox().offset(LittleUtils.toVanillaGrid(box.minX), LittleUtils.toVanillaGrid(box.minY), LittleUtils.toVanillaGrid(box.minZ));
 		return super.getRenderBoundingBox();
     }
 	

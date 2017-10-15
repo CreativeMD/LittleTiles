@@ -16,29 +16,29 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class ChiselShape {
+public abstract class DragShape {
 	
-	public static LinkedHashMap<String, ChiselShape> shapes = new LinkedHashMap<>();
+	public static LinkedHashMap<String, DragShape> shapes = new LinkedHashMap<>();
 	
-	public static ChiselShape box = new ChiselShapeBox();
-	public static ChiselShape sphere = new ChiselShapeSphere();
-	public static ChiselShape cylinder = new ChiselShapeCylinder();
-	public static ChiselShape wall = new ChiselShapeWall();
+	public static DragShape box = new DragShapeBox();
+	public static DragShape sphere = new DragShapeSphere();
+	public static DragShape cylinder = new DragShapeCylinder();
+	public static DragShape wall = new DragShapeWall();
 	
-	public static ChiselShape defaultShape = box;
+	public static DragShape defaultShape = box;
 	
-	public static ChiselShape getShape(String name)
+	public static DragShape getShape(String name)
 	{
-		ChiselShape shape = ChiselShape.shapes.get(name);
-		return shape == null ? ChiselShape.defaultShape : shape;
+		DragShape shape = DragShape.shapes.get(name);
+		return shape == null ? DragShape.defaultShape : shape;
 	}
 	
 	public final String key;
 	
-	public ChiselShape(String name) {
+	public DragShape(String name) {
 		shapes.put(name, this);
 		this.key = name;
-		new SelectShape.ChiselSelectShape(this);
+		new SelectShape.DragSelectShape(this);
 	}
 	
 	public abstract List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax);

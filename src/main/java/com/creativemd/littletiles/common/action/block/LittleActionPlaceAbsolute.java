@@ -72,13 +72,21 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			
 			for (LittleTilePreview preview : previews) {
 				preview = preview.copy();
-				boxes.add(preview.box.copy());
 				preview.box.subOffset(offset);
 				placePreviews.add(preview.getPlaceableTile(null, true, offset));
 			}
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, placePreviews, structure, placeAll, pos, null, unplaceableTiles, forced, EnumFacing.EAST);
+			
+			if(placedTiles != null)
+			{
+				for (LittleTile tile : placedTiles) {
+					LittleTileBox box = tile.box.copy();
+					box.addOffset(tile.te.getPos());
+					boxes.add(box);
+				}
+			}
 			
 			if(toVanilla)
 			{

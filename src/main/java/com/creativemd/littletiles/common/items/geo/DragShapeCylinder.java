@@ -22,9 +22,9 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ChiselShapeCylinder extends ChiselShape {
+public class DragShapeCylinder extends DragShape {
 
-	public ChiselShapeCylinder() {
+	public DragShapeCylinder() {
 		super("cylinder");
 	}
 

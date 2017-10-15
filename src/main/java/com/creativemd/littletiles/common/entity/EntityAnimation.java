@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -24,6 +25,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 
@@ -59,7 +61,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		this.center = axis;
         this.baseOffset = axis.getBlockPos();
         this.inBlockCenter = axis.copy();
-        this.inBlockCenter.subVec(new LittleTileVec(baseOffset));
+        this.inBlockCenter.sub(new LittleTileVec(baseOffset));
         this.chunkOffset = getRenderChunkPos(baseOffset);
         
         
@@ -176,8 +178,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			
 			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
 				LittleTile tile = iterator2.next();
-				for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-					boxes.add(tile.boundingBoxes.get(i).getBox(te.getPos()));
+				List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
+				for (LittleTileBox box : tileBoxes) {
+					boxes.add(box.getBox(te.getPos()));
 				}
 			}
 			

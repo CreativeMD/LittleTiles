@@ -1,8 +1,11 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -18,7 +21,7 @@ import net.minecraft.util.math.Vec3d;
 
 public class PlacePreviewTileAxis extends PlacePreviewTile{
 	
-	public static Vec3d red = new Vec3d(1, 0, 0);
+	public static int red = ColorUtils.VecToInt(new Vec3d(1, 0, 0));
 	public EnumFacing.Axis axis;
 
 	public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis) {
@@ -39,9 +42,9 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public ArrayList<ColoredCube> getPreviews()
+	public List<LittleRenderingCube> getPreviews()
 	{
-		ArrayList<ColoredCube> cubes = new ArrayList<>();
+		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		LittleTileBox preview = box.copy();
 		int max = 40*LittleTile.gridSize;
 		int min = -max;
@@ -62,7 +65,9 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		default:
 			break;
 		}
-		cubes.add(new ColoredCube(preview.getCube(), red));
+		LittleRenderingCube cube = preview.getRenderingCube(null, 0);
+		cube.color = red;
+		cubes.add(cube);
 		return cubes;
 	}
 	
@@ -73,11 +78,11 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		{
 			LittleDoor door = (LittleDoor) structure;
 			door.axisVec = box.getMinVec();
-			door.axisVec.addVec(new LittleTileVec(pos));
+			door.axisVec.add(new LittleTileVec(pos));
 			if(door.getMainTile() == null)
 				door.selectMainTile();
 			if(door.getMainTile() != null)
-				door.axisVec.subVec(door.getMainTile().getAbsoluteCoordinates());
+				door.axisVec.sub(door.getMainTile().getAbsoluteCoordinates());
 		}
 		return null;
 	}

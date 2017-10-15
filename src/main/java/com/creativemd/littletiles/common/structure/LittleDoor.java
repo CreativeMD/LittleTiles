@@ -58,11 +58,11 @@ public class LittleDoor extends LittleDoorBase{
 		{
 			axisVec = new LittleTileVec("a", nbt);
 			if(getMainTile() != null)
-				axisVec.subVec(getMainTile().cornerVec);
+				axisVec.sub(getMainTile().getCornerVec());
 		}else{
 			axisVec = new LittleTileVec("av", nbt);
 		}
-		axis = RotationUtils.getAxisFromIndex(nbt.getInteger("axis"));
+		axis = EnumFacing.Axis.values()[nbt.getInteger("axis")];
 		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
 	}
 
@@ -70,7 +70,7 @@ public class LittleDoor extends LittleDoorBase{
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
 		axisVec.writeToNBT("av", nbt);
-		nbt.setInteger("axis", RotationUtils.getAxisIndex(axis));
+		nbt.setInteger("axis", axis.ordinal());
 		nbt.setInteger("ndirection", normalDirection.getIndex());
 	}
 
@@ -137,14 +137,14 @@ public class LittleDoor extends LittleDoorBase{
 	public LittleTileVec getAxisVec()
 	{
 		LittleTileVec newAxisVec = axisVec.copy();
-		newAxisVec.addVec(getMainTile().getAbsoluteCoordinates());
+		newAxisVec.add(getMainTile().getAbsoluteCoordinates());
 		return newAxisVec;
 	}
 	
 	@Override
 	public void moveStructure(EnumFacing facing)
 	{
-		axisVec.addVec(new LittleTileVec(facing));
+		axisVec.add(new LittleTileVec(facing));
 	}
 	
 	@Override
@@ -153,8 +153,8 @@ public class LittleDoor extends LittleDoorBase{
 		if(getMainTile() != null)
 		{
 			LittleTileVec oldVec = lastMainTileVec;
-			oldVec.subVec(tile.getAbsoluteCoordinates());
-			axisVec.addVec(oldVec);
+			oldVec.sub(tile.getAbsoluteCoordinates());
+			axisVec.add(oldVec);
 		}
 		lastMainTileVec = tile.getAbsoluteCoordinates().copy();
 		super.setMainTile(tile);
@@ -243,22 +243,22 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, EnumFacing direction)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
 	{
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
-		box.flipBoxWithCenter(direction, null);
+		box.flipBox(axis);
 		axisVec = box.getMinVec();
 	}
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, EnumFacing direction) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
 	{
 		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
-		box.rotateBox(direction);
+		box.rotateBox(rotation);
 		axisVec = box.getMinVec();
-		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacingFromAxis(axis), direction).getAxis();
-		this.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
+		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacing(axis), rotation).getAxis();
+		this.normalDirection = RotationUtils.rotateFacing(normalDirection, rotation);
 	}
 	
 	
@@ -298,10 +298,10 @@ public class LittleDoor extends LittleDoorBase{
 		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		
-		EnumFacing rotationAxis = RotationUtils.getFacingFromAxis(this.axis);
+		EnumFacing rotationAxis = RotationUtils.getFacing(this.axis);
 		if(inverse)
 			rotationAxis = rotationAxis.getOpposite();
-		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, rotationAxis);
+		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
 		structure.duration = this.duration;
 		
 		return place(world, structure, player, previews, pos, new OrdinaryDoorTransformation(direction), uuid);
@@ -319,7 +319,7 @@ public class LittleDoor extends LittleDoorBase{
 			}
 						
 			//Calculate rotation
-			Rotation rotation = Rotation.EAST;
+			Rotation rotation = null;
 			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
 			boolean rotX = playerRotation <= -90 || playerRotation >= 90;
 			boolean rotY = player.rotationPitch > 0;
@@ -330,85 +330,84 @@ public class LittleDoor extends LittleDoorBase{
 			{
 			case X:
 				//System.out.println(normalDirection);
-				rotation = Rotation.UPX;
+				rotation = Rotation.X_CLOCKWISE;
 				switch(normalDirection)
 				{
 				case UP:
 					if(!rotY)
-						rotation = Rotation.DOWNX;
+						rotation = Rotation.X_COUNTER_CLOCKWISE;
 					break;
 				case DOWN:
 					if(rotY)
-						rotation = Rotation.DOWNX;
+						rotation = Rotation.X_COUNTER_CLOCKWISE;
 					break;
 				case SOUTH:
 					if(!rotX)
-						rotation = Rotation.DOWNX;
+						rotation = Rotation.X_COUNTER_CLOCKWISE;
 					break;
 				case NORTH:
 					if(rotX)
-						rotation = Rotation.DOWNX;			
+						rotation = Rotation.X_COUNTER_CLOCKWISE;			
 					break;
 				default:
 					break;
 				}
-				inverse = rotation == Rotation.UPX;
+				inverse = rotation == Rotation.X_CLOCKWISE;
 				break;
 			case Y:
-				rotation = Rotation.SOUTH;
+				rotation = Rotation.Y_CLOCKWISE;
 				switch(normalDirection)
 				{
 				case EAST:
 					if(rotX)
-						rotation = Rotation.NORTH;
+						rotation = Rotation.Y_COUNTER_CLOCKWISE;
 					break;
 				case WEST:
 					if(!rotX)
-						rotation = Rotation.NORTH;			
+						rotation = Rotation.Y_COUNTER_CLOCKWISE;			
 					break;
 				case SOUTH:
 					if(!rotZ)
-						rotation = Rotation.NORTH;
+						rotation = Rotation.Y_COUNTER_CLOCKWISE;
 					break;
 				case NORTH:
 					if(rotZ)
-						rotation = Rotation.NORTH;
+						rotation = Rotation.Y_COUNTER_CLOCKWISE;
 					break;
 				default:
 					break;
 				}
-				inverse = rotation == Rotation.SOUTH;
+				inverse = rotation == Rotation.Y_CLOCKWISE;
 				break;
 			case Z:
-				rotation = Rotation.UP;				
+				rotation = Rotation.Z_CLOCKWISE;				
 				switch(normalDirection)
 				{
 				case EAST:
 					if(rotZ)
-						rotation = Rotation.DOWN;
+						rotation = Rotation.Z_COUNTER_CLOCKWISE;
 					break;
 				case WEST:
 					if(!rotZ)
-						rotation = Rotation.DOWN;			
+						rotation = Rotation.Z_COUNTER_CLOCKWISE;			
 					break;
 				case UP:
 					if(!rotY)
-						rotation = Rotation.DOWN;
+						rotation = Rotation.Z_COUNTER_CLOCKWISE;
 					break;
 				case DOWN:
 					if(rotY)
-						rotation = Rotation.DOWN;
+						rotation = Rotation.Z_COUNTER_CLOCKWISE;
 					break;
 				default:
 					break;
 				}
-				inverse = rotation == Rotation.UP;
+				inverse = rotation == Rotation.Z_CLOCKWISE;
 				break;
 			default:
 				break;
 			}
 			
-			//System.out.println("Sending packet");
 			UUID uuid = UUID.randomUUID();
 			PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse, uuid));
 			interactWithDoor(world, player, rotation, inverse, uuid);
@@ -454,13 +453,13 @@ public class LittleDoor extends LittleDoorBase{
 		switch(axis)
 		{
 		case X:
-			normalDirection = RotationUtils.getFacingFromAxis(Axis.Z);
+			normalDirection = RotationUtils.getFacing(Axis.Z);
 			break;
 		case Y:
-			normalDirection = RotationUtils.getFacingFromAxis(Axis.X);
+			normalDirection = RotationUtils.getFacing(Axis.X);
 			break;
 		case Z:
-			normalDirection = RotationUtils.getFacingFromAxis(Axis.Y);
+			normalDirection = RotationUtils.getFacing(Axis.Y);
 			break;
 		default:
 			break;
@@ -471,9 +470,9 @@ public class LittleDoor extends LittleDoorBase{
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
 	{
 		LittleTileVec axisPointBackup = axisVec.copy();
-		axisVec.subVec(new LittleTileVec(newCenter));
-		axisVec.addVec(new LittleTileVec(getMainTile().te.getPos()));
-		axisVec.addVec(getMainTile().cornerVec);
+		axisVec.sub(new LittleTileVec(newCenter));
+		axisVec.add(new LittleTileVec(getMainTile().te.getPos()));
+		axisVec.add(getMainTile().getCornerVec());
 		super.writeToNBTPreview(nbt, newCenter);
 		axisVec = axisPointBackup;
 	}
@@ -485,7 +484,7 @@ public class LittleDoor extends LittleDoorBase{
 		GuiTileViewer viewer = (GuiTileViewer) gui.get("tileviewer");
 		door.axisVec = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
 		door.axis = viewer.axisDirection;
-		door.normalDirection = RotationUtils.getFacingFromAxis(viewer.normalAxis);
+		door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
 		door.duration = duration;
 		return door; 
 	}

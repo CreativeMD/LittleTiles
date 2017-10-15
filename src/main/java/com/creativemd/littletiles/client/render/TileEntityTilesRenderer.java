@@ -8,7 +8,6 @@ import java.util.Set;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -85,7 +84,6 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 		//Render.renderOffsetAABB(te.getRenderBoundingBox(), x*2, y*2, z*2);
 		
 		for (LittleTile	tile : te.getRenderTiles()) {
-			LittleTileVec cornerVec = tile.cornerVec;
 			tile.renderTick(x, y, z, partialTicks);
 		}
 		

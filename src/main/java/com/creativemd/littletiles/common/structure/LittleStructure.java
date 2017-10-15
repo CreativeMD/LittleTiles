@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
@@ -38,6 +39,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -148,7 +150,6 @@ public abstract class LittleStructure {
 		this.mainTile = tile;
 		
 		this.mainTile.isMainBlock = true;
-		this.mainTile.updateCorner();
 		this.mainTile.coord = null;
 		this.mainTile.te.updateBlock();
 		
@@ -174,7 +175,7 @@ public abstract class LittleStructure {
 	
 	public LittleTileCoord getMainTileCoord(LittleTile tile)
 	{
-		return new LittleTileCoord(tile.te, mainTile.te.getPos(), mainTile.cornerVec);
+		return new LittleTileCoord(tile.te, mainTile.te.getPos(), mainTile.getCornerVec());
 	}
 	
 	public boolean hasMainTile()
@@ -474,7 +475,7 @@ public abstract class LittleStructure {
 	public boolean doesLinkToMainTile(LittleTile tile)
 	{
 		try{
-			return tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && tile.coord.position.equals(mainTile.cornerVec);
+			return tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.isCornerAt(tile.coord.position);
 		}catch(Exception e){
 			
 		}
@@ -642,9 +643,9 @@ public abstract class LittleStructure {
 		return coords;
 	}
 	
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, EnumFacing direction){}
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis){}
 	
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, EnumFacing direction){}
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation){}
 	
 	//====================GUI STUFF====================
 	@SideOnly(Side.CLIENT)
@@ -671,16 +672,14 @@ public abstract class LittleStructure {
 		for (BlockPos coord : coords.getKeys()) {
 			ArrayList<LittleTile> values = coords.getValues(coord);
 			for (int j = 0; j < values.size(); j++) {
-				for (int h = 0; h < values.get(j).boundingBoxes.size(); h++) {
-					LittleTileBox box = values.get(j).boundingBoxes.get(h);
-					minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
-					minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
-					minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
-					
-					maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
-					maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
-					maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
-				}
+				LittleTileBox box = values.get(j).getCompleteBox();
+				minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
+				minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
+				minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
+				
+				maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
+				maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
+				maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
 			}
 			/*
 			minX = Math.min(minX, coord.posX);
@@ -715,16 +714,15 @@ public abstract class LittleStructure {
 		for (BlockPos coord : coords.getKeys()) {
 			ArrayList<LittleTile> values = coords.getValues(coord);
 			for (int j = 0; j < values.size(); j++) {
-				for (int h = 0; h < values.get(j).boundingBoxes.size(); h++) {
-					LittleTileBox box = values.get(j).boundingBoxes.get(h);
-					minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
-					minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
-					minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
-					
-					maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
-					maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
-					maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
-				}
+				LittleTileBox box = values.get(j).getCompleteBox();
+				minX = Math.min(minX, coord.getX()*LittleTile.gridSize+box.minX);
+				minY = Math.min(minY, coord.getY()*LittleTile.gridSize+box.minY);
+				minZ = Math.min(minZ, coord.getZ()*LittleTile.gridSize+box.minZ);
+				
+				maxX = Math.max(maxX, coord.getX()*LittleTile.gridSize+box.maxX);
+				maxY = Math.max(maxY, coord.getY()*LittleTile.gridSize+box.maxY);
+				maxZ = Math.max(maxZ, coord.getZ()*LittleTile.gridSize+box.maxZ);
+				
 				minYPos = Math.min(minYPos, coord.getY());
 				maxYPos = Math.max(maxYPos, coord.getY());
 			}
@@ -756,9 +754,10 @@ public abstract class LittleStructure {
 				LittleTileBox box = new LittleTileBox(centerTileX, LittleTile.minPos, centerTileZ, centerTileX+1, LittleTile.maxPos, centerTileZ+1);
 				//int highest = LittleTile.minPos;
 				for (int i = 0; i < tilesInCenter.size(); i++) {
-					for (int j = 0; j < tilesInCenter.get(i).boundingBoxes.size(); j++) {
-						LittleTileBox littleBox = tilesInCenter.get(i).boundingBoxes.get(j);
-						if(box.intersectsWith(littleBox))
+					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
+					for (int j = 0; j < collision.size(); j++) {
+						LittleTileBox littleBox = collision.get(j);
+						if(LittleTileBox.intersectsWith(box, littleBox))
 						{
 							position.y = Math.max(y*LittleTile.gridSize+littleBox.maxY, position.y);
 							//highest = Math.max(highest, littleBox.maxY);

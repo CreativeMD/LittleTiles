@@ -81,13 +81,11 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			LittleTile tile = iterator.next();
 			
 			boolean intersects = false;
-			for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-				for (int j = 0; j < boxes.size(); j++) {
-					if(tile.boundingBoxes.get(i).intersectsWith(boxes.get(j)))
-					{
-						intersects = true;
-						break;
-					}
+			for (int j = 0; j < boxes.size(); j++) {
+				if(tile.intersectsWith(boxes.get(j)))
+				{
+					intersects = true;
+					break;
 				}
 			}
 			
@@ -95,136 +93,60 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				continue;
 			
 			if(tile.canBeSplitted() && LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
-			{
-				if(tile.canHaveMultipleBoundingBoxes())
+			{				
+				if(simulate)
 				{
-					if(simulate)
-					{
-						double volume = 0;
-						for (LittleTileBox box : tile.boundingBoxes) {
-							List<LittleTileBox> cutout = new ArrayList<>();
-							box.cutOut(boxes, cutout);
-							
-							for (LittleTileBox box2 : cutout) {
-								colorVolume += box2.getPercentVolume();
-								volume += box2.getPercentVolume();
-							}
-						}
-						
-						gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), volume));
-					}else{
-						int i = 0;
-						int max = tile.boundingBoxes.size();
-						
-						int originalColor = LittleTileBlockColored.getColor((LittleTileBlock) tile);
+					double volume = 0;
+					List<LittleTileBox> cutout = new ArrayList<>();
+					tile.cutOut(boxes, cutout);
+					for (LittleTileBox box2 : cutout) {
+						colorVolume += box2.getPercentVolume();
+						volume += box2.getPercentVolume();
+					}
+					
+					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), volume));
+					
+				}else{
+					List<LittleTileBox> cutout = new ArrayList<>();
+					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+					
+					if(newBoxes != null)
+					{						
+						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), cutout, offset);
 						
 						LittleTile tempTile = tile.copy();
 						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
 						if(changedTile == null)
 							changedTile = tempTile;
 						
-						changedTile.boundingBoxes.clear();
+						if(tile.isStructureBlock)
+							tile.structure.removeTile(tile);
 						
-						while (i < max) {
-							LittleTileBox box = tile.boundingBoxes.get(i);
-							
-							List<LittleTileBox> cutout = new ArrayList<>();
-							List<LittleTileBox> newBoxes = box.cutOut(boxes, cutout);
-							
-							if(newBoxes != null)
-							{
-								tile.boundingBoxes.remove(i);
-								tile.boundingBoxes.addAll(newBoxes);
-								
-								addRevert(originalColor, cutout, offset);
-								
-								changedTile.boundingBoxes.addAll(cutout);
-								
-								max--;
-							}else
-								i++;
+						for (int i = 0; i < newBoxes.size(); i++) {
+							LittleTile newTile = tile.copy();
+							newTile.box = newBoxes.get(i);
+							newTile.place();
+							if(tile.isStructureBlock)
+								tile.structure.addTile(newTile);
 						}
 						
-						LittleTileBox.combineBoxes(tile.boundingBoxes);
-						LittleTileBox.combineBoxes(changedTile.boundingBoxes);
-						
-						changedTile.place();
-						
-						if(tile.isStructureBlock)
-							changedTile.structure.addTile(changedTile);
+						for (int i = 0; i < cutout.size(); i++) {
+							LittleTile newTile = changedTile.copy();
+							newTile.box = cutout.get(i);
+							newTile.place();
+							if(tile.isStructureBlock)
+								tile.structure.addTile(newTile);
+						}
 						
 						if(tile.isMainBlock)
-							tile.structure.setMainTile(tile);
+							tile.structure.selectMainTile();
 						
 						if(tile.isStructureBlock)
 							tile.structure.updateStructure();
 						
-						if(tile.boundingBoxes.isEmpty())
-						{
-							tile.isStructureBlock = false;
-							tile.destroy();
-						}
-					
+						tile.isStructureBlock = false;
+						tile.destroy();
 					}
-				}else{
-					LittleTileBox box = tile.boundingBoxes.get(0);
-					
-					if(simulate)
-					{
-						double volume = 0;
-						List<LittleTileBox> cutout = new ArrayList<>();
-						box.cutOut(boxes, cutout);
-						for (LittleTileBox box2 : cutout) {
-							colorVolume += box2.getPercentVolume();
-							volume += box2.getPercentVolume();
-						}
-						
-						gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), volume));
-						
-					}else{
-						List<LittleTileBox> cutout = new ArrayList<>();
-						List<LittleTileBox> newBoxes = box.cutOut(boxes, cutout);
-						
-						if(newBoxes != null)
-						{
-							tile.boundingBoxes.clear();
-							
-							addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), cutout, offset);
-							
-							LittleTile tempTile = tile.copy();
-							LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
-							if(changedTile == null)
-								changedTile = tempTile;
-							
-							if(tile.isStructureBlock)
-								tile.structure.removeTile(tile);
-							
-							for (int i = 0; i < newBoxes.size(); i++) {
-								LittleTile newTile = tile.copy();
-								newTile.boundingBoxes.add(newBoxes.get(i));
-								newTile.place();
-								if(tile.isStructureBlock)
-									tile.structure.addTile(newTile);
-							}
-							
-							for (int i = 0; i < cutout.size(); i++) {
-								LittleTile newTile = changedTile.copy();
-								newTile.boundingBoxes.add(cutout.get(i));
-								newTile.place();
-								if(tile.isStructureBlock)
-									tile.structure.addTile(newTile);
-							}
-							
-							if(tile.isMainBlock)
-								tile.structure.selectMainTile();
-							
-							if(tile.isStructureBlock)
-								tile.structure.updateStructure();
-							
-							tile.isStructureBlock = false;
-							tile.destroy();
-						}
-					}					
 				}
 			}else{
 				if(simulate)
@@ -232,7 +154,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					colorVolume += tile.getPercentVolume();
 					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), tile.getPercentVolume()));
 				}else{
-					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), tile.boundingBoxes, offset);
+					List<LittleTileBox> oldBoxes = new ArrayList<>();
+					oldBoxes.add(tile.box);
+					
+					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), oldBoxes, offset);
 					
 					LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 					if(changedTile != null)
@@ -280,7 +205,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			tile.te = (TileEntityLittleTiles) tileEntity;
-			tile.boundingBoxes.add(box);
+			tile.box = box;
 			tile.place();
 		}
 		

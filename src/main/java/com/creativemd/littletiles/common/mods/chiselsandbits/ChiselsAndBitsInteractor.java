@@ -46,7 +46,7 @@ public class ChiselsAndBitsInteractor {
 					if(state.getBlock() != Blocks.AIR)
 					{
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-						tile.boundingBoxes.add(new LittleTileBox(new LittleTileVec(x, y, z)));
+						tile.box = new LittleTileBox(new LittleTileVec(x, y, z));
 						tiles.add(tile);
 					}
 				}

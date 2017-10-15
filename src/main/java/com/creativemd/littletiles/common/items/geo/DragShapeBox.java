@@ -19,9 +19,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ChiselShapeBox extends ChiselShape {
+public class DragShapeBox extends DragShape {
 
-	public ChiselShapeBox() {
+	public DragShapeBox() {
 		super("box");
 	}
 

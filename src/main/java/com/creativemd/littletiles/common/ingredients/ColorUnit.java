@@ -138,10 +138,10 @@ public class ColorUnit {
 		if(preview.hasColor())
 		{
 			ColorUnit color = getRequiredColors(preview.getColor());
-			color.BLACK *= preview.size.getPercentVolume();
-			color.RED *= preview.size.getPercentVolume();
-			color.GREEN *= preview.size.getPercentVolume();
-			color.BLUE *= preview.size.getPercentVolume();
+			color.BLACK *= preview.getPercentVolume();
+			color.RED *= preview.getPercentVolume();
+			color.GREEN *= preview.getPercentVolume();
+			color.BLUE *= preview.getPercentVolume();
 			return color;
 		}
 		return null;

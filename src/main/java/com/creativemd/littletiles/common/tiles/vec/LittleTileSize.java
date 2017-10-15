@@ -59,11 +59,6 @@ public class LittleTileSize {
 		this.sizeZ = sizeZ;
 	}
 	
-	/*public LittleTileSize(int sizeX, int sizeY, int sizeZ)
-	{
-		this((byte)sizeX, (byte)sizeY, (byte)sizeZ);
-	}*/
-	
 	public void set(int sizeX, int sizeY, int sizeZ)
 	{
 		this.sizeX = sizeX;
@@ -122,86 +117,37 @@ public class LittleTileSize {
 		return (double)sizeZ/LittleTile.gridSize;
 	}
 	
+	public int get(Axis axis)
+	{
+		switch(axis)
+		{
+		case X:
+			return sizeX;
+		case Y:
+			return sizeY;
+		case Z:
+			return sizeZ;
+		}
+		return 0;
+	}
+	
 	public LittleTileSize copy()
 	{
 		return new LittleTileSize(sizeX, sizeY, sizeZ);
 	}
 	
-	/*public void rotateby(ForgeDirection direction)
+	public void rotateSize(Rotation rotation)
 	{
-		switch(direction)
-		{
-		//case EAST:
-		//case WEST:
-		case SOUTH:
-		case NORTH:
-			set(sizeZ, sizeY, sizeX);
-			break;
-		case UP:
-			set(sizeX, sizeZ, sizeY);
-			break;
-		case DOWN:
-			set(sizeY, sizeX, sizeZ);
-			break;
-		default:
-			break;
-		}
-	}*/
-	
-	public void rotateSize(Rotation direction)
-	{
-		switch(direction)
-		{
-		case UP:
-		case DOWN:
-			int tempY = sizeY;
-			sizeY = sizeX;
-			sizeX = tempY;
-			break;
-		case UPX:
-		case DOWNX:
-			tempY = sizeY;
-			sizeY = sizeZ;
-			sizeZ = tempY;
-			break;
-		case SOUTH:
-		case NORTH:
-			int tempZ = sizeZ;
-			sizeZ = sizeX;
-			sizeX = tempZ;
-			break;
-		default:
-			break;
-		}
-	}
-	
-	public void rotateSize(EnumFacing direction)
-	{
-		switch(direction)
-		{
-		case UP:
-		case DOWN:
-			int tempY = sizeY;
-			sizeY = sizeX;
-			sizeX = tempY;
-			break;
-		case SOUTH:
-		case NORTH:
-			int tempZ = sizeZ;
-			sizeZ = sizeX;
-			sizeX = tempZ;
-			break;
-		default:
-			break;
-		}
+		int tempX = sizeX;
+		int tempY = sizeY;
+		int tempZ = sizeZ;
+		this.sizeX = rotation.getMatrix().getX(tempX, tempY, tempZ);
+		this.sizeY = rotation.getMatrix().getY(tempX, tempY, tempZ);
+		this.sizeZ = rotation.getMatrix().getZ(tempX, tempY, tempZ);
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound  nbt)
 	{
-		/*nbt.setInteger(name+"x", sizeX);
-		nbt.setInteger(name+"y", sizeY);
-		nbt.setInteger(name+"z", sizeZ);*/
-		//nbt.setString(name, sizeX+"."+sizeY+"."+sizeZ);
 		nbt.setIntArray(name, new int[]{sizeX, sizeY, sizeZ});
 	}
 	

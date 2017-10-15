@@ -8,18 +8,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
+import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -33,6 +34,8 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -377,49 +380,36 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	 */
 	public boolean convertBlockToVanilla()
 	{
+		LittleTile firstTile = null;
 		if(tiles.isEmpty())
 		{
 			world.setBlockToAir(pos);
 			return true;
 		}else if(tiles.size() == 1){
-			LittleTile tile = tiles.get(0);
-			if(tile.boundingBoxes.size() == 1)
-			{
-				if(!tile.boundingBoxes.get(0).doesFullEntireBlock())
-					return false;
-			}else
+			if(!tiles.get(0).doesFillEntireBlock())
 				return false;
-		}
-		
-		LittleTile firstTile = null;
-		boolean[][][] filled = new boolean[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
-		for (LittleTile tile : tiles) {
-			if(firstTile == null)
-			{
-				if(tile.getClass() != LittleTileBlock.class)
+			firstTile = tiles.get(0);
+		}else{
+			boolean[][][] filled = new boolean[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
+			for (LittleTile tile : tiles) {
+				if(firstTile == null)
+				{
+					if(tile.getClass() != LittleTileBlock.class)
+						return false;
+					
+					firstTile = tile;
+				}else if(!firstTile.canBeCombined(tile) || !tile.canBeCombined(firstTile))
 					return false;
 				
-				firstTile = tile;
-			}else if(!firstTile.canBeCombined(tile) || !tile.canBeCombined(firstTile))
-				return false;
-			
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				LittleTileBox box = tile.boundingBoxes.get(j);
-				for (int x = box.minX; x < box.maxX; x++) {
-					for (int y = box.minY; y < box.maxY; y++) {
-						for (int z = box.minZ; z < box.maxZ; z++) {
-							filled[x][y][z] = true;
-						}
-					}
-				}
+				tile.fillInSpace(filled);
 			}
-		}
-		
-		for (int x = 0; x < filled.length; x++) {
-			for (int y = 0; y < filled[x].length; y++) {
-				for (int z = 0; z < filled[x][y].length; z++) {
-					if(!filled[x][y][z])
-						return false;
+			
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						if(!filled[x][y][z])
+							return false;
+					}
 				}
 			}
 		}
@@ -433,25 +423,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		LittleTileSize size = box.getSize();
 		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				LittleTileBox otherBox = tile.boundingBoxes.get(j);
-				int minX = Math.max(box.minX, otherBox.minX);
-				int maxX = Math.min(box.maxX, otherBox.maxX);
-				int minY = Math.max(box.minY, otherBox.minY);
-				int maxY = Math.min(box.maxY, otherBox.maxY);
-				int minZ = Math.max(box.minZ, otherBox.minZ);
-				int maxZ = Math.min(box.maxZ, otherBox.maxZ);
-				for (int x = minX; x < maxX; x++) {
-					for (int y = minY; y < maxY; y++) {
-						for (int z = minZ; z < maxZ; z++) {
-							filled[x-box.minX][y-box.minY][z-box.minZ] = true;
-						}
-					}
-				}
-			}
+		
+		for (LittleTile tile : tiles) {
+			tile.fillInSpace(box, filled);
 		}
+		
 		for (int x = 0; x < filled.length; x++) {
 			for (int y = 0; y < filled[x].length; y++) {
 				for (int z = 0; z < filled[x][y].length; z++) {
@@ -567,14 +543,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public LittleTile getTileFromPosition(int x, int y, int z)
 	{
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				LittleTileBox box = tile.boundingBoxes.get(j);
-				if(x >= box.minX && x < box.maxX && y >= box.minY && y < box.maxY && z >= box.minZ && z < box.maxZ)
-					return tile;
-				
-			}
+		for (LittleTile tile : tiles) {
+			if(tile.isAt(x, y, z))
+				return tile;
 		}
 		return null;
 	}
@@ -595,38 +566,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return false;
 	}
 	
-	/*
-	public boolean isSpaceForLittleTile(CubeObject cube)
-	{
-		return isSpaceForLittleTile(cube.getAxis());
-	}
-	
-	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB, LittleTile ignoreTile)
-	{
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(ignoreTile != tile && alignedBB.intersectsWith(tile.boundingBoxes.get(j).getBox()))
-					return false;
-			}
-			
-		}
-		return true;
-	}
-	
-	public boolean isSpaceForLittleTile(AxisAlignedBB alignedBB)
-	{
-		return isSpaceForLittleTile(alignedBB, null);
-	}*/
-	
 	public boolean isSpaceForLittleTile(LittleTileBox box)
 	{
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(box.intersectsWith(tile.boundingBoxes.get(j)))
-					return false;
-			}
+			if(tile.intersectsWith(box))
+				return false;
 			
 		}
 		return true;
@@ -636,11 +581,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(ignoreTile != tile && box.intersectsWith(tile.boundingBoxes.get(j)))
-					return false;
-			}
-			
+			if(ignoreTile != tile && tile.intersectsWith(box))
+				return false;
 		}
 		return true;
 	}
@@ -649,11 +591,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-				if(ignoreTile != tile && box.intersectsWith(tile.boundingBoxes.get(j)))
-					return tile;
-			}
-			
+			if(ignoreTile != tile && tile.intersectsWith(box))
+				return tile;
 		}
 		return null;
 	}
@@ -700,21 +639,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(nbt);
-        
-    	/*int i = 0;
-        for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			NBTTagCompound tileNBT = new NBTTagCompound();
-			tile.saveTile(tileNBT);
-			nbt.setTag("t" + i, tileNBT);
-			i++;
-		}
-        nbt.setInteger("tilesCount", tiles.size());*/
-        
+        super.writeToNBT(nbt);        
         nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(tiles));
-        
-        
 		return nbt;
     }
     
@@ -746,11 +672,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     	return getTile(vec.x, vec.y, vec.z);
     }
     
-    public LittleTile getTile(int minX, int minY, int minZ)
+    /**
+     * uses the corner and is therefore faster
+     */
+    public LittleTile getTile(int x, int y, int z)
     {
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			if(tile.cornerVec.x == minX && tile.cornerVec.y == minY && tile.cornerVec.z == minZ)
+			if(tile.isCornerAt(x, y, z))
 				return tile;
 		}
     	return null;
@@ -822,7 +751,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         super.onDataPacket(net, pkt);
     }
     
-    public RayTraceResult getMoving(EntityPlayer player)
+    public RayTraceResult rayTrace(EntityPlayer player)
     {
     	RayTraceResult hit = null;
 		
@@ -830,23 +759,21 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
-		return getMoving(pos, vec32);
+		return rayTrace(pos, vec32);
     }
     
-    public RayTraceResult getMoving(Vec3d pos, Vec3d look)
+    public RayTraceResult rayTrace(Vec3d pos, Vec3d look)
     {
     	RayTraceResult hit = null;
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-    		for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-    			RayTraceResult Temphit = tile.boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
-    			if(Temphit != null)
-    			{
-    				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
-    				{
-    					hit = Temphit;
-    				}
-    			}
+			RayTraceResult Temphit = tile.rayTrace(pos, look);
+			if(Temphit != null)
+			{
+				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
+				{
+					hit = Temphit;
+				}
 			}
 		}
 		return hit;
@@ -869,16 +796,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		RayTraceResult hit = null;
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-    		for (int j = 0; j < tile.boundingBoxes.size(); j++) {
-    			RayTraceResult Temphit = tile.boundingBoxes.get(j).getBox().offset(getPos()).calculateIntercept(pos, look);
-    			if(Temphit != null)
-    			{
-    				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
-    				{
-    					hit = Temphit;
-    					tileFocus = tile;
-    				}
-    			}
+			RayTraceResult Temphit = tile.rayTrace(pos, look);
+			if(Temphit != null)
+			{
+				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
+				{
+					hit = Temphit;
+					tileFocus = tile;
+				}
 			}
 		}
 		return tileFocus;
@@ -896,16 +821,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	@Override
 	public void update()
-	{
-		/*if(isClientSide())
-		{
-			if(forceChunkRenderUpdate)
-			{
-				updateRender();
-				forceChunkRenderUpdate = false;
-			}
-		}*/
-		
+	{		
 		if(updateTiles.isEmpty())
 		{
 			System.out.println("Ticking tileentity which shouldn't " + pos);
@@ -916,60 +832,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.updateEntity();
 		}
-		
-		/*if(!world.isRemote && tiles.size() == 0)
-			world.setBlockToAir(getPos());*/
 	}
 	
 	public void combineTiles(LittleStructure structure) {
-		if(!structure.hasLoaded())
-			return ;
-		
-		int size = 0;
-		boolean isMainTile = false;
-		while(size != tiles.size())
-		{
-			size = tiles.size();
-			int i = 0;
-			while(i < tiles.size()){
-				if(tiles.get(i).structure != structure)
-				{
-					i++;
-					continue;
-				}
-				
-				int j = 0;
-				
-				while(j < tiles.size()) {
-					if(tiles.get(j).structure != structure)
-					{
-						j++;
-						continue;
-					}
-					
-					if(i != j && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
-					{
-						if(tiles.get(i).isMainBlock || tiles.get(j).isMainBlock)
-							isMainTile = true;
-						LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
-						if(box != null)
-						{
-							tiles.get(i).boundingBoxes.set(0, box);
-							tiles.get(i).combineTiles(tiles.get(j));
-							tiles.get(i).updateCorner();
-							tiles.remove(j);
-							if(i > j)
-								i--;
-							continue;
-						}
-					}
-					j++;
-				}
-				i++;
-			}
-		}
-		if(isMainTile)
-			structure.selectMainTile();
+		BasicCombiner.combineTiles(tiles, structure);
 		updateTiles();
 	}
 	
@@ -991,100 +857,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	}
 
 	public static void combineTilesList(List<LittleTile> tiles) {
-		int size = 0;
-		while(size != tiles.size())
-		{
-			size = tiles.size();
-			int i = 0;
-			while(i < tiles.size()){
-				int j = 0;
-				while(j < tiles.size()) {
-					if(i != j && !tiles.get(i).isStructureBlock && !tiles.get(j).isStructureBlock && tiles.get(i).boundingBoxes.size() == 1 && tiles.get(j).boundingBoxes.size() == 1 && tiles.get(i).canBeCombined(tiles.get(j)) && tiles.get(j).canBeCombined(tiles.get(i)))
-					{
-						LittleTileBox box = tiles.get(i).boundingBoxes.get(0).combineBoxes(tiles.get(j).boundingBoxes.get(0));
-						if(box != null)
-						{
-							tiles.get(i).boundingBoxes.set(0, box);
-							tiles.get(i).combineTiles(tiles.get(j));
-							tiles.get(i).updateCorner();
-							tiles.remove(j);
-							if(i > j)
-								i--;
-							continue;
-						}
-					}
-					j++;
-				}
-				i++;
-			}
-		}
-		
+		BasicCombiner.combineTiles(tiles);
 	}
 
-	public boolean shouldTick() {
+	public boolean shouldTick()
+	{
 		return !updateTiles.isEmpty();
 	}
-	
-	/*public List<LittleTile> removeBoxFromTiles(LittleTileBox box) {
-		preventUpdate = true;
-		List<LittleTile> removed = new ArrayList<>();
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			if(!tile.isStructureBlock && tile.canBeSplitted())
-				removeBoxFromTile(tile, box, removed);
-			else{
-				tile.destroy();
-				removed.add(tile);
-			}
-		}
-		preventUpdate = false;
-		combineTiles();
-		return removed;
-	}
-
-	public void removeBoxFromTile(LittleTile loaded, LittleTileBox box, List<LittleTile> removed) {
-		ArrayList<LittleTileBox> boxes = new ArrayList<>(loaded.boundingBoxes);
-		ArrayList<LittleTile> newTiles = new ArrayList<>();
-		ArrayList<LittleTileBox> removedBoxes = new ArrayList<>();
-		boolean isIntersecting = false;
-		for (int i = 0; i < boxes.size(); i++) {
-			if(box.intersectsWith(boxes.get(i)))
-			{
-				isIntersecting = true;
-				LittleTileBox oldBox = boxes.get(i);
-				for (int littleX = oldBox.minX; littleX < oldBox.maxX; littleX++) {
-					for (int littleY = oldBox.minY; littleY < oldBox.maxY; littleY++) {
-						for (int littleZ = oldBox.minZ; littleZ < oldBox.maxZ; littleZ++) {
-							LittleTileVec vec = new LittleTileVec(littleX, littleY, littleZ);
-							if(!box.isVecInsideBox(vec)){
-								LittleTile newTile = loaded.copy();
-								newTile.boundingBoxes.clear();
-								newTile.boundingBoxes.add(new LittleTileBox(vec));
-								newTiles.add(newTile);
-							}else
-								removedBoxes.add(new LittleTileBox(vec));
-						}
-					}
-				}
-			}
-		}
-		
-		if(isIntersecting)
-		{
-			LittleTileBox.combineBoxes(removedBoxes);
-			LittleTile removedPart = loaded.copy();
-			removedPart.boundingBoxes.clear();
-			removedPart.boundingBoxes.addAll(removedBoxes);
-			removed.add(removedPart);
-			
-			loaded.destroy();
-			
-			TileEntityLittleTiles.combineTilesList(newTiles);
-			for (int i = 0; i < newTiles.size(); i++) {
-				addTile(newTiles.get(i));
-			}
-		}
-	}*/
-
 	
 }

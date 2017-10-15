@@ -162,17 +162,17 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, EnumFacing direction)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
 	{
-		if(direction.getAxis() == this.moveDirection.getAxis())
+		if(axis == this.moveDirection.getAxis())
 			this.moveDirection = this.moveDirection.getOpposite();
 	}
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, EnumFacing direction) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
 	{
-		moveDirection = RotationUtils.rotateFacing(moveDirection, direction);
+		moveDirection = RotationUtils.rotateFacing(moveDirection, rotation);
 	}
 
 	@Override

@@ -30,6 +30,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -56,19 +57,19 @@ public class PlacementHelper {
 		public LittleTileVec getAbsoluteVec()
 		{
 			LittleTileVec absolute = new LittleTileVec(pos);
-			absolute.addVec(hit);
+			absolute.add(hit);
 			return absolute;
 		}
 		
 		public void subVec(LittleTileVec vec)
 		{
-			hit.addVec(vec);
+			hit.add(vec);
 			updatePos();
 		}
 		
 		public void addVec(LittleTileVec vec)
 		{
-			hit.subVec(vec);
+			hit.sub(vec);
 			updatePos();
 		}
 		
@@ -140,7 +141,7 @@ public class PlacementHelper {
 		public List<LittleTilePreview> previews = null;
 		public LittleTileBox box;
 		public LittleTileSize size;
-		public boolean usedSize = false;
+		public boolean singleMode = false;
 		public boolean placedFixed = false;
 		public LittleTileVec offset;
 		
@@ -304,11 +305,11 @@ public class PlacementHelper {
 			
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
-			if(tiles.size() == 1 && tiles.get(0).box == null) //Will only be used if it's the only preview trying to be placed
+			if(tiles.size() == 1) //Will only be used if it's the only preview trying to be placed
 			{
 				shifthandlers.addAll(tiles.get(0).fixedhandlers);
 				shifthandlers.add(new InsideFixedHandler());
-				result.usedSize = true;
+				result.singleMode = true;
 			}
 			
 			result.box = getTilesBox(hit, result.size, centered, facing);
@@ -317,7 +318,7 @@ public class PlacementHelper {
 			
 			if(fixed)
 			{
-				if(!result.usedSize)
+				if(!result.singleMode)
 				{
 					Block block = world.getBlockState(pos).getBlock();
 					if(block.isReplaceable(world, pos) || block instanceof BlockTile)
@@ -364,7 +365,7 @@ public class PlacementHelper {
 			LittleTileVec offset = result.box.getMinVec();
 			LittleTileVec internalOffset = getInternalOffset(tiles);
 			internalOffset.invert();
-			offset.addVec(internalOffset);
+			offset.add(internalOffset);
 			
 			result.offset = offset;
 			
@@ -497,11 +498,11 @@ public class PlacementHelper {
 	
 	public static LittleTileVec getHitVec(RayTraceResult result, boolean isInsideOfBlock)
 	{
-		double posX = result.hitVec.xCoord - result.getBlockPos().getX();
+		/*double posX = result.hitVec.xCoord - result.getBlockPos().getX();
 		double posY = result.hitVec.yCoord - result.getBlockPos().getY();
 		double posZ = result.hitVec.zCoord - result.getBlockPos().getZ();
 		
-		LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));
+		LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));*/
 		
 		/*if(!fixed)
 		{
@@ -535,9 +536,15 @@ public class PlacementHelper {
 			return vec;
 		}*/
 		
+		LittleTileVec vec = new LittleTileVec(result);
+		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			vec.add(result.sideHit);
+		vec.sub(result.getBlockPos());
+		
 		if(!isInsideOfBlock)
 		{
-			switch(result.sideHit)
+			vec.setAxis(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : LittleTile.gridSize-1);
+			/*switch(result.sideHit)
 			{
 			case EAST:
 				vec.x = 0;
@@ -560,7 +567,7 @@ public class PlacementHelper {
 			default:
 				break;
 			
-			}
+			}*/
 		}
 		
 		return vec;

@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeLayerCache;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
@@ -18,6 +17,7 @@ import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -136,19 +136,19 @@ public class RenderingThread extends Thread {
 							System.out.println("ISSUE!");
 						}*/					
 						
-						ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
+						List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 						for (int j = 0; j < cubes.size(); j++) {
 							RenderCubeObject cube = cubes.get(j);
 							if(cube.doesNeedQuadUpdate)
 							{
 								IBakedModel blockModel = mc.getBlockRendererDispatcher().getModelForState(cube.getBlockState());
-								CubeObject uvCube = cube.offset(cube.getOffset());										
+								BlockPos offset = cube.getOffset();								
 								for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 									EnumFacing facing = EnumFacing.VALUES[h];
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0, false));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, offset, cube.getBlockState(), blockModel, facing, 0, false));
 									}else
 										cube.setQuad(facing, null);
 								}
@@ -179,7 +179,7 @@ public class RenderingThread extends Thread {
 							for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 								BlockRenderLayer layer = BlockRenderLayer.values()[i];
 								
-								ArrayList<RenderCubeObject> cubes = cubeCache.getCubesByLayer(layer);
+								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 								VertexBuffer buffer = null;
 								if(cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes.size());

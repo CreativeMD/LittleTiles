@@ -62,13 +62,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			LittleTile tile = iterator.next();
 			
 			boolean intersects = false;
-			for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-				for (int j = 0; j < boxes.size(); j++) {
-					if(tile.boundingBoxes.get(i).intersectsWith(boxes.get(j)))
-					{
-						intersects = true;
-						break;
-					}
+			for (int j = 0; j < boxes.size(); j++) {
+				if(tile.intersectsWith(boxes.get(j)))
+				{
+					intersects = true;
+					break;
 				}
 			}
 			
@@ -79,83 +77,35 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			{
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();
-				if(tile.canHaveMultipleBoundingBoxes())
+				
+				List<LittleTileBox> cutout = new ArrayList<>();
+				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+				
+				if(newBoxes != null)
 				{
-					int i = 0;
-					int max = tile.boundingBoxes.size();
-					while (i < max) {
-						LittleTileBox box = tile.boundingBoxes.get(i);
-						
-						List<LittleTileBox> cutout = new ArrayList<>();
-						List<LittleTileBox> newBoxes = box.cutOut(boxes, cutout);
-						
-						if(newBoxes != null)
-						{
-							for (int l = 0; l < cutout.size(); l++) {
-								volume += cutout.get(l).getSize().getPercentVolume();
-								if(!simulate)
-								{
-									LittleTilePreview preview2 = preview.copy();
-									preview2.box = cutout.get(l).copy();
-									preview2.box.addOffset(offset);
-									previews.add(preview2);
-								}
-							}
-							
-							if(!simulate)
-							{
-								tile.boundingBoxes.remove(i);
-								tile.boundingBoxes.addAll(newBoxes);
-								
-								max--;
-							}else
-								i++;
-							
-						}else
-							i++;
-					}
-					
 					if(!simulate)
-					{
-						if(tile.boundingBoxes.isEmpty())
-							tile.destroy();
-						else
-							LittleTileBox.combineBoxes(tile.boundingBoxes);
-					}
-				}else{
-					LittleTileBox box = tile.boundingBoxes.get(0);
-					
-					List<LittleTileBox> cutout = new ArrayList<>();
-					List<LittleTileBox> newBoxes = box.cutOut(boxes, cutout);
-					
-					if(newBoxes != null)
-					{
-						if(!simulate)
-						{
-							tile.boundingBoxes.clear();
-							
-							for (int i = 0; i < newBoxes.size(); i++) {
-								LittleTile newTile = tile.copy();
-								newTile.boundingBoxes.add(newBoxes.get(i));
-								newTile.place();
-							}
-							
-							tile.destroy();
+					{						
+						for (int i = 0; i < newBoxes.size(); i++) {
+							LittleTile newTile = tile.copy();
+							newTile.box = newBoxes.get(i);
+							newTile.place();
 						}
 						
-						for (int l = 0; l < cutout.size(); l++) {
-							volume += cutout.get(l).getSize().getPercentVolume();
-							if(!simulate)
-							{
-								LittleTilePreview preview2 = preview.copy();
-								preview2.box = cutout.get(l).copy();
-								preview2.box.addOffset(offset);
-								previews.add(preview2);
-							}
-						}		
+						tile.destroy();
 					}
+					
+					for (int l = 0; l < cutout.size(); l++) {
+						volume += cutout.get(l).getPercentVolume();
+						if(!simulate)
+						{
+							LittleTilePreview preview2 = preview.copy();
+							preview2.box = cutout.get(l).copy();
+							preview2.box.addOffset(offset);
+							previews.add(preview2);
+						}
+					}		
 				}
-				
+			
 				if(volume > 0)
 					ingredients.addPreview(preview, volume);
 			}else{
@@ -195,7 +145,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			
 			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			tile.te = (TileEntityLittleTiles) tileEntity;
-			tile.boundingBoxes.add(box);
+			tile.box = box;
 			tile.place();
 		}
 		

@@ -61,7 +61,7 @@ public class StructureStringUtils {
 			}
 			
 			List<String> texturenames = new ArrayList<>();
-			List<RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
+			List<? extends RenderCubeObject> cubes = ((ICreativeRendered)stack.getItem()).getRenderingCubes(null, null, stack);
 			JsonArray elements = new JsonArray();
 			for (int i = 0; i < cubes.size(); i++) {
 				RenderCubeObject cube = cubes.get(i);
@@ -82,12 +82,11 @@ public class StructureStringUtils {
 				element.add("to", positionArray);
 				
 				IBakedModel blockModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(cube.getBlockState());
-				CubeObject uvCube = cube.offset(cube.getOffset());
 				
 				JsonObject faces = new JsonObject();
 				for (int j = 0; j < EnumFacing.VALUES.length; j++) {
 					EnumFacing facing = EnumFacing.VALUES[j];
-					List<BakedQuad> quads = CreativeBakedModel.getBakedQuad(cube, uvCube, cube.getBlockState(), blockModel, facing, 0, true);
+					List<BakedQuad> quads = CreativeBakedModel.getBakedQuad(cube, cube.getOffset(), cube.getBlockState(), blockModel, facing, 0, true);
 					if(!quads.isEmpty()) //No support for grass!!!
 					{
 						JsonObject face = new JsonObject();

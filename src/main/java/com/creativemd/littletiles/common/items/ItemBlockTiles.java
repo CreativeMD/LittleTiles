@@ -6,6 +6,7 @@ import java.util.List;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -15,6 +16,9 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
+import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -26,6 +30,7 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -90,11 +95,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		{
 			LittleTilePreview preview = previews.get(0);
 			NBTTagCompound nbt = preview.getTileData().copy();
+			LittleTileBox tempBox = preview.box;
+			preview.box = preview.box.copy();
+			preview.box.subOffset(preview.box.getMinVec());
+			preview.writeToNBT(nbt);
+			preview.box = tempBox;
+			//preview.size.writeToNBT("size", nbt);
 			
-			preview.size.writeToNBT("size", nbt);
-			
-			if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
-				nbt.setString("type", preview.getTypeID());
+			//if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
+				//nbt.setString("type", preview.getTypeID());
 			
 			stack.setTagCompound(nbt);
 		}else
@@ -106,30 +115,35 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		NBTTagCompound nbt = preview.getTileData().copy();
 		
-		preview.size.writeToNBT("size", nbt);
+		//preview.size.writeToNBT("size", nbt);
+		preview.writeToNBT(nbt);
 		
-		if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
-			nbt.setString("type", preview.getTypeID());
+		//if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
+			//nbt.setString("type", preview.getTypeID());
 		
 		stack.setTagCompound(nbt);
 		return stack;
 	}
 	
-	public static ArrayList<RenderCubeObject> getItemRenderingCubes(ItemStack stack) {
-		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
+	public static List<LittleRenderingCube> getItemRenderingCubes(ItemStack stack) {
+		ArrayList<LittleRenderingCube> cubes = new ArrayList<LittleRenderingCube>();
 		if(stack != null && stack.hasTagCompound())
 		{
-			Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
-			int meta = stack.getTagCompound().getInteger("meta");
-			LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
-			if(!(block instanceof BlockAir))
+			if(stack.getTagCompound().hasKey("size"))
 			{
-				RenderCubeObject cube = new RenderCubeObject(new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getCube(), block, meta);
-				//cube.block = block;
-				//cube.meta = meta;
-				if(stack.getTagCompound().hasKey("color"))
-					cube.color = stack.getTagCompound().getInteger("color");
-				cubes.add(cube);
+				Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
+				int meta = stack.getTagCompound().getInteger("meta");
+				LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
+				if(!(block instanceof BlockAir))
+				{
+					LittleRenderingCube cube = new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getRenderingCube(block, meta);
+					if(stack.getTagCompound().hasKey("color"))
+						cube.color = stack.getTagCompound().getInteger("color");
+					cubes.add(cube);
+				}
+			}else{
+				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
+				cubes.add((LittleRenderingCube) preview.getCubeBlock());
 			}
 		}
 		return cubes;
@@ -141,7 +155,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	}
 
 	@Override
-	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if(stack != null)
 			return getItemRenderingCubes(stack);
 		return new ArrayList<>();

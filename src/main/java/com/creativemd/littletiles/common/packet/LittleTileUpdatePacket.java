@@ -25,7 +25,7 @@ public class LittleTileUpdatePacket extends CreativeCorePacket {
 	
 	public LittleTileUpdatePacket(LittleTile tile, NBTTagCompound nbt) {
 		this.pos = tile.te.getPos();
-		this.cornerVec = tile.cornerVec.copy();
+		this.cornerVec = tile.getCornerVec();
 		this.nbt = nbt;
 	}
 	

@@ -20,9 +20,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ChiselShapeSphere extends ChiselShape {
+public class DragShapeSphere extends DragShape {
 
-	public ChiselShapeSphere() {
+	public DragShapeSphere() {
 		super("sphere");
 	}
 
