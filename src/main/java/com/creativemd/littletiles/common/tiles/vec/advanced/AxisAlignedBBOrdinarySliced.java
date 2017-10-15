@@ -13,7 +13,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.google.common.annotations.VisibleForTesting;
 
-import mezz.jei.util.MathUtil;
+import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
@@ -254,7 +254,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     		
     		if (offset > 0.0D)
             {
-    			if (d0 >= 0 && d0 < offset)
+    			if ((d0 > 0 || LittleUtils.equals(d0, 0)) && d0 < offset)
     			{
     				return d0;
     			}
@@ -262,7 +262,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
             }
             else if (offset < 0.0D)
             {            		
-            	if (d0 <= 0 && d0 > offset)
+            	if ((d0 < 0 || LittleUtils.equals(d0, 0))&& d0 > offset)
             	{
             		return d0;
             	}
