@@ -84,7 +84,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.translate(cubeX, cubeY, cubeZ);
 		GlStateManager.enableRescaleNormal();
 		
-		GlStateManager.color((float)color.xCoord, (float)color.yCoord, (float)color.zCoord, (float)(Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
+		GlStateManager.color((float)color.x, (float)color.y, (float)color.z, (float)(Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
 		
 		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
 		

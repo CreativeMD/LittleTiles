@@ -84,7 +84,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		AxisAlignedBB bb = new AxisAlignedBBOrdinarySliced(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
 				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ(), slice);
 		
-        if (entityBox.intersectsWith(bb))
+        if (entityBox.intersects(bb))
 	        collidingBoxes.add(bb);
         
         boolean boxTwo = hasAdditionalBoxTwo();
@@ -111,7 +111,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
         	
         	bb = new AxisAlignedBB(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
     				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ());
-        	if (entityBox.intersectsWith(bb))
+        	if (entityBox.intersects(bb))
     	        collidingBoxes.add(bb);
         }
         
@@ -137,7 +137,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
         	
         	bb = new AxisAlignedBB(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
     				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ());
-        	if (entityBox.intersectsWith(bb))
+        	if (entityBox.intersects(bb))
     	        collidingBoxes.add(bb);
         }
 	}
@@ -531,7 +531,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	@Override
 	public boolean isVecInsideBoxRelative(Vec3d vec)
 	{
-		if(vec.xCoord >= minX && vec.xCoord < maxX && vec.yCoord >= minY && vec.yCoord < maxY && vec.zCoord >= minZ && vec.zCoord < maxZ)
+		if(vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ)
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);

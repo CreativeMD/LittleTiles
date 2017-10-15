@@ -10,6 +10,7 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -196,7 +197,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			
 			@Override
 			public void transform(ClassNode node) {
-				MethodNode m = findMethod(node, "intersectsWith", "(Lnet/minecraft/util/math/AxisAlignedBB;)Z");
+				MethodNode m = findMethod(node, "intersects", "(Lnet/minecraft/util/math/AxisAlignedBB;)Z");
 				
 				String axisClassName = patchClassName("net/minecraft/util/math/AxisAlignedBB");
 				String methodDesc = "(L" +  axisClassName + ";)Z";
@@ -209,7 +210,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(label, new LabelNode());
 				m.instructions.insertBefore(label, new VarInsnNode(Opcodes.ALOAD, 1));
 				m.instructions.insertBefore(label, new VarInsnNode(Opcodes.ALOAD, 0));
-				m.instructions.insertBefore(label, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, axisClassName, patchMethodName("intersectsWith", methodDesc), methodDesc, false));
+				m.instructions.insertBefore(label, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, axisClassName, patchMethodName("intersects", methodDesc), methodDesc, false));
 				m.instructions.insertBefore(label, new InsnNode(Opcodes.IRETURN));
 			}
 		});

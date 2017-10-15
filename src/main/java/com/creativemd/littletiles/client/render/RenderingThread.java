@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -254,7 +255,7 @@ public class RenderingThread extends Thread {
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
 						} catch (Exception e) {
-							//e.printStackTrace();
+							e.printStackTrace();
 							updateCoords.add(data);
 							if(layerBuffer != null)
 								layerBuffer.setFinishedDrawing();
@@ -284,14 +285,14 @@ public class RenderingThread extends Thread {
 		}
 	}
 	
-	private static LoadingCache<Pair<VertexFormat, VertexFormat>, int[]> formatMaps;
+	/*private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]> formatMaps;
 	
-	private static LoadingCache<Pair<VertexFormat, VertexFormat>, int[]> getFormatMaps()
+	private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]> getFormatMaps()
 	{
 		if(formatMaps == null)
 			formatMaps = ReflectionHelper.getPrivateValue(LightUtil.class, null, "formatMaps");
 		return formatMaps;
-	}
+	}*/
 	
 	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 	
@@ -308,7 +309,7 @@ public class RenderingThread extends Thread {
         VertexFormat formatTo = quad.getFormat();
         int countFrom = formatFrom.getElementCount();
         int countTo = formatTo.getElementCount();
-        int[] eMap = getFormatMaps().getUnchecked(Pair.of(formatFrom, formatTo));
+        int[] eMap = LightUtil.mapFormats(formatFrom, formatTo); //getFormatMaps().getUnchecked(Pair.of(formatFrom, formatTo));
         for(int v = 0; v < 4; v++)
         {
             for(int e = 0; e < countFrom; e++)

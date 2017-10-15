@@ -109,7 +109,7 @@ public class LittleTileBox {
 	{
 		AxisAlignedBB axisalignedbb = getBox(offset);
 
-        if (entityBox.intersectsWith(axisalignedbb))
+        if (entityBox.intersects(axisalignedbb))
         {
             collidingBoxes.add(axisalignedbb);
         }
@@ -713,17 +713,17 @@ public class LittleTileBox {
 	
     public boolean intersectsWithYZ(Vec3d vec)
     {
-        return vec.yCoord >= (double) this.minY/LittleTile.gridSize && vec.yCoord < (double) this.maxY/LittleTile.gridSize && vec.zCoord >= (double) this.minZ/LittleTile.gridSize && vec.zCoord < (double) this.maxZ/LittleTile.gridSize;
+        return vec.y >= (double) this.minY/LittleTile.gridSize && vec.y < (double) this.maxY/LittleTile.gridSize && vec.z >= (double) this.minZ/LittleTile.gridSize && vec.z < (double) this.maxZ/LittleTile.gridSize;
     }
 
     public boolean intersectsWithXZ(Vec3d vec)
     {
-        return vec.xCoord >= (double) this.minX/LittleTile.gridSize && vec.xCoord < (double) this.maxX/LittleTile.gridSize && vec.zCoord >= (double) this.minZ/LittleTile.gridSize && vec.zCoord < (double) this.maxZ/LittleTile.gridSize;
+        return vec.x >= (double) this.minX/LittleTile.gridSize && vec.x < (double) this.maxX/LittleTile.gridSize && vec.z >= (double) this.minZ/LittleTile.gridSize && vec.z < (double) this.maxZ/LittleTile.gridSize;
     }
 
     public boolean intersectsWithXY(Vec3d vec)
     {
-        return vec.xCoord >= (double) this.minX/LittleTile.gridSize && vec.xCoord < (double) this.maxX/LittleTile.gridSize && vec.yCoord >= (double) this.minY/LittleTile.gridSize && vec.yCoord < (double) this.maxY/LittleTile.gridSize;
+        return vec.x >= (double) this.minX/LittleTile.gridSize && vec.x < (double) this.maxX/LittleTile.gridSize && vec.y >= (double) this.minY/LittleTile.gridSize && vec.y < (double) this.maxY/LittleTile.gridSize;
     }
 	
 	public LittleTileVec getCenter()

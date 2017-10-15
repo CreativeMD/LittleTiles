@@ -85,7 +85,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
 	{
 		DragShape shape = getShape(stack);
-		list.add("shape: " + shape.key);
+		tooltip.add("shape: " + shape.key);
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
 	}
 	

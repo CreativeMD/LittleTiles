@@ -332,7 +332,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	
 	public boolean isVecInsideBoxRelative(Vec3d vec)
 	{
-		if(vec.xCoord >= minX && vec.xCoord < maxX && vec.yCoord >= minY && vec.yCoord < maxY && vec.zCoord >= minZ && vec.zCoord < maxZ)
+		if(vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ)
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);

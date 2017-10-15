@@ -65,9 +65,9 @@ public class LittleTileVec {
 	
 	public LittleTileVec(Vec3d vec)
 	{		
-		this.x = LittleUtils.toGrid(vec.xCoord);
-		this.y = LittleUtils.toGrid(vec.yCoord);
-		this.z = LittleUtils.toGrid(vec.zCoord);
+		this.x = LittleUtils.toGrid(vec.x);
+		this.y = LittleUtils.toGrid(vec.y);
+		this.z = LittleUtils.toGrid(vec.z);
 	}
 	
 	public LittleTileVec(EnumFacing facing)
