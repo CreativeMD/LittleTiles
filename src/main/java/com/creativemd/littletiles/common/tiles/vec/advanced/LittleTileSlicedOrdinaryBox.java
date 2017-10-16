@@ -237,8 +237,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			int difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, x, y, z));
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
-			
-			return sizeOne > difOne && sizeTwo > difTwo && (sizeOne + sizeTwo) / 2 > difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -343,8 +343,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			double difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, vec));
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
-			
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -364,7 +364,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
 			
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -392,7 +393,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			double difTwo = Math.abs(LittleUtils.toVanillaGrid(getCornerValue(corner, two)) - RotationUtils.get(two, vec));
 			double sizeOne = getSize(one)/(double)LittleTile.gridSize;
 			double sizeTwo = getSize(two)/(double)LittleTile.gridSize;
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return true;
     }

@@ -458,8 +458,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
 			float sizeOne = getSliceSize(one);
 			float sizeTwo = getSliceSize(two);
-			
-			return sizeOne > difOne && sizeTwo > difTwo && (sizeOne + sizeTwo) / 2 > difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -563,8 +563,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
 			float sizeOne = getSliceSize(one);
 			float sizeTwo = getSliceSize(two);
-			
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -604,8 +604,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
 			float sizeOne = getSliceSize(one);
 			float sizeTwo = getSliceSize(two);
-			
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}
 		return false;
 	}
@@ -664,7 +664,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			float sizeOne = getSliceSize(one) / LittleTile.gridSize;
 			float sizeTwo = getSliceSize(two) / LittleTile.gridSize;
 			
-			return sizeOne >= difOne && sizeTwo >= difTwo && (sizeOne + sizeTwo) / 2 >= difOne + difTwo;
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}else{
 			if(!super.intersectsWithAxis(axis, vec))
 				return false;
