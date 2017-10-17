@@ -213,6 +213,8 @@ public abstract class LittleTile {
 	
 	public void fillInSpace(boolean[][][] filled)
 	{
+		if(box.getClass() != LittleTileBox.class)
+			return ;
 		for (int x = box.minX; x < box.maxX; x++) {
 			for (int y = box.minY; y < box.maxY; y++) {
 				for (int z = box.minZ; z < box.maxZ; z++) {

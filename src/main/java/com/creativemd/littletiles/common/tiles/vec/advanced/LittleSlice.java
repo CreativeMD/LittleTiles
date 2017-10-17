@@ -95,6 +95,11 @@ public enum LittleSlice {
 		}
 	}
 	
+	public LittleSlice getOpposite()
+	{
+		return getSliceFromNormal(new int[]{-normal[0], -normal[1], -normal[2]});
+	}
+	
 	public int getDirectionScale(Axis axis)
 	{
 		return RotationUtils.get(axis, sliceVec);

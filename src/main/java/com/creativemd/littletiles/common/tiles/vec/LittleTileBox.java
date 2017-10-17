@@ -1097,21 +1097,6 @@ public class LittleTileBox {
 		}
 	}
 	
-	public static void toBytes(ByteBuf buf, LittleTileBox box)
-	{
-		buf.writeInt(box.minX);
-		buf.writeInt(box.minY);
-		buf.writeInt(box.minZ);
-		buf.writeInt(box.maxX);
-		buf.writeInt(box.maxY);
-		buf.writeInt(box.maxZ);
-	}
-	
-	public static LittleTileBox fromBytes(ByteBuf buf)
-	{
-		return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt(), buf.readInt());
-	}
-	
 	public static boolean isClosest(Vec3d from, @Nullable Vec3d optional, Vec3d toCheck)
     {
         return optional == null || from.squareDistanceTo(toCheck) < from.squareDistanceTo(optional);

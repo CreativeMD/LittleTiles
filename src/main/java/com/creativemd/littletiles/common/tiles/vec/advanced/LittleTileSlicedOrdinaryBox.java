@@ -223,18 +223,14 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	
 	public boolean isVecInsideBoxNoEdge(LittleTileVec vec)
 	{
-		int x = vec.x;
-		int y = vec.y;
-		int z = vec.z;
-		if(super.isVecInsideBox(x, y, z))
+		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		if(vec.getAxis(one) >= getMin(one) && vec.getAxis(one) <= getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) <= getMax(two))
 		{
-			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
-			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-			
 			LittleCorner corner = slice.getFilledCorner();
 			
-			int difOne = Math.abs(getCornerValue(corner, one) - RotationUtils.get(one, x, y, z));
-			int difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, x, y, z));
+			int difOne = Math.abs(getCornerValue(corner, one) - vec.getAxis(one));
+			int difTwo = Math.abs(getCornerValue(corner, two) - vec.getAxis(two));
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
@@ -317,11 +313,12 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		
 			if(box instanceof LittleTileSlicedOrdinaryBox)
 			{
-				if(((LittleTileSlicedOrdinaryBox) box).slice.axis != slice.axis)
+				LittleTileSlicedOrdinaryBox sliceBox = (LittleTileSlicedOrdinaryBox) box;
+				if(sliceBox.slice.axis != slice.axis && sliceBox.slice.getOpposite() != slice)
 					return true;
 				
-				Vec3d vec = this.getSliceLine().intersect(((LittleTileSlicedOrdinaryBox) box).getSliceLine(), getMin(slice.axis));
-				return (vec == null ? false : isVecInsideBoxRelative(vec));
+				Vec3d vec = this.getSliceLine().intersect(((LittleTileSlicedOrdinaryBox) box).getSliceLine(), getMin(slice.axis));				
+				return (sliceBox.slice.getOpposite() == slice) == (vec == null ? false : isVecInsideBoxRelative(vec));
 			}
 			
 		}
