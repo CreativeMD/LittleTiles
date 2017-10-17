@@ -68,7 +68,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 	public void writeBytes(ByteBuf buf) {
 		buf.writeInt(boxes.size());
 		for (LittleTileBox box : boxes) {
-			LittleTileBox.toBytes(buf, box);
+			writeLittleBox(box, buf);
 		}
 	}
 
@@ -77,7 +77,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 		int size = buf.readInt();
 		boxes = new ArrayList<>();
 		for (int i = 0; i < size; i++) {
-			boxes.add(LittleTileBox.fromBytes(buf));
+			boxes.add(readLittleBox(buf));
 		}
 	}
 	
