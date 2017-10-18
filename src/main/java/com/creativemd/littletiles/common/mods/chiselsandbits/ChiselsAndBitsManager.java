@@ -1,7 +1,10 @@
 package com.creativemd.littletiles.common.mods.chiselsandbits;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
 import net.minecraft.item.Item;
@@ -23,7 +26,7 @@ public class ChiselsAndBitsManager {
 	/**Keeping the grid size of Chisels & Bits variable, maybe it does change sometime**/
 	public static int convertingFrom = 16;
 	
-	public static ArrayList<LittleTilePreview> getPreviews(ItemStack stack)
+	public static List<LittleTilePreview> getPreviews(ItemStack stack)
 	{
 		if(isInstalled())
 			return ChiselsAndBitsInteractor.getPreviews(stack);
@@ -37,10 +40,17 @@ public class ChiselsAndBitsManager {
 		return false;
 	}
 	
-	public static ArrayList<LittleTilePreview> getPreviews(TileEntity te)
+	public static List<LittleTilePreview> getPreviews(TileEntity te)
 	{
 		if(isInstalled())
 			return ChiselsAndBitsInteractor.getPreviews(te);
+		return null;
+	}
+	
+	public static List<LittleTile> getTiles(TileEntity te)
+	{
+		if(isInstalled())
+			return ChiselsAndBitsInteractor.getTiles(te);
 		return null;
 	}
 }

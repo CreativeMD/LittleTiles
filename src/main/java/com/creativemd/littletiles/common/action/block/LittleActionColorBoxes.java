@@ -194,20 +194,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes) throws LittleActionException {
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(SubContainerHammer.isBlockValid(state.getBlock()))
-		{
-			world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
-			tileEntity = world.getTileEntity(pos);
-			
-			
-			LittleTileBox box = new LittleTileBox(0,0,0,LittleTile.maxPos,LittleTile.maxPos,LittleTile.maxPos);
-			
-			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-			tile.te = (TileEntityLittleTiles) tileEntity;
-			tile.box = box;
-			tile.place();
-		}
+		TileEntity tileEntity = loadTe(world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{			

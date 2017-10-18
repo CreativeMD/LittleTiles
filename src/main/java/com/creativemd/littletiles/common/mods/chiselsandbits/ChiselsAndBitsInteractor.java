@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.mods.chiselsandbits;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -36,9 +37,9 @@ public class ChiselsAndBitsInteractor {
 		return false;
 	}
 	
-	public static ArrayList<LittleTilePreview> getPreviews(VoxelBlob blob)
+	public static List<LittleTile> getTiles(VoxelBlob blob)
 	{
-		ArrayList<LittleTile> tiles = new ArrayList<>();
+		List<LittleTile> tiles = new ArrayList<>();
 		for (int x = 0; x < ChiselsAndBitsManager.convertingFrom; x++) {
 			for (int y = 0; y < ChiselsAndBitsManager.convertingFrom; y++) {
 				for (int z = 0; z < ChiselsAndBitsManager.convertingFrom; z++) {
@@ -53,7 +54,13 @@ public class ChiselsAndBitsInteractor {
 			}
 		}
 		TileEntityLittleTiles.combineTilesList(tiles);
-		ArrayList<LittleTilePreview> previews = new ArrayList<>();
+		return tiles;
+	}
+	
+	public static List<LittleTilePreview> getPreviews(VoxelBlob blob)
+	{
+		List<LittleTile> tiles = getTiles(blob);
+		List<LittleTilePreview> previews = new ArrayList<>();
 		for (int i = 0; i < tiles.size(); i++) {
 			previews.add(tiles.get(i).getPreviewTile());
 		}
@@ -61,17 +68,24 @@ public class ChiselsAndBitsInteractor {
 	}
 	
 	
-	public static ArrayList<LittleTilePreview> getPreviews(ItemStack stack)
+	public static List<LittleTilePreview> getPreviews(ItemStack stack)
 	{
 		if(isChiselsAndBitsStructure(stack))
 			return getPreviews(ModUtil.getBlobFromStack(stack, null));
 		return null;
 	}
 	
-	public static ArrayList<LittleTilePreview> getPreviews(TileEntity te)
+	public static List<LittleTilePreview> getPreviews(TileEntity te)
 	{
 		if(te instanceof TileEntityBlockChiseled)
 			return getPreviews(((TileEntityBlockChiseled) te).getBlob());
+		return null;
+	}
+	
+	public static List<LittleTile> getTiles(TileEntity te)
+	{
+		if(te instanceof TileEntityBlockChiseled)
+			return getTiles(((TileEntityBlockChiseled) te).getBlob());
 		return null;
 	}
 	

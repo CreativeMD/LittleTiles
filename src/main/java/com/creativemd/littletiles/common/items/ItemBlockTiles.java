@@ -51,7 +51,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		String result = super.getItemStackDisplayName(stack);
 		if(stack.hasTagCompound())
 		{
-			LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
+			LittleTileSize size = stack.getTagCompound().hasKey("size") ? new LittleTileSize("size", stack.getTagCompound()) : LittleTileBox.loadBox("bBox", stack.getTagCompound()).getSize();
 			result += " (x=" + size.sizeX + ",y=" + size.sizeY + "z=" + size.sizeZ + ")";
 		}
 		return result;
