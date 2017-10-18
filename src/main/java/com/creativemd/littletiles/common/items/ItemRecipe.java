@@ -121,7 +121,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 									previews.add(preview);
 								}
 							}
-							ArrayList<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
+							List<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
 							if(specialPreviews != null)
 							{
 								for (int i = 0; i < specialPreviews.size(); i++) {

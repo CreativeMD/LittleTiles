@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
@@ -16,8 +17,10 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngred
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -26,6 +29,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -35,6 +39,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -180,6 +185,45 @@ public abstract class LittleAction extends CreativeCorePacket {
 		} catch (LittleActionException e) {
 			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 		}
+	}
+	
+	public static TileEntityLittleTiles loadTe(World world, BlockPos pos, boolean shouldConvert)
+	{
+		TileEntity tileEntity = world.getTileEntity(pos);
+		
+		if(!(tileEntity instanceof TileEntityLittleTiles))
+		{
+			List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(tileEntity);
+			if(tileEntity == null && tiles == null)
+			{
+				IBlockState state = world.getBlockState(pos);
+				if(SubContainerHammer.isBlockValid(state.getBlock()))
+				{
+					tiles = new ArrayList<>();
+					
+					LittleTileBox box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.maxPos, LittleTile.maxPos, LittleTile.maxPos);
+					
+					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+					tile.box = box;
+					tiles.add(tile);
+				}
+			}
+			
+			if(tiles != null && tiles.size() > 0)
+			{
+				world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+				tileEntity = world.getTileEntity(pos);
+				
+				for (LittleTile tile : tiles) {
+					tile.te = (TileEntityLittleTiles) tileEntity;
+					tile.place();
+				}
+			}
+		}
+		
+		if(tileEntity instanceof TileEntityLittleTiles)
+			return (TileEntityLittleTiles) tileEntity;
+		return null;
 	}
 	
 	private static Method loadWorldEditEvent()

@@ -117,7 +117,7 @@ public class SubContainerWrench extends SubContainer{
 					}
 				}
 			}else if(ChiselsAndBitsManager.isChiselsAndBitsStructure(stack1)){
-				ArrayList<LittleTilePreview> previews = ChiselsAndBitsManager.getPreviews(stack1);
+				List<LittleTilePreview> previews = ChiselsAndBitsManager.getPreviews(stack1);
 				if(previews != null && !previews.isEmpty() && stack2.isEmpty())
 				{
 					stack2 = new ItemStack(LittleTiles.multiTiles);
