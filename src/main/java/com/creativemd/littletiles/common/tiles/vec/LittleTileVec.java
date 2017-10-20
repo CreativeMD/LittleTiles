@@ -59,8 +59,8 @@ public class LittleTileVec {
 	public LittleTileVec(Vec3d vec, EnumFacing facing)
 	{
 		this(vec);
-		if(facing.getAxisDirection() == AxisDirection.POSITIVE && LittleUtils.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
-			setAxis(facing.getAxis(), getAxis(facing.getAxis()) - 1);
+		if(facing.getAxisDirection() == AxisDirection.POSITIVE && !LittleUtils.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
+			setAxis(facing.getAxis(), getAxis(facing.getAxis()) + 1);
 	}
 	
 	public LittleTileVec(Vec3d vec)

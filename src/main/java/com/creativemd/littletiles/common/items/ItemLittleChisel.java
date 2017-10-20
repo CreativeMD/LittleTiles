@@ -300,7 +300,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		lastMax = new LittleTileVec(result);
-		lastMax.add(result.sideHit);
+		//lastMax.add(result.sideHit);
 		//lastMax = position.getAbsoluteVec();
 		//if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
 			//lastMax.addVec(new LittleTileVec(position.facing));
@@ -331,7 +331,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		LittleTileVec absoluteHit = new LittleTileVec(result);
 		if(ItemLittleChisel.min == null)
 		{
-			absoluteHit.add(result.sideHit);
+			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
+				absoluteHit.add(result.sideHit);
 			//absoluteHit.add(result.sideHit);
 			//if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
 				//absoluteHit.addVec(new LittleTileVec(result.sideHit));

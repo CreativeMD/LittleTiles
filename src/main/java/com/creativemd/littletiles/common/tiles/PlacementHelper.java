@@ -537,13 +537,13 @@ public class PlacementHelper {
 		}*/
 		
 		LittleTileVec vec = new LittleTileVec(result);
-		if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-			vec.add(result.sideHit);
+		/*if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			vec.add(result.sideHit);*/
 		vec.sub(result.getBlockPos());
 		
 		if(!isInsideOfBlock)
 		{
-			vec.setAxis(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : LittleTile.gridSize-1);
+			vec.setAxis(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : LittleTile.gridSize);
 			/*switch(result.sideHit)
 			{
 			case EAST:
