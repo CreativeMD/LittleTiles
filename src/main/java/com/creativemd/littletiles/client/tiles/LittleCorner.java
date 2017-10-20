@@ -9,6 +9,8 @@ import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public enum LittleCorner {
 	
@@ -21,14 +23,14 @@ public enum LittleCorner {
 	WDN(EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.NORTH),
 	WDS(EnumFacing.WEST, EnumFacing.DOWN, EnumFacing.SOUTH);
 	
-	public final VertexInformation info;
+	//public final VertexInformation info;
 	
 	public final EnumFacing x;
 	public final EnumFacing y;
 	public final EnumFacing z;
 	
 	private LittleCorner(EnumFacing x, EnumFacing y, EnumFacing z) {
-		this.info = getInfoFromFacings(x, y, z);
+		//this.info = getInfoFromFacings(x, y, z);
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -107,6 +109,7 @@ public enum LittleCorner {
 		return null;
 	}
 	
+	/*@SideOnly(Side.CLIENT)
 	public static VertexInformation getInfoFromFacings(EnumFacing x, EnumFacing y, EnumFacing z)
 	{
 		for (EnumFaceDirection direction : EnumFaceDirection.values()) {
@@ -117,6 +120,6 @@ public enum LittleCorner {
 			}
 		}
 		return null;
-	}
+	}*/
 	
 }

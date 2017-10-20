@@ -16,11 +16,11 @@ public class LittleDynamicCube {
 	{
 		this.defaultCube = defaultCube;
 		for (LittleCorner corner : LittleCorner.values()) {
-			if(slice.isCornerAffected(corner.info))
+			if(slice.isCornerAffected(corner))
 			{
-				Vector3f vec = new Vector3f(defaultCube.getVertexInformationPosition(corner.info.xIndex), defaultCube.getVertexInformationPosition(corner.info.yIndex), defaultCube.getVertexInformationPosition(corner.info.zIndex));
-				slice.sliceVector(corner.info, vec, defaultCube, size);
-				set(corner.info, vec);
+				Vector3f vec = new Vector3f(defaultCube.getValueOfFacing(corner.x), defaultCube.getValueOfFacing(corner.y), defaultCube.getValueOfFacing(corner.z));
+				slice.sliceVector(corner, vec, defaultCube, size);
+				set(corner, vec);
 			}
 		}
 	}
@@ -73,28 +73,28 @@ public class LittleDynamicCube {
 		return output;
 	}
 	
-	public void set(VertexInformation info, Vector3f vec)
+	public void set(LittleCorner corner, Vector3f vec)
 	{
-		if(info.xIndex == EnumFaceDirection.Constants.EAST_INDEX)
+		if(corner.x == EnumFacing.EAST)
 		{
-			if(info.yIndex == EnumFaceDirection.Constants.UP_INDEX)
-				if(info.zIndex == EnumFaceDirection.Constants.NORTH_INDEX)
+			if(corner.y == EnumFacing.UP)
+				if(corner.z == EnumFacing.NORTH)
 					EUN = vec;
 				else
 					EUS = vec;
 			else
-				if(info.zIndex == EnumFaceDirection.Constants.NORTH_INDEX)
+				if(corner.z == EnumFacing.NORTH)
 					EDN = vec;
 				else
 					EDS = vec;
 		}else{
-			if(info.yIndex == EnumFaceDirection.Constants.UP_INDEX)
-				if(info.zIndex == EnumFaceDirection.Constants.NORTH_INDEX)
+			if(corner.y == EnumFacing.UP)
+				if(corner.z == EnumFacing.NORTH)
 					WUN = vec;
 				else
 					WUS = vec;
 			else
-				if(info.zIndex == EnumFaceDirection.Constants.NORTH_INDEX)
+				if(corner.z == EnumFacing.NORTH)
 					WDN = vec;
 				else
 					WDS = vec;

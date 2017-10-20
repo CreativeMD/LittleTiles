@@ -189,15 +189,15 @@ public enum LittleSlice {
 		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideSecond.getOpposite());
 	}
 	
-	public boolean isCornerAffected(VertexInformation info)
+	public boolean isCornerAffected(LittleCorner corner)
 	{
-		return (info.xIndex == emptySideOne.ordinal() || info.yIndex == emptySideOne.ordinal() || info.zIndex == emptySideOne.ordinal()) &&
-				(info.xIndex == emptySideSecond.ordinal() || info.yIndex == emptySideSecond.ordinal() || info.zIndex == emptySideSecond.ordinal());
+		return (corner.x == emptySideOne || corner.y == emptySideOne || corner.z == emptySideOne) &&
+				(corner.x == emptySideSecond || corner.y == emptySideSecond || corner.z == emptySideSecond);
 	}
 	
-	public void sliceVector(VertexInformation info, Vector3f vec, CubeObject cube, LittleTileSize size)
+	public void sliceVector(LittleCorner corner, Vector3f vec, CubeObject cube, LittleTileSize size)
 	{
-		if(isCornerAffected(info))
+		if(isCornerAffected(corner))
 		{
 			EnumFacing side = getPreferedSide(size);
 			switch(side.getAxis())
