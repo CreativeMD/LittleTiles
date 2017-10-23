@@ -602,10 +602,11 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
-			float sizeOne = getSliceSize(one);
-			float sizeTwo = getSliceSize(two);
+			double sizeOne = Math.ceil(getSliceSize(one));
+			double sizeTwo = Math.ceil(getSliceSize(two));
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+
+			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
 		}
 		return false;
 	}
