@@ -84,10 +84,9 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
 		ArrayList<LittleTilePreview> previews = new ArrayList<>();
 		NBTTagCompound nbt = new NBTTagCompound();
-		new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle()).saveTile(nbt);
-		nbt.removeTag("bSize");
-		LittleTilePreview preview = new LittleTilePreview(new LittleTileBox(0, 0, 0, 1, 1, 1), nbt);
-		previews.add(preview);
+		LittleTileParticle particle = new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle());
+		particle.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+		previews.add(particle.getPreviewTile());
 		return previews;
 	}
 
