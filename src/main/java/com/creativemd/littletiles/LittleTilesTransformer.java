@@ -214,6 +214,21 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(label, new InsnNode(Opcodes.IRETURN));
 			}
 		});
+		addTransformer(new Transformer("net.minecraftforge.common.ForgeHooks") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "isLivingOnLadder", "(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityLivingBase;)Z");
+				
+				m.instructions.clear();
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 3));
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleLadder", "isLivingOnLadder", patchDESC("(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityLivingBase;)Z"), false));
+				m.instructions.add(new InsnNode(Opcodes.IRETURN));
+			}
+		});
 	}
 
 }
