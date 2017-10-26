@@ -60,7 +60,7 @@ public class LittleStorage extends LittleStructure  {
 		if(nbt.hasKey("inventory"))
 			inventory = InventoryUtils.loadInventoryBasic(nbt.getCompoundTag("inventory"));
 		
-		invisibleStorageTiles = nbt.getBoolean("invisible");
+		invisibleStorageTiles = nbt.getBoolean("invisibleStorage");
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class LittleStorage extends LittleStructure  {
 			nbt.setInteger("lastSlot", lastSlotStackSize);
 			nbt.setTag("inventory", InventoryUtils.saveInventoryBasic(inventory));
 		}
-		nbt.setBoolean("invisible", invisibleStorageTiles);
+		nbt.setBoolean("invisibleStorage", invisibleStorageTiles);
 	}
 	
 	@Override
