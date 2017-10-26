@@ -96,7 +96,7 @@ public abstract class SelectShape {
 			offset.scale((int) (thickness-1)/2);
 			vec.sub(offset);
 			if(((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE) || side.getAxisDirection() == AxisDirection.POSITIVE)
-				vec.sub(new LittleTileVec(side));
+				vec.sub(side);
 			
 			LittleTileBox box = new LittleTileBox(vec, new LittleTileSize(thickness, thickness, thickness));
 			//box.makeItFitInsideBlock();
@@ -289,13 +289,16 @@ public abstract class SelectShape {
 
 		@Override
 		public List<LittleTileBox> getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
+			LittleTileVec vec = new LittleTileVec(result);
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+				vec.sub(result.sideHit);
 			if(first == null)
 			{
 				ArrayList<LittleTileBox> boxes = new ArrayList<>();
-				boxes.add(new LittleTileBox(new LittleTileVec(result)));
+				boxes.add(new LittleTileBox(vec));
 				return boxes;
 			}
-			return getBoxes(player, nbt, first, new LittleTileVec(result), true);
+			return getBoxes(player, nbt, first, vec, true);
 		}
 
 		@Override
@@ -308,6 +311,8 @@ public abstract class SelectShape {
 			if(first != null)
 				return true;
 			first = new LittleTileVec(result);
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+				first.sub(result.sideHit);
 			return false;
 		}
 
