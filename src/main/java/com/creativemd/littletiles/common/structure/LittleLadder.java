@@ -72,7 +72,7 @@ public class LittleLadder extends LittleStructure {
                     }
                 }
             }
-            bb = entity.getEntityBoundingBox().grow(0.0001);
+            bb = entity.getEntityBoundingBox().expandXyz(0.0001);
             mX = MathHelper.floor(bb.minX);
             mY = MathHelper.floor(bb.minY);
             mZ = MathHelper.floor(bb.minZ);

@@ -261,7 +261,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
-			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
+			AxisAlignedBB bb = entity.getEntityBoundingBox().expandXyz(0.001);
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
     			if(tile.isLadder())
@@ -793,7 +793,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			LittleTile tile = (LittleTile) iterator.next();
     			if(tile.shouldCheckForCollision())
     			{
-    				if(tile.box.getBox().offset(pos).intersects(entityIn.getEntityBoundingBox()))
+    				if(tile.box.getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
 						tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
     			}
     		}
