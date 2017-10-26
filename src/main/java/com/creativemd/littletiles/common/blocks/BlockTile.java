@@ -249,39 +249,24 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity)
     {
-		AxisAlignedBB bb = entity.getEntityBoundingBox();
-        int mX = MathHelper.floor(bb.minX);
-        int mY = MathHelper.floor(bb.minY);
-        int mZ = MathHelper.floor(bb.minZ);
-        for (int y2 = mY; y2 < bb.maxY; y2++)
-        {
-            for (int x2 = mX; x2 < bb.maxX; x2++)
-            {
-                for (int z2 = mZ; z2 < bb.maxZ; z2++)
-                {
-                	TileEntity te = world.getTileEntity(new BlockPos(x2, y2, z2));
-                	if(te instanceof TileEntityLittleTiles)
-                	{
-                		TileEntityLittleTiles littleTE = (TileEntityLittleTiles) te;
-                		for (Iterator iterator = littleTE.getTiles().iterator(); iterator.hasNext();) {
-        					LittleTile tile = (LittleTile) iterator.next();
-                			if(tile.isLadder())
-                			{
-                				List<LittleTileBox> collision = tile.getCollisionBoxes();
-	                			for (int j = 0; j < collision.size(); j++) {
-	                				LittleTileBox box = collision.get(j).copy();
-	                				box.addOffset(new LittleTileVec(x2*LittleTile.gridSize, y2*LittleTile.gridSize, z2*LittleTile.gridSize));
-	                				double expand = 0.0001;
-	                				if(bb.intersects(box.getBox().grow(expand)))
-	                					return true;
-								}
-                			}
-							
-						}
-                	}
-                }
-            }
-        }
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
+			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+    			if(tile.isLadder())
+    			{
+    				List<LittleTileBox> collision = tile.getCollisionBoxes();
+        			for (int j = 0; j < collision.size(); j++) {
+        				LittleTileBox box = collision.get(j).copy();
+        				if(bb.intersects(box.getBox(te.getPos())))
+        					return true;
+					}
+    			}
+				
+			}
+		}
         return false;
     }
 	
