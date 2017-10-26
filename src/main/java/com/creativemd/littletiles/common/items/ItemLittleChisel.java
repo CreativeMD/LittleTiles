@@ -43,6 +43,7 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -190,10 +191,18 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			GlStateManager.pushMatrix();
 	        GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 	        
+	        
 			try {
-				Color color = ColorUtils.IntToRGBA(getColor(stack));
-				color.setAlpha(255);
-				ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+				if (model.isBuiltInRenderer())
+	            {
+	                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+	                GlStateManager.enableRescaleNormal();
+	                TileEntityItemStackRenderer.instance.renderByItem(stack);
+	            }else{
+					Color color = ColorUtils.IntToRGBA(getColor(stack));
+					color.setAlpha(255);
+					ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
@@ -217,6 +226,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	
 	private static LittleTileVec cachedPos;
 	private static List<LittleTileBox> cachedShape;
+	private static NBTTagCompound cachedSettings;
 	
 	@SideOnly(Side.CLIENT)
 	private static EntityPlayer getPlayer()
@@ -243,7 +253,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		if(min != null)
 		{
 			List<LittleTileBox> boxes = null;
-			if(cachedPos == null || !cachedPos.equals(lastMax))
+			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()))
 			{
 				
 				DragShape shape = getShape(stack);
@@ -251,6 +261,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = new ArrayList<>(boxes);
+				cachedSettings = stack.getTagCompound().copy();
 			}else
 				boxes = cachedShape;
 			
@@ -274,10 +285,16 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {}
 	
 	@Override
-	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {}
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation)
+	{
+		getShape(stack).rotate(stack.getTagCompound(), rotation);
+	}
 	
 	@Override
-	public void flipLittlePreview(ItemStack stack, Axis axis) {}
+	public void flipLittlePreview(ItemStack stack, Axis axis)
+	{
+		getShape(stack).flip(stack.getTagCompound(), axis);
+	}
 	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack)
@@ -297,10 +314,8 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		lastMax = new LittleTileVec(result);
-		//lastMax.add(result.sideHit);
-		//lastMax = position.getAbsoluteVec();
-		//if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			//lastMax.addVec(new LittleTileVec(position.facing));
+		if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
+			lastMax.add(result.sideHit);
 	}
 	
 	@Override
@@ -330,9 +345,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		{
 			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
 				absoluteHit.add(result.sideHit);
-			//absoluteHit.add(result.sideHit);
-			//if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
-				//absoluteHit.addVec(new LittleTileVec(result.sideHit));
+			
 			ItemLittleChisel.min = absoluteHit;
 		}else if(player.isSneaking())
 			ItemLittleChisel.min = null;

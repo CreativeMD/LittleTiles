@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.items.geo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -16,6 +17,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -80,6 +82,16 @@ public class DragShapeBox extends DragShape {
 			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
 			nbt.setInteger("thickness", (int) slider.value);
 		}
+	}
+
+	@Override
+	public void rotate(NBTTagCompound nbt, Rotation rotation) {
+		
+	}
+
+	@Override
+	public void flip(NBTTagCompound nbt, Axis axis) {
+		
 	}
 	
 	

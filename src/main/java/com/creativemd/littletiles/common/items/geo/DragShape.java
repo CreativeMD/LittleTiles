@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -13,6 +14,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -24,6 +26,8 @@ public abstract class DragShape {
 	public static DragShape sphere = new DragShapeSphere();
 	public static DragShape cylinder = new DragShapeCylinder();
 	public static DragShape wall = new DragShapeWall();
+	
+	public static DragShape slice = new DragShapeSliced();
 	
 	public static DragShape defaultShape = box;
 	
@@ -50,5 +54,9 @@ public abstract class DragShape {
 	
 	@SideOnly(Side.CLIENT)
 	public abstract void saveCustomSettings(GuiParent gui, NBTTagCompound nbt);
+	
+	public abstract void rotate(NBTTagCompound nbt, Rotation rotation);
+	
+	public abstract void flip(NBTTagCompound nbt, Axis axis);
 	
 }
