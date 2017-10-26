@@ -53,6 +53,8 @@ public class LittleActionActivated extends LittleActionInteract{
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		super.action(player);
+		if(!player.world.isRemote)
+			BlockTile.cancelNext = true;
 		return true;
 	}
 
