@@ -720,7 +720,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 			else
 			{
-				if(isIdentical && tile.isLoaded())
+				if(tile != null && tile.isLoaded())
 					tile.structure.removeTile(tile);
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
 				if(tile != null)
@@ -738,7 +738,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		        	removeLittleTile(exstingTiles.get(i));
 				}
 		        for (int i = 0; i < tilesToAdd.size(); i++) {
-		        	
 					addLittleTile(tilesToAdd.get(i));
 					if(tilesToAdd.get(i).isStructureBlock)
 		        		tilesToAdd.get(i).checkForStructure();
