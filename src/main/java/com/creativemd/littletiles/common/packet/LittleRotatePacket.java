@@ -43,10 +43,9 @@ public class LittleRotatePacket extends CreativeCorePacket{
 	
 	public void execute(EntityPlayer player)
 	{
-		if(PlacementHelper.isLittleBlock(player.getHeldItem(EnumHand.MAIN_HAND)))
+		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
+		if(PlacementHelper.getLittleInterface(stack) != null)
 		{
-			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			
 			ILittleTile itile = null;
 			
 			if(stack.getItem() instanceof ILittleTile)

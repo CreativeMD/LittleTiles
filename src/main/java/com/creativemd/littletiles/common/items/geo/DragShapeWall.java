@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.items.geo;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -151,6 +152,26 @@ public class DragShapeWall extends DragShape {
 		
 		GuiStateButton state = (GuiStateButton) gui.get("direction");
 		nbt.setInteger("direction", state.getState());
+		
+	}
+
+	@Override
+	public void rotate(NBTTagCompound nbt, Rotation rotation) {
+		int direction = nbt.getInteger("direction");
+		if(rotation.axis != Axis.Y)
+			direction = 0;
+		else{
+			if(direction == 1)
+				direction = 2;
+			else
+				direction = 1;
+		}
+		
+		nbt.setInteger("direction", direction);
+	}
+
+	@Override
+	public void flip(NBTTagCompound nbt, Axis axis) {
 		
 	}
 

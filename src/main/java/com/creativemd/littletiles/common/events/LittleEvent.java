@@ -88,7 +88,7 @@ public class LittleEvent {
 			{
 				ItemStack stack = event.getItemStack();
 				RayTraceResult ray = new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos());
-				if(lastSelectedItem != null && lastSelectedItem != stack)
+				if(lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem())
 				{
 					if(blockSelector != null)
 					{
@@ -314,7 +314,7 @@ public class LittleEvent {
 			{
 				ItemStack stack = mc.player.getHeldItemMainhand();
 				
-				if(lastSelectedItem != null && lastSelectedItem != stack)
+				if(lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem())
 				{
 					if(blockSelector != null)
 					{
