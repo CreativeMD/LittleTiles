@@ -146,7 +146,7 @@ public abstract class LittleStructure {
 	}
 	
 	public void setMainTile(LittleTile tile)
-	{
+	{		
 		this.mainTile = tile;
 		
 		this.mainTile.isMainBlock = true;
@@ -268,7 +268,8 @@ public abstract class LittleStructure {
 	
 	public void removeTile(LittleTile tile)
 	{
-		tiles.removeValue(tile.te, tile);
+		if(tiles != null)
+			tiles.removeValue(tile.te, tile);
 	}
 	
 	public void addTile(LittleTile tile)
@@ -290,7 +291,7 @@ public abstract class LittleStructure {
 	public boolean hasLoaded()
 	{
 		loadTiles();
-		return tilesToLoad == null || tilesToLoad.size() == 0;
+		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0);
 	}
 	
 	public boolean loadTiles()
@@ -315,6 +316,8 @@ public abstract class LittleStructure {
 					iterator.remove();
 			}
 			
+			if(!tiles.contains(mainTile))
+				addTile(mainTile);
 			/*int i = 0;
 			while (i < tilesToLoad.size()) {
 				if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
@@ -475,9 +478,9 @@ public abstract class LittleStructure {
 	public boolean doesLinkToMainTile(LittleTile tile)
 	{
 		try{
-			return tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.isCornerAt(tile.coord.position);
+			return tile == getMainTile() || (!tile.isMainBlock && tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.isCornerAt(tile.coord.position));
 		}catch(Exception e){
-			
+			//e.printStackTrace();
 		}
 		return false;
 	}

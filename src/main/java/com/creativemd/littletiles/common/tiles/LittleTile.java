@@ -394,7 +394,7 @@ public abstract class LittleTile {
 	
 	public boolean isIdenticalToNBT(NBTTagCompound nbt)
 	{
-		return getID().equals(nbt.getString("tID")) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible");
+		return getID().equals(nbt.getString("tID")) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible") && box.getArray().equals(nbt.getIntArray("box"));
 	}
 	
 	//================Save & Loading================
@@ -415,7 +415,12 @@ public abstract class LittleTile {
 	
 	public boolean canBeNBTGrouped(LittleTile tile)
 	{
-		return tile.canBeCombined(this) && this.canBeCombined(tile) && !tile.isMainBlock && !this.isMainBlock;
+		if(tile.canBeCombined(this) && this.canBeCombined(tile) && !tile.isMainBlock && !this.isMainBlock)
+		{
+			if(coord != null && tile.coord != null)
+				return coord.position.equals(tile.coord.position);
+		}
+		return false;
 	}
 	
 	public void groupNBTTile(NBTTagCompound nbt, LittleTile tile)
@@ -823,6 +828,8 @@ public abstract class LittleTile {
 							this.structure = tile.structure;
 							if(this.structure != null && this.structure.LoadList() && !this.structure.containsTile(this))
 								this.structure.addTile(this);
+							else if(!this.structure.LoadList())
+								System.out.println("Something went wrong");
 						}
 					}
 				}
@@ -832,8 +839,6 @@ public abstract class LittleTile {
 					te.removeTile(this);
 					te.updateBlock();
 				}
-				
-				//pos = null;
 				
 				loadingStructure = false;
 				

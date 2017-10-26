@@ -68,7 +68,8 @@ public class LittleActionDestroy extends LittleActionInteract {
 				
 				tile.destroy();
 				
-				tile.structure.removeWorldProperties();
+				//if(!world.isRemote)
+					//tile.structure.removeWorldProperties();
 			}else			
 				throw new LittleActionException.StructureNotLoadedException();
 		}else{

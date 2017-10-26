@@ -122,7 +122,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 						
 						tile.destroy();
 						
-						tile.structure.removeWorldProperties();
+						//tile.structure.removeWorldProperties();
 					}
 				}
 				
