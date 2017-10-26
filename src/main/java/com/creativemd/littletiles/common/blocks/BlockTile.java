@@ -808,11 +808,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			LittleTile tile = (LittleTile) iterator.next();
     			if(tile.shouldCheckForCollision())
     			{
-    				List<LittleTileBox> collision = tile.getCollisionBoxes();
-    				for (int i = 0; i < collision.size(); i++) {
-						if(collision.get(i).getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
-							tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
-					}
+    				if(tile.box.getBox().offset(pos).intersects(entityIn.getEntityBoundingBox()))
+						tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
     			}
     		}
     	}
