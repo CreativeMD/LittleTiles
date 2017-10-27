@@ -230,7 +230,7 @@ public class BasicCombiner {
 	{
 		for (LittleTile tile : tiles) {
 			boolean canBeCombined = tile.canBeSplitted() && tile.canBeSplitted() && tile.canBeCombined(toCombine) && toCombine.canBeCombined(tile);
-			if(this.structure != null && (toCombine.structure != structure || tile.structure != structure))
+			if(this.structure != null && (toCombine.structure != structure || tile.structure != structure || !structure.hasLoaded()))
 				canBeCombined = false;
 			else if(this.structure == null && tile.isStructureBlock)
 				canBeCombined = false;
@@ -245,6 +245,8 @@ public class BasicCombiner {
 						LittleTile cutTile = toCombine.copy();
 						cutTile.box = cutBox;
 						tiles.add(cutTile);
+						if(structure != null)
+							structure.addTile(cutTile);
 					}
 				}
 				removeBox(tile.box);
@@ -284,7 +286,11 @@ public class BasicCombiner {
 			modified = true;
 			boxes.remove(index);
 			if(tiles != null)
+			{
+				if(structure != null)
+					structure.removeTile(tiles.get(index));
 				tiles.remove(index);
+			}
 		}
 	}
 }
