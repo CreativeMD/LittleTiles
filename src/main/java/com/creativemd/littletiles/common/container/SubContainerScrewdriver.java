@@ -94,6 +94,8 @@ public class SubContainerScrewdriver extends SubContainer {
 									((LittleTileBlock) tile).setBlock(replacement);
 									if(metaReplacement != -1)
 										((LittleTileBlock) tile).setMeta(metaReplacement);
+									
+									((LittleTileBlock) tile).updateBlockState();
 								}
 								
 								if(colorize)
