@@ -434,7 +434,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		}
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSize());
-		Vec3d temp = linePlaneIntersection(getCorner(LittleCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideSecond.getOpposite())).getVec(), getSliceNormal(), vecA, vecB.subtract(vecA));
+		Vec3d temp = linePlaneIntersection(getCorner(slice.start).getVec(), getSliceNormal(), vecA, vecB.subtract(vecA));
 		if(temp != null && intersectsWithAxis(diagonal.getAxis(), temp) && isClosest(vecA, collision, temp))
 		{
 			collision = temp;
@@ -444,7 +444,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		if(collision == null)
 			return null;
 		
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided);
+        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
     }
 	
 	//================Rotation & Flip================
@@ -523,8 +523,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		
 		int minOne = RotationUtils.get(one, x, y, z);
 		int minTwo = RotationUtils.get(two, x, y, z);
-		int maxOne = RotationUtils.get(one, x+1, y+1, z+1);
-		int maxTwo = RotationUtils.get(two, x+1, y+1, z+1);
+		int maxOne = minOne+1;
+		int maxTwo = minTwo+1;
 		
 		double startOne = line.get(two, slice.start.isFacingPositive(two) ? maxTwo : minTwo);
 		double startTwo = line.get(one, slice.start.isFacingPositive(one) ? maxOne : minOne);
@@ -539,14 +539,14 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		if((startOneIntersection || startTwoIntersection) && (endOneIntersection || endTwoIntersection))
 		{
 			if(startOneIntersection)
-				startTwo = line.get(one, startOne);
+				startTwo = slice.start.isFacingPositive(two) ? maxTwo : minTwo; //line.get(one, startOne);
 			else
-				startOne = line.get(two, startTwo);
+				startOne = slice.start.isFacingPositive(one) ? maxOne : minOne; //line.get(two, startTwo);
 			
 			if(endOneIntersection)
-				endTwo = line.get(one, endOne);
+				endTwo = slice.end.isFacingPositive(two) ? maxTwo : minTwo; //line.get(one, endOne);
 			else
-				endOne = line.get(two, endTwo);
+				endOne = slice.end.isFacingPositive(one) ? maxOne : minOne; //line.get(two, endTwo);
 			
 			int minBoxOne = Math.min((int) Math.floor(LittleUtils.round(startOne)), (int) Math.floor(LittleUtils.round(endOne)));
 			int minBoxTwo = Math.min((int) Math.floor(LittleUtils.round(startTwo)), (int) Math.floor(LittleUtils.round(endTwo)));

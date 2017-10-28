@@ -720,17 +720,17 @@ public class LittleTileBox {
 	
     public boolean intersectsWithYZ(Vec3d vec)
     {
-        return vec.y >= (double) this.minY/LittleTile.gridSize && vec.y < (double) this.maxY/LittleTile.gridSize && vec.z >= (double) this.minZ/LittleTile.gridSize && vec.z < (double) this.maxZ/LittleTile.gridSize;
+        return vec.y >= LittleUtils.toVanillaGrid(this.minY) && vec.y < LittleUtils.toVanillaGrid(this.maxY) && vec.z >= LittleUtils.toVanillaGrid(this.minZ) && vec.z < LittleUtils.toVanillaGrid(this.maxZ);
     }
 
     public boolean intersectsWithXZ(Vec3d vec)
     {
-        return vec.x >= (double) this.minX/LittleTile.gridSize && vec.x < (double) this.maxX/LittleTile.gridSize && vec.z >= (double) this.minZ/LittleTile.gridSize && vec.z < (double) this.maxZ/LittleTile.gridSize;
+        return vec.x >= LittleUtils.toVanillaGrid(this.minX) && vec.x < LittleUtils.toVanillaGrid(this.maxX) && vec.z >= LittleUtils.toVanillaGrid(this.minZ) && vec.z < LittleUtils.toVanillaGrid(this.maxZ);
     }
 
     public boolean intersectsWithXY(Vec3d vec)
     {
-        return vec.x >= (double) this.minX/LittleTile.gridSize && vec.x < (double) this.maxX/LittleTile.gridSize && vec.y >= (double) this.minY/LittleTile.gridSize && vec.y < (double) this.maxY/LittleTile.gridSize;
+        return vec.x >= LittleUtils.toVanillaGrid(this.minX) && vec.x < LittleUtils.toVanillaGrid(this.maxX) && vec.y >= LittleUtils.toVanillaGrid(this.minY) && vec.y < LittleUtils.toVanillaGrid(this.maxY);
     }
 	
 	public LittleTileVec getCenter()
@@ -742,7 +742,7 @@ public class LittleTileBox {
     protected Vec3d collideWithPlane(Axis axis, double value, Vec3d vecA, Vec3d vecB)
     {
         Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA.getIntermediateWithXValue(vecB, value);
-        return vec3d != null && intersectsWithAxis(axis, vec3d)  ? vec3d : null;
+        return vec3d != null && intersectsWithAxis(axis, vec3d) ? vec3d : null;
     }
 	
 	@Nullable
@@ -766,7 +766,7 @@ public class LittleTileBox {
 		if(collision == null)
 			return null;
 		
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided);
+        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
     }
 	
 	//================Rotation & Flip================

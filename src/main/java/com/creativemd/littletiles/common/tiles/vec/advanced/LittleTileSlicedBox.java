@@ -253,8 +253,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				
 				Axis other = axis == one ? two : one;
 				boolean facePositive = facing.getAxisDirection() == AxisDirection.POSITIVE;
-				if(facePositive ? LittleUtils.equals(getMaxSlice(axis), getMax(axis)) : LittleUtils.equals(getMinSlice(axis), getMin(axis)) &&
-						!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
+				//if(facePositive ? LittleUtils.equals(getMaxSlice(axis), getMax(axis)) : LittleUtils.equals(getMinSlice(axis), getMin(axis)) &&
+						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
+				if(!facePositive ? LittleUtils.equals(getMaxSlice(axis), sliceBox.getMinSlice(axis)) : LittleUtils.equals(getMinSlice(axis), sliceBox.getMaxSlice(axis))) //&&
+						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
 				{
 					if(slice.start.isFacingPositive(axis) == facePositive){
 						if(!LittleUtils.equals((facePositive ? getStart(other) : getEnd(other)), (!facePositive ? sliceBox.getStart(other) : sliceBox.getEnd(other))))
@@ -645,7 +647,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				if(posOne <= getMinSlice(one) / LittleTile.gridSize)
 					return true;
         	}else{
-        		if(posOne >= getMaxSlice(one) / LittleTile.gridSize)
+        		if(posOne > getMaxSlice(one) / LittleTile.gridSize)
 					return true;
         	}
 			
@@ -654,7 +656,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				if(posTwo <= getMinSlice(two) / LittleTile.gridSize)
 					return true;
         	}else{
-        		if(posTwo >= getMaxSlice(two) / LittleTile.gridSize)
+        		if(posTwo > getMaxSlice(two) / LittleTile.gridSize)
 					return true;
         	}
 			
@@ -662,8 +664,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) / LittleTile.gridSize - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) / LittleTile.gridSize - posTwo);
-			float sizeOne = getSliceSize(one) / LittleTile.gridSize;
-			float sizeTwo = getSliceSize(two) / LittleTile.gridSize;
+			double sizeOne = getSliceSize(one) / (double) LittleTile.gridSize;
+			double sizeTwo = getSliceSize(two) / (double) LittleTile.gridSize;
 			
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
 			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
@@ -678,10 +680,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				if(slice.isFacingPositive(other))
 					return RotationUtils.get(other, vec) <= getMinSlice(other) / LittleTile.gridSize;
 				else
-					return RotationUtils.get(other, vec) >= getMaxSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) > getMaxSlice(other) / LittleTile.gridSize;
 			}else{
 				if(slice.isFacingPositive(other))
-					return RotationUtils.get(other, vec) <= getMaxSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) < getMaxSlice(other) / LittleTile.gridSize;
 				else
 					return RotationUtils.get(other, vec) >= getMinSlice(other) / LittleTile.gridSize;
 			}
@@ -718,10 +720,13 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		}
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSize());
-		Vec3d temp = linePlaneIntersection(getCorner(slice.start).getVec(), getSliceNormal(), vecA, vecB.subtract(vecA));
+		Vector3d sliceCorner = getSliceCorner(slice.start);
+		Vec3d temp = linePlaneIntersection(new Vec3d(sliceCorner.x / LittleTile.gridSize, sliceCorner.y / LittleTile.gridSize, sliceCorner.z / LittleTile.gridSize), getSliceNormal(), vecA, vecB.subtract(vecA));
 		if(temp != null)
 		{
-			boolean inside = true;
+			boolean inside = false; /*temp.x >= LittleUtils.toGrid(minX) && temp.x < LittleUtils.toGrid(maxX) &&
+					temp.y >= LittleUtils.toGrid(minY) && temp.y < LittleUtils.toGrid(maxY) &&
+					temp.z >= LittleUtils.toGrid(minZ) && temp.z < LittleUtils.toGrid(maxZ);*/
 			switch(diagonal.getAxis())
 			{
 			case X:
@@ -745,7 +750,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(collision == null)
 			return null;
 		
-        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided);
+        return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
     }
 	
 	//================Rotation & Flip================

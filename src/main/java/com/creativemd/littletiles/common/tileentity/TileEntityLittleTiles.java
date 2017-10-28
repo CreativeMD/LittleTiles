@@ -790,13 +790,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{	
 		LittleTile tileFocus = null;
 		RayTraceResult hit = null;
+		double distance = 0;
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			RayTraceResult Temphit = tile.rayTrace(pos, look);
 			if(Temphit != null)
 			{
-				if(hit == null || hit.hitVec.distanceTo(pos) > Temphit.hitVec.distanceTo(pos))
+				if(hit == null || distance > Temphit.hitVec.distanceTo(pos))
 				{
+					distance = Temphit.hitVec.distanceTo(pos);
 					hit = Temphit;
 					tileFocus = tile;
 				}
