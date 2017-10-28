@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -211,9 +212,14 @@ public abstract class LittleTile {
 		return box.doesFillEntireBlock();
 	}
 	
+	public void fillFace(LittleTileFace face)
+	{
+		this.box.fill(face);
+	}
+	
 	public void fillInSpace(boolean[][][] filled)
 	{
-		if(box.getClass() != LittleTileBox.class)
+		if(!box.isCompletelyFilled())
 			return ;
 		for (int x = box.minX; x < box.maxX; x++) {
 			for (int y = box.minY; y < box.maxY; y++) {
@@ -232,10 +238,24 @@ public abstract class LittleTile {
 		int maxY = Math.min(box.maxY, otherBox.maxY);
 		int minZ = Math.max(box.minZ, otherBox.minZ);
 		int maxZ = Math.min(box.maxZ, otherBox.maxZ);
-		for (int x = minX; x < maxX; x++) {
-			for (int y = minY; y < maxY; y++) {
-				for (int z = minZ; z < maxZ; z++) {
-					filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+		if(box.isCompletelyFilled())
+		{
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					for (int z = minZ; z < maxZ; z++) {
+						filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+					}
+				}
+			}
+		}else{
+			LittleTileVec vec = new LittleTileVec(0, 0, 0);
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					for (int z = minZ; z < maxZ; z++) {
+						vec.set(x, y, z);
+						if(box.isVecInsideBox(vec))
+							filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+					}
 				}
 			}
 		}

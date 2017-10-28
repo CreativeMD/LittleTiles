@@ -30,6 +30,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -82,23 +83,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			return te != null && tile != null;
 		}
 	}
-	
-	/*public static TileEntityLittleTiles tempEntity;
-	
-	public static boolean loadTileEntity(IBlockAccess world, BlockPos pos)
-	{
-		if(world == null)
-		{
-			tempEntity = null;
-			return false;
-		}
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof TileEntityLittleTiles)
-			tempEntity = (TileEntityLittleTiles) tileEntity;
-		else
-			tempEntity = null;
-		return tempEntity != null;
-	}*/
 	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos)
 	{
@@ -796,26 +780,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		return new TileEntityLittleTiles();
 	}
 	
-	/*public static TileEntity getTileEntityInWorld(IBlockAccess world, BlockPos pos)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) tileEntity).loadedTile instanceof LittleTileTileEntity)
-		{
-			return ((LittleTileTileEntity)((TileEntityLittleTiles) tileEntity).loadedTile).tileEntity;
-		}
-		return tileEntity;
-	}
-	
-	public static LittleTile getLittleTileInWorld(IBlockAccess world, BlockPos pos)
-	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof TileEntityLittleTiles)
-		{
-			return ((TileEntityLittleTiles) tileEntity).loadedTile;
-		}
-		return null;
-	}*/
-	
 	@SideOnly(Side.CLIENT)
 	private static TileEntityLittleTiles checkforTileEntity(World world, EnumFacing facing, BlockPos pos)
 	{
@@ -834,9 +798,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileBox box)
+	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileFace face)
 	{
-		if(box == null)
+		if(face == null)
 		{
 			cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
 			return ;
@@ -858,7 +822,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			}else
 				otherTile = neighborsTiles.get(facing);
 			if(otherTile != null)
-				shouldRender = otherTile.shouldSideBeRendered(facing.getOpposite(), box.createInsideBlockBox(facing), (LittleTile) cube.customData);
+			{
+				face.move(facing);
+				//face.face = facing.getOpposite();
+				shouldRender = otherTile.shouldSideBeRendered(facing.getOpposite(), face, (LittleTile) cube.customData);
+			}
 		}
 		cube.setSideRender(facing, shouldRender ? EnumSideRender.OUTSIDE_RENDERED : EnumSideRender.OUTSIDE_NOT_RENDERD);
 	}
@@ -900,10 +868,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 								EnumFacing facing = EnumFacing.VALUES[k];
 								if(cube.getSidedRendererType(facing).outside)
 								{
-									LittleTileBox box = cube.box.createNeighbourBox(facing);
+									LittleTileFace face = cube.box.getFace(facing);
 									
 									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
-									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+									//face.move(facing);
+									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(!shouldRenderBefore)
@@ -931,18 +900,19 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 						LittleRenderingCube cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
-							LittleTileBox box = cube.box.createNeighbourBox(facing);
+							LittleTileFace face = cube.box.getFace(facing);
 							
 							cube.customData = tile;
 							
-							if(box == null)
+							if(face == null)
 							{
 								cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
 							}else{
-								if(box.isBoxInsideBlock())
-									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, box, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
-								else{
-									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, box);
+								if(face.isFaceInsideBlock())
+								{
+									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
+								}else{
+									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
 								}
 							}
 						}

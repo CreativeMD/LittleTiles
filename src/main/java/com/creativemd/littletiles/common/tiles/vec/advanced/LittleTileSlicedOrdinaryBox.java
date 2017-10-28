@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
@@ -84,6 +85,12 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	//================Size & Volume================
 	
 	@Override
+	public boolean isCompletelyFilled()
+	{
+		return false;
+	}
+	
+	@Override
 	public double getVolume()
 	{
 		return super.getVolume() * 0.5;
@@ -140,13 +147,13 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		return super.createOutsideBlockBox(facing);
 	}
 	
-	@Override
+	/*@Override
 	public LittleTileSlicedOrdinaryBox createInsideBlockBox(EnumFacing facing)
 	{
 		Vec3i vec = facing.getDirectionVec();
 		return new LittleTileSlicedOrdinaryBox(minX - vec.getX() * LittleTile.gridSize, minY - vec.getY() * LittleTile.gridSize, minZ - vec.getZ() * LittleTile.gridSize,
 				maxX - vec.getX() * LittleTile.gridSize, maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() * LittleTile.gridSize, slice);
-	}
+	}*/
 	
 	//================Box to box================
 	
@@ -361,7 +368,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
 			
-			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			double diff = (double) difOne / sizeOne + (double) difTwo / sizeTwo;
 			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
 		}
 		return false;
@@ -709,7 +716,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		return boxes;
 	}
 	
-	@Override
+	/*@Override
 	public LittleTileBox createNeighbourBox(EnumFacing facing)
 	{
 		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
@@ -750,7 +757,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		}
 		
 		return super.createNeighbourBox(facing);
-	}
+	}*/
 	
 	//================Rendering================
 	
@@ -759,6 +766,18 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	public LittleRenderingCube getRenderingCube(CubeObject cube, Block block, int meta)
 	{
 		return new LittleSlicedOrdinaryRenderingCube(cube, this, block, meta);
+	}
+	
+	//================Faces================
+	
+	@Override
+	@Nullable
+	public LittleTileFace getFace(EnumFacing facing)
+	{
+		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
+			return null;
+		
+		return super.getFace(facing);
 	}
 	
 	//================Sliced================
