@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -31,6 +32,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -154,6 +156,11 @@ public class LittleTileBox {
 	}
 	
 	//================Size & Volume================
+	
+	public boolean isCompletelyFilled()
+	{
+		return true;
+	}
 	
 	public Vec3d getSizeVec()
 	{
@@ -408,12 +415,12 @@ public class LittleTileBox {
 		return box;
 	}
 	
-	public LittleTileBox createInsideBlockBox(EnumFacing facing)
+	/*public LittleTileBox createInsideBlockBox(EnumFacing facing)
 	{
 		Vec3i vec = facing.getDirectionVec();
 		return new LittleTileBox(minX - vec.getX() * LittleTile.gridSize, minY - vec.getY() * LittleTile.gridSize, minZ - vec.getZ() * LittleTile.gridSize,
 				maxX - vec.getX() * LittleTile.gridSize, maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() * LittleTile.gridSize);
-	}
+	}*/
 	
 	//================Box to box================
 	
@@ -961,7 +968,7 @@ public class LittleTileBox {
 		set(Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
 	}
 
-	public LittleTileBox createNeighbourBox(EnumFacing facing)
+	/*public LittleTileBox createNeighbourBox(EnumFacing facing)
 	{
 		LittleTileBox newBox = this.copy();
 		switch(facing)
@@ -992,7 +999,7 @@ public class LittleTileBox {
 			break;
 		}
 		return newBox;
-	}
+	}*/
 	
 	public void set(int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
 	{
@@ -1026,6 +1033,111 @@ public class LittleTileBox {
 	public LittleRenderingCube getRenderingCube(CubeObject cube, Block block, int meta)
 	{
 		return new LittleRenderingCube(cube, this, block, meta);
+	}
+	
+	//================Faces================
+	
+	@Nullable
+	public LittleTileFace getFace(EnumFacing facing)
+	{
+		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
+		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+		
+		return new LittleTileFace(facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+	}
+	
+	public boolean intersectsWith(LittleTileFace face)
+	{
+		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && 
+				face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) &&
+				face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+	}
+	
+	public void fill(LittleTileFace face)
+	{
+		if(intersectsWith(face))
+		{
+			int minOne = Math.max(getMin(face.one), face.minOne);
+			int maxOne = Math.min(getMax(face.one), face.maxOne);
+			int minTwo = Math.max(getMin(face.two), face.minTwo);
+			int maxTwo = Math.min(getMax(face.two), face.maxTwo);
+			if(isCompletelyFilled())
+			{
+				for (int one = minOne; one < maxOne; one++) {
+					for (int two = minTwo; two < maxTwo; two++) {
+						face.filled[one-face.minOne][two-face.minTwo] = true;
+					}
+				}
+			}else{
+				int min = getValueOfFacing(face.face.getOpposite());
+				if(face.face.getAxisDirection() == AxisDirection.NEGATIVE)
+					min--;
+				LittleTileVec vec = new LittleTileVec(min, min, min);
+				for (int one = minOne; one < maxOne; one++) {
+					for (int two = minTwo; two < maxTwo; two++) {
+						vec.setAxis(face.one, one);
+						vec.setAxis(face.two, two);
+						if(isVecInsideBox(vec))
+							face.filled[one-face.minOne][two-face.minTwo] = true;
+					}
+				}
+			}
+		}
+	}
+	
+	public class LittleTileFace {
+		
+		public Axis one;
+		public Axis two;
+		public EnumFacing face;
+		public int minOne;
+		public int minTwo;
+		public int maxOne;
+		public int maxTwo;
+		public int origin;
+		public int oldOrigin;
+		
+		public boolean[][] filled;
+		
+		public LittleTileFace(EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+			this.face = face;
+			this.one = RotationUtils.getDifferentAxisFirst(face.getAxis());
+			this.two = RotationUtils.getDifferentAxisSecond(face.getAxis());
+			this.minOne = minOne;
+			this.minTwo = minTwo;
+			this.maxOne = maxOne;
+			this.maxTwo = maxTwo;
+			this.origin = origin;
+			this.oldOrigin = origin;
+			filled = new boolean[maxOne-minOne][maxTwo-minTwo];
+		}
+		
+		public boolean isFilled()
+		{
+			int min = oldOrigin;
+			if(face.getAxisDirection() == AxisDirection.POSITIVE)
+				min--;
+			LittleTileVec vec = new LittleTileVec(min, min, min);
+			for (int one = 0; one < filled.length; one++) {
+				for (int two = 0; two < filled[one].length; two++) {
+					vec.setAxis(this.one, minOne + one);
+					vec.setAxis(this.two, minTwo + two);
+					if(!filled[one][two] && LittleTileBox.this.isVecInsideBox(vec))
+						return false;
+				}
+			}
+			return true;
+		}
+		
+		public boolean isFaceInsideBlock()
+		{
+			return origin > LittleTile.minPos && origin < LittleTile.maxPos;
+		}
+		
+		public void move(EnumFacing facing)
+		{
+			origin = face.getAxisDirection() == AxisDirection.POSITIVE ? LittleTile.minPos : LittleTile.maxPos;
+		}
 	}
 	
 	//================Static Helpers================

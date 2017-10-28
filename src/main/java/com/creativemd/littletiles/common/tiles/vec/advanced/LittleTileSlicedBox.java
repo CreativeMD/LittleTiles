@@ -205,13 +205,13 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return super.createOutsideBlockBox(facing);
 	}
 	
-	@Override
+	/*@Override
 	public LittleTileSlicedBox createInsideBlockBox(EnumFacing facing)
 	{
 		Vec3i vec = facing.getDirectionVec();
 		return new LittleTileSlicedBox(minX - vec.getX() * LittleTile.gridSize, minY - vec.getY() * LittleTile.gridSize, minZ - vec.getZ() * LittleTile.gridSize,
 				maxX - vec.getX() * LittleTile.gridSize, maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() * LittleTile.gridSize, slice, startOne, startTwo, endOne, endTwo);
-	}
+	}*/
 	
 	//================Box to box================
 	
@@ -897,7 +897,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return box;
 	}
 	
-	@Override
+	/*@Override
 	public LittleTileBox createNeighbourBox(EnumFacing facing)
 	{
 		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
@@ -938,7 +938,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		}
 		
 		return super.createNeighbourBox(facing);
-	}
+	}*/
 	
 	//================Rendering================
 	

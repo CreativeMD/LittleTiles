@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -552,18 +553,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	/**Used for rendering*/
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileBox box, LittleTile rendered)
+	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileFace face, LittleTile rendered)
 	{
-		for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-			for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-				for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-					LittleTile tile = getTileFromPosition(littleX, littleY, littleZ);
-					if((tile == null) || (!tile.doesProvideSolidFace(facing) && !tile.canBeRenderCombined(rendered)))
-						return true;
-				}
-			}
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			if(tile != rendered && (tile.doesProvideSolidFace(facing) || tile.canBeRenderCombined(rendered)))
+				tile.fillFace(face);
 		}
-		return false;
+		return !face.isFilled();
 	}
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box)
