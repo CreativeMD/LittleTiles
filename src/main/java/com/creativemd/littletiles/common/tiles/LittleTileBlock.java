@@ -18,14 +18,19 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
+import net.minecraft.world.GameType;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -170,7 +175,8 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
-		cubes.add(box.getRenderingCube(block, meta));
+		if(block != Blocks.BARRIER)
+			cubes.add(box.getRenderingCube(block, meta));
 		return cubes;
 	}
 	
@@ -215,6 +221,18 @@ public class LittleTileBlock extends LittleTile{
 			handler.randomDisplayTick(this, stateIn, worldIn, pos, rand);
 		else
 			block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
+		
+		if(block == Blocks.BARRIER)
+			spawnBarrierParticles(pos);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void spawnBarrierParticles(BlockPos pos)
+	{
+		Minecraft mc = Minecraft.getMinecraft();
+		ItemStack itemstack = mc.player.getHeldItemMainhand();
+		if(mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER))
+			mc.world.spawnParticle(EnumParticleTypes.BARRIER, (double)((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.5F), (double)((float)pos.getZ() + 0.5F), 0.0D, 0.0D, 0.0D, new int[0]);
 	}
 	
 	@Override
