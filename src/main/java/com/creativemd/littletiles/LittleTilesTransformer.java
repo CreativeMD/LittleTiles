@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -212,6 +213,30 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(label, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(label, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, axisClassName, patchMethodName("intersects", methodDesc), methodDesc, false));
 				m.instructions.insertBefore(label, new InsnNode(Opcodes.IRETURN));
+				
+				
+				String methodDESC2 = patchDESC("(Lnet/minecraft/util/math/AxisAlignedBB;D)D");
+				String methodName = patchMethodName("calculateYOffset", methodDESC2);
+				
+				m = new MethodNode(Opcodes.ACC_PUBLIC, "calculateYOffsetStepUp", patchDESC("(Lnet/minecraft/util/math/AxisAlignedBB;Lnet/minecraft/util/math/AxisAlignedBB;D)D"), null, null);
+				LabelNode l0 = new LabelNode();
+				m.instructions.add(l0);
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
+				m.instructions.add(new VarInsnNode(Opcodes.DLOAD, 3));
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKEVIRTUAL, axisClassName, methodName, methodDESC2, false));
+				m.instructions.add(new InsnNode(Opcodes.DRETURN));
+				LabelNode l1 = new LabelNode();
+				m.instructions.add(l1);
+				
+				m.localVariables.add(new LocalVariableNode("this", "L" + axisClassName + ";", null, l0, l1, 0));
+				m.localVariables.add(new LocalVariableNode("other", "L" + axisClassName + ";", null, l0, l1, 1));
+				m.localVariables.add(new LocalVariableNode("otherY", "L" + axisClassName + ";", null, l0, l1, 2));
+				m.localVariables.add(new LocalVariableNode("offset", "D", null, l0, l1, 3));
+				
+				m.visitMaxs(4, 5);
+				
+				node.methods.add(m);
 			}
 		});
 		addTransformer(new Transformer("net.minecraftforge.common.ForgeHooks") {
@@ -227,6 +252,27 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 3));
 				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleLadder", "isLivingOnLadder", patchDESC("(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityLivingBase;)Z"), false));
 				m.instructions.add(new InsnNode(Opcodes.IRETURN));
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.entity.Entity") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "move", "(Lnet/minecraft/entity/MoverType;DDD)V");
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					if(insn instanceof VarInsnNode && insn.getOpcode() == Opcodes.ALOAD && ((VarInsnNode) insn).var == 32)
+					{
+						MethodInsnNode methodInsn = (MethodInsnNode) insn.getNext().getNext();
+						methodInsn.name = "calculateYOffsetStepUp";
+						methodInsn.desc = patchDESC("(Lnet/minecraft/util/math/AxisAlignedBB;Lnet/minecraft/util/math/AxisAlignedBB;D)D");
+						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, 31));
+						
+						//((VarInsnNode) insn).var = 31;
+						return ;
+					}
+				}
 			}
 		});
 	}
