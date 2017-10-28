@@ -91,12 +91,15 @@ public class LittleTileBlock extends LittleTile{
 	public IBlockState getBlockState()
 	{
 		if(state == null)
-		{
-			state = block.getStateFromMeta(meta);
-			if(state == null)
-				state = block.getDefaultState();
-		}
+			updateBlockState();
 		return state;
+	}
+	
+	public void updateBlockState()
+	{
+		state = block.getStateFromMeta(meta);
+		if(state == null)
+			state = block.getDefaultState();
 	}
 	
 	public LittleTileBlock(Block block, int meta)
