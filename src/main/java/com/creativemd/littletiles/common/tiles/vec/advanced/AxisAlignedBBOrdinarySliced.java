@@ -183,11 +183,35 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     	return intersectsWithOrdinaryTwoAxis(other);
     }
     
+    public double calculateYOffsetStepUp(AxisAlignedBB other, AxisAlignedBB otherY, double offset)
+    {
+    	if(!slice.isFacingPositive(Axis.Y))
+    	{
+    		Axis axis = Axis.Y;
+    		LittleCorner filledCorner = slice.getFilledCorner();
+        	Vec3d otherVec = getCorner(otherY, filledCorner);
+        	Axis one = axis;
+        	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
+        	
+        	LittleTile2DLine line = getSliceLine();
+        	double newPos = line.get(two, RotationUtils.get(two, otherVec));
+        	newPos = MathHelper.clamp(newPos, getMin(axis), getMax(axis));
+        	
+        	double d0 = newPos - getMax(otherY, axis);
+        	if (d0 < offset)
+			{
+	        	if(getMax(otherY, axis) < newPos || LittleUtils.equals(getMax(otherY, axis), newPos))
+	        		return d0 / 2;
+			}
+    	}
+    	return calculateYOffset(other, offset);
+    }
+    
     public double calculateAxisOffset(AxisAlignedBB other, Axis axis, double offset)
     {
     	if (intersectsTwoSides(axis, other))
         {
-    		boolean isOrdinary = slice.axis == axis || (slice.isFacingPositive(axis) == (offset > 0));
+    		boolean isOrdinary = slice.axis == axis || (slice.isFacingPositive(axis) == (offset > 0)); //(slice.isFacingPositive(axis) != LittleUtils.smallerThanAndEquals(offset, 0));
     		if(isOrdinary)
     		{
 	            if (offset > 0.0D && getMax(other, axis) <= getMin(axis)) //&& getMax(other, axis) <= getMin(axis))
@@ -216,43 +240,11 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     		// For anyone who reads this, this was a story of a life time spend on the most complicated problem, while solved with brute force, it shows it elegance ingame. just enjoy ;) - n247s
     		LittleCorner filledCorner = slice.getFilledCorner();
         	Vec3d otherVec = getCorner(other, filledCorner);
-        	//Vec3d vec = getCorner(filledCorner);
         	Axis one = axis;
         	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
         	
         	LittleTile2DLine line = getSliceLine();
-        	
-        	
-        	/*boolean onePositive = slice.getEmptySide(one).getAxisDirection() == AxisDirection.POSITIVE;
-        	boolean twoPositive = slice.getEmptySide(two).getAxisDirection() == AxisDirection.POSITIVE;
-        	
-        	double scale;
-        	double newPos;
-        	
-        	if(twoPositive)
-        	{
-        		scale = 1 - ((RotationUtils.get(two, otherVec) - RotationUtils.get(two, vec)) / getSize(two));
-        	}
-        	else
-        	{
-        		scale = 1 - ((RotationUtils.get(two, vec) - RotationUtils.get(two, otherVec)) / getSize(two));
-        	}
-        	
-        	
-        	if(onePositive)
-        		newPos = RotationUtils.get(one, vec) + (getSize(one) * scale);
-        	else newPos = RotationUtils.get(one, vec) - (getSize(one) * scale);*/
-        	//double posMin = line.get(two, );//RotationUtils.get(two, otherVec));
-        	//double posMax = line.get(two, offset < 0.0D ? getMax(other, two) : getMin(other, two)); //RotationUtils.get(two, otherVec));
-        	//double newPos =  Math.max(posMin, posMax) : Math.min(posMin, posMax);
         	double newPos = line.get(two, RotationUtils.get(two, otherVec));
-        	/*if(axis == Axis.Y && offset > 0.0D && getMin(axis) < getMin(other, axis) && slice.isFacingPositive(axis))
-        	{
-        		System.out.println("Step up!");
-        		return offset;
-        	}*/
-        	//double newPos = line.get(two, offset < 0.0D ? getMin(other, two) : getMax(other, two));
-        	
         	newPos = MathHelper.clamp(newPos, getMin(axis), getMax(axis));
         	
     		//double d0 = newPos - RotationUtils.get(axis, otherVec);
@@ -260,7 +252,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     		if (offset > 0.0D && (getMax(other, axis) < newPos || LittleUtils.equals(getMax(other, axis), newPos)))
             {
     			double d0 = newPos - getMax(other, axis);
-    			if (/*(d0 > 0 || LittleUtils.equals(d0, 0)) &&*/ d0 < offset)
+    			if (d0 < offset)
     			{
     				return d0;
     			}
@@ -274,14 +266,10 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
             	{
             		return d0;
             	}
-            	
             	return offset; 
             }
-    		
     		return offset; 
         }
-    	//if(axis == Axis.Y)
-    		//System.out.println("Skipped " + offset);
         return offset;
     }
     
@@ -332,7 +320,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     	Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
-    	if(RotationUtils.get(one, vec) >= getMin(one) && RotationUtils.get(one, vec) <= getMax(one) &&
+		if(RotationUtils.get(one, vec) >= getMin(one) && RotationUtils.get(one, vec) <= getMax(one) &&
     			RotationUtils.get(two, vec) >= getMin(two) && RotationUtils.get(two, vec) <= getMax(two))
 		{
 			LittleCorner corner = slice.getFilledCorner();
@@ -343,6 +331,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 			double sizeTwo = getSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
 			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
+			//return LittleUtils.greaterThanAndEquals(sizeOne, difOne) && LittleUtils.greaterThanAndEquals(sizeTwo, difTwo) && LittleUtils.smallerThanAndEquals(diff, 1);
 		}
 		return false;
 	}
@@ -378,7 +367,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		
 		if(slice.isFacingPositive(axisOne))
 		{
-			if(RotationUtils.get(axisOne, minVec) <= pointOne) 
+			if(RotationUtils.get(axisOne, minVec) <= pointOne)
 				return true;
 		}
 		// pointing negative

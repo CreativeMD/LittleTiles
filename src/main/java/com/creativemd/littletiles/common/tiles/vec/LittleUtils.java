@@ -43,6 +43,16 @@ public class LittleUtils {
 	public static final float EPSILON = 0.01F;
 	public static final int scale = 5;
 	
+	public static boolean smallerThanAndEquals(double a, double b)
+	{
+		return a < b || equals(a, b);
+	}
+	
+	public static boolean greaterThanAndEquals(double a, double b)
+	{
+		return a > b || equals(a, b);
+	}
+	
 	public static boolean equals(double a, double b)
 	{
 		return a == b ? true : Math.abs(a - b) < EPSILON;
