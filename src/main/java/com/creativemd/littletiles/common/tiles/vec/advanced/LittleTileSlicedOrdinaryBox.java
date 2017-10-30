@@ -16,12 +16,12 @@ import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.client.tiles.LittleSlicedOrdinaryRenderingCube;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.vec.LittleTile2DLine;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
