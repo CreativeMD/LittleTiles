@@ -310,6 +310,7 @@ public class PlacementHelper {
 				shifthandlers.addAll(tiles.get(0).fixedhandlers);
 				shifthandlers.add(new InsideFixedHandler());
 				result.singleMode = true;
+				centered = true;
 			}
 			
 			result.box = getTilesBox(hit, result.size, centered, facing);
