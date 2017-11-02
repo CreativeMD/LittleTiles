@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
+import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
@@ -214,6 +215,8 @@ public class LittleTilesClient extends LittleTilesServer{
 			}
 			
 		}, false);
+		
+		LittleParticleType.initClient();
 	}
 	
 }

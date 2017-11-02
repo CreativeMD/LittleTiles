@@ -45,7 +45,7 @@ public class SubGuiParticle extends SubGui {
 		}
 		
 		GuiComboBox comboBox = new GuiComboBox("list", 17, 0, 136, types);
-		comboBox.select(particle.particle);
+		comboBox.select(particle.particle.name());
 		controls.add(comboBox);
 		controls.add(new GuiButton("<<", 0, 0) {
 			

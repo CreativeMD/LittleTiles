@@ -31,7 +31,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	
 	public LittleTile tile;
 	
-	public String particle = "";
+	public LittleParticleType particle = LittleParticleType.smoke;
 	public float par1 = 0;
 	public float par2 = 0;
 	public float par3 = 0;
@@ -44,9 +44,6 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	public int ticksToWait = 0;
 	
 	public boolean randomize = false;
-	
-	@SideOnly(Side.CLIENT)
-	public EnumParticleTypes particleType;
 	
 	@Override
 	public void readFromNBT(NBTTagCompound compound)
@@ -66,7 +63,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	@Override
 	public void getDescriptionNBT(NBTTagCompound nbt)
 	{
-		nbt.setString("particle", particle);
+		nbt.setString("particle", particle.name());
 		nbt.setFloat("par1", par1);
 		nbt.setFloat("par2", par2);
 		nbt.setFloat("par3", par3);
@@ -80,7 +77,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	@Override
 	public void receiveUpdatePacket(NBTTagCompound nbt)
 	{
-		particle = nbt.getString("particle");
+		particle = LittleParticleType.byName(nbt.getString("particle"));
 		par1 = nbt.getFloat("par1");
 		par2 = nbt.getFloat("par2");
 		par3 = nbt.getFloat("par3");
@@ -90,9 +87,6 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		randomize = nbt.getBoolean("randomize");
 		
 		ageModifier = Math.max(0.1F, nbt.getFloat("age"));
-		
-		if(isClientSide())
-			particleType = null;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -105,19 +99,9 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	public void update() {
 		if(isClientSide())
 		{
-			if(particleType == null)
-			{
-				particleType = EnumParticleTypes.getByName(particle);
-				if(particleType == null)
-				{
-					particleType = EnumParticleTypes.SMOKE_NORMAL;
-					particle = "smoke";
-				}
-			}
-			
 			Vec3d offset = new Vec3d(0.5, 1, 0.5);
 			if(tile != null)
-				offset = tile.box.getMinVec().getVec().addVector(LittleTile.gridMCLength/2, LittleTile.gridMCLength, LittleTile.gridMCLength/2);
+				offset = tile.box.getMinVec().getVec().addVector(LittleTile.gridMCLength/2, particle.spawnBelow ? -LittleTile.gridMCLength*2 : LittleTile.gridMCLength, LittleTile.gridMCLength/2);
 				
 			if(speed >= 1)
 			{
@@ -142,10 +126,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	{
 		Vec3d additional = new Vec3d(par1, par2, par3);
 		if(randomize)
-		{
-			LittleParticleType littleType = LittleParticleType.valueOf(particle);
-			additional = littleType.type.randomize(par1, par2, par3);
-		}
+			additional = particle.type.randomize(par1, par2, par3);
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		
@@ -162,9 +143,17 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 				pos = ((WorldFake) world).getRotatedVector(pos);
 			}
 			
-			Particle particle = (Particle) spawnParticle0.invoke(mc.renderGlobal, particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
-			if(particle != null)
-				particle.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particle)*ageModifier)));
+			Particle particleEntity;
+			
+			if(particle.isModded)
+			{
+				particleEntity = particle.factory.createParticle(0, mc.world, pos.x, pos.y, pos.z, additional.x, additional.y, additional.z, new int[]{});
+				mc.effectRenderer.addEffect(particleEntity);
+			}else
+				particleEntity = (Particle) spawnParticle0.invoke(mc.renderGlobal, particle.particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
+			
+			if(particleEntity != null)
+				particleEntity.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particleEntity)*ageModifier)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
