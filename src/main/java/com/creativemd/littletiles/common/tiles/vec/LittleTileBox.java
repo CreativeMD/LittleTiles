@@ -704,6 +704,13 @@ public class LittleTileBox {
 		return vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ;
 	}
 	
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	{
+		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
+		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
+		return vec.getAxis(one) >= getMin(one) && vec.getAxis(one) <= getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) <= getMax(two);
+	}
+	
 	public boolean intersectsWithAxis(Axis axis, Vec3d vec)
 	{
 		switch(axis)
@@ -771,7 +778,28 @@ public class LittleTileBox {
 	
 	//================Rotation & Flip================
 	
-	public void rotateBox(Rotation rotation)
+	/**
+	 * 
+	 * @param rotation
+	 * @param doubledCenter coordinates are doubled, meaning in order to get the correct coordinates they have to be divided by two. This allows to rotate around even axis.
+	 */
+	public void rotateBox(Rotation rotation, LittleTileVec doubledCenter)
+	{
+		long tempMinX = minX*2 - doubledCenter.x;
+		long tempMinY = minY*2 - doubledCenter.y;
+		long tempMinZ = minZ*2 - doubledCenter.z;
+		long tempMaxX = maxX*2 - doubledCenter.x;
+		long tempMaxY = maxY*2 - doubledCenter.y;
+		long tempMaxZ = maxZ*2 - doubledCenter.z;
+		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2),
+				(int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2),
+				(int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2),
+				(int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2),
+				(int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2),
+				(int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
+	}
+	
+	/*public void rotateBox(Rotation rotation)
 	{
 		int tempMinX = minX;
 		int tempMinY = minY;
@@ -781,9 +809,24 @@ public class LittleTileBox {
 		int tempMaxZ = maxZ;
 		resort(rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ), rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ), rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ),
 				rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ), rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ), rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ));
+	}*/
+	
+	/**
+	 * 
+	 * @param axis
+	 * @param doubledCenter coordinates are doubled, meaning in order to get the correct coordinates they have to be divided by two. This allows to flip around even axis.
+	 */
+	public void flipBox(Axis axis, LittleTileVec doubledCenter)
+	{
+		long tempMin = getMin(axis)*2 - doubledCenter.getAxis(axis);
+		long tempMax = getMax(axis)*2 - doubledCenter.getAxis(axis);
+		int min = (int) ((doubledCenter.getAxis(axis) - tempMin) / 2);
+		int max = (int) ((doubledCenter.getAxis(axis) - tempMax) / 2);
+		setMin(axis, Math.min(min, max));
+		setMax(axis, Math.max(min, max));
 	}
 	
-	public void flipBox(Axis axis)
+	/*public void flipBox(Axis axis)
 	{
 		switch(axis)
 		{
@@ -804,16 +847,7 @@ public class LittleTileBox {
 		}
 		
 		resort();
-	}
-	
-	public void flipBoxWithCenter(Axis axis, LittleTileVec center)
-	{
-		if(center == null)
-			center = new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize);
-		subOffset(center);
-		flipBox(axis);
-		addOffset(center);		
-	}
+	}*/
 	
 	//================Basic Object Overrides================
 	
@@ -1077,7 +1111,7 @@ public class LittleTileBox {
 					for (int two = minTwo; two < maxTwo; two++) {
 						vec.setAxis(face.one, one);
 						vec.setAxis(face.two, two);
-						if(isVecInsideBox(vec))
+						if(intersectsWithFace(face.face.getOpposite(), vec)) //isVecInsideBox(vec))
 							face.filled[one-face.minOne][two-face.minTwo] = true;
 					}
 				}
@@ -1122,7 +1156,7 @@ public class LittleTileBox {
 				for (int two = 0; two < filled[one].length; two++) {
 					vec.setAxis(this.one, minOne + one);
 					vec.setAxis(this.two, minTwo + two);
-					if(!filled[one][two] && LittleTileBox.this.isVecInsideBox(vec))
+					if(!filled[one][two] && LittleTileBox.this.intersectsWithFace(face, vec)) //&& LittleTileBox.this.isVecInsideBox(vec))
 						return false;
 				}
 			}

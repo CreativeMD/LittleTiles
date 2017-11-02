@@ -582,9 +582,8 @@ public abstract class LittleStructure {
 	{
 		if(hasLoaded())
 		{
-			for (Iterator iterator = getTiles(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
-				tile.te.removeTile(tile);
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+				entry.getKey().removeTiles(entry.getValue());
 			}
 		}
 	}
@@ -646,9 +645,9 @@ public abstract class LittleStructure {
 		return coords;
 	}
 	
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis){}
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter){}
 	
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation){}
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter){}
 	
 	//====================GUI STUFF====================
 	@SideOnly(Side.CLIENT)

@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tileentity;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -247,6 +248,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 	}
 	
+	public void removeTiles(Collection<LittleTile> tiles)
+	{
+		for (LittleTile tile : tiles) {
+			removeLittleTile(tile);
+		}
+		updateTiles();
+	}
+	
+	
 	public boolean removeTile(LittleTile tile)
 	{
 		boolean result = removeLittleTile(tile);
@@ -275,10 +285,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return tiles.add(tile);
 	}
 	
-	public void addTiles(ArrayList<LittleTile> tiles)
+	public void addTiles(Collection<LittleTile> tiles)
 	{
-		for (int i = 0; i < tiles.size(); i++)
-			addLittleTile(tiles.get(i));
+		for (LittleTile tile : tiles) {
+			addLittleTile(tile);
+		}
 		updateTiles();
 	}
 	

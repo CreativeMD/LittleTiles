@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -14,6 +15,7 @@ import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
@@ -56,11 +58,18 @@ public class LittleDoor extends LittleDoorBase{
 		super.loadFromNBTExtra(nbt);
 		if(nbt.hasKey("ax"))
 		{
-			axisVec = new LittleTileVec("a", nbt);
+			doubledRelativeAxis = new LittleTileVec("a", nbt);
 			if(getMainTile() != null)
-				axisVec.sub(getMainTile().getCornerVec());
+				doubledRelativeAxis.sub(getMainTile().getCornerVec());
+			doubledRelativeAxis.scale(2);
+			doubledRelativeAxis.add(new LittleTileVec(1, 1, 1));
+			
+		}else if(nbt.hasKey("av")){
+			doubledRelativeAxis = new LittleTileVec("av", nbt);
+			doubledRelativeAxis.scale(2);
+			doubledRelativeAxis.add(new LittleTileVec(1, 1, 1));
 		}else{
-			axisVec = new LittleTileVec("av", nbt);
+			doubledRelativeAxis = new LittleTileVec("avec", nbt);
 		}
 		axis = EnumFacing.Axis.values()[nbt.getInteger("axis")];
 		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
@@ -69,7 +78,7 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
-		axisVec.writeToNBT("av", nbt);
+		doubledRelativeAxis.writeToNBT("avec", nbt);
 		nbt.setInteger("axis", axis.ordinal());
 		nbt.setInteger("ndirection", normalDirection.getIndex());
 	}
@@ -82,31 +91,37 @@ public class LittleDoor extends LittleDoorBase{
 		if(structure instanceof LittleDoor)
 			door = (LittleDoor) structure;
 		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
+		
+		boolean even = false;
 		if(door != null)
 		{
 			tile.axisDirection = door.axis;
 			/*tile.axisX = door.axisPoint.x;
 			tile.axisY = door.axisPoint.y;
 			tile.axisZ = door.axisPoint.z;*/
-			tile.axisX = door.axisVec.x;
-			tile.axisY = door.axisVec.y;
-			tile.axisZ = door.axisVec.z;
+			tile.axisX = door.doubledRelativeAxis.x;
+			tile.axisY = door.doubledRelativeAxis.y;
+			tile.axisZ = door.doubledRelativeAxis.z;
 			tile.normalAxis = door.normalDirection.getAxis();
+			even = door.doubledRelativeAxis.x % 2 == 0;
+			tile.setEven(even);
+		}else{
+			tile.setEven(false);
 		}
 		tile.visibleAxis = true;
 		tile.updateViewDirection();
 		gui.controls.add(tile);
-		gui.controls.add(new GuiIDButton("reset view", 109, 30, 0));
+		gui.controls.add(new GuiIDButton("reset view", 109, 25, 0));
 		//gui.controls.add(new GuiButton("y", 170, 50, 20));
-		gui.controls.add(new GuiIDButton("flip view", 109, 50, 1));
+		gui.controls.add(new GuiIDButton("flip view", 109, 45, 1));
 		
-		gui.controls.add(new GuiIDButton("swap axis", 109, 10, 2));
-		gui.controls.add(new GuiIDButton("swap normal", 109, 70, 3));
+		gui.controls.add(new GuiIDButton("swap axis", 109, 5, 2));
+		gui.controls.add(new GuiIDButton("swap normal", 109, 65, 3));
 		//gui.controls.add(new GuiButton("-->", 150, 50, 20));
 		
 		
 		//gui.controls.add(new GuiButton("<-Z", 130, 70, 20));
-		gui.controls.add(new GuiButton("up", "<-", 125, 91, 14){
+		gui.controls.add(new GuiButton("up", "<-", 125, 86, 14){
 			@Override
 			public void onClicked(int x, int y, int button)
 			{
@@ -114,9 +129,9 @@ public class LittleDoor extends LittleDoorBase{
 			}
 			
 		}.setRotation(90));
-		gui.controls.add(new GuiIDButton("->", 146, 112, 4));
-		gui.controls.add(new GuiIDButton("<-", 107, 112, 5));
-		gui.controls.add(new GuiButton("down", "<-", 125, 112, 14){
+		gui.controls.add(new GuiIDButton("->", 146, 107, 4));
+		gui.controls.add(new GuiIDButton("<-", 107, 107, 5));
+		gui.controls.add(new GuiButton("down", "<-", 125, 107, 14){
 			@Override
 			public void onClicked(int x, int y, int button)
 			{
@@ -124,39 +139,50 @@ public class LittleDoor extends LittleDoorBase{
 			}
 			
 		}.setRotation(-90));
+		
+		gui.controls.add(new GuiCheckBox("even", 107, 124, even));
 		//gui.controls.add(new GuiButton("->", 190, 90, 20));
 		//gui.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20, "NORTH", "SOUTH", "WEST", "EAST"));
 	}
 	
 	public EnumFacing normalDirection;
 	public EnumFacing.Axis axis;
-	public LittleTileVec axisVec;
+	public LittleTileVec doubledRelativeAxis;
 	public LittleTileVec lastMainTileVec = null;
 	
 	@Override
-	public LittleTileVec getAxisVec()
+	public LittleTileVec getAbsoluteAxisVec()
 	{
-		LittleTileVec newAxisVec = axisVec.copy();
+		LittleTileVec newAxisVec = new LittleTileVec(doubledRelativeAxis.x / 2, doubledRelativeAxis.y / 2, doubledRelativeAxis.z / 2);
 		newAxisVec.add(getMainTile().getAbsoluteCoordinates());
 		return newAxisVec;
 	}
 	
 	@Override
+	public LittleTileVec getAdditionalAxisVec()
+	{
+		return new LittleTileVec(doubledRelativeAxis.x % 2, doubledRelativeAxis.y % 2, doubledRelativeAxis.z % 2);
+	}
+	
+	@Override
 	public void moveStructure(EnumFacing facing)
 	{
-		axisVec.add(new LittleTileVec(facing));
+		doubledRelativeAxis.add(facing);
+		doubledRelativeAxis.add(facing);
 	}
 	
 	@Override
 	public void setMainTile(LittleTile tile)
 	{
+		LittleTileVec absolute = tile.getAbsoluteCoordinates();
 		if(getMainTile() != null)
 		{
 			LittleTileVec oldVec = lastMainTileVec;
-			oldVec.sub(tile.getAbsoluteCoordinates());
-			axisVec.add(oldVec);
+			oldVec.sub(absolute);
+			oldVec.scale(2);
+			doubledRelativeAxis.add(oldVec);
 		}
-		lastMainTileVec = tile.getAbsoluteCoordinates().copy();
+		lastMainTileVec = absolute;
 		super.setMainTile(tile);
 	}
 	
@@ -201,74 +227,89 @@ public class LittleDoor extends LittleDoorBase{
 			if(event.source.is("<-"))
 			{
 				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ++;
+					viewer.axisZ += 2;
 				else
-					viewer.axisX--;
+					viewer.axisX -= 2;
 			}
 			if(event.source.is("->"))
 			{
 				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ--;
+					viewer.axisZ -= 2;
 				else
-					viewer.axisX++;
+					viewer.axisX += 2;
 			}
 			if(event.source.is("up"))
 			{
 				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ--;
+					viewer.axisZ -= 2;
 				else
-					viewer.axisY++;
+					viewer.axisY += 2;
 				
 			}
 			if(event.source.is("down"))
 			{
 				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ++;
+					viewer.axisZ += 2;
 				else
-					viewer.axisY--;
+					viewer.axisY -= 2;
 			}else if(event.source.is("swap normal")){
 				viewer.changeNormalAxis();
 			}
-		}		
+		}else if(event.source.is("even")){
+			viewer.setEven(((GuiCheckBox) event.source).value);
+		}
 	}
 	
 	@Override
 	public ArrayList<PlacePreviewTile> getSpecialTiles()
 	{
 		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
-		LittleTileBox box = new LittleTileBox(axisVec);
+		LittleTileBox box = new LittleTileBox(doubledRelativeAxis.x / 2, doubledRelativeAxis.y / 2, doubledRelativeAxis.z / 2, doubledRelativeAxis.x / 2 + 1, doubledRelativeAxis.y / 2 + 1, doubledRelativeAxis.z / 2 + 1);
 		
-		boxes.add(new PlacePreviewTileAxis(box, null, axis));
+		boxes.add(new PlacePreviewTileAxis(box, null, axis, getAdditionalAxisVec()));
 		return boxes;
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
 	{
-		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
-		box.flipBox(axis);
-		axisVec = box.getMinVec();
+		LittleTileVec doubleddoubled = doubledCenter.copy();
+		doubleddoubled.scale(2);
+		doubledRelativeAxis.scale(2);
+		doubledRelativeAxis.sub(doubleddoubled);
+		doubledRelativeAxis.flip(axis);
+		doubledRelativeAxis.add(doubleddoubled);
+		doubledRelativeAxis.x /= 2;
+		doubledRelativeAxis.y /= 2;
+		doubledRelativeAxis.z /= 2;
 	}
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter)
 	{
-		LittleTileBox box = new LittleTileBox(axisVec.x, axisVec.y, axisVec.z, axisVec.x+1, axisVec.y+1, axisVec.z+1);
-		box.rotateBox(rotation);
-		axisVec = box.getMinVec();
+		LittleTileVec doubleddoubled = doubledCenter.copy();
+		doubleddoubled.scale(2);
+		doubledRelativeAxis.scale(2);
+		doubledRelativeAxis.sub(doubleddoubled);
+		doubledRelativeAxis.rotateVec(rotation);
+		doubledRelativeAxis.add(doubleddoubled);
+		doubledRelativeAxis.x /= 2;
+		doubledRelativeAxis.y /= 2;
+		doubledRelativeAxis.z /= 2;
+		
 		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacing(axis), rotation).getAxis();
 		this.normalDirection = RotationUtils.rotateFacing(normalDirection, rotation);
 	}
 	
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid, LittleTileVec absoluteAxis, LittleTileVec additional)
 	{
 		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
-		LittleTileVec axisPoint = getAxisVec();
 		
-		LittleTileVec invaxis = axisPoint.copy();
+		LittleTileVec invaxis = absoluteAxis.copy();
 		invaxis.invert();
+		//additional.invert();
 		
 		for (Iterator iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tileOfList = (LittleTile) iterator.next();
@@ -278,14 +319,16 @@ public class LittleDoor extends LittleDoorBase{
 			preview.box.addOffset(tileOfList.te.getPos());
 			preview.box.addOffset(invaxis);
 			
-			preview.rotatePreview(direction);
+			preview.rotatePreview(direction, additional);
 			
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));
+			defaultpreviews.add(preview.getPlaceableTile(preview.box, true, null));
 		}
 		
-		defaultpreviews.add(new PlacePreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis));
+		defaultpreviews.add(new PlacePreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis, additional));
 		
-		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-pos.getX()*LittleTile.gridSize, axisPoint.y-pos.getY()*LittleTile.gridSize, axisPoint.z-pos.getZ()*LittleTile.gridSize);
+		LittleTileVec internalOffset = absoluteAxis.copy();
+		internalOffset.sub(pos);
+		
 		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
 			PlacePreviewTile box = defaultpreviews.get(i);
@@ -294,17 +337,14 @@ public class LittleDoor extends LittleDoorBase{
 		}
 		
 		LittleDoor structure = new LittleDoor();
-		structure.axisVec = new LittleTileVec(0, 0, 0);
+		structure.doubledRelativeAxis = new LittleTileVec(0, 0, 0);
 		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		
-		EnumFacing rotationAxis = RotationUtils.getFacing(this.axis);
-		if(inverse)
-			rotationAxis = rotationAxis.getOpposite();
 		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
 		structure.duration = this.duration;
 		
-		return place(world, structure, player, previews, pos, new OrdinaryDoorTransformation(direction), uuid);
+		return place(world, structure, player, previews, pos, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
 	}
 	
 	@Override
@@ -416,33 +456,32 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
-	{		
+	{
 		LoadList();
 		
-		LittleTileVec axisPoint = getAxisVec();
-		int mainX = axisPoint.x/LittleTile.gridSize;
-		int mainY = axisPoint.y/LittleTile.gridSize;
-		int mainZ = axisPoint.z/LittleTile.gridSize;
+		LittleTileVec axisPoint = getAbsoluteAxisVec();
+		LittleTileVec additional = getAdditionalAxisVec();
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			tile.te.removeTile(tile);
+		BlockPos main = axisPoint.getBlockPos();
+		
+		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().preventUpdate = true;
+			entry.getKey().removeTiles(entry.getValue());
+			entry.getKey().preventUpdate = false;
 		}
 		
-		if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation, !inverse, uuid))
+		if(tryToPlacePreviews(world, player, main, rotation, !inverse, uuid, axisPoint, additional) || tryToPlacePreviews(world, player, main, rotation.getOpposite(), inverse, uuid, axisPoint, additional))
 		{
-			//System.out.println("Placing first! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation);
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+				entry.getKey().updateTiles();
+			}
 			return true;
 		}
-		else if(tryToPlacePreviews(world, player, new BlockPos(mainX, mainY, mainZ), rotation.getOpposite(), inverse, uuid))
-		{
-			//System.out.println("Placing second! inverse:" + inverse + ",client:" + world.isRemote + ",rotation:" + rotation.getOpposite());
-			return true;
-		}
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			tile.te.addTile(tile);
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().addTiles(entry.getValue());
 		}
 		
 		return false;
@@ -469,12 +508,20 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
 	{
-		LittleTileVec axisPointBackup = axisVec.copy();
-		axisVec.sub(new LittleTileVec(newCenter));
-		axisVec.add(new LittleTileVec(getMainTile().te.getPos()));
-		axisVec.add(getMainTile().getCornerVec());
+		LittleTileVec axisPointBackup = doubledRelativeAxis.copy();
+		
+		LittleTileVec vec = new LittleTileVec(newCenter);
+		vec.scale(2);
+		doubledRelativeAxis.sub(vec);
+		vec = new LittleTileVec(getMainTile().te.getPos());
+		vec.scale(2);
+		doubledRelativeAxis.add(vec);
+		vec = getMainTile().getCornerVec();
+		vec.scale(2);
+		doubledRelativeAxis.add(vec);
+		
 		super.writeToNBTPreview(nbt, newCenter);
-		axisVec = axisPointBackup;
+		doubledRelativeAxis = axisPointBackup;
 	}
 	
 	@Override
@@ -482,7 +529,7 @@ public class LittleDoor extends LittleDoorBase{
 	public LittleDoorBase parseStructure(SubGui gui, int duration) {
 		LittleDoor door = new LittleDoor();
 		GuiTileViewer viewer = (GuiTileViewer) gui.get("tileviewer");
-		door.axisVec = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
+		door.doubledRelativeAxis = new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ);
 		door.axis = viewer.axisDirection;
 		door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
 		door.duration = duration;
@@ -492,7 +539,7 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
 		LittleDoor structure = new LittleDoor();
-		structure.axisVec = new LittleTileVec(0, 0, 0);
+		structure.doubledRelativeAxis = new LittleTileVec(0, 0, 0);
 		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		structure.normalDirection = this.normalDirection;
@@ -503,7 +550,7 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public ArrayList<PlacePreviewTile> getAdditionalPreviews() {
 		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
-		previews.add(new PlacePreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis));
+		previews.add(new PlacePreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis, getAdditionalAxisVec()));
 		return previews;
 	}
 

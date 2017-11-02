@@ -335,7 +335,7 @@ public class LittleBed extends LittleStructure{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
 	{
 		if(axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
@@ -343,7 +343,7 @@ public class LittleBed extends LittleStructure{
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter) 
 	{
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}

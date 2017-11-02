@@ -144,7 +144,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				GlStateManager.translate(x, y, z);
 				
-				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
+				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX()/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY()/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ()/2);
 				
 				
 				GL11.glRotated(rotation.x, 1, 0, 0);
@@ -154,7 +154,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				GlStateManager.translate(posX, posY, posZ);
 				
-				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
+				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX()/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY()/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ()/2);
 				
     			//Render
     			if ( layer == BlockRenderLayer.TRANSLUCENT )

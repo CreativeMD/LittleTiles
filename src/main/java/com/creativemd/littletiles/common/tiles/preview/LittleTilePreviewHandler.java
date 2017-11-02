@@ -3,10 +3,10 @@ package com.creativemd.littletiles.common.tiles.preview;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -67,12 +67,12 @@ public abstract class LittleTilePreviewHandler {
 		}
 
 		@Override
-		public void flipPreview(Axis axis, LittleTilePreview previewn) {
+		public void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
 			
 		}
 
 		@Override
-		public void rotatePreview(Rotation direction, LittleTilePreview preview) {
+		public void rotatePreview(Rotation direction, LittleTilePreview preview, LittleTileVec doubledCenter) {
 			
 		}
 
@@ -101,9 +101,9 @@ public abstract class LittleTilePreviewHandler {
 	
 	public abstract BlockIngredient getBlockIngredient(LittleTilePreview preview);
 	
-	public abstract void flipPreview(Axis axis, LittleTilePreview previewn);
+	public abstract void flipPreview(Axis axis, LittleTilePreview previewn, LittleTileVec doubledCenter);
 	
-	public abstract void rotatePreview(Rotation direction, LittleTilePreview preview);
+	public abstract void rotatePreview(Rotation direction, LittleTilePreview preview, LittleTileVec doubledCenter);
 	
 	public abstract boolean canBeNBTGrouped();
 }

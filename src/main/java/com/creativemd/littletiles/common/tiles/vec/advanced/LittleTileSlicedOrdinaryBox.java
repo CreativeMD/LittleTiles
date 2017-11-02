@@ -381,6 +381,37 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	}
 	
 	@Override
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	{
+		if(!super.intersectsWithFace(facing, vec))
+			return false;
+		
+		if(facing.getAxis() == slice.axis)
+		{
+			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+			
+			LittleTileVec copy = vec.copy();
+			
+			if(!slice.isFacingPositive(one))
+				copy.setAxis(one, copy.getAxis(one)+1);
+			
+			if(!slice.isFacingPositive(two))
+				copy.setAxis(two, copy.getAxis(two)+1);
+			
+			LittleCorner corner = slice.getFilledCorner();
+			
+			double difOne = Math.abs(getCornerValue(corner, one) - copy.getAxis(one));
+			double difTwo = Math.abs(getCornerValue(corner, two) - copy.getAxis(two));
+			double sizeOne = getSize(one);
+			double sizeTwo = getSize(two);
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+		}
+		return true;
+	}
+	
+	@Override
 	public boolean intersectsWithAxis(Axis axis, Vec3d vec)
     {
 		if(!super.intersectsWithAxis(axis, vec))
@@ -450,16 +481,16 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	//================Rotation & Flip================
 	
 	@Override
-	public void rotateBox(Rotation rotation)
+	public void rotateBox(Rotation rotation, LittleTileVec doubledCenter)
 	{
-		super.rotateBox(rotation);
+		super.rotateBox(rotation, doubledCenter);
 		this.slice = this.slice.rotate(rotation);
 	}
 	
 	@Override
-	public void flipBox(Axis axis)
+	public void flipBox(Axis axis, LittleTileVec doubledCenter)
 	{
-		super.flipBox(axis);
+		super.flipBox(axis, doubledCenter);
 		this.slice = this.slice.flip(axis);
 	}
 	

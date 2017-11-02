@@ -23,10 +23,12 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	
 	public static int red = ColorUtils.VecToInt(new Vec3d(1, 0, 0));
 	public EnumFacing.Axis axis;
+	public LittleTileVec additionalOffset;
 
-	public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis) {
+	public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis, LittleTileVec additionalOffset) {
 		super(box, preview);
 		this.axis = axis;
+		this.additionalOffset = additionalOffset;
 	}
 	
 	@Override
@@ -38,7 +40,7 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	@Override
 	public PlacePreviewTile copy()
 	{
-		return new PlacePreviewTileAxis(box.copy(), null, axis);
+		return new PlacePreviewTileAxis(box.copy(), null, axis, additionalOffset.copy());
 	}
 	
 	@Override
@@ -66,6 +68,8 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 			break;
 		}
 		LittleRenderingCube cube = preview.getRenderingCube(null, 0);
+		cube.sub(new Vec3d(LittleTile.gridMCLength/2, LittleTile.gridMCLength/2, LittleTile.gridMCLength/2));
+		cube.add(additionalOffset.getVec().scale(0.5));
 		cube.color = red;
 		cubes.add(cube);
 		return cubes;
@@ -77,12 +81,15 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		if(structure instanceof LittleDoor)
 		{
 			LittleDoor door = (LittleDoor) structure;
-			door.axisVec = box.getMinVec();
-			door.axisVec.add(new LittleTileVec(pos));
+			door.doubledRelativeAxis = box.getMinVec();
+			door.doubledRelativeAxis.add(pos);
 			if(door.getMainTile() == null)
 				door.selectMainTile();
 			if(door.getMainTile() != null)
-				door.axisVec.sub(door.getMainTile().getAbsoluteCoordinates());
+				door.doubledRelativeAxis.sub(door.getMainTile().getAbsoluteCoordinates());
+			door.doubledRelativeAxis.scale(2);
+			door.doubledRelativeAxis.add(additionalOffset);
+			System.out.println(door.getAbsoluteAxisVec());
 		}
 		return null;
 	}
