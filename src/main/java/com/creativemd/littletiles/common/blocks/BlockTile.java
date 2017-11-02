@@ -357,13 +357,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
-			if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
-			{
-				if(worldIn.isRemote)
-					new LittleActionActivated(pos, playerIn).execute();
-				return true;
-			}
-			return false;
+			//if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
+			//{
+			return new LittleActionActivated(pos, playerIn).execute();
 		}
 		return false;
     }

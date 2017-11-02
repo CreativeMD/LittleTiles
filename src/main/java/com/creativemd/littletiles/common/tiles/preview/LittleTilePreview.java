@@ -27,10 +27,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -230,23 +228,23 @@ public class LittleTilePreview {
 	
 	//================Rotating/Flipping================
 	
-	public void flipPreview(Axis axis)
+	public void flipPreview(Axis axis, LittleTileVec doubledCenter)
 	{
 		if(box != null)
-			box.flipBox(axis);
-		handler.flipPreview(axis, this);
+			box.flipBox(axis, doubledCenter);
+		handler.flipPreview(axis, this, doubledCenter);
 	}
 	
-	public void rotatePreview(Rotation rotation)
+	public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter)
 	{
 		if(box != null)
 		{
-			box.rotateBox(rotation);
+			box.rotateBox(rotation, doubledCenter);
 			size = box.getSize();
 		}else
 			size.rotateSize(rotation);
 		
-		handler.rotatePreview(rotation, this);
+		handler.rotatePreview(rotation, this, doubledCenter);
 	}
 	
 	//================Save & Loading================

@@ -13,13 +13,11 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.BoxUtils;
 import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.entity.TERenderData;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -27,21 +25,17 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -60,6 +54,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	{
 		this.center = axis;
         this.baseOffset = axis.getBlockPos();
+        
         this.inBlockCenter = axis.copy();
         this.inBlockCenter.sub(new LittleTileVec(baseOffset));
         this.chunkOffset = getRenderChunkPos(baseOffset);
@@ -431,6 +426,36 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			this.isDead = true;
     }
 	
+	@Override
+	public boolean canBeCollidedWith()
+    {
+        return true;
+    }
+	
+	@Override
+	public AxisAlignedBB getCollisionBox(Entity entityIn)
+    {
+        return null;
+    }
+	
+	@Override
+    public AxisAlignedBB getCollisionBoundingBox()
+    {
+        return null;
+    }
+	
+	@Override
+	public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
+    {
+        return true;
+    }
+	
+	@Override
+	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand)
+    {
+        return EnumActionResult.SUCCESS;
+    }
+	
 	//================Copy================
 	
 	protected abstract void copyExtra(T animation);
@@ -507,7 +532,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 		
 		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
-		LittleTileVec axisPoint = structure.getAxisVec();
+		LittleTileVec axisPoint = structure.getAbsoluteAxisVec();
 		
 		LittleTileVec invaxis = axisPoint.copy();
 		invaxis.invert();
@@ -528,6 +553,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		//defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, structure.axis));
 		
 		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-baseOffset.getX()*LittleTile.gridSize, axisPoint.y-baseOffset.getY()*LittleTile.gridSize, axisPoint.z-baseOffset.getZ()*LittleTile.gridSize);
+		
 		previews = new ArrayList<>();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
 			PlacePreviewTile box = defaultpreviews.get(i); //.copy();

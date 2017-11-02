@@ -76,7 +76,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return parseStructure(gui, (int) slider.value);
 	}
 	
-	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, ArrayList<PlacePreviewTile> previews, BlockPos pos, DoorTransformation transformation, UUID uuid)
+	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, ArrayList<PlacePreviewTile> previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTileVec absolute, LittleTileVec additional)
 	{
 		HashMapList<BlockPos, PlacePreviewTile> splitted = LittleActionPlaceRelative.getSplittedTiles(previews, pos);
 		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, new ArrayList<>(splitted.getKeys()), false))
@@ -90,7 +90,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, pos, structure, blocks, previews, structure.getAxisVec(), transformation, uuid, player);
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, pos, structure, blocks, previews, absolute /*structure.getAbsoluteAxisVec()*/, transformation, uuid, player, additional /*structure.getAdditionalAxisVec()*/);
 			world.spawnEntity(animation);
 			return true;
 		}
@@ -98,7 +98,9 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return false;
 	}
 	
-	public abstract LittleTileVec getAxisVec();
+	public abstract LittleTileVec getAbsoluteAxisVec();
+	
+	public abstract LittleTileVec getAdditionalAxisVec();
 	
 	public abstract ArrayList<PlacePreviewTile> getAdditionalPreviews();
 	

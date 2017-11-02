@@ -217,6 +217,11 @@ public class LittleTileVec {
 		this.z -= vec.z;
 	}
 	
+	public void flip(Axis axis)
+	{
+		setAxis(axis, -getAxis(axis));
+	}
+	
 	public void rotateVec(Rotation rotation)
 	{
 		int tempX = x;

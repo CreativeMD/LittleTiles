@@ -613,6 +613,89 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return false;
 	}
 	
+	@Override
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	{
+		if(!super.intersectsWithFace(facing, vec))
+			return false;
+		
+		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		
+		LittleTileVec copy = vec.copy();
+		
+		if(facing.getAxis() == slice.axis)
+		{
+			if(!slice.isFacingPositive(one))
+				copy.setAxis(one, copy.getAxis(one)+1);
+			
+			if(!slice.isFacingPositive(two))
+				copy.setAxis(two, copy.getAxis(two)+1);
+		}else{
+			if(!slice.isFacingPositive(facing.getAxis()))
+				copy.setAxis(facing.getAxis(), copy.getAxis(facing.getAxis())+1);
+		}
+		return intersectsWithFaceRelative(facing, new Vec3d(copy.x, copy.y, copy.z));
+	}
+	
+	public boolean intersectsWithFaceRelative(EnumFacing facing, Vec3d vec)
+    {
+		Axis axis = facing.getAxis();
+		
+		if(slice.axis == axis)
+		{
+			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+			
+			double posOne = RotationUtils.get(one, vec);
+			double posTwo = RotationUtils.get(two, vec);
+			
+			if(slice.isFacingPositive(two))
+        	{
+				if(posOne <= getMinSlice(one))
+					return true;
+        	}else{
+        		if(posOne > getMaxSlice(one))
+					return true;
+        	}
+			
+			if(slice.isFacingPositive(one))
+        	{
+				if(posTwo <= getMinSlice(two))
+					return true;
+        	}else{
+        		if(posTwo > getMaxSlice(two))
+					return true;
+        	}
+			
+			LittleCorner corner = slice.getFilledCorner();
+			
+			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
+			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
+			double sizeOne = getSliceSize(one);
+			double sizeTwo = getSliceSize(two);
+			
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+		}else{			
+			Axis other = RotationUtils.getDifferentAxisFirst(slice.axis) == axis ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
+			
+			if(slice.isFacingPositive(axis) == (facing.getAxisDirection() == AxisDirection.POSITIVE))
+			{
+				if(slice.isFacingPositive(other))
+					return RotationUtils.get(other, vec) <= getMinSlice(other);
+				else
+					return RotationUtils.get(other, vec) > getMaxSlice(other);
+			}else{
+				if(slice.isFacingPositive(other))
+					return RotationUtils.get(other, vec) < getMaxSlice(other);
+				else
+					return RotationUtils.get(other, vec) >= getMinSlice(other);
+			}
+		}
+		
+	}
+	
 	public boolean intersectsWithFace(EnumFacing facing, Vec3d vec)
     {
 		Axis axis = facing.getAxis();
@@ -756,7 +839,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	//================Rotation & Flip================
 	
 	@Override
-	public void rotateBox(Rotation rotation)
+	public void rotateBox(Rotation rotation, LittleTileVec doubledCenter)
 	{
 		Axis beforeOne = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis beforeTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -771,7 +854,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		
 		LittleSlice before = slice;
 		
-		super.rotateBox(rotation);
+		super.rotateBox(rotation, doubledCenter);
 		
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -797,18 +880,18 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public void flipBox(Axis axis)
+	public void flipBox(Axis axis, LittleTileVec doubledCenter)
 	{
 		if(axis == slice.axis)
 		{
-			super.flipBox(axis);
+			super.flipBox(axis, doubledCenter);
 			return ;
 		}
 		
 		float startBefore = getMax(axis) - getStart(axis);
 		float endBefore = getMax(axis) - getEnd(axis);
 		
-		super.flipBox(axis);
+		super.flipBox(axis, doubledCenter);
 		
 		Axis other = axis == RotationUtils.getDifferentAxisFirst(slice.axis) ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
 		

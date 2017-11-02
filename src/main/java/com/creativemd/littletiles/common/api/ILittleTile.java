@@ -1,30 +1,24 @@
 package com.creativemd.littletiles.common.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ILittleTile {
+	
+	public static LittleTileVec rotationCenter = new LittleTileVec(LittleTile.halfGridSize*2, LittleTile.halfGridSize*2, LittleTile.halfGridSize*2);
 	
 	public boolean hasLittlePreview(ItemStack stack);
 	
@@ -42,7 +36,7 @@ public interface ILittleTile {
 		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.rotatePreview(rotation);
+			preview.rotatePreview(rotation, rotationCenter);
 		}
 		saveLittlePreview(stack, previews);
 	}
@@ -52,7 +46,7 @@ public interface ILittleTile {
 		List<LittleTilePreview> previews = getLittlePreview(stack, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.flipPreview(axis);
+			preview.flipPreview(axis, rotationCenter);
 		}
 		saveLittlePreview(stack, previews);
 	}

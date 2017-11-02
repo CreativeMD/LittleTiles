@@ -285,14 +285,14 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
-		return super.doesProvideSolidFace(facing) && !translucent;
+		return super.doesProvideSolidFace(facing) && !translucent && block != Blocks.BARRIER;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
-			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
+			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER;
 		return false;
 	}
 	

@@ -43,6 +43,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public DoorTransformation transformation;
 	
+	public LittleTileVec additionalAxis;
+	
 	public void setTransformationStartOffset()
 	{
 		transformation.performTransformation(this, 0);
@@ -59,7 +61,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	}
 	
 	public EntityDoorAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews,
-			LittleTileVec axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator) {
+			LittleTileVec axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
 		super(world, pos, blocks, previews, uuid, axis);
 		
 		this.activator = activator;
@@ -67,6 +69,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
         
         this.transformation = transformation;
         this.duration = structure.duration;
+        
+        this.additionalAxis = additionalAxis.copy();
         
         setTransformationStartOffset();
 	}
@@ -99,6 +103,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		animation.approved = approved;
 		animation.transformation = transformation;
 		animation.lastSendProgress = lastSendProgress;
+		animation.additionalAxis = additionalAxis.copy();
 	}
 	
 	private int lastSendProgress = -1;
@@ -203,6 +208,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
 		
+		additionalAxis = new LittleTileVec("additional", compound);
+		
 		setTransformationStartOffset();
 		
 	}
@@ -215,6 +222,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		compound.setInteger("progress", progress);
 		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
+		
+		additionalAxis.writeToNBT("additional", compound);
 	}
 	
 }

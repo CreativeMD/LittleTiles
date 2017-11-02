@@ -61,7 +61,7 @@ public class LittleRotatePacket extends CreativeCorePacket{
 				LittleStructure structure = itile.getLittleStructure(stack);
 				if(structure != null)
 				{
-					structure.onRotate(player.world, player, stack, rotation);
+					structure.onRotate(player.world, player, stack, rotation, ILittleTile.rotationCenter);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
 					stack.getTagCompound().setTag("structure", nbt);

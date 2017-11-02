@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.UUID;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
@@ -124,6 +125,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		
 		LittleTileVec internalOffset = new LittleTileVec(placedAxis.x-pos.getX()*LittleTile.gridSize, placedAxis.y-pos.getY()*LittleTile.gridSize, placedAxis.z-pos.getZ()*LittleTile.gridSize);
+		
 		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
 		for (int i = 0; i < defaultpreviews.size(); i++) {
 			PlacePreviewTile box = defaultpreviews.get(i);
@@ -139,22 +141,29 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.setTiles(new HashMapList<>());
 		
 		
-		return place(world, structure, player, previews, pos, new SlidingDoorTransformation(moveDirection, moveDistance), uuid);
+		return place(world, structure, player, previews, pos, new SlidingDoorTransformation(moveDirection, moveDistance), uuid, getAbsoluteAxisVec(), getAdditionalAxisVec());
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
 	{
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			tile.te.removeTile(tile);
+		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().preventUpdate = true;
+			entry.getKey().removeTiles(entry.getValue());
+			entry.getKey().preventUpdate = false;
 		}
 		
 		if(tryToPlacePreviews(world, player, pos, uuid))
+		{
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+				entry.getKey().updateTiles();
+			}
 			return true;
+		}
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			tile.te.addTile(tile);
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().addTiles(entry.getValue());
 		}
 		
 		return false;
@@ -162,7 +171,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
 	{
 		if(axis == this.moveDirection.getAxis())
 			this.moveDirection = this.moveDirection.getOpposite();
@@ -170,14 +179,19 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter) 
 	{
 		moveDirection = RotationUtils.rotateFacing(moveDirection, rotation);
 	}
 
 	@Override
-	public LittleTileVec getAxisVec() {
+	public LittleTileVec getAbsoluteAxisVec() {
 		return placedAxis;
+	}
+	
+	@Override
+	public LittleTileVec getAdditionalAxisVec() {
+		return new LittleTileVec(0, 0, 0);
 	}
 
 	@Override
