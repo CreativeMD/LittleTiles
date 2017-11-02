@@ -86,16 +86,16 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 					box.addOffset(tile.te.getPos());
 					boxes.add(box);
 				}
-			}
-			
-			if(toVanilla)
-			{
-				BlockPos lastPos = null;
-				for (LittleTile tile : placedTiles) {
-					if(tile.te.getPos() != lastPos)
-					{
-						lastPos = tile.te.getPos();
-						tile.te.convertBlockToVanilla();
+				
+				if(toVanilla)
+				{
+					BlockPos lastPos = null;
+					for (LittleTile tile : placedTiles) {
+						if(tile.te.getPos() != lastPos)
+						{
+							lastPos = tile.te.getPos();
+							tile.te.convertBlockToVanilla();
+						}
 					}
 				}
 			}
