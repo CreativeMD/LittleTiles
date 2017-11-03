@@ -125,7 +125,7 @@ public class LittleTileVec {
 	
 	public BlockPos getBlockPos()
 	{
-		return new BlockPos((int) getPosX(), (int) getPosY(), (int) getPosZ());
+		return new BlockPos((int) Math.floor(getPosX()), (int) Math.floor(getPosY()), (int) Math.floor(getPosZ()));
 	}
 	
 	public Vec3d getVec()
