@@ -89,7 +89,6 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 				door.doubledRelativeAxis.sub(door.getMainTile().getAbsoluteCoordinates());
 			door.doubledRelativeAxis.scale(2);
 			door.doubledRelativeAxis.add(additionalOffset);
-			System.out.println(door.getAbsoluteAxisVec());
 		}
 		return null;
 	}
