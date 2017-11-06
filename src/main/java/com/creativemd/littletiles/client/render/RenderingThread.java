@@ -142,14 +142,16 @@ public class RenderingThread extends Thread {
 							RenderCubeObject cube = cubes.get(j);
 							if(cube.doesNeedQuadUpdate)
 							{
-								IBakedModel blockModel = mc.getBlockRendererDispatcher().getModelForState(cube.getBlockState());
+								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
+								IBakedModel blockModel = mc.getBlockRendererDispatcher().getModelForState(modelState);
+								modelState = cube.getModelState(modelState, world, pos);
 								BlockPos offset = cube.getOffset();								
 								for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 									EnumFacing facing = EnumFacing.VALUES[h];
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, offset, cube.getBlockState(), blockModel, facing, 0, false));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, offset, modelState, blockModel, facing, 0, false));
 									}else
 										cube.setQuad(facing, null);
 								}

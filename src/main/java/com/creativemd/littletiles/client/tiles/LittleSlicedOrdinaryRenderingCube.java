@@ -13,6 +13,7 @@ import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -28,8 +29,10 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
@@ -46,21 +49,6 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	public CubeObject offset(BlockPos pos)
 	{
 		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedOrdinaryBox) this.box, block, meta);
-	}
-	
-	public float getVertexInformationPositionX(VertexInformation info, BlockPos pos)
-	{
-		return dynamicCube.getX(info) - pos.getX();
-	}
-	
-	public float getVertexInformationPositionY(VertexInformation info, BlockPos pos)
-	{
-		return dynamicCube.getY(info) - pos.getY();
-	}
-	
-	public float getVertexInformationPositionZ(VertexInformation info, BlockPos pos)
-	{
-		return dynamicCube.getZ(info) - pos.getZ();
 	}
 
 	@Override
@@ -109,20 +97,8 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		Vector3f vec = new Vector3f();
 		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
 		
-		//int index = isTraingle ? (facing.getAxisDirection() == AxisDirection.POSITIVE) ? slice.traingleOrderPositive : slice.traingleOrderNegative : 0;
-		//for (int i = 0; i < (isTraingle ? 3 : 4); i++) {
-			
-			//index++;
-			//if(index >= 4)
-				//index = 0;
-			
-			//VertexInformation info = face.getVertexInformation(index);
-		
-			//GlStateManager.glVertex3f(vec.x, vec.y, vec.z);
-		//}
-		
 		for (int i = 0; i < 4; i++) {			
-			vec = cube.get(face.getVertexInformation(i), vec);
+			vec = cube.get(facing, face.getVertexInformation(i), vec);
 			
 			GlStateManager.glVertex3f(vec.x, vec.y, vec.z);
 		}
@@ -152,75 +128,102 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		
 		for(int i = 0; i < blockQuads.size(); i++)
 		{
+			BakedQuad oldQuad = blockQuads.get(i);
+			
+			int index = 0;
+			float tempMinX = Float.intBitsToFloat(oldQuad.getVertexData()[index]);
+			float tempMinY = Float.intBitsToFloat(oldQuad.getVertexData()[index + 1]);
+			float tempMinZ = Float.intBitsToFloat(oldQuad.getVertexData()[index + 2]);
+			
+			index = 2 * oldQuad.getFormat().getIntegerSize();
+			float tempMaxX = Float.intBitsToFloat(oldQuad.getVertexData()[index]);
+			float tempMaxY = Float.intBitsToFloat(oldQuad.getVertexData()[index + 1]);
+			float tempMaxZ = Float.intBitsToFloat(oldQuad.getVertexData()[index + 2]);
+			
+			float minX = Math.min(tempMinX, tempMaxX);
+			float minY = Math.min(tempMinY, tempMaxY);
+			float minZ = Math.min(tempMinZ, tempMaxZ);
+			float maxX = Math.max(tempMinX, tempMaxX);
+			float maxY = Math.max(tempMinY, tempMaxY);
+			float maxZ = Math.max(tempMinZ, tempMaxZ);
+			
+			
+			//Check if it is intersecting, otherwise there is no need to render it
+			switch(facing.getAxis())
+			{
+			case X:
+				if(!(maxY > dynamicCube.defaultCube.minY && minY < dynamicCube.defaultCube.maxY && maxZ > dynamicCube.defaultCube.minZ && minZ < dynamicCube.defaultCube.maxZ))
+					continue;
+				break;
+			case Y:
+				if(!(maxX > dynamicCube.defaultCube.minX && minX < dynamicCube.defaultCube.maxX && maxZ > dynamicCube.defaultCube.minZ && minZ < dynamicCube.defaultCube.maxZ))
+					continue;
+				break;
+			case Z:
+				if(!(maxX > dynamicCube.defaultCube.minX && minX < dynamicCube.defaultCube.maxX && maxY > dynamicCube.defaultCube.minY && minY < dynamicCube.defaultCube.maxY))
+					continue;
+				break;
+			}
+			
+			float sizeX = maxX - minX;
+			float sizeY = maxY - minY;
+			float sizeZ = maxZ - minZ;
+			
 			BakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, color, overrideTint && (defaultColor == -1 || blockQuads.get(i).hasTintIndex()) && color != -1, facing);
+			
+			int uvIndex = quad.getFormat().getUvOffsetById(0) / 4;
+			float u1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
+			float v1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
+			uvIndex = 2 * quad.getFormat().getIntegerSize() + quad.getFormat().getUvOffsetById(0) / 4;
+			float u2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
+			float v2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
+			
+			float sizeU = Math.abs(u2 - u1);
+			float sizeV = Math.abs(v2 - v1);
 			
 			EnumFaceDirection direction = EnumFaceDirection.getFacing(facing);
 			
 			for (int k = 0; k < 4; k++) {
-				
 				VertexInformation vertex = direction.getVertexInformation(k);
 				
-				int index = k * quad.getFormat().getIntegerSize();
-				//float newX = getVertexInformationPosition(vertex.xIndex);
-				//float newY = getVertexInformationPosition(vertex.yIndex);
-				//float newZ = getVertexInformationPosition(vertex.zIndex);
+				index = k * quad.getFormat().getIntegerSize();
 				
-				vec = dynamicCube.get(vertex, vec);
+				float x = facing.getAxis() == Axis.X ? getVertexInformationPosition(vertex.xIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.xIndex), minX, maxX);
+				float y = facing.getAxis() == Axis.Y ? getVertexInformationPosition(vertex.yIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.yIndex), minY, maxY);
+				float z = facing.getAxis() == Axis.Z ? getVertexInformationPosition(vertex.zIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.zIndex), minZ, maxZ);
 				
-				quad.getVertexData()[index] = Float.floatToIntBits(vec.x);
-				quad.getVertexData()[index+1] = Float.floatToIntBits(vec.y);
-				quad.getVertexData()[index+2] = Float.floatToIntBits(vec.z);
+				vec.set(x, y, z);
+				
+				dynamicCube.sliceVector(facing, vec);
+				
+				x = vec.x;
+				y = vec.y;
+				z = vec.z;
+				
+				float oldX = Float.intBitsToFloat(quad.getVertexData()[index]);
+				float oldY = Float.intBitsToFloat(quad.getVertexData()[index+1]);
+				float oldZ = Float.intBitsToFloat(quad.getVertexData()[index+2]);
+				
+				quad.getVertexData()[index] = Float.floatToIntBits(x);
+				quad.getVertexData()[index+1] = Float.floatToIntBits(y);
+				quad.getVertexData()[index+2] = Float.floatToIntBits(z);
 				
 				if(keepVU)
 					continue;
 				
-				int uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
+				float uOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
+				float vOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
 				
-				float newX = getVertexInformationPositionX(vertex, offset);
-				float newY = getVertexInformationPositionY(vertex, offset);
-				float newZ = getVertexInformationPositionZ(vertex, offset);
+				uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
 				
-				float uMin = 0;
-				float uMax = 1;
-				float vMin = 0;
-				float vMax = 1;
+				if(facing == EnumFacing.NORTH || facing == EnumFacing.EAST)
+					uOffset *= -1;
 				
-				float u = uMin;
-				float v = vMin;
+				if(facing == EnumFacing.DOWN || facing.getAxis() != Axis.Y)
+					vOffset *= -1;
 				
-				switch(facing)
-				{
-				case EAST:
-					newY = vMax-newY;
-					newZ = uMax-newZ;
-				case WEST:
-					if(facing == EnumFacing.WEST)
-						newY = vMax-newY;
-					u = newZ;
-					v = newY;
-					break;
-				case DOWN:
-					newZ = vMax-newZ;
-				case UP:
-					u = newX;
-					v = newZ;
-					break;
-				case NORTH:
-					newY = vMax-newY;
-					newX = uMax-newX;
-				case SOUTH:
-					if(facing == EnumFacing.SOUTH)
-						newY = vMax-newY;
-					u = newX;
-					v = newY;
-					break;
-				}
-				
-				u *= 16;
-				v *= 16;
-				
-				quad.getVertexData()[uvIndex] = Float.floatToRawIntBits(quad.getSprite().getInterpolatedU(u));
-				quad.getVertexData()[uvIndex + 1] = Float.floatToRawIntBits(quad.getSprite().getInterpolatedV(v));
+				quad.getVertexData()[uvIndex] = Float.floatToRawIntBits(Float.intBitsToFloat(quad.getVertexData()[uvIndex]) - uOffset);
+				quad.getVertexData()[uvIndex + 1] = Float.floatToRawIntBits(Float.intBitsToFloat(quad.getVertexData()[uvIndex + 1]) - vOffset);
 			}
 			quads.add(quad);
 		}

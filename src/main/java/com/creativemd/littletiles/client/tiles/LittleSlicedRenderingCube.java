@@ -129,7 +129,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
 			if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
-				renderFace(dynamicCube, facing, facing.getAxis() == box.slice.axis, box.slice);
+				LittleSlicedOrdinaryRenderingCube.renderFace(dynamicCube, facing, facing.getAxis() == box.slice.axis, box.slice);
 			
 			if(cubeOne != null && facing != box.slice.getEmptySide(one))
 				renderFace(cubeOne, facing, false, box.slice);
@@ -142,25 +142,6 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	}
 	
 	public static void renderFace(CubeObject cube, EnumFacing facing, boolean isTraingle, LittleSlice slice)
-	{
-		GL11.glBegin(GL11.GL_POLYGON);
-		
-		Vec3i normal = facing.getDirectionVec();
-		GlStateManager.glNormal3f(normal.getX(), normal.getY(), normal.getZ());
-		
-		Vector3f vec = new Vector3f();
-		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
-		
-		for (int i = 0; i < 4; i++) {			
-			vec = cube.get(face.getVertexInformation(i), vec);
-			
-			GlStateManager.glVertex3f(vec.x, vec.y, vec.z);
-		}
-		
-		GlStateManager.glEnd();
-	}
-	
-	public static void renderFace(LittleDynamicCube cube, EnumFacing facing, boolean isTraingle, LittleSlice slice)
 	{
 		GL11.glBegin(GL11.GL_POLYGON);
 		
@@ -204,80 +185,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		
 		if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
 		{
-			for(int i = 0; i < blockQuads.size(); i++)
-			{
-				BakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, color, overrideTint && (defaultColor == -1 || blockQuads.get(i).hasTintIndex()) && color != -1, facing);
-				
-				EnumFaceDirection direction = EnumFaceDirection.getFacing(facing);
-				
-				for (int k = 0; k < 4; k++) {
-					
-					VertexInformation vertex = direction.getVertexInformation(k);
-					
-					int index = k * quad.getFormat().getIntegerSize();
-					//float newX = getVertexInformationPosition(vertex.xIndex);
-					//float newY = getVertexInformationPosition(vertex.yIndex);
-					//float newZ = getVertexInformationPosition(vertex.zIndex);
-					
-					vec = dynamicCube.get(vertex, vec);
-					
-					quad.getVertexData()[index] = Float.floatToIntBits(vec.x);
-					quad.getVertexData()[index+1] = Float.floatToIntBits(vec.y);
-					quad.getVertexData()[index+2] = Float.floatToIntBits(vec.z);
-					
-					if(keepVU)
-						continue;
-					
-					int uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
-					
-					float newX = getVertexInformationPositionX(vertex, offset);
-					float newY = getVertexInformationPositionY(vertex, offset);
-					float newZ = getVertexInformationPositionZ(vertex, offset);
-					
-					float uMin = 0;
-					float uMax = 1;
-					float vMin = 0;
-					float vMax = 1;
-					
-					float u = uMin;
-					float v = vMin;
-					
-					switch(facing)
-					{
-					case EAST:
-						newY = vMax-newY;
-						newZ = uMax-newZ;
-					case WEST:
-						if(facing == EnumFacing.WEST)
-							newY = vMax-newY;
-						u = newZ;
-						v = newY;
-						break;
-					case DOWN:
-						newZ = vMax-newZ;
-					case UP:
-						u = newX;
-						v = newZ;
-						break;
-					case NORTH:
-						newY = vMax-newY;
-						newX = uMax-newX;
-					case SOUTH:
-						if(facing == EnumFacing.SOUTH)
-							newY = vMax-newY;
-						u = newX;
-						v = newY;
-						break;
-					}
-					
-					u *= 16;
-					v *= 16;
-					
-					quad.getVertexData()[uvIndex] = Float.floatToRawIntBits(quad.getSprite().getInterpolatedU(u));
-					quad.getVertexData()[uvIndex + 1] = Float.floatToRawIntBits(quad.getSprite().getInterpolatedV(v));
-				}
-				quads.add(quad);
-			}
+			quads.addAll(super.getBakedQuad(offset, state, blockModel, facing, rand, overrideTint, defaultColor));
 		}
 		
 		if(cubeOne != null && facing != box.slice.getEmptySide(one))
