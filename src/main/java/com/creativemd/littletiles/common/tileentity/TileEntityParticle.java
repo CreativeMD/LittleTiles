@@ -147,7 +147,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			
 			if(particle.isModded)
 			{
-				particleEntity = particle.factory.createParticle(0, mc.world, pos.x, pos.y, pos.z, additional.x, additional.y, additional.z, new int[]{});
+				particleEntity = particle.factory.createParticle(0, mc.world, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
 				mc.effectRenderer.addEffect(particleEntity);
 			}else
 				particleEntity = (Particle) spawnParticle0.invoke(mc.renderGlobal, particle.particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
