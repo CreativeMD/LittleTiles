@@ -176,7 +176,7 @@ public enum LittleSlice {
 			else if(sizeOne < sizeTwo)
 				return true;
 			else
-				return otherAxis != Axis.Y;
+				return axis == Axis.Y ? RotationUtils.getDifferentAxisFirst(axis) == facing.getAxis() : otherAxis != Axis.Y;
 		}
 		return true;
 	}
