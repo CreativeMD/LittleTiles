@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -179,12 +180,11 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		{
 			GlStateManager.scale(0.9, 0.9, 0.9);
 			
-			
-			
 			IBlockState state = getBlockState(stack);
 			ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
 			model =  mc.getRenderItem().getItemModelMesher().getItemModel(blockStack);
-			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
+			if(!(model instanceof CreativeBakedModel))
+				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
 			GlStateManager.disableDepth();
 			
