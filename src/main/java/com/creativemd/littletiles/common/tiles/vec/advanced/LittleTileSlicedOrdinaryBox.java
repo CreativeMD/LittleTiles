@@ -381,9 +381,17 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	}
 	
 	@Override
-	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	public boolean canFaceBeCombined(LittleTileBox other)
 	{
-		if(!super.intersectsWithFace(facing, vec))
+		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		return (other instanceof LittleTileSlicedOrdinaryBox) && ((LittleTileSlicedOrdinaryBox) other).getSliceAngle(one, two) == getSliceAngle(one, two);
+	}
+	
+	@Override
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely)
+	{
+		if(!super.intersectsWithFace(facing, vec, completely))
 			return false;
 		
 		if(facing.getAxis() == slice.axis)
@@ -393,10 +401,10 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			
 			LittleTileVec copy = vec.copy();
 			
-			if(!slice.isFacingPositive(one))
+			if(completely == slice.isFacingPositive(one))
 				copy.setAxis(one, copy.getAxis(one)+1);
 			
-			if(!slice.isFacingPositive(two))
+			if(completely == slice.isFacingPositive(two))
 				copy.setAxis(two, copy.getAxis(two)+1);
 			
 			LittleCorner corner = slice.getFilledCorner();

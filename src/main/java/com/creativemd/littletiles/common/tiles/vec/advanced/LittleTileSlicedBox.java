@@ -614,9 +614,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely)
 	{
-		if(!super.intersectsWithFace(facing, vec))
+		if(!super.intersectsWithFace(facing, vec, completely))
 			return false;
 		
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
@@ -626,14 +626,18 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		
 		if(facing.getAxis() == slice.axis)
 		{
-			if(!slice.isFacingPositive(one))
+			if(completely == slice.isFacingPositive(one))
 				copy.setAxis(one, copy.getAxis(one)+1);
 			
-			if(!slice.isFacingPositive(two))
+			if(completely == slice.isFacingPositive(two))
 				copy.setAxis(two, copy.getAxis(two)+1);
 		}else{
-			if(!slice.isFacingPositive(facing.getAxis()))
-				copy.setAxis(facing.getAxis(), copy.getAxis(facing.getAxis())+1);
+			Axis different = one == facing.getAxis() ? two : one;
+			if(completely == slice.isFacingPositive(different))
+				copy.setAxis(one, copy.getAxis(different)+1);
+			
+			//if(completely == slice.isFacingPositive(two))
+				//copy.setAxis(two, copy.getAxis(two)+1);
 		}
 		return intersectsWithFaceRelative(facing, new Vec3d(copy.x, copy.y, copy.z));
 	}

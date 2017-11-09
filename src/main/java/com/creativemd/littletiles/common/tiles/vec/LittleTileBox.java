@@ -704,7 +704,7 @@ public class LittleTileBox {
 		return vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ;
 	}
 	
-	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec)
+	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely)
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
@@ -1087,6 +1087,11 @@ public class LittleTileBox {
 				face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
 	}
 	
+	public boolean canFaceBeCombined(LittleTileBox other)
+	{
+		return true;
+	}
+	
 	public void fill(LittleTileFace face)
 	{
 		if(intersectsWith(face))
@@ -1103,6 +1108,7 @@ public class LittleTileBox {
 					}
 				}
 			}else{
+				boolean completely = !canFaceBeCombined(face.getBox());
 				int min = getValueOfFacing(face.face.getOpposite());
 				if(face.face.getAxisDirection() == AxisDirection.NEGATIVE)
 					min--;
@@ -1111,7 +1117,7 @@ public class LittleTileBox {
 					for (int two = minTwo; two < maxTwo; two++) {
 						vec.setAxis(face.one, one);
 						vec.setAxis(face.two, two);
-						if(intersectsWithFace(face.face.getOpposite(), vec)) //isVecInsideBox(vec))
+						if(intersectsWithFace(face.face.getOpposite(), vec, completely)) //isVecInsideBox(vec))
 							face.filled[one-face.minOne][two-face.minTwo] = true;
 					}
 				}
@@ -1156,11 +1162,16 @@ public class LittleTileBox {
 				for (int two = 0; two < filled[one].length; two++) {
 					vec.setAxis(this.one, minOne + one);
 					vec.setAxis(this.two, minTwo + two);
-					if(!filled[one][two] && LittleTileBox.this.intersectsWithFace(face, vec)) //&& LittleTileBox.this.isVecInsideBox(vec))
+					if(!filled[one][two] && LittleTileBox.this.intersectsWithFace(face, vec, false)) //&& LittleTileBox.this.isVecInsideBox(vec))
 						return false;
 				}
 			}
 			return true;
+		}
+		
+		public LittleTileBox getBox()
+		{
+			return LittleTileBox.this;
 		}
 		
 		public boolean isFaceInsideBlock()
