@@ -58,18 +58,36 @@ public class LittleDynamicCube {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
+			//Take care of bounds
+			float value;
 			if(slice.isFacingPositive(two))
-				RotationUtils.setValue(vec, Math.min(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec))), two);
+				value = Math.min(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec)));
 			else
-				RotationUtils.setValue(vec, Math.max(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec))), two);
+				value = Math.max(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec)));
+			
+			//RotationUtils.setValue(vec, value, two);
+			if(value >= defaultCube.getMin(two) && value <= defaultCube.getMax(two))
+				RotationUtils.setValue(vec, value, two);
+			else{
+				if(slice.isFacingPositive(one))
+					value = Math.min(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec)));
+				else
+					value = Math.max(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec)));
+				RotationUtils.setValue(vec, value, one);
+			}
 			return vec;
 		}
 		
 		if(preferedSide != facing && slice.getEmptySide(facing.getAxis()) != facing)
 			return vec;
 		
+		Axis axis = facing.getAxis();
 		Axis different = RotationUtils.getDifferentAxis(facing.getAxis(), slice.axis);
-		RotationUtils.setValue(vec, (float) line.get(different, RotationUtils.get(different, vec)), facing.getAxis());
+		float value = (float) line.get(different, RotationUtils.get(different, vec));
+		if(value >= defaultCube.getMin(axis) && value < defaultCube.getMax(axis))
+			RotationUtils.setValue(vec, value, axis);
+		else
+			RotationUtils.setValue(vec, (float) line.get(axis, RotationUtils.get(axis, vec)), different);
 		return vec;		
 	}
 	

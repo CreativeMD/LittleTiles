@@ -75,7 +75,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 				cubeOne.setMin(one, LittleUtils.toVanillaGrid((float) box.getMin(one)));
 				cubeOne.setMax(one, LittleUtils.toVanillaGrid((float) box.getMinSlice(one)));
         	}else{
-        		cubeOne.setMin( one, LittleUtils.toVanillaGrid((float) box.getMaxSlice(one)));
+        		cubeOne.setMin(one, LittleUtils.toVanillaGrid((float) box.getMaxSlice(one)));
         		cubeOne.setMax(one, LittleUtils.toVanillaGrid((float) box.getMax(one)));
         	}
         	

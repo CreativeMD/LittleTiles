@@ -188,9 +188,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				
 				index = k * quad.getFormat().getIntegerSize();
 				
-				float x = facing.getAxis() == Axis.X ? getVertexInformationPosition(vertex.xIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.xIndex), minX, maxX);
-				float y = facing.getAxis() == Axis.Y ? getVertexInformationPosition(vertex.yIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.yIndex), minY, maxY);
-				float z = facing.getAxis() == Axis.Z ? getVertexInformationPosition(vertex.zIndex) : MathHelper.clamp(getVertexInformationPosition(vertex.zIndex), minZ, maxZ);
+				float x = facing.getAxis() == Axis.X ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex), minX, maxX);
+				float y = facing.getAxis() == Axis.Y ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex), minY, maxY);
+				float z = facing.getAxis() == Axis.Z ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex), minZ, maxZ);
 				
 				vec.set(x, y, z);
 				
