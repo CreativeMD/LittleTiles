@@ -179,7 +179,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			
 			IBlockState state = getBlockState(stack);
 			ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
-			model =  mc.getRenderItem().getItemModelMesher().getItemModel(blockStack);
+			model =  mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); //getItemModelMesher().getItemModel(blockStack);
 			if(!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
@@ -197,7 +197,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	            {
 	                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	                GlStateManager.enableRescaleNormal();
-	                TileEntityItemStackRenderer.instance.renderByItem(stack);
+	                TileEntityItemStackRenderer.instance.renderByItem(blockStack);
 	            }else{
 					Color color = ColorUtils.IntToRGBA(getColor(stack));
 					color.setAlpha(255);
