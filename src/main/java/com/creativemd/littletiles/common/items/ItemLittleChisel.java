@@ -182,7 +182,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			
 			IBlockState state = getBlockState(stack);
 			ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
-			model =  mc.getRenderItem().getItemModelMesher().getItemModel(blockStack);
+			model =  mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); //getItemModelMesher().getItemModel(blockStack);
 			if(!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
@@ -200,11 +200,11 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	            {
 	                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 	                GlStateManager.enableRescaleNormal();
-	                TileEntityItemStackRenderer.instance.renderByItem(stack);
+	                TileEntityItemStackRenderer.instance.renderByItem(blockStack);
 	            }else{
-				Color color = ColorUtils.IntToRGBA(getColor(stack));
-				color.setAlpha(255);
-				ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+					Color color = ColorUtils.IntToRGBA(getColor(stack));
+					color.setAlpha(255);
+					ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_191967_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
 	            }
 	        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
