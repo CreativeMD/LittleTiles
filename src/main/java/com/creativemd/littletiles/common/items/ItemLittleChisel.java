@@ -256,7 +256,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		if(min != null)
 		{
 			List<LittleTileBox> boxes = null;
-			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()))
+			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || !allowLowResolution)
 			{
 				
 				DragShape shape = getShape(stack);
