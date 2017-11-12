@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,6 +38,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Mirror;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
@@ -371,7 +373,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		addToRenderUpdate();
 		hasNeighborChanged = true;
 		
-		updateRender();
+		//updateRender();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -675,29 +677,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         nbt.setInteger("tilesCount", tiles.size());
     }
     
-    public LittleTile getTile(LittleTileVec vec)
-    {
-    	return getTile(vec.x, vec.y, vec.z);
-    }
-    
-    /**
-     * uses the corner and is therefore faster
-     */
-    public LittleTile getTile(int x, int y, int z)
-    {
-    	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			if(tile.isCornerAt(x, y, z))
-				return tile;
-		}
-    	return null;
-    }
-    
     @Override
-	@SideOnly(Side.CLIENT)
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
     {
-    	NBTTagCompound nbt = pkt.getNbtCompound();
+    	handleUpdatePacket(net, pkt.getNbtCompound());       
+        super.onDataPacket(net, pkt);
+    }
+    
+    public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt)
+    {
     	ArrayList<LittleTile> exstingTiles = new ArrayList<LittleTile>();
     	ArrayList<LittleTile> tilesToAdd = new ArrayList<LittleTile>();
     	exstingTiles.addAll(tiles);
@@ -754,8 +742,40 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         }
         
         updateTiles();
-        
-        super.onDataPacket(net, pkt);
+    }
+    
+    @Override
+    @SideOnly(Side.CLIENT)
+	public void handleUpdateTag(NBTTagCompound nbt)
+    {
+    	handleUpdatePacket(Minecraft.getMinecraft().getConnection().getNetworkManager(), nbt);
+    }
+    
+    @Override
+	public NBTTagCompound getUpdateTag()
+    {
+    	NBTTagCompound nbt = super.getUpdateTag();
+    	
+    	getDescriptionNBT(nbt);
+        return nbt;
+    }
+    
+    public LittleTile getTile(LittleTileVec vec)
+    {
+    	return getTile(vec.x, vec.y, vec.z);
+    }
+    
+    /**
+     * uses the corner and is therefore faster
+     */
+    public LittleTile getTile(int x, int y, int z)
+    {
+    	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			if(tile.isCornerAt(x, y, z))
+				return tile;
+		}
+    	return null;
     }
     
     public RayTraceResult rayTrace(EntityPlayer player)
