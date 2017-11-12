@@ -11,6 +11,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemStackSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
@@ -39,27 +40,16 @@ public class SubGuiScrewdriver extends SubGui {
 		if(stack.getTagCompound() == null)
 			stack.setTagCompound(new NBTTagCompound());
 		
-		StackSelector selector = new StackSelector() {
-			
-			@Override
-			public boolean allow(ItemStack stack)
-			{
-				Block block = Block.getBlockFromItem(stack.getItem());
-				if(block != null && !(block instanceof BlockAir))
-					return SubContainerHammer.isBlockValid(block);
-				return false;
-			}
-			
-		};
-		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
-		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, selector));
+		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, new LittleTileBlockSelector()));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
-		controls.add(new GuiCheckBox("meta", "Metadata", 40, 50, true));
+		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
+		
+		controls.add(new GuiCheckBox("remove", "Remove (cannot be undone)", 5, 57, false));
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
-		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, selector));
+		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, new LittleTileBlockSelector()));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
@@ -74,6 +64,7 @@ public class SubGuiScrewdriver extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				boolean any = ((GuiCheckBox)get("any")).value;
+				boolean remove = ((GuiCheckBox)get("remove")).value;
 				boolean replace = ((GuiCheckBox)get("replace")).value;
 				boolean colorize = ((GuiCheckBox)get("colorize")).value;
 				boolean meta = ((GuiCheckBox)get("meta")).value;
@@ -97,7 +88,7 @@ public class SubGuiScrewdriver extends SubGui {
 						nbt.setInteger("filterMeta", stackFilter.getItemDamage());
 				}
 				
-				
+				nbt.setBoolean("remove", remove);
 				if(replace)
 				{
 					ItemStack stackReplace = replacement.getStack();
@@ -121,7 +112,7 @@ public class SubGuiScrewdriver extends SubGui {
 					nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
 				}
 				
-				if(!replace && !colorize)
+				if(!remove && !replace && !colorize)
 					openButtonDialogDialog("You have to select a task!", "ok");
 				else
 					sendPacketToServer(nbt);
@@ -135,17 +126,32 @@ public class SubGuiScrewdriver extends SubGui {
 		if(event.source.is("search"))
 		{
 			GuiInvSelector inv = (GuiInvSelector) get("filter");
-			inv.search = ((GuiTextfield)event.source).text.toLowerCase();
+			((LittleTileBlockSelector) inv.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
 			inv.updateItems(container.player);
 			inv.closeBox();
 		}
 		if(event.source.is("search2"))
 		{
 			GuiInvSelector inv = (GuiInvSelector) get("replacement");
-			inv.search = ((GuiTextfield)event.source).text.toLowerCase();
+			((LittleTileBlockSelector) inv.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
 			inv.updateItems(container.player);
 			inv.closeBox();
 		}
+	}
+	
+	public static class LittleTileBlockSelector extends StackSelector {
+		
+		public String search = "";
+		
+		@Override
+		public boolean allow(ItemStack stack)
+		{
+			Block block = Block.getBlockFromItem(stack.getItem());
+			if(block != null && !(block instanceof BlockAir))
+				return SubContainerHammer.isBlockValid(block) && GuiItemStackSelector.shouldShowItem(false, search, stack);
+			return false;
+		}
+		
 	}
 
 }

@@ -41,6 +41,8 @@ public class SubContainerScrewdriver extends SubContainer {
 		int minZ = Math.min(firstZ, secZ);
 		int maxZ = Math.max(firstZ, secZ);
 		
+		boolean remove = nbt.getBoolean("remove");
+		
 		boolean colorize = nbt.hasKey("color");
 		int color = nbt.getInteger("color");
 		
@@ -89,25 +91,31 @@ public class SubContainerScrewdriver extends SubContainer {
 							{
 								hasChanged = true;
 								
-								if(replacement != null)
+								if(remove)
 								{
-									((LittleTileBlock) tile).setBlock(replacement);
-									if(metaReplacement != -1)
-										((LittleTileBlock) tile).setMeta(metaReplacement);
+									tile.destroy();
+								}else{
+									if(replacement != null)
+									{
+										((LittleTileBlock) tile).setBlock(replacement);
+										if(metaReplacement != -1)
+											((LittleTileBlock) tile).setMeta(metaReplacement);
+										
+										((LittleTileBlock) tile).updateBlockState();
+									}
 									
-									((LittleTileBlock) tile).updateBlockState();
-								}
-								
-								if(colorize)
-								{
-									LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
-									
-									if(newTile != null)
-										te.getTiles().set(te.getTiles().indexOf(tile), newTile);
+									if(colorize)
+									{
+										LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
+										
+										if(newTile != null)
+											te.getTiles().set(te.getTiles().indexOf(tile), newTile);
+									}
 								}
 								effected++;
 							}
 						}
+						
 						((TileEntityLittleTiles) tileEntity).preventUpdate = false;
 						if(hasChanged)
 							te.updateTiles();
