@@ -107,21 +107,21 @@ public class PlacementHelper {
 			//Smaller
 			if(hit.x < 0)
 			{
-				int amount = (int) Math.ceil(Math.abs(hit.x / LittleTile.gridSize));
+				int amount = (int) Math.ceil(Math.abs(hit.x / (double) LittleTile.gridSize));
 				hit.x += amount * LittleTile.gridSize;
 				pos = pos.add(-amount, 0, 0);
 			}
 			if(hit.y < 0)
 			{
-				int amount = (int) Math.ceil(Math.abs(hit.y / LittleTile.gridSize));
+				int amount = (int) Math.ceil(Math.abs(hit.y / (double) LittleTile.gridSize));
 				hit.y += amount * LittleTile.gridSize;
-				pos = pos.add(-amount, 0, 0);
+				pos = pos.add(0, -amount, 0);
 			}
 			if(hit.z < 0)
 			{
-				int amount = (int) Math.ceil(Math.abs(hit.z / LittleTile.gridSize));
+				int amount = (int) Math.ceil(Math.abs(hit.z / (double) LittleTile.gridSize));
 				hit.z += amount * LittleTile.gridSize;
-				pos = pos.add(-amount, 0, 0);
+				pos = pos.add(0, 0, -amount);
 			}
 		}
 

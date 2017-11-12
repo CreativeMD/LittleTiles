@@ -294,14 +294,4 @@ public class PreviewRenderer {
 		vec.scale(GuiScreen.isCtrlKeyDown() ? LittleTile.gridSize : 1);
 		markedPosition.subVec(vec);
 	}
-	
-	/*
-	{
-		Axis [x, y, z]
-		Clockwise <=> counterClockWise
-		[1 0 0]
-		[0 0 -1]
-		[0 1 0]
-	}
-	*/
 }
