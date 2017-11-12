@@ -127,8 +127,8 @@ public class PreviewRenderer {
 	            
 	            if(result != null)
 	            {
-	            	if(!absolute)
-	            		processMarkKey(player, position, result);
+	            	//if(!absolute)
+	            	processMarkKey(player, position, result, absolute);
 		            
 		            double x = (double)position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
 					double y = (double)position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
@@ -169,7 +169,7 @@ public class PreviewRenderer {
 		}
 	}
 	
-	public void processMarkKey(EntityPlayer player, PositionResult result, PreviewResult preview)
+	public void processMarkKey(EntityPlayer player, PositionResult result, PreviewResult preview, boolean absolute)
 	{
 		while (LittleTilesClient.mark.isPressed())
 		{
@@ -177,38 +177,41 @@ public class PreviewRenderer {
 			{
 				boolean centered = isCentered(player);
 				markedPosition = result.copy();
-				markedPosition.hit = preview.box.getCenter();
-				
-				LittleTileVec center = preview.size.calculateCenter();
-				LittleTileVec centerInv = preview.size.calculateInvertedCenter();
-				
-				switch(result.facing)
+				if(!absolute)
 				{
-				case EAST:
-					markedPosition.hit.x -= center.x;
-					break;
-				case WEST:
-					markedPosition.hit.x += centerInv.x;
-					break;
-				case UP:
-					markedPosition.hit.y -= center.y;
-					break;
-				case DOWN:
-					markedPosition.hit.y += centerInv.y;
-					break;
-				case SOUTH:
-					markedPosition.hit.z -= center.z;
-					break;
-				case NORTH:
-					markedPosition.hit.z += centerInv.z;
-					break;
-				default:
-					break;
-				}
-				
-				if(!preview.singleMode && preview.placedFixed)
-				{
-					markedPosition.hit.sub(preview.offset);
+					markedPosition.hit = preview.box.getCenter();
+					
+					LittleTileVec center = preview.size.calculateCenter();
+					LittleTileVec centerInv = preview.size.calculateInvertedCenter();
+					
+					switch(result.facing)
+					{
+					case EAST:
+						markedPosition.hit.x -= center.x;
+						break;
+					case WEST:
+						markedPosition.hit.x += centerInv.x;
+						break;
+					case UP:
+						markedPosition.hit.y -= center.y;
+						break;
+					case DOWN:
+						markedPosition.hit.y += centerInv.y;
+						break;
+					case SOUTH:
+						markedPosition.hit.z -= center.z;
+						break;
+					case NORTH:
+						markedPosition.hit.z += centerInv.z;
+						break;
+					default:
+						break;
+					}
+					
+					if(!preview.singleMode && preview.placedFixed)
+					{
+						markedPosition.hit.sub(preview.offset);
+					}
 				}
 			}
 			else
