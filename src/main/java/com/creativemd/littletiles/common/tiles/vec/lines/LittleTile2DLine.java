@@ -74,10 +74,10 @@ public class LittleTile2DLine {
 	
 	public boolean isCoordinateTwoTheRight(int one, int two)
 	{
-		one -= originOne;
-		two -= originTwo;
+		double tempOne = one - originOne;
+		double tempTwo = two - originTwo;
 		
-		return directionOne * (-two) + directionTwo * one > 0;
+		return directionOne * (-tempTwo) + directionTwo * tempOne > 0;
 	}
 	
 	public Vec3d intersect(LittleTile2DLine line, int thirdValue)

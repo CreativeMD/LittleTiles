@@ -632,12 +632,17 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			if(completely == slice.isFacingPositive(two))
 				copy.setAxis(two, copy.getAxis(two)+1);
 		}else{
-			Axis different = one == facing.getAxis() ? two : one;
-			if(completely == slice.isFacingPositive(different))
-				copy.setAxis(one, copy.getAxis(different)+1);
+			//Axis different = one == facing.getAxis() ? two : one;
+			//if(completely == slice.isFacingPositive(different))
+				//copy.setAxis(one, copy.getAxis(different)+1);
 			
 			//if(completely == slice.isFacingPositive(two))
 				//copy.setAxis(two, copy.getAxis(two)+1);
+			if(completely == slice.isFacingPositive(one))
+				copy.setAxis(one, copy.getAxis(one)+1);
+			
+			if(completely == slice.isFacingPositive(two))
+				copy.setAxis(two, copy.getAxis(two)+1);
 		}
 		return intersectsWithFaceRelative(facing, new Vec3d(copy.x, copy.y, copy.z));
 	}
@@ -680,7 +685,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double sizeTwo = getSliceSize(two);
 			
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+			return sizeOne > difOne && sizeTwo > difTwo && diff < 1;
 		}else{			
 			Axis other = RotationUtils.getDifferentAxisFirst(slice.axis) == axis ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
 			
@@ -851,10 +856,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		Vector3d start = new Vector3d(0, 0, 0);
 		Vector3d end = new Vector3d(0, 0, 0);
 		
-		RotationUtils.setValue(start, startOne + getMin(beforeOne), beforeOne);
-		RotationUtils.setValue(start, startTwo + getMin(beforeTwo), beforeTwo);
-		RotationUtils.setValue(end, endOne + getMin(beforeOne), beforeOne);
-		RotationUtils.setValue(end, endTwo + getMin(beforeTwo), beforeTwo);
+		RotationUtils.setValue(start, (startOne + getMin(beforeOne))*2, beforeOne);
+		RotationUtils.setValue(start, (startTwo + getMin(beforeTwo))*2, beforeTwo);
+		RotationUtils.setValue(end, (endOne + getMin(beforeOne))*2, beforeOne);
+		RotationUtils.setValue(end, (endTwo + getMin(beforeTwo))*2, beforeTwo);
 		
 		LittleSlice before = slice;
 		
@@ -863,24 +868,40 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
+		start.x -= doubledCenter.x;
+		start.y -= doubledCenter.y;
+		start.z -= doubledCenter.z;
+		
+		end.x -= doubledCenter.x;
+		end.y -= doubledCenter.y;
+		end.z -= doubledCenter.z;
+		
 		RotationUtils.rotateVec(start, rotation);
 		RotationUtils.rotateVec(end, rotation);
 		beforeOne = RotationUtils.rotateAxis(beforeOne, rotation);
 		beforeTwo = RotationUtils.rotateAxis(beforeTwo, rotation);
 		
-		RotationUtils.setValue(start, RotationUtils.get(beforeOne, start) - getMin(beforeOne), beforeOne);
-		RotationUtils.setValue(start, RotationUtils.get(beforeTwo, start) - getMin(beforeTwo), beforeTwo);
-		RotationUtils.setValue(end, RotationUtils.get(beforeOne, end) - getMin(beforeOne), beforeOne);
-		RotationUtils.setValue(end, RotationUtils.get(beforeTwo, end) - getMin(beforeTwo), beforeTwo);
+		start.x += doubledCenter.x;
+		start.y += doubledCenter.y;
+		start.z += doubledCenter.z;
+		
+		end.x += doubledCenter.x;
+		end.y += doubledCenter.y;
+		end.z += doubledCenter.z;
+		
+		RotationUtils.setValue(start, RotationUtils.get(beforeOne, start) - getMin(beforeOne)*2, beforeOne);
+		RotationUtils.setValue(start, RotationUtils.get(beforeTwo, start) - getMin(beforeTwo)*2, beforeTwo);
+		RotationUtils.setValue(end, RotationUtils.get(beforeOne, end) - getMin(beforeOne)*2, beforeOne);
+		RotationUtils.setValue(end, RotationUtils.get(beforeTwo, end) - getMin(beforeTwo)*2, beforeTwo);
 		
 		/*startOne = startCorner.isFacingPositive(one) == slice.start.isFacingPositive(one) ? RotationUtils.get(one, start) : RotationUtils.get(one, end);
 		startTwo = startCorner.isFacingPositive(two) == slice.start.isFacingPositive(two) ? RotationUtils.get(two, start) : RotationUtils.get(two, end);
 		endOne = startCorner.isFacingPositive(one) == slice.start.isFacingPositive(one) ? RotationUtils.get(one, end) : RotationUtils.get(one, start);
 		endTwo = startCorner.isFacingPositive(two) == slice.start.isFacingPositive(two) ? RotationUtils.get(two, end) : RotationUtils.get(two, start);*/
-		startOne = (float) (slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end)));
-		startTwo = (float) (slice.start.isFacingPositive(two) ? Math.max(RotationUtils.get(two, start), RotationUtils.get(two, end)) : Math.min(RotationUtils.get(two, start), RotationUtils.get(two, end)));
-		endOne = (float) (!slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end)));
-		endTwo = (float) (!slice.start.isFacingPositive(two) ? Math.max(RotationUtils.get(two, start), RotationUtils.get(two, end)) : Math.min(RotationUtils.get(two, start), RotationUtils.get(two, end)));
+		startOne = (float) (slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end))) / 2F;
+		startTwo = (float) (slice.start.isFacingPositive(two) ? Math.max(RotationUtils.get(two, start), RotationUtils.get(two, end)) : Math.min(RotationUtils.get(two, start), RotationUtils.get(two, end))) / 2F;
+		endOne = (float) (!slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end))) / 2F;
+		endTwo = (float) (!slice.start.isFacingPositive(two) ? Math.max(RotationUtils.get(two, start), RotationUtils.get(two, end)) : Math.min(RotationUtils.get(two, start), RotationUtils.get(two, end))) / 2F;
 	}
 	
 	@Override
@@ -892,15 +913,15 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			return ;
 		}
 		
-		float startBefore = getMax(axis) - getStart(axis);
-		float endBefore = getMax(axis) - getEnd(axis);
+		float startBefore = (getMax(axis) - getStart(axis)) * 2;
+		float endBefore = (getMax(axis) - getEnd(axis)) * 2;
 		
 		super.flipBox(axis, doubledCenter);
 		
 		Axis other = axis == RotationUtils.getDifferentAxisFirst(slice.axis) ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
 		
-		setStartRelative(axis, (float) (slice.start.isFacingPositive(axis) ? Math.max(startBefore, endBefore) : Math.min(startBefore, endBefore)));
-		setEndRelative(axis, (float) (!slice.start.isFacingPositive(axis) ? Math.max(startBefore, endBefore) : Math.min(startBefore, endBefore)));
+		setStartRelative(axis, (float) (slice.start.isFacingPositive(axis) ? Math.max(startBefore, endBefore) : Math.min(startBefore, endBefore)) / 2);
+		setEndRelative(axis, (float) (!slice.start.isFacingPositive(axis) ? Math.max(startBefore, endBefore) : Math.min(startBefore, endBefore)) / 2);
 		
 		startBefore = (float) (slice.start.isFacingPositive(other) ? Math.max(getStartRelative(other), getEndRelative(other)) : Math.min(getStartRelative(other), getEndRelative(other)));
 		setEndRelative(other, (float) (!slice.start.isFacingPositive(other) ? Math.max(getStartRelative(other), getEndRelative(other)) : Math.min(getStartRelative(other), getEndRelative(other))));
