@@ -175,7 +175,7 @@ public class LittleEvent {
 	        {
 				if(iTile.arePreviewsAbsolute())
 				{
-					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false), true).execute();
+					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false, false), true).execute();
 				}else if(new LittleActionPlaceRelative(PreviewRenderer.markedPosition != null ? PreviewRenderer.markedPosition : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), GuiScreen.isCtrlKeyDown()).execute())
 					PreviewRenderer.markedPosition = null;
 	        }

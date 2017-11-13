@@ -132,7 +132,7 @@ public class SubContainerHammer extends SubContainer{
 				double missingTiles = blocks-tiles*box.getPercentVolume();
 				
 				try {
-					LittleAction.addPreviewToInventory(player, ((ILittleTile) dropstack.getItem()).getLittlePreview(dropstack, false));
+					LittleAction.addPreviewToInventory(player, ((ILittleTile) dropstack.getItem()).getLittlePreview(dropstack, false, false));
 				} catch (NotEnoughIngredientsException e) {
 					e.printStackTrace();
 				}

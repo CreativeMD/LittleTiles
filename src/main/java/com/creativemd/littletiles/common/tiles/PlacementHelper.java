@@ -275,9 +275,9 @@ public class PlacementHelper {
 	 * @param facing if centered is true it will be used to apply the offset
 	 * @param fixed if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution)
+	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked)
 	{
-		return getPreviews(world, stack, position.pos, position.hit, centered, position.facing, fixed, allowLowResolution);
+		return getPreviews(world, stack, position.pos, position.hit, centered, position.facing, fixed, allowLowResolution, marked);
 	}
 	
 	/**
@@ -286,7 +286,7 @@ public class PlacementHelper {
 	 * @param facing if centered is true it will be used to apply the offset
 	 * @param fixed if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, ItemStack stack, BlockPos pos, LittleTileVec hit, boolean centered, @Nullable EnumFacing facing, boolean fixed, boolean allowLowResolution)
+	public static PreviewResult getPreviews(World world, ItemStack stack, BlockPos pos, LittleTileVec hit, boolean centered, @Nullable EnumFacing facing, boolean fixed, boolean allowLowResolution, boolean marked)
 	{
 		PreviewResult result = new PreviewResult();
 		
@@ -295,7 +295,7 @@ public class PlacementHelper {
 		List<LittleTilePreview> tiles = allowLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTagCompound()) ? new ArrayList<>(lastPreviews) : null;
 		
 		if(tiles == null && iTile != null)
-			tiles = iTile.getLittlePreview(stack, allowLowResolution);
+			tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
 		
 		if(tiles != null && tiles.size() > 0)
 		{
