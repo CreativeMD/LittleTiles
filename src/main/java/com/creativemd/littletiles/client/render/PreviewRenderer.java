@@ -118,12 +118,12 @@ public class PreviewRenderer {
 	            if(absolute)
 	            {
 	            	result = new PreviewResult();
-	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true);
+	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true, markedPosition != null);
 	            	for (int i = 0; i < tiles.size(); i++) {
 	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
 					}	            	
 	            }else
-	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true);
+	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
 	            
 	            if(result != null)
 	            {

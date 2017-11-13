@@ -90,7 +90,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	}
 	
 	@Override
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution)
+	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}

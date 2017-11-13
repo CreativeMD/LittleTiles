@@ -226,6 +226,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	
 	private static LittleTileVec cachedPos;
 	private static List<LittleTileBox> cachedShape;
+	private static boolean cachedLow;
 	private static NBTTagCompound cachedSettings;
 	
 	@SideOnly(Side.CLIENT)
@@ -248,20 +249,22 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	}
 	
 	@Override
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution)
+	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		if(min != null)
 		{
 			List<LittleTileBox> boxes = null;
-			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || !allowLowResolution)
+			boolean low = allowLowResolution && !marked;
+			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != low)
 			{
 				
 				DragShape shape = getShape(stack);
 				LittleTileBox newBox = getBox();
-				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
+				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), low, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = new ArrayList<>(boxes);
 				cachedSettings = stack.getTagCompound().copy();
+				cachedLow = low;
 			}else
 				boxes = cachedShape;
 			

@@ -24,7 +24,7 @@ public interface ILittleTile {
 	
 	public List<LittleTilePreview> getLittlePreview(ItemStack stack);
 	
-	public default List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution)
+	public default List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		return getLittlePreview(stack);
 	}
@@ -33,7 +33,7 @@ public interface ILittleTile {
 	
 	public default void rotateLittlePreview(ItemStack stack, Rotation rotation)
 	{
-		List<LittleTilePreview> previews = getLittlePreview(stack, false);
+		List<LittleTilePreview> previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.rotatePreview(rotation, rotationCenter);
@@ -43,7 +43,7 @@ public interface ILittleTile {
 	
 	public default void flipLittlePreview(ItemStack stack, Axis axis)
 	{
-		List<LittleTilePreview> previews = getLittlePreview(stack, false);
+		List<LittleTilePreview> previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.flipPreview(axis, rotationCenter);

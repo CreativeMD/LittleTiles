@@ -123,7 +123,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 			forced = false;
 		}
 		
-		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false);
+		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false);
 		
 		ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 		
