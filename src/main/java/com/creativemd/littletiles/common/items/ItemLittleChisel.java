@@ -319,7 +319,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		//lastMax = new LittleTileVec(result);
 		lastMax = position.getAbsoluteVec();
 		if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			lastMax.add(result.sideHit);
+			lastMax.add(position.facing);
 	}
 	
 	@Override

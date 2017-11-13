@@ -47,7 +47,7 @@ public class LittleChair extends LittleStructure{
 			LittleTileVec vec = getHighestCenterPoint();
 			if(vec != null)
 			{
-				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY(), vec.getPosZ());
+				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
 				player.startRiding(sit);
 				world.spawnEntity(sit);
 			}
