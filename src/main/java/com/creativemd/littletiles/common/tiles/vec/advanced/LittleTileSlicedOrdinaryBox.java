@@ -414,7 +414,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			double sizeOne = getSize(one);
 			double sizeTwo = getSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+			return sizeOne > difOne && sizeTwo > difTwo && diff < 1;
 		}
 		return slice.getEmptySide(facing.getAxis()) != facing;
 	}
