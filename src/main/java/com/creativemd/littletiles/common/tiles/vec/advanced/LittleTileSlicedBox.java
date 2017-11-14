@@ -685,7 +685,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double sizeTwo = getSliceSize(two);
 			
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne > difOne && sizeTwo > difTwo && diff < 1;
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}else{			
 			Axis other = RotationUtils.getDifferentAxisFirst(slice.axis) == axis ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
 			
@@ -1060,8 +1060,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	public LittleRenderingCube getRenderingCube(CubeObject cube, Block block, int meta)
 	{
 		return new LittleSlicedRenderingCube(cube, this, block, meta);
-	}
-		
+	}	
 	
 	//================Sliced================
 	
