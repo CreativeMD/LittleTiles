@@ -62,7 +62,8 @@ public class LittleBedPacket extends CreativeCorePacket {
 				if(tile != null && tile.isLoaded() && tile.structure instanceof LittleBed)
 				{
 					((LittleBed) tile.structure).trySleep((EntityPlayer) entity, tile.structure.getHighestCenterPoint());
-				}
+				}else
+					System.out.println("Could not find bed!!!");
 			}
 		}
 	}

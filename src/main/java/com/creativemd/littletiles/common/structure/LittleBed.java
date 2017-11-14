@@ -92,7 +92,7 @@ public class LittleBed extends LittleStructure{
 			
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) event.source.parent.get("direction")).getState());
 			
-			LittleSlidingDoor.updateDirection(viewer, direction, relativeDirection);
+			LittleSlidingDoor.updateDirection(viewer, direction.getOpposite(), relativeDirection);
 		}
 	}
 
@@ -113,7 +113,7 @@ public class LittleBed extends LittleStructure{
 		
 		GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
 		gui.addControl(relativeDirection);
-		LittleSlidingDoor.updateDirection(tile, EnumFacing.getHorizontal(index), relativeDirection);
+		LittleSlidingDoor.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
 	}
 
 	@Override
@@ -313,8 +313,8 @@ public class LittleBed extends LittleStructure{
             if (enumstatus == SleepResult.OK)
             {
             	player.addStat(StatList.SLEEP_IN_BED);
-            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(pos, getMainTile().getCornerVec()), (EntityPlayerMP) player);
-            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(pos, getMainTile().getCornerVec(), player), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(getMainTile().te.getPos(), getMainTile().getCornerVec()), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getMainTile().te.getPos(), getMainTile().getCornerVec(), player), (EntityPlayerMP) player);
                 return true;
             }
             else
