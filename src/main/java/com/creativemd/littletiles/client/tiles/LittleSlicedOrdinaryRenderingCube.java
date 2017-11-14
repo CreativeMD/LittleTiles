@@ -106,6 +106,20 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.glEnd();
 	}
 	
+	public boolean intersectsWithFace(EnumFacing facing, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, BlockPos offset)
+	{
+		switch(facing.getAxis())
+		{
+		case X:
+			return maxY > dynamicCube.defaultCube.minY - offset.getY() && minY < dynamicCube.defaultCube.maxY - offset.getY() && maxZ > dynamicCube.defaultCube.minZ - offset.getZ() && minZ < dynamicCube.defaultCube.maxZ - offset.getZ();
+		case Y:
+			return maxX > dynamicCube.defaultCube.minX - offset.getX() && minX < dynamicCube.defaultCube.maxX - offset.getX() && maxZ > dynamicCube.defaultCube.minZ - offset.getZ() && minZ < dynamicCube.defaultCube.maxZ - offset.getZ();
+		case Z:
+			return maxX > dynamicCube.defaultCube.minX - offset.getX() && minX < dynamicCube.defaultCube.maxX - offset.getX() && maxY > dynamicCube.defaultCube.minY - offset.getY() && minY < dynamicCube.defaultCube.maxY - offset.getY();
+		}
+		return false;
+	}
+	
 	@Override
 	public List<BakedQuad> getBakedQuad(BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, long rand, boolean overrideTint, int defaultColor)
 	{
@@ -149,21 +163,8 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			
 			
 			//Check if it is intersecting, otherwise there is no need to render it
-			switch(facing.getAxis())
-			{
-			case X:
-				if(!(maxY > dynamicCube.defaultCube.minY && minY < dynamicCube.defaultCube.maxY && maxZ > dynamicCube.defaultCube.minZ && minZ < dynamicCube.defaultCube.maxZ))
-					continue;
-				break;
-			case Y:
-				if(!(maxX > dynamicCube.defaultCube.minX && minX < dynamicCube.defaultCube.maxX && maxZ > dynamicCube.defaultCube.minZ && minZ < dynamicCube.defaultCube.maxZ))
-					continue;
-				break;
-			case Z:
-				if(!(maxX > dynamicCube.defaultCube.minX && minX < dynamicCube.defaultCube.maxX && maxY > dynamicCube.defaultCube.minY && minY < dynamicCube.defaultCube.maxY))
-					continue;
-				break;
-			}
+			if(!intersectsWithFace(facing, minX, minY, minZ, maxX, maxY, maxZ, offset))
+				continue;
 			
 			float sizeX = maxX - minX;
 			float sizeY = maxY - minY;
@@ -188,9 +189,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				
 				index = k * quad.getFormat().getIntegerSize();
 				
-				float x = facing.getAxis() == Axis.X ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex), minX, maxX);
-				float y = facing.getAxis() == Axis.Y ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex), minY, maxY);
-				float z = facing.getAxis() == Axis.Z ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex), minZ, maxZ);
+				float x = facing.getAxis() == Axis.X ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - offset.getX() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - offset.getX(), minX, maxX);
+				float y = facing.getAxis() == Axis.Y ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - offset.getY() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - offset.getY(), minY, maxY);
+				float z = facing.getAxis() == Axis.Z ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - offset.getZ() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - offset.getZ(), minZ, maxZ);
 				
 				vec.set(x, y, z);
 				
@@ -204,9 +205,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				float oldY = Float.intBitsToFloat(quad.getVertexData()[index+1]);
 				float oldZ = Float.intBitsToFloat(quad.getVertexData()[index+2]);
 				
-				quad.getVertexData()[index] = Float.floatToIntBits(x);
-				quad.getVertexData()[index+1] = Float.floatToIntBits(y);
-				quad.getVertexData()[index+2] = Float.floatToIntBits(z);
+				quad.getVertexData()[index] = Float.floatToIntBits(x + offset.getX());
+				quad.getVertexData()[index+1] = Float.floatToIntBits(y + offset.getY());
+				quad.getVertexData()[index+2] = Float.floatToIntBits(z + offset.getZ());
 				
 				if(keepVU)
 					continue;
