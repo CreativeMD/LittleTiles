@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 
 public class LittleDynamicCube {
 	
@@ -51,7 +52,7 @@ public class LittleDynamicCube {
 	public EnumFacing preferedSide;
 	public LittleTile2DLine line;
 	
-	public Vector3f sliceVector(EnumFacing facing, Vector3f vec)
+	public Vector3f sliceVector(EnumFacing facing, Vector3f vec, BlockPos pos)
 	{
 		if(facing.getAxis() == slice.axis)
 		{
@@ -61,18 +62,18 @@ public class LittleDynamicCube {
 			//Take care of bounds
 			float value;
 			if(slice.isFacingPositive(two))
-				value = Math.min(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec)));
+				value = Math.min(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec) + RotationUtils.get(one, pos)) - RotationUtils.get(two, pos));
 			else
-				value = Math.max(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec)));
+				value = Math.max(RotationUtils.get(two, vec), (float) line.get(one, RotationUtils.get(one, vec) + RotationUtils.get(one, pos)) - RotationUtils.get(two, pos));
 			
 			//RotationUtils.setValue(vec, value, two);
 			if(value >= defaultCube.getMin(two) && value < defaultCube.getMax(two))
 				RotationUtils.setValue(vec, value, two);
 			else{
 				if(slice.isFacingPositive(one))
-					value = Math.min(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec)));
+					value = Math.min(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec) + RotationUtils.get(two, pos)) - RotationUtils.get(one, pos));
 				else
-					value = Math.max(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec)));
+					value = Math.max(RotationUtils.get(one, vec), (float) line.get(two, RotationUtils.get(two, vec) + RotationUtils.get(two, pos)) - RotationUtils.get(one, pos));
 				RotationUtils.setValue(vec, value, one);
 			}
 			return vec;
@@ -83,7 +84,7 @@ public class LittleDynamicCube {
 		
 		Axis axis = facing.getAxis();
 		Axis different = RotationUtils.getDifferentAxis(facing.getAxis(), slice.axis);
-		float value = (float) line.get(different, RotationUtils.get(different, vec));
+		float value = (float) line.get(different, RotationUtils.get(different, vec) + RotationUtils.get(different, pos)) - RotationUtils.get(axis, pos);
 		//if(value >= defaultCube.getMin(axis) && value < defaultCube.getMax(axis))
 			RotationUtils.setValue(vec, value, axis);
 		//else
@@ -94,7 +95,7 @@ public class LittleDynamicCube {
 	public Vector3f get(EnumFacing facing, VertexInformation info, Vector3f output)
 	{
 		output.set(defaultCube.getVertexInformationPosition(info.xIndex), defaultCube.getVertexInformationPosition(info.yIndex), defaultCube.getVertexInformationPosition(info.zIndex));
-		sliceVector(facing, output);
+		sliceVector(facing, output, BlockPos.ORIGIN);
 		return output;
 	}
 	

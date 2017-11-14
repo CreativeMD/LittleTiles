@@ -195,7 +195,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				
 				vec.set(x, y, z);
 				
-				dynamicCube.sliceVector(facing, vec);
+				dynamicCube.sliceVector(facing, vec, offset);
 				
 				x = vec.x;
 				y = vec.y;
