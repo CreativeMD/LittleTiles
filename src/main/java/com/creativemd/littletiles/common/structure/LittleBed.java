@@ -35,6 +35,7 @@ import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -64,8 +65,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleBed extends LittleStructure{
 	
-	public EntityPlayer sleepingPlayer = null;
-	
+	public EntityLivingBase sleepingPlayer = null;
+	@SideOnly(Side.CLIENT)
+	public LittleTileVec playerPostion;
 	public EnumFacing direction;
 	
 	@SideOnly(Side.CLIENT)
@@ -218,6 +220,8 @@ public class LittleBed extends LittleStructure{
         {
             player.dismountRidingEntity();
         }
+        if(player.world.isRemote)
+        	playerPostion = highest;
         sleepingPlayer = player;
         
         try {
@@ -237,7 +241,7 @@ public class LittleBed extends LittleStructure{
         
         player.renderOffsetX = -1.8F * (float)direction.getFrontOffsetX();
         player.renderOffsetZ = -1.8F * (float)direction.getFrontOffsetZ();
-        player.setPosition((double)((float)highest.getPosX() - 0.5F + f1), (double)((float)highest.getPosY() + 0.6875F - 0.5F), (double)((float)highest.getPosZ() - 0.5F + f));
+        player.setPosition((double)((float)highest.getPosX() - 0.5F + f1), (double)((float)highest.getPosY()), (double)((float)highest.getPosZ() - 0.5F + f));
         
         try {
         	sleeping.setBoolean(player, true);
@@ -282,9 +286,12 @@ public class LittleBed extends LittleStructure{
 				if(bed instanceof LittleBed)
 				{
 					int i = ((LittleBed) bed).direction.getHorizontalIndex();
-					glRotatef((float)(i * 90), 0.0F, 1.0F, 0.0F);
+					GlStateManager.rotate(i * 90, 0.0F, 1.0F, 0.0F);
+					//GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() - player.posY, 0);
+					GlStateManager.translate(0.7, 0.2, 0);
 					//Minecraft.getMinecraft().getRenderManager().playerViewY = (float)(((LittleBed) bed).direction.getHorizontalAngle() * 90 + 180);
 					//Minecraft.getMinecraft().getRenderManager().playerViewX = 0.0F;
+					
 				}
 			}catch(IllegalArgumentException | IllegalAccessException e){
 				e.printStackTrace();
