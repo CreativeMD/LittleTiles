@@ -436,7 +436,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			int posOne = RotationUtils.get(one, x, y, z);
 			int posTwo = RotationUtils.get(two, x, y, z);
 			
-			if(slice.isFacingPositive(two))
+			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one))
 					return true;
@@ -445,7 +445,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			if(slice.isFacingPositive(one))
+			if(slice.isFacingPositive(two))
         	{
 				if(posTwo <= getMinSlice(two))
 					return true;
@@ -541,7 +541,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double posOne = RotationUtils.get(one, vec);
 			double posTwo = RotationUtils.get(two, vec);
 			
-			if(slice.isFacingPositive(two))
+			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one) / LittleTile.gridSize)
 					return true;
@@ -550,7 +550,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			if(slice.isFacingPositive(one))
+			if(slice.isFacingPositive(two))
         	{
 				if(posTwo <= getMinSlice(two))
 					return true;
@@ -582,7 +582,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			int posOne = RotationUtils.get(one, x, y, z);
 			int posTwo = RotationUtils.get(two, x, y, z);
 			
-			if(slice.isFacingPositive(two))
+			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one))
 					return true;
@@ -591,7 +591,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			if(slice.isFacingPositive(one))
+			if(slice.isFacingPositive(two))
         	{
 				if(posTwo <= getMinSlice(two))
 					return true;
@@ -659,7 +659,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double posOne = RotationUtils.get(one, vec);
 			double posTwo = RotationUtils.get(two, vec);
 			
-			if(slice.isFacingPositive(two))
+			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one))
 					return true;
@@ -668,7 +668,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			if(slice.isFacingPositive(one))
+			if(slice.isFacingPositive(two))
         	{
 				if(posTwo <= getMinSlice(two))
 					return true;
@@ -734,7 +734,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			double posOne = RotationUtils.get(one, vec);
 			double posTwo = RotationUtils.get(two, vec);
 			
-			if(slice.isFacingPositive(two))
+			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one) / LittleTile.gridSize)
 					return true;
@@ -743,7 +743,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			if(slice.isFacingPositive(one))
+			if(slice.isFacingPositive(two))
         	{
 				if(posTwo <= getMinSlice(two) / LittleTile.gridSize)
 					return true;
