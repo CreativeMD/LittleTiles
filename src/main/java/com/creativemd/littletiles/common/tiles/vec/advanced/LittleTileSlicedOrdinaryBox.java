@@ -107,7 +107,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	@Override
 	public LittleTileBox createOutsideBlockBox(EnumFacing facing)
 	{
-		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
+		if(facing == slice.emptySideOne || facing == slice.emptySideTwo)
 			return null;
 		
 		if(facing.getAxis() == slice.axis)
@@ -254,8 +254,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		Axis axisTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
 		// cube vectors
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideSecond.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideSecond);
+		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		// vec triangle
 		int pointOne = getValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
@@ -363,8 +363,17 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			
 			LittleCorner corner = slice.getFilledCorner();
 			
-			int difOne = Math.abs(getCornerValue(corner, one) - RotationUtils.get(one, x, y, z));
-			int difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, x, y, z));
+			int posOne = RotationUtils.get(one, x, y, z);
+			int posTwo = RotationUtils.get(two, x, y, z);
+			
+			if(!slice.isFacingPositive(one))
+				posOne = posOne+1;
+			
+			if(!slice.isFacingPositive(two))
+				posTwo = posTwo+1;
+			
+			int difOne = Math.abs(getCornerValue(corner, one) - posOne);
+			int difTwo = Math.abs(getCornerValue(corner, two) - posTwo);
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
 			
@@ -461,7 +470,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		EnumFacing collided = null;
 		
 		for (EnumFacing facing : EnumFacing.VALUES) {
-			if(slice.emptySideOne != facing && slice.emptySideSecond != facing)
+			if(slice.emptySideOne != facing && slice.emptySideTwo != facing)
 			{
 				Vec3d temp = collideWithPlane(facing.getAxis(), (double) getValueOfFacing(facing)/LittleTile.gridSize, vecA, vecB);
 				if(temp != null && isClosest(vecA, collision, temp))
@@ -813,7 +822,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	@Nullable
 	public LittleTileFace getFace(EnumFacing facing)
 	{
-		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
+		if(facing == slice.emptySideOne || facing == slice.emptySideTwo)
 			return null;
 		
 		return super.getFace(facing);
