@@ -213,21 +213,22 @@ public class LittleActionPlaceRelative extends LittleAction {
 						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
 						teLT.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							LittleTile LT = placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing, requiresCollisionTest);
-							if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
-							{
-								if(!soundsToBePlayed.contains(LT.getSound()))
-									soundsToBePlayed.add(LT.getSound());
-								if(structure != null)
+							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing, requiresCollisionTest)) {
+								if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
 								{
-									if(!structure.hasMainTile())
+									if(!soundsToBePlayed.contains(LT.getSound()))
+										soundsToBePlayed.add(LT.getSound());
+									if(structure != null)
 									{
-										structure.setMainTile(LT);
-									}else
-										LT.coord = structure.getMainTileCoord(LT);
+										if(!structure.hasMainTile())
+										{
+											structure.setMainTile(LT);
+										}else
+											LT.coord = structure.getMainTileCoord(LT);
+									}
+									LT.isAllowedToSearchForStructure = false;
+									placed.add(LT);
 								}
-								LT.isAllowedToSearchForStructure = false;
-								placed.add(LT);
 							}
 						}
 						
@@ -238,9 +239,11 @@ public class LittleActionPlaceRelative extends LittleAction {
 			}
 			
 			for (int j = 0; j < lastPlacedTiles.size(); j++) {
-				LittleTile tile = lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing, true);
-				if(tile != null)
-					placed.add(tile);
+				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing, true))
+				{
+					if(tile != null)
+						placed.add(tile);
+				}
 			}
 			
 			if(structure != null)

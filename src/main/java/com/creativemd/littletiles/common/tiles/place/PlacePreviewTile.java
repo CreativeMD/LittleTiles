@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tiles.place;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -58,11 +59,12 @@ public class PlacePreviewTile {
 		return previews;
 	}
 	
-	public LittleTile placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
+	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
 	{
 		LittleTile LT = preview.getLittleTile(teLT);
+		
 		if(LT == null)
-			return null;
+			return Collections.EMPTY_LIST;
 		
 		LT.box = box.copy();
 		
@@ -75,10 +77,13 @@ public class PlacePreviewTile {
 		
 		if(!requiresCollisionTest || teLT.isSpaceForLittleTile(box))
 		{
+			ArrayList<LittleTile> tiles = new ArrayList<>();
 			LT.place();
 			LT.onPlaced(player, stack, facing);
-			return LT;
+			tiles.add(LT);
+			return tiles;
 		}else if(forced){
+			ArrayList<LittleTile> tiles = new ArrayList<>();
 			ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
 			ArrayList<LittleTileBox> unplaceableBoxes = new ArrayList<>();
 			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
@@ -97,14 +102,12 @@ public class PlacePreviewTile {
 			}
 			
 			BasicCombiner.combineBoxes(newBoxes);
-			LittleTile first = null;
 			for (int i = 0; i < newBoxes.size(); i++) {
 				LittleTile newTile = LT.copy();
 				newTile.box = newBoxes.get(i);
 				newTile.place();
 				newTile.onPlaced(player, stack, facing);
-				if(i == 0)
-					first = newTile;
+				tiles.add(newTile);
 			}
 			
 			BasicCombiner.combineBoxes(unplaceableBoxes);
@@ -114,11 +117,11 @@ public class PlacePreviewTile {
 				unplaceableTiles.add(newTile);
 			}
 			
-			return first;			
+			return tiles;			
 		}else if(unplaceableTiles != null){
 			unplaceableTiles.add(LT);
 		}
-		return null;
+		return Collections.EMPTY_LIST;
 	}
 	
 	public boolean split(HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)

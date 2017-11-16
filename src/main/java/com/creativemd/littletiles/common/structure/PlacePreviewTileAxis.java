@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -76,7 +78,7 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public LittleTile placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
+	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
 	{
 		if(structure instanceof LittleDoor)
 		{
@@ -90,7 +92,7 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 			door.doubledRelativeAxis.scale(2);
 			door.doubledRelativeAxis.add(additionalOffset);
 		}
-		return null;
+		return Collections.EMPTY_LIST;
 	}
 	
 	/*@Override
