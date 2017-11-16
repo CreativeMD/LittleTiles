@@ -322,7 +322,10 @@ public abstract class SelectShape {
 
 		@Override
 		public List<LittleTileBox> getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result) {
-			List<LittleTileBox> boxes = getBoxes(player, nbt, first, new LittleTileVec(result), false);
+			LittleTileVec vec = new LittleTileVec(result);
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+				vec.sub(result.sideHit);
+			List<LittleTileBox> boxes = getBoxes(player, nbt, first, vec, false);
 			first = null;
 			return boxes;
 		}
