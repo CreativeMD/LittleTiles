@@ -123,6 +123,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 						tile.destroy();
 						
 						//tile.structure.removeWorldProperties();
+					}else{
+						LittleTilePreview preview = tile.getPreviewTile();
+						preview.box.addOffset(offset);
+						previews.add(preview);
+						tile.destroy();
 					}
 				}
 				
