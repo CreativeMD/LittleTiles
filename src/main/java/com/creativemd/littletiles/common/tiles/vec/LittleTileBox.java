@@ -905,7 +905,7 @@ public class LittleTileBox {
 				result.maxX = LittleTile.gridSize;
 			break;
 		case WEST:
-			if(!toLimit || result.maxX <= 0)
+			if(!toLimit || result.minX <= 0)
 				result.minX--;
 			else
 				result.minX = 0;
