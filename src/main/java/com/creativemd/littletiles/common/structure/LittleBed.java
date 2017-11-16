@@ -289,10 +289,13 @@ public class LittleBed extends LittleStructure{
 					
 					GlStateManager.rotate(i * 90, 0.0F, 1.0F, 0.0F);
 					
-					double height = 0.2;
-					double forward = 0;
-					
-					GlStateManager.translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
+					if(player == Minecraft.getMinecraft().player)
+					{
+						double height = 0.2;
+						double forward = 0;
+						
+						GlStateManager.translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
+					}
 					//GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() - player.posY, 0);
 					
 					//Minecraft.getMinecraft().getRenderManager().playerViewY = (float)(((LittleBed) bed).direction.getHorizontalAngle() * 90 + 180);
