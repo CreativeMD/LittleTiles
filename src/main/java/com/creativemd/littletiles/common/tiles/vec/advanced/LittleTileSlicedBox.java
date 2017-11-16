@@ -582,6 +582,12 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			int posOne = RotationUtils.get(one, x, y, z);
 			int posTwo = RotationUtils.get(two, x, y, z);
 			
+			if(!slice.isFacingPositive(one))
+				posOne = posOne+1;
+			
+			if(!slice.isFacingPositive(two))
+				posTwo = posTwo+1;
+			
 			if(slice.isFacingPositive(one))
         	{
 				if(posOne <= getMinSlice(one))
