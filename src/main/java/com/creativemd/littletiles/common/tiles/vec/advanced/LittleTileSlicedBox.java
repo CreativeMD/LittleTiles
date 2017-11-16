@@ -165,7 +165,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	@Override
 	public LittleTileBox createOutsideBlockBox(EnumFacing facing)
 	{
-		if(facing == slice.emptySideOne || facing == slice.emptySideSecond)
+		if(facing == slice.emptySideOne || facing == slice.emptySideTwo)
 			return null;
 		
 		if(facing.getAxis() == slice.axis)
@@ -255,7 +255,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				boolean facePositive = facing.getAxisDirection() == AxisDirection.POSITIVE;
 				//if(facePositive ? LittleUtils.equals(getMaxSlice(axis), getMax(axis)) : LittleUtils.equals(getMinSlice(axis), getMin(axis)) &&
 						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
-				if(!facePositive ? LittleUtils.equals(getMaxSlice(axis), sliceBox.getMinSlice(axis)) : LittleUtils.equals(getMinSlice(axis), sliceBox.getMaxSlice(axis))) //&&
+				if(facePositive ? LittleUtils.equals(getMaxSlice(axis), sliceBox.getMinSlice(axis)) : LittleUtils.equals(getMinSlice(axis), sliceBox.getMaxSlice(axis))) //&&
 						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
 				{
 					if(slice.start.isFacingPositive(axis) == facePositive){
@@ -475,8 +475,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		Axis axisTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
 		// cube vectors
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideSecond.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideSecond);
+		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		// vec triangle
 		double pointOne = getSliceValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
@@ -610,8 +610,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
-			double sizeOne = Math.ceil(getSliceSize(one));
-			double sizeTwo = Math.ceil(getSliceSize(two));
+			double sizeOne = getSliceSize(one);
+			double sizeTwo = getSliceSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
 
 			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
@@ -700,10 +700,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				if(slice.isFacingPositive(other))
 					return RotationUtils.get(other, vec) <= getMinSlice(other);
 				else
-					return RotationUtils.get(other, vec) > getMaxSlice(other);
+					return RotationUtils.get(other, vec) >= getMaxSlice(other);
 			}else{
 				if(slice.isFacingPositive(other))
-					return RotationUtils.get(other, vec) < getMaxSlice(other);
+					return RotationUtils.get(other, vec) <= getMaxSlice(other);
 				else
 					return RotationUtils.get(other, vec) >= getMinSlice(other);
 			}
@@ -817,7 +817,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			}
 		}
 		
-		EnumFacing diagonal = slice.getPreferedSide(getSize());
+		EnumFacing diagonal = slice.getPreferedSide(getSizeOfSlice());
 		Vector3d sliceCorner = getSliceCorner(slice.start);
 		Vec3d temp = linePlaneIntersection(new Vec3d(sliceCorner.x / LittleTile.gridSize, sliceCorner.y / LittleTile.gridSize, sliceCorner.z / LittleTile.gridSize), getSliceNormal(), vecA, vecB.subtract(vecA));
 		if(temp != null)
@@ -1237,6 +1237,16 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(axis == RotationUtils.getDifferentAxisFirst(slice.axis))
 			return Math.abs(startOne - endOne);
 		return Math.abs(startTwo - endTwo);
+	}
+	
+	public Vector3d getSizeOfSlice()
+	{
+		Vector3d vec = new Vector3d(maxX - minX, maxY - minY, maxZ - minZ);
+		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		RotationUtils.setValue(vec, getSliceSize(one), one);
+		RotationUtils.setValue(vec, getSliceSize(two), two);
+		return vec;
 	}
 	
 	public CubeObject getSlicedCube()

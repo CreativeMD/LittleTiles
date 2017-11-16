@@ -124,9 +124,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	public List<BakedQuad> getBakedQuad(BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, long rand, boolean overrideTint, int defaultColor)
 	{
 		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
-		LittleTileSize size = box.getSize();
+		//LittleTileSize size = box.getSize();
 		
-		if(!box.slice.shouldRenderSide(facing, size))
+		if(!box.slice.shouldRenderSide(facing, dynamicCube.defaultCube.getSize()))
 			return Collections.emptyList();
 		
 		List<BakedQuad> blockQuads = blockModel.getQuads(state, facing, rand);

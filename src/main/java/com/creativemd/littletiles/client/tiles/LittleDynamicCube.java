@@ -24,7 +24,7 @@ public class LittleDynamicCube {
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		this.line = new LittleTile2DLine(one, two, new Vector3d(defaultCube.getValueOfFacing(slice.start.x), defaultCube.getValueOfFacing(slice.start.y), defaultCube.getValueOfFacing(slice.start.z)), defaultCube.getSize(one) * slice.getDirectionScale(one), defaultCube.getSize(two) * slice.getDirectionScale(two));
-		this.preferedSide = slice.getPreferedSide(size);
+		this.preferedSide = slice.getPreferedSide(defaultCube.getSize());
 		/*for (LittleCorner corner : LittleCorner.values()) {
 			if(slice.isCornerAffected(corner))
 			{

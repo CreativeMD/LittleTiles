@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tiles.vec.advanced;
 
 import java.util.Arrays;
 
+import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.utils.CubeObject;
@@ -37,7 +38,7 @@ public enum LittleSlice {
 	public final Axis axis;
 	public final Vec3i sliceVec;
 	public final EnumFacing emptySideOne;
-	public final EnumFacing emptySideSecond;
+	public final EnumFacing emptySideTwo;
 	public final boolean isRight;
 	
 	public final LittleCorner start;
@@ -78,19 +79,19 @@ public enum LittleSlice {
 		{
 		case X:
 			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.Y.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Y);
-			this.emptySideSecond = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
+			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
 			break;
 		case Y:
 			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.X.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.X);
-			this.emptySideSecond = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
+			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
 			break;
 		case Z:
 			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.Y.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Y);
-			this.emptySideSecond = EnumFacing.getFacingFromAxis(normal[Axis.X.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.X);
+			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.X.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.X);
 			break;
 		default:
 			emptySideOne = EnumFacing.UP;
-			emptySideSecond = EnumFacing.EAST;
+			emptySideTwo = EnumFacing.EAST;
 			break;
 		}
 	}
@@ -137,28 +138,40 @@ public enum LittleSlice {
 		return getSliceFromNormal(newNormal);
 	}
 	
-	public EnumFacing getPreferedSide(Vec3d size)
-	{
-		double sizeOne = RotationUtils.get(emptySideOne.getAxis(), size);
-		double sizeTwo = RotationUtils.get(emptySideSecond.getAxis(), size);
-		if(sizeOne > sizeTwo)
-			return emptySideSecond;
-		else if(sizeOne < sizeTwo)
-			return emptySideOne;
-		
-		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideSecond;
-	}
-	
 	public EnumFacing getPreferedSide(LittleTileSize size)
 	{		
 		int sizeOne = size.get(emptySideOne.getAxis());
-		int sizeTwo = size.get(emptySideSecond.getAxis());
+		int sizeTwo = size.get(emptySideTwo.getAxis());
 		if(sizeOne > sizeTwo)
-			return emptySideSecond;
+			return emptySideTwo;
 		else if(sizeOne < sizeTwo)
 			return emptySideOne;
 		
-		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideSecond;
+		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideTwo;
+	}
+	
+	public EnumFacing getPreferedSide(Vector3d size)
+	{		
+		double sizeOne = RotationUtils.get(emptySideOne.getAxis(), size);
+		double sizeTwo = RotationUtils.get(emptySideTwo.getAxis(), size);
+		if(sizeOne > sizeTwo)
+			return emptySideTwo;
+		else if(sizeOne < sizeTwo)
+			return emptySideOne;
+		
+		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideTwo;
+	}
+	
+	public EnumFacing getPreferedSide(Vec3d size)
+	{		
+		double sizeOne = RotationUtils.get(emptySideOne.getAxis(), size);
+		double sizeTwo = RotationUtils.get(emptySideTwo.getAxis(), size);
+		if(sizeOne > sizeTwo)
+			return emptySideTwo;
+		else if(sizeOne < sizeTwo)
+			return emptySideOne;
+		
+		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideTwo;
 	}
 	
 	public boolean shouldRenderSide(EnumFacing facing, LittleTileSize size)
@@ -181,18 +194,38 @@ public enum LittleSlice {
 		return true;
 	}
 	
+	public boolean shouldRenderSide(EnumFacing facing, Vec3d size)
+	{
+		if(normal[facing.getAxis().ordinal()] == facing.getAxisDirection().getOffset())
+		{
+			Axis otherAxis = RotationUtils.getDifferentAxisFirst(axis);
+			if(otherAxis == facing.getAxis())
+				otherAxis = RotationUtils.getDifferentAxisSecond(axis);
+			
+			double sizeOne = RotationUtils.get(facing.getAxis(), size);
+			double sizeTwo = RotationUtils.get(otherAxis, size);
+			if(sizeOne > sizeTwo)
+				return false;
+			else if(sizeOne < sizeTwo)
+				return true;
+			else
+				return axis == Axis.Y ? RotationUtils.getDifferentAxisFirst(axis) == facing.getAxis() : otherAxis != Axis.Y;
+		}
+		return true;
+	}
+	
 	/**
 	 * Theoretically there are two corners, but it will always return the one with a postive direction
 	 */
 	public LittleCorner getFilledCorner()
 	{
-		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideSecond.getOpposite());
+		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideTwo.getOpposite());
 	}
 	
 	public boolean isCornerAffected(LittleCorner corner)
 	{
 		return (corner.x == emptySideOne || corner.y == emptySideOne || corner.z == emptySideOne) &&
-				(corner.x == emptySideSecond || corner.y == emptySideSecond || corner.z == emptySideSecond);
+				(corner.x == emptySideTwo || corner.y == emptySideTwo || corner.z == emptySideTwo);
 	}
 	
 	public void sliceVector(LittleCorner corner, Vector3f vec, CubeObject cube, LittleTileSize size)

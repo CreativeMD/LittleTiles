@@ -348,8 +348,8 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 				getMax(other, axisTwo) > getMin(axisTwo) && getMin(other, axisTwo) < getMax(axisTwo)))
 			return false;
 		
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideSecond.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideSecond);
+		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		double pointOne = getValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
 		double pointTwo = getValueOfFacing(slice.getEmptySide(axisTwo).getOpposite());
@@ -457,7 +457,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		EnumFacing collided = null;
 		
 		for (EnumFacing facing : EnumFacing.VALUES) {
-			if(slice.emptySideOne != facing && slice.emptySideSecond != facing)
+			if(slice.emptySideOne != facing && slice.emptySideTwo != facing)
 			{
 				Vec3d temp = collideWithPlane(facing.getAxis(), (double) getValueOfFacing(facing)/LittleTile.gridSize, vecA, vecB);
 				if(temp != null && isClosest(vecA, collision, temp))
@@ -469,7 +469,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		}
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSize());
-		Vec3d temp = LittleTileSlicedOrdinaryBox.linePlaneIntersection(getCorner(LittleCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideSecond.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
+		Vec3d temp = LittleTileSlicedOrdinaryBox.linePlaneIntersection(getCorner(LittleCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideTwo.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
 		if(temp != null && intersectsWithAxis(diagonal.getAxis(), temp) && isClosest(vecA, collision, temp))
 		{
 			collision = temp;
