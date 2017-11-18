@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tiles.vec.advanced;
 
 import java.util.Arrays;
+import java.util.Iterator;
 
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
@@ -26,7 +27,7 @@ public enum LittleSlice {
 	X_DS_UN_LEFT(Axis.X, false, 2, 0, LittleCorner.EDS, LittleCorner.EUN),
 	
 	Y_ES_WN_RIGHT(Axis.Y, true, 1, 0, LittleCorner.EUS, LittleCorner.WUN),
-	Y_ES_WN_LEFT(Axis.Y, false, 0, 1, LittleCorner.EUS, LittleCorner.WUN),	
+	Y_ES_WN_LEFT(Axis.Y, false, 0, 1, LittleCorner.EUS, LittleCorner.WUN),
 	Y_WS_EN_RIGHT(Axis.Y, true, 0, 1, LittleCorner.WUS, LittleCorner.EUN),
 	Y_WS_EN_LEFT(Axis.Y, false, 1, 0, LittleCorner.WUS, LittleCorner.EUN),
 	
@@ -64,6 +65,29 @@ public enum LittleSlice {
 		return facing.getAxisDirection() == AxisDirection.POSITIVE ? -1 : 1;
 	}
 	
+	public static LittleSlice getSliceByID(int id)
+	{
+		if(id < 12)
+			return getOldSlice(id);
+		return LittleSlice.values()[id-12];
+	}
+	
+	public static LittleSlice getOldSlice(int id)
+	{
+		LittleSlice wrongSlice = LittleSlice.values()[id];
+		if(wrongSlice.axis != Axis.Z)
+		{
+			for (LittleSlice slice : LittleSlice.values()) {
+				if(slice.axis == wrongSlice.axis && slice.start.equals(wrongSlice.start) && slice.end.equals(wrongSlice.end) && slice.isRight != wrongSlice.isRight)
+					return slice;
+			}
+			
+			throw new RuntimeException("Slice id=" + id + " could not be converted to the new slice format");
+		}
+		return wrongSlice;
+		
+	}
+	
 	private LittleSlice(Axis axis, boolean isRight, int traingleOrderPositive, int traingleOrderNegative, LittleCorner start, LittleCorner end)
 	{
 		this.axis = axis;
@@ -75,25 +99,10 @@ public enum LittleSlice {
 		this.sliceVec = new Vec3i(getDirectionBetweenFacing(start.x, end.x), getDirectionBetweenFacing(start.y, end.y), getDirectionBetweenFacing(start.z, end.z));
 		Vec3i temp = RotationUtils.rotateVec(sliceVec, Rotation.getRotation(axis, isRight));
 		this.normal = new int[]{temp.getX(), temp.getY(), temp.getZ()};
-		switch(axis)
-		{
-		case X:
-			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.Y.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Y);
-			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
-			break;
-		case Y:
-			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.X.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.X);
-			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.Z.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Z);
-			break;
-		case Z:
-			this.emptySideOne = EnumFacing.getFacingFromAxis(normal[Axis.Y.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.Y);
-			this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[Axis.X.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, Axis.X);
-			break;
-		default:
-			emptySideOne = EnumFacing.UP;
-			emptySideTwo = EnumFacing.EAST;
-			break;
-		}
+		Axis one = RotationUtils.getDifferentAxisFirst(axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		this.emptySideOne = EnumFacing.getFacingFromAxis(normal[one.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, one);
+		this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[two.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, two);
 	}
 	
 	public LittleSlice getOpposite()
@@ -227,8 +236,13 @@ public enum LittleSlice {
 		return (corner.x == emptySideOne || corner.y == emptySideOne || corner.z == emptySideOne) &&
 				(corner.x == emptySideTwo || corner.y == emptySideTwo || corner.z == emptySideTwo);
 	}
+
+	public int getSliceID()
+	{
+		return this.ordinal() + 12;
+	}
 	
-	public void sliceVector(LittleCorner corner, Vector3f vec, CubeObject cube, LittleTileSize size)
+	/*public void sliceVector(LittleCorner corner, Vector3f vec, CubeObject cube, LittleTileSize size)
 	{
 		if(isCornerAffected(corner))
 		{
@@ -246,5 +260,5 @@ public enum LittleSlice {
 				break;
 			}
 		}
-	}
+	}*/
 }

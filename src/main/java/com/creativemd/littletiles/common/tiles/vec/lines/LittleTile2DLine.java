@@ -72,12 +72,17 @@ public class LittleTile2DLine {
 		return get(this.one, one) == two;
 	}
 	
-	public boolean isCoordinateTwoTheRight(int one, int two)
+	public boolean isCoordinateToTheRight(int one, int two)
 	{
 		double tempOne = one - originOne;
 		double tempTwo = two - originTwo;
 		
-		return directionOne * (-tempTwo) + directionTwo * tempOne > 0;
+		//return directionOne * (-tempTwo) + directionTwo * tempOne > 0;
+		
+		return directionOne * tempTwo - directionTwo * tempOne < 0;
+		
+				//d=(x−x1)(y2−y1)−(y−y1)(x2−x1)
+				//If d<0d<0 then the point lies on one side of the line, and if d>0d>0 then it lies on the other side. If d=0d=0 then the point lies exactly line.
 	}
 	
 	public Vec3d intersect(LittleTile2DLine line, int thirdValue)

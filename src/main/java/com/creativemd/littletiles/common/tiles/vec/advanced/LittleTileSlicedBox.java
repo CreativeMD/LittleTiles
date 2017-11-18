@@ -147,7 +147,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	@Override
 	public int[] getArray()
 	{
-		return new int[]{minX, minY, minZ, maxX, maxY, maxZ, slice.ordinal(), Float.floatToIntBits(startOne), Float.floatToIntBits(startTwo), Float.floatToIntBits(endOne), Float.floatToIntBits(endTwo)};
+		return new int[]{minX, minY, minZ, maxX, maxY, maxZ, slice.getSliceID(), Float.floatToIntBits(startOne), Float.floatToIntBits(startTwo), Float.floatToIntBits(endOne), Float.floatToIntBits(endTwo)};
 	}
 	
 	//================Size & Volume================

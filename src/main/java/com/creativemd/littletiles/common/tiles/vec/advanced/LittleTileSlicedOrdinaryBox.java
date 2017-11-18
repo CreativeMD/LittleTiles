@@ -79,7 +79,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	@Override
 	public int[] getArray()
 	{
-		return new int[]{minX, minY, minZ, maxX, maxY, maxZ, slice.ordinal()};
+		return new int[]{minX, minY, minZ, maxX, maxY, maxZ, slice.getSliceID()};
 	}
 	
 	//================Size & Volume================
@@ -622,14 +622,14 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			{
 				return slicedBox;
 			}
-			else if((slice.axis == Axis.Z ? slice.isRight : !slice.isRight) == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateTwoTheRight(maxOne, maxTwo) : line.isCoordinateTwoTheRight(minOne, minTwo)))
+			else if(slice.isRight == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateToTheRight(maxOne, maxTwo) : line.isCoordinateToTheRight(minOne, minTwo)))
 				return new LittleTileBox(x, y, z, x+1, y+1, z+1);
 			
 			return null;
 		}else{
 			//Slice does not intersect with extracted Box.
 			//Now try to figure out if the box is inside the filled part or not
-			if((slice.axis == Axis.Z ? slice.isRight : !slice.isRight) == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateTwoTheRight(maxOne, maxTwo) : line.isCoordinateTwoTheRight(minOne, minTwo)))
+			if(slice.isRight == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateToTheRight(maxOne, maxTwo) : line.isCoordinateToTheRight(minOne, minTwo)))
 			{
 				//It's inside the filled part, therefore create an ordinary box
 				return new LittleTileBox(x, y, z, x+1, y+1, z+1);
@@ -699,7 +699,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			if(slicedBox.isValidBox())
 				boxes.add(slicedBox);
 			else{
-				if(slice.isRight != (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateTwoTheRight(maxOne, maxTwo) : line.isCoordinateTwoTheRight(minOne, minTwo)))
+				if(slice.isRight != (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateToTheRight(maxOne, maxTwo) : line.isCoordinateToTheRight(minOne, minTwo)))
 					return boxes;
 			}
 				
@@ -754,7 +754,12 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		}else{
 			//Slice does not intersect with extracted Box.
 			//Now try to figure out if the box is inside the filled part or not
-			if((slice.axis == Axis.Z ? slice.isRight : !slice.isRight) == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateTwoTheRight(maxOne, maxTwo) : line.isCoordinateTwoTheRight(minOne, minTwo)))
+			/*if((slice.axis == Axis.Z ? slice.isRight : !slice.isRight) == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateToTheRight(maxOne, maxTwo) : line.isCoordinateToTheRight(minOne, minTwo)))
+			{
+				//It's inside the filled part, therefore create an ordinary box
+				boxes.add(new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ));
+			}*/
+			if(slice.isRight == (line.isCoordinateOnLine(minOne, minTwo) ? line.isCoordinateToTheRight(maxOne, maxTwo) : line.isCoordinateToTheRight(minOne, minTwo)))
 			{
 				//It's inside the filled part, therefore create an ordinary box
 				boxes.add(new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ));
