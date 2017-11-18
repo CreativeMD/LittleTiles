@@ -108,8 +108,21 @@ public class SubContainerScrewdriver extends SubContainer {
 									{
 										LittleTile newTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 										
-										if(newTile != null)
+										if(newTile != null){
+											if(tile.isStructureBlock && tile.isLoaded())
+											{
+												tile.structure.removeTile(tile);
+												newTile.coord = tile.coord;
+												newTile.structure.addTile(newTile);
+												if(tile.isMainBlock)
+												{
+													newTile.isMainBlock = true;
+													newTile.structure.setMainTile(newTile);
+												}
+												
+											}
 											te.getTiles().set(te.getTiles().indexOf(tile), newTile);
+										}
 									}
 								}
 								effected++;
