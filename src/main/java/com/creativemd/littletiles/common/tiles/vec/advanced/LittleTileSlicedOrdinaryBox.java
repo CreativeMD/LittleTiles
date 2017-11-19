@@ -232,7 +232,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-		if(vec.getAxis(one) >= getMin(one) && vec.getAxis(one) <= getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) <= getMax(two))
+		if(vec.getAxis(one) >= getMin(one) && vec.getAxis(one) < getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) < getMax(two))
 		{
 			LittleCorner corner = slice.getFilledCorner();
 			
@@ -240,8 +240,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			int difTwo = Math.abs(getCornerValue(corner, two) - vec.getAxis(two));
 			int sizeOne = getSize(one);
 			int sizeTwo = getSize(two);
-			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
+			double diff = difOne / (double) sizeOne + difTwo / (double) sizeTwo;
+			return sizeOne > difOne && sizeTwo > difTwo && diff < 1;
 		}
 		return false;
 	}

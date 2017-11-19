@@ -6,6 +6,7 @@ import java.util.Iterator;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
+import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
@@ -74,6 +75,8 @@ public enum LittleSlice {
 	
 	public static LittleSlice getOldSlice(int id)
 	{
+		if(CreativeCore.version.equals("1.7.4")) //Make sure to not convert anything if the issue still persists in CreativeCore
+			throw new RuntimeException("Please update CreativeCore");
 		LittleSlice wrongSlice = LittleSlice.values()[id];
 		if(wrongSlice.axis != Axis.Z)
 		{
