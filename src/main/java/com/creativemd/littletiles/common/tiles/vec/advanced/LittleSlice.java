@@ -19,6 +19,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public enum LittleSlice {
 	
@@ -75,7 +76,7 @@ public enum LittleSlice {
 	
 	public static LittleSlice getOldSlice(int id)
 	{
-		if(CreativeCore.version.equals("1.7.4")) //Make sure to not convert anything if the issue still persists in CreativeCore
+		if(ReflectionHelper.getPrivateValue(CreativeCore.class, null, "version").equals("1.7.4")) //Make sure to not convert anything if the issue still persists in CreativeCore
 			throw new RuntimeException("Please update CreativeCore");
 		LittleSlice wrongSlice = LittleSlice.values()[id];
 		if(wrongSlice.axis != Axis.Z)
