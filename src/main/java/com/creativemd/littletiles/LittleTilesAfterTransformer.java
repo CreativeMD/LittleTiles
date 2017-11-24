@@ -36,6 +36,7 @@ public class LittleTilesAfterTransformer extends CreativeTransformer {
 				boolean obfuscated = TransformerNames.obfuscated;
 				TransformerNames.obfuscated = false;
 				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "littleTiles", "Ljava/util/List;", "Ljava/util/List<Lcom/creativemd/littletiles/common/tileentity/TileEntityLittleTiles;>;", null));
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "dynamicLightUpdate", "Z", null, null));
 				
 				String ownerBefore = "net/minecraft/client/renderer/tileentity/TileEntityRendererDispatcher";
 				String nameBefore = obfuscated ? "field_147556_a" : "instance";

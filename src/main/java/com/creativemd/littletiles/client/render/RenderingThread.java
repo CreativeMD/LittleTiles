@@ -129,7 +129,6 @@ public class RenderingThread extends Thread {
 							throw new RenderingException("Tileentity is not loaded yet!");							
 						}
 						
-						
 						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
 						/*if(cubeCache.getCubesByLayer(BlockRenderLayer.SOLID) != null && cubeCache.getCubesByLayer(BlockRenderLayer.SOLID).size() == 0)
 						{

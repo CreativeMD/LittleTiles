@@ -275,6 +275,30 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
+		addTransformer(new Transformer("DynamicLight") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "updateChunkLight", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;Ljava/util/Set;Ljava/util/Set;)V");
+				
+				String className = patchClassName("net/minecraft/client/renderer/chunk/RenderChunk");
+				String methodName = TransformerNames.patchMethodName("setNeedsUpdate", "(Z)V", className);
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals(methodName) && ((MethodInsnNode) insn).owner.equals(className))
+					{
+						AbstractInsnNode before = insn.getPrevious().getPrevious();
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onOptifineMarksChunkRenderUpdateForDynamicLights", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V", false));
+						
+						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, ((VarInsnNode) before).var));
+	
+						return ;						
+					}
+				}
+			}
+		});
 	}
 
 }
