@@ -27,16 +27,16 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 		switch(rotation)
 		{
 		case X_CLOCKWISE:
-			animation.worldRotX = (1-progress)*90;
-			break;
-		case X_COUNTER_CLOCKWISE:
 			animation.worldRotX = -90+progress*90;
 			break;
+		case X_COUNTER_CLOCKWISE:
+			animation.worldRotX = (1-progress)*90;
+			break;
 		case Y_CLOCKWISE:
-			animation.worldRotY = -90+progress*90;
+			animation.worldRotY = (1-progress)*90;
 			break;
 		case Y_COUNTER_CLOCKWISE:
-			animation.worldRotY = (1-progress)*90;
+			animation.worldRotY = -90+progress*90;
 			break;
 		case Z_CLOCKWISE:
 			animation.worldRotZ = -90+progress*90;
