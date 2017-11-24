@@ -36,6 +36,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
@@ -415,6 +416,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	}
     	return light;
     }
+	
+	@Override
+	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
+    {
+		if(isSideSolid(state, worldIn, pos, face))
+			return BlockFaceShape.SOLID;
+		return BlockFaceShape.UNDEFINED;
+    }
     
 	@Override
     public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
@@ -437,12 +446,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			case DOWN:
 				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, 1, LittleTile.gridSize);
 				break;
-			case NORTH:
+			case SOUTH:
 				box = new LittleTileBox(0, 0, LittleTile.gridSize-1, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
 				break;
-			case SOUTH:
+			case NORTH:
 				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, LittleTile.gridSize, 1);
 				break;
+			
 			default:
 				break;
 			}
