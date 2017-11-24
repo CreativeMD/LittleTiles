@@ -38,6 +38,15 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			mc.world.addEventListener(new LightChangeEventListener());
 		}
 	}
+	
+	public static void onOptifineMarksChunkRenderUpdateForDynamicLights(RenderChunk chunk)
+	{
+		try {
+			dynamicLightUpdate.setBoolean(chunk, true);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public LittleChunkDispatcher() {
 		super();
@@ -53,6 +62,8 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, "setTileEntities", "field_181056_j");
 	
 	private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
+	private static Field dynamicLightUpdate = ReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
+	
 	//private static Field tempLittleTiles = ReflectionHelper.findField(RenderChunk.class, "tempLittleTiles");
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
@@ -124,6 +135,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			int expanded = 0;
 			
 			//long time = System.currentTimeMillis();
+			boolean dynamicUpdate = false;
+			try {
+				if(layer == BlockRenderLayer.SOLID)
+					dynamicUpdate = dynamicLightUpdate.getBoolean(chunk);
+			} catch (IllegalArgumentException | IllegalAccessException e2) {
+				e2.printStackTrace();
+			}
 			
 			if(!tiles.isEmpty())
 			{
@@ -131,7 +149,12 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 					TileEntityLittleTiles te = iterator.next();
 					
 					if(layer == BlockRenderLayer.SOLID)
+					{
+						if(dynamicUpdate)
+							te.hasLightChanged = true;
+						
 						((TileEntityLittleTiles) te).updateQuadCache(chunk);
+					}
 					
 					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
 					if(blockLayerBuffer != null)
@@ -141,6 +164,13 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 							expanded += teBuffer.getVertexCount();
 					}
 				}
+			}
+			
+			try {
+				if(layer == BlockRenderLayer.SOLID)
+					dynamicLightUpdate.setBoolean(chunk, false);
+			} catch (IllegalArgumentException | IllegalAccessException e2) {
+				e2.printStackTrace();
 			}
 			
 			//System.out.println("First: " + (System.currentTimeMillis() - time));

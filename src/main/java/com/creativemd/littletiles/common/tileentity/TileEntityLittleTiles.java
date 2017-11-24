@@ -183,6 +183,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
 		
 		hasLightChanged = false;
+		hasNeighborChanged = false;
 		
 		if(doesNeedUpdate)
 			addToRenderUpdate(); //worldObj.getBlockState(pos).getActualState(worldObj, pos));
