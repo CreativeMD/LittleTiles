@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
@@ -44,6 +45,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -312,7 +314,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	private void customTilesUpdate()
 	{
-		if(updateTiles.isEmpty() == ticking)
+		if(updateTiles.isEmpty() == ticking && WorldUtils.isMainThread(world))
 		{
 			try {
 				if(!processingLoadedTiles.getBoolean(world))
