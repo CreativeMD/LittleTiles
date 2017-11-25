@@ -308,12 +308,6 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
-	public float getSlipperiness(Entity entity)
-	{
-		return block.getSlipperiness(getBlockState(), te.getWorld(), te.getPos(), entity);
-	}
-	
-	@Override
 	public List<LittleTileBox> getCollisionBoxes()
 	{
 		if(hasSpecialBlockHandler())

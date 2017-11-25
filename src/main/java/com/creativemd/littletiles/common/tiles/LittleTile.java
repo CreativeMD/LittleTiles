@@ -782,11 +782,6 @@ public abstract class LittleTile {
 		return false;
 	}
 	
-	public float getSlipperiness(Entity entity)
-	{
-		return 0;
-	}
-	
 	//================Collision================
 	
 	public List<LittleTileBox> getCollisionBoxes()

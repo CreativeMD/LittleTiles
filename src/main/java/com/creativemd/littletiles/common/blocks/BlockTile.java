@@ -20,8 +20,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -29,14 +27,13 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockFaceShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleDigging;
@@ -56,7 +53,6 @@ import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
@@ -389,30 +385,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     {
         return 0;
     }*/
-	
-	@Override
-	public float getSlipperiness(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity entity)
-    {
-		float slipperiness = 1;
-		boolean found = false;
-		TileEntityLittleTiles te = loadTe(world, pos);
-		if(te != null)
-		{
-			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
-			for (LittleTile tile : te.getTiles()) {
-				for (LittleTileBox box : tile.getCollisionBoxes()) {
-					if(box.getBox(pos).intersects(bb))
-					{
-						slipperiness = Math.min(slipperiness, tile.getSlipperiness(entity));
-						found = true;
-					}
-				}
-			}
-		}
-		if(found)
-			return slipperiness;
-		return super.getSlipperiness(state, world, pos, entity);
-    }
     
 	@Override
     @SideOnly(Side.CLIENT)
@@ -439,14 +411,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			}
     	}
     	return light;
-    }
-	
-	@Override
-	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face)
-    {
-		if(isSideSolid(state, worldIn, pos, face))
-			return BlockFaceShape.SOLID;
-		return BlockFaceShape.UNDEFINED;
     }
     
 	@Override
