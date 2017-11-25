@@ -33,10 +33,10 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 			animation.worldRotX = (1-progress)*90;
 			break;
 		case Y_CLOCKWISE:
-			animation.worldRotY = (1-progress)*90;
+			animation.worldRotY = -90+progress*90;
 			break;
 		case Y_COUNTER_CLOCKWISE:
-			animation.worldRotY = -90+progress*90;
+			animation.worldRotY = (1-progress)*90;
 			break;
 		case Z_CLOCKWISE:
 			animation.worldRotZ = -90+progress*90;
