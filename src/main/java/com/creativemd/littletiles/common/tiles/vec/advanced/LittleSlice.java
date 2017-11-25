@@ -67,19 +67,43 @@ public enum LittleSlice {
 		return facing.getAxisDirection() == AxisDirection.POSITIVE ? -1 : 1;
 	}
 	
-	public static LittleSlice getSliceByID(int id)
+	public static LittleSlice getSliceByID(int id) //Yes its a mess, unfortunately i screwed it up twice.
 	{
 		if(id < 12)
-			return getOldSlice(id);
-		return LittleSlice.values()[id-12];
+			return getOlderSlice(id);
+		if(id < 24)
+			return getOldSlice(id-12);
+		return LittleSlice.values()[id-24];
+	}
+	
+	private static void checkVersion()
+	{
+		if(ReflectionHelper.getPrivateValue(CreativeCore.class, null, "version").equals("1.7.4") || ReflectionHelper.getPrivateValue(CreativeCore.class, null, "version").equals("1.9.8")) //Make sure to not convert anything if the issue still persists in CreativeCore
+			throw new RuntimeException("Please update CreativeCore");
 	}
 	
 	public static LittleSlice getOldSlice(int id)
 	{
-		if(ReflectionHelper.getPrivateValue(CreativeCore.class, null, "version").equals("1.7.4")) //Make sure to not convert anything if the issue still persists in CreativeCore
-			throw new RuntimeException("Please update CreativeCore");
+		checkVersion();
 		LittleSlice wrongSlice = LittleSlice.values()[id];
-		if(wrongSlice.axis != Axis.Z)
+		if(wrongSlice.axis == Axis.Y)
+		{
+			for (LittleSlice slice : LittleSlice.values()) {
+				if(slice.axis == wrongSlice.axis && slice.start.equals(wrongSlice.start) && slice.end.equals(wrongSlice.end) && slice.isRight != wrongSlice.isRight)
+					return slice;
+			}
+			
+			throw new RuntimeException("Slice id=" + id + " could not be converted to the new slice format");
+		}
+		return wrongSlice;
+		
+	}
+	
+	public static LittleSlice getOlderSlice(int id)
+	{
+		checkVersion();
+		LittleSlice wrongSlice = LittleSlice.values()[id];
+		if(wrongSlice.axis == Axis.X)
 		{
 			for (LittleSlice slice : LittleSlice.values()) {
 				if(slice.axis == wrongSlice.axis && slice.start.equals(wrongSlice.start) && slice.end.equals(wrongSlice.end) && slice.isRight != wrongSlice.isRight)
@@ -243,7 +267,7 @@ public enum LittleSlice {
 
 	public int getSliceID()
 	{
-		return this.ordinal() + 12;
+		return this.ordinal() + 24;
 	}
 	
 	/*public void sliceVector(LittleCorner corner, Vector3f vec, CubeObject cube, LittleTileSize size)

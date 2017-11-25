@@ -255,7 +255,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				boolean facePositive = facing.getAxisDirection() == AxisDirection.POSITIVE;
 				//if(facePositive ? LittleUtils.equals(getMaxSlice(axis), getMax(axis)) : LittleUtils.equals(getMinSlice(axis), getMin(axis)) &&
 						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
-				if(facePositive ? LittleUtils.equals(getMaxSlice(axis), sliceBox.getMinSlice(axis)) : LittleUtils.equals(getMinSlice(axis), sliceBox.getMaxSlice(axis))) //&&
+				if(!facePositive ? LittleUtils.equals(getMaxSlice(axis), sliceBox.getMinSlice(axis)) : LittleUtils.equals(getMinSlice(axis), sliceBox.getMaxSlice(axis))) //&&
 						//!facePositive ? LittleUtils.equals(sliceBox.getMaxSlice(axis), sliceBox.getMax(axis)) : LittleUtils.equals(sliceBox.getMinSlice(axis), sliceBox.getMin(axis)))
 				{
 					if(slice.start.isFacingPositive(axis) == facePositive){
