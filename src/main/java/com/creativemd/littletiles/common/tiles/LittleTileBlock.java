@@ -19,6 +19,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
@@ -304,6 +305,12 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public float getExplosionResistance() {
 		return block.getExplosionResistance(null);
+	}
+	
+	@Override
+	public float getSlipperiness(Entity entity)
+	{
+		return block.getSlipperiness(getBlockState(), te.getWorld(), te.getPos(), entity);
 	}
 	
 	@Override

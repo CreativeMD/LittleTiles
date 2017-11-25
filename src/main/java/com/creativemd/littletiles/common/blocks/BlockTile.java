@@ -389,6 +389,30 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     {
         return 0;
     }*/
+	
+	@Override
+	public float getSlipperiness(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity entity)
+    {
+		float slipperiness = 1;
+		boolean found = false;
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
+			for (LittleTile tile : te.getTiles()) {
+				for (LittleTileBox box : tile.getCollisionBoxes()) {
+					if(box.getBox(pos).intersects(bb))
+					{
+						slipperiness = Math.min(slipperiness, tile.getSlipperiness(entity));
+						found = true;
+					}
+				}
+			}
+		}
+		if(found)
+			return slipperiness;
+		return super.getSlipperiness(state, world, pos, entity);
+    }
     
 	@Override
     @SideOnly(Side.CLIENT)
