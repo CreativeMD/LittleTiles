@@ -1,11 +1,26 @@
 package com.creativemd.littletiles.client.render;
 
+import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.Color;
+
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
+import com.creativemd.creativecore.gui.mc.GuiContainerSub;
+import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
@@ -17,17 +32,182 @@ public class OverlayRenderer {
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
+	public static final ResourceLocation ingameTextures = new ResourceLocation(LittleTiles.modid, "textures/gui/ingameselect.png");
+	
 	@SubscribeEvent
 	public void OnRender(RenderTickEvent event)
 	{
-		/*if(event.phase == Phase.END && mc.player != null && mc.inGameHasFocus && GuiScreen.isCtrlKeyDown())
+		if(event.phase == Phase.END && mc.player != null && mc.inGameHasFocus)
 		{
-			ScaledResolution resolution = new ScaledResolution(mc);
-			int width = resolution.getScaledWidth()/2;
-			int height = resolution.getScaledHeight()/2;
-			
-			GuiRenderHelper.instance.drawGrayBackgroundRect(resolution.getScaledWidth()/2 - width / 2, resolution.getScaledHeight()/2 - height / 2, width, height);
-		}*/
+			if(PreviewRenderer.markedPosition != null)
+			{
+				ScaledResolution scaledresolution = new ScaledResolution(this.mc);
+				
+				int l = scaledresolution.getScaledWidth();
+	            int i1 = scaledresolution.getScaledHeight();
+	            
+				GlStateManager.pushMatrix();
+	            GlStateManager.translate((float)(l / 2), (float)(i1 / 2), 0);
+	            Entity entity = this.mc.getRenderViewEntity();
+	            float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * event.renderTickTime;
+	            float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * event.renderTickTime;
+	            GlStateManager.rotate(pitch, -1.0F, 0.0F, 0.0F);
+	            GlStateManager.rotate(yaw, 0.0F, 1.0F, 0.0F);
+	            GlStateManager.scale(-1.0F, -1.0F, -1.0F);
+	            {
+	            	{
+	            		float direction = pitch % 180;
+	            		
+	            		if(mc.player.isSneaking())
+	            		{
+	            			GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 0, 0, 1);
+		            		GuiRenderHelper.instance.drawStringWithShadow("up", -15, -50, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+		            		
+		            		GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 1, 0, 0);
+		            		GuiRenderHelper.instance.drawStringWithShadow("up", 15, -50, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+	            			
+	            		}else{
+		            		if(direction < 45 && direction > -45)
+		            		{
+			            		GlStateManager.pushMatrix();
+			            		GlStateManager.rotate(180, 0, 0, 1);
+			            		GuiRenderHelper.instance.drawStringWithShadow("up", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+			            		GlStateManager.popMatrix();
+			            		
+			            		GlStateManager.pushMatrix();
+			            		GlStateManager.rotate(180, 1, 0, 0);
+			            		GuiRenderHelper.instance.drawStringWithShadow("up", 30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+			            		GlStateManager.popMatrix();
+		            		}else{
+			            		GlStateManager.pushMatrix();
+			            		GlStateManager.rotate(180, 0, 0, 1);
+			            		GlStateManager.rotate(90, 1, 0, 0);
+			            		GuiRenderHelper.instance.drawStringWithShadow("up", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+			            		GlStateManager.popMatrix();
+			            		
+			            		GlStateManager.pushMatrix();
+			            		GlStateManager.rotate(180, 0, 0, 1);
+			            		GlStateManager.rotate(-90, 1, 0, 0);
+			            		GuiRenderHelper.instance.drawStringWithShadow("up", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+			            		GlStateManager.popMatrix();
+		            		}
+	            		}
+	            		
+	            		GlStateManager.pushMatrix();
+	            		
+	            		GlStateManager.rotate(-90, 0, 1, 0);
+	            		
+	            		if(direction < 45 && direction > -45)
+	            		{
+		            		GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 0, 0, 1);
+		            		GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+		            		
+		            		GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 1, 0, 0);
+		            		GuiRenderHelper.instance.drawStringWithShadow("right", 30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+	            		}else{
+		            		GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 0, 0, 1);
+		            		GlStateManager.rotate(90, 1, 0, 0);
+		            		GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+		            		
+		            		GlStateManager.pushMatrix();
+		            		GlStateManager.rotate(180, 0, 0, 1);
+		            		GlStateManager.rotate(-90, 1, 0, 0);
+		            		GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
+		            		GlStateManager.popMatrix();
+	            		}
+	            		
+	            		GlStateManager.popMatrix();
+	            	}
+	            	OpenGlHelper.renderDirections(GuiScreen.isCtrlKeyDown() ? 50 : 30);
+	            	
+	            }
+	            GlStateManager.popMatrix();
+			}
+			/*if(GuiScreen.isCtrlKeyDown())
+			{
+				ScaledResolution resolution = new ScaledResolution(mc);
+				double width = resolution.getScaledWidth()*1.5;
+				double height = resolution.getScaledHeight()*1.5;
+				
+				//resolution.getScaledWidth()/2 - width / 2, resolution.getScaledHeight()/2 - height / 2
+				
+				GlStateManager.pushMatrix();
+				
+				RenderHelper.enableStandardItemLighting();
+				GlStateManager.disableLighting();
+		        GlStateManager.disableFog();
+		        GlStateManager.enableBlend();
+		        
+				GlStateManager.enableAlpha();
+				
+				GlStateManager.disableDepth();
+				GlStateManager.translate(resolution.getScaledWidth()/2, resolution.getScaledHeight()/2, 0);
+				
+				
+				
+				GlStateManager.pushMatrix();
+				
+				GlStateManager.scale(width / 128D, height / 128D, 0);
+				
+				GuiRenderHelper.instance.drawTexturedModalRect(ingameTextures, -128/2, -128/2, 0, 0, 128, 128);
+				GlStateManager.popMatrix();
+				
+				drawSlot("Drag-Box", -240, 0.17F, 0.8F);
+				
+				drawSlot("Drag-Sphere", -120, 0.5F, 0.9F);
+				
+				drawSlot("Cube", 0, 1, 1);
+				
+				drawSlot("Bar", 120, 0.5F, 0.9F);
+				
+				drawSlot("Plane", 240, 0.17F, 0.8F);
+				
+				GlStateManager.enableDepth();
+				GlStateManager.popMatrix();
+			}*/
+		}
+	}
+	
+	public static void drawSlot(String title, int offset, float alpha, float scale)
+	{
+		GlStateManager.pushMatrix();
+		
+		boolean selected = offset == 0;
+		
+		GlStateManager.translate(offset, 0, 0);
+		GlStateManager.color(1, 1, 1, alpha);
+		int slotSizeInner = 48;
+		
+		GlStateManager.pushMatrix();
+		
+		GlStateManager.translate(0, -slotSizeInner*1.25*scale * (selected ? 1.25 : 1), 0);
+		
+		if(selected)
+			GlStateManager.scale(3 * scale, 3 * scale, 0);
+		else
+			GlStateManager.scale(2 * scale, 2 * scale, 0);
+		GuiRenderHelper.instance.drawStringWithShadow(title, 0, 0, ColorUtils.RGBAToInt(new Color(255, 255, 255, (byte) (alpha*255))));
+		GlStateManager.popMatrix();
+		
+		GlStateManager.pushMatrix();
+		
+		GlStateManager.scale(2*scale, 2*scale, 0);
+		if(selected)
+			GuiRenderHelper.instance.drawTexturedModalRect(ingameTextures, -slotSizeInner/2, -slotSizeInner/2, 128, 0, slotSizeInner, slotSizeInner);
+		GuiRenderHelper.instance.drawTexturedModalRect(ingameTextures, -slotSizeInner/2, -slotSizeInner/2, 128, 48, slotSizeInner, slotSizeInner);
+		GlStateManager.popMatrix();
+		
+		GlStateManager.popMatrix();
 	}
 
 }
