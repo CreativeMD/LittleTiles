@@ -36,6 +36,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.Mirror;
@@ -312,20 +313,43 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	private static Field processingLoadedTiles = ReflectionHelper.findField(World.class, "processingLoadedTiles", "field_147481_N");
 	
+	@SideOnly(Side.CLIENT)
+	private void clientCustomUpdate(Runnable run)
+	{
+		Minecraft.getMinecraft().addScheduledTask(run);
+	}
+	
 	private void customTilesUpdate()
 	{
-		if(updateTiles.isEmpty() == ticking && WorldUtils.isMainThread(world))
+		if(updateTiles.isEmpty() == ticking)
 		{
 			try {
 				if(!processingLoadedTiles.getBoolean(world))
 				{
-					if(updateTiles.isEmpty())
-						world.tickableTileEntities.remove(this);
-					else
-						world.tickableTileEntities.add(this);
-					
+					if(!WorldUtils.isMainThread(world))
+					{
+						Runnable run = new Runnable() {
+							@Override
+							public void run() {
+								if(updateTiles.isEmpty())
+									world.tickableTileEntities.remove(TileEntityLittleTiles.this);
+								else
+									world.tickableTileEntities.add(TileEntityLittleTiles.this);
+							}
+						};
+						if(world.isRemote)
+							clientCustomUpdate(run);
+						else
+							world.getMinecraftServer().addScheduledTask(run);
+					}else{
+						if(updateTiles.isEmpty())
+							world.tickableTileEntities.remove(this);
+						else
+							world.tickableTileEntities.add(this);
+					}
 					ticking = !updateTiles.isEmpty();
-				}
+				}else
+					System.out.println("Could not remove/add ticking tileentity.");
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
@@ -553,6 +577,26 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     	}
     	return cachedRenderBoundingBox;
     }
+	
+	public AxisAlignedBB getSelectionBox()
+	{
+		int minX = LittleTile.gridSize;
+		int minY = LittleTile.gridSize;
+		int minZ = LittleTile.gridSize;
+		int maxX = LittleTile.minPos;
+		int maxY = LittleTile.minPos;
+		int maxZ = LittleTile.minPos;
+		for (LittleTile tile : tiles) {
+			LittleTileBox box = tile.getCompleteBox();
+			minX = Math.min(box.minX, minX);
+			minY = Math.min(box.minY, minY);
+			minZ = Math.min(box.minZ, minZ);
+			maxX = Math.max(box.maxX, maxX);
+			maxY = Math.max(box.maxY, maxY);
+			maxZ = Math.max(box.maxZ, maxZ);
+		}
+		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(pos);
+	}
 	
 	//public boolean needFullUpdate = true;
 
