@@ -34,6 +34,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.BlockStairs;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -457,18 +459,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
 		if(world.isRemote)
-			removedByPlayerClient(state, world, pos, player, willHarvest);
+			return removedByPlayerClient(state, world, pos, player, willHarvest);
 		return true;
     }
 	
 	@SideOnly(Side.CLIENT)
-	public void removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+	public boolean removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
 	{
 		TEResult result = loadTeAndTile(world, pos, player);
 		if(result.isComplete())
-		{				
-			new LittleActionDestroy(pos, player).execute();
-		}
+			return new LittleActionDestroy(pos, player).execute();
+		return false;
     }
     
 	@Override
@@ -982,6 +983,134 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	}
         /*world.setBlockToAir(pos);
         onBlockDestroyedByExplosion(world, pos, explosion);*/
+    }
+    
+   /* @Override
+    @SideOnly (Side.CLIENT)
+    public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
+    {
+    	TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			for (LittleTile tile : te.getTiles()) {
+				if(tile.box.getBox(pos).intersects(entity.getEntityBoundingBox()))
+				{
+					//do shit
+				}
+			}
+		}
+		
+        return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
+    }
+    
+    protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state)
+    {
+        double d0 = 0.0D;
+        double d1 = 0.0D;
+        double d2 = 0.0D;
+        BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain();
+        int i = this.getRenderedDepth(state);
+        BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain();
+
+        for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL)
+        {
+            blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing);
+            int j = this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos));
+
+            if (j < 0)
+            {
+                if (!worldIn.getBlockState(blockpos$pooledmutableblockpos).getMaterial().blocksMovement())
+                {
+                    j = this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos.down()));
+
+                    if (j >= 0)
+                    {
+                        int k = j - (i - 8);
+                        d0 += (double)(enumfacing.getFrontOffsetX() * k);
+                        d1 += (double)(enumfacing.getFrontOffsetY() * k);
+                        d2 += (double)(enumfacing.getFrontOffsetZ() * k);
+                    }
+                }
+            }
+            else if (j >= 0)
+            {
+                int l = j - i;
+                d0 += (double)(enumfacing.getFrontOffsetX() * l);
+                d1 += (double)(enumfacing.getFrontOffsetY() * l);
+                d2 += (double)(enumfacing.getFrontOffsetZ() * l);
+            }
+        }
+
+        Vec3d vec3d = new Vec3d(d0, d1, d2);
+
+        //if (((Integer)state.getValue(LEVEL)).intValue() >= 8)
+        //{
+            for (EnumFacing enumfacing1 : EnumFacing.Plane.HORIZONTAL)
+            {
+                blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing1);
+
+                if (this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos, enumfacing1) || this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos.up(), enumfacing1))
+                {
+                    vec3d = vec3d.normalize().addVector(0.0D, -6.0D, 0.0D);
+                    break;
+                }
+            }
+        //}
+
+        blockpos$pooledmutableblockpos.release();
+        return vec3d.normalize();
+    }
+    
+    private boolean causesDownwardCurrent(IBlockAccess worldIn, BlockPos pos, EnumFacing side)
+    {
+        IBlockState iblockstate = worldIn.getBlockState(pos);
+        Block block = iblockstate.getBlock();
+        Material material = iblockstate.getMaterial();
+
+        if (material == this.blockMaterial)
+        {
+            return false;
+        }
+        else if (side == EnumFacing.UP)
+        {
+            return true;
+        }
+        else if (material == Material.ICE)
+        {
+            return false;
+        }
+        else
+        {
+            boolean flag = isExceptBlockForAttachWithPiston(block) || block instanceof BlockStairs;
+            return !flag && iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID;
+        }
+    }
+
+    public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion)
+    {
+        return motion.add(this.getFlow(worldIn, pos, worldIn.getBlockState(pos)));
+    }*/
+    
+    @Override
+    @Nullable
+    public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos blockpos, IBlockState iblockstate, Entity entity, double yToTest, Material materialIn, boolean testingHead)
+    {
+    	return isAABBInsideMaterial(entity.world, blockpos, entity.getEntityBoundingBox(), materialIn);
+    }
+    
+    @Override
+    @Nullable
+    public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn)
+    {
+    	TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			for (LittleTile tile : te.getTiles()) {
+				if(tile.isMaterial(materialIn) && tile.box.getBox(pos).intersects(boundingBox))
+					return true;
+			}
+		}
+        return false;
     }
 
 }
