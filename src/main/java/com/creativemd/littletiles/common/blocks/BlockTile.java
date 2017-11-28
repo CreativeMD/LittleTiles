@@ -13,6 +13,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -26,6 +27,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -286,6 +288,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
+			if(mc.player.isSneaking())
+				return result.te.getSelectionBox();
 			return result.tile.getSelectedBox(pos);
 		}
 		return new AxisAlignedBB(pos);
@@ -499,6 +503,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TEResult result = loadTeAndTile(world, pos, mc.player);
 		if(result.isComplete())
 		{
+			if(mc.player.isSneaking())
+			{
+				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
+				LittleTilePreview.saveTiles(world, result.te.getTiles(), drop);
+				return drop;
+			}
 			ArrayList<ItemStack> drops = result.tile.getDrops();
 			if(drops.size() > 0)
 				if(drops.get(0) != null)

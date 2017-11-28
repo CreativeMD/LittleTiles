@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,19 +38,14 @@ public class LittleActionDestroy extends LittleActionInteract {
 		return true;
 	}
 	
-	public LittleTile destroyedTile;
+	public List<LittleTilePreview> destroyedTiles;
 	public StructurePreview structurePreview;
 	
 	@Override
 	public LittleAction revert() {
 		if(structurePreview != null)
 			return structurePreview.getPlaceAction();
-		
-		List<LittleTilePreview> previews = new ArrayList<>();
-		LittleTilePreview preview = destroyedTile.getPreviewTile();
-		preview.box.addOffset(destroyedTile.te.getPos());
-		previews.add(preview);
-		return new LittleActionPlaceAbsolute(previews, false);
+		return new LittleActionPlaceAbsolute(destroyedTiles, false);
 	}
 	
 	@Override
@@ -73,11 +69,30 @@ public class LittleActionDestroy extends LittleActionInteract {
 			}else			
 				throw new LittleActionException.StructureNotLoadedException();
 		}else{
-			destroyedTile = tile.copy();
 			
-			addTileToInventory(player, tile);
+			destroyedTiles = new ArrayList<>();
 			
-			tile.destroy();
+			if(player.isSneaking())
+			{
+				for (LittleTile toDestory : te.getTiles()) {
+					LittleTilePreview preview = toDestory.getPreviewTile();
+					preview.box.addOffset(toDestory.te.getPos());
+					destroyedTiles.add(preview);
+				}
+				
+				addPreviewToInventory(player, destroyedTiles);
+				
+				te.getTiles().clear();
+				te.updateTiles();
+			}else{
+				LittleTilePreview preview = tile.getPreviewTile();
+				preview.box.addOffset(tile.te.getPos());
+				destroyedTiles.add(preview);
+				
+				addPreviewToInventory(player, destroyedTiles);
+				
+				tile.destroy();
+			}
 		}
 		
 		world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
