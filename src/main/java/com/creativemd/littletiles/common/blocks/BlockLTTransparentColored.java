@@ -136,5 +136,12 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
+	
+	@Override
+	public boolean isMaterial(LittleTileBlock tile, Material material) {
+		if(tile.getBlockState().getValue(VARIANT) == EnumType.water)
+			return material == Material.WATER;
+		return ISpecialBlockHandler.super.isMaterial(tile, material);
+	}
 
 }

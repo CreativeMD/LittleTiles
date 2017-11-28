@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -761,17 +762,20 @@ public abstract class LittleTile {
 	
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {}
 
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	{
 		if(isLoaded())
 			return structure.onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		return false;
 	}
 
-	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+	{
 		return glowing ? 14 : 0;
 	}
 
-	public float getEnchantPowerBonus(World world, BlockPos pos) {
+	public float getEnchantPowerBonus(World world, BlockPos pos)
+	{
 		return 0;
 	}
 	
@@ -785,6 +789,11 @@ public abstract class LittleTile {
 	public float getSlipperiness(Entity entity)
 	{
 		return 0;
+	}
+	
+	public boolean isMaterial(Material material)
+	{
+		return false;
 	}
 	
 	//================Collision================

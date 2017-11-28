@@ -127,5 +127,12 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
+	
+	@Override
+	public boolean isMaterial(LittleTileBlock tile, Material material) {
+		if(tile.getBlockState().getValue(VARIANT) == EnumType.lava)
+			return material == Material.LAVA;
+		return ISpecialBlockHandler.super.isMaterial(tile, material);
+	}
 
 }

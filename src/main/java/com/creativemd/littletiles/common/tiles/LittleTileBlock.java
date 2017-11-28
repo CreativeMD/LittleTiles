@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -311,6 +312,14 @@ public class LittleTileBlock extends LittleTile{
 	public float getSlipperiness(Entity entity)
 	{
 		return block.getSlipperiness(getBlockState(), te.getWorld(), te.getPos(), entity);
+	}
+	
+	@Override
+	public boolean isMaterial(Material material)
+	{
+		if(hasSpecialBlockHandler())
+			return handler.isMaterial(this, material);
+		return material == block.getMaterial(state);
 	}
 	
 	@Override

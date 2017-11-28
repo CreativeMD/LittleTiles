@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -37,6 +38,11 @@ public interface ISpecialBlockHandler {
 	public default void randomDisplayTick(LittleTileBlock tile, IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
 	{
 		
+	}
+	
+	public default boolean isMaterial(LittleTileBlock tile, Material material)
+	{
+		return tile.getBlockState().getMaterial() == material;
 	}
 	
 }
