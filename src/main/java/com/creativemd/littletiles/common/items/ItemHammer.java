@@ -47,8 +47,6 @@ public class ItemHammer extends Item implements IGuiCreator{
 	{
 		tooltip.add("used for hammering normal");
 		tooltip.add("blocks into small pieces");
-		tooltip.add("shift+rightclick will harvest and");
-		tooltip.add("drop all tiles inside one block");
 	}
 	
 	@Override
@@ -59,32 +57,6 @@ public class ItemHammer extends Item implements IGuiCreator{
 		if(!world.isRemote)
 			GuiHandler.openGuiItem(player, world);
         return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-    }
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-		if(player.isSneaking())
-		{
-			TileEntity tileEntity = world.getTileEntity(pos);
-			if(tileEntity instanceof TileEntityLittleTiles)
-			{
-				if(!world.isRemote)
-				{
-					if(((TileEntityLittleTiles) tileEntity).getTiles().size() <= 1)
-					{
-						WorldUtils.dropItem(world, ((TileEntityLittleTiles) tileEntity).getTiles().get(0).getDrops(), pos);
-					}else{
-						ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-						LittleTilePreview.saveTiles(world, ((TileEntityLittleTiles) tileEntity).getTiles(), drop);
-						WorldUtils.dropItem(world, drop, pos);
-					}
-					world.setBlockToAir(pos);
-				}
-				return EnumActionResult.SUCCESS;
-			}
-		}
-        return EnumActionResult.PASS;
     }
 	
 	@Override
