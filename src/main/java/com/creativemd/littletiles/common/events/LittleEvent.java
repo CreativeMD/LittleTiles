@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
@@ -20,15 +21,21 @@ import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
+import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -36,13 +43,19 @@ import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.RenderBlockOverlayEvent;
+import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
@@ -125,6 +138,60 @@ public class LittleEvent {
 			}
 		}else if(event.getItemStack().getItem() instanceof ISpecialBlockSelector)
 			event.setCanceled(true);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent
+	public void renderOverlay(RenderBlockOverlayEvent event)
+	{
+		if(event.getOverlayType() == OverlayType.WATER)
+		{
+			EntityPlayer player = event.getPlayer();
+			double d0 = player.posY + (double)player.getEyeHeight();
+            BlockPos blockpos = new BlockPos(player.posX, d0, player.posZ);
+            TileEntity te = player.world.getTileEntity(blockpos);
+            if(te instanceof TileEntityLittleTiles)
+            {
+            	AxisAlignedBB bb = player.getEntityBoundingBox();
+            	for (LittleTile tile : ((TileEntityLittleTiles) te).getTiles()) {
+    				if(tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(blockpos).intersects(bb))
+    				{
+    					Vec3d color = ColorUtils.IntToVec(((LittleTileBlockColored) tile).color);
+    					//GlStateManager.color((float) color.x, (float) color.y, (float) color.z);
+    					Minecraft mc = Minecraft.getMinecraft();
+    					mc.getTextureManager().bindTexture(new ResourceLocation("textures/misc/underwater.png"));
+    			        Tessellator tessellator = Tessellator.getInstance();
+    			        BufferBuilder bufferbuilder = tessellator.getBuffer();
+    			        float f = mc.player.getBrightness();
+    			        GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 5F);
+    			        GlStateManager.enableBlend();
+    			        //GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+    			        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+    			        GlStateManager.pushMatrix();
+    			        float f1 = 4.0F;
+    			        float f2 = -1.0F;
+    			        float f3 = 1.0F;
+    			        float f4 = -1.0F;
+    			        float f5 = 1.0F;
+    			        float f6 = -0.5F;
+    			        float f7 = -mc.player.rotationYaw / 64.0F;
+    			        float f8 = mc.player.rotationPitch / 64.0F;
+    			        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
+    			        bufferbuilder.pos(-1.0D, -1.0D, -0.5D).tex((double)(4.0F + f7), (double)(4.0F + f8)).endVertex();
+    			        bufferbuilder.pos(1.0D, -1.0D, -0.5D).tex((double)(0.0F + f7), (double)(4.0F + f8)).endVertex();
+    			        bufferbuilder.pos(1.0D, 1.0D, -0.5D).tex((double)(0.0F + f7), (double)(0.0F + f8)).endVertex();
+    			        bufferbuilder.pos(-1.0D, 1.0D, -0.5D).tex((double)(4.0F + f7), (double)(0.0F + f8)).endVertex();
+    			        tessellator.draw();
+    			        
+    			        GlStateManager.popMatrix();
+    			        GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+    			        GlStateManager.disableBlend();
+    					event.setCanceled(true);
+    					return ;
+    				}
+    			}
+            }
+		}
 	}
 	
 	@SubscribeEvent

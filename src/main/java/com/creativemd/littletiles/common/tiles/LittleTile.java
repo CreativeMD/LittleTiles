@@ -786,6 +786,11 @@ public abstract class LittleTile {
 		return false;
 	}
 	
+	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
+	{
+		return originalColor;
+	}
+	
 	//================Collision================
 	
 	public List<LittleTileBox> getCollisionBoxes()

@@ -160,6 +160,14 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return getSize(slice.axis) * (slice.isFacingPositive(one) ? getMaxSlice(one) - getMin(one) : getMax(one) - getMinSlice(one)) * (slice.isFacingPositive(two) ? getMaxSlice(two) - getMin(two) : getMax(two) - getMinSlice(two)) - (Math.abs(startOne-endOne) * Math.abs(startTwo-endTwo) * getSize(slice.axis)) / 2D;
 	}
 	
+	@Override
+	public Vec3d getExactCorner(LittleCorner corner)
+	{
+		return new Vec3d(slice.isFacingPositive(Axis.X) == corner.isFacingPositive(Axis.X) ? getSliceCornerValue(corner, Axis.X) : getCornerX(corner),
+				slice.isFacingPositive(Axis.Y) == corner.isFacingPositive(Axis.Y) ? getSliceCornerValue(corner, Axis.Y) : getCornerY(corner),
+				slice.isFacingPositive(Axis.Z) == corner.isFacingPositive(Axis.Z) ? getSliceCornerValue(corner, Axis.Z) : getCornerZ(corner));
+	}
+	
 	//================Block Integration================
 	
 	@Override
@@ -242,7 +250,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 							!LittleUtils.equals(getMaxSlice(two), slicedBox.getMaxSlice(two)) || !LittleUtils.equals(getMinSlice(two),  slicedBox.getMinSlice(two)))
 						return null;
 					LittleTileBox newBox = copy();
-					if((facing.getAxis() == Axis.Y) == (facing.getAxisDirection() == AxisDirection.POSITIVE))
+					if(facing.getAxisDirection() != AxisDirection.POSITIVE)
 						newBox.setMax(slice.axis, box.getMax(slice.axis));
 					else
 						newBox.setMin(slice.axis, box.getMin(slice.axis));
@@ -408,9 +416,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(x && z)
 		{
 			if(this.minY == box.maxY)
-				return EnumFacing.DOWN;
-			else if(this.maxY == box.minY)
 				return EnumFacing.UP;
+			else if(this.maxY == box.minY)
+				return EnumFacing.DOWN;
 		}
 		if(y && z)
 		{
@@ -423,18 +431,18 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public boolean isVecInsideBoxNoEdge(LittleTileVec vec)
+	public boolean isVecInsideBoxNoEdge(Vec3d vec)
 	{
-		int x = vec.x;
-		int y = vec.y;
-		int z = vec.z;
+		double x = vec.x;
+		double y = vec.y;
+		double z = vec.z;
 		if(x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ)
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			int posOne = RotationUtils.get(one, x, y, z);
-			int posTwo = RotationUtils.get(two, x, y, z);
+			double posOne = RotationUtils.get(one, x, y, z);
+			double posTwo = RotationUtils.get(two, x, y, z);
 			
 			if(slice.isFacingPositive(one))
         	{
@@ -482,8 +490,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		double pointOne = getSliceValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
 		double pointTwo = getSliceValueOfFacing(slice.getEmptySide(axisTwo).getOpposite());
 		
-		LittleTileVec minVec = box.getCorner(cornerMin);
-		LittleTileVec maxVec = box.getCorner(cornerMax);
+		Vec3d minVec = box.getExactCorner(cornerMin);
+		Vec3d maxVec = box.getExactCorner(cornerMax);
 		
 		//minVec.setAxis(slice.axis, getValueOfFacing(ignoreFace.getOpposite()));
 		//maxVec.setAxis(slice.axis, getValueOfFacing(ignoreFace.getOpposite()));
@@ -499,14 +507,14 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(slice.getNormal()[axisOne.ordinal()] > 0)
 		{
 			// check axis one
-			if(minVec.getAxis(axisOne) <= pointOne) 
+			if(RotationUtils.get(axisOne, minVec) <= pointOne) 
 				return true;
 		}
 		// pointing negative
 		else
 		{
 			// check axis one
-			if(minVec.getAxis(axisOne) >= pointOne)
+			if(RotationUtils.get(axisOne, minVec) > pointOne)
 				return true;
 		}
 		
@@ -514,14 +522,14 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(slice.getNormal()[axisTwo.ordinal()] > 0)
 		{
 			// check axis one
-			if(minVec.getAxis(axisTwo) <= pointTwo)
+			if(RotationUtils.get(axisTwo, minVec) <= pointTwo)
 				return true;
 		}
 		// pointing negative
 		else
 		{
 			// check axis one
-			if(minVec.getAxis(axisTwo) >= pointTwo)
+			if(RotationUtils.get(axisTwo, minVec) > pointTwo)
 				return true;
 		}
 		

@@ -40,6 +40,14 @@ public class ChiselsAndBitsManager {
 		return false;
 	}
 	
+	
+	public static boolean isChiselsAndBitsStructure(TileEntity te)
+	{
+		if(isInstalled())
+			return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(te);
+		return false;
+	}
+	
 	public static List<LittleTilePreview> getPreviews(TileEntity te)
 	{
 		if(isInstalled())

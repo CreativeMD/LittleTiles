@@ -9,9 +9,14 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.World;
 
 public class LittleTileBlockColored extends LittleTileBlock{
 	
@@ -87,6 +92,13 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		if(tile instanceof LittleTileBlockColored)
 			return super.canBeRenderCombined(tile) && ((LittleTileBlockColored) tile).color == this.color;
 		return false;
+	}
+	
+	@Override
+	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
+	{
+		Vec3d color = ColorUtils.IntToVec(this.color);
+		return new Vec3d(originalColor.x * color.x, originalColor.y * color.y, originalColor.z * color.z);
 	}
 	
 	public static boolean needsToBeRecolored(LittleTileBlock tile, int color)

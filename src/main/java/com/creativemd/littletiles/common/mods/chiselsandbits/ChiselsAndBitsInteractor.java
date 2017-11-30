@@ -67,7 +67,6 @@ public class ChiselsAndBitsInteractor {
 		return previews;
 	}
 	
-	
 	public static List<LittleTilePreview> getPreviews(ItemStack stack)
 	{
 		if(isChiselsAndBitsStructure(stack))
@@ -80,6 +79,11 @@ public class ChiselsAndBitsInteractor {
 		if(te instanceof TileEntityBlockChiseled)
 			return getPreviews(((TileEntityBlockChiseled) te).getBlob());
 		return null;
+	}
+	
+	public static boolean isChiselsAndBitsStructure(TileEntity te)
+	{
+		return te instanceof TileEntityBlockChiseled;
 	}
 	
 	public static List<LittleTile> getTiles(TileEntity te)

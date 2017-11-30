@@ -209,6 +209,11 @@ public class LittleTileBox {
 		return new LittleTileVec(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
 	}
 	
+	public Vec3d getExactCorner(LittleCorner corner)
+	{
+		return new Vec3d(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
+	}
+	
 	public int getCornerValue(LittleCorner corner, Axis axis)
 	{
 		return getValueOfFacing(corner.getFacing(axis));
@@ -482,9 +487,9 @@ public class LittleTileBox {
 		if(x && z)
 		{
 			if(this.minY == box.maxY)
-				return EnumFacing.DOWN;
-			else if(this.maxY == box.minY)
 				return EnumFacing.UP;
+			else if(this.maxY == box.minY)
+				return EnumFacing.DOWN;
 		}
 		if(y && z)
 		{
