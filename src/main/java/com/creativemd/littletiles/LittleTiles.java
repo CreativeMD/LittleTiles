@@ -76,6 +76,7 @@ import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
+import com.creativemd.littletiles.common.utils.converting.ChiselAndBitsConveration;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
@@ -297,6 +298,7 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
+		//MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 		LittleStructure.initStructures();
 		

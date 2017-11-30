@@ -28,7 +28,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 	public LittleTilesTransformer() {
 		super("littletiles");
 	}
-
+	
 	@Override
 	protected void initTransformers() {
 		addTransformer(new Transformer("net.minecraft.client.renderer.RenderGlobal") {
@@ -299,6 +299,27 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
+		/*addTransformer(new Transformer("net.minecraft.world.World") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				String className = patchClassName("net/minecraft/tileentity/TileEntity");
+				String methodName = TransformerNames.patchMethodName("onLoad", "()V", className);
+				
+				MethodNode m = findMethod(node, "addTileEntity", "(Lnet/minecraft/tileentity/TileEntity;)Z");
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals(methodName) && ((MethodInsnNode) insn).owner.equals(className))
+					{
+						VarInsnNode before = (VarInsnNode) insn.getPrevious();
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/utils/converting/ChiselAndBitsConveration", "onAddedTileEntity", patchDESC("(Lnet/minecraft/tileentity/TileEntity;)V"), false));
+						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, before.var));
+					}
+				}
+			}
+		});*/
 	}
 
 }

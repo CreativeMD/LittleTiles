@@ -43,6 +43,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
+		if(entity.isDead)
+			return ;
+		
         /*double d0 = entityIn.posX - this.prevRenderSortX;
         double d1 = entityIn.posY - this.prevRenderSortY;
         double d2 = entityIn.posZ - this.prevRenderSortZ;

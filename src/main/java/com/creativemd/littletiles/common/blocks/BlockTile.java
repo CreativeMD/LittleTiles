@@ -1012,7 +1012,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         onBlockDestroyedByExplosion(world, pos, explosion);*/
     }
     
-   /* @Override
+    @Override
     @SideOnly (Side.CLIENT)
     public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
     {
@@ -1021,16 +1021,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		{
 			for (LittleTile tile : te.getTiles()) {
 				if(tile.box.getBox(pos).intersects(entity.getEntityBoundingBox()))
-				{
-					//do shit
-				}
+					return tile.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 			}
 		}
 		
         return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
     }
     
-    protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state)
+   /* protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState state)
     {
         double d0 = 0.0D;
         double d1 = 0.0D;

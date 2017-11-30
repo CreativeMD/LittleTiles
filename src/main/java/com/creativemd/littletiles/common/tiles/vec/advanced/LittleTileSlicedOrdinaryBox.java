@@ -168,7 +168,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 				if(facing.getAxis() == slice.axis)
 				{
 					LittleTileBox newBox = copy();
-					if((facing.getAxis() == Axis.Y) == (facing.getAxisDirection() == AxisDirection.POSITIVE))
+					if(facing.getAxisDirection() != AxisDirection.POSITIVE)
 						newBox.setMax(slice.axis, box.getMax(slice.axis));
 					else
 						newBox.setMin(slice.axis, box.getMin(slice.axis));
@@ -228,19 +228,23 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		return null;
 	}
 	
-	public boolean isVecInsideBoxNoEdge(LittleTileVec vec)
+	public boolean isVecInsideBoxNoEdge(Vec3d vec)
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-		if(vec.getAxis(one) >= getMin(one) && vec.getAxis(one) < getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) < getMax(two))
+		
+		double posOne = RotationUtils.get(one, vec);
+		double posTwo = RotationUtils.get(two, vec);
+		
+		if(posOne >= getMin(one) && posOne < getMax(one) && posTwo >= getMin(two) && posTwo < getMax(two))
 		{
 			LittleCorner corner = slice.getFilledCorner();
 			
-			int difOne = Math.abs(getCornerValue(corner, one) - vec.getAxis(one));
-			int difTwo = Math.abs(getCornerValue(corner, two) - vec.getAxis(two));
-			int sizeOne = getSize(one);
-			int sizeTwo = getSize(two);
-			double diff = difOne / (double) sizeOne + difTwo / (double) sizeTwo;
+			double difOne = Math.abs(getCornerValue(corner, one) - posOne);
+			double difTwo = Math.abs(getCornerValue(corner, two) - posTwo);
+			double sizeOne = getSize(one);
+			double sizeTwo = getSize(two);
+			double diff = difOne / sizeOne + difTwo / sizeTwo;
 			return sizeOne > difOne && sizeTwo > difTwo && diff < 1;
 		}
 		return false;
@@ -268,10 +272,10 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		maxVec.setAxis(slice.axis, getValueOfFacing(ignoreFace.getOpposite()));
 		
 		// check if point is inside triangle (both)
-		if(isVecInsideBoxNoEdge(minVec))
+		if(isVecInsideBoxNoEdge(box.getExactCorner(cornerMin)))
 			return true;
 		
-		if(isVecInsideBoxNoEdge(maxVec))
+		if(isVecInsideBoxNoEdge(box.getExactCorner(cornerMax)))
 			return true;
 		
 		// pointing positive
