@@ -20,6 +20,8 @@ import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
@@ -108,6 +110,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		if(te != null)
 			return new TEResult(te, te.getFocusedTile(player));
 		return new TEResult(null, null);
+	}
+	
+	public static boolean selectEntireBlock(EntityPlayer player)
+	{
+		return player.isSneaking() && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
 	}
 	
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
@@ -290,7 +297,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
-			if(mc.player.isSneaking())
+			if(selectEntireBlock(mc.player))
 				return result.te.getSelectionBox();
 			return result.tile.getSelectedBox(pos);
 		}
@@ -504,7 +511,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TEResult result = loadTeAndTile(world, pos, mc.player);
 		if(result.isComplete())
 		{
-			if(mc.player.isSneaking())
+			if(selectEntireBlock(mc.player))
 			{
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
 				LittleTilePreview.saveTiles(world, result.te.getTiles(), drop);

@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -72,17 +73,23 @@ public class LittleActionDestroy extends LittleActionInteract {
 			
 			destroyedTiles = new ArrayList<>();
 			
-			if(player.isSneaking())
+			if(BlockTile.selectEntireBlock(player))
 			{
+				List<LittleTile> remains = new ArrayList<>();
 				for (LittleTile toDestory : te.getTiles()) {
-					LittleTilePreview preview = toDestory.getPreviewTile();
-					preview.box.addOffset(toDestory.te.getPos());
-					destroyedTiles.add(preview);
+					if(!toDestory.isStructureBlock)
+					{
+						LittleTilePreview preview = toDestory.getPreviewTile();
+						preview.box.addOffset(toDestory.te.getPos());
+						destroyedTiles.add(preview);
+					}else
+						remains.add(toDestory);
 				}
 				
 				addPreviewToInventory(player, destroyedTiles);
 				
 				te.getTiles().clear();
+				te.getTiles().addAll(remains);
 				te.updateTiles();
 			}else{
 				LittleTilePreview preview = tile.getPreviewTile();
