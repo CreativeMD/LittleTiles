@@ -133,6 +133,8 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				ShadersRender.preRenderChunkLayer(layer);
 			
 			List<TERenderData> blocksToRender = entity.renderData.getValues(layer);
+			if(blocksToRender == null)
+				continue;
 			for (int i = 0; i < blocksToRender.size(); i++) {
 				TERenderData data = blocksToRender.get(i);
 				
