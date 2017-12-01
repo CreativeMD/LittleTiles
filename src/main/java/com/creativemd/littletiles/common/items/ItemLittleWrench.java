@@ -67,7 +67,10 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
 			if(!world.isRemote)
+			{
 				((TileEntityLittleTiles) tileEntity).combineTiles();
+				((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
+			}
 			return EnumActionResult.SUCCESS;
 		}
 		return EnumActionResult.PASS;
