@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -56,14 +57,19 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		if(tile.isStructureBlock)
 		{
-			if(tile.isLoaded() && tile.structure.hasLoaded())
+			boolean loaded = tile.isLoaded() && tile.structure.hasLoaded();
+			if(loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench)
 			{
-				structurePreview = new StructurePreview(tile.structure);
-				ItemStack drop = tile.structure.getStructureDrop();
-				if(needIngredients(player) && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
-					WorldUtils.dropItem(world, drop, pos);
-				
-				tile.destroy();
+				if(loaded)
+				{
+					structurePreview = new StructurePreview(tile.structure);
+					ItemStack drop = tile.structure.getStructureDrop();
+					if(needIngredients(player) && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
+						WorldUtils.dropItem(world, drop, pos);
+					tile.destroy();
+				}
+				else
+					tile.te.removeTile(tile);
 				
 				//if(!world.isRemote)
 					//tile.structure.removeWorldProperties();
