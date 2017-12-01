@@ -18,6 +18,8 @@ import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -148,17 +150,13 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 		SelectShape shape = getShape(stack);
 		if(player.isSneaking())
 		{
+			if(!world.isRemote)
+				return true;
 			TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
 			if(tileEntity instanceof TileEntityLittleTiles)
-			{
-				if(world.isRemote)
-				{
-					NBTTagCompound nbt = new NBTTagCompound();
-					nbt.setInteger("color", getColor(stack));
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, nbt));
-				}
-				return true;
-			}
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
+			else
+				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		}else if(shape.leftClick(player, stack.getTagCompound(), result)){
 			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack), false).execute();
 		}

@@ -4,10 +4,12 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
+import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import io.netty.buffer.ByteBuf;
+import mod.flatcoloredblocks.block.BlockFlatColored;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -23,6 +25,30 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 	
 	public static enum VanillaBlockAction {
 		
+		COLOR_TUBE {
+			
+			public boolean isFlatColoredBlocksInstalled()
+			{
+				try {
+					return Class.forName("mod.flatcoloredblocks.block.BlockFlatColored") != null;
+				} catch (ClassNotFoundException e) {
+					
+				}
+				return false;
+			}
+			
+			boolean flatColoredBlocks = isFlatColoredBlocksInstalled();
+			
+			@Override
+			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
+				int color = ColorUtils.WHITE;
+				
+				if(flatColoredBlocks && state.getBlock() instanceof BlockFlatColored)
+					color = ((BlockFlatColored) state.getBlock()).colorFromState(state);
+				
+				ItemColorTube.setColor(player.getHeldItemMainhand(), color);
+			}
+		},
 		CHISEL{
 
 			@Override
