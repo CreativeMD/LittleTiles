@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -44,6 +46,8 @@ public class ChiselsAndBitsInteractor {
 			for (int y = 0; y < ChiselsAndBitsManager.convertingFrom; y++) {
 				for (int z = 0; z < ChiselsAndBitsManager.convertingFrom; z++) {
 					IBlockState state = ModUtil.getStateById(blob.get(x, y, z));
+					if(state.getBlock() == Blocks.WATER)
+						state = LittleTiles.transparentColoredBlock.getDefaultState().withProperty(BlockLTTransparentColored.VARIANT, BlockLTTransparentColored.EnumType.water);
 					if(state.getBlock() != Blocks.AIR)
 					{
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
