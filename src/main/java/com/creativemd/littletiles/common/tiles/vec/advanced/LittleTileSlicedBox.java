@@ -433,9 +433,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	@Override
 	public boolean isVecInsideBoxNoEdge(Vec3d vec)
 	{
-		double x = vec.x;
-		double y = vec.y;
-		double z = vec.z;
+		double x = vec.xCoord;
+		double y = vec.yCoord;
+		double z = vec.zCoord;
 		if(x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ)
 		{
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);

@@ -14,8 +14,6 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -30,17 +28,15 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -50,8 +46,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
@@ -154,16 +150,16 @@ public class LittleEvent {
             {
             	AxisAlignedBB bb = player.getEntityBoundingBox();
             	for (LittleTile tile : ((TileEntityLittleTiles) te).getTiles()) {
-    				if(tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(blockpos).intersects(bb))
+    				if(tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(blockpos).intersectsWith(bb))
     				{
     					Vec3d color = ColorUtils.IntToVec(((LittleTileBlockColored) tile).color);
     					//GlStateManager.color((float) color.x, (float) color.y, (float) color.z);
     					Minecraft mc = Minecraft.getMinecraft();
     					mc.getTextureManager().bindTexture(new ResourceLocation("textures/misc/underwater.png"));
     			        Tessellator tessellator = Tessellator.getInstance();
-    			        BufferBuilder bufferbuilder = tessellator.getBuffer();
-    			        float f = mc.player.getBrightness();
-    			        GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 5F);
+    			        VertexBuffer bufferbuilder = tessellator.getBuffer();
+    			        float f = mc.player.getBrightness(1.0F);
+    			        GlStateManager.color(f * (float) color.xCoord, f * (float) color.yCoord, f * (float) color.zCoord, 5F);
     			        GlStateManager.enableBlend();
     			        //GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     			        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);

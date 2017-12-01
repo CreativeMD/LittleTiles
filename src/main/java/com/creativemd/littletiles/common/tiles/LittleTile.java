@@ -791,6 +791,11 @@ public abstract class LittleTile {
 		return originalColor;
 	}
 	
+	public boolean isMaterial(Material material)
+	{
+		return false;
+	}
+	
 	//================Collision================
 	
 	public List<LittleTileBox> getCollisionBoxes()

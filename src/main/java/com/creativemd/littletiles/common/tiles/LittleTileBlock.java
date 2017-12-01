@@ -315,6 +315,14 @@ public class LittleTileBlock extends LittleTile{
 			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
 	}
+	
+	@Override
+	public boolean isMaterial(Material material)
+	{
+		if(hasSpecialBlockHandler())
+			return handler.isMaterial(this, material);
+		return material == block.getMaterial(state);
+	}
 
 	@Override
 	public BlockIngredient getIngredient() {

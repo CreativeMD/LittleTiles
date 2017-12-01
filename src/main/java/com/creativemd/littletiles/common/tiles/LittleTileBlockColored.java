@@ -98,7 +98,7 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
 	{
 		Vec3d color = ColorUtils.IntToVec(this.color);
-		return new Vec3d(originalColor.x * color.x, originalColor.y * color.y, originalColor.z * color.z);
+		return new Vec3d(originalColor.xCoord * color.xCoord, originalColor.yCoord * color.yCoord, originalColor.zCoord * color.zCoord);
 	}
 	
 	public static boolean needsToBeRecolored(LittleTileBlock tile, int color)
