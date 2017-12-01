@@ -148,12 +148,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	 */
 	public void updateWorldCollision()
 	{
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int minZ = Integer.MAX_VALUE;
-		int maxX = Integer.MIN_VALUE;
-		int maxY = Integer.MIN_VALUE;
-		int maxZ = Integer.MIN_VALUE;
+		double minX = Integer.MAX_VALUE;
+		double minY = Integer.MAX_VALUE;
+		double minZ = Integer.MAX_VALUE;
+		double maxX = Integer.MIN_VALUE;
+		double maxY = Integer.MIN_VALUE;
+		double maxZ = Integer.MIN_VALUE;
 		
 		worldCollisionBoxes = new ArrayList<>();
 		
@@ -163,13 +163,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			TileEntityLittleTiles te = iterator.next();
 			
 			onScanningTE(te);
-			
-			minX = Math.min(minX, te.getPos().getX());
-			minY = Math.min(minY, te.getPos().getY());
-			minZ = Math.min(minZ, te.getPos().getZ());
-			maxX = Math.max(maxX, te.getPos().getX());
-			maxY = Math.max(maxY, te.getPos().getY());
-			maxZ = Math.max(maxZ, te.getPos().getZ());
+			AxisAlignedBB bb = te.getSelectionBox();
+			minX = Math.min(minX, bb.minX);
+			minY = Math.min(minY, bb.minY);
+			minZ = Math.min(minZ, bb.minZ);
+			maxX = Math.max(maxX, bb.maxX);
+			maxY = Math.max(maxY, bb.maxY);
+			maxZ = Math.max(maxZ, bb.maxZ);
 			
 			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
 				LittleTile tile = iterator2.next();
@@ -186,7 +186,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
 		
-		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX+1, maxY+1, maxZ+1);
+		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
 	//================Rendering================
