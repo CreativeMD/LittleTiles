@@ -72,7 +72,7 @@ public class RenderingThread extends Thread {
 				RenderChunk chunk = te.lastRenderedChunk;
 				if(chunk == null)
 				{
-					chunk = RenderUploader.getRenderChunkByChunkPosition(RenderUploader.getViewFrustum(), RenderUploader.getRenderChunkPos(te.getPos()));
+					chunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
 					te.lastRenderedChunk = chunk;
 				}
 				synchronized (renderer.chunks){

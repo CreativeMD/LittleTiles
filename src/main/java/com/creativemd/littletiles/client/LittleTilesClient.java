@@ -114,7 +114,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		MinecraftForge.EVENT_BUS.register(new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
-		MinecraftForge.EVENT_BUS.register(new RenderUploader());
+		//MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		
 		up = new KeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
 		down = new KeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");

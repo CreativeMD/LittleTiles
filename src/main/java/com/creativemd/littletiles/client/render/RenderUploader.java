@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.client.render;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,6 +15,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.swing.text.View;
 
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL11;
@@ -253,6 +257,18 @@ public class RenderUploader {
         int j = MathHelper.intFloorDiv(pos.getY(), 16);
         int k = MathHelper.intFloorDiv(pos.getZ(), 16);
         return new BlockPos(i, j, k);
+	}
+	
+	private static Method getRenderChunk = ReflectionHelper.findMethod(ViewFrustum.class, "getRenderChunk", "func_178161_a", BlockPos.class);
+	
+	public static RenderChunk getRenderChunk(ViewFrustum frustum, BlockPos pos)
+	{
+		try {
+			return (RenderChunk) getRenderChunk.invoke(frustum, pos);
+		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 	
 	public static RenderChunk getRenderChunkByChunkPosition(ViewFrustum frustum, BlockPos chunkPos)
