@@ -191,7 +191,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 		
-		if(cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || stack.getTagCompound().getInteger("tiles") == 0)
+		if(cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles"))
 		{
 			if(cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
