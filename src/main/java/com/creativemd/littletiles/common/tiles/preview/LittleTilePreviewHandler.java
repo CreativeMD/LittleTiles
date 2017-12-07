@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tiles.preview;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -51,6 +52,24 @@ public abstract class LittleTilePreviewHandler {
 				return preview.getTileData().getInteger("color");
 			return -1;
 		}
+		
+		@Override
+		public void setColor(LittleTilePreview preview, int color) {
+			if(ColorUtils.isWhite(color))
+			{
+				if(preview.getTileData().getString("tID").equals("BlockTileColored"))
+					preview.getTileData().setString("tID", "BlockTileBlock");
+				preview.getTileData().removeTag("color");
+			}
+			else
+			{
+				if(preview.getTileData().getString("tID").equals("BlockTileBlock"))
+					preview.getTileData().setString("tID", "BlockTileColored");
+				preview.getTileData().setInteger("color", color);
+			}
+				
+			
+		}
 
 		@SideOnly(Side.CLIENT)
 		public RenderCubeObject getCubeBlock(LittleTilePreview preview)
@@ -95,6 +114,8 @@ public abstract class LittleTilePreviewHandler {
 	public abstract boolean hasColor(LittleTilePreview preview);
 	
 	public abstract int getColor(LittleTilePreview preview);
+	
+	public abstract void setColor(LittleTilePreview preview, int color);
 	
 	@SideOnly(Side.CLIENT)
 	public abstract RenderCubeObject getCubeBlock(LittleTilePreview preview);

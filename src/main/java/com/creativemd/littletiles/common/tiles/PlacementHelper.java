@@ -201,17 +201,12 @@ public class PlacementHelper {
 			LittleTilePreview tile = tiles.get(i);
 			if(tile == null)
 				return new LittleTileSize(0, 0, 0);
-			if(tile.box != null)
-			{
-				minX = Math.min(minX, tile.box.minX);
-				minY = Math.min(minY, tile.box.minY);
-				minZ = Math.min(minZ, tile.box.minZ);
-				maxX = Math.max(maxX, tile.box.maxX);
-				maxY = Math.max(maxY, tile.box.maxY);
-				maxZ = Math.max(maxZ, tile.box.maxZ);
-			}else{
-				size.max(tile.size);
-			}
+			minX = Math.min(minX, tile.box.minX);
+			minY = Math.min(minY, tile.box.minY);
+			minZ = Math.min(minZ, tile.box.minZ);
+			maxX = Math.max(maxX, tile.box.maxX);
+			maxY = Math.max(maxY, tile.box.maxY);
+			maxZ = Math.max(maxZ, tile.box.maxZ);
 		}
 		return new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).max(size);
 	}
