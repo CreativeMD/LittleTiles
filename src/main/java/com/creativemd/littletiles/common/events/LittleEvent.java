@@ -267,13 +267,22 @@ public class LittleEvent {
 		        
 		        GlStateManager.enableBlend();
 	            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-	            GlStateManager.glLineWidth(2.0F);
+	            GlStateManager.glLineWidth(4.0F);
 	            GlStateManager.disableTexture2D();
 	            GlStateManager.depthMask(false);
 	            for (int i = 0; i < boxes.size(); i++) {
 	            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 				}
-				
+
+	            if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos))
+	            {
+	            	GlStateManager.glLineWidth(1.0F);
+	                double d3 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
+	                double d4 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
+	                double d5 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
+	                RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d3, -d4, -d5), 0.0F, 0.0F, 0.0F, 0.4F);
+	            }
+	            
 				GlStateManager.depthMask(true);
 	            GlStateManager.enableTexture2D();
 	            GlStateManager.disableBlend();

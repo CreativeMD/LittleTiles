@@ -109,6 +109,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.colorTube);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		
@@ -120,6 +121,10 @@ public class LittleTilesClient extends LittleTilesServer{
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.modid + ":chisel", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 0, new ModelResourceLocation(LittleTiles.modid + ":grabber", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
+
 		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
         {
             public ModelResourceLocation getModelLocation(ItemStack stack)

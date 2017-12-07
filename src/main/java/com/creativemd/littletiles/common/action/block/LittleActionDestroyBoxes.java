@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.CombinedIngredients;

@@ -2,11 +2,15 @@ package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import mod.flatcoloredblocks.block.BlockFlatColored;
@@ -53,10 +57,24 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 
 			@Override
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
-				if(SubContainerHammer.isBlockValid(state.getBlock()))
+				if(SubContainerGrabber.isBlockValid(state.getBlock()))
 				{
-					ItemLittleChisel.setBlockState(player.getHeldItemMainhand(), state);
-					ItemLittleChisel.setColor(player.getHeldItemMainhand(), ColorUtils.WHITE);
+					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+					tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+					ItemLittleChisel.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
+				}
+			}
+			
+		},
+		GRABBER{
+
+			@Override
+			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
+				if(SubContainerGrabber.isBlockValid(state.getBlock()))
+				{
+					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+					tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+					ItemLittleGrabber.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
 				}
 			}
 			

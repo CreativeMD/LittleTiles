@@ -11,7 +11,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
@@ -197,7 +197,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);
-				if(SubContainerHammer.isBlockValid(state.getBlock()))
+				if(SubContainerGrabber.isBlockValid(state.getBlock()))
 				{
 					tiles = new ArrayList<>();
 					
@@ -337,7 +337,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	{
 		Block block = Block.getBlockFromItem(stack.getItem());
 		
-		if(block != null && !(block instanceof BlockAir) && SubContainerHammer.isBlockValid(block))
+		if(block != null && !(block instanceof BlockAir) && SubContainerGrabber.isBlockValid(block))
 			return new BlockIngredient(block, stack.getItemDamage(), 1);
 		return null;
 	}
@@ -373,7 +373,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			
 			if(block != null && !(block instanceof BlockAir))
 			{
-				if(SubContainerHammer.isBlockValid(block))
+				if(SubContainerGrabber.isBlockValid(block))
 				{
 					CombinedIngredients ingredients = new CombinedIngredients();
 					ingredients.block.addIngredient(new BlockIngredient(block, stack.getItemDamage(), 1));

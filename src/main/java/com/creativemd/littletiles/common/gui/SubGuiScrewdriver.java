@@ -14,7 +14,7 @@ import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemStackSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -95,7 +95,7 @@ public class SubGuiScrewdriver extends SubGui {
 					if(stackReplace != null)
 					{
 						Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
-						if(!SubContainerHammer.isBlockValid(replacementBlock))
+						if(!SubContainerGrabber.isBlockValid(replacementBlock))
 						{
 							openButtonDialogDialog("Invalid replacement block!", "ok");
 							return ;
@@ -148,7 +148,7 @@ public class SubGuiScrewdriver extends SubGui {
 		{
 			Block block = Block.getBlockFromItem(stack.getItem());
 			if(block != null && !(block instanceof BlockAir))
-				return SubContainerHammer.isBlockValid(block) && GuiItemStackSelector.shouldShowItem(false, search, stack);
+				return SubContainerGrabber.isBlockValid(block) && GuiItemStackSelector.shouldShowItem(false, search, stack);
 			return false;
 		}
 		

@@ -34,17 +34,4 @@ public class ItemRubberMallet extends Item {
 		
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
-	{
-		
-	}
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-	{
-		return EnumActionResult.PASS;
-    }
-	
 }

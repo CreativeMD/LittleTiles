@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.geo.DragShape;
 import com.creativemd.littletiles.common.items.geo.SelectShape;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -37,17 +38,15 @@ public class SubGuiChisel extends SubGui {
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		DragShape shape = DragShape.getShape(box.caption);
 		
-		NBTTagCompound nbt = new NBTTagCompound();
-		
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
+		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		preview.setColor(ColorUtils.RGBAToInt(picker.color));
 		
-		IBlockState state = ItemLittleChisel.getBlockState(stack);
-		nbt.setInteger("state", Block.getStateId(state));
+		ItemLittleChisel.setPreview(stack, ItemLittleChisel.getPreview(stack));
+		ItemLittleChisel.setShape(stack, shape);
 		
-		nbt.setString("shape", shape.key);
-		shape.saveCustomSettings(scroll, nbt);
-		sendPacketToServer(nbt);
+		shape.saveCustomSettings(scroll, stack.getTagCompound());
+		sendPacketToServer(stack.getTagCompound());
 		
 		super.onClosed();
 	}

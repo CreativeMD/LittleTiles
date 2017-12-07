@@ -62,7 +62,6 @@ public class LittleTilePreview {
 	//================Data================
 	
 	public boolean canSplit = true;
-	public LittleTileSize size = null;
 	
 	protected NBTTagCompound tileData;
 	
@@ -79,14 +78,14 @@ public class LittleTilePreview {
 		if(nbt.hasKey("bBoxminX") || nbt.hasKey("bBox"))
 		{
 			box = LittleTileBox.loadBox("bBox", nbt);
-			size = box.getSize();
-		}else if(nbt.hasKey("sizex") || nbt.hasKey("size"))
-			size = new LittleTileSize("size", nbt);
-		else
-			new LittleTileSize(0,0,0);
-		
-		if(box == null)
+		}
+		else if(nbt.hasKey("sizex") || nbt.hasKey("size"))
+		{
+			LittleTileSize size = new LittleTileSize("size", nbt);
 			box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
+		}
+		else
+			box = new LittleTileBox(0,0,0,1,1,1);
 		
 		if(nbt.hasKey("tile")) //new way
 			tileData = nbt.getCompoundTag("tile");
@@ -102,7 +101,6 @@ public class LittleTilePreview {
 	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData)
 	{
 		this.box = box;
-		this.size = box.getSize();
 		this.tileData = tileData;
 		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
@@ -146,6 +144,11 @@ public class LittleTilePreview {
 		return handler.getColor(this);
 	}
 	
+	public void setColor(int color)
+	{
+		handler.setColor(this, color);
+	}
+	
 	/**Rendering inventory**/
 	@SideOnly(Side.CLIENT)
 	public RenderCubeObject getCubeBlock()
@@ -175,16 +178,12 @@ public class LittleTilePreview {
 	
 	public double getPercentVolume()
 	{
-		if(box != null)
-			return box.getPercentVolume();
-		return size.getPercentVolume();
+		return box.getPercentVolume();
 	}
 	
 	public double getVolume()
 	{
-		if(box != null)
-			return box.getVolume();
-		return size.getVolume();
+		return box.getVolume();
 	}
 	
 	//================Copy================
@@ -237,12 +236,7 @@ public class LittleTilePreview {
 	
 	public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter)
 	{
-		if(box != null)
-		{
-			box.rotateBox(rotation, doubledCenter);
-			size = box.getSize();
-		}else
-			size.rotateSize(rotation);
+		box.rotateBox(rotation, doubledCenter);
 		
 		handler.rotatePreview(rotation, this, doubledCenter);
 	}
@@ -274,10 +268,7 @@ public class LittleTilePreview {
 	
 	public void writeToNBT(NBTTagCompound nbt)
 	{
-		if(box != null)
-			box.writeToNBT("bBox", nbt);
-		else
-			size.writeToNBT("size", nbt);
+		box.writeToNBT("bBox", nbt);
 		nbt.setTag("tile", tileData);
 		if(isCustomPreview() && !getTypeID().equals(""))
 			nbt.setString("type", getTypeID());

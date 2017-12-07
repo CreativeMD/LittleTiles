@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.items;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.lwjgl.util.Color;
@@ -20,7 +21,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.items.geo.DragShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
@@ -28,6 +29,7 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.PlacementHelper;
@@ -64,7 +66,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRendered, ILittleTile {
+public class ItemLittleChisel extends Item implements ICreativeRendered, ILittleTile {
 	
 	public ItemLittleChisel()
 	{
@@ -99,18 +101,6 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
         return false;
     }
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiChisel(stack);
-	}
-
-	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos,
-			IBlockState state) {
-		return new SubContainerChisel(player, stack);
-	}
-	
 	public static DragShape getShape(ItemStack stack)
 	{
 		if(!stack.hasTagCompound())
@@ -119,7 +109,15 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		return DragShape.getShape(stack.getTagCompound().getString("shape"));
 	}
 	
-	public static void setColor(ItemStack stack, int color)
+	public static void setShape(ItemStack stack, DragShape shape)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		stack.getTagCompound().setString("shape", shape.key);
+	}
+	
+	/*public static void setColor(ItemStack stack, int color)
 	{
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
@@ -153,12 +151,38 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		
 		IBlockState state = Block.getStateById(stack.getTagCompound().getInteger("state"));
 		return state.getBlock() instanceof BlockAir ? Blocks.STONE.getDefaultState() : state;			
+	}*/
+	
+	public static LittleTilePreview getPreview(ItemStack stack)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		if(stack.getTagCompound().hasKey("preview"))
+			return LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
+		
+		IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
+		LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+		tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+		LittleTilePreview preview = tile.getPreviewTile();
+		setPreview(stack, preview);
+		return preview;
 	}
-
+	
+	public static void setPreview(ItemStack stack, LittleTilePreview preview)
+	{
+		if(!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		NBTTagCompound nbt = new NBTTagCompound();	
+		preview.writeToNBT(nbt);
+		stack.getTagCompound().setTag("preview", nbt);
+	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return new ArrayList<>();
+		return Collections.emptyList();
 	}
 	
 	@Override
@@ -177,17 +201,13 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		{
 			GlStateManager.scale(0.9, 0.9, 0.9);
 			
-			IBlockState state = getBlockState(stack);
-			ItemStack blockStack = new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state));
+			LittleTilePreview preview = getPreview(stack);
+			ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
 			model =  mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); //getItemModelMesher().getItemModel(blockStack);
 			if(!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
 			GlStateManager.disableDepth();
-			
-			//Vec3d color = ColorUtils.IntToVec(getColor(stack));
-			
-			//GlStateManager.color((float) color.xCoord, (float) color.yCoord, (float) color.zCoord);
 			GlStateManager.pushMatrix();
 	        GlStateManager.translate(-0.5F, -0.5F, -0.5F);
 	        
@@ -199,17 +219,15 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 	                GlStateManager.enableRescaleNormal();
 	                TileEntityItemStackRenderer.instance.renderByItem(blockStack);
 	            }else{
-					Color color = ColorUtils.IntToRGBA(getColor(stack));
+					Color color = preview.hasColor() ? ColorUtils.IntToRGBA(preview.getColor()) : ColorUtils.IntToRGBA(ColorUtils.WHITE);
 					color.setAlpha(255);
-					ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, ColorUtils.RGBAToInt(color), blockStack);
+					ReflectionHelper.findMethod(RenderItem.class, "renderModel", "func_175045_a", IBakedModel.class, int.class, ItemStack.class).invoke(mc.getRenderItem(), model, preview.hasColor() ? ColorUtils.RGBAToInt(color) : -1, blockStack);
 				}
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
 			
 			GlStateManager.popMatrix();
-			
-			//mc.getRenderItem().renderItem(blockStack, model);
 			
 			GlStateManager.enableDepth();
 		}
@@ -270,13 +288,14 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			
 			List<LittleTilePreview> previews = new ArrayList<>();
 			
-			IBlockState state = getBlockState(stack);
-			int color = getColor(stack);
-			LittleTileBlock tile = !ColorUtils.isWhite(color) ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			LittleTilePreview preview = getPreview(stack);
+			//int color = getColor(stack);
+			//LittleTileBlock tile = !ColorUtils.isWhite(color) ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			
 			for (int i = 0; i < boxes.size(); i++) {
-				tile.box = boxes.get(i);
-				previews.add(tile.getPreviewTile());
+				LittleTilePreview newPreview = preview.copy();
+				newPreview.box = boxes.get(i);
+				previews.add(newPreview);
 			}
 			
 			return previews;
@@ -358,6 +377,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 		return false;
 	}
 	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
@@ -366,7 +386,7 @@ public class ItemLittleChisel extends Item implements IGuiCreator, ICreativeRend
 			GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 		}else{
 			IBlockState state = player.world.getBlockState(result.getBlockPos());
-			if(SubContainerHammer.isBlockValid(state.getBlock()))
+			if(SubContainerGrabber.isBlockValid(state.getBlock()))
 			{
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
 			}
