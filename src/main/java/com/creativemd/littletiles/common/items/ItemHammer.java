@@ -50,12 +50,12 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced)
 	{
-		tooltip.add("can be used to chisel blocks");
+		list.add("can be used to chisel blocks");
 		SelectShape shape = getShape(stack);
-		tooltip.add("mode: " + shape.key);
-		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip);
+		list.add("mode: " + shape.key);
+		shape.addExtraInformation(player, stack.getTagCompound(), list);
 	}
 	
 	@Override
@@ -92,7 +92,7 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
     }
 	
 	@Override
-	public float getDestroySpeed(ItemStack stack, IBlockState state)
+	public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
         return 0F;
     }

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -14,22 +12,14 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
-import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
-import com.creativemd.littletiles.common.gui.SubGuiChisel;
-import com.creativemd.littletiles.common.gui.SubGuiGrabber;
-import com.creativemd.littletiles.common.items.geo.DragShape;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -37,20 +27,16 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -58,7 +44,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -77,7 +62,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	}
 	
 	@Override
-	public float getDestroySpeed(ItemStack stack, IBlockState state)
+	public float getStrVsBlock(ItemStack stack, IBlockState state)
     {
         return 0F;
     }
