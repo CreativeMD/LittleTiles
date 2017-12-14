@@ -20,6 +20,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
@@ -181,7 +182,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
-		if(player.isSneaking())
+		if(LittleAction.isUsingSecondMode(player))
 		{
 			GuiHandler.openGui("grabber", new NBTTagCompound(), player);
 		}else{

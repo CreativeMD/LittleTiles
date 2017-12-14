@@ -13,6 +13,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerColorTube;
@@ -150,7 +151,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
 			LittleTileVec absoluteHit) {
 		SelectShape shape = getShape(stack);
-		if(player.isSneaking())
+		if(LittleAction.isUsingSecondMode(player))
 		{
 			if(!world.isRemote)
 				return true;

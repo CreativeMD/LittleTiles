@@ -117,7 +117,8 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles",acceptedMinecraftVersions="")
+@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles",acceptedMinecraftVersions="",guiFactory="com.creativemd.littletiles.client.LittleTilesSettings")
+@Mod.EventBusSubscriber
 public class LittleTiles {
 	
 	@SidedProxy(clientSide = "com.creativemd.littletiles.client.LittleTilesClient", serverSide = "com.creativemd.littletiles.server.LittleTilesServer")
@@ -153,9 +154,6 @@ public class LittleTiles {
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 	public static Item grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 	
-	public static boolean invertedShift = false;
-	public static boolean hideParticleBlock = false;
-	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
@@ -164,13 +162,8 @@ public class LittleTiles {
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
-		invertedShift = config.getBoolean("invertedShift", "Core", invertedShift, "If shift behavior is inverted.");
-		hideParticleBlock = config.getBoolean("hideParticleBlock", "Rendering", hideParticleBlock, "Can be used for cinematics");
-		LittleAction.maxSavedActions = config.getInt("maxSavedActions", "Building", LittleAction.maxSavedActions, 1, Integer.MAX_VALUE, "Number of actions which can be reverted");
 		config.save();
 		proxy.loadSidePre();
-		
-		MinecraftForge.EVENT_BUS.register(LittleTiles.class);
 	}
 	
 	@SubscribeEvent

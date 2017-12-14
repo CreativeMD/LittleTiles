@@ -20,6 +20,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
@@ -373,7 +374,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 				absoluteHit.add(result.sideHit);
 			
 			ItemLittleChisel.min = absoluteHit;
-		}else if(player.isSneaking())
+		}else if(LittleAction.isUsingSecondMode(player))
 			ItemLittleChisel.min = null;
 		else
 			return true;
@@ -384,7 +385,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
-		if(player.isSneaking())
+		if(LittleAction.isUsingSecondMode(player))
 		{
 			GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 		}else{

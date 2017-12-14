@@ -52,7 +52,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
-			RayTraceResult moving, BlockPos pos) throws LittleActionException{
+			RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException{
 		
 		
 		if(tile.isStructureBlock)
@@ -79,7 +79,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			
 			destroyedTiles = new ArrayList<>();
 			
-			if(BlockTile.selectEntireBlock(player))
+			if(BlockTile.selectEntireBlock(player, secondMode))
 			{
 				List<LittleTile> remains = new ArrayList<>();
 				for (LittleTile toDestory : te.getTiles()) {

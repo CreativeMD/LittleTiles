@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
@@ -31,6 +32,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -42,16 +44,27 @@ import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleAction extends CreativeCorePacket {
 	
-	public static int maxSavedActions = 32;
-	
 	private static List<LittleAction> lastActions = new ArrayList<>();
 	
 	private static int index = 0;
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean isUsingSecondMode(EntityPlayer player)
+	{
+		if(!LittleTilesConfig.building.useALT)
+			return player.isSneaking();
+		if(LittleTilesConfig.building.onlyChangeWhenFlying)
+			return player.capabilities.isFlying ? GuiScreen.isAltKeyDown() : player.isSneaking();
+		if(LittleTilesConfig.building.allowSneaking && player.isSneaking())
+			return true;
+		return GuiScreen.isAltKeyDown();
+	}
 	
 	public static void rememberAction(LittleAction action)
 	{
@@ -68,8 +81,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		index = 0;
 		
-		if(lastActions.size() == maxSavedActions)
-			lastActions.remove(maxSavedActions-1);
+		if(lastActions.size() == LittleTilesConfig.building.maxSavedActions)
+			lastActions.remove(LittleTilesConfig.building.maxSavedActions-1);
 		
 		lastActions.add(0, action);
 	}
