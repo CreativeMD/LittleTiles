@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -57,12 +58,12 @@ public class PreviewRenderer {
 	
 	public static boolean isCentered(EntityPlayer player)
 	{
-		return LittleTiles.invertedShift == player.isSneaking() || markedPosition != null;
+		return LittleTilesConfig.building.invertedShift == LittleAction.isUsingSecondMode(player) || markedPosition != null;
 	}
 	
 	public static boolean isFixed(EntityPlayer player)
 	{
-		return LittleTiles.invertedShift != player.isSneaking() && markedPosition == null;
+		return LittleTilesConfig.building.invertedShift != LittleAction.isUsingSecondMode(player) && markedPosition == null;
 	}
 	
 	public static void handleUndoAndRedo(EntityPlayer player)
@@ -145,7 +146,7 @@ public class PreviewRenderer {
 						}
 					}
 		            
-		            if(!absolute && markedPosition == null && player.isSneaking() && result.singleMode)
+		            if(!absolute && markedPosition == null && LittleAction.isUsingSecondMode(player) && result.singleMode)
 		            {
 		            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 		            	

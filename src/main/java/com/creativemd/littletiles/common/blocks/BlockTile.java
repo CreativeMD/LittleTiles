@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -112,9 +113,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		return new TEResult(null, null);
 	}
 	
-	public static boolean selectEntireBlock(EntityPlayer player)
+	@SideOnly(Side.CLIENT)
+	public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode)
 	{
-		return player.isSneaking() && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
+		return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
 	}
 	
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
@@ -297,7 +299,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
 		if(result.isComplete())
 		{
-			if(selectEntireBlock(mc.player))
+			if(selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(mc.player)))
 				return result.te.getSelectionBox();
 			return result.tile.getSelectedBox(pos);
 		}
@@ -511,7 +513,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TEResult result = loadTeAndTile(world, pos, mc.player);
 		if(result.isComplete())
 		{
-			if(selectEntireBlock(mc.player))
+			if(selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player)))
 			{
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
 				LittleTilePreview.saveTiles(world, result.te.getTiles(), drop);

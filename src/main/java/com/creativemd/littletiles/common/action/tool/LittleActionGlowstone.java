@@ -40,7 +40,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
-			EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException {
+			EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
 		{
 			if(needIngredients(player))

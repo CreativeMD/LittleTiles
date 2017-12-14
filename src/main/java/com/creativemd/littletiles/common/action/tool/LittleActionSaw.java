@@ -62,7 +62,7 @@ public class LittleActionSaw extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
-			EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException {
+			EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
 		facing = moving.sideHit;
 		if(tile.canSawResizeTile(facing, player))
@@ -71,7 +71,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			oldBox = tile.box.copy();
 			//oldBox.addOffset(te.getPos());
 			
-			if(player.isSneaking())
+			if(secondMode)
 				box = tile.box.shrink(facing, toLimit);
 			else
 				box = tile.box.expand(facing, toLimit);
@@ -95,7 +95,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					unit.BLUE *= amount;
 				}
 				
-				if(player.isSneaking())
+				if(secondMode)
 					addIngredients(player, ingredients, unit);
 				else
 					drainIngredients(player, ingredients, unit);

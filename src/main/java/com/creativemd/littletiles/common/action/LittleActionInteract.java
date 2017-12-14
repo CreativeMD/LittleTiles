@@ -27,6 +27,7 @@ public abstract class LittleActionInteract extends LittleAction {
 	public BlockPos blockPos;
 	public Vec3d pos;
 	public Vec3d look;
+	public boolean secondMode;
 	
 	public LittleActionInteract(BlockPos blockPos, EntityPlayer player) {
 		super();
@@ -35,6 +36,7 @@ public abstract class LittleActionInteract extends LittleAction {
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
+		this.secondMode = isUsingSecondMode(player);
 	}
 	
 	public LittleActionInteract() {
@@ -46,6 +48,7 @@ public abstract class LittleActionInteract extends LittleAction {
 		writePos(buf, blockPos);
 		writeVec3d(pos, buf);
 		writeVec3d(look, buf);
+		buf.writeBoolean(secondMode);
 	}
 	
 	@Override
@@ -53,11 +56,12 @@ public abstract class LittleActionInteract extends LittleAction {
 		blockPos = readPos(buf);
 		pos = readVec3d(buf);
 		look = readVec3d(buf);
+		secondMode = buf.readBoolean();
 	}
 	
 	protected abstract boolean isRightClick();
 	
-	protected abstract boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos) throws LittleActionException;
+	protected abstract boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException;
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -78,7 +82,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			{
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = rayTrace(te, tile);
-				return action(world, te, tile, stack, player, moving, blockPos);
+				return action(world, te, tile, stack, player, moving, blockPos, secondMode);
 			}else
 				onTileNotFound();
 		}else
