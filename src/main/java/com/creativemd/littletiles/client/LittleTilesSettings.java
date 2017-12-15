@@ -39,4 +39,14 @@ public class LittleTilesSettings implements IModGuiFactory {
 		return null;
 	}
 
+	@Override
+	public Class<? extends GuiScreen> mainConfigGuiClass() {
+		return null;
+	}
+
+	@Override
+	public RuntimeOptionGuiHandler getHandlerFor(RuntimeOptionCategoryElement element) {
+		return null;
+	}
+
 }
