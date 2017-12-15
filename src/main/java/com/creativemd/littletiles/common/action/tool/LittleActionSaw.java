@@ -24,6 +24,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -64,16 +66,43 @@ public class LittleActionSaw extends LittleActionInteract {
 		facing = moving.sideHit;
 		if(tile.canSawResizeTile(facing, player))
 		{
-			LittleTileBox box = null;
+			LittleTileBox box;
 			oldBox = tile.box.copy();
-			//oldBox.addOffset(te.getPos());
+			Axis axis = facing.getAxis();
+			
+			boolean outside = false;
 			
 			if(secondMode)
 				box = tile.box.shrink(facing, toLimit);
 			else
-				box = tile.box.expand(facing, toLimit);
+			{	
+				box = tile.box.grow(facing);
+				if(tile.box.isFaceAtEdge(facing))
+				{
+					BlockPos newPos = te.getPos().offset(facing);
+					te = loadTe(world, newPos, true);
+					box = box.createOutsideBlockBox(facing);
+					outside = true;
+					if(te == null)
+						return false;
+				}
+				
+				if(toLimit)
+				{
+					LittleTileBox before = null;
+					while(!box.isFaceAtEdge(facing) && te.isSpaceForLittleTile(box, tile))
+					{
+						before = box;
+						box = box.grow(facing);
+					}
+					if(!te.isSpaceForLittleTile(box, tile))
+						box = before;
+				}
+				else if(!te.isSpaceForLittleTile(box, tile))
+					box = null;
+			}
 			
-			if(box.isValidBox())
+			if(box != null)
 			{
 				double amount = Math.abs(box.getPercentVolume()-tile.box.getPercentVolume());
 				BlockIngredients ingredients = new BlockIngredients();
@@ -97,46 +126,25 @@ public class LittleActionSaw extends LittleActionInteract {
 				else
 					drainIngredients(player, ingredients, unit);
 				
-				if(box.isBoxInsideBlock() && te.isSpaceForLittleTile(box, tile))
+				if(outside)
+				{
+					LittleTile newTile = tile.copy();
+					newTile.box = box;
+					newTile.te = te;
+					newTile.place();
+					//littleTe.addTile(newTile);
+					te.updateBlock();
+					position = newTile.getAbsoluteCoordinates();
+					newBox = box.copy();
+					newBox.addOffset(te.getPos());
+					return true;
+				}
+				else
 				{
 					tile.box = box;
 					te.updateBlock();
 					position = tile.getAbsoluteCoordinates();
 					return true;
-				}else if(!box.isBoxInsideBlock()){
-					box = box.createOutsideBlockBox(facing);
-					if(box != null)
-					{
-						BlockPos newPos = te.getPos().offset(facing);
-						IBlockState state = world.getBlockState(newPos);
-						TileEntityLittleTiles littleTe = null;
-						TileEntity newTE = world.getTileEntity(newPos);
-						if(newTE instanceof TileEntityLittleTiles)
-							littleTe = (TileEntityLittleTiles) newTE;
-						if(state.getMaterial().isReplaceable())
-						{
-							//new TileEntityLittleTiles();
-							world.setBlockState(newPos, LittleTiles.blockTile.getDefaultState());
-							littleTe = (TileEntityLittleTiles) world.getTileEntity(newPos);
-						}
-						if(littleTe != null)
-						{
-							LittleTile newTile = tile.copy();
-							newTile.box = box;
-							newTile.te = littleTe;
-							
-							if(littleTe.isSpaceForLittleTile(box))
-							{
-								newTile.place();
-								//littleTe.addTile(newTile);
-								littleTe.updateBlock();
-								position = newTile.getAbsoluteCoordinates();
-								newBox = box.copy();
-								newBox.addOffset(littleTe.getPos());
-								return true;
-							}
-						}
-					}
 				}
 			}
 		}

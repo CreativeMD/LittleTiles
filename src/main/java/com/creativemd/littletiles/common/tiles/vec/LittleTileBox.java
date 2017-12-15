@@ -893,108 +893,38 @@ public class LittleTileBox {
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
-	public LittleTileBox expand(EnumFacing direction)
+	public boolean isFaceAtEdge(EnumFacing facing)
 	{
-		return expand(direction, false);
+		if(facing.getAxisDirection() == AxisDirection.POSITIVE)
+			return getMax(facing.getAxis()) == LittleTile.gridSize;
+		else
+			return getMin(facing.getAxis()) == LittleTile.minPos;
 	}
 	
-	public LittleTileBox expand(EnumFacing direction, boolean toLimit)
+	public LittleTileBox grow(EnumFacing facing)
 	{
+		Axis axis = facing.getAxis();
 		LittleTileBox result = this.copy();
-		switch(direction)
-		{
-		case EAST:
-			if(!toLimit || result.maxX == LittleTile.gridSize)
-				result.maxX++;
-			else
-				result.maxX = LittleTile.gridSize;
-			break;
-		case WEST:
-			if(!toLimit || result.minX <= 0)
-				result.minX--;
-			else
-				result.minX = 0;
-			break;
-		case UP:
-			if(!toLimit || result.maxY == LittleTile.gridSize)
-				result.maxY++;
-			else
-				result.maxY = LittleTile.gridSize;
-			break;
-		case DOWN:
-			if(!toLimit || result.minY <= 0)
-				result.minY--;
-			else
-				result.minY = 0;
-			break;
-		case SOUTH:
-			if(!toLimit || result.maxZ == LittleTile.gridSize)
-				result.maxZ++;
-			else
-				result.maxZ = LittleTile.gridSize;
-			break;
-		case NORTH:
-			if(!toLimit || result.minZ <= 0)
-				result.minZ--;
-			else
-				result.minZ = 0;
-			break;
-		default:
-			break;
-		}
+		if(facing.getAxisDirection() == AxisDirection.POSITIVE)
+			result.setMax(axis, getMax(axis) + 1);
+		else
+			result.setMin(axis, getMin(axis) - 1);
 		return result;
 	}
 	
-	public LittleTileBox shrink(EnumFacing direction)
+	public LittleTileBox shrink(EnumFacing facing, boolean toLimit)
 	{
-		return shrink(direction, false);
-	}
-	
-	public LittleTileBox shrink(EnumFacing direction, boolean toLimit)
-	{
-		LittleTileBox result = this.copy();
-		switch(direction)
+		Axis axis = facing.getAxis();
+		if(getSize(axis) > 1)
 		{
-		case EAST:
-			if(!toLimit)
-				result.maxX--;
+			LittleTileBox result = this.copy();
+			if(facing.getAxisDirection() == AxisDirection.POSITIVE)
+				result.setMax(axis, toLimit ? getMin(axis) + 1 : getMax(axis) - 1);
 			else
-				result.maxX = result.minX+1;
-			break;
-		case WEST:
-			if(!toLimit)
-				result.minX++;
-			else
-				result.minX = result.maxX-1;
-			break;
-		case UP:
-			if(!toLimit)
-				result.maxY--;
-			else
-				result.maxY = result.minY+1;
-			break;
-		case DOWN:
-			if(!toLimit)
-				result.minY++;
-			else
-				result.minY = result.maxY-1;
-			break;
-		case SOUTH:
-			if(!toLimit)
-				result.maxZ--;
-			else
-				result.maxZ = result.minZ+1;
-			break;
-		case NORTH:
-			if(!toLimit)
-				result.minZ++;
-			else
-				result.minZ = result.maxZ-1;
-			break;
-		default:
-			break;
+				result.setMin(axis, toLimit ? getMax(axis) - 1 : getMin(axis) + 1);
+			return result;
 		}
-		return result;
+		return null;
 	}
 
 	public void resort()
