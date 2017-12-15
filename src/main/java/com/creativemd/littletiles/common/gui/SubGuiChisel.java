@@ -11,10 +11,10 @@ import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.geo.DragShape;
+import com.creativemd.littletiles.common.geo.SelectShape;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
-import com.creativemd.littletiles.common.items.geo.DragShape;
-import com.creativemd.littletiles.common.items.geo.SelectShape;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 

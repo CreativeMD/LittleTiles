@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.geo;
+package com.creativemd.littletiles.common.geo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
