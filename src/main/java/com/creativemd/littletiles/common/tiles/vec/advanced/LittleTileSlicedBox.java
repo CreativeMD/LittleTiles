@@ -991,9 +991,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public LittleTileBox expand(EnumFacing direction, boolean toLimit)
+	public LittleTileBox grow(EnumFacing direction)
 	{
-		LittleTileSlicedBox box = (LittleTileSlicedBox) super.expand(direction, toLimit);
+		LittleTileSlicedBox box = (LittleTileSlicedBox) super.grow(direction);
 		
 		double delta = (double) box.getSize(direction.getAxis()) / (double) getSize(direction.getAxis());
 		if(direction.getAxis() == RotationUtils.getDifferentAxisFirst(slice.axis))
