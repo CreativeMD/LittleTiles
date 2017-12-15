@@ -13,6 +13,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class BoxFixedHandler extends FixedHandler{
 	
@@ -26,6 +28,7 @@ public abstract class BoxFixedHandler extends FixedHandler{
 	public abstract ArrayList<LittleTileBox> getBoxes(World world, BlockPos pos);
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void handleRendering(Minecraft mc, double x, double y, double z) {
 		for (int i = 0; i < boxes.size(); i++) {
 			GL11.glPushMatrix();
