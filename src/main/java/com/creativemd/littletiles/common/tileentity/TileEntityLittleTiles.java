@@ -427,7 +427,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			world.setBlockToAir(pos);
 			return true;
 		}else if(tiles.size() == 1){
-			if(!tiles.get(0).doesFillEntireBlock())
+			if(tiles.get(0).canBeConvertedToVanilla() && !tiles.get(0).doesFillEntireBlock())
 				return false;
 			firstTile = tiles.get(0);
 		}else{
