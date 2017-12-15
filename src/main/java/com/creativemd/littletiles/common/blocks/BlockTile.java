@@ -113,7 +113,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		return new TEResult(null, null);
 	}
 	
-	@SideOnly(Side.CLIENT)
 	public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode)
 	{
 		return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
