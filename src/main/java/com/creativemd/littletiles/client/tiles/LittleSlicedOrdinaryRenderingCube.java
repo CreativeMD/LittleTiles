@@ -145,9 +145,39 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			BakedQuad oldQuad = blockQuads.get(i);
 			
 			int index = 0;
+			int uvIndex = index + oldQuad.getFormat().getUvOffsetById(0) / 4;
 			float tempMinX = Float.intBitsToFloat(oldQuad.getVertexData()[index]);
 			float tempMinY = Float.intBitsToFloat(oldQuad.getVertexData()[index + 1]);
 			float tempMinZ = Float.intBitsToFloat(oldQuad.getVertexData()[index + 2]);
+			
+			float tempU = Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]);
+			float tempV = Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex + 1]);
+			
+			boolean uvInverted = false;
+			
+			index = 1 * oldQuad.getFormat().getIntegerSize();
+			uvIndex = index + oldQuad.getFormat().getUvOffsetById(0) / 4;
+			if(tempMinX != Float.intBitsToFloat(oldQuad.getVertexData()[index]))
+			{
+				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+					uvInverted = Axis.X != RotationUtils.getUAxisFromFacing(facing);
+				else
+					uvInverted = Axis.X != RotationUtils.getVAxisFromFacing(facing);
+			}
+			else if(tempMinY != Float.intBitsToFloat(oldQuad.getVertexData()[index + 1]))
+			{
+				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+					uvInverted = Axis.Y != RotationUtils.getUAxisFromFacing(facing);
+				else
+					uvInverted = Axis.Y != RotationUtils.getVAxisFromFacing(facing);
+			}
+			else
+			{
+				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+					uvInverted = Axis.Z != RotationUtils.getUAxisFromFacing(facing);
+				else
+					uvInverted = Axis.Z != RotationUtils.getVAxisFromFacing(facing);
+			}
 			
 			index = 2 * oldQuad.getFormat().getIntegerSize();
 			float tempMaxX = Float.intBitsToFloat(oldQuad.getVertexData()[index]);
@@ -172,15 +202,25 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			
 			BakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, color, overrideTint && (defaultColor == -1 || blockQuads.get(i).hasTintIndex()) && color != -1, facing);
 			
-			int uvIndex = quad.getFormat().getUvOffsetById(0) / 4;
+			uvIndex = quad.getFormat().getUvOffsetById(0) / 4;
 			float u1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
 			float v1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
 			uvIndex = 2 * quad.getFormat().getIntegerSize() + quad.getFormat().getUvOffsetById(0) / 4;
 			float u2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
 			float v2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
 			
-			float sizeU = Math.abs(u2 - u1);
-			float sizeV = Math.abs(v2 - v1);
+			float sizeU;
+			float sizeV;
+			if(uvInverted)
+			{
+				sizeU = RotationUtils.getVFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getVFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? u2 - u1 : u1 - u2;
+				sizeV = RotationUtils.getUFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getUFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? v2 - v1 : v1 - v2;
+			}
+			else
+			{
+				sizeU = RotationUtils.getUFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getUFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? u2 - u1 : u1 - u2;
+				sizeV = RotationUtils.getVFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getVFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? v2 - v1 : v1 - v2;
+			}
 			
 			EnumFaceDirection direction = EnumFaceDirection.getFacing(facing);
 			
@@ -212,16 +252,20 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				if(keepVU)
 					continue;
 				
-				float uOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
-				float vOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
-				
 				uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
 				
-				if(facing == EnumFacing.NORTH || facing == EnumFacing.EAST)
-					uOffset *= -1;
-				
-				if(facing == EnumFacing.DOWN || facing.getAxis() != Axis.Y)
-					vOffset *= -1;
+				float uOffset;
+				float vOffset;
+				if(uvInverted)
+				{
+					uOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
+					vOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
+				}
+				else
+				{
+					uOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
+					vOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
+				}
 				
 				quad.getVertexData()[uvIndex] = Float.floatToRawIntBits(Float.intBitsToFloat(quad.getVertexData()[uvIndex]) - uOffset);
 				quad.getVertexData()[uvIndex + 1] = Float.floatToRawIntBits(Float.intBitsToFloat(quad.getVertexData()[uvIndex + 1]) - vOffset);
