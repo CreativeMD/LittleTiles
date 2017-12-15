@@ -8,6 +8,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class InsideFixedHandler extends FixedHandler{
 
@@ -66,6 +68,7 @@ public class InsideFixedHandler extends FixedHandler{
 	}
 
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void handleRendering(Minecraft mc, double x, double y, double z) {
 		
 	}
