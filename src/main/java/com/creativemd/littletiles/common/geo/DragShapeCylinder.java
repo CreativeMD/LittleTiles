@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.geo;
+package com.creativemd.littletiles.common.geo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,7 @@ import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -22,10 +23,10 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class DragShapeSphere extends DragShape {
+public class DragShapeCylinder extends DragShape {
 
-	public DragShapeSphere() {
-		super("sphere");
+	public DragShapeCylinder() {
+		super("cylinder");
 	}
 
 	@Override
@@ -34,20 +35,24 @@ public class DragShapeSphere extends DragShape {
 		LittleTileBox box = new LittleTileBox(min, max);
 		
 		boolean hollow = nbt.getBoolean("hollow");
+		
+		int direction = nbt.getInteger("direction");
+		
 		LittleTileSize size = box.getSize();
-		if(preview && size.getPercentVolume() > 4)
-		{
-			boxes.add(box);
-			return boxes;
+		
+		int sizeA = size.sizeX;
+		int sizeB = size.sizeZ;
+		
+		if(direction == 1){
+			sizeA = size.sizeY;
+			sizeB = size.sizeZ;
+		}else if(direction == 2){
+			sizeA = size.sizeX;
+			sizeB = size.sizeY;
 		}
 		
-		LittleTileVec center = size.calculateCenter();
-		LittleTileVec invCenter = size.calculateInvertedCenter();
-		invCenter.invert();
-		
-		double a = Math.pow(Math.max(1, size.sizeX/2), 2);
-		double b = Math.pow(Math.max(1, size.sizeY/2), 2);
-		double c = Math.pow(Math.max(1, size.sizeZ/2), 2);
+		double a = Math.pow(Math.max(1, sizeA/2), 2);
+		double b = Math.pow(Math.max(1, sizeB/2), 2);
 		
 		double a2 = 1;
 		double b2 = 1;
@@ -55,56 +60,60 @@ public class DragShapeSphere extends DragShape {
 		
 		int thickness = nbt.getInteger("thickness");
 		
-		if(hollow && size.sizeX > thickness*2 && size.sizeY > thickness*2 && size.sizeZ > thickness*2)
+		if(hollow && sizeA > thickness*2 && sizeB > thickness*2)
 		{
-			int all = size.sizeX+size.sizeY+size.sizeZ;
+			int all = sizeA+sizeB;
 			
-			double sizeXValue = (double)size.sizeX/all;
-			double sizeYValue = (double)size.sizeY/all;
-			double sizeZValue = (double)size.sizeZ/all;
+			double sizeAValue = (double)sizeA/all;
+			double sizeBValue = (double)sizeB/all;
 			
-			if(sizeXValue > 0.5)
-				sizeXValue = 0.5;
-			if(sizeYValue > 0.5)
-				sizeYValue = 0.5;
-			if(sizeZValue > 0.5)
-				sizeZValue = 0.5;
+			if(sizeAValue > 0.5)
+				sizeAValue = 0.5;
+			if(sizeBValue > 0.5)
+				sizeBValue = 0.5;
 			
-			a2 = Math.pow(Math.max(1, (sizeXValue*all-thickness*2)/2), 2);
-			b2 = Math.pow(Math.max(1, (sizeYValue*all-thickness*2)/2), 2);
-			c2 = Math.pow(Math.max(1, (sizeZValue*all-thickness*2)/2), 2);
+			a2 = Math.pow(Math.max(1, (sizeAValue*all-thickness*2)/2), 2);
+			b2 = Math.pow(Math.max(1, (sizeBValue*all-thickness*2)/2), 2);
 		}else
 			hollow = false;
 		
-		boolean stretchedX = size.sizeX % 2 == 0;
-		boolean stretchedY = size.sizeY % 2 == 0;
-		boolean stretchedZ = size.sizeZ % 2 == 0;
+		boolean stretchedA = sizeA % 2 == 0;
+		boolean stretchedB = sizeB % 2 == 0;
 		
-		double centerX = size.sizeX/2;
-		double centerY = size.sizeY/2;
-		double centerZ = size.sizeZ/2;
+		double centerA = sizeA/2;
+		double centerB = sizeB/2;
 		
 		min = box.getMinVec();
+		max = box.getMaxVec();
 		
-		for (int x = 0; x < size.sizeX; x++) {
-			for (int y = 0; y < size.sizeY; y++) {
-				for (int z = 0; z < size.sizeZ; z++) {
-					
-					double posX = x - centerX + (stretchedX ? 0.5 : 0);
-					double posY = y - centerY + (stretchedY ? 0.5 : 0);
-					double posZ = z - centerZ + (stretchedZ ? 0.5 : 0);
-					
-					double valueA = Math.pow(posX, 2)/a;
-					double valueB = Math.pow(posY, 2)/b;
-					double valueC = Math.pow(posZ, 2)/c;
-					
-					if(valueA + valueB + valueC <= 1)
+		for (int incA = 0; incA < sizeA; incA++) {
+			for (int incB = 0; incB < sizeB; incB++) {
+				double posA = incA - centerA + (stretchedA ? 0.5 : 0);
+				double posB = incB - centerB + (stretchedB ? 0.5 : 0);
+				
+				double valueA = Math.pow(posA, 2)/a;
+				double valueB = Math.pow(posB, 2)/b;
+				
+				if(valueA + valueB <= 1)
+				{
+					double valueA2 = Math.pow(posA, 2)/a2;
+					double valueB2 = Math.pow(posB, 2)/b2;
+					if(!hollow || valueA2 + valueB2 > 1)
 					{
-						double valueA2 = Math.pow(posX, 2)/a2;
-						double valueB2 = Math.pow(posY, 2)/b2;
-						double valueC2 = Math.pow(posZ, 2)/c2;
-						if(!hollow || valueA2 + valueB2 + valueC2 > 1)
-							boxes.add(new LittleTileBox(new LittleTileVec(min.x + x, min.y + y, min.z + z)));
+						LittleTileBox toAdd = null;
+						switch(direction)
+						{
+						case 0:
+							toAdd = new LittleTileBox(min.x + incA, min.y, min.z + incB, min.x + incA + 1, max.y, min.z + incB + 1);
+							break;
+						case 1:
+							toAdd = new LittleTileBox(min.x, min.y + incA, min.z + incB, max.x, min.y + incA + 1, min.z + incB + 1);
+							break;
+						case 2:
+							toAdd = new LittleTileBox(min.x + incA, min.y + incB, min.z, min.x + incA + 1, min.y + incB + 1, max.z);
+							break;
+						}
+						boxes.add(toAdd);
 					}
 				}
 			}
@@ -123,6 +132,22 @@ public class DragShapeSphere extends DragShape {
 			list.add("thickness: " + nbt.getInteger("thickness") + " tiles");
 		}else
 			list.add("type: solid");
+		
+		int facing = nbt.getInteger("direction");
+		String text = "facing: ";
+		switch(facing)
+		{
+		case 0:
+			text += "y";
+			break;
+		case 1:
+			text += "x";
+			break;
+		case 2:
+			text += "z";
+			break;
+		}
+		list.add(text);
 	}
 
 	@Override
@@ -132,7 +157,7 @@ public class DragShapeSphere extends DragShape {
 		
 		controls.add(new GuiCheckBox("hollow", 5, 0, nbt.getBoolean("hollow")));			
 		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
-		
+		controls.add(new GuiStateButton("direction", nbt.getInteger("direction"), 5, 42, "facing: y", "facing: x", "facing: z"));
 		return controls;
 	}
 
@@ -147,11 +172,25 @@ public class DragShapeSphere extends DragShape {
 			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
 			nbt.setInteger("thickness", (int) slider.value);
 		}
+		
+		GuiStateButton state = (GuiStateButton) gui.get("direction");
+		nbt.setInteger("direction", state.getState());
+		
 	}
 
 	@Override
 	public void rotate(NBTTagCompound nbt, Rotation rotation) {
+		int direction = nbt.getInteger("direction");
+		if(rotation.axis != Axis.Y)
+			direction = 0;
+		else{
+			if(direction == 1)
+				direction = 2;
+			else
+				direction = 1;
+		}
 		
+		nbt.setInteger("direction", direction);
 	}
 
 	@Override

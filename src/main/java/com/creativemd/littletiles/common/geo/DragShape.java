@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.items.geo;
+package com.creativemd.littletiles.common.geo;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -26,6 +26,7 @@ public abstract class DragShape {
 	public static DragShape sphere = new DragShapeSphere();
 	public static DragShape cylinder = new DragShapeCylinder();
 	public static DragShape wall = new DragShapeWall();
+	public static DragShape line = new DragShapeLine();
 	
 	public static DragShape slice = new DragShapeSliced();
 	
