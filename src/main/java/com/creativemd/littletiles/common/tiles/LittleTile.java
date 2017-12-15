@@ -172,6 +172,8 @@ public abstract class LittleTile {
 	
 	//================Position & Size================
 	
+	public abstract boolean canBeConvertedToVanilla();
+	
 	/**Might cause issues in regions x, y or z above 134,217,728**/
 	public LittleTileVec getAbsoluteCoordinates()
 	{

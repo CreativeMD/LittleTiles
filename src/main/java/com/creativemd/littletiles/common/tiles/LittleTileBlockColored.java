@@ -95,6 +95,12 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
+	public boolean canBeConvertedToVanilla()
+	{
+		return false;
+	}
+	
+	@Override
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
 	{
 		Vec3d color = ColorUtils.IntToVec(this.color);

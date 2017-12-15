@@ -231,4 +231,10 @@ public class LittleTileTE extends LittleTileBlock {
 			return tile instanceof LittleTileTE && getTileEntity() == ((LittleTileTE) tile).getTileEntity();
 		return false;
 	}
+	
+	@Override
+	public boolean canBeConvertedToVanilla()
+	{
+		return false;
+	}
 }

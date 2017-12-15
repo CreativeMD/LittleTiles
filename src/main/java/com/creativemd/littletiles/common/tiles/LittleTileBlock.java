@@ -257,6 +257,12 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
+	public boolean canBeConvertedToVanilla()
+	{
+		return true;
+	}
+	
+	@Override
 	public void place()
 	{
 		super.place();
