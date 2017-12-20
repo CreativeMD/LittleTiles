@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "littletiles:container"
+    "item": "littletiles:container",
+    "data": 0
   },
   "pattern": [
     "XXX",
@@ -13,7 +14,8 @@
       "item": "minecraft:iron_ingot"
     },
     "H": {
-      "item": "littletiles:hammer"
+      "item": "littletiles:hammer",
+      "data": 0
     }
   }
 }

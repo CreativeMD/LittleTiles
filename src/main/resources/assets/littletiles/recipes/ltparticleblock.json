@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "littletiles:ltparticleblock"
+    "item": "littletiles:ltparticleblock",
+    "data": 0
   },
   "pattern": [
     "XGX",

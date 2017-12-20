@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "littletiles:wrench"
+    "item": "littletiles:wrench",
+    "data": 0
   },
   "pattern": [
     "X",

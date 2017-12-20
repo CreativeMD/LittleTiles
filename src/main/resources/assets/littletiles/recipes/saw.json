@@ -1,6 +1,7 @@
 {
   "result": {
-    "item": "littletiles:saw"
+    "item": "littletiles:saw",
+    "data": 0
   },
   "pattern": [
     "X",
