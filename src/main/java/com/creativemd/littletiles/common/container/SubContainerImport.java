@@ -28,10 +28,10 @@ public class SubContainerImport extends SubContainer {
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack = slot.getStackInSlot(0);
-		if((stack != null && stack.getItem() instanceof ItemRecipe) || (getPlayer().capabilities.isCreativeMode && stack == null))
+		if((stack.getItem() instanceof ItemRecipe) || (getPlayer().capabilities.isCreativeMode && stack.isEmpty()))
 		{
 			
-			slot.setInventorySlotContents(0, StructureStringUtils.importStructure(nbt.getString("text")));
+			slot.setInventorySlotContents(0, StructureStringUtils.importStructure(nbt));
 		}
 	}
 	

@@ -15,6 +15,8 @@ import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiImport extends SubGui {
@@ -46,9 +48,13 @@ public class SubGuiImport extends SubGui {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setString("text", textfield.text);
-				sendPacketToServer(nbt);
+				try {
+					sendPacketToServer(JsonToNBT.getTagFromJson(textfield.text));
+				} catch (NBTException e) {
+					e.printStackTrace();
+				}
+				//nbt.setString("text", textfield.text);
+				
 			}
 		});
 	}
