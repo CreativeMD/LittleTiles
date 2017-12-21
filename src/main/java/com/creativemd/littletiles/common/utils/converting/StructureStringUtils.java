@@ -14,10 +14,10 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -32,6 +32,7 @@ import net.minecraft.client.util.JsonBlendingMode;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
+import net.minecraft.nbt.NBTException;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
@@ -200,52 +201,56 @@ public class StructureStringUtils {
 	
 	public static ItemStack importStructure(String input)
 	{
-		try{
-			NBTTagCompound nbt = JsonToNBT.getTagFromJson(input);
-			NBTTagCompound itemNBT = new NBTTagCompound();
-			
-			ItemStack stack = new ItemStack(LittleTiles.recipe);
-			
-			stack.setTagCompound(itemNBT);
-			
-			if(nbt.hasKey("structure"))
-				itemNBT.setTag("structure", nbt.getCompoundTag("structure"));
-			
-			if(nbt.getTag("tiles") instanceof NBTTagInt)
-			{
-				String[] names = nbt.getString("names").split("\\.");
-				
-				int tiles = nbt.getInteger("tiles");
-				for (int i = 0; i < tiles; i++) {
-					String[] entries = nbt.getString("" + i).split("\\.");
-					
-					if(entries.length >= 8)
-					{
-						NBTTagCompound tileNBT = new NBTTagCompound();
-						LittleTileBox box = new LittleTileBox(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]), Integer.parseInt(entries[2]), Integer.parseInt(entries[3]), Integer.parseInt(entries[4]), Integer.parseInt(entries[5]));
-						tileNBT.setString("block", names[Integer.parseInt(entries[6])]);
-						tileNBT.setInteger("meta", Integer.parseInt(entries[7]));
-						if(entries.length >= 9)
-							tileNBT.setInteger("color", Integer.parseInt(entries[8]));
-						box.writeToNBT("bBox", tileNBT);
-						tileNBT.setString("tID", "BlockTileBlock");
-						itemNBT.setTag("tile" + i, tileNBT);
-						
-					}
-				}
-				
-				itemNBT.setInteger("tiles", tiles);
-			}else{
-				List<LittleTilePreview> previews = LittleNBTCompressionTools.readPreviews(nbt.getTagList("tiles", 10));
-				
-				LittleTilePreview.savePreviewTiles(previews, stack);
-			}
-			
-			
-			return stack;
-		}catch(Exception e){
-			//e.printStackTrace();
+		try {
+			return importStructure(JsonToNBT.getTagFromJson(input));
+		} catch (NBTException e) {
+			e.printStackTrace();
 		}
 		return ItemStack.EMPTY;
+	}
+	
+	public static ItemStack importStructure(NBTTagCompound nbt)
+	{
+		NBTTagCompound itemNBT = new NBTTagCompound();
+		
+		ItemStack stack = new ItemStack(LittleTiles.recipe);
+		
+		stack.setTagCompound(itemNBT);
+		
+		if(nbt.hasKey("structure"))
+			itemNBT.setTag("structure", nbt.getCompoundTag("structure"));
+		
+		if(nbt.getTag("tiles") instanceof NBTTagInt)
+		{
+			String[] names = nbt.getString("names").split("\\.");
+			
+			int tiles = nbt.getInteger("tiles");
+			for (int i = 0; i < tiles; i++) {
+				String[] entries = nbt.getString("" + i).split("\\.");
+				
+				if(entries.length >= 8)
+				{
+					NBTTagCompound tileNBT = new NBTTagCompound();
+					LittleTileBox box = new LittleTileBox(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]), Integer.parseInt(entries[2]), Integer.parseInt(entries[3]), Integer.parseInt(entries[4]), Integer.parseInt(entries[5]));
+					tileNBT.setString("block", names[Integer.parseInt(entries[6])]);
+					tileNBT.setInteger("meta", Integer.parseInt(entries[7]));
+					if(entries.length >= 9)
+						tileNBT.setInteger("color", Integer.parseInt(entries[8]));
+					box.writeToNBT("bBox", tileNBT);
+					tileNBT.setString("tID", "BlockTileBlock");
+					itemNBT.setTag("tile" + i, tileNBT);
+					
+				}
+			}
+			
+			itemNBT.setInteger("tiles", tiles);
+		}else{
+			List<LittleTilePreview> previews = LittleNBTCompressionTools.readPreviews(nbt.getTagList("tiles", 10));
+			
+			LittleTilePreview.savePreviewTiles(previews, stack);
+		}
+		
+		
+		return stack;
 	}
 }
