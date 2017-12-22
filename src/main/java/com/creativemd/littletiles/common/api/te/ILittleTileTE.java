@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.api.te;
 
-import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
-
 import net.minecraftforge.fml.common.Optional.Method;
 
 public interface ILittleTileTE {
@@ -12,7 +10,7 @@ public interface ILittleTileTE {
 	 * @return VoxelBlob object from C&B
 	 * @throws Exception
 	 */
-	@Method(modid = ChiselsAndBitsManager.chiselsandbitsID)
+	@Method(modid = "chiselsandbits")
 	public Object getVoxelBlob(boolean force) throws Exception;
 
 }
