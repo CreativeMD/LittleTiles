@@ -18,7 +18,9 @@ import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -47,11 +49,12 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityLittleTiles extends TileEntityCreative implements ITickable{
+public class TileEntityLittleTiles extends TileEntityCreative implements ITickable, ILittleTileTE {
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -939,6 +942,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean shouldTick()
 	{
 		return !updateTiles.isEmpty();
+	}
+
+	@Override
+	@Method(modid = ChiselsAndBitsManager.chiselsandbitsID)
+	public Object getVoxelBlob(boolean force) throws Exception
+	{
+		return ChiselsAndBitsManager.getVoxelBlob(this, force);
 	}
 	
 }
