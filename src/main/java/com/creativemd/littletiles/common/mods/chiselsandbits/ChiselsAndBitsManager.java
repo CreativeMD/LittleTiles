@@ -5,16 +5,22 @@ import java.util.List;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
+import mod.chiselsandbits.chiseledblock.data.VoxelBlob;
+import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.Loader;
+import scala.tools.nsc.transform.patmat.Solving.CNF;
 
 public class ChiselsAndBitsManager {
 	
-	private static final String chiselsandbitsID = "chiselsandbits";
+	public static final String chiselsandbitsID = "chiselsandbits";
 	
 	private static boolean isinstalled = Loader.isModLoaded(chiselsandbitsID);
 
@@ -60,5 +66,10 @@ public class ChiselsAndBitsManager {
 		if(isInstalled())
 			return ChiselsAndBitsInteractor.getTiles(te);
 		return null;
+	}
+	
+	public static Object getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception
+	{
+		return ChiselsAndBitsInteractor.getVoxelBlob(te, force);
 	}
 }

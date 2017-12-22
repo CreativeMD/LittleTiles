@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -97,4 +98,38 @@ public class ChiselsAndBitsInteractor {
 		return null;
 	}
 	
+	public static VoxelBlob getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception
+	{
+		if(LittleTile.gridSize != 16)
+			throw new Exception("Invalid grid size of " + LittleTile.gridSize + "!");
+		
+		VoxelBlob blob = new VoxelBlob();
+		for (LittleTile tile : te.getTiles()) {
+			boolean convert;
+			if(tile.getClass() == LittleTileBlock.class)
+				convert = true;
+			else if(force)
+			{
+				if(tile.getClass() == LittleTileBlockColored.class)
+					convert = true;
+				else
+					continue;
+			}
+			else
+				throw new Exception("Cannot convert " + tile.getClass() + " tile!");
+			
+			if(convert)
+			{
+				if(!force && tile.box.getClass() != LittleTileBox.class)
+					throw new Exception("Cannot convert " + tile.box.getClass() + " box!");
+					
+				for(int x = tile.box.minX; x < tile.box.maxX; x++)
+					for(int y = tile.box.minY; y < tile.box.maxY; y++)
+						for(int z = tile.box.minZ; z < tile.box.maxZ; z++)
+							if(tile.box.isCompletelyFilled() || tile.box.isVecInsideBox(x, y, z))
+								blob.set(x, y, z, Block.getStateId(((LittleTileBlock) tile).getBlockState()));
+			}
+		}
+		return blob;
+	}
 }
