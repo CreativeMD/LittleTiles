@@ -255,12 +255,14 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubGuiGrabber(player.getHeldItemMainhand());
+				ItemStack stack = player.getHeldItemMainhand();
+				return ItemLittleGrabber.getMode(stack).getGui(player, stack);
 			}
 
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubContainerGrabber(player, player.getHeldItemMainhand());
+				ItemStack stack = player.getHeldItemMainhand();
+				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
 			}
 		});
 		

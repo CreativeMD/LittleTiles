@@ -15,7 +15,7 @@ import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemStackSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;

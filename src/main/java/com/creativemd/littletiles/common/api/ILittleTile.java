@@ -5,9 +5,10 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -79,6 +80,12 @@ public interface ILittleTile {
 	public default void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {}
 	
 	@SideOnly(Side.CLIENT)
+	public default boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	{
+		return false;
+	}
+	
+	@SideOnly(Side.CLIENT)
 	public default float getPreviewAlphaFactor()
 	{
 		return 1;
@@ -92,4 +99,11 @@ public interface ILittleTile {
 	
 	@SideOnly(Side.CLIENT)
 	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
+	
+	public default PlacementMode getMode(EntityPlayer player, ItemStack stack)
+	{
+		if(stack.hasTagCompound())
+			return PlacementMode.getModeOrDefault(stack.getTagCompound().getString("mode"));
+		return PlacementMode.getDefault();
+	}
 }

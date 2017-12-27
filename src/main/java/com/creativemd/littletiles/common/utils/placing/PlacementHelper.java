@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles;
+package com.creativemd.littletiles.common.utils.placing;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -13,9 +13,10 @@ import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.InsideFixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -23,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -445,19 +447,17 @@ public class PlacementHelper {
 		return new LittleTileBox(temp, size);
 	}
 	
-	public static boolean canBePlacedInsideBlock(World world, BlockPos pos)
+	public static boolean canBlockBeUsed(World world, BlockPos pos)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if(tileEntity instanceof TileEntityLittleTiles)
 			return true;
-		
-		return false;
+		return ChiselsAndBitsManager.isChiselsAndBitsStructure(tileEntity);
 	}
 	
 	public static boolean canBePlacedInside(World world, BlockPos pos, Vec3d hitVec, EnumFacing side)
 	{
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof TileEntityLittleTiles)
+		if(canBlockBeUsed(world, pos))
 		{
 			switch(side)
 			{
@@ -477,94 +477,14 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public static double round(double value, int places) {
-	    if (places < 0) throw new IllegalArgumentException();
-
-	    //BigDecimal bd = new BigDecimal(value);
-	    //bd = bd.setScale(places, RoundingMode.HALF_UP);
-	    //return bd.doubleValue();
-	   double precision = Math.pow(10, places);
-	   return Math.round(value * precision) / precision;
-	}
-	
-	public static double round(double value)
-	{
-		return round(value, 6);
-	}
-	
 	public static LittleTileVec getHitVec(RayTraceResult result, boolean isInsideOfBlock)
 	{
-		/*double posX = result.hitVec.xCoord - result.getBlockPos().getX();
-		double posY = result.hitVec.yCoord - result.getBlockPos().getY();
-		double posZ = result.hitVec.zCoord - result.getBlockPos().getZ();
-		
-		LittleTileVec vec = new LittleTileVec((int)round(posX*LittleTile.gridSize), (int)round(posY*LittleTile.gridSize), (int)round(posZ*LittleTile.gridSize));*/
-		
-		/*if(!fixed)
-		{
-			if(!isInsideOfBlock)
-			{
-				switch(side)
-				{
-				case EAST:
-					vec.x -= LittleTile.gridSize;
-					break;
-				case WEST:
-					vec.x += LittleTile.gridSize;
-					break;
-				case UP:
-					vec.y -= LittleTile.gridSize;
-					break;
-				case DOWN:
-					vec.y += LittleTile.gridSize;
-					break;
-				case SOUTH:
-					vec.z -= LittleTile.gridSize;
-					break;
-				case NORTH:
-					vec.z += LittleTile.gridSize;
-					break;
-				default:
-					break;
-				
-				}
-			}
-			return vec;
-		}*/
 		
 		LittleTileVec vec = new LittleTileVec(result);
-		/*if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
-			vec.add(result.sideHit);*/
 		vec.sub(result.getBlockPos());
 		
 		if(!isInsideOfBlock)
-		{
 			vec.setAxis(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : LittleTile.gridSize);
-			/*switch(result.sideHit)
-			{
-			case EAST:
-				vec.x = 0;
-				break;
-			case WEST:
-				vec.x = LittleTile.gridSize;
-				break;
-			case UP:
-				vec.y = 0;
-				break;
-			case DOWN:
-				vec.y = LittleTile.gridSize;
-				break;
-			case SOUTH:
-				vec.z = 0;
-				break;
-			case NORTH:
-				vec.z = LittleTile.gridSize;
-				break;
-			default:
-				break;
-			
-			}*/
-		}
 		
 		return vec;
 	}

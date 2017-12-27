@@ -2,7 +2,9 @@ package com.creativemd.littletiles.common.packet;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -18,6 +20,7 @@ import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -27,6 +30,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import io.netty.buffer.ByteBuf;
+import joptsimple.internal.AbbreviationMap;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -79,9 +83,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
-				LittleTilePreview preview = tile.getPreviewTile();
-				preview.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-				ItemLittleGrabber.setPreview(stack, preview);
+				ItemLittleGrabber.getMode(stack).littleBlockAction(world, te, tile, stack, pos, nbt);
 			}
 		};
 		

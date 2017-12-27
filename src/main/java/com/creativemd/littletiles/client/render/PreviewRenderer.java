@@ -20,15 +20,16 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
@@ -39,11 +40,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -298,4 +302,25 @@ public class PreviewRenderer {
 		vec.scale(GuiScreen.isCtrlKeyDown() ? LittleTile.gridSize : 1);
 		markedPosition.subVec(vec);
 	}
+	
+	/*@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void drawHighlight(DrawBlockHighlightEvent event)
+	{
+		if(event.getTarget().typeOfHit == Type.BLOCK)
+		{
+			EntityPlayer player = event.getPlayer();
+			World world = event.getPlayer().getEntityWorld();
+			BlockPos pos = event.getTarget().getBlockPos();
+			IBlockState state = world.getBlockState(pos);
+			ItemStack stack = player.getHeldItemMainhand();
+			
+			if(PlacementHelper.isLittleBlock(stack) && (markedPosition != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK)))
+			{
+				PositionResult position = markedPosition != null ? markedPosition : PlacementHelper.getPosition(world, mc.objectMouseOver);
+				
+				processRoateKeys();
+			}
+		}
+	}*/
 }

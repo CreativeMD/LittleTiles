@@ -29,7 +29,7 @@ public class ChiselsAndBitsManager {
 		return isinstalled;
 	}
 	
-	/**Keeping the grid size of Chisels & Bits variable, maybe it does change sometime**/
+	/**Keeping the grid size of C&B variable, maybe it does change some time**/
 	public static int convertingFrom = 16;
 	
 	public static List<LittleTilePreview> getPreviews(ItemStack stack)
