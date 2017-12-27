@@ -22,10 +22,10 @@ import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManag
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -210,7 +210,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);
-				if(SubContainerGrabber.isBlockValid(state.getBlock()))
+				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()))
 				{
 					tiles = new ArrayList<>();
 					

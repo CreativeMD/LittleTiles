@@ -1,14 +1,20 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber.PlacePreviewMode;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
@@ -72,9 +78,9 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
 				if(SubContainerGrabber.isBlockValid(state.getBlock()))
 				{
-					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-					tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-					ItemLittleGrabber.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
+					ItemStack stack = player.getHeldItemMainhand();
+					GrabberMode mode = ItemLittleGrabber.getMode(stack);
+					mode.vanillaBlockAction(world, stack, pos, state);
 				}
 			}
 			

@@ -5,7 +5,7 @@ import java.security.InvalidParameterException;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;

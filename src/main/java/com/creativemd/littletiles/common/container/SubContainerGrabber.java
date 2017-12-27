@@ -57,12 +57,12 @@ public class SubContainerGrabber extends SubContainer{
 	}
 	
 	@Override
-	public void onPacketReceive(NBTTagCompound nbt) {
-		stack.setTagCompound(nbt);
-	}
-
-	@Override
 	public void createControls() {
 		
+	}
+	
+	@Override
+	public void onPacketReceive(NBTTagCompound nbt) {
+		stack.setTagCompound(nbt);
 	}
 }

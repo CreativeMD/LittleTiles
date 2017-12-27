@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.events;
 
+import java.awt.event.MouseWheelEvent;
 import java.util.Iterator;
 import java.util.List;
 
@@ -22,9 +23,9 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -54,6 +55,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
@@ -91,6 +93,29 @@ public class LittleEvent {
 	
 	@SideOnly(Side.CLIENT)
 	private boolean leftClicked;
+	
+	private void middleClickMouse(RayTraceResult result, EntityPlayer player, World world)
+    {
+        if (result != null && result.typeOfHit != RayTraceResult.Type.MISS)
+        {
+        	if(!onMouseWheelClick(result, player, world))
+        		net.minecraftforge.common.ForgeHooks.onPickBlock(result, player, world);
+            // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
+        }
+    }
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean onMouseWheelClick(RayTraceResult result, EntityPlayer player, World world)
+	{
+		if(result.typeOfHit == Type.BLOCK)
+		{
+			ItemStack stack = player.getHeldItemMainhand();
+			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+			if(iTile != null)
+				return iTile.onMouseWheelClickBlock(player, stack, result);
+		}
+		return false;
+	}
 	
 	@SubscribeEvent
 	public void onLeftClick(LeftClickBlock event)
@@ -261,7 +286,7 @@ public class LittleEvent {
 			BlockPos pos = event.getTarget().getBlockPos();
 			IBlockState state = world.getBlockState(pos);
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack != null && stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget())))
+			if(stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget())))
 			{
 				double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
 		        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();

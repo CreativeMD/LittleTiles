@@ -100,7 +100,7 @@ public class ChiselsAndBitsInteractor {
 	
 	public static VoxelBlob getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception
 	{
-		if(LittleTile.gridSize != 16)
+		if(LittleTile.gridSize != ChiselsAndBitsManager.convertingFrom)
 			throw new Exception("Invalid grid size of " + LittleTile.gridSize + "!");
 		
 		VoxelBlob blob = new VoxelBlob();

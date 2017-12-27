@@ -445,6 +445,17 @@ public class LittleTilePreview {
 	}*/
 	
 	@SideOnly(Side.CLIENT)
+	public static ArrayList<RenderCubeObject> getCubes(List<LittleTilePreview> previews)
+	{
+		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
+		for (int i = 0; i < previews.size(); i++) {
+			cubes.add(previews.get(i).getCubeBlock());
+		}
+		return cubes;
+	}
+	
+	
+	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack)
 	{
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();

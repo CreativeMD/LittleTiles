@@ -16,12 +16,12 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.tiles.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -207,13 +207,12 @@ public class LittleActionPlaceRelative extends LittleAction {
 						world.setBlockState(coord, LittleTiles.blockTile.getDefaultState());
 					}
 					
-					TileEntity te = world.getTileEntity(coord);
-					if(te instanceof TileEntityLittleTiles)
+					TileEntityLittleTiles te = loadTe(world, pos, false);
+					if(te != null)
 					{
-						TileEntityLittleTiles teLT = (TileEntityLittleTiles) te;
-						teLT.preventUpdate = true;
+						te.preventUpdate = true;
 						for (int j = 0; j < placeTiles.size(); j++) {
-							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, teLT, structure, unplaceableTiles, forced, facing, requiresCollisionTest)) {
+							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te, structure, unplaceableTiles, forced, facing, requiresCollisionTest)) {
 								if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
 								{
 									if(!soundsToBePlayed.contains(LT.getSound()))
@@ -232,8 +231,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 							}
 						}
 						
-						teLT.preventUpdate = false;
-						teLT.updateTiles();
+						te.preventUpdate = false;
+						te.updateTiles();
 					}
 				}
 			}
@@ -300,8 +299,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 				return false;
 			}
 			
-			TileEntity mainTile = world.getTileEntity(pos);
-			if(mainTile instanceof TileEntityLittleTiles)
+			TileEntityLittleTiles mainTile = loadTe(world, pos, false);
+			if(mainTile != null)
 			{
 				if(forced)
 					return true;

@@ -11,11 +11,11 @@ import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.littletiles.common.geo.DragShape;
-import com.creativemd.littletiles.common.geo.SelectShape;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.geo.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;

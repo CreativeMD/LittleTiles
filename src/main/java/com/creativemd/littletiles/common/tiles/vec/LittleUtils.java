@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.tiles.vec;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 public class LittleUtils {
 	
@@ -34,7 +34,7 @@ public class LittleUtils {
 	
 	public static int toGrid(double pos)
 	{
-		pos = PlacementHelper.round(pos * LittleTile.gridSize);
+		pos = round(pos * LittleTile.gridSize);
 		if(pos < 0)
 			return (int) Math.floor(pos);
 		return (int) pos;

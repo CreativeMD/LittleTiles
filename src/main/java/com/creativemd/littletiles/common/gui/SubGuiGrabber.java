@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.lwjgl.util.Color;
@@ -20,11 +21,14 @@ import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber.PlacePreviewMode;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -43,99 +47,65 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.Vec3i;
 
-public class SubGuiGrabber extends SubGui {
+public abstract class SubGuiGrabber extends SubGui {
 	
 	public ItemStack stack;
-	public LittleTileSize size;
+	public final GrabberMode mode;
+	public final int index;
+	public final GrabberMode[] modes;
 	
-	public SubGuiGrabber(ItemStack stack)
+	public SubGuiGrabber(GrabberMode mode, ItemStack stack, int width, int height)
 	{
-		super(140, 100);
+		super(width, height);
 		this.stack = stack;
+		this.mode = mode;
+		this.modes = ItemLittleGrabber.getModes();
+		this.index = ItemLittleGrabber.indexOf(mode);
 	}
 	
-	public boolean isColored = false;
+	public abstract void saveChanges();
 	
 	@Override
 	public void onClosed() {
-		LittleTilePreview preview = ItemLittleGrabber.getPreview(stack);
-		preview.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, size.sizeX, size.sizeY, size.sizeZ);
-		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		preview.setColor(ColorUtils.RGBAToInt(picker.color));
-		ItemLittleGrabber.setPreview(stack, preview);
+		super.onClosed();
+		ItemLittleGrabber.setMode(stack, mode);
+		saveChanges();
 		sendPacketToServer(stack.getTagCompound());
+	}
+	
+	public void openNewGui(GrabberMode mode)
+	{
+		ItemLittleGrabber.setMode(stack, mode);
+		GuiHandler.openGui("grabber", new NBTTagCompound(), getPlayer());
 	}
 	
 	@Override
 	public void createControls() {
-		LittleTilePreview preview = ItemLittleGrabber.getPreview(stack);
-		size = preview.box.getSize();
-		
-		controls.add(new GuiSteppedSlider("sizeX", 25, 0, 50, 14, size.sizeX, 1, LittleTile.gridSize));
-		controls.add(new GuiSteppedSlider("sizeY", 25, 20, 50, 14, size.sizeY, 1, LittleTile.gridSize));
-		controls.add(new GuiSteppedSlider("sizeZ", 25, 40, 50, 14, size.sizeZ, 1, LittleTile.gridSize));
-		
-		Color color = ColorUtils.IntToRGBA(preview.getColor());
-		color.setAlpha(255);
-		controls.add(new GuiColorPicker("picker", 0, 65, color));
-		
-		GuiAvatarLabel label = new GuiAvatarLabel("", 110, 10, 0, null);
-		label.name = "avatar";
-		label.height = 60;
-		label.avatarSize = 32;
-		controls.add(label);
-		updateLabel();
-	}
-	
-	public void updateLabel()
-	{
-		GuiAvatarLabel label = (GuiAvatarLabel) get("avatar");
-		
-		LittleTilePreview preview = ItemLittleGrabber.getPreview(stack);
-		
-		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		preview.setColor(ColorUtils.RGBAToInt(picker.color));
-		preview.box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
-		
-		label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(preview));
-	}
-	
-	@CustomEventSubscribe
-	public void onSlotChange(SlotChangeEvent event)
-	{
-		ItemStack slotStack = container.getSlots().get(0).getStack();
-		Block block = Block.getBlockFromItem(slotStack.getItem());
-		if(block == LittleTiles.blockTile)
-		{
-			List<LittleTilePreview> previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
-			if(previews.size() > 0)
-			{
-				int colorInt = previews.get(0).getColor();
-				Vec3i color = ColorUtils.IntToRGB(colorInt);
-				if(colorInt == -1)
-					color = new Vec3i(255, 255, 255);
-				
-				GuiColorPicker picker = (GuiColorPicker) get("picker");
-				picker.color.set(color.getX(), color.getY(), color.getZ());
+		controls.add(new GuiButton("<<", 0, 0, 10) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				int newIndex = index - 1;
+				if(newIndex < 0)
+					newIndex = modes.length - 1;
+				openNewGui(modes[newIndex]);
 			}
-		}
-		updateLabel();
-	}
-	
-	@CustomEventSubscribe
-	public void onClick(GuiControlClickEvent event)
-	{
-		if(event.source.is("sliced"))
-			updateLabel();
-	}
-	
-	@CustomEventSubscribe
-	public void onChange(GuiControlChangedEvent event)
-	{
-		size.sizeX = (int) ((GuiSteppedSlider) get("sizeX")).value;
-		size.sizeY = (int) ((GuiSteppedSlider) get("sizeY")).value;
-		size.sizeZ = (int) ((GuiSteppedSlider) get("sizeZ")).value;
-		updateLabel();
+			
+		});
+		
+		controls.add(new GuiButton(">>", 124, 0, 10) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				int newIndex = index + 1;
+				if(newIndex >= modes.length)
+					newIndex = 0;
+				openNewGui(modes[newIndex]);
+			}
+			
+		});
+		
+		controls.add(new GuiLabel(mode.getLocalizedName(), 20, 3));
 	}
 	
 }
