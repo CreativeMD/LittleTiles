@@ -207,7 +207,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 						world.setBlockState(coord, LittleTiles.blockTile.getDefaultState());
 					}
 					
-					TileEntityLittleTiles te = loadTe(world, pos, false);
+					TileEntityLittleTiles te = loadTe(world, coord, false);
 					if(te != null)
 					{
 						te.preventUpdate = true;
