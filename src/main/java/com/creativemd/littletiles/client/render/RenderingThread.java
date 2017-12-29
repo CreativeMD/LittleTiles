@@ -175,6 +175,7 @@ public class RenderingThread extends Thread {
 							
 							consumer.setWorld(renderWorld);
 							consumer.setBlockPos(pos);
+							consumer.setState(LittleTiles.blockTile.getDefaultState());
 							consumer.getBlockInfo().updateLightMatrix();
 							
 							//Render vertex buffer
