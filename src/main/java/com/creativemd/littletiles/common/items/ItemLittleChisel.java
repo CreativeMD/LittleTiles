@@ -380,19 +380,25 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+		IBlockState state = player.world.getBlockState(result.getBlockPos());
+		if(SubContainerGrabber.isBlockValid(state.getBlock()))
+		{
+			PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
+			return true;
+		}
+		else if(state.getBlock() instanceof BlockTile)
+		{
+			PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));
+			return true;
+		}
+		return false;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
-		if(LittleAction.isUsingSecondMode(player))
-		{
-			GuiHandler.openGui("chisel", new NBTTagCompound(), player);
-		}else{
-			IBlockState state = player.world.getBlockState(result.getBlockPos());
-			if(SubContainerGrabber.isBlockValid(state.getBlock()))
-			{
-				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
-			}
-			else if(state.getBlock() instanceof BlockTile)
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));
-		}
+		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 	}
 }
