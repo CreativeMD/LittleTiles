@@ -1,5 +1,13 @@
 package com.creativemd.littletiles;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -13,8 +21,45 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod.EventBusSubscriber
 public class LittleTilesConfig {
 	
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public static @interface LittleConfig
+	{
+		
+	}
+	
+	public static List<String> getConfigProperties()
+	{
+		List<String> properties = new ArrayList<>();
+		loadProperties("", LittleTilesConfig.class, properties);
+		return properties;
+	}
+	
+	private static void loadProperties(String category, Class<?> clazz, List<String> properties)
+	{
+		/*for(Class<?> subClazz : clazz.getClasses())
+		{
+			Config config = subClazz.getAnnotation(Config.class);
+			if(config != null)
+				loadProperties(category + (category.isEmpty() ? "" : ".") + config.category(), subClazz, properties);
+		}*/
+		for(Field field : clazz.getFields())
+		{
+			Config.Name config = field.getAnnotation(Config.Name.class);
+			if(config != null)
+			{
+				if(field.getType().getAnnotation(LittleConfig.class) != null)
+					loadProperties(category + (category.isEmpty() ? "" : ".") + config.value(), field.getType(), properties);
+				else
+					properties.add(category + "." + config.value());
+			}
+		}
+	}
+	
+	
 	@Config.Name("core")
 	@Config.LangKey("config.littletiles.core")
+	@Config.RequiresMcRestart
 	public static Core core = new Core();
 	
 	@Config.Name("building")
@@ -26,12 +71,18 @@ public class LittleTilesConfig {
 	public static Rendering rendering = new Rendering();
 	
 	@Config.RequiresMcRestart
+	@LittleConfig
 	public static class Core
 	{
 		
-			
+		@Config.Name("gridSize")
+		@Config.RequiresMcRestart
+		@Config.Comment("ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!")
+		@Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+		public int gridSize = 16;
 	}
 	
+	@LittleConfig
 	public static class Building
 	{
 		
@@ -62,6 +113,7 @@ public class LittleTilesConfig {
 		public boolean allowSneaking = false;
 	}
 	
+	@LittleConfig
 	public static class Rendering
 	{
 		

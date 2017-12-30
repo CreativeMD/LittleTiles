@@ -1,5 +1,8 @@
 package com.creativemd.littletiles;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -103,6 +106,7 @@ import net.minecraft.world.World;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -154,6 +158,18 @@ public class LittleTiles {
 	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 	public static Item grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 	
+	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames)
+	{
+		for(ConfigCategory child : category.getChildren())
+			removeMissingProperties(path + (path.isEmpty() ? "" : ".") + category.getName(), child, allowedNames);
+		for(String propertyName : category.getPropertyOrder())
+		{
+			String name = path + (path.isEmpty() ? "" : ".") + propertyName;
+			if(!allowedNames.contains(name))
+				category.remove(propertyName);
+		}
+	}
+	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event)
 	{
@@ -161,7 +177,11 @@ public class LittleTiles {
 		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleTile.setGridSize(config.getInt("gridSize", "Core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		LittleTile.setGridSize(config.getInt("gridSize", "core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
+		//allowedPropertyNames.add("core.gridSize");
+		for(String categoryName : config.getCategoryNames())
+			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
 		proxy.loadSidePre();
 	}
