@@ -62,12 +62,12 @@ public class PreviewRenderer {
 	
 	public static boolean isCentered(EntityPlayer player)
 	{
-		return LittleTilesConfig.building.invertedShift == LittleAction.isUsingSecondMode(player) || markedPosition != null;
+		return LittleTilesConfig.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || markedPosition != null;
 	}
 	
 	public static boolean isFixed(EntityPlayer player)
 	{
-		return LittleTilesConfig.building.invertedShift != LittleAction.isUsingSecondMode(player) && markedPosition == null;
+		return LittleTilesConfig.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && markedPosition == null;
 	}
 	
 	public static void handleUndoAndRedo(EntityPlayer player)
