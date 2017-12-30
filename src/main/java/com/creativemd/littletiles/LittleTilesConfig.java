@@ -86,31 +86,26 @@ public class LittleTilesConfig {
 	public static class Building
 	{
 		
-		@Config.Name("invertedShift")
-		@Config.LangKey("config.littletiles.invertedShift")
-		@Config.Comment("If shift behavior is inverted.")
-		public boolean invertedShift = false;
+		@Config.Name("invertStickToGrid")
+		@Config.LangKey("config.littletiles.invertStickToGrid")
+		@Config.Comment("Whether tiles should stick to the vanilla grid when second mode is enabled or disabled.")
+		public boolean invertStickToGrid = false;
 		
 		@Config.Name("maxSavedActions")
 		@Config.LangKey("config.littletiles.maxSavedActions")
 		@Config.RangeInt(min = 1)
-		@Config.Comment("Number of actions which can be reverted")
+		@Config.Comment("Number of actions which can be reverted.")
 		public int maxSavedActions = 32;
 		
-		@Config.Name("useALT")
-		@Config.LangKey("config.littletiles.useALT")
-		@Config.Comment("If true you will not have to sneak but instead hold ALT.")
-		public boolean useALT = false;
+		@Config.Name("useALTForEverything")
+		@Config.LangKey("config.littletiles.useALTForEverything")
+		@Config.Comment("Second mode will be activated if 'ALT' is pressed (default: sneaking).")
+		public boolean useALTForEverything = false;
 		
-		@Config.Name("onlyChangeWhenFlying")
-		@Config.LangKey("config.littletiles.onlyChangeWhenFlying")
-		@Config.Comment("Only change shift behavior when flying.")
-		public boolean onlyChangeWhenFlying = true;
-		
-		@Config.Name("allowSneaking")
-		@Config.LangKey("config.littletiles.allowSneaking")
-		@Config.Comment("If useAlt is enable it will allow sneaking as well.")
-		public boolean allowSneaking = false;
+		@Config.Name("useAltWhenFlying")
+		@Config.LangKey("config.littletiles.useAltWhenFlying")
+		@Config.Comment("Press 'ALT' when flying instead of sneaking to activate second mode.")
+		public boolean useAltWhenFlying = true;
 	}
 	
 	@LittleConfig

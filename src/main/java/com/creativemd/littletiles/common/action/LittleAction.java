@@ -57,13 +57,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 	@SideOnly(Side.CLIENT)
 	public static boolean isUsingSecondMode(EntityPlayer player)
 	{
-		if(!LittleTilesConfig.building.useALT)
-			return player.isSneaking();
-		if(LittleTilesConfig.building.onlyChangeWhenFlying)
+		if(LittleTilesConfig.building.useALTForEverything)
+			return GuiScreen.isAltKeyDown();
+		if(LittleTilesConfig.building.useAltWhenFlying)
 			return player.capabilities.isFlying ? GuiScreen.isAltKeyDown() : player.isSneaking();
-		if(LittleTilesConfig.building.allowSneaking && player.isSneaking())
-			return true;
-		return GuiScreen.isAltKeyDown();
+		return player.isSneaking();		
 	}
 	
 	public static void rememberAction(LittleAction action)
