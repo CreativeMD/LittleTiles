@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tiles.preview;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -323,6 +325,8 @@ public class LittleTilePreview {
 	
 	public static List<LittleTilePreview> getPreview(ItemStack stack, boolean allowLowResolution)
 	{
+		if(!stack.hasTagCompound())
+			return Collections.emptyList();
 		if(stack.getTagCompound().getTag("tiles") instanceof NBTTagInt)
 		{
 			ArrayList<LittleTilePreview> result = new ArrayList<LittleTilePreview>();

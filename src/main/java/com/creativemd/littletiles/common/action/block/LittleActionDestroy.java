@@ -54,7 +54,6 @@ public class LittleActionDestroy extends LittleActionInteract {
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
 			RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException{
 		
-		
 		if(tile.isStructureBlock)
 		{
 			boolean loaded = tile.isLoaded() && tile.structure.hasLoaded();

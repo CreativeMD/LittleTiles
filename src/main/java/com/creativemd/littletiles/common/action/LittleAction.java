@@ -535,7 +535,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			}
 		}
 		
-		if(color != null)
+		if(color != null && !color.isEmpty())
 			throw new NotEnoughIngredientsException.NotEnoughColorSpaceException();
 		
 		if(toCheck != null)
