@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.ingredients;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -43,17 +44,24 @@ public class ColorUnit {
 		return new int[]{BLACK, RED, GREEN, BLUE};
 	}
 	
+	private static String getUnit(int number)
+	{
+		if(number == 1)
+			return I18n.translateToLocal("color.unit.single");
+		return I18n.translateToLocal("color.unit.multiple");
+	}
+	
 	public String getDescription()
 	{
 		String description = "";
 		if(BLACK > 0)
-			description += BLACK + " " + I18n.translateToLocal("color.unit.black") + " units";
+			description += BLACK + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(BLACK);
 		if(RED > 0)
-			description += RED + " " + I18n.translateToLocal("color.unit.red") + " units";
+			description += RED + " " + ChatFormatting.DARK_RED + I18n.translateToLocal("color.unit.red") + ChatFormatting.WHITE + " " + getUnit(RED);
 		if(GREEN > 0)
-			description += GREEN + " " + I18n.translateToLocal("color.unit.green") + " units";
+			description += GREEN + " " + ChatFormatting.DARK_GREEN + I18n.translateToLocal("color.unit.green") + ChatFormatting.WHITE + " " + getUnit(GREEN);
 		if(BLUE > 0)
-			description += BLUE + " " + I18n.translateToLocal("color.unit.blue") + " units";
+			description += BLUE + " " + ChatFormatting.DARK_BLUE + I18n.translateToLocal("color.unit.blue") + ChatFormatting.WHITE + " " + getUnit(BLUE);
 		return description;
 	}
 	
@@ -76,10 +84,10 @@ public class ColorUnit {
 	
 	public void scale(double scale)
 	{
-		this.BLACK *= scale;
-		this.RED *= scale;
-		this.GREEN *= scale;
-		this.BLUE *= scale;
+		this.BLACK = (int) Math.ceil(this.BLACK * scale);
+		this.RED = (int) Math.ceil(this.RED * scale);
+		this.GREEN = (int) Math.ceil(this.GREEN * scale);
+		this.BLUE = (int) Math.ceil(this.BLUE * scale);
 	}
 	
 	public void subColorUnit(ColorUnit unit)
@@ -124,10 +132,10 @@ public class ColorUnit {
 		if(preview.hasColor())
 		{
 			ColorUnit color = getRequiredColors(preview.getColor());
-			color.BLACK *= volume;
-			color.RED *= volume;
-			color.GREEN *= volume;
-			color.BLUE *= volume;
+			color.BLACK = (int) Math.ceil(color.BLACK * volume);
+			color.RED = (int) Math.ceil(color.RED * volume);
+			color.GREEN = (int) Math.ceil(color.GREEN * volume);
+			color.BLUE = (int) Math.ceil(color.BLUE * volume);
 			return color;
 		}
 		return null;
@@ -149,8 +157,10 @@ public class ColorUnit {
 	
 	public static ColorUnit getRequiredColors(int color)
 	{
+		if(ColorUtils.isWhite(color))
+			return new ColorUnit();
 		double percent = (255 * 0.1 * dyeToBlockPercentage)/ 3D;
-		int maxPerColor = (int) (percent*255);
+		int maxPerColor = (int) Math.ceil(percent*255);
 		int r = (int) ((color >> 16 & 255) * percent);
 		int g = (int) ((color >> 8 & 255) * percent);
 		int b = (int) ((color & 255) * percent);
