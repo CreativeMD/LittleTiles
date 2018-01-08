@@ -23,7 +23,7 @@ public class ExportCommand extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "export little structures";
+		return "/lt-export can be used to export little structures";
 	}
 
 }
