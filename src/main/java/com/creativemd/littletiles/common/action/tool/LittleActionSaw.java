@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
@@ -50,7 +51,7 @@ public class LittleActionSaw extends LittleActionInteract {
 	
 	public LittleTileBox oldBox = null;
 	public LittleTileBox newBox = null;
-	public LittleTileVec position = null;
+	public LittleTileAbsoluteCoord coord = null;
 	public EnumFacing facing;
 	
 	@Override
@@ -137,7 +138,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					newTile.place();
 					//littleTe.addTile(newTile);
 					te.updateBlock();
-					position = newTile.getAbsoluteCoordinates();
+					coord = new LittleTileAbsoluteCoord(newTile);
 					newBox = box.copy();
 					newBox.addOffset(te.getPos());
 					return true;
@@ -146,7 +147,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				{
 					tile.box = box;
 					te.updateBlock();
-					position = tile.getAbsoluteCoordinates();
+					coord = new LittleTileAbsoluteCoord(tile);
 					return true;
 				}
 			}
@@ -167,7 +168,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			boxes.add(newBox);
 			return new LittleActionDestroyBoxes(boxes);
 		}
-		return new LittleActionSawRevert(position, oldBox, facing);
+		return new LittleActionSawRevert(coord, oldBox, facing);
 	}
 	
 	@Override
@@ -186,12 +187,12 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		public LittleTileBox oldBox;
 		public LittleTileBox replacedBox;
-		public LittleTileVec position;
-		public LittleTileVec newPosition;
+		public LittleTileAbsoluteCoord coord;
+		public LittleTileAbsoluteCoord newCoord;
 		public EnumFacing facing;
 		
-		public LittleActionSawRevert(LittleTileVec position, LittleTileBox oldBox, EnumFacing facing) {
-			this.position = position;
+		public LittleActionSawRevert(LittleTileAbsoluteCoord coord, LittleTileBox oldBox, EnumFacing facing) {
+			this.coord = coord;
 			this.oldBox = oldBox;
 			this.facing = facing;
 		}
@@ -207,15 +208,13 @@ public class LittleActionSaw extends LittleActionInteract {
 
 		@Override
 		public LittleAction revert() throws LittleActionException {
-			return new LittleActionSawRevert(newPosition, replacedBox, facing.getOpposite());
+			return new LittleActionSawRevert(newCoord, replacedBox, facing.getOpposite());
 		}
 
 		@Override
 		protected boolean action(EntityPlayer player) throws LittleActionException {
 			
-			LittleTile tile = getTileAtPosition(player.world, position);
-			if(tile == null)
-				throw new LittleActionException.TileNotFoundException();
+			LittleTile tile = getTile(player.world, coord);
 			
 			if(tile.canSawResizeTile(facing, player))
 			{
@@ -247,7 +246,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				tile.te.updateBlock();
 				
-				newPosition = tile.getAbsoluteCoordinates();
+				newCoord = new LittleTileAbsoluteCoord(tile);
 				return true;
 			}
 			
@@ -256,14 +255,14 @@ public class LittleActionSaw extends LittleActionInteract {
 
 		@Override
 		public void writeBytes(ByteBuf buf) {
-			writeLittleVec(position, buf);
+			writeAbsoluteCoord(coord, buf);
 			writeLittleBox(oldBox, buf);
 			writeFacing(buf, facing);
 		}
 
 		@Override
 		public void readBytes(ByteBuf buf) {
-			position = readLittleVec(buf);
+			coord = readAbsoluteCoord(buf);
 			oldBox = readLittleBox(buf);
 			facing = readFacing(buf);
 		}

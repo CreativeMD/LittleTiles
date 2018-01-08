@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
@@ -82,14 +83,12 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	
 	public static class LittleActionGlowstoneRevert extends LittleAction
 	{
-		public BlockPos pos;
-		public LittleTileVec corner;
+		public LittleTileAbsoluteCoord coord;
 		
 		public LittleTile changedTile;
 		
 		public LittleActionGlowstoneRevert(LittleTile tile) {
-			this.pos = tile.te.getPos();
-			this.corner = tile.getCornerVec();
+			this.coord = new LittleTileAbsoluteCoord(tile);
 		}
 		
 		public LittleActionGlowstoneRevert() {
@@ -111,49 +110,37 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		@Override
 		protected boolean action(EntityPlayer player) throws LittleActionException {
 			
-			TileEntity te = player.world.getTileEntity(pos);
-			if(te instanceof TileEntityLittleTiles)
+			LittleTile tile = getTile(player.world, coord);
+			
+			if(needIngredients(player))
 			{
-				LittleTile tile = ((TileEntityLittleTiles) te).getTile(corner);
-				if(tile != null)
-				{
-					if(needIngredients(player))
-					{
-						ItemStack stack = new ItemStack(Items.GLOWSTONE_DUST);
-						if(!InventoryUtils.consumeItemStack(player.inventory, stack))
-							throw new NotEnoughIngredientsException.NotEnoughStackException(stack);
-					}
-					
-					if(tile.glowing)
-						player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
-					else
-						player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
-					
-					tile.glowing = !tile.glowing;
-					tile.te.updateBlock();
-					tile.te.updateLighting();
-					
-					this.changedTile = tile;
-				}else
-					throw new LittleActionException.TileNotFoundException();
-			}else
-				throw new LittleActionException.TileEntityNotFoundException();
+				ItemStack stack = new ItemStack(Items.GLOWSTONE_DUST);
+				if(!InventoryUtils.consumeItemStack(player.inventory, stack))
+					throw new NotEnoughIngredientsException.NotEnoughStackException(stack);
+			}
+			
+			if(tile.glowing)
+				player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
+			else
+				player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
+			
+			tile.glowing = !tile.glowing;
+			tile.te.updateBlock();
+			tile.te.updateLighting();
+			
+			this.changedTile = tile;
 			
 			return false;
 		}
 
 		@Override
 		public void writeBytes(ByteBuf buf) {
-			writePos(buf, pos);
-			buf.writeInt(corner.x);
-			buf.writeInt(corner.y);
-			buf.writeInt(corner.z);
+			writeAbsoluteCoord(coord, buf);
 		}
 
 		@Override
 		public void readBytes(ByteBuf buf) {
-			pos = readPos(buf);
-			corner = new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+			coord = readAbsoluteCoord(buf);
 		}
 		
 	}

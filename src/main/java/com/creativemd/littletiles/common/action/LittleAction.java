@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -287,13 +288,37 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return tile.te.getTiles().contains(tile);
 	}
 	
-	public static LittleTile getTileAtPosition(World world, LittleTileVec vec)
+	public static LittleTile getTile(World world, LittleTileAbsoluteCoord coord) throws LittleActionException
 	{
-		BlockPos pos = vec.getBlockPos();
-		TileEntity te = world.getTileEntity(pos);
+		TileEntity te = world.getTileEntity(coord.pos);
 		if(te instanceof TileEntityLittleTiles)
-			return ((TileEntityLittleTiles) te).getTileFromPosition(vec.x - pos.getX() * LittleTile.gridSize, vec.y - pos.getY() * LittleTile.gridSize, vec.z - pos.getZ() * LittleTile.gridSize);
-		return null;
+		{
+			LittleTile tile = ((TileEntityLittleTiles) te).getTile(coord.identifier);
+			if(tile != null)
+				return tile;
+			throw new LittleActionException.TileNotFoundException();
+		}
+		else
+			throw new LittleActionException.TileEntityNotFoundException();
+	}
+	
+	public static void writeAbsoluteCoord(LittleTileAbsoluteCoord coord, ByteBuf buf)
+	{
+		writePos(buf, coord.pos);
+		buf.writeInt(coord.identifier.length);
+		for (int i = 0; i < coord.identifier.length; i++) {
+			buf.writeInt(coord.identifier[i]);
+		}
+	}
+	
+	public static LittleTileAbsoluteCoord readAbsoluteCoord(ByteBuf buf)
+	{
+		BlockPos pos = readPos(buf);
+		int[] identifier = new int[]{buf.readInt()};
+		for (int i = 0; i < identifier.length; i++) {
+			identifier[i] = buf.readInt();
+		}
+		return new LittleTileAbsoluteCoord(pos, identifier);
 	}
 	
 	public static void writeLittleVec(LittleTileVec vec, ByteBuf buf)

@@ -252,11 +252,19 @@ public enum LittleSlice {
 	}
 	
 	/**
-	 * Theoretically there are two corners, but it will always return the one with a postive direction
+	 * Theoretically there are two corners, but it will always return the one with a positive direction
 	 */
 	public LittleCorner getFilledCorner()
 	{
 		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideTwo.getOpposite());
+	}
+	
+	/**
+	 * Theoretically there are two corners, but it will always return the one with a positive direction
+	 */
+	public LittleCorner getEmptyCorner()
+	{
+		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne, emptySideTwo);
 	}
 	
 	public boolean isCornerAffected(LittleCorner corner)

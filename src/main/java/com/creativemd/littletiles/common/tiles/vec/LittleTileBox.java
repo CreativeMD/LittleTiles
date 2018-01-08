@@ -1120,6 +1120,20 @@ public class LittleTileBox {
 		}
 	}
 	
+	//================Identifier================
+	
+	public int[] getIdentifier()
+	{
+		return new int[]{minX, minY, minZ};
+	}
+	
+	public boolean is(int[] identifier)
+	{
+		if(identifier.length == 3)
+			return identifier[0] == minX && identifier[1] == minY && identifier[2] == minZ;
+		return false;
+	}
+	
 	//================Static Helpers================
 	
 	public static LittleTileBox loadBox(String name, NBTTagCompound nbt)

@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
@@ -185,7 +185,7 @@ public abstract class LittleTile {
 	//public ArrayList<LittleTileBox> boundingBoxes; Major Change!!! Does methods below should still allow you to implement multiple boxes
 	public LittleTileBox box;
 	
-	public LittleTileVec getCornerVec()
+	public LittleTileVec getMinVec()
 	{
 		return box.getMinVec();
 	}
@@ -265,21 +265,21 @@ public abstract class LittleTile {
 	}
 	
 	/**
-	 * It's faster than isAt()
-	 * @return if the min vec of the box equals the given coordinates
+	 * Cannot be overridden!
+	 * @return
 	 */
-	public boolean isCornerAt(int x, int y, int z)
+	public final int[] getIdentifier()
 	{
-		return box.minX == x && box.minY == y && box.minZ == z;
+		return box.getIdentifier();
 	}
 	
 	/**
 	 * It's faster than isAt()
 	 * @return if the min vec of the box equals the given coordinates
 	 */
-	public boolean isCornerAt(LittleTileVec vec)
+	public boolean is(int[] identifier)
 	{
-		return isCornerAt(vec.x, vec.y, vec.z);
+		return box.is(identifier);
 	}
 	
 	/**
@@ -441,7 +441,7 @@ public abstract class LittleTile {
 		if(tile.canBeCombined(this) && this.canBeCombined(tile) && !tile.isMainBlock && !this.isMainBlock)
 		{
 			if(coord != null && tile.coord != null)
-				return coord.position.equals(tile.coord.position);
+				return coord.identifier.equals(tile.coord.identifier);
 		}
 		return false;
 	}
@@ -559,11 +559,11 @@ public abstract class LittleTile {
 				{
 					LittleTilePosition pos = new LittleTilePosition(nbt);
 					
-					coord = new LittleTileCoord(te, pos.coord, pos.position);
+					coord = new LittleTileRelativeCoord(te, pos.coord, new int[]{pos.position.x, pos.position.y, pos.position.z});
 					
 					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
 				}else
-					coord = new LittleTileCoord(nbt);
+					coord = new LittleTileRelativeCoord(nbt);
 			}
 		}
 	}
@@ -830,7 +830,7 @@ public abstract class LittleTile {
 	
 	public LittleStructure structure;
 	
-	public LittleTileCoord coord;
+	public LittleTileRelativeCoord coord;
 	
 	public boolean isMainBlock = false;
 	
@@ -856,7 +856,7 @@ public abstract class LittleTile {
 				TileEntity tileEntity = world.getTileEntity(absoluteCoord);
 				if(tileEntity instanceof TileEntityLittleTiles)
 				{
-					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.position);
+					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.identifier);
 					if(tile != null && tile.isStructureBlock)
 					{
 						if(tile.isMainBlock)

@@ -1,38 +1,39 @@
 package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class LittleTileCoord {
+public class LittleTileRelativeCoord {
 	
 	private BlockPos coord;
-	public LittleTileVec position;
+	public int[] identifier;
 	
-	public LittleTileCoord(TileEntity te, BlockPos coord, LittleTileVec position)
+	public LittleTileRelativeCoord(TileEntity te, BlockPos coord, int[] identifier)
 	{
-		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, position);
+		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, identifier);
 	}
 	
-	public LittleTileCoord(BlockPos origin, BlockPos coord, LittleTileVec position)
+	public LittleTileRelativeCoord(BlockPos origin, BlockPos coord, int[] identifier)
 	{
-		this(origin.getX(), origin.getY(), origin.getZ(), coord, position);
+		this(origin.getX(), origin.getY(), origin.getZ(), coord, identifier);
 	}
 	
-	public LittleTileCoord(int baseX, int baseY, int baseZ, BlockPos coord, LittleTileVec position)
+	public LittleTileRelativeCoord(int baseX, int baseY, int baseZ, BlockPos coord, int[] identifier)
 	{
-		this(coord.getX() - baseX, coord.getY() - baseY, coord.getZ() - baseZ, position);
+		this(coord.getX() - baseX, coord.getY() - baseY, coord.getZ() - baseZ, identifier);
 	}
 	
-	protected LittleTileCoord(int relativeX, int relativeY, int relativeZ, LittleTileVec position)
+	protected LittleTileRelativeCoord(int relativeX, int relativeY, int relativeZ, int[] identifier)
 	{
 		this.coord = new BlockPos(relativeX, relativeY, relativeZ);
-		this.position = position;
+		this.identifier = identifier;
 	}
 	
-	public LittleTileCoord(String id, NBTTagCompound nbt)
+	public LittleTileRelativeCoord(String id, NBTTagCompound nbt)
 	{
 		if(nbt.hasKey(id + "coord"))
 		{
@@ -44,10 +45,15 @@ public class LittleTileCoord {
 		}
 		else if(nbt.hasKey(id + "coordX"))
 			coord = new BlockPos(nbt.getInteger(id + "coordX"), nbt.getInteger(id + "coordY"), nbt.getInteger(id + "coordZ"));
-		position = new LittleTileVec(id + "pos", nbt);
+		if(nbt.hasKey(id + "pos"))
+		{
+			LittleTileVec position = new LittleTileVec(id + "pos", nbt);
+			identifier = new int[]{position.x, position.y, position.z};
+		}else
+			identifier = nbt.getIntArray("id");
 	}
 	
-	public LittleTileCoord(NBTTagCompound nbt)
+	public LittleTileRelativeCoord(NBTTagCompound nbt)
 	{
 		this("", nbt);
 	}
@@ -73,7 +79,8 @@ public class LittleTileCoord {
 		nbt.setInteger(id + "coordY", coord.getY());
 		nbt.setInteger(id + "coordZ", coord.getZ());*/
 		nbt.setIntArray(id + "coord", new int[]{coord.getX(), coord.getY(), coord.getZ()});
-		position.writeToNBT(id + "pos", nbt);
+		//position.writeToNBT(id + "pos", nbt);
+		nbt.setIntArray("id", identifier);
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt)
@@ -84,12 +91,12 @@ public class LittleTileCoord {
 	@Override
 	public String toString()
 	{
-		return "coord:[" + coord.getX() + "," + coord.getY() + "," + coord.getZ() + "]|position:" + position;
+		return "coord:[" + coord.getX() + "," + coord.getY() + "," + coord.getZ() + "]|position:" + Arrays.toString(identifier);
 	}
 	
-	public LittleTileCoord copy()
+	public LittleTileRelativeCoord copy()
 	{
-		return new LittleTileCoord(coord.getX(), coord.getY(), coord.getZ(), position.copy());
+		return new LittleTileRelativeCoord(coord.getX(), coord.getY(), coord.getZ(), identifier.clone());
 	}
 	
 }

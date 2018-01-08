@@ -30,7 +30,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -60,7 +60,7 @@ public class LittleDoor extends LittleDoorBase{
 		{
 			doubledRelativeAxis = new LittleTileVec("a", nbt);
 			if(getMainTile() != null)
-				doubledRelativeAxis.sub(getMainTile().getCornerVec());
+				doubledRelativeAxis.sub(getMainTile().getMinVec());
 			doubledRelativeAxis.scale(2);
 			doubledRelativeAxis.add(new LittleTileVec(1, 1, 1));
 			
@@ -516,7 +516,7 @@ public class LittleDoor extends LittleDoorBase{
 		vec = new LittleTileVec(getMainTile().te.getPos());
 		vec.scale(2);
 		doubledRelativeAxis.add(vec);
-		vec = getMainTile().getCornerVec();
+		vec = getMainTile().getMinVec();
 		vec.scale(2);
 		doubledRelativeAxis.add(vec);
 		
