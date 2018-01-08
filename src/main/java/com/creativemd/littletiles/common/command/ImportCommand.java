@@ -23,7 +23,7 @@ public class ImportCommand extends CommandBase {
 
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "import little structures";
+		return "/lt-import can be used to import little structures";
 	}
 
 }
