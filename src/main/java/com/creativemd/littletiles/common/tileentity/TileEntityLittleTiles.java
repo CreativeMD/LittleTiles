@@ -605,14 +605,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 
 	public boolean preventUpdate = false;
 	
-	public LittleTile getTileFromPosition(int x, int y, int z)
+	/*public LittleTile getTileFromPosition(int x, int y, int z)
 	{
 		for (LittleTile tile : tiles) {
 			if(tile.isAt(x, y, z))
 				return tile;
 		}
 		return null;
-	}
+	}*/
 	
 	/**Used for rendering*/
 	@SideOnly(Side.CLIENT)
@@ -748,8 +748,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         	LittleTile tile = null;
         	if(list.tagCount() > 0)
         	{
-        		int[] minVec = list.getIntArrayAt(0);
-        		tile = getTile(new LittleTileVec(minVec[0], minVec[1], minVec[2]));
+        		tile = getTile(LittleTileBox.createBox(list.getIntArrayAt(0)).getIdentifier());
         	}
 			if(!exstingTiles.contains(tile))
 				tile = null;
@@ -810,19 +809,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         return nbt;
     }
     
-    public LittleTile getTile(LittleTileVec vec)
-    {
-    	return getTile(vec.x, vec.y, vec.z);
-    }
-    
     /**
      * uses the corner and is therefore faster
      */
-    public LittleTile getTile(int x, int y, int z)
+    public LittleTile getTile(int[] identifier)
     {
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			if(tile.isCornerAt(x, y, z))
+			if(tile.is(identifier))
 				return tile;
 		}
     	return null;

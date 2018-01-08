@@ -1,9 +1,12 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
@@ -19,13 +22,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileUpdatePacket extends CreativeCorePacket {
 	
-	public BlockPos pos;
-	public LittleTileVec cornerVec;
+	public LittleTileAbsoluteCoord coord;
 	public NBTTagCompound nbt;
 	
 	public LittleTileUpdatePacket(LittleTile tile, NBTTagCompound nbt) {
-		this.pos = tile.te.getPos();
-		this.cornerVec = tile.getCornerVec();
+		this.coord = new LittleTileAbsoluteCoord(tile);
 		this.nbt = nbt;
 	}
 	
@@ -35,29 +36,26 @@ public class LittleTileUpdatePacket extends CreativeCorePacket {
 
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		writePos(buf, pos);
-		buf.writeInt(cornerVec.x);
-		buf.writeInt(cornerVec.y);
-		buf.writeInt(cornerVec.z);
+		LittleAction.writeAbsoluteCoord(coord, buf);
 		writeNBT(buf, nbt);
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		pos = readPos(buf);
-		cornerVec = new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+		coord = LittleAction.readAbsoluteCoord(buf);
 		nbt = readNBT(buf);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
-		TileEntity te = player.world.getTileEntity(pos);
-		if(te instanceof TileEntityLittleTiles)
-		{
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(cornerVec);
+		LittleTile tile;
+		try {
+			tile = LittleAction.getTile(player.world, coord);
 			if(tile.supportsUpdatePacket())
 				tile.receivePacket(nbt, FMLClientHandler.instance().getClientToServerNetworkManager());
+		} catch (LittleActionException e) {
+			e.printStackTrace();
 		}
 	}
 

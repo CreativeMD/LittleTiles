@@ -844,4 +844,26 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		return true;
 	}
 	
+	//================Identifier================
+	
+	@Override
+	public int[] getIdentifier()
+	{
+		LittleCorner corner = slice.getFilledCorner();
+		return new int[]{getCornerX(corner), getCornerY(corner), getCornerZ(corner), slice.ordinal()};
+	}
+	
+	@Override
+	public boolean is(int[] identifier)
+	{
+		if(identifier.length == 3)
+			return identifier[0] == minX && identifier[1] == minY && identifier[2] == minZ;
+		if(identifier.length == 4 && identifier[3] == slice.ordinal())
+		{
+			LittleCorner corner = slice.getFilledCorner();
+			return identifier[0] == getCornerX(corner) && identifier[1] == getCornerY(corner) && identifier[2] == getCornerZ(corner);
+		}
+		return false;
+	}
+	
 }

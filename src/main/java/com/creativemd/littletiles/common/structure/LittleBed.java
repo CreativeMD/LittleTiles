@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -329,8 +330,8 @@ public class LittleBed extends LittleStructure{
             if (enumstatus == SleepResult.OK)
             {
             	player.addStat(StatList.SLEEP_IN_BED);
-            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(getMainTile().te.getPos(), getMainTile().getCornerVec()), (EntityPlayerMP) player);
-            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getMainTile().te.getPos(), getMainTile().getCornerVec(), player), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileAbsoluteCoord(getMainTile())), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileAbsoluteCoord(getMainTile()), player), (EntityPlayerMP) player);
                 return true;
             }
             else

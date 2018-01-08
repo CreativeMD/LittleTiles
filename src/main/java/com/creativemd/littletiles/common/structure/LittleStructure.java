@@ -22,7 +22,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -173,9 +173,9 @@ public abstract class LittleStructure {
 		
 	}
 	
-	public LittleTileCoord getMainTileCoord(LittleTile tile)
+	public LittleTileRelativeCoord getMainTileCoord(LittleTile tile)
 	{
-		return new LittleTileCoord(tile.te, mainTile.te.getPos(), mainTile.getCornerVec());
+		return new LittleTileRelativeCoord(tile.te, mainTile.te.getPos(), mainTile.getIdentifier());
 	}
 	
 	public boolean hasMainTile()
@@ -362,13 +362,13 @@ public abstract class LittleStructure {
 		{
 			int count = nbt.getInteger("count");
 			for (int i = 0; i < count; i++) {
-				LittleTileCoord coord = null;
+				LittleTileRelativeCoord coord = null;
 				if(nbt.hasKey("i" + i + "coX"))
 				{
 					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-					coord = new LittleTileCoord(mainTile.te, pos.coord, pos.position);
+					coord = new LittleTileRelativeCoord(mainTile.te, pos.coord, new int[]{pos.position.x, pos.position.y, pos.position.z});
 				}else{
-					coord = new LittleTileCoord("i" + i, nbt);
+					coord = new LittleTileRelativeCoord("i" + i, nbt);
 				}
 				
 				BlockPos pos = coord.getAbsolutePosition(mainTile.te);
@@ -478,7 +478,7 @@ public abstract class LittleStructure {
 	public boolean doesLinkToMainTile(LittleTile tile)
 	{
 		try{
-			return tile == getMainTile() || (!tile.isMainBlock && tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.isCornerAt(tile.coord.position));
+			return tile == getMainTile() || (!tile.isMainBlock && tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.is(tile.coord.identifier));
 		}catch(Exception e){
 			//e.printStackTrace();
 		}

@@ -4,10 +4,13 @@ import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -20,13 +23,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile)
 	{
-		nbt.setInteger("x", tile.te.getPos().getX());
-		nbt.setInteger("y", tile.te.getPos().getY());
-		nbt.setInteger("z", tile.te.getPos().getZ());
-		
-		nbt.setInteger("tX", tile.box.minX);
-		nbt.setInteger("tY", tile.box.minY);
-		nbt.setInteger("tZ", tile.box.minZ);
+		new LittleTileAbsoluteCoord(tile).writeToNBT(nbt);
 		
 		GuiHandler.openGui(id, nbt, player);
 	}
@@ -35,13 +32,10 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 
 	@Override
 	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-		BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
-		TileEntity te = player.getEntityWorld().getTileEntity(pos);
-		if(te instanceof TileEntityLittleTiles)
-		{
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getInteger("tX"), nbt.getInteger("tY"), nbt.getInteger("tZ"));
-			if(tile != null)
-				return getContainer(player, nbt, tile);
+		try {
+			return getContainer(player, nbt, LittleAction.getTile(player.world, new LittleTileAbsoluteCoord(nbt)));
+		} catch (LittleActionException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
@@ -52,13 +46,10 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-		BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
-		TileEntity te = player.getEntityWorld().getTileEntity(pos);
-		if(te instanceof TileEntityLittleTiles)
-		{
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(nbt.getInteger("tX"), nbt.getInteger("tY"), nbt.getInteger("tZ"));
-			if(tile != null)
-				return getGui(player, nbt, tile);
+		try {
+			return getGui(player, nbt, LittleAction.getTile(player.world, new LittleTileAbsoluteCoord(nbt)));
+		} catch (LittleActionException e) {
+			e.printStackTrace();
 		}
 		return null;
 	}
