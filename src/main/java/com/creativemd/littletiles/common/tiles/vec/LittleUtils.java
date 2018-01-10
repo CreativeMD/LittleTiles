@@ -63,22 +63,40 @@ public class LittleUtils {
 		return a == b ? true : Math.abs(a - b) < EPSILON;
 	}
 	
+	public static double round(double valueToRound, int numberOfDecimalPlaces)
+	{
+	    double multipicationFactor = Math.pow(10, numberOfDecimalPlaces);
+	    double interestedInZeroDPs = valueToRound * multipicationFactor;
+	    return Math.round(interestedInZeroDPs) / multipicationFactor;
+	}
+	
+	public static float round(float valueToRound, int numberOfDecimalPlaces)
+	{
+		float multipicationFactor = (float) Math.pow(10, numberOfDecimalPlaces);
+		float interestedInZeroDPs = valueToRound * multipicationFactor;
+	    return Math.round(interestedInZeroDPs) / multipicationFactor;
+	}
+	
 	public static double round(double value)
 	{
-		int pow = 10;
-	    for (int i = 1; i < scale; i++)
+		/*int pow = 10;
+		int realScale = scale + (int) (Math.log10(value) + 1);
+	    for (int i = 1; i < realScale; i++)
 	        pow *= 10;
 	    double tmp = value * pow;
-	    return ( (double) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;
+	    return ( (double) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;*/
+		return round(value, scale);
 	}
 	
 	public static float round(float value)
 	{
-	    int pow = 10;
-	    for (int i = 1; i < scale; i++)
+	    /*int pow = 10;
+	    int realScale = scale + (int) (Math.log10(value) + 1);
+	    for (int i = 1; i < realScale; i++)
 	        pow *= 10;
 	    float tmp = value * pow;
-	    return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;
+	    return ( (float) ( (int) ((tmp - (int) tmp) >= 0.5f ? tmp + 1 : tmp) ) ) / pow;*/
+		return round(value, scale);
 	}
 	
 }
