@@ -9,6 +9,7 @@ item.LTScrewdriver.name=Little Screwdriver
 item.LTRubberMallet.name=Little Rubber Mallet
 item.LTColorTube.name=Little Paint Brush
 item.LTUtilityKnife.name=Little Utility Knife
+item.LTGrabber.name=Little Glove
 
 tile.LTParticleBlock.name=Little Particle Block
 tile.LTColoredBlock.clean.name=Colored Block Clean
@@ -41,6 +42,7 @@ itemGroup.littletiles=LittleTiles
 
 grabber.mode.pixel=Pixel Mode
 grabber.mode.place_preview=Recipe Mode
+grabber.mode.replace=Replace Mode
 
 action.tile.notthere=Tile is missing
 action.tile.notfound=Tile not found

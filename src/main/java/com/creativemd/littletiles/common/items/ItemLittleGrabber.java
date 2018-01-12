@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -29,6 +30,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
@@ -50,6 +52,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -127,10 +130,9 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			GlStateManager.scale(0.9, 0.9, 0.9);
 			
 			GrabberMode mode = getMode(stack);
-			List<LittleTilePreview> previews = mode.getPreviews(stack);
-			if(mode.renderBlockSeparately(stack) && previews.size() == 1)
+			if(mode.renderBlockSeparately(stack))
 			{
-				LittleTilePreview preview = previews.get(0);
+				LittleTilePreview preview = mode.getSeparateRenderingPreview(stack);
 				ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
 				model =  mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); //getItemModelMesher().getItemModel(blockStack);
 				if(!(model instanceof CreativeBakedModel))
@@ -207,6 +209,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	{
+		return getMode(stack).onRightClick(player, stack, result);
+	}
+	
+	@Override
 	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
 		return getMode(stack).onMouseWheelClickBlock(player, stack, result);
 	}
@@ -255,10 +264,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	public static abstract class GrabberMode {
 		
-		public static HashMap<String, GrabberMode> modes = new HashMap<>();
+		public static HashMap<String, GrabberMode> modes = new LinkedHashMap<>();
 		
 		public static PixelMode pixelMode = new PixelMode();
 		public static PlacePreviewMode placePreviewMode = new PlacePreviewMode();
+		public static ReplaceMode replaceMode = new ReplaceMode();
 		
 		public static GrabberMode defaultMode = pixelMode;
 		
@@ -284,6 +294,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@SideOnly(Side.CLIENT)
+		public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+		{
+			return true;
+		}
+		
+		@SideOnly(Side.CLIENT)
 		public abstract boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result);
 		
 		@SideOnly(Side.CLIENT)
@@ -297,17 +313,23 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		public abstract SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack);
 		
 		public abstract List<LittleTilePreview> getPreviews(ItemStack stack);
+		
+		public LittleTilePreview getSeparateRenderingPreview(ItemStack stack)
+		{
+			return getPreviews(stack).get(0);
+		}
+		
 		public abstract void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state);
 		public abstract void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt);
 		
 	}
 	
-	public static class PixelMode extends GrabberMode {
+	public static abstract class SimpleMode extends GrabberMode {
 
-		public PixelMode() {
-			super("pixel");
+		public SimpleMode(String name) {
+			super(name);
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
@@ -325,6 +347,78 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				return true;
 			}
 			return false;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> getRenderingCubes(ItemStack stack) {
+			return Collections.emptyList();
+		}
+
+		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean renderBlockSeparately(ItemStack stack) {
+			return true;
+		}
+
+		@Override
+		public List<LittleTilePreview> getPreviews(ItemStack stack) {
+			List<LittleTilePreview> previews = new ArrayList<>();
+			previews.add(getPreview(stack));
+			return previews;
+		}
+
+		@Override
+		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
+			LittleTilePreview oldPreview = getPreview(stack);
+			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			tile.box = oldPreview.box;
+			setPreview(stack, tile.getPreviewTile());
+		}
+
+		@Override
+		public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
+				BlockPos pos, NBTTagCompound nbt) {
+			LittleTilePreview oldPreview = getPreview(stack);
+			LittleTilePreview preview = tile.getPreviewTile();
+			preview.box = oldPreview.box;
+			setPreview(stack, preview);
+		}
+		
+		public static LittleTilePreview getPreview(ItemStack stack)
+		{
+			if(!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			
+			LittleTilePreview preview = null;
+			if(stack.getTagCompound().hasKey("preview"))
+				preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
+			else
+			{
+				IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
+				LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+				tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, 1, 1, 1);
+				preview = tile.getPreviewTile();
+				setPreview(stack, preview);
+			}
+			return preview;
+		}
+		
+		public static void setPreview(ItemStack stack, LittleTilePreview preview)
+		{
+			if(!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			
+			NBTTagCompound nbt = new NBTTagCompound();	
+			preview.writeToNBT(nbt);
+			stack.getTagCompound().setTag("preview", nbt);
+		}
+	}
+	
+	public static class PixelMode extends SimpleMode {
+
+		public PixelMode() {
+			super("pixel");
 		}
 		
 		@Override
@@ -423,71 +517,6 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		public SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack) {
 			return new SubContainerGrabber(player, stack);
-		}
-
-		@Override
-		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(ItemStack stack) {
-			return Collections.emptyList();
-		}
-
-		@Override
-		@SideOnly(Side.CLIENT)
-		public boolean renderBlockSeparately(ItemStack stack) {
-			return true;
-		}
-
-		@Override
-		public List<LittleTilePreview> getPreviews(ItemStack stack) {
-			List<LittleTilePreview> previews = new ArrayList<>();
-			previews.add(getPreview(stack));
-			return previews;
-		}
-
-		@Override
-		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
-			LittleTilePreview oldPreview = getPreview(stack);
-			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-			tile.box = oldPreview.box;
-			setPreview(stack, tile.getPreviewTile());
-		}
-
-		@Override
-		public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
-				BlockPos pos, NBTTagCompound nbt) {
-			LittleTilePreview oldPreview = getPreview(stack);
-			LittleTilePreview preview = tile.getPreviewTile();
-			preview.box = oldPreview.box;
-			setPreview(stack, preview);
-		}
-		
-		public static LittleTilePreview getPreview(ItemStack stack)
-		{
-			if(!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			
-			LittleTilePreview preview = null;
-			if(stack.getTagCompound().hasKey("preview"))
-				preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
-			else
-			{
-				IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
-				LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-				tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, 1, 1, 1);
-				preview = tile.getPreviewTile();
-				setPreview(stack, preview);
-			}
-			return preview;
-		}
-		
-		public static void setPreview(ItemStack stack, LittleTilePreview preview)
-		{
-			if(!stack.hasTagCompound())
-				stack.setTagCompound(new NBTTagCompound());
-			
-			NBTTagCompound nbt = new NBTTagCompound();	
-			preview.writeToNBT(nbt);
-			stack.getTagCompound().setTag("preview", nbt);
 		}
 		
 	}
@@ -602,6 +631,48 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 
 		@Override
 		public List<LittleTilePreview> getPreviews(ItemStack stack) {
+			return getPreview(stack);
+		}
+		
+	}
+	
+	public static class ReplaceMode extends SimpleMode {
+
+		public ReplaceMode() {
+			super("replace");
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public SubGuiGrabber getGui(EntityPlayer player, ItemStack stack) {
+			return new SubGuiGrabber(this, stack, 140, 140) {
+				
+				@Override
+				public void saveChanges() {
+					
+				}
+			};
+		}
+
+		@Override
+		public SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack) {
+			return new SubContainerGrabber(player, stack);
+		}
+
+		@Override
+		public List<LittleTilePreview> getPreviews(ItemStack stack) {
+			return Collections.emptyList();
+		}
+		
+		@Override
+		public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+			if(PlacementHelper.canBlockBeUsed(player.world, result.getBlockPos()))
+				new LittleActionReplace(result.getBlockPos(), player, getPreview(stack)).execute();
+			return false;
+		}
+		
+		@Override
+		public LittleTilePreview getSeparateRenderingPreview(ItemStack stack) {
 			return getPreview(stack);
 		}
 		

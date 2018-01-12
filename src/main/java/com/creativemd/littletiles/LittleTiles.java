@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
@@ -332,6 +333,8 @@ public class LittleTiles {
 		
 		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
+		
+		LittleAction.registerLittleAction("rep", LittleActionReplace.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		//MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
