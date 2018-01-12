@@ -30,7 +30,7 @@ public class LittleActionCombined extends LittleAction {
 	public LittleAction revert() throws LittleActionException {
 		LittleAction[] newActions = new LittleAction[actions.length];
 		for (int i = 0; i < newActions.length; i++) {
-			newActions[i] = actions[i].revert();
+			newActions[i] = actions[actions.length - 1 - i].revert();
 		}
 		return new LittleActionCombined(newActions);
 	}
