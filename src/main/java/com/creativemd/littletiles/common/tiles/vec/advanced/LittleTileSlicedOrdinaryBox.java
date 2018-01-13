@@ -856,8 +856,6 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	@Override
 	public boolean is(int[] identifier)
 	{
-		if(identifier.length == 3)
-			return identifier[0] == minX && identifier[1] == minY && identifier[2] == minZ;
 		if(identifier.length == 4 && identifier[3] == slice.ordinal())
 		{
 			LittleCorner corner = slice.getFilledCorner();
