@@ -179,7 +179,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews)
 	{
-		PlacePreviewMode.setPreview(stack, previews);
+		getMode(stack).setPreviews(previews, stack);
 	}
 	
 	@Override
@@ -307,6 +307,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		public abstract List<LittleTilePreview> getPreviews(ItemStack stack);
 		
+		public abstract void setPreviews(List<LittleTilePreview> previews, ItemStack stack);
+		
 		public LittleTilePreview getSeparateRenderingPreview(ItemStack stack)
 		{
 			return getPreviews(stack).get(0);
@@ -359,6 +361,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			List<LittleTilePreview> previews = new ArrayList<>();
 			previews.add(getPreview(stack));
 			return previews;
+		}
+		
+		@Override
+		public void setPreviews(List<LittleTilePreview> previews, ItemStack stack) {
+			setPreview(stack, previews.get(0));
 		}
 
 		@Override
@@ -625,6 +632,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		public List<LittleTilePreview> getPreviews(ItemStack stack) {
 			return getPreview(stack);
+		}
+		
+		@Override
+		public void setPreviews(List<LittleTilePreview> previews, ItemStack stack) {
+			PlacePreviewMode.setPreview(stack, previews);
 		}
 		
 	}
