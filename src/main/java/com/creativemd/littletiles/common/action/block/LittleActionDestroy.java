@@ -6,11 +6,13 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
+import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -20,6 +22,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -77,6 +80,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		}else{
 			
 			destroyedTiles = new ArrayList<>();
+			List<LittleTile> tiles = new ArrayList<>();
 			
 			if(BlockTile.selectEntireBlock(player, secondMode))
 			{
@@ -87,11 +91,20 @@ public class LittleActionDestroy extends LittleActionInteract {
 						LittleTilePreview preview = toDestory.getPreviewTile();
 						preview.box.addOffset(toDestory.te.getPos());
 						destroyedTiles.add(preview);
+						tiles.add(toDestory);
 					}else
 						remains.add(toDestory);
 				}
 				
-				addPreviewToInventory(player, destroyedTiles);
+				if(player.isCreative())
+					addPreviewToInventory(player, destroyedTiles);
+				else if(!world.isRemote){
+					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
+					LittleTilePreview.saveTiles(world, tiles, drop);
+					WorldUtils.dropItem(world, drop, pos);
+				}
+				
+				tiles.clear();
 				
 				te.getTiles().clear();
 				te.getTiles().addAll(remains);
