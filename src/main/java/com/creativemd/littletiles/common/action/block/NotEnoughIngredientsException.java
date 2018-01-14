@@ -49,7 +49,7 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 					message += ", ";
 				else
 					first = false;
-				message += ingredient.block.getLocalizedName();
+				message += ingredient.getItemStack().getDisplayName();
 			}
 			return message + ")";
 		}
