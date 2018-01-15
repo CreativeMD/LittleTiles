@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1185,7 +1186,7 @@ public class LittleTileBox {
 		case 11:
 			return new LittleTileSlicedBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]), Float.intBitsToFloat(array[7]), Float.intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
 		default: 
-			throw new InvalidParameterException("No valid coords given " + array);
+			throw new InvalidParameterException("No valid coords given " + Arrays.toString(array));
 		}
 	}
 	

@@ -314,7 +314,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static LittleTileAbsoluteCoord readAbsoluteCoord(ByteBuf buf)
 	{
 		BlockPos pos = readPos(buf);
-		int[] identifier = new int[]{buf.readInt()};
+		int[] identifier = new int[buf.readInt()];
 		for (int i = 0; i < identifier.length; i++) {
 			identifier[i] = buf.readInt();
 		}
