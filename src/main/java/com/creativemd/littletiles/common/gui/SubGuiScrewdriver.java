@@ -1,5 +1,8 @@
 package com.creativemd.littletiles.common.gui;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
@@ -14,17 +17,34 @@ import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemStackSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionCombined;
+import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.selection.AnySelector;
+import com.creativemd.littletiles.common.utils.selection.BlockSelector;
+import com.creativemd.littletiles.common.utils.selection.StateSelector;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.util.text.TextComponentString;
 
 public class SubGuiScrewdriver extends SubGui {
 	
@@ -59,63 +79,38 @@ public class SubGuiScrewdriver extends SubGui {
 		
 		controls.add(new GuiColorPicker("picker", 5, 160, color));
 		
-		controls.add(new GuiButton("run", "Do it!", 150, 170, 40){
+		controls.add(new GuiButton("undo", "undo", 150, 135, 40){
+					
+			@Override
+			public void onClicked(int x, int y, int button) {
+				try {
+					LittleAction.undo();
+				} catch (LittleActionException e) {
+					getPlayer().sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+				}
+			}
+		});
+		
+		controls.add(new GuiButton("redo", "redo", 150, 155, 40){
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				boolean any = ((GuiCheckBox)get("any")).value;
-				boolean remove = ((GuiCheckBox)get("remove")).value;
-				boolean replace = ((GuiCheckBox)get("replace")).value;
-				boolean colorize = ((GuiCheckBox)get("colorize")).value;
-				boolean meta = ((GuiCheckBox)get("meta")).value;
-				boolean metaR = ((GuiCheckBox)get("metaR")).value;
-				
-				NBTTagCompound nbt = new NBTTagCompound();
-				nbt.setInteger("x1", stack.getTagCompound().getInteger("x1"));
-				nbt.setInteger("y1", stack.getTagCompound().getInteger("y1"));
-				nbt.setInteger("z1", stack.getTagCompound().getInteger("z1"));
-				nbt.setInteger("x2", stack.getTagCompound().getInteger("x2"));
-				nbt.setInteger("y2", stack.getTagCompound().getInteger("y2"));
-				nbt.setInteger("z2", stack.getTagCompound().getInteger("z2"));
-				
-				GuiInvSelector filter = (GuiInvSelector) get("filter");
-				GuiInvSelector replacement = (GuiInvSelector) get("replacement");
-				ItemStack stackFilter = filter.getStack();
-				if(!any && stackFilter != null)
-				{
-					nbt.setString("filterBlock", Block.REGISTRY.getNameForObject(Block.getBlockFromItem(stackFilter.getItem())).toString());
-					if(meta)
-						nbt.setInteger("filterMeta", stackFilter.getItemDamage());
+				try {
+					LittleAction.redo();
+				} catch (LittleActionException e) {
+					getPlayer().sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 				}
-				
-				nbt.setBoolean("remove", remove);
-				if(replace)
-				{
-					ItemStack stackReplace = replacement.getStack();
-					if(stackReplace != null)
-					{
-						Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
-						if(!SubContainerGrabber.isBlockValid(replacementBlock))
-						{
-							openButtonDialogDialog("Invalid replacement block!", "ok");
-							return ;
-						}
-						nbt.setString("replaceBlock", Block.REGISTRY.getNameForObject(replacementBlock).toString());
-						if(metaR)
-							nbt.setInteger("replaceMeta", stackReplace.getItemDamage());
-					}
-				}
-				
-				if(colorize)
-				{
-					GuiColorPicker picker = (GuiColorPicker) get("picker");
-					nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
-				}
-				
-				if(!remove && !replace && !colorize)
-					openButtonDialogDialog("You have to select a task!", "ok");
-				else
-					sendPacketToServer(nbt);
+			}
+		});
+		
+		controls.add(new GuiButton("run", "Do it!", 150, 175, 40){
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				LittleAction action = getDesiredAction();
+				if(action != null)
+					if(action.execute())
+						playSound(SoundEvents.BLOCK_LEVER_CLICK);
 			}
 		});
 	}
@@ -137,6 +132,74 @@ public class SubGuiScrewdriver extends SubGui {
 			inv.updateItems(container.player);
 			inv.closeBox();
 		}
+	}
+	
+	public LittleAction getDesiredAction()
+	{
+		BlockPos pos = new BlockPos(stack.getTagCompound().getInteger("x1"), stack.getTagCompound().getInteger("y1"), stack.getTagCompound().getInteger("z1"));
+		BlockPos pos2 = new BlockPos(stack.getTagCompound().getInteger("x2"), stack.getTagCompound().getInteger("y2"), stack.getTagCompound().getInteger("z2"));
+		
+		TileSelector selector;
+		if(((GuiCheckBox)get("any")).value)
+			selector = new AnySelector();
+		else
+		{
+			GuiInvSelector filter = (GuiInvSelector) get("filter");
+			ItemStack stackFilter = filter.getStack();
+			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
+			boolean meta = ((GuiCheckBox)get("meta")).value;
+			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
+		}
+		
+		List<LittleTileBox> boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
+		boolean remove = ((GuiCheckBox)get("remove")).value;
+		boolean replace = ((GuiCheckBox)get("replace")).value;
+		boolean colorize = ((GuiCheckBox)get("colorize")).value;
+		
+		if(remove)
+			return new LittleActionDestroyBoxes(boxes);
+		else{
+			List<LittleAction> actions = new ArrayList<>();
+			
+			if(replace)
+			{
+				GuiInvSelector replacement = (GuiInvSelector) get("replacement");
+				ItemStack stackReplace = replacement.getStack();
+				if(stackReplace != null)
+				{
+					Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
+					if(!SubContainerGrabber.isBlockValid(replacementBlock))
+					{
+						openButtonDialogDialog("Invalid replacement block!", "ok");
+						return null;
+					}
+					actions.add(new LittleActionDestroyBoxes(boxes));
+					List<LittleTilePreview> previews = new ArrayList<>();
+					for(LittleTileBox box : boxes)
+					{
+						LittleTileBlock tile = new LittleTileBlock(replacementBlock, stackReplace.getItemDamage());
+						tile.box = box;
+						previews.add(tile.getPreviewTile());
+					}
+					actions.add(new LittleActionDestroyBoxes(boxes));
+					actions.add(new LittleActionPlaceAbsolute(previews, null, false, true, false));
+				}
+			}
+			
+			if(colorize)
+			{
+				GuiColorPicker picker = (GuiColorPicker) get("picker");
+				actions.add(new LittleActionColorBoxes(boxes, ColorUtils.RGBAToInt(picker.color), false));
+			}
+			
+			if(!actions.isEmpty())
+				return new LittleActionCombined(actions.toArray(new LittleAction[0]));
+		}
+		
+		if(!remove && !replace && !colorize)
+			openButtonDialogDialog("You have to select a task!", "ok");
+		
+		return null;		
 	}
 	
 	public static class LittleTileBlockSelector extends StackSelector {
