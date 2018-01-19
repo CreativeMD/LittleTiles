@@ -1,12 +1,22 @@
 package com.creativemd.littletiles.common.utils.selection;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
 
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.world.World;
 
 public abstract class TileSelector {
 	
@@ -31,6 +41,23 @@ public abstract class TileSelector {
 		return selectorTypes.get(id);
 	}
 	
+	public static TileSelector loadSelector(String id, NBTTagCompound nbt)
+	{
+		Class<? extends TileSelector> type = getType(id);
+		if(type != null)
+		{
+			try {
+				TileSelector selector = type.getConstructor().newInstance();
+				selector.loadNBT(nbt);
+				return selector;
+			} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				throw new RuntimeException("Selector type " + nbt.getString("type") + " is missing an empty constructor!");
+			}
+		}else
+			System.out.println("Selector " + nbt.getString("type") + " could not be found!");
+		return null;
+	}
+	
 	public static TileSelector loadSelector(NBTTagCompound nbt)
 	{
 		Class<? extends TileSelector> type = getType(nbt.getString("type"));
@@ -45,7 +72,19 @@ public abstract class TileSelector {
 			}
 		}else
 			System.out.println("Selector " + nbt.getString("type") + " could not be found!");
-		return null;		
+		return null;
+	}
+	
+	static
+	{
+		//Init Selectors
+		registerType("any", AnySelector.class);
+		registerType("and", AndSelector.class);
+		registerType("or", OrSelector.class);
+		registerType("not", NotSelector.class);
+		registerType("block", BlockSelector.class);
+		registerType("state", StateSelector.class);
+		registerType("color", ColorSelector.class);
 	}
 	
 	public TileSelector() {
@@ -63,5 +102,50 @@ public abstract class TileSelector {
 	protected abstract void loadNBT(NBTTagCompound nbt);
 	
 	public abstract boolean is(LittleTile tile);
+	
+	public static List<LittleTileBox> getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector)
+	{
+		List<LittleTileBox> boxes = new ArrayList<>();
+		
+		int minX = Math.min(pos.getX(), pos2.getX());
+		int maxX = Math.max(pos.getX(), pos2.getX());
+		int minY = Math.min(pos.getY(), pos2.getY());
+		int maxY = Math.max(pos.getY(), pos2.getY());
+		int minZ = Math.min(pos.getZ(), pos2.getZ());
+		int maxZ = Math.max(pos.getZ(), pos2.getZ());
+		
+		MutableBlockPos position = new MutableBlockPos();
+		
+		for (int posX = minX; posX <= maxX; posX++) {
+			for (int posY = minY; posY <= maxY; posY++) {
+				for (int posZ = minZ; posZ <= maxZ; posZ++) {
+					position.setPos(posX, posY, posZ);
+					
+					TileEntityLittleTiles te = BlockTile.loadTe(world, position);
+					for (LittleTile tile : te.getTiles()) {
+						if(selector.is(tile))
+						{
+							LittleTileBox box = tile.box.copy();
+							box.addOffset(position);
+							boxes.add(box);
+						}
+					}
+				}
+			}
+		}
+		
+		return boxes;
+	}
+	
+	public static List<LittleTileBox> getBoxes(World world, BlockPos pos, TileSelector selector)
+	{
+		List<LittleTileBox> boxes = new ArrayList<>();
+		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
+		for (LittleTile tile : te.getTiles()) {
+			if(selector.is(tile))
+				boxes.add(tile.box);
+		}
+		return boxes;
+	}
 	
 }

@@ -59,6 +59,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -538,15 +539,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@SideOnly(Side.CLIENT)
 		public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
 			IBlockState state = player.world.getBlockState(result.getBlockPos());
-			if(SubContainerGrabber.isBlockValid(state.getBlock()))
-			{
-				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
-				return true;
-			}
-			else if(state.getBlock() instanceof BlockTile)
+			if(state.getBlock() instanceof BlockTile)
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
+				nbt.setBoolean("add", GuiScreen.isCtrlKeyDown());
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
 				return true;
 			}
@@ -556,11 +553,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state)
 		{
-			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			/*LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
 			List<LittleTilePreview> previews = new ArrayList<>();
 			previews.add(tile.getPreviewTile());
-			PlacePreviewMode.setPreview(stack, previews);
+			PlacePreviewMode.setPreview(stack, previews);*/
 		}
 		
 		@Override
@@ -604,6 +601,24 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				stack.setTagCompound(new NBTTagCompound());
 			
 			LittleTilePreview.savePreviewTiles(previews, stack);
+		}
+		
+		public static BlockPos getOrigin(ItemStack stack)
+		{
+			if(!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			
+			return new BlockPos(stack.getTagCompound().getInteger("ox"), stack.getTagCompound().getInteger("oy"), stack.getTagCompound().getInteger("oz"));
+		}
+		
+		public static void setOrigin(ItemStack stack, BlockPos pos)
+		{
+			if(!stack.hasTagCompound())
+				stack.setTagCompound(new NBTTagCompound());
+			
+			stack.getTagCompound().setInteger("ox", pos.getX());
+			stack.getTagCompound().setInteger("oy", pos.getY());
+			stack.getTagCompound().setInteger("oz", pos.getZ());
 		}
 
 		@Override
