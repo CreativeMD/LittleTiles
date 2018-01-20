@@ -119,9 +119,14 @@ public abstract class TileSelector {
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
+					
 					position.setPos(posX, posY, posZ);
 					
 					TileEntityLittleTiles te = BlockTile.loadTe(world, position);
+					
+					if(te == null)
+						continue;
+					
 					for (LittleTile tile : te.getTiles()) {
 						if(selector.is(tile))
 						{
