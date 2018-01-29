@@ -31,6 +31,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.GameType;
 import net.minecraft.world.IBlockAccess;
@@ -341,4 +342,10 @@ public class LittleTileBlock extends LittleTile{
 		return new BlockIngredient(block, meta, getPercentVolume());
 	}
 	
+	@Override
+	public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion) {
+		if(hasSpecialBlockHandler())
+			return handler.modifyAcceleration(this, entityIn, motion);
+		return super.modifyAcceleration(worldIn, pos, entityIn, motion);
+	}
 }

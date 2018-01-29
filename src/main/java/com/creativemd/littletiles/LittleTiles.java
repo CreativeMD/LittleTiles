@@ -24,14 +24,17 @@ import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
+import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
+import com.creativemd.littletiles.common.blocks.ItemBlockFlowingWater;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
+import com.creativemd.littletiles.common.config.IGCMLoader;
 import com.creativemd.littletiles.common.container.SubContainerChisel;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
@@ -91,6 +94,7 @@ import com.google.gson.GsonBuilder;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
@@ -110,6 +114,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -146,6 +151,8 @@ public class LittleTiles {
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
 	
+	public static Block flowingWater = new BlockLTFlowingWater().setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
+	
 	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
 	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
 	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
@@ -180,7 +187,6 @@ public class LittleTiles {
 		config.load();
 		LittleTile.setGridSize(config.getInt("gridSize", "core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
-		//allowedPropertyNames.add("core.gridSize");
 		for(String categoryName : config.getCategoryNames())
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
@@ -189,7 +195,7 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTile, storageBlock, particleBlock);
+		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTile, storageBlock, particleBlock/*, flowingWater*/);
 	}
 	
 	@SubscribeEvent
@@ -198,7 +204,8 @@ public class LittleTiles {
 				new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()),
 				new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
 				new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()),
-				new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
+				new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName())/*,
+				new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName())*/);
 		
 		proxy.loadSide();
 	}
@@ -350,6 +357,9 @@ public class LittleTiles {
 		DefaultBlockHandler.initVanillaBlockHandlers();
 		
 		proxy.loadSidePost();
+		
+		if(Loader.isModLoaded("igcm"))
+			IGCMLoader.initIGCM();
     }
 	
 	@EventHandler

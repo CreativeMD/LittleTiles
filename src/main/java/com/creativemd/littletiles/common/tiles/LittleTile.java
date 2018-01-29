@@ -803,6 +803,11 @@ public abstract class LittleTile {
 		return originalColor;
 	}
 	
+	public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion)
+    {
+        return null;
+    }
+	
 	//================Collision================
 	
 	public List<LittleTileBox> getCollisionBoxes()

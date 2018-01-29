@@ -1117,12 +1117,27 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
             boolean flag = isExceptBlockForAttachWithPiston(block) || block instanceof BlockStairs;
             return !flag && iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID;
         }
-    }
-
-    public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion)
-    {
-        return motion.add(this.getFlow(worldIn, pos, worldIn.getBlockState(pos)));
     }*/
+
+    public Vec3d modifyAcceleration(World world, BlockPos pos, Entity entityIn, Vec3d motion)
+    {
+    	AxisAlignedBB boundingBox = entityIn.getEntityBoundingBox();
+    	TileEntityLittleTiles te = loadTe(world, pos);
+    	if(te != null)
+    	{
+    		Vec3d vec = new Vec3d(0, 0, 0);
+	    	for (LittleTile tile : te.getTiles()) {
+				if(tile.box.getBox(pos).intersects(boundingBox))
+				{
+					Vec3d tileMotion = tile.modifyAcceleration(world, pos, entityIn, motion);
+					if(tileMotion != null)
+						vec = vec.add(tileMotion);
+				}
+			}
+	    	return motion.add(vec.normalize().scale(10));
+    	}
+        return motion;
+    }
     
     @Override
     @Nullable

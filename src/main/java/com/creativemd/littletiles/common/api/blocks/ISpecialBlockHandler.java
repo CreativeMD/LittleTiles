@@ -10,11 +10,13 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
@@ -44,5 +46,10 @@ public interface ISpecialBlockHandler {
 	{
 		return tile.getBlockState().getMaterial() == material;
 	}
+	
+	public default Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion)
+    {
+        return null;
+    }
 	
 }
