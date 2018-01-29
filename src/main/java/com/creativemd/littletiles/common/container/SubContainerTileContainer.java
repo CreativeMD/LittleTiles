@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
+import com.creativemd.creativecore.gui.premade.SubContainerHeldItem;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
@@ -27,15 +28,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class SubContainerTileContainer extends SubContainer{
+public class SubContainerTileContainer extends SubContainerHeldItem {
 	
-	public ItemStack stack;
-	public int index;
-	
-	public SubContainerTileContainer(EntityPlayer player, ItemStack stack, int index) {
+	public SubContainerTileContainer(EntityPlayer player) {
 		super(player);
-		this.stack = stack;
-		this.index = index;
 	}
 	
 	@CustomEventSubscribe
@@ -183,11 +179,10 @@ public class SubContainerTileContainer extends SubContainer{
 	@Override
 	public void onClosed()
 	{
-		player.inventory.mainInventory.set(index, stack);
+		player.inventory.mainInventory.set(currentIndex, stack);
 		ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
-		if(stack.isEmpty())
-			if(!player.inventory.addItemStackToInventory(stack))
-				WorldUtils.dropItem(player, stack);
+		if(!stack.isEmpty())
+			WorldUtils.dropItem(player, stack);
 	}
 
 	@Override
