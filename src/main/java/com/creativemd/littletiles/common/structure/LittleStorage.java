@@ -80,7 +80,8 @@ public class LittleStorage extends LittleStructure  {
 	public ItemStack getStructureDrop()
 	{
 		ItemStack stack = super.getStructureDrop();
-		writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
+		if(!stack.isEmpty())
+			writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
 		return stack;
 	}
 	
