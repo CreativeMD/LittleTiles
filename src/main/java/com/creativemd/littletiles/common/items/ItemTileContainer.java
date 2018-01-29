@@ -285,7 +285,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerTileContainer(player, stack, player.inventory.currentItem);
+		return new SubContainerTileContainer(player);
 	}
 	
 	@Override
