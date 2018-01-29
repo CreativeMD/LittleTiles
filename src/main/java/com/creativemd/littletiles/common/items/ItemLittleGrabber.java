@@ -536,7 +536,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			{
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
-				nbt.setBoolean("add", GuiScreen.isCtrlKeyDown());
+				//nbt.setBoolean("add", GuiScreen.isCtrlKeyDown());
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
 				return true;
 			}
