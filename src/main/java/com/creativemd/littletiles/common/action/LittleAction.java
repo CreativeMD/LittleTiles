@@ -12,6 +12,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
@@ -199,8 +200,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static TileEntityLittleTiles loadTe(World world, BlockPos pos, boolean shouldConvert)
+	public static TileEntityLittleTiles loadTe(EntityPlayer player, BlockPos pos, boolean shouldConvert)
 	{
+		World world = player.world;
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
 		if(!(tileEntity instanceof TileEntityLittleTiles))
@@ -209,7 +211,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);
-				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()))
+				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()) && (player.isCreative() || !SpecialServerConfig.strictMining))
 				{
 					tiles = new ArrayList<>();
 					

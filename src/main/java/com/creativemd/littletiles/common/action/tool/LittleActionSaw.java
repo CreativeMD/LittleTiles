@@ -81,7 +81,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				if(tile.box.isFaceAtEdge(facing))
 				{
 					BlockPos newPos = te.getPos().offset(facing);
-					te = loadTe(world, newPos, true);
+					te = loadTe(player, newPos, false);
 					box = box.createOutsideBlockBox(facing);
 					outside = true;
 					if(te == null)
