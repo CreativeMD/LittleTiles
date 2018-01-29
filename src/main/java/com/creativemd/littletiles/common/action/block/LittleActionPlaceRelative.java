@@ -207,7 +207,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 						world.setBlockState(coord, LittleTiles.blockTile.getDefaultState());
 					}
 					
-					TileEntityLittleTiles te = loadTe(world, coord, false);
+					TileEntityLittleTiles te = loadTe(player, coord, false);
 					if(te != null)
 					{
 						te.preventUpdate = true;
@@ -299,7 +299,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 				return false;
 			}
 			
-			TileEntityLittleTiles mainTile = loadTe(world, pos, false);
+			TileEntityLittleTiles mainTile = loadTe(player, pos, false);
 			if(mainTile != null)
 			{
 				if(forced)
