@@ -23,6 +23,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -93,10 +94,10 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items)
+	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
     {
 		for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) {
-			items.add(new ItemStack(this, 1, i));
+			list.add(new ItemStack(this, 1, i));
 		}
     }
 	

@@ -1084,7 +1084,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	{
     		Vec3d vec = new Vec3d(0, 0, 0);
 	    	for (LittleTile tile : te.getTiles()) {
-				if(tile.box.getBox(pos).intersects(boundingBox))
+				if(tile.box.getBox(pos).intersectsWith(boundingBox))
 				{
 					Vec3d tileMotion = tile.modifyAcceleration(world, pos, entityIn, motion);
 					if(tileMotion != null)
