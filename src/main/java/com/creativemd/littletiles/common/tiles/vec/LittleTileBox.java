@@ -577,6 +577,37 @@ public class LittleTileBox {
 		return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
 	}
 	
+	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled)
+	{
+		int minX = Math.max(this.minX, otherBox.minX);
+		int maxX = Math.min(this.maxX, otherBox.maxX);
+		int minY = Math.max(this.minY, otherBox.minY);
+		int maxY = Math.min(this.maxY, otherBox.maxY);
+		int minZ = Math.max(this.minZ, otherBox.minZ);
+		int maxZ = Math.min(this.maxZ, otherBox.maxZ);
+		if(isCompletelyFilled())
+		{
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					for (int z = minZ; z < maxZ; z++) {
+						filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+					}
+				}
+			}
+		}else{
+			LittleTileVec vec = new LittleTileVec(0, 0, 0);
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					for (int z = minZ; z < maxZ; z++) {
+						vec.set(x, y, z);
+						if(isVecInsideBox(vec))
+							filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
+					}
+				}
+			}
+		}
+	}
+	
 	//================Vectors================
 	
 	public void addOffset(Vec3i vec)
