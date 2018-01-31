@@ -194,7 +194,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes) throws LittleActionException {
-		TileEntity tileEntity = loadTe(player, pos, true);
+		TileEntity tileEntity = loadTe(player, world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{			
