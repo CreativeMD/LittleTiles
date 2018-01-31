@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.common.tiles.combine;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 public class BasicCombiner {
 	
@@ -228,31 +230,110 @@ public class BasicCombiner {
 	
 	public boolean cutOut(LittleTileBox searching, LittleTile toCombine)
 	{
+		boolean intersects = false;
 		for (LittleTile tile : tiles) {
-			boolean canBeCombined = tile.canBeSplitted() && tile.canBeSplitted() && tile.canBeCombined(toCombine) && toCombine.canBeCombined(tile);
-			if(this.structure != null && (toCombine.structure != structure || tile.structure != structure || !structure.hasLoaded()))
-				canBeCombined = false;
-			else if(this.structure == null && tile.isStructureBlock)
-				canBeCombined = false;
-			
-			if(canBeCombined && searching.getClass() == tile.box.getClass() && tile.box.containsBox(searching))
+			if(tile.box.containsBox(searching))
 			{
-				List<LittleTileBox> cutOut = tile.box.cutOut(searching);
-				if(cutOut != null)
+				boolean canBeCombined = tile.canBeSplitted() && tile.canBeSplitted() && tile.canBeCombined(toCombine) && toCombine.canBeCombined(tile);
+				if(this.structure != null && (toCombine.structure != structure || tile.structure != structure || !structure.hasLoaded()))
+					canBeCombined = false;
+				else if(this.structure == null && tile.isStructureBlock)
+					canBeCombined = false;
+				
+				if(canBeCombined && searching.getClass() == tile.box.getClass())
 				{
-					boxes.addAll(cutOut);
-					for (LittleTileBox cutBox : cutOut) {
-						LittleTile cutTile = toCombine.copy();
-						cutTile.box = cutBox;
-						tiles.add(cutTile);
-						if(structure != null)
-							structure.addTile(cutTile);
+					List<LittleTileBox> cutOut = tile.box.cutOut(searching);
+					if(cutOut != null)
+					{
+						boxes.addAll(cutOut);
+						for (LittleTileBox cutBox : cutOut) {
+							LittleTile cutTile = toCombine.copy();
+							cutTile.box = cutBox;
+							tiles.add(cutTile);
+							if(structure != null)
+								structure.addTile(cutTile);
+						}
 					}
+					removeBox(tile.box);
+					return true;
 				}
-				removeBox(tile.box);
-				return true;
+			}
+			else if(LittleTileBox.intersectsWith(tile.box, searching))
+			{
+				intersects = true;
+				break;
 			}
 		}
+		
+		if(intersects)
+		{
+			LittleTileSize size = searching.getSize();
+			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+			
+			for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();) {
+				LittleTile tile = iterator.next();
+				
+				if(LittleTileBox.intersectsWith(tile.box, searching))
+				{
+					boolean canBeCombined = tile.canBeSplitted() && tile.canBeSplitted() && tile.canBeCombined(toCombine) && toCombine.canBeCombined(tile);
+					if(this.structure != null && (toCombine.structure != structure || tile.structure != structure || !structure.hasLoaded()))
+						canBeCombined = false;
+					else if(this.structure == null && tile.isStructureBlock)
+						canBeCombined = false;
+					
+					if(canBeCombined && searching.getClass() == tile.box.getClass())
+					{
+						tile.fillInSpace(searching, filled);
+					}
+				}
+			}
+			
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						if(!filled[x][y][z])
+							return false;
+					}
+				}
+			}
+			
+			int i = 0;
+			while(i < tiles.size())
+			{
+				LittleTile tile = tiles.get(i);
+				
+				if(LittleTileBox.intersectsWith(tile.box, searching))
+				{
+					boolean canBeCombined = tile.canBeSplitted() && tile.canBeSplitted() && tile.canBeCombined(toCombine) && toCombine.canBeCombined(tile);
+					if(this.structure != null && (toCombine.structure != structure || tile.structure != structure || !structure.hasLoaded()))
+						canBeCombined = false;
+					else if(this.structure == null && tile.isStructureBlock)
+						canBeCombined = false;
+					
+					if(canBeCombined && searching.getClass() == tile.box.getClass())
+					{
+						List<LittleTileBox> cutOut = tile.box.cutOut(searching);
+						if(cutOut != null)
+						{
+							boxes.addAll(cutOut);
+							for (LittleTileBox cutBox : cutOut) {
+								LittleTile cutTile = toCombine.copy();
+								cutTile.box = cutBox;
+								tiles.add(cutTile);
+								if(structure != null)
+									structure.addTile(cutTile);
+							}
+						}
+						removeBox(tile.box);
+						continue;
+					}
+				}
+				i++;
+			}
+			
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -261,16 +342,66 @@ public class BasicCombiner {
 		if(currentTile != null)
 			return cutOut(searching, currentTile);
 		
+		boolean intersects = false;
 		for (LittleTileBox box : boxes) {
-			if(searching.getClass() == box.getClass() && box.containsBox(searching))
+			if(searching.getClass() == box.getClass())
 			{
-				List<LittleTileBox> cutOut = box.cutOut(searching);
-				if(cutOut != null)
-					boxes.addAll(cutOut);
-				removeBox(box);
-				return true;
+				if(box.containsBox(searching))
+				{
+					List<LittleTileBox> cutOut = box.cutOut(searching);
+					if(cutOut != null)
+						boxes.addAll(cutOut);
+					removeBox(box);
+					return true;
+				}
+				else if(LittleTileBox.intersectsWith(box, searching))
+				{
+					intersects = true;
+					break;
+				}
 			}
 		}
+		
+		if(intersects)
+		{
+			LittleTileSize size = searching.getSize();
+			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+			
+			for (Iterator<LittleTileBox> iterator = boxes.iterator(); iterator.hasNext();) {
+				LittleTileBox box = iterator.next();
+				
+				if(LittleTileBox.intersectsWith(box, searching) && searching.getClass() == box.getClass())
+					box.fillInSpace(searching, filled);
+			}
+			
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						if(!filled[x][y][z])
+							return false;
+					}
+				}
+			}
+			
+			int i = 0;
+			while(i < boxes.size())
+			{
+				LittleTileBox box = boxes.get(i);
+				
+				if(LittleTileBox.intersectsWith(box, searching) && searching.getClass() == box.getClass())
+				{
+					List<LittleTileBox> cutOut = box.cutOut(searching);
+					if(cutOut != null)
+						boxes.addAll(cutOut);
+					removeBox(box);
+					continue;
+				}
+				i++;
+			}
+			
+			return true;
+		}
+		
 		return false;
 	}
 	

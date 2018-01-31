@@ -235,33 +235,7 @@ public abstract class LittleTile {
 	
 	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled)
 	{
-		int minX = Math.max(box.minX, otherBox.minX);
-		int maxX = Math.min(box.maxX, otherBox.maxX);
-		int minY = Math.max(box.minY, otherBox.minY);
-		int maxY = Math.min(box.maxY, otherBox.maxY);
-		int minZ = Math.max(box.minZ, otherBox.minZ);
-		int maxZ = Math.min(box.maxZ, otherBox.maxZ);
-		if(box.isCompletelyFilled())
-		{
-			for (int x = minX; x < maxX; x++) {
-				for (int y = minY; y < maxY; y++) {
-					for (int z = minZ; z < maxZ; z++) {
-						filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
-					}
-				}
-			}
-		}else{
-			LittleTileVec vec = new LittleTileVec(0, 0, 0);
-			for (int x = minX; x < maxX; x++) {
-				for (int y = minY; y < maxY; y++) {
-					for (int z = minZ; z < maxZ; z++) {
-						vec.set(x, y, z);
-						if(box.isVecInsideBox(vec))
-							filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
-					}
-				}
-			}
-		}
+		box.fillInSpace(otherBox, filled);
 	}
 	
 	/**
