@@ -200,9 +200,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static TileEntityLittleTiles loadTe(EntityPlayer player, BlockPos pos, boolean shouldConvert)
+	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert)
 	{
-		World world = player.world;
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
 		if(!(tileEntity instanceof TileEntityLittleTiles))
