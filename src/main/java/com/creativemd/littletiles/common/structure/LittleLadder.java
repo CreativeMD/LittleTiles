@@ -37,12 +37,6 @@ public class LittleLadder extends LittleStructure {
 		return new LittleLadder();
 	}
 	
-	@Override
-	public boolean isLadder()
-	{
-		return true;
-	}
-	
 	public static boolean isLivingOnLadder(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityLivingBase entity)
     {
         boolean isSpectator = (entity instanceof EntityPlayer && ((EntityPlayer)entity).isSpectator());

@@ -16,6 +16,7 @@ import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
@@ -23,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileStructureCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
@@ -533,11 +535,11 @@ public abstract class LittleTile {
 				{
 					LittleTilePosition pos = new LittleTilePosition(nbt);
 					
-					coord = new LittleTileRelativeCoord(te, pos.coord, new int[]{pos.position.x, pos.position.y, pos.position.z});
+					coord = new LittleTileStructureCoord(te, pos.coord, new int[]{pos.position.x, pos.position.y, pos.position.z}, LittleStructureAttribute.NONE);
 					
 					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
 				}else
-					coord = new LittleTileRelativeCoord(nbt);
+					coord = new LittleTileStructureCoord(nbt);
 			}
 		}
 	}
@@ -757,9 +759,7 @@ public abstract class LittleTile {
 	
 	public boolean isLadder()
 	{
-		if(isLoaded())
-			return structure.isLadder();
-		return false;
+		return getStructureAttribute() == LittleStructureAttribute.LADDER;
 	}
 	
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
@@ -783,7 +783,7 @@ public abstract class LittleTile {
 	{
 		if(shouldCheckForCollision())
 			return new ArrayList<>();
-		if(isLoaded() && structure.noCollisionBoxes())
+		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded() && structure.noCollisionBoxes())
 			return new ArrayList<>();
 		List<LittleTileBox> boxes = new ArrayList<>();
 		boxes.add(box);
@@ -792,14 +792,14 @@ public abstract class LittleTile {
 	
 	public boolean shouldCheckForCollision()
 	{
-		if(isLoaded())
-			return structure.shouldCheckForCollision();
+		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded())
+			return true;
 		return false;
 	}
 	
     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-		if(isLoaded())
+		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded())
 			structure.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
     }
 	
@@ -809,7 +809,7 @@ public abstract class LittleTile {
 	
 	public LittleStructure structure;
 	
-	public LittleTileRelativeCoord coord;
+	public LittleTileStructureCoord coord;
 	
 	public boolean isMainBlock = false;
 	
@@ -872,6 +872,15 @@ public abstract class LittleTile {
 	public boolean isLoaded()
 	{
 		return isAllowedToSearchForStructure && isStructureBlock && checkForStructure();
+	}
+	
+	public LittleStructureAttribute getStructureAttribute()
+	{
+		if(!isStructureBlock)
+			return LittleStructureAttribute.NONE;
+		if(isMainBlock)
+			return structure.attribute;
+		return coord.attribute;
 	}
 	
 	@Deprecated

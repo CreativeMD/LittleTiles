@@ -9,7 +9,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleTileRelativeCoord {
 	
-	private BlockPos coord;
+	protected BlockPos coord;
 	public int[] identifier;
 	
 	public LittleTileRelativeCoord(TileEntity te, BlockPos coord, int[] identifier)
