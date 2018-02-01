@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -16,6 +17,7 @@ import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
@@ -25,6 +27,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileStructureCoord;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.BlockHorizontal;
@@ -51,45 +54,53 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleStructure {
 	
-	private static HashMap<String, LittleStructureEntry> structures = new HashMap<String, LittleStructureEntry>();
+	private static HashMap<String, LittleStructureEntry> structuresID = new LinkedHashMap<String, LittleStructureEntry>();
+	private static HashMap<Class<? extends LittleStructure>, LittleStructureEntry> structuresClass = new LinkedHashMap<Class<? extends LittleStructure>, LittleStructureEntry>();
 	
 	public static ArrayList<String> getStructureNames()
 	{
 		ArrayList<String> result = new ArrayList<>();
-		for (String id : structures.keySet()) {
+		for (String id : structuresID.keySet()) {
 			result.add(id);
 		}
 		return result;
 	}
 	
-	public static void registerLittleStructure(String id, LittleStructure structure)
+	public static void registerLittleStructure(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute)
 	{
-		registerLittleStructure(id, new LittleStructureEntry(structure.getClass(), structure));
+		LittleStructureEntry entry = new LittleStructureEntry(id, classStructure, null, attribute);
+		registerLittleStructure(id, entry);
+		LittleStructure structure = null;
+		try {
+			entry.parser = classStructure.getConstructor().newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException("Failed to register structure '" + id + "'. Missing empty constructor constructor!", e);
+		}
 	}
 	
 	public static void registerLittleStructure(String id, LittleStructureEntry entry)
 	{
-		if(structures.containsKey(id))
+		if(structuresID.containsKey(id))
 			System.out.println("ID is already taken! id=" + id);
-		else if(structures.containsValue(entry))
+		else if(structuresID.containsValue(entry))
 			System.out.println("Already registered class=" + entry);
 		else{
-			structures.put(id, entry);
+			structuresID.put(id, entry);
+			structuresClass.put(entry.structureClass, entry);
 		}
 	}
 	
 	public static String getIDByClass(Class<? extends LittleStructure> classStructure)
 	{
-		for (String id : structures.keySet()) {
-			if(classStructure.equals(structures.get(id).structureClass))
-				return id;
-		}
-		return "";
+		LittleStructureEntry entry = structuresClass.get(classStructure);
+		if(entry != null)
+			return entry.id;
+		return null;
 	}
 	
 	public static Class<? extends LittleStructure> getClassByID(String id)
 	{
-		LittleStructureEntry entry = structures.get(id);
+		LittleStructureEntry entry = structuresID.get(id);
 		if(entry != null)
 			return entry.structureClass;
 		return null;
@@ -97,19 +108,27 @@ public abstract class LittleStructure {
 	
 	public static LittleStructureEntry getEntryByID(String id)
 	{
-		return structures.get(id);
+		return structuresID.get(id);
+	}
+	
+	public static LittleStructureEntry getEntryByClass(Class<? extends LittleStructure> classStructure)
+	{
+		LittleStructureEntry entry = structuresClass.get(classStructure);
+		if(entry != null)
+			return entry;
+		return null;
 	}
 	
 	public static void initStructures()
 	{
-		registerLittleStructure("fixed", new LittleFixedStructure());
-		registerLittleStructure("chair", new LittleChair());
-		registerLittleStructure("door", new LittleDoor());
-		registerLittleStructure("slidingDoor", new LittleSlidingDoor());
-		registerLittleStructure("ladder", new LittleLadder());
-		registerLittleStructure("bed", new LittleBed());
-		registerLittleStructure("storage", new LittleStorage());
-		registerLittleStructure("noclip", new LittleNoClipStructure());
+		registerLittleStructure("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("chair", LittleChair.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("door", LittleDoor.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("ladder", LittleLadder.class, LittleStructureAttribute.LADDER);
+		registerLittleStructure("bed", LittleBed.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("storage", LittleStorage.class, LittleStructureAttribute.NONE);
+		registerLittleStructure("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION);
 	}
 	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, LittleTile mainTile)
@@ -135,6 +154,14 @@ public abstract class LittleStructure {
 			}
 		}
 		return null;
+	}
+	
+	public final LittleStructureAttribute attribute;
+	
+	
+	public LittleStructure()
+	{
+		this.attribute = getEntryByClass(this.getClass()).attribute;
 	}
 	
 	/**
@@ -173,9 +200,9 @@ public abstract class LittleStructure {
 		
 	}
 	
-	public LittleTileRelativeCoord getMainTileCoord(LittleTile tile)
+	public LittleTileStructureCoord getMainTileCoord(LittleTile tile)
 	{
-		return new LittleTileRelativeCoord(tile.te, mainTile.te.getPos(), mainTile.getIdentifier());
+		return new LittleTileStructureCoord(tile.te, mainTile.te.getPos(), mainTile.getIdentifier(), attribute);
 	}
 	
 	public boolean hasMainTile()
@@ -335,11 +362,6 @@ public abstract class LittleStructure {
 	}
 	
 	public HashMap<BlockPos, Integer> tilesToLoad = null;
-	
-	public LittleStructure()
-	{
-		
-	}
 	
 	public void loadFromNBT(NBTTagCompound nbt)
 	{
@@ -507,6 +529,8 @@ public abstract class LittleStructure {
 					{
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						tile.structure = this;
+						if(tile.coord != null)
+							tile.coord.attribute = attribute;
 						found++;
 					}
 				}
@@ -783,13 +807,17 @@ public abstract class LittleStructure {
 	
 	public static class LittleStructureEntry {
 		
-		public Class<? extends LittleStructure> structureClass;
+		public final String id;
+		public final Class<? extends LittleStructure> structureClass;
 		public LittleStructure parser;
+		public final LittleStructureAttribute attribute;
 		
-		public LittleStructureEntry(Class<? extends LittleStructure> structureClass, LittleStructure parser)
+		public LittleStructureEntry(String id, Class<? extends LittleStructure> structureClass, LittleStructure parser, LittleStructureAttribute attribute)
 		{
+			this.id = id;
 			this.structureClass = structureClass;
 			this.parser = parser;
+			this.attribute = attribute;
 		}
 		
 		@Override
@@ -806,11 +834,6 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
-	{
-		return false;
-	}
-
-	public boolean isLadder()
 	{
 		return false;
 	}
