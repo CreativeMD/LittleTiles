@@ -508,35 +508,57 @@ public class LittleTileBox {
 	 */
 	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout)
 	{
-		ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
+		boolean[][][] filled = new boolean[getSize(Axis.X)][getSize(Axis.Y)][getSize(Axis.Z)];
 		
-		for (int littleX = minX; littleX < maxX; littleX++) {
-			for (int littleY = minY; littleY < maxY; littleY++) {
-				for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
-					boolean isInside = false;
-					for (int i = 0; i < boxes.size(); i++) {
-						if(boxes.get(i).isVecInsideBox(littleX, littleY, littleZ))
-						{
-							isInside = true;
-							break;
-						}
+		for (LittleTileBox box : boxes) {
+			box.fillInSpace(this, filled);
+		}
+		
+		boolean expected = filled[0][0][0];
+		boolean continuous = true;
+		
+		loop:
+		for (int x = 0; x < filled.length; x++) {
+			for (int y = 0; y < filled[x].length; y++) {
+				for (int z = 0; z < filled[x][y].length; z++) {
+					if(filled[x][y][z] != expected)
+					{
+						continuous = false;
+						break loop;
 					}
-					
-					LittleTileBox box = extractBox(littleX, littleY, littleZ);
-					if(box != null)
-						if(isInside)
-							cutout.add(box);
-						else
-							newBoxes.add(box);
 				}
 			}
 		}
 		
-		BasicCombiner.combineBoxes(newBoxes);
+		if(continuous)
+		{
+			if(expected)
+			{
+				cutout.add(this.copy());
+				return new ArrayList<>();
+			}
+			List<LittleTileBox> newBoxes = new ArrayList<>();
+			newBoxes.add(this.copy());
+			return newBoxes;
+		}
 		
-		if(newBoxes.size() == 1 && newBoxes.get(0).equals(this))
-			return null;
+		List<LittleTileBox> newBoxes = new ArrayList<>();
 		
+		for (int x = 0; x < filled.length; x++) {
+			for (int y = 0; y < filled[x].length; y++) {
+				for (int z = 0; z < filled[x][y].length; z++) {
+					LittleTileBox box = extractBox(x + minX, y + minY, z + minZ);
+					if(box != null)
+					{
+						if(filled[x][y][z])
+							cutout.add(box);
+						else
+							newBoxes.add(box);
+					}
+				}
+			}
+		}
+		BasicCombiner.combineBoxes(newBoxes);		
 		BasicCombiner.combineBoxes(cutout);
 		
 		return newBoxes;
@@ -549,7 +571,7 @@ public class LittleTileBox {
 	{
 		if(intersectsWith(box))
 		{
-			ArrayList<LittleTileBox> boxes = new ArrayList<>();
+			List<LittleTileBox> boxes = new ArrayList<>();
 			for (int littleX = minX; littleX < maxX; littleX++) {
 				for (int littleY = minY; littleY < maxY; littleY++) {
 					for (int littleZ = minZ; littleZ < maxZ; littleZ++) {

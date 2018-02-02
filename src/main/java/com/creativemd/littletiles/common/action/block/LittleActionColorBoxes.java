@@ -80,11 +80,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			
+			LittleTileBox intersecting = null;
 			boolean intersects = false;
 			for (int j = 0; j < boxes.size(); j++) {
 				if(tile.intersectsWith(boxes.get(j)))
 				{
 					intersects = true;
+					intersecting = boxes.get(j);
 					break;
 				}
 			}
@@ -92,7 +94,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			if(!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isStructureBlock && (!tile.isLoaded() || !tile.structure.hasLoaded())))
 				continue;
 			
-			if(tile.canBeSplitted() && LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
+			if(!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
+				continue;
+			
+			if(tile.canBeSplitted() && !tile.equalsBox(intersecting))
 			{				
 				if(simulate)
 				{
@@ -173,13 +178,12 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 							if(tile.isStructureBlock)
 								tile.structure.updateStructure();
 							
-							tile.isStructureBlock = false;
-							tile.destroy();
-							
 							if(tile.isMainBlock)
 								changedTile.structure.setMainTile(changedTile);
-							
 						}
+						
+						tile.isStructureBlock = false;
+						tile.destroy();
 					}
 				}
 			}

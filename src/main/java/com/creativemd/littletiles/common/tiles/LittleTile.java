@@ -297,6 +297,11 @@ public abstract class LittleTile {
 		return box.calculateIntercept(te.getPos(), pos, look);
     }
 	
+	public boolean equalsBox(LittleTileBox box)
+	{
+		return this.box.equals(box);
+	}
+	
 	public boolean canBeCombined(LittleTile tile)
 	{	
 		if(isStructureBlock != tile.isStructureBlock)

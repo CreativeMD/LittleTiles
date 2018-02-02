@@ -61,11 +61,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			
+			LittleTileBox intersecting = null;
 			boolean intersects = false;
 			for (int j = 0; j < boxes.size(); j++) {
 				if(tile.intersectsWith(boxes.get(j)))
 				{
 					intersects = true;
+					intersecting = boxes.get(j);
 					break;
 				}
 			}
@@ -73,7 +75,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			if(!intersects)
 				continue;
 			
-			if(!tile.isStructureBlock && tile.canBeSplitted())
+			if(!tile.isStructureBlock && tile.canBeSplitted() && !tile.equalsBox(intersecting))
 			{
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();

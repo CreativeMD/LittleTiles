@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.mc.GuiContainerSub;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.action.LittleAction;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
@@ -57,7 +58,7 @@ public class OverlayRenderer {
 	            	{
 	            		float direction = pitch % 180;
 	            		
-	            		if(mc.player.isSneaking())
+	            		if(LittleAction.isUsingSecondMode(mc.player))
 	            		{
 	            			GlStateManager.pushMatrix();
 		            		GlStateManager.rotate(180, 0, 0, 1);

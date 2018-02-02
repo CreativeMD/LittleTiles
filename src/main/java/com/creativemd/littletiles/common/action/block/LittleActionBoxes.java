@@ -42,6 +42,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 		World world = player.world;
 		HashMapList<BlockPos, LittleTileBox> boxesMap = new HashMapList<>();
 		
+		
 		for (int i = 0; i < boxes.size(); i++) {
 			boxes.get(i).split(boxesMap);
 		}
