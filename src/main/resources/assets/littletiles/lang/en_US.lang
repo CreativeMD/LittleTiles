@@ -55,6 +55,8 @@ exception.ingredient.volume=Not enough material
 exception.ingredient.space.volume=Not enough space for material
 exception.ingredient.space.color=Not enough space for color
 exception.ingredient.stack=Missing 
+exception.permission.edit=You are not allowed to edit more than %s blocks
+exception.permission.place=You are not allowed to place more than %s blocks
 
 color.unit.black=black
 color.unit.red=red

@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -159,8 +160,23 @@ public class LittleActionPlaceRelative extends LittleAction {
        return placedTiles;
     }
 	
-	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
-	{		
+	public static List<LittleTile> placeTilesWithoutPlayer(World world, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	{
+		try {
+			return placeTiles(world, null, previews, structure, placeAll, pos, stack, unplaceableTiles, forced, facing);
+		} catch (LittleActionException e) {
+			return null;
+		}
+	}
+	
+	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing) throws LittleActionException
+	{
+		if(player != null)
+		{
+			if(SpecialServerConfig.isPlaceLimited(player) && getVolume(previews) > SpecialServerConfig.maxPlaceBlocks)
+				throw new SpecialServerConfig.NotAllowedToPlaceException();
+		}
+		
 		HashMapList<BlockPos, PlacePreviewTile> splitted = getSplittedTiles(previews, pos);
 		if(splitted == null)
 			return null;
@@ -262,6 +278,15 @@ public class LittleActionPlaceRelative extends LittleAction {
 			return placed;
 		}
 		return null;
+	}
+	
+	public static double getVolume(List<PlacePreviewTile> tiles)
+	{
+		double volume = 0;
+		for (PlacePreviewTile preview : tiles) {
+			volume += preview.box.getPercentVolume();
+		}
+		return volume;
 	}
 	
 	public static HashMapList<BlockPos, PlacePreviewTile> getSplittedTiles(List<PlacePreviewTile> tiles, BlockPos pos)

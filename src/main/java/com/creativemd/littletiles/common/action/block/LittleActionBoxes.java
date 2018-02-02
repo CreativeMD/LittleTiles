@@ -8,8 +8,10 @@ import java.util.Map.Entry;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import io.netty.buffer.ByteBuf;
@@ -38,10 +40,18 @@ public abstract class LittleActionBoxes extends LittleAction {
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
+		if(boxes.isEmpty())
+			return false;
+		
 		boolean placed = false;
 		World world = player.world;
 		HashMapList<BlockPos, LittleTileBox> boxesMap = new HashMapList<>();
 		
+		if(SpecialServerConfig.isEditLimited(player))
+		{
+			if(LittleTileBox.getSurroundingBox(boxes).getPercentVolume() > SpecialServerConfig.maxEditBlocks)
+				throw new SpecialServerConfig.NotAllowedToEditException();
+		}
 		
 		for (int i = 0; i < boxes.size(); i++) {
 			boxes.get(i).split(boxesMap);

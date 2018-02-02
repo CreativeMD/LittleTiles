@@ -200,6 +200,17 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
+	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state)
+	{
+		if(player.isCreative())
+			return true;
+		if(SpecialServerConfig.strictMining)
+			return false;
+		if(!SpecialServerConfig.editUnbreakable)
+			return state.getBlock().getBlockHardness(state, world, pos) > 0;
+		return true;
+	}
+	
 	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert)
 	{
 		TileEntity tileEntity = world.getTileEntity(pos);
@@ -210,7 +221,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);
-				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()) && (player.isCreative() || !SpecialServerConfig.strictMining))
+				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state))
 				{
 					tiles = new ArrayList<>();
 					
