@@ -325,7 +325,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			if(box instanceof LittleTileSlicedOrdinaryBox)
 			{
 				LittleTileSlicedOrdinaryBox sliceBox = (LittleTileSlicedOrdinaryBox) box;
-				if(sliceBox.slice.axis != slice.axis && sliceBox.slice.getOpposite() != slice)
+				if(sliceBox.slice.axis != slice.axis || sliceBox.slice.getOpposite() != slice)
 					return true;
 				
 				Vec3d vec = this.getSliceLine().intersect(((LittleTileSlicedOrdinaryBox) box).getSliceLine(), getMin(slice.axis));				
