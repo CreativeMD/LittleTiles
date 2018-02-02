@@ -91,7 +91,10 @@ public class SlotControlBlockIngredient extends SlotControl {
 	public void takeStack(boolean leftClick, InventoryPlayer inventoryplayer)
 	{
 		if(!isFullItem())
+		{
 			super.takeStack(leftClick, inventoryplayer);
+			return ;
+		}
 		
 		ItemStack hand = getPlayer().inventory.getItemStack();
 		ItemStack slotItem = getFullStack();
