@@ -83,7 +83,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = WorldFake.createFakeWorld(world);
-			LittleActionPlaceRelative.placeTiles(fakeWorld, player, previews, structure, false, pos, null, null, false, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews, structure, false, pos, null, null, false, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
 				if(te instanceof TileEntityLittleTiles)

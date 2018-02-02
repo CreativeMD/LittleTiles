@@ -1250,9 +1250,10 @@ public class LittleTileBox {
 			chunked.add(boxes.get(i).getMinVec().getBlockPos(), boxes.get(i));
 		}
 		boxes.clear();
+		BasicCombiner combiner = new BasicCombiner();
 		for (Iterator<ArrayList<LittleTileBox>> iterator = chunked.getValues().iterator(); iterator.hasNext();) {
 			ArrayList<LittleTileBox> list = iterator.next();
-			BasicCombiner.combineBoxes(list);
+			combiner.combineBox(list);
 			boxes.addAll(list);
 		}
 	}
@@ -1267,5 +1268,29 @@ public class LittleTileBox {
 		if(box.getClass() == LittleTileBox.class)
 			return box2.intersectsWith(box);
 		return box.intersectsWith(box2);
+	}
+	
+	public static LittleTileBox getSurroundingBox(List<LittleTileBox> boxes)
+	{
+		if(boxes.isEmpty())
+			return null;
+		
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		
+		for (LittleTileBox box : boxes) {
+			minX = Math.min(minX, box.minX);
+			minY = Math.min(minY, box.minY);
+			minZ = Math.min(minZ, box.minZ);
+			maxX = Math.max(maxX, box.maxX);
+			maxY = Math.max(maxY, box.maxY);
+			maxZ = Math.max(maxZ, box.maxZ);
+		}
+		
+		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 }
