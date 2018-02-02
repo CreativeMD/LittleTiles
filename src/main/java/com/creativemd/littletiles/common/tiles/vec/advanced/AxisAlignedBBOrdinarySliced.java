@@ -321,8 +321,8 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     	Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
-		if(RotationUtils.get(one, vec) >= getMin(one) && RotationUtils.get(one, vec) <= getMax(one) &&
-    			RotationUtils.get(two, vec) >= getMin(two) && RotationUtils.get(two, vec) <= getMax(two))
+		if(RotationUtils.get(one, vec) >= getMin(one) && RotationUtils.get(one, vec) < getMax(one) &&
+    			RotationUtils.get(two, vec) >= getMin(two) && RotationUtils.get(two, vec) < getMax(two))
 		{
 			LittleCorner corner = slice.getFilledCorner();
 			
@@ -331,7 +331,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 			double sizeOne = getSize(one);
 			double sizeTwo = getSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff < 1;
 			//return LittleUtils.greaterThanAndEquals(sizeOne, difOne) && LittleUtils.greaterThanAndEquals(sizeTwo, difTwo) && LittleUtils.smallerThanAndEquals(diff, 1);
 		}
 		return false;
@@ -423,7 +423,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 			double sizeOne = getSize(one);
 			double sizeTwo = getSize(two);
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
-			return sizeOne >= difOne && sizeTwo >= difTwo && (diff < 1 || LittleUtils.equals(diff, 1));
+			return sizeOne >= difOne && sizeTwo >= difTwo && diff < 1;
 		}
 		return false;
     }
