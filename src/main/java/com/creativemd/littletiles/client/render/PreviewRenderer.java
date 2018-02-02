@@ -266,7 +266,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.up.isPressed())
         {
         	if(markedPosition != null)
-        		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.UP : EnumFacing.EAST);
+        		moveMarkedHit(LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
         	else
         		processRotateKey(Rotation.Z_CLOCKWISE);
         }
@@ -274,7 +274,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.down.isPressed())
         {
         	if(markedPosition != null)
-        		moveMarkedHit(mc.player.isSneaking() ? EnumFacing.DOWN : EnumFacing.WEST);
+        		moveMarkedHit(LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
         	else
         		processRotateKey(Rotation.Z_COUNTER_CLOCKWISE);
         }
