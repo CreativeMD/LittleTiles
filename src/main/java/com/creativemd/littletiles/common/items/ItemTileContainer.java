@@ -102,7 +102,8 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 			Block block = Block.getBlockFromName(nbt.getString("block"));
 			if(block instanceof BlockAir)
 				continue;
-			inventory.add(new BlockIngredient(block, nbt.getInteger("meta"), nbt.getDouble("volume")));
+			if(nbt.getDouble("volume") > 0)
+				inventory.add(new BlockIngredient(block, nbt.getInteger("meta"), nbt.getDouble("volume")));
 		}
 		return inventory;
 	}
