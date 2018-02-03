@@ -554,6 +554,34 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     }
     
     @Override
+    public boolean addRunningEffects(IBlockState state, World world, BlockPos pos, Entity entity)
+    {
+    	TileEntityLittleTiles te = loadTe(world, pos);
+    	if(te != null)
+    	{
+    		int heighest = 0;
+    		LittleTile heighestTile = null;
+    		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = (LittleTile) iterator.next();
+				List<LittleTileBox> collision = tile.getCollisionBoxes();
+				for (int i = 0; i < collision.size(); i++) {
+					if(collision.get(i).maxY > heighest)
+					{
+						heighest = collision.get(i).maxY;
+						heighestTile = tile;
+					}
+				}
+    		}
+    		
+    		Random random = new Random();
+    		if(heighestTile != null && heighestTile instanceof LittleTileBlock)
+    			world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + ((double)random.nextFloat() - 0.5D) * (double)entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + ((double)random.nextFloat() - 0.5D) * (double)entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()));
+    		return true;
+    	}
+    	return false;
+    }
+    
+    @Override
     @SideOnly(Side.CLIENT)
     public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager)
     {
