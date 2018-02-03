@@ -1,6 +1,7 @@
 {
     "parent": "block/block",
     "textures": {
+        "particle": "minecraft:blocks/water_flow",
         "0":  "minecraft:blocks/water_flow",
         "1": "minecraft:blocks/water_still"
     },
