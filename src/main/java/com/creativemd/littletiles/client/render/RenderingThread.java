@@ -213,11 +213,8 @@ public class RenderingThread extends Thread {
 										if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 										{
 											IBlockState state = cube.getBlockState();
-											if(state.getBlock() instanceof BlockLTTransparentColored && state.getValue(BlockLTTransparentColored.VARIANT) == EnumType.water)
-											{
-												//System.out.println("simulating water");
-												state = Blocks.WATER.getDefaultState();
-											}
+											if(state.getBlock() instanceof IFakeRenderingBlock)
+												state = ((IFakeRenderingBlock) state).getFakeState(state);
 											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
 										}
 										

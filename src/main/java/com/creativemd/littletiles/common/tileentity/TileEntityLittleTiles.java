@@ -47,6 +47,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.common.Optional.Method;
@@ -118,6 +119,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public boolean hasNeighborChanged;
 	
 	public int collisionChecks = 0;
+	
+	public final SideSolidCache sideCache = new SideSolidCache();
 	
 	public boolean shouldCheckForCollision()
 	{
@@ -364,6 +367,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		if(preventUpdate)
 			return ;
+		
+		sideCache.reset();
 		
 		updateCollisionCache();
 		
@@ -943,6 +948,119 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public Object getVoxelBlob(boolean force) throws Exception
 	{
 		return ChiselsAndBitsManager.getVoxelBlob(this, force);
+	}
+	
+	public class SideSolidCache
+	{
+		Boolean DOWN;
+		Boolean UP;
+		Boolean NORTH;
+		Boolean SOUTH;
+		Boolean WEST;
+		Boolean EAST;
+		
+		public void reset()
+		{
+			DOWN = null;
+			UP = null;
+			NORTH = null;
+			SOUTH = null;
+			WEST = null;
+			EAST = null;
+		}
+		
+		protected boolean calculate(EnumFacing facing)
+		{
+			LittleTileBox box;
+			switch(facing)
+			{
+			case EAST:
+				box = new LittleTileBox(LittleTile.gridSize-1, 0, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case WEST:
+				box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case UP:
+				box = new LittleTileBox(0, LittleTile.gridSize-1, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case DOWN:
+				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, 1, LittleTile.gridSize);
+				break;
+			case SOUTH:
+				box = new LittleTileBox(0, 0, LittleTile.gridSize-1, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				break;
+			case NORTH:
+				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, LittleTile.gridSize, 1);
+				break;
+			default:
+				box = null;
+				break;
+			}
+			return TileEntityLittleTiles.this.isBoxFilled(box);
+		}
+		
+		public boolean get(EnumFacing facing)
+		{
+			Boolean result;
+			
+			switch(facing)
+			{
+			case DOWN:
+				result = DOWN;
+				break;
+			case UP:
+				result = UP;
+				break;
+			case NORTH:
+				result = NORTH;
+				break;
+			case SOUTH:
+				result = SOUTH;
+				break;
+			case WEST:
+				result = WEST;
+				break;
+			case EAST:
+				result = EAST;
+				break;
+			default:
+				result = false;
+			}
+			
+			if(result == null)
+			{
+				result = calculate(facing);
+				set(facing, result);
+			}
+			
+			return result;
+		}
+		
+		public void set(EnumFacing facing, boolean value)
+		{
+			switch(facing)
+			{
+			case DOWN:
+				DOWN = value;
+				break;
+			case UP:
+				UP = value;
+				break;
+			case NORTH:
+				NORTH = value;
+				break;
+			case SOUTH:
+				SOUTH = value;
+				break;
+			case WEST:
+				WEST = value;
+				break;
+			case EAST:
+				EAST = value;
+				break;
+			}
+		}
+		
 	}
 	
 }

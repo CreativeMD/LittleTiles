@@ -5,7 +5,9 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.material.Material;
@@ -21,6 +23,11 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
 public interface ISpecialBlockHandler {
+	
+	public default boolean canBeConvertedToVanilla(LittleTileBlock tile)
+	{
+		return true;
+	}
 	
 	public default List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes)
 	{
@@ -47,9 +54,19 @@ public interface ISpecialBlockHandler {
 		return tile.getBlockState().getMaterial() == material;
 	}
 	
+	public default boolean isLiquid(LittleTileBlock tile)
+	{
+		return tile.getBlockState().getMaterial().isLiquid();
+	}
+	
 	public default Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion)
     {
         return null;
     }
+	
+	public default LittleTilePreview getPreview(LittleTileBlock tile)
+	{
+		return null;
+	}
 	
 }
