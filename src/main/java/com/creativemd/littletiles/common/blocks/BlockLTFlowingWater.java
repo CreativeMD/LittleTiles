@@ -6,11 +6,17 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.google.common.collect.Iterables;
 
 import net.minecraft.block.Block;
@@ -22,11 +28,15 @@ import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
@@ -48,7 +58,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler {
+public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, IFakeRenderingBlock {
 	
 	public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
 	
@@ -96,9 +106,9 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler {
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(Item itemIn, CreativeTabs tab, NonNullList<ItemStack> list)
     {
-		for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) {
-			list.add(new ItemStack(this, 1, i));
-		}
+		/*for (int i = 0; i < DIRECTION.getAllowedValues().size(); i++) {
+			items.add(new ItemStack(this, 1, i));
+		}*/
     }
 	
 	@Override
@@ -136,8 +146,87 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler {
 	}
 	
 	@Override
+	public boolean isLiquid(LittleTileBlock tile) {
+		return true;
+	}
+	
+	@Override
 	public Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion)
 	{
+		AxisAlignedBB box = entityIn.getEntityBoundingBox();
+		Vec3d center = new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos())); 
+		if(tile.box.isVecInsideBox(new LittleTileVec(center)))
+		{
+			double scale = 0.01;
+			Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
+			entityIn.motionX += vec.x * scale;
+			entityIn.motionY += vec.y * scale;
+			entityIn.motionZ += vec.z * scale;
+		}
 		return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
 	}
+	
+	@Override
+	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+		return false;
+	}
+
+	@Override
+	public IBlockState getFakeState(IBlockState state) {
+		return Blocks.FLOWING_WATER.getDefaultState();
+	}
+	
+	@Override
+	public LittleTilePreview getPreview(LittleTileBlock tile) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		tile.saveTileExtra(nbt);
+		nbt.setString("tID", tile.getID());		
+		return new LittleFlowingWaterPreview(tile.box.copy(), nbt);
+	}
+	
+	@Override
+	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state,
+			EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY,
+			float hitZ) {
+		if(hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket)
+		{
+			int meta = tile.getMeta() + 1;
+			if(meta > EnumFacing.VALUES.length)
+				tile.setBlock(LittleTiles.transparentColoredBlock, BlockLTTransparentColored.EnumType.water.ordinal());
+			else
+				tile.setMeta(meta);
+			tile.te.updateTiles();
+			return true;
+		}
+		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX,
+				hitY, hitZ);
+	}
+	
+	public static class LittleFlowingWaterPreview extends LittleTilePreview {
+		
+		public LittleFlowingWaterPreview(NBTTagCompound nbt) {
+			super(nbt);
+		}
+
+		public LittleFlowingWaterPreview(LittleTileBox box, NBTTagCompound tileData) {
+			super(box, tileData);
+		}
+		
+		
+		@Override
+		public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
+			super.rotatePreview(rotation, doubledCenter);
+			getTileData().setInteger("meta", RotationUtils.rotateFacing(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
+		}
+		
+		@Override
+		public void flipPreview(Axis axis, LittleTileVec doubledCenter) {
+			super.flipPreview(axis, doubledCenter);
+			EnumFacing facing = EnumFacing.getFront(getPreviewBlockMeta());
+			if(facing.getAxis() == axis)
+				facing = facing.getOpposite();
+			getTileData().setInteger("meta", facing.ordinal());
+		}
+	}
+	
 }

@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
@@ -51,6 +52,7 @@ public class LittleTileBlock extends LittleTile{
 	private void updateSpecialHandler()
 	{
 		handler = SpecialBlockHandler.getSpecialBlockHandler(block, meta);
+		updateBlockState();
 	}
 	
 	public boolean hasSpecialBlockHandler()
@@ -253,13 +255,15 @@ public class LittleTileBlock extends LittleTile{
 		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
 			return true;
 		if(hasSpecialBlockHandler())
-			return handler.onBlockActivated(this, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+			return handler.onBlockActivated(this, worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
 	}
 	
 	@Override
 	public boolean canBeConvertedToVanilla()
 	{
+		if(hasSpecialBlockHandler())
+			return handler.canBeConvertedToVanilla(this);
 		return true;
 	}
 	
@@ -330,6 +334,22 @@ public class LittleTileBlock extends LittleTile{
 			return handler.isMaterial(this, material);
 		return material == block.getMaterial(state);
 	}
+	
+	@Override
+	public boolean isLiquid()
+	{
+		if(hasSpecialBlockHandler())
+			return handler.isLiquid(this);
+		return getBlockState().getMaterial().isLiquid();
+	}
+	
+	@Override
+	public List<LittleTileBox> getCollisionBoxes()
+	{
+		if(hasSpecialBlockHandler())
+			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
+		return super.getCollisionBoxes();
+	}
 
 	@Override
 	public BlockIngredient getIngredient() {
@@ -341,5 +361,16 @@ public class LittleTileBlock extends LittleTile{
 		if(hasSpecialBlockHandler())
 			return handler.modifyAcceleration(this, entityIn, motion);
 		return super.modifyAcceleration(worldIn, pos, entityIn, motion);
+	}
+	
+	@Override
+	public LittleTilePreview getPreviewTile() {
+		if(hasSpecialBlockHandler())
+		{
+			LittleTilePreview preview = handler.getPreview(this);
+			if(preview != null)
+				return preview;
+		}
+		return super.getPreviewTile();
 	}
 }

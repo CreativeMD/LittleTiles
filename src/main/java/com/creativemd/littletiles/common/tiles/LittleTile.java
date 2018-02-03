@@ -777,6 +777,11 @@ public abstract class LittleTile {
 		return false;
 	}
 	
+	public boolean isLiquid()
+	{
+		return false;
+	}
+	
 	public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion)
     {
         return null;

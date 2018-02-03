@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -432,34 +433,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
-		{
-			LittleTileBox box = null;
-			switch(side)
-			{
-			case EAST:
-				box = new LittleTileBox(LittleTile.gridSize-1, 0, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-				break;
-			case WEST:
-				box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
-				break;
-			case UP:
-				box = new LittleTileBox(0, LittleTile.gridSize-1, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-				break;
-			case DOWN:
-				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, 1, LittleTile.gridSize);
-				break;
-			case SOUTH:
-				box = new LittleTileBox(0, 0, LittleTile.gridSize-1, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-				break;
-			case NORTH:
-				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, LittleTile.gridSize, 1);
-				break;
-			
-			default:
-				break;
-			}
-			return te.isBoxFilled(box);
-		}
+			return te.sideCache.get(side);
 		return false;
     }
 	
@@ -1082,7 +1056,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TileEntityLittleTiles te = loadTe(world, pos);
     	if(te != null)
     	{
-    		Vec3d vec = new Vec3d(0, 0, 0);
+    		Vec3d vec = Vec3d.ZERO;
 	    	for (LittleTile tile : te.getTiles()) {
 				if(tile.box.getBox(pos).intersectsWith(boundingBox))
 				{
@@ -1091,7 +1065,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 						vec = vec.add(tileMotion);
 				}
 			}
-	    	return motion.add(vec.normalize().scale(10));
+	    	return motion.add(vec);
     	}
         return motion;
     }
@@ -1112,6 +1086,20 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		{
 			for (LittleTile tile : te.getTiles()) {
 				if(tile.isMaterial(materialIn) && tile.box.getBox(pos).intersectsWith(boundingBox))
+					return true;
+			}
+		}
+        return false;
+    }
+    
+    @Override
+    public Boolean isAABBInsideLiquid(World world, BlockPos pos, AxisAlignedBB boundingBox)
+    {
+    	TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			for (LittleTile tile : te.getTiles()) {
+				if(tile.isLiquid() && tile.box.getBox(pos).intersects(boundingBox))
 					return true;
 			}
 		}
