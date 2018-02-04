@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -21,6 +22,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ISpecialBlockHandler {
 	
@@ -67,6 +70,12 @@ public interface ISpecialBlockHandler {
 	public default LittleTilePreview getPreview(LittleTileBlock tile)
 	{
 		return null;
+	}
+
+	@SideOnly(Side.CLIENT)
+	public default boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
+	{
+		return false;
 	}
 	
 }
