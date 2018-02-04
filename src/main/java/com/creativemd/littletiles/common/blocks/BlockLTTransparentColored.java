@@ -8,6 +8,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -183,6 +184,15 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 		}
 		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX,
 				hitY, hitZ);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
+	{
+		if(thisTile.getMeta() == EnumType.water.ordinal())
+			return tile.getBlock() == LittleTiles.flowingWater;			
+		return false;
 	}
 
 }

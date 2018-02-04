@@ -305,7 +305,7 @@ public class LittleTileBlock extends LittleTile{
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
-			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER;
+			return (block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER) || (hasSpecialBlockHandler() && handler.canBeRenderCombined(this, (LittleTileBlock) tile));
 		return false;
 	}
 	

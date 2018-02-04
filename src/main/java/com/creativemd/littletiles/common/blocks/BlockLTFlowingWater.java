@@ -202,6 +202,17 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 				hitY, hitZ);
 	}
 	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
+	{
+		if(tile.getBlock() == this)
+			return true;
+		if(tile.getBlock() == LittleTiles.transparentColoredBlock && tile.getMeta() == EnumType.water.ordinal())
+			return true;			
+		return false;
+	}
+	
 	public static class LittleFlowingWaterPreview extends LittleTilePreview {
 		
 		public LittleFlowingWaterPreview(NBTTagCompound nbt) {
