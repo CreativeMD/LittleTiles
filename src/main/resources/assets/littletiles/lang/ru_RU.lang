@@ -1,0 +1,66 @@
+item.LTHammer.name=Маленький молоток
+item.LTMultiTiles.name=Мульти-тайл структура
+item.LTRecipe.name=Маленький рецепт
+item.LTSaw.name=Маленькая пила
+item.LTContainer.name=Маленький контейнер
+item.LTWrench.name=Маленький гаечный ключ
+item.LTChisel.name=Маленькое долото
+item.LTScrewdriver.name=Маленькая отвертка
+item.LTRubberMallet.name=Маленький резиновый молоток
+item.LTColorTube.name=Маленькая кисть
+item.LTUtilityKnife.name=Маленький универсальный нож
+item.LTGrabber.name=Маленькая перчатка
+
+tile.LTParticleBlock.name=Маленький блок частиц
+tile.LTColoredBlock.clean.name=Чистый цветной блок 
+tile.LTColoredBlock.floor.name=Цветной блок пола
+tile.LTColoredBlock.grainy_big.name=Цветной крупнозернистый блок
+tile.LTColoredBlock.grainy.name=Цветной зернистый блок
+tile.LTColoredBlock.grainy_low.name=Цветно мелкозернистый блок
+tile.LTColoredBlock.brick.name=Цветной кирпичный блок
+tile.LTColoredBlock.bordered.name=Цветной ограненный блок
+tile.LTColoredBlock.brick_big.name=Цветной блок из большого кирпича
+tile.LTColoredBlock.structured.name=Цветной структурный блок
+tile.LTColoredBlock.broken_brick_big.name=Цветной блок из разбитого крупного кирпича
+tile.LTColoredBlock.clay.name=Цветной глиняный блок
+tile.LTColoredBlock.light_clean.name=Цветной светящийся чистый блок
+tile.LTColoredBlock.plank.name=Цветные деревянные доски
+tile.LTColoredBlock.lava.name=Блок лавы
+
+tile.LTTransparentColoredBlock.clean.name=Чистый цветной блок 
+tile.LTTransparentColoredBlock.thick.name=Толстый цветной блок
+tile.LTTransparentColoredBlock.thin.name=Тонкий цветной блок
+tile.LTTransparentColoredBlock.thinner.name=Тоньший цветной блок
+tile.LTTransparentColoredBlock.thinnest.name=Самый тонкий цветной блок
+tile.LTTransparentColoredBlock.water.name=Вода
+
+tile.LTStorageBlockTile.name=Блок малого хранилища
+
+key.categories.littletiles=Настройки LittleTiles
+
+itemGroup.littletiles=LittleTiles
+
+grabber.mode.pixel=Пиксельный режим
+grabber.mode.place_preview=Режим рецептов
+grabber.mode.replace=Режим замены
+
+action.tile.notthere=Тайл отсутствует
+action.tile.notfound=Тайл не найден
+action.tileentity.notfound=ТайлЭнтити не найдено
+action.structure.notloaded=Структура не загружена
+action.revert.notavailable=Действие не может быть отменено
+
+exception.ingredient.color=Недостаточно цвета
+exception.ingredient.volume=Недостаточно материала
+exception.ingredient.space.volume=Недостаточно места для материала
+exception.ingredient.space.color=Недостаточно места для цвета
+exception.ingredient.stack=Отсутствует
+exception.permission.edit=Вы не можете редактировать более чем %s блоков за раз
+exception.permission.place=Вы не можете ставить более чем %s блоков за раз
+
+color.unit.black=черный
+color.unit.red=красный
+color.unit.green=зеленый
+color.unit.blue=синий
+color.unit.single=единица
+color.unit.multiple=единицы
