@@ -1,3 +1,66 @@
 item.LTHammer.name=Little Hamer
 item.LTMultiTiles.name=Multi-Tile-Bouwwerk
 item.LTRecipe.name=Little Recept
+item.LTSaw.name=Little Zaag
+item.LTContainer.name=Little Container
+item.LTWrench.name=Little Moersleutel
+item.LTChisel.name=Little Beitel
+item.LTScrewdriver.name=Little Schroevendraaier
+item.LTRubberMallet.name=Little Rubberen Hammer
+item.LTColorTube.name=Little Verf Kwast
+item.LTUtilityKnife.name=Little Zakmes
+item.LTGrabber.name=Little Handschoen
+
+tile.LTParticleBlock.name=Little Deeltjes Blok
+tile.LTColoredBlock.clean.name=Gekleurde Blok Egaal
+tile.LTColoredBlock.floor.name=Gekleurde Blok Vloer
+tile.LTColoredBlock.grainy_big.name=Gekleurde Blok Korrelig Groot
+tile.LTColoredBlock.grainy.name=Gekleurde Blok Korrelig
+tile.LTColoredBlock.grainy_low.name=Gekleurde Blok Korrelig Laag
+tile.LTColoredBlock.brick.name=Gekleurde Blok Steen
+tile.LTColoredBlock.bordered.name=Gekleurde Blok Omzoomd
+tile.LTColoredBlock.brick_big.name=Gekleurde Blok Steen Groot
+tile.LTColoredBlock.structured.name=Gekleurde Blok Geordend
+tile.LTColoredBlock.broken_brick_big.name=Gekleurde Blok Gebroken Steen Groot
+tile.LTColoredBlock.clay.name=Gekleurde Blok Klei
+tile.LTColoredBlock.light_clean.name=Gekleurde Blok Helder
+tile.LTColoredBlock.plank.name=Gekleurde Houten Plank
+tile.LTColoredBlock.lava.name=Lava Blok
+
+tile.LTTransparentColoredBlock.clean.name=Gekleurde Blok Egaal
+tile.LTTransparentColoredBlock.thick.name=Gekleurde Blok Dik
+tile.LTTransparentColoredBlock.thin.name=Gekleurde Blok Dun
+tile.LTTransparentColoredBlock.thinner.name=Gekleurde Blok Dunner
+tile.LTTransparentColoredBlock.thinnest.name=Gekleurde Blok Dunst
+tile.LTTransparentColoredBlock.water.name=Water
+
+tile.LTStorageBlockTile.name=Little Opslag Blok
+
+key.categories.littletiles=LittleTiles Instellingen
+
+itemGroup.littletiles=LittleTiles
+
+grabber.mode.pixel=Pixel modus
+grabber.mode.place_preview=Bouwtekening Modus
+grabber.mode.replace=Vervang Modus
+
+action.tile.notthere=Tile ontbreekt
+action.tile.notfound=Tile niet gevonden
+action.tileentity.notfound=TileEntity niet gevonden
+action.structure.notloaded=Constructie is niet geladen
+action.revert.notavailable=Actie kan niet ongedaan worden gemaakt
+
+exception.ingredient.color=Niet genoeg kleur
+exception.ingredient.volume=Niet genoeg materiaal
+exception.ingredient.space.volume=Niet genoeg ruimte voor materiaal
+exception.ingredient.space.color=Niet genoeg ruimte voor kleur
+exception.ingredient.stack=Ontbrekend
+exception.permission.edit=Je mag niet meer dan %s blokken weizigen
+exception.permission.place=Je mag niet meer dan %s blokken plaatsen
+
+color.unit.black=zwart
+color.unit.red=rood
+color.unit.green=groen
+color.unit.blue=blauw
+color.unit.single=unit
+color.unit.multiple=units
