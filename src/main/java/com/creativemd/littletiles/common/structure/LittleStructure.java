@@ -222,7 +222,7 @@ public abstract class LittleStructure {
 		
 		BlockPos pos = null;
 
-		for (Iterator<TileEntityLittleTiles> iterator = tiles.getKeys().iterator(); iterator.hasNext();) {
+		for (Iterator<TileEntityLittleTiles> iterator = tiles.keySet().iterator(); iterator.hasNext();) {
 			iterator.next().combineTiles(this);
 		}
 	}
@@ -520,7 +520,7 @@ public abstract class LittleStructure {
 					return false;
 				int found = 0;
 				
-				if(tiles.getKeys().contains(tileEntity))
+				if(tiles.keySet().contains(tileEntity))
 					tiles.removeKey((TileEntityLittleTiles) tileEntity);
 				
 				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
@@ -621,7 +621,7 @@ public abstract class LittleStructure {
 			int y = pos.getY();
 			int z = pos.getZ();
 			
-			for (Iterator<TileEntityLittleTiles> iterator = tiles.getKeys().iterator(); iterator.hasNext();) {
+			for (Iterator<TileEntityLittleTiles> iterator = tiles.keySet().iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
 				x = Math.min(x, te.getPos().getX());
 				y = Math.min(y, te.getPos().getY());
@@ -695,7 +695,7 @@ public abstract class LittleStructure {
 		HashMapList<BlockPos, LittleTile> coords = getTilesSortedPerBlock();
 		if(coords.sizeOfValues() == 0)
 			return null;
-		for (BlockPos coord : coords.getKeys()) {
+		for (BlockPos coord : coords.keySet()) {
 			ArrayList<LittleTile> values = coords.getValues(coord);
 			for (int j = 0; j < values.size(); j++) {
 				LittleTileBox box = values.get(j).getCompleteBox();
@@ -737,7 +737,7 @@ public abstract class LittleStructure {
 		HashMapList<BlockPos, LittleTile> coords = getTilesSortedPerBlock();
 		if(coords.sizeOfValues() == 0)
 			return null;
-		for (BlockPos coord : coords.getKeys()) {
+		for (BlockPos coord : coords.keySet()) {
 			ArrayList<LittleTile> values = coords.getValues(coord);
 			for (int j = 0; j < values.size(); j++) {
 				LittleTileBox box = values.get(j).getCompleteBox();

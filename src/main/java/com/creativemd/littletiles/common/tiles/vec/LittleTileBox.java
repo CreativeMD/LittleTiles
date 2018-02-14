@@ -1251,7 +1251,7 @@ public class LittleTileBox {
 		}
 		boxes.clear();
 		BasicCombiner combiner = new BasicCombiner();
-		for (Iterator<ArrayList<LittleTileBox>> iterator = chunked.getValues().iterator(); iterator.hasNext();) {
+		for (Iterator<ArrayList<LittleTileBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
 			ArrayList<LittleTileBox> list = iterator.next();
 			combiner.combineBox(list);
 			boxes.addAll(list);

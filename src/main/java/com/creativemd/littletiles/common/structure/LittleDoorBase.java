@@ -79,7 +79,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, ArrayList<PlacePreviewTile> previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTileVec absolute, LittleTileVec additional)
 	{
 		HashMapList<BlockPos, PlacePreviewTile> splitted = LittleActionPlaceRelative.getSplittedTiles(previews, pos);
-		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, new ArrayList<>(splitted.getKeys()), false))
+		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, new ArrayList<>(splitted.keySet()), false))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = WorldFake.createFakeWorld(world);

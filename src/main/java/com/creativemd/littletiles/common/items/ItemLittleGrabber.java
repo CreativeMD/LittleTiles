@@ -21,6 +21,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
@@ -31,6 +32,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
+import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber.PlacePreviewMode;
@@ -65,6 +67,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -434,30 +437,50 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				@Override
 				public void createControls() {
 					super.createControls();
-					LittleTilePreview preview = getPreview(stack);
+					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					size = preview.box.getSize();
 					
-					controls.add(new GuiSteppedSlider("sizeX", 25, 30, 50, 14, size.sizeX, 1, LittleTile.gridSize));
-					controls.add(new GuiSteppedSlider("sizeY", 25, 50, 50, 14, size.sizeY, 1, LittleTile.gridSize));
-					controls.add(new GuiSteppedSlider("sizeZ", 25, 70, 50, 14, size.sizeZ, 1, LittleTile.gridSize));
+					controls.add(new GuiSteppedSlider("sizeX", 25, 20, 50, 10, size.sizeX, 1, LittleTile.gridSize));
+					controls.add(new GuiSteppedSlider("sizeY", 25, 35, 50, 10, size.sizeY, 1, LittleTile.gridSize));
+					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.sizeZ, 1, LittleTile.gridSize));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
 					color.setAlpha(255);
-					controls.add(new GuiColorPicker("picker", 0, 95, color));
+					controls.add(new GuiColorPicker("picker", 0, 70, color));
 					
-					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 40, 0, null);
+					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
 					label.name = "avatar";
 					label.height = 60;
 					label.avatarSize = 32;
 					controls.add(label);
+					
+					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 110, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
+					selector.setSelectedForce(preview.getBlockIngredient().getItemStack());
+					controls.add(selector);
+					
 					updateLabel();
+				}
+				
+				public LittleTilePreview getPreview()
+				{
+					GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
+					ItemStack selected = selector.getSelected();
+					
+					if(!selected.isEmpty() && selected.getItem() instanceof ItemBlock)
+					{
+						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+						tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+						return tile.getPreviewTile();
+					}
+					else
+						return ItemLittleGrabber.SimpleMode.getPreview(stack);
 				}
 				
 				public void updateLabel()
 				{
 					GuiAvatarLabel label = (GuiAvatarLabel) get("avatar");
 					
-					LittleTilePreview preview = getPreview(stack);
+					LittleTilePreview preview = getPreview();
 					
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
@@ -506,7 +529,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 
 				@Override
 				public void saveChanges() {
-					LittleTilePreview preview = getPreview(stack);
+					LittleTilePreview preview = getPreview();
 					preview.box.set(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, size.sizeX, size.sizeY, size.sizeZ);
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));

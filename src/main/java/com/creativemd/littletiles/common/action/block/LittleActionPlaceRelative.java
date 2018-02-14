@@ -183,10 +183,10 @@ public class LittleActionPlaceRelative extends LittleAction {
 		ArrayList<BlockPos> coordsToCheck = new ArrayList<BlockPos>();
 		if(structure != null || placeAll)
 		{
-			coordsToCheck.addAll(splitted.getKeys());
+			coordsToCheck.addAll(splitted.keySet());
 		}else{
 			if(forced)
-				coordsToCheck.addAll(splitted.getKeys());
+				coordsToCheck.addAll(splitted.keySet());
 			else
 				coordsToCheck.add(pos);
 		}
@@ -198,7 +198,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 			ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
 			ArrayList<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
 			
-			for (BlockPos coord : splitted.getKeys()) {
+			for (BlockPos coord : splitted.keySet()) {
 				ArrayList<PlacePreviewTile> placeTiles = splitted.getValues(coord);
 				boolean hascollideBlock = false;
 				int i = 0;

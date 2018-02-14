@@ -10,12 +10,11 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.gui.controls.gui.GuiColorPlate;
-import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemStackSelector;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiInvSelector.StackSelector;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelector;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.SearchSelector;
+import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
@@ -25,10 +24,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.selection.AnySelector;
 import com.creativemd.littletiles.common.utils.selection.BlockSelector;
 import com.creativemd.littletiles.common.utils.selection.StateSelector;
@@ -37,13 +34,10 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.text.TextComponentString;
 
 public class SubGuiScrewdriver extends SubGui {
@@ -61,7 +55,7 @@ public class SubGuiScrewdriver extends SubGui {
 			stack.setTagCompound(new NBTTagCompound());
 		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
-		controls.add(new GuiInvSelector("filter", 40, 5, 130, container.player, new LittleTileBlockSelector()));
+		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer())));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
 		
@@ -69,7 +63,7 @@ public class SubGuiScrewdriver extends SubGui {
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
-		controls.add(new GuiInvSelector("replacement", 40, 87, 130, container.player, new LittleTileBlockSelector()));
+		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer())));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
@@ -120,16 +114,16 @@ public class SubGuiScrewdriver extends SubGui {
 	{
 		if(event.source.is("search"))
 		{
-			GuiInvSelector inv = (GuiInvSelector) get("filter");
-			((LittleTileBlockSelector) inv.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
-			inv.updateItems(container.player);
+			GuiStackSelectorAll inv = (GuiStackSelectorAll) get("filter");
+			((SearchSelector) inv.collector.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
+			inv.updateCollectedStacks();
 			inv.closeBox();
 		}
 		if(event.source.is("search2"))
 		{
-			GuiInvSelector inv = (GuiInvSelector) get("replacement");
-			((LittleTileBlockSelector) inv.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
-			inv.updateItems(container.player);
+			GuiStackSelectorAll inv = (GuiStackSelectorAll) get("replacement");
+			((SearchSelector) inv.collector.selector).search = ((GuiTextfield)event.source).text.toLowerCase();
+			inv.updateCollectedStacks();
 			inv.closeBox();
 		}
 	}
@@ -144,8 +138,8 @@ public class SubGuiScrewdriver extends SubGui {
 			selector = new AnySelector();
 		else
 		{
-			GuiInvSelector filter = (GuiInvSelector) get("filter");
-			ItemStack stackFilter = filter.getStack();
+			GuiStackSelectorAll filter = (GuiStackSelectorAll) get("filter");
+			ItemStack stackFilter = filter.getSelected();
 			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 			boolean meta = ((GuiCheckBox)get("meta")).value;
 			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
@@ -163,8 +157,8 @@ public class SubGuiScrewdriver extends SubGui {
 			
 			if(replace)
 			{
-				GuiInvSelector replacement = (GuiInvSelector) get("replacement");
-				ItemStack stackReplace = replacement.getStack();
+				GuiStackSelectorAll replacement = (GuiStackSelectorAll) get("replacement");
+				ItemStack stackReplace = replacement.getSelected();
 				if(stackReplace != null)
 				{
 					Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
@@ -200,21 +194,6 @@ public class SubGuiScrewdriver extends SubGui {
 			openButtonDialogDialog("You have to select a task!", "ok");
 		
 		return null;		
-	}
-	
-	public static class LittleTileBlockSelector extends StackSelector {
-		
-		public String search = "";
-		
-		@Override
-		public boolean allow(ItemStack stack)
-		{
-			Block block = Block.getBlockFromItem(stack.getItem());
-			if(block != null && !(block instanceof BlockAir))
-				return SubContainerGrabber.isBlockValid(block) && GuiItemStackSelector.shouldShowItem(false, search, stack);
-			return false;
-		}
-		
 	}
 
 }

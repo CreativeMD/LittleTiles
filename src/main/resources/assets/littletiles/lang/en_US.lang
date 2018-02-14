@@ -64,3 +64,5 @@ color.unit.green=green
 color.unit.blue=blue
 color.unit.single=unit
 color.unit.multiple=units
+
+selector.ingredients=Ingredients
