@@ -31,7 +31,7 @@ public class LittleNBTCompressionTools {
 		
 		NBTTagList list = new NBTTagList();
 		
-		for (Iterator<ArrayList<LittleTile>> iterator = groups.getValues().iterator(); iterator.hasNext();) {
+		for (Iterator<ArrayList<LittleTile>> iterator = groups.values().iterator(); iterator.hasNext();) {
 			ArrayList<LittleTile> classList = iterator.next();
 			
 			while(classList.size() > 0)
@@ -103,7 +103,7 @@ public class LittleNBTCompressionTools {
 		
 		NBTTagList list = new NBTTagList();
 		
-		for (Iterator<ArrayList<LittleTilePreview>> iterator = groups.getValues().iterator(); iterator.hasNext();) {
+		for (Iterator<ArrayList<LittleTilePreview>> iterator = groups.values().iterator(); iterator.hasNext();) {
 			ArrayList<LittleTilePreview> classList = iterator.next();
 			
 			while(classList.size() > 0)

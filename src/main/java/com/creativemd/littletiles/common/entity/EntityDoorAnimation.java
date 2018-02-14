@@ -175,7 +175,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 						if(world.isRemote)
 						{
 							waitingForRender = new ArrayList<>();
-							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews, baseOffset).getKeys());
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews, baseOffset).keySet());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 								if(te instanceof TileEntityLittleTiles)
