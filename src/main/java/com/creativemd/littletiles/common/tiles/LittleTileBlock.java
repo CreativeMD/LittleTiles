@@ -342,14 +342,6 @@ public class LittleTileBlock extends LittleTile{
 			return handler.isLiquid(this);
 		return getBlockState().getMaterial().isLiquid();
 	}
-	
-	@Override
-	public List<LittleTileBox> getCollisionBoxes()
-	{
-		if(hasSpecialBlockHandler())
-			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
-		return super.getCollisionBoxes();
-	}
 
 	@Override
 	public BlockIngredient getIngredient() {

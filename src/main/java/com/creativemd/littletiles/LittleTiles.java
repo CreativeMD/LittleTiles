@@ -221,6 +221,8 @@ public class LittleTiles {
 		GameRegistry.register(multiTiles);
 		GameRegistry.register(utilityKnife);
 		
+		GameRegistry.register(flowingWater);
+		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		

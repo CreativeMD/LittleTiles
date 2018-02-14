@@ -159,9 +159,9 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		{
 			double scale = 0.01;
 			Vec3d vec = new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec()).normalize();
-			entityIn.motionX += vec.x * scale;
-			entityIn.motionY += vec.y * scale;
-			entityIn.motionZ += vec.z * scale;
+			entityIn.motionX += vec.xCoord * scale;
+			entityIn.motionY += vec.yCoord * scale;
+			entityIn.motionZ += vec.zCoord * scale;
 		}
 		return new Vec3d(tile.getBlockState().getValue(DIRECTION).getDirectionVec());
 	}

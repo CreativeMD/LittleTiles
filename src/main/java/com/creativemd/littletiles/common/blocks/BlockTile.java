@@ -526,7 +526,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	return true;
     }
     
-    @Override
     public boolean addRunningEffects(IBlockState state, World world, BlockPos pos, Entity entity)
     {
     	TileEntityLittleTiles te = loadTe(world, pos);
@@ -1120,14 +1119,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
         return false;
     }
     
-    @Override
+    
     public Boolean isAABBInsideLiquid(World world, BlockPos pos, AxisAlignedBB boundingBox)
     {
     	TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
 		{
 			for (LittleTile tile : te.getTiles()) {
-				if(tile.isLiquid() && tile.box.getBox(pos).intersects(boundingBox))
+				if(tile.isLiquid() && tile.box.getBox(pos).intersectsWith(boundingBox))
 					return true;
 			}
 		}
