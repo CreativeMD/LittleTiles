@@ -119,7 +119,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					{
 						destroyedStructures.add(new StructurePreview(tile.structure));
 						ItemStack drop = tile.structure.getStructureDrop();
-						if(needIngredients(player) && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
+						if(needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
 							WorldUtils.dropItem(player.world, drop, tile.te.getPos());
 						
 						tile.destroy();
@@ -165,7 +165,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	@Override
 	public LittleAction revert() {
 		boolean additionalPreviews = previews.size() > 0;
-		LittleAction[] actions = new LittleAction[additionalPreviews ? 1 : 0 + destroyedStructures.size()];
+		LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
 		if(additionalPreviews)
 			actions[0] = new LittleActionPlaceAbsolute(previews, null, false, true, true);
 		for (int i = 0; i < destroyedStructures.size(); i++) {
