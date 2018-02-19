@@ -213,7 +213,7 @@ public class RenderingThread extends Thread {
 										{
 											IBlockState state = cube.getBlockState();
 											if(state.getBlock() instanceof IFakeRenderingBlock)
-												state = ((IFakeRenderingBlock) state).getFakeState(state);
+												state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
 											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
 										}
 										
