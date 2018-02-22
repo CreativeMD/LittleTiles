@@ -400,6 +400,13 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	public void onClickAir(EntityPlayer player, ItemStack stack)
+	{
+		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);

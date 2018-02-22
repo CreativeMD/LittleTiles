@@ -61,6 +61,7 @@ import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
@@ -115,6 +116,19 @@ public class LittleEvent {
 				return iTile.onMouseWheelClickBlock(player, stack, result);
 		}
 		return false;
+	}
+	
+	@SubscribeEvent
+	public void onLeftClickAir(LeftClickEmpty event)
+	{
+		if(event.getWorld().isRemote)
+		{
+			ItemStack stack = event.getItemStack();
+			ILittleTile iLittleTile = PlacementHelper.getLittleInterface(stack);
+			
+			if(iLittleTile != null)
+				iLittleTile.onClickAir(event.getEntityPlayer(), stack);
+		}
 	}
 	
 	@SubscribeEvent

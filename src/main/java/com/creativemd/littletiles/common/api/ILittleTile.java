@@ -77,6 +77,9 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
+	public default void onClickAir(EntityPlayer player, ItemStack stack) {}
+	
+	@SideOnly(Side.CLIENT)
 	public default void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {}
 	
 	@SideOnly(Side.CLIENT)

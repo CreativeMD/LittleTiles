@@ -207,6 +207,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	@Override
 	@SideOnly(Side.CLIENT)
+	public void onClickAir(EntityPlayer player, ItemStack stack)
+	{
+		getMode(stack).onClickBlock(player, stack, null);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
 		getMode(stack).onClickBlock(player, stack, result);
@@ -292,7 +299,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
+		public void onClickBlock(EntityPlayer player, ItemStack stack, @Nullable RayTraceResult result)
 		{
 			GuiHandler.openGui("grabber", new NBTTagCompound(), player);
 		}
