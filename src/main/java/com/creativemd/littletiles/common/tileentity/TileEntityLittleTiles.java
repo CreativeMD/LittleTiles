@@ -9,6 +9,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
@@ -31,6 +33,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
@@ -1061,6 +1064,28 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			}
 		}
 		
+	}
+
+	@Override
+	@Nullable
+	public IBlockState getState(AxisAlignedBB box, boolean realistic) {
+		if(realistic)
+		{
+			box = box.expand(0, LittleTile.gridMCLength, 0);
+			for (LittleTile tile : tiles) {
+				if(tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
+					return ((LittleTileBlock) tile).getBlockState();
+			}
+			return null;
+		}
+		box = box.expand(0, -1, 0);
+		LittleTileBlock highest = null;
+		for (LittleTile tile : tiles) {
+			if(tile instanceof LittleTileBlock && (highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersects(box))
+				highest = (LittleTileBlock) tile;
+				
+		}
+		return highest != null ? highest.getBlockState() : null;
 	}
 	
 }
