@@ -15,6 +15,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -49,7 +50,7 @@ import shadersmod.client.SVertexBuilder;
 public class RenderingThread extends Thread {
 	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	public ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
+	public static ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
 	
 	//private static World lastWorld;
 	
@@ -59,9 +60,10 @@ public class RenderingThread extends Thread {
 	
 	public static void addCoordToUpdate(TileEntityLittleTiles te, double distanceSq, boolean requiresUpdate)
 	{
-		RenderingThread renderer = nearbyRenderer;
-		if(distanceSq > nearbyRenderDistance)
-			renderer = distanceRenderer;
+		//RenderingThread renderer = nearbyRenderer;
+		//if(distanceSq > nearbyRenderDistance)
+			//renderer = distanceRenderer;
+		RenderingThread renderer = getNextThread();
 		if(!te.rendering.get())
 		{
 			te.rendering.set(true);
@@ -98,8 +100,58 @@ public class RenderingThread extends Thread {
 		
 	}
 	
-	public static RenderingThread nearbyRenderer = new RenderingThread();
-	public static RenderingThread distanceRenderer = new RenderingThread();
+	public static List<RenderingThread> threads;
+	
+	static
+	{
+		initThreads(LittleTilesConfig.rendering.renderingThreadCount);
+	}
+	
+	private static int threadIndex;
+	
+	public static RenderingThread getNextThread()
+	{
+		RenderingThread thread = threads.get(threadIndex);
+		threadIndex++;
+		if(threadIndex >= threads.size())
+			threadIndex = 0;
+		return thread;
+	}
+	
+	public static void initThreads(int count)
+	{
+		if(count <= 0)
+			throw new IllegalArgumentException("count has to be at least equal or greater than one");
+		if(threads != null)
+		{
+			for (RenderingThread thread : threads) {
+				thread.active = false;
+			}
+			
+			for (RenderingThread thread : threads) {
+				int i = 0;
+				while(thread.isAlive() && i < 10000)
+				{
+					i++;
+					try {
+						sleep(1);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				while(thread.updateCoords.size() > 0)
+					thread.updateCoords.poll().te.rendering.set(false);
+			}
+		}
+		threadIndex = 0;
+		threads = new ArrayList<>();
+		for (int i = 0; i < count; i++) {
+			threads.add(new RenderingThread());
+		}
+	}
+	
+	//public static RenderingThread nearbyRenderer = new RenderingThread();
+	//public static RenderingThread distanceRenderer = new RenderingThread();
 	
 	public RenderingThread() {
 		start();
@@ -342,8 +394,18 @@ public class RenderingThread extends Thread {
 			}
 			
 			synchronized (chunks){
-				if(distanceRenderer.updateCoords.size() == 0 && nearbyRenderer.updateCoords.size() == 0)
+				boolean finished = true;
+				for (RenderingThread thread : threads) {
+					if(thread.updateCoords.size() > 0)
+					{
+						finished = false;
+						break;
+					}
+				}
+				if(finished)
 					chunks.clear();
+				//if(distanceRenderer.updateCoords.size() == 0 && nearbyRenderer.updateCoords.size() == 0)
+					//chunks.clear();
 				
 				AtomicInteger count = chunks.get(chunk);
 				if(count != null)
