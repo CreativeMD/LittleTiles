@@ -8,6 +8,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -117,12 +118,18 @@ public class LittleTilesConfig {
 		@Config.Comment("Whether the particle block is visible or not")
 		public boolean hideParticleBlock = false;
 		
+		@Config.Name("renderingThreadCount")
+		@Config.LangKey("config.littletiles.renderingThreadCount")
+		@Config.Comment("Number of threads for rendering blocks")
+		public int renderingThreadCount = 2;
+		
 	}
 	
 	@SubscribeEvent
 	public static void onConfigChanged(ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(LittleTiles.modid)) {
 			ConfigManager.sync(LittleTiles.modid, Config.Type.INSTANCE);
+			RenderingThread.initThreads(rendering.renderingThreadCount);
 		}
 	}
 }
