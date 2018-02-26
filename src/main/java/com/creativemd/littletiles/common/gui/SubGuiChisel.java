@@ -12,6 +12,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -28,45 +29,11 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubGuiChisel extends SubGui {
-	
-	public ItemStack stack;
+public class SubGuiChisel extends SubGuiConfigure {
 	
 	public SubGuiChisel(ItemStack stack) {
-		super(140, 150);
+		super(140, 150, stack);
 		this.stack = stack;
-	}
-	
-	@Override
-	public void onClosed() {
-		GuiComboBox box = (GuiComboBox) get("shape");
-		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		DragShape shape = DragShape.getShape(box.caption);
-		
-		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
-		
-		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
-		ItemStack selected = selector.getSelected();
-		
-		if(!selected.isEmpty() && selected.getItem() instanceof ItemBlock)
-		{
-			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
-			tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
-			preview = tile.getPreviewTile();
-		}
-		else
-			preview = ItemLittleChisel.getPreview(stack);
-		
-		preview.setColor(ColorUtils.RGBAToInt(picker.color));
-		
-		ItemLittleChisel.setPreview(stack, preview);
-		ItemLittleChisel.setShape(stack, shape);
-		
-		shape.saveCustomSettings(scroll, stack.getTagCompound());
-		sendPacketToServer(stack.getTagCompound());
-		
-		super.onClosed();
 	}
 
 	@Override
@@ -103,5 +70,34 @@ public class SubGuiChisel extends SubGui {
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound()));
 		scroll.refreshControls();
+	}
+
+	@Override
+	public void saveConfiguration() {
+		GuiComboBox box = (GuiComboBox) get("shape");
+		GuiScrollBox scroll = (GuiScrollBox) get("settings");
+		DragShape shape = DragShape.getShape(box.caption);
+		
+		GuiColorPicker picker = (GuiColorPicker) get("picker");
+		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		
+		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
+		ItemStack selected = selector.getSelected();
+		
+		if(!selected.isEmpty() && selected.getItem() instanceof ItemBlock)
+		{
+			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+			tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+			preview = tile.getPreviewTile();
+		}
+		else
+			preview = ItemLittleChisel.getPreview(stack);
+		
+		preview.setColor(ColorUtils.RGBAToInt(picker.color));
+		
+		ItemLittleChisel.setPreview(stack, preview);
+		ItemLittleChisel.setShape(stack, shape);
+		
+		shape.saveCustomSettings(scroll, stack.getTagCompound());
 	}
 }

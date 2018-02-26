@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -300,9 +301,10 @@ public class PlacementHelper {
 			
 			result.size = getSize(tiles);
 			
+			PlacementMode mode = iTile.getPlacementMode(stack);
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
-			if(tiles.size() == 1) //Will only be used if it's the only preview trying to be placed
+			if(tiles.size() == 1)
 			{
 				shifthandlers.addAll(tiles.get(0).fixedhandlers);
 				shifthandlers.add(new InsideFixedHandler());
@@ -310,7 +312,7 @@ public class PlacementHelper {
 				centered = true;
 			}
 			
-			result.box = getTilesBox(hit, result.size, centered, facing);
+			result.box = getTilesBox(hit, result.size, centered, facing, mode);
 			
 			boolean canBePlaceFixed = false;
 			
@@ -322,16 +324,19 @@ public class PlacementHelper {
 					if(block.isReplaceable(world, pos) || block instanceof BlockTile)
 					{
 						canBePlaceFixed = true;
-						TileEntity te = world.getTileEntity(pos);
-						if(te instanceof TileEntityLittleTiles)
+						if(mode.mode == SelectionMode.PREVIEWS)
 						{
-							TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
-							for (int i = 0; i < tiles.size(); i++) {
-								LittleTilePreview tile = tiles.get(i);
-								if(!teTiles.isSpaceForLittleTile(tile.box))
-								{
-									canBePlaceFixed = false;
-									break;
+							TileEntity te = world.getTileEntity(pos);
+							if(te instanceof TileEntityLittleTiles)
+							{
+								TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
+								for (int i = 0; i < tiles.size(); i++) {
+									LittleTilePreview tile = tiles.get(i);
+									if(!teTiles.isSpaceForLittleTile(tile.box))
+									{
+										canBePlaceFixed = false;
+										break;
+									}
 								}
 							}
 						}
@@ -376,7 +381,12 @@ public class PlacementHelper {
 				{
 					PlacePreviewTile preview = tile.getPlaceableTile(result.box, canBePlaceFixed, offset);
 					if(preview != null)
+					{
+						if((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == SelectionMode.LINES)
+							if(hit.getAxis(facing.getAxis()) % LittleTile.gridSize == 0)
+								preview.box.addOffset(facing.getOpposite().getDirectionVec());
 						result.placePreviews.add(preview);
+					}
 				}
 			}
 			
@@ -411,13 +421,16 @@ public class PlacementHelper {
 		return null;
 	}
 	
-	public static LittleTileBox getTilesBox(LittleTileVec hit, LittleTileSize size, boolean centered, @Nullable EnumFacing facing)
+	public static LittleTileBox getTilesBox(LittleTileVec hit, LittleTileSize size, boolean centered, @Nullable EnumFacing facing, PlacementMode mode)
 	{
 		LittleTileVec temp = hit.copy();
 		if(centered)
 		{
 			LittleTileVec center = size.calculateCenter();
 			LittleTileVec centerInv = size.calculateInvertedCenter();
+			
+			if(mode.mode == SelectionMode.LINES)
+				facing = facing.getOpposite();
 			
 			//Make hit the center of the Box
 			switch(facing)

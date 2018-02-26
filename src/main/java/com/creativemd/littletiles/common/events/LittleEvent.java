@@ -6,6 +6,12 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.gui.GuiRenderHelper;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.mc.GuiContainerSub;
+import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.gui.premade.SubContainerEmpty;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
@@ -26,6 +32,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -67,6 +74,7 @@ import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -278,12 +286,15 @@ public class LittleEvent {
 		if(iTile.onRightClick(player, stack, Minecraft.getMinecraft().objectMouseOver))
 		{
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
-	        {
+			{
+				PlacementMode mode = iTile.getPlacementMode(stack).place();
+				
 				if(iTile.arePreviewsAbsolute())
-				{
-					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false, false), true).execute();
-				}else if(new LittleActionPlaceRelative(PreviewRenderer.markedPosition != null ? PreviewRenderer.markedPosition : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), GuiScreen.isCtrlKeyDown()).execute())
-					PreviewRenderer.markedPosition = null;
+					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false, false), iTile.getLittleStructure(stack), mode, true).execute();
+				else
+					new LittleActionPlaceRelative(PreviewRenderer.markedPosition != null ? PreviewRenderer.markedPosition : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
+				
+				PreviewRenderer.markedPosition = null;
 	        }
 			iTile.onDeselect(player, stack);
 		}
@@ -320,10 +331,7 @@ public class LittleEvent {
 	            if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos))
 	            {
 	            	GlStateManager.glLineWidth(1.0F);
-	                double d3 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
-	                double d4 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
-	                double d5 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
-	                RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d3, -d4, -d5), 0.0F, 0.0F, 0.0F, 0.4F);
+	                RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 	            }
 	            
 				GlStateManager.depthMask(true);
@@ -444,6 +452,17 @@ public class LittleEvent {
 					}
 					
 					lastSelectedItem = null;
+				}
+				
+				if(LittleTilesClient.configure.isPressed())
+				{
+					ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+					if(iTile != null)
+					{
+						SubGui gui = iTile.getConfigureGUI(mc.player, stack);
+						if(gui != null)
+							GuiHandler.openGui("configure", new NBTTagCompound());
+					}
 				}
 			}
 		}		

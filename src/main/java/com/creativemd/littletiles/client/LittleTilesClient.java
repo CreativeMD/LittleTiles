@@ -69,6 +69,7 @@ public class LittleTilesClient extends LittleTilesServer{
 	
 	public static KeyBinding flip;	
 	public static KeyBinding mark;
+	public static KeyBinding configure;
 	public static KeyBinding up;
 	public static KeyBinding down;
 	public static KeyBinding right;
@@ -131,8 +132,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		right = new KeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
 		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
 		
-		flip = new KeyBinding("key.flip", Keyboard.KEY_G, "key.categories.littletiles");
+		flip = new KeyBinding("key.little.flip", Keyboard.KEY_G, "key.categories.littletiles");
 		mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
+		configure = new KeyBinding("key.little.config", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_C, "key.categories.littletiles");
 		
 		undo = new KeyBinding("key.little.undo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Z, "key.categories.littletiles");
 		redo = new KeyBinding("key.little.redo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Y, "key.categories.littletiles");
@@ -143,6 +145,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		ClientRegistry.registerKeyBinding(left);
 		ClientRegistry.registerKeyBinding(flip);
 		ClientRegistry.registerKeyBinding(mark);
+		ClientRegistry.registerKeyBinding(configure);
 		
 		ClientRegistry.registerKeyBinding(undo);
 		ClientRegistry.registerKeyBinding(redo);

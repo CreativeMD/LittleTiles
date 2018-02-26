@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -78,7 +79,7 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
+	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest)
 	{
 		if(structure instanceof LittleDoor)
 		{
@@ -94,12 +95,5 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		}
 		return Collections.EMPTY_LIST;
 	}
-	
-	/*@Override
-	public boolean split(HashMapList<ChunkCoordinates, PreviewTile> tiles, int x, int y, int z)
-	{
-		tiles.add(new ChunkCoordinates(x, y, z), this);
-		return true;
-	}*/
 
 }

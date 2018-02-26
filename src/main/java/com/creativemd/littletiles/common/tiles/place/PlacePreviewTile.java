@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.jcraft.jorbis.Block;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -59,69 +60,29 @@ public class PlacePreviewTile {
 		return previews;
 	}
 	
-	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing, boolean requiresCollisionTest)
+	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, TileEntityLittleTiles te, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest)
 	{
-		LittleTile LT = preview.getLittleTile(teLT);
+		LittleTile LT = preview.getLittleTile(te);
 		
 		if(LT == null)
 			return Collections.EMPTY_LIST;
 		
 		LT.box = box.copy();
 		
-		if(structure != null)
-		{
-			LT.isStructureBlock = true;
-			LT.structure = structure;
-			structure.addTile(LT);
+		List<LittleTile> tiles = mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
+		
+		for (LittleTile tile : tiles) {
+			if(structure != null)
+			{
+				tile.isStructureBlock = true;
+				tile.structure = structure;
+				structure.addTile(tile);
+			}
+			tile.place();
+			tile.onPlaced(player, stack, facing);
 		}
 		
-		if(!requiresCollisionTest || teLT.isSpaceForLittleTile(box))
-		{
-			ArrayList<LittleTile> tiles = new ArrayList<>();
-			LT.place();
-			LT.onPlaced(player, stack, facing);
-			tiles.add(LT);
-			return tiles;
-		}else if(forced){
-			ArrayList<LittleTile> tiles = new ArrayList<>();
-			ArrayList<LittleTileBox> newBoxes = new ArrayList<>();
-			ArrayList<LittleTileBox> unplaceableBoxes = new ArrayList<>();
-			for (int littleX = box.minX; littleX < box.maxX; littleX++) {
-				for (int littleY = box.minY; littleY < box.maxY; littleY++) {
-					for (int littleZ = box.minZ; littleZ < box.maxZ; littleZ++) {
-						LittleTileBox newBox = box.extractBox(littleX, littleY, littleZ);
-						if(newBox != null)
-						{
-							if(teLT.isSpaceForLittleTile(newBox))
-								newBoxes.add(newBox);
-							else
-								unplaceableBoxes.add(newBox);
-						}
-					}
-				}
-			}
-			
-			BasicCombiner.combineBoxes(newBoxes);
-			for (int i = 0; i < newBoxes.size(); i++) {
-				LittleTile newTile = LT.copy();
-				newTile.box = newBoxes.get(i);
-				newTile.place();
-				newTile.onPlaced(player, stack, facing);
-				tiles.add(newTile);
-			}
-			
-			BasicCombiner.combineBoxes(unplaceableBoxes);
-			for (int i = 0; i < unplaceableBoxes.size(); i++) {
-				LittleTile newTile = LT.copy();
-				newTile.box = unplaceableBoxes.get(i);
-				unplaceableTiles.add(newTile);
-			}
-			
-			return tiles;			
-		}else if(unplaceableTiles != null){
-			unplaceableTiles.add(LT);
-		}
-		return Collections.EMPTY_LIST;
+		return tiles;
 	}
 	
 	public boolean split(HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)
@@ -138,85 +99,6 @@ public class PlacePreviewTile {
 				tiles.add(entry.getKey().add(pos), tile);
 			}
 		}
-		
-		/*LittleTileSize size = box.getSize();
-		
-		int offX = box.minX/LittleTile.gridSize;
-		if(box.minX < 0)
-			offX = (int) Math.floor(box.minX/(double)LittleTile.gridSize);
-		int offY = box.minY/LittleTile.gridSize;
-		if(box.minY < 0)
-			offY = (int) Math.floor(box.minY/(double)LittleTile.gridSize);
-		int offZ = box.minZ/LittleTile.gridSize;
-		if(box.minZ < 0)
-			offZ = (int) Math.floor(box.minZ/(double)LittleTile.gridSize);
-		
-		int posX = pos.getX()+offX;
-		int posY = pos.getY()+offY;
-		int posZ = pos.getZ()+offZ;
-		
-		int spaceX = box.minX-offX*LittleTile.gridSize;
-		int spaceY = box.minY-offY*LittleTile.gridSize;
-		int spaceZ = box.minZ-offZ*LittleTile.gridSize;
-		
-		for (int i = 0; spaceX+size.sizeX > i*LittleTile.gridSize; i++) {
-			posY = pos.getY()+offY;
-			for (int j = 0; spaceY+size.sizeY > j*LittleTile.gridSize; j++) {
-				posZ = pos.getZ()+offZ;
-				for (int h = 0; spaceZ+size.sizeZ > h*LittleTile.gridSize; h++) {
-					
-					LittleTileBox box = this.box.copy();
-					if(i > 0)
-						box.minX =	0;
-					else
-						box.minX = spaceX;
-					if(i*LittleTile.gridSize+LittleTile.gridSize > spaceX+size.sizeX)
-					{
-						box.maxX = (box.maxX-box.maxX/LittleTile.gridSize*LittleTile.gridSize);
-						if(box.maxX < 0)
-							box.maxX = LittleTile.gridSize+box.maxX;
-					}
-					else
-						box.maxX = LittleTile.gridSize;
-					
-					if(j > 0)
-						box.minY =	0;
-					else
-						box.minY = spaceY;
-					if(j*LittleTile.gridSize+LittleTile.gridSize > spaceY+size.sizeY)
-					{
-						box.maxY = (box.maxY-box.maxY/LittleTile.gridSize*LittleTile.gridSize);
-						if(box.maxY < 0)
-							box.maxY = LittleTile.gridSize+box.maxY;
-					}
-					else
-						box.maxY = LittleTile.gridSize;
-					
-					if(h > 0)
-						box.minZ =	0;
-					else
-						box.minZ = spaceZ;
-					if(h*LittleTile.gridSize+LittleTile.gridSize > spaceZ+size.sizeZ)
-					{
-						box.maxZ = (box.maxZ-box.maxZ/LittleTile.gridSize*LittleTile.gridSize);
-						if(box.maxZ < 0)
-							box.maxZ = LittleTile.gridSize+box.maxZ;
-					}
-					else
-						box.maxZ = LittleTile.gridSize;
-					
-					if(box.isValidBox())
-					{
-						PlacePreviewTile tile = this.copy();
-						tile.box = box;
-						tiles.add(new BlockPos(posX, posY, posZ), tile);
-					}
-					posZ++;
-				}
-				posY++;
-			}
-			posX++;
-		}*/
 		
 		return true;
 	}

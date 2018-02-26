@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -18,9 +21,11 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 
@@ -44,14 +49,14 @@ public class LittleActionPlaceRelative extends LittleAction {
 	public PositionResult position;
 	public boolean centered;
 	public boolean fixed;
-	public boolean forced;
+	public PlacementMode mode;
 	
-	public LittleActionPlaceRelative(PositionResult position, boolean centered, boolean fixed, boolean forced) {
+	public LittleActionPlaceRelative(PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
 		super();
 		this.position = position;
 		this.centered = centered;
 		this.fixed = fixed;
-		this.forced = forced;
+		this.mode = mode;
 	}
 	
 	public LittleActionPlaceRelative() {
@@ -65,10 +70,13 @@ public class LittleActionPlaceRelative extends LittleAction {
 
 	@Override
 	public LittleAction revert() {
+		if(destroyed != null)
+			return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, null, PlacementMode.normal, true));
 		return new LittleActionDestroyBoxes(boxes);
 	}
 	
 	public List<LittleTileBox> boxes;
+	public List<LittleTilePreview> destroyed;
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -83,7 +91,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		if(PlacementHelper.isLittleBlock(stack))
 		{
-			List<LittleTile> tiles = placeTile(player, stack, player.world, position, centered, fixed, forced);
+			List<LittleTile> tiles = placeTile(player, stack, player.world, position, centered, fixed, mode);
 			
 			if(!player.world.isRemote)
 			{
@@ -101,7 +109,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		position.writeToBytes(buf);
 		buf.writeBoolean(centered);
 		buf.writeBoolean(fixed);
-		buf.writeBoolean(forced);
+		writeString(buf, mode.name);
 	}
 
 	@Override
@@ -109,10 +117,10 @@ public class LittleActionPlaceRelative extends LittleAction {
 		this.position = PositionResult.readFromBytes(buf);
 		this.centered = buf.readBoolean();
 		this.fixed = buf.readBoolean();
-		this.forced = buf.readBoolean();
+		this.mode = PlacementMode.getModeOrDefault(readString(buf));
 	}
 	
-	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, World world, PositionResult position, boolean centered, boolean fixed, boolean forced) throws LittleActionException
+	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, World world, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) throws LittleActionException
     {
 		LittleStructure structure = null;
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
@@ -121,12 +129,17 @@ public class LittleActionPlaceRelative extends LittleAction {
 		if(structure != null)
 		{
 			structure.setTiles(new HashMapList<>());
-			forced = false;
+			if(!mode.canPlaceStructures())
+			{
+				System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
+				mode = PlacementMode.getStructureDefault();
+			}
 		}
 		
 		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false);
 		
-		ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
+		List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
+		List<LittleTile> removedTiles = new ArrayList<LittleTile>();
 		
 		ItemStack toPlace = stack.copy();
 		
@@ -139,16 +152,26 @@ public class LittleActionPlaceRelative extends LittleAction {
 				drainPreviews(player, result.previews);
 		}
 			
-		List<LittleTile> placedTiles = placeTiles(world, player, result.placePreviews, structure, false, position.pos, toPlace, unplaceableTiles, forced, position.facing);
+		List<LittleTile> placedTiles = placeTiles(world, player, result.placePreviews, structure, mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
 		
 		if(placedTiles != null)
 		{
 			if(!world.isRemote)
 			{
-				for (int j = 0; j < unplaceableTiles.size(); j++) {
-					addTileToInventory(player, unplaceableTiles.get(j));
+				addTilesToInventoryOrDrop(player, unplaceableTiles);
+				addTilesToInventoryOrDrop(player, removedTiles);
+			}
+			
+			if(!removedTiles.isEmpty())
+			{
+				destroyed = new ArrayList<>();
+				for (LittleTile tile : removedTiles) {
+					LittleTilePreview preview = tile.getPreviewTile();
+					preview.box.addOffset(tile.te.getPos());
+					destroyed.add(preview);
 				}
 			}
+			
 			boxes = new ArrayList<>();
 			for (LittleTile tile : placedTiles) {
 				LittleTileBox box = tile.box.copy();
@@ -160,16 +183,16 @@ public class LittleActionPlaceRelative extends LittleAction {
        return placedTiles;
     }
 	
-	public static List<LittleTile> placeTilesWithoutPlayer(World world, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing)
+	public static List<LittleTile> placeTilesWithoutPlayer(World world, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing)
 	{
 		try {
-			return placeTiles(world, null, previews, structure, placeAll, pos, stack, unplaceableTiles, forced, facing);
+			return placeTiles(world, null, previews, structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
 		} catch (LittleActionException e) {
 			return null;
 		}
 	}
 	
-	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, boolean placeAll, BlockPos pos, ItemStack stack, ArrayList<LittleTile> unplaceableTiles, boolean forced, EnumFacing facing) throws LittleActionException
+	public static List<LittleTile> placeTiles(World world, EntityPlayer player, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException
 	{
 		if(player != null)
 		{
@@ -180,23 +203,14 @@ public class LittleActionPlaceRelative extends LittleAction {
 		HashMapList<BlockPos, PlacePreviewTile> splitted = getSplittedTiles(previews, pos);
 		if(splitted == null)
 			return null;
-		ArrayList<BlockPos> coordsToCheck = new ArrayList<BlockPos>();
-		if(structure != null || placeAll)
-		{
-			coordsToCheck.addAll(splitted.keySet());
-		}else{
-			if(forced)
-				coordsToCheck.addAll(splitted.keySet());
-			else
-				coordsToCheck.add(pos);
-		}
 		
+		List<BlockPos> coordsToCheck = mode.getCoordsToCheck(splitted, pos);	
 		
-		if(canPlaceTiles(player, world, splitted, coordsToCheck, forced))
+		if(canPlaceTiles(player, world, splitted, coordsToCheck, mode))
 		{
 			List<LittleTile> placed = new ArrayList<>();
-			ArrayList<SoundType> soundsToBePlayed = new ArrayList<>();
-			ArrayList<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
+			List<SoundType> soundsToBePlayed = new ArrayList<>();
+			List<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
 			
 			for (BlockPos coord : splitted.keySet()) {
 				ArrayList<PlacePreviewTile> placeTiles = splitted.getValues(coord);
@@ -223,22 +237,22 @@ public class LittleActionPlaceRelative extends LittleAction {
 						world.setBlockState(coord, LittleTiles.blockTile.getDefaultState());
 					}
 					
-					TileEntityLittleTiles te = loadTe(player, world, coord, false);
+					TileEntityLittleTiles te = loadTe(player, world, coord, true);
 					if(te != null)
 					{
 						te.preventUpdate = true;
+						
 						for (int j = 0; j < placeTiles.size(); j++) {
-							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te, structure, unplaceableTiles, forced, facing, requiresCollisionTest)) {
-								if(LT != null && (structure == null || structure.shouldPlaceTile(LT)))
+							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te, structure, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
+								if(structure == null || structure.shouldPlaceTile(LT))
 								{
 									if(!soundsToBePlayed.contains(LT.getSound()))
 										soundsToBePlayed.add(LT.getSound());
 									if(structure != null)
 									{
 										if(!structure.hasMainTile())
-										{
 											structure.setMainTile(LT);
-										}else
+										else
 											LT.coord = structure.getMainTileCoord(LT);
 									}
 									LT.isAllowedToSearchForStructure = false;
@@ -254,7 +268,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 			}
 			
 			for (int j = 0; j < lastPlacedTiles.size(); j++) {
-				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, forced, facing, true))
+				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, removedTiles, mode, facing, true))
 				{
 					if(tile != null)
 						placed.add(tile);
@@ -299,54 +313,58 @@ public class LittleActionPlaceRelative extends LittleAction {
 		return splitted;
 	}
 	
-	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMapList<BlockPos, PlacePreviewTile> splitted, ArrayList<BlockPos> coordsToCheck, boolean forced)
+	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMapList<BlockPos, PlacePreviewTile> splitted, List<BlockPos> coordsToCheck, PlacementMode mode)
 	{
-		for (BlockPos pos : coordsToCheck) {
-			
-			ArrayList<PlacePreviewTile> tiles = splitted.getValues(pos);			
-			boolean needsCollisionCheck = false;
-			if(tiles != null)
-			{
-				for (int j = 0; j < tiles.size(); j++)
-					if(tiles.get(j).needsCollisionTest())
-					{
-						needsCollisionCheck = true;
-						break;
-					}
-			}
-			if(!needsCollisionCheck)
-				continue;
-			
+		for (BlockPos pos : splitted.keySet()) {
 			if(!isAllowedToInteract(player, pos, true, EnumFacing.EAST))
 			{
 				IBlockState state = player.world.getBlockState(pos);
 				player.world.notifyBlockUpdate(pos, state, state, 3);
 				return false;
 			}
-			
-			TileEntityLittleTiles mainTile = loadTe(player, world, pos, false);
-			if(mainTile != null)
-			{
-				if(forced)
-					return true;
-				if(tiles != null)
-				{
-					for (int j = 0; j < tiles.size(); j++)
-						if(tiles.get(j).needsCollisionTest() && !((TileEntityLittleTiles) mainTile).isSpaceForLittleTile(tiles.get(j).box))
-							return false;
-				}
-			}else{
-				IBlockState state = world.getBlockState(pos);
-				if(forced){
-					if(state.getBlock() instanceof BlockTile || state.getMaterial().isReplaceable())
-						return true;
-				}else if(!(state.getBlock() instanceof BlockTile) && !state.getMaterial().isReplaceable())
-					return false;
-			}
 		}
 		
-		if(forced)
-			return false;
+		if(coordsToCheck != null)
+		{
+			for (BlockPos pos : coordsToCheck) {
+				ArrayList<PlacePreviewTile> tiles = splitted.getValues(pos);
+				
+				if(tiles == null)
+					continue;
+				
+				boolean needsCollisionCheck = false;
+				for (int j = 0; j < tiles.size(); j++)
+				{
+					if(tiles.get(j).needsCollisionTest())
+					{
+						needsCollisionCheck = true;
+						break;
+					}
+				}
+				
+				if(!needsCollisionCheck)
+					continue;
+				
+				TileEntityLittleTiles te = loadTe(player, world, pos, false);
+				if(te != null)
+				{
+					for (int j = 0; j < tiles.size(); j++)
+						if(tiles.get(j).needsCollisionTest())
+							if(mode.checkAll())
+							{
+								if(!te.isSpaceForLittleTile(tiles.get(j).box))
+									return false;
+							}else
+								if(!te.isSpaceForLittleTileStructure(tiles.get(j).box))
+									return false;							
+				}else{
+					IBlockState state = world.getBlockState(pos);
+					if(!(state.getBlock() instanceof BlockTile) && !state.getMaterial().isReplaceable())
+						if(mode.checkAll() || !(isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)))
+							return false;
+				}
+			}
+		}
 		return true;
 	}
 	

@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -103,8 +104,8 @@ public class LittleActionReplace extends LittleActionInteract {
 			}
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, previews, null, true, pos, stack, unplaceableTiles, false, EnumFacing.EAST);
-			addTilesToInventory(player, unplaceableTiles);
+			LittleActionPlaceRelative.placeTiles(world, player, previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			addTilesToInventoryOrDrop(player, unplaceableTiles);
 			
 		}else{
 			LittleTilePreview preview = tile.getPreviewTile();
@@ -124,8 +125,8 @@ public class LittleActionReplace extends LittleActionInteract {
 			previews.add(toReplace.getPlaceableTile(null, true, null));
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, previews, null, true, pos, stack, unplaceableTiles, false, EnumFacing.EAST);
-			addTilesToInventory(player, unplaceableTiles);
+			LittleActionPlaceRelative.placeTiles(world, player, previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			addTilesToInventoryOrDrop(player, unplaceableTiles);
 		}
 		
 		world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
@@ -140,7 +141,7 @@ public class LittleActionReplace extends LittleActionInteract {
 
 	@Override
 	public LittleAction revert() throws LittleActionException {
-		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, false));
+		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
 	}
 	
 }
