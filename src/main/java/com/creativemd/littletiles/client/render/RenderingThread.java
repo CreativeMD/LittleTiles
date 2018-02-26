@@ -449,7 +449,5 @@ public class RenderingThread extends Thread {
 			this.pos = pos;
 			this.requiresUpdate = requiresUpdate;
 		}
-		
-		
 	}
 }
