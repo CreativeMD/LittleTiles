@@ -192,6 +192,11 @@ public abstract class LittleTile {
 		return box.getMinVec();
 	}
 	
+	public int getMaxY()
+	{
+		return box.maxY;
+	}
+	
 	public AxisAlignedBB getSelectedBox(BlockPos pos)
 	{
 		return box.getSelectionBox(pos);
@@ -280,6 +285,11 @@ public abstract class LittleTile {
 	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout)
 	{
 		return this.box.cutOut(boxes, cutout);
+	}
+	
+	public void getCuttingBoxes(List<LittleTileBox> boxes)
+	{
+		boxes.add(box);
 	}
 	
 	public LittleTileBox getCompleteBox()
@@ -560,7 +570,7 @@ public abstract class LittleTile {
 	//================Placing================
 	
 	/**stack may be null**/
-	public void onPlaced(@Nullable EntityPlayer player , ItemStack stack, EnumFacing facing)
+	public void onPlaced(@Nullable EntityPlayer player , ItemStack stack, @Nullable EnumFacing facing)
 	{
 		onNeighborChangeInside();
 	}

@@ -6,23 +6,18 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
-import com.creativemd.littletiles.common.container.SubContainerGrabber;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -167,11 +162,106 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		boolean additionalPreviews = previews.size() > 0;
 		LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
 		if(additionalPreviews)
-			actions[0] = new LittleActionPlaceAbsolute(previews, null, false, true, true);
+			actions[0] = new LittleActionPlaceAbsolute(previews, null, PlacementMode.fill, true);
 		for (int i = 0; i < destroyedStructures.size(); i++) {
 			actions[additionalPreviews ? 1 : 0 + i] = destroyedStructures.get(i).getPlaceAction();
 		}
 		return new LittleActionCombined(actions);
 	}
 	
+	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleTileBox toCut)
+	{
+		List<LittleTile> removed = new ArrayList<>();
+		
+		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			
+			if(!tile.intersectsWith(toCut) || tile.isStructureBlock || !tile.canBeSplitted())
+				continue;
+			
+			tile.destroy();
+			
+			if(!tile.equalsBox(toCut))
+			{
+				double volume = 0;
+				LittleTilePreview preview = tile.getPreviewTile();
+				
+				List<LittleTileBox> cutout = new ArrayList<>();
+				List<LittleTileBox> boxes = new ArrayList<>();
+				boxes.add(toCut);
+				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+				
+				if(newBoxes != null)
+				{
+					for (LittleTileBox box : newBoxes) {
+						LittleTile copy = tile.copy();
+						copy.box = box;
+						copy.place();
+					}
+					
+					for (LittleTileBox box : cutout) {
+						LittleTile copy = tile.copy();
+						copy.box = box;
+						removed.add(copy);
+					}
+				}
+			}else
+				removed.add(tile);
+		}
+		return removed;
+	}
+	
+	public static List<LittleTile> removeBoxes(TileEntityLittleTiles te, List<LittleTileBox> boxes)
+	{
+		List<LittleTile> removed = new ArrayList<>();
+		
+		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			
+			LittleTileBox intersecting = null;
+			boolean intersects = false;
+			for (int j = 0; j < boxes.size(); j++) {
+				if(tile.intersectsWith(boxes.get(j)))
+				{
+					intersects = true;
+					intersecting = boxes.get(j);
+					break;
+				}
+			}
+			
+			if(!intersects)
+				continue;
+			
+			if(tile.isStructureBlock || !tile.canBeSplitted())
+				continue;
+			
+			tile.destroy();
+			
+			if(!tile.equalsBox(intersecting))
+			{
+				double volume = 0;
+				LittleTilePreview preview = tile.getPreviewTile();
+				
+				List<LittleTileBox> cutout = new ArrayList<>();
+				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+				
+				if(newBoxes != null)
+				{
+					for (LittleTileBox box : newBoxes) {
+						LittleTile copy = tile.copy();
+						copy.box = box;
+						copy.place();
+					}
+					
+					for (LittleTileBox box : cutout) {
+						LittleTile copy = tile.copy();
+						copy.box = box;
+						removed.add(copy);
+					}
+				}
+			}else
+				removed.add(tile);
+		}
+		return removed;
+	}
 }

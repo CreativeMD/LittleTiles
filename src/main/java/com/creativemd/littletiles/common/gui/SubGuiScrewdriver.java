@@ -11,10 +11,8 @@ import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.SearchSelector;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
@@ -22,10 +20,10 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
-import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.AnySelector;
 import com.creativemd.littletiles.common.utils.selection.BlockSelector;
 import com.creativemd.littletiles.common.utils.selection.StateSelector;
@@ -33,7 +31,6 @@ import com.creativemd.littletiles.common.utils.selection.TileSelector;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -162,7 +159,7 @@ public class SubGuiScrewdriver extends SubGui {
 				if(stackReplace != null)
 				{
 					Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
-					if(!SubContainerGrabber.isBlockValid(replacementBlock))
+					if(!LittleAction.isBlockValid(replacementBlock))
 					{
 						openButtonDialogDialog("Invalid replacement block!", "ok");
 						return null;
@@ -176,7 +173,7 @@ public class SubGuiScrewdriver extends SubGui {
 						previews.add(tile.getPreviewTile());
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));
-					actions.add(new LittleActionPlaceAbsolute(previews, null, false, true, false));
+					actions.add(new LittleActionPlaceAbsolute(previews, null, PlacementMode.all, false));
 				}
 			}
 			

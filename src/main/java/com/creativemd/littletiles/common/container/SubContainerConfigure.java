@@ -6,11 +6,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubContainerChisel extends SubContainer {
+public class SubContainerConfigure extends SubContainer {
 	
 	public ItemStack stack;
 	
-	public SubContainerChisel(EntityPlayer player, ItemStack stack) {
+	public SubContainerConfigure(EntityPlayer player, ItemStack stack) {
 		super(player);
 		this.stack = stack;
 	}

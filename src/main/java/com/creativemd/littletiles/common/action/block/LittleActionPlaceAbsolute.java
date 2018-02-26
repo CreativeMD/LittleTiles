@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -13,6 +14,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,26 +25,34 @@ import net.minecraft.util.math.BlockPos;
 public class LittleActionPlaceAbsolute extends LittleAction {
 	
 	public List<LittleTilePreview> previews;
-	public boolean forced;
-	public boolean placeAll;
+	public PlacementMode mode;
 	public LittleStructure structure;
 	public boolean toVanilla;
 	
-	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, LittleStructure structure, boolean forced, boolean placeAll, boolean toVanilla) {
+	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, LittleStructure structure, PlacementMode mode, boolean toVanilla) {
 		super();
 		this.previews = previews;
-		this.forced = forced;
-		this.placeAll = placeAll;
+		this.mode = mode;
 		this.structure = structure;
 		this.toVanilla = toVanilla;
+		checkMode();
 	}
 	
-	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, boolean forced) {
-		this(previews, null, forced, false, false);
+	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, PlacementMode mode) {
+		this(previews, null, mode, false);
 	}
 	
 	public LittleActionPlaceAbsolute() {
 		super();
+	}
+	
+	public void checkMode()
+	{
+		if(structure != null && !mode.canPlaceStructures())
+		{
+			System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
+			this.mode = PlacementMode.getStructureDefault();
+		}
 	}
 
 	@Override
@@ -54,10 +64,13 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 
 	@Override
 	public LittleAction revert() {
+		if(destroyed != null)
+			return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, null, PlacementMode.normal, true));
 		return new LittleActionDestroyBoxes(boxes);
 	}
 	
 	public List<LittleTile> placedTiles;
+	public List<LittleTilePreview> destroyed;
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -76,15 +89,27 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				placePreviews.add(preview.getPlaceableTile(null, true, offset));
 			}
 			
-			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, placePreviews, structure, placeAll, pos, null, unplaceableTiles, forced, EnumFacing.EAST);
+			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
+			List<LittleTile> removedTiles = new ArrayList<LittleTile>();
+			
+			placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, placePreviews, structure, mode, pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
 			
 			if(placedTiles != null)
 			{
-				for (LittleTile tile : placedTiles) {
-					LittleTileBox box = tile.box.copy();
-					box.addOffset(tile.te.getPos());
-					boxes.add(box);
+				if(!player.world.isRemote)
+				{
+					addTilesToInventoryOrDrop(player, unplaceableTiles);
+					addTilesToInventoryOrDrop(player, removedTiles);
+				}
+				
+				if(!removedTiles.isEmpty())
+				{
+					destroyed = new ArrayList<>();
+					for (LittleTile tile : removedTiles) {
+						LittleTilePreview preview = tile.getPreviewTile();
+						preview.box.addOffset(tile.te.getPos());
+						destroyed.add(preview);
+					}
 				}
 				
 				if(toVanilla)
@@ -99,8 +124,6 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 					}
 				}
 			}
-			
-			addTilesToInventory(player, unplaceableTiles);
 			return placedTiles != null;
 		}
 		return false;
@@ -111,8 +134,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
 		writeNBT(buf, nbt);
-		buf.writeBoolean(forced);
-		buf.writeBoolean(placeAll);
+		writeString(buf, mode.name);
 		buf.writeBoolean(toVanilla);
 		
 		if(structure == null)
@@ -131,8 +153,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	@Override
 	public void readBytes(ByteBuf buf) {
 		previews = LittleNBTCompressionTools.readPreviews(readNBT(buf).getTagList("list", 10));
-		forced = buf.readBoolean();
-		placeAll = buf.readBoolean();
+		mode = PlacementMode.getModeOrDefault(readString(buf));
 		toVanilla = buf.readBoolean();
 		
 		if(buf.readBoolean())
@@ -140,6 +161,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			structure = LittleStructure.createAndLoadStructure(readNBT(buf), null);
 			structure.setTiles(new HashMapList<>());
 		}
+		
+		checkMode();
 	}
 
 }

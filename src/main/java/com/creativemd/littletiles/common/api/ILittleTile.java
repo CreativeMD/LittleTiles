@@ -3,6 +3,8 @@ package com.creativemd.littletiles.common.api;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -103,10 +105,16 @@ public interface ILittleTile {
 	@SideOnly(Side.CLIENT)
 	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
 	
-	public default PlacementMode getMode(EntityPlayer player, ItemStack stack)
+	public default PlacementMode getPlacementMode(ItemStack stack)
 	{
 		if(stack.hasTagCompound())
 			return PlacementMode.getModeOrDefault(stack.getTagCompound().getString("mode"));
 		return PlacementMode.getDefault();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack)
+	{
+		return null;
 	}
 }

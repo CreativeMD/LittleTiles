@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -50,7 +51,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	public LittleAction revert() {
 		if(structurePreview != null)
 			return structurePreview.getPlaceAction();
-		return new LittleActionPlaceAbsolute(destroyedTiles, false);
+		return new LittleActionPlaceAbsolute(destroyedTiles, PlacementMode.normal);
 	}
 	
 	@Override
@@ -148,7 +149,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		public LittleAction getPlaceAction()
 		{
-			return new LittleActionPlaceAbsolute(previews, structure, false, true, false);
+			return new LittleActionPlaceAbsolute(previews, structure, PlacementMode.all, false);
 		}
 		
 		@Override

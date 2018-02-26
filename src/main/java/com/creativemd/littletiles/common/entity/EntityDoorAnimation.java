@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -170,7 +171,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				if(!world.isRemote || approved)
 				{
-					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews, structure, false, baseOffset, null, null, false, EnumFacing.EAST) != null)
+					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews, structure, PlacementMode.all, baseOffset, null, null, null, EnumFacing.EAST) != null)
 					{
 						if(world.isRemote)
 						{

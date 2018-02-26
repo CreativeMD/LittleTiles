@@ -17,6 +17,7 @@ import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -28,12 +29,17 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
 
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
@@ -107,68 +113,73 @@ public class PreviewRenderer {
 				PositionResult position = markedPosition != null ? markedPosition : PlacementHelper.getPosition(world, mc.objectMouseOver);
 				
 				processRoateKeys();
-	            
-				GL11.glEnable(GL11.GL_BLEND);
-	            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-	            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
-	            GL11.glDisable(GL11.GL_TEXTURE_2D);
-	            GL11.glDepthMask(false);
-	            
-	            ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+				
+				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 	            iTile.tickPreview(player, stack, position, mc.objectMouseOver);
 	            
-	            boolean absolute = iTile.arePreviewsAbsolute();
+	            PlacementMode mode = iTile.getPlacementMode(stack);
 	            
-	            PreviewResult result = null;
-	            if(absolute)
+	            if(mode.mode == SelectionMode.PREVIEWS)
 	            {
-	            	result = new PreviewResult();
-	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true, markedPosition != null);
-	            	for (int i = 0; i < tiles.size(); i++) {
-	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
-					}	            	
-	            }else
-	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
-	            
-	            if(result != null)
-	            {
-	            	//if(!absolute)
-	            	processMarkKey(player, position, result, absolute);
+					GL11.glEnable(GL11.GL_BLEND);
+		            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+		            GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
+		            GL11.glDisable(GL11.GL_TEXTURE_2D);
+		            GL11.glDepthMask(false);
 		            
-		            double x = (double)position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
-					double y = (double)position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
-					double z = (double)position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+		            boolean absolute = iTile.arePreviewsAbsolute();
 		            
-		            for (int i = 0; i < result.placePreviews.size(); i++) {
-						
-						PlacePreviewTile preview = result.placePreviews.get(i);
-						List<LittleRenderingCube> cubes = preview.getPreviews();
-						for (LittleRenderingCube cube : cubes) {
-							GL11.glPushMatrix();
-							cube.renderCubePreview(absolute, x, y, z, iTile);
-							GL11.glPopMatrix();
-						}
-					}
-		            
-		            if(!absolute && markedPosition == null && LittleAction.isUsingSecondMode(player) && result.singleMode)
+		            PreviewResult result = null;
+		            if(absolute)
 		            {
-		            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
-		            	
-		            	 for (int i = 0; i < result.placePreviews.size(); i++) 
-		            		 if(result.placePreviews.get(i).preview != null)
-		            			 shifthandlers.addAll(result.placePreviews.get(i).preview.fixedhandlers);
-		            	 
-		            	 for (int i = 0; i < shifthandlers.size(); i++) {
-		            		//GL11.glPushMatrix();
-							shifthandlers.get(i).handleRendering(mc, x, y, z);
-							//GL11.glPopMatrix();
+		            	result = new PreviewResult();
+		            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true, markedPosition != null);
+		            	for (int i = 0; i < tiles.size(); i++) {
+		            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
+						}	            	
+		            }else
+		            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
+		            
+		            if(result != null)
+		            {
+		            	//if(!absolute)
+		            	processMarkKey(player, position, result, absolute);
+			            
+			            double x = (double)position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
+						double y = (double)position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
+						double z = (double)position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+			            
+			            for (int i = 0; i < result.placePreviews.size(); i++) {
+							
+							PlacePreviewTile preview = result.placePreviews.get(i);
+							List<LittleRenderingCube> cubes = preview.getPreviews();
+							for (LittleRenderingCube cube : cubes) {
+								GL11.glPushMatrix();
+								cube.renderCubePreview(absolute, x, y, z, iTile);
+								GL11.glPopMatrix();
+							}
 						}
+			            
+			            if(!absolute && markedPosition == null && LittleAction.isUsingSecondMode(player) && result.singleMode)
+			            {
+			            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
+			            	
+			            	 for (int i = 0; i < result.placePreviews.size(); i++) 
+			            		 if(result.placePreviews.get(i).preview != null)
+			            			 shifthandlers.addAll(result.placePreviews.get(i).preview.fixedhandlers);
+			            	 
+			            	 for (int i = 0; i < shifthandlers.size(); i++) {
+			            		//GL11.glPushMatrix();
+								shifthandlers.get(i).handleRendering(mc, x, y, z);
+								//GL11.glPopMatrix();
+							}
+			            }
 		            }
+		            
+		            GL11.glDepthMask(true);
+		            GL11.glEnable(GL11.GL_TEXTURE_2D);
+		            GL11.glDisable(GL11.GL_BLEND);
 	            }
-	            
-	            GL11.glDepthMask(true);
-	            GL11.glEnable(GL11.GL_TEXTURE_2D);
-	            GL11.glDisable(GL11.GL_BLEND);
 			}else
 				markedPosition = null;
 		}
@@ -303,24 +314,72 @@ public class PreviewRenderer {
 		markedPosition.subVec(vec);
 	}
 	
-	/*@SubscribeEvent
+	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void drawHighlight(DrawBlockHighlightEvent event)
 	{
-		if(event.getTarget().typeOfHit == Type.BLOCK)
+		EntityPlayer player = event.getPlayer();
+		World world = player.world;
+		ItemStack stack = player.getHeldItemMainhand();
+		if((event.getTarget().typeOfHit == Type.BLOCK || markedPosition != null) && PlacementHelper.isLittleBlock(stack))
 		{
-			EntityPlayer player = event.getPlayer();
-			World world = event.getPlayer().getEntityWorld();
-			BlockPos pos = event.getTarget().getBlockPos();
-			IBlockState state = world.getBlockState(pos);
-			ItemStack stack = player.getHeldItemMainhand();
-			
-			if(PlacementHelper.isLittleBlock(stack) && (markedPosition != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK)))
+			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+			PlacementMode mode = iTile.getPlacementMode(stack);
+			if(mode.mode == SelectionMode.LINES)
 			{
-				PositionResult position = markedPosition != null ? markedPosition : PlacementHelper.getPosition(world, mc.objectMouseOver);
+				BlockPos pos = event.getTarget().getBlockPos();
+				IBlockState state = world.getBlockState(pos);
 				
-				processRoateKeys();
+				PositionResult position = markedPosition != null ? markedPosition : PlacementHelper.getPosition(world, mc.objectMouseOver);
+	            
+	            boolean absolute = iTile.arePreviewsAbsolute();
+	            
+	            PreviewResult result = null;
+	            if(absolute)
+	            {
+	            	result = new PreviewResult();
+	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, true, markedPosition != null);
+	            	for (int i = 0; i < tiles.size(); i++) {
+	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
+					}	            	
+	            }else
+	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
+	            
+	            if(result != null)
+	            {
+		            double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
+			        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
+			        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
+			        
+			        GlStateManager.enableBlend();
+		            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		            GlStateManager.glLineWidth(2.0F);
+		            GlStateManager.disableTexture2D();
+		            GlStateManager.depthMask(false);
+		            
+		            double x = absolute ? 0 : position.pos.getX();
+					double y = absolute ? 0 : position.pos.getY();
+					double z = absolute ? 0 : position.pos.getZ();
+					
+					d0 -= x;
+					d1 -= y;
+					d2 -= z;
+		            
+		            for (int i = 0; i < result.placePreviews.size(); i++) {
+						PlacePreviewTile preview = result.placePreviews.get(i);
+						List<LittleRenderingCube> cubes = preview.getPreviews();
+						for (LittleRenderingCube cube : cubes) {
+							RenderGlobal.drawSelectionBoundingBox(cube.getAxis().grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+						}
+					}
+		            
+					GlStateManager.depthMask(true);
+		            GlStateManager.enableTexture2D();
+		            GlStateManager.disableBlend();
+		            
+					event.setCanceled(true);
+	            }
 			}
 		}
-	}*/
+	}
 }

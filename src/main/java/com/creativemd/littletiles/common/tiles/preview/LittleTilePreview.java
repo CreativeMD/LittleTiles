@@ -215,7 +215,7 @@ public class LittleTilePreview {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
 	
-	public PlacePreviewTile getPlaceableTile(LittleTileBox box, boolean fixed, LittleTileVec offset)
+	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset)
 	{
 		/*if(this.box == null)
 			return new PlacePreviewTile(box.copy(), this);

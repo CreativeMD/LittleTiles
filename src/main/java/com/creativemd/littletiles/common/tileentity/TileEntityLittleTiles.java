@@ -271,7 +271,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		updateTiles();
 	}
 	
-	
 	public boolean removeTile(LittleTile tile)
 	{
 		boolean result = removeLittleTile(tile);
@@ -632,6 +631,32 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				tile.fillFace(face);
 		}
 		return !face.isFilled();
+	}
+	
+	/**
+	 * 
+	 * @param box
+	 * @param cutout filled with all boxes which are cutout by tiles
+	 * @return all boxes which are not cutout by other tiles
+	 */
+	public List<LittleTileBox> cutOut(LittleTileBox box, List<LittleTileBox> cutout)
+	{
+		List<LittleTileBox> cutting = new ArrayList<>();
+		for (LittleTile tile : tiles) {
+			tile.getCuttingBoxes(cutting);
+		}
+		return box.cutOut(cutting, cutout);
+	}
+	
+	public boolean isSpaceForLittleTileStructure(LittleTileBox box)
+	{
+		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			LittleTile tile = (LittleTile) iterator.next();
+			if((tile.isStructureBlock || !tile.canBeSplitted()) && tile.intersectsWith(box))
+				return false;
+			
+		}
+		return true;
 	}
 	
 	public boolean isSpaceForLittleTile(LittleTileBox box)

@@ -4,16 +4,15 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
@@ -32,21 +31,23 @@ import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockBreakable;
+import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -221,7 +222,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);
-				if(shouldConvert && SubContainerGrabber.isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state))
+				if(shouldConvert && isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state))
 				{
 					tiles = new ArrayList<>();
 					
@@ -391,7 +392,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	{
 		Block block = Block.getBlockFromItem(stack.getItem());
 		
-		if(block != null && !(block instanceof BlockAir) && SubContainerGrabber.isBlockValid(block))
+		if(block != null && !(block instanceof BlockAir) && isBlockValid(block))
 			return new BlockIngredient(block, stack.getItemDamage(), 1);
 		return null;
 	}
@@ -427,7 +428,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			
 			if(block != null && !(block instanceof BlockAir))
 			{
-				if(SubContainerGrabber.isBlockValid(block))
+				if(isBlockValid(block))
 				{
 					CombinedIngredients ingredients = new CombinedIngredients();
 					ingredients.block.addIngredient(new BlockIngredient(block, stack.getItemDamage(), 1));
@@ -508,6 +509,31 @@ public abstract class LittleAction extends CreativeCorePacket {
 				addIngredients(player, additionalIngredients, null);
 			}
 			
+		}
+		return true;
+	}
+	
+	public static void dropPreviews(EntityPlayer player, List<LittleTilePreview> previews)
+	{
+		for (LittleTilePreview preview : previews) {
+			WorldUtils.dropItem(player, preview.getBlockIngredient().getTileItemStack());
+		}
+	}
+	
+	public static boolean addTilesToInventoryOrDrop(EntityPlayer player, List<LittleTile> tiles)
+	{
+		if(needIngredients(player))
+		{
+			List<LittleTilePreview> previews = new ArrayList<>();
+			for (LittleTile tile : tiles) {
+				previews.add(tile.getPreviewTile());
+			}
+			
+			try {
+				return addPreviewToInventory(player, previews);
+			} catch (NotEnoughIngredientsException e) {
+				dropPreviews(player, previews);
+			}
 		}
 		return true;
 	}
@@ -623,6 +649,17 @@ public abstract class LittleAction extends CreativeCorePacket {
 				bags.add(stack);
 		}
 		return bags;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean doesBlockSupportedTranslucent(Block block)
+	{
+		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+	}
+	
+	public static boolean isBlockValid(Block block)
+	{
+		return block.isNormalCube(block.getDefaultState()) || block.isFullCube(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
 	}
 	
 }

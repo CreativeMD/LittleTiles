@@ -15,9 +15,6 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
@@ -31,11 +28,9 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.container.SubContainerGrabber;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
-import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiGrabber;
-import com.creativemd.littletiles.common.items.ItemLittleGrabber.PlacePreviewMode;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -48,15 +43,12 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.utils.geo.DragShape;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.IBakedModel;
@@ -80,8 +72,6 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.tools.nsc.doc.model.Def;
-import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittleTile {
 	
@@ -314,7 +304,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@SideOnly(Side.CLIENT)
 		public abstract SubGuiGrabber getGui(EntityPlayer player, ItemStack stack);
-		public abstract SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack);
+		public abstract SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack);
 		
 		public abstract List<LittleTilePreview> getPreviews(ItemStack stack);
 		
@@ -340,7 +330,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@SideOnly(Side.CLIENT)
 		public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
 			IBlockState state = player.world.getBlockState(result.getBlockPos());
-			if(SubContainerGrabber.isBlockValid(state.getBlock()))
+			if(LittleAction.isBlockValid(state.getBlock()))
 			{
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
 				return true;
@@ -546,8 +536,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@Override
-		public SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack) {
-			return new SubContainerGrabber(player, stack);
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
+			return new SubContainerConfigure(player, stack);
 		}
 		
 	}
@@ -670,8 +660,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 
 		@Override
-		public SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack) {
-			return new SubContainerGrabber(player, stack);
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
+			return new SubContainerConfigure(player, stack);
 		}
 
 		@Override
@@ -705,8 +695,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 
 		@Override
-		public SubContainerGrabber getContainer(EntityPlayer player, ItemStack stack) {
-			return new SubContainerGrabber(player, stack);
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
+			return new SubContainerConfigure(player, stack);
 		}
 
 		@Override

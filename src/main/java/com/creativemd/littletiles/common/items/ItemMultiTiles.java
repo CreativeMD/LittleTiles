@@ -9,9 +9,12 @@ import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.state.IBlockState;
@@ -33,11 +36,12 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile{
+public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
+	
+	public static PlacementMode currentMode = PlacementMode.getDefault();
 	
 	public ItemMultiTiles()
 	{
-		//super(LittleTiles.blockTile);
 		hasSubtypes = true;
 		setCreativeTab(LittleTiles.littleTab);
 	}
@@ -59,11 +63,9 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
-		ItemStack stack = player.getHeldItem(hand);
+		/*ItemStack stack = player.getHeldItem(hand);
 		if(stack.hasTagCompound())
-		{
-			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);
-		}
+			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);*/
 		return EnumActionResult.PASS;
     }
 	
@@ -95,11 +97,6 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
 
-	/*@Override
-	public void rotateLittlePreview(ItemStack stack, EnumFacing direction) {
-		ItemRecipe.rotatePreview(stack, direction);
-	}*/
-
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return getLTStructure(stack);
@@ -108,11 +105,6 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public static LittleStructure getLTStructure(ItemStack stack) {
 		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
-
-	/*@Override
-	public void flipLittlePreview(ItemStack stack, EnumFacing direction) {
-		ItemRecipe.flipPreview(stack, direction);
-	}*/
 
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
@@ -148,15 +140,17 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		return ItemModelCache.getCache(stack, facing);
 	}
 	
-	/*@Override
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		if(!currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+			return PlacementMode.getStructureDefault();
+		return currentMode;
+	}
+	
+	@Override
 	@SideOnly(Side.CLIENT)
-    public boolean func_150936_a(World world, int x, int y, int z, int side, EntityPlayer player, ItemStack stack)
-    {
-		if(stack.stackTagCompound != null)
-		{
-			return super.func_150936_a(world, x, y, z, side, player, stack);
-		}
-		return false;
-    }*/
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack);
+	}
 	
 }

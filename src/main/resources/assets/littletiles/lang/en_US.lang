@@ -37,6 +37,9 @@ tile.LTTransparentColoredBlock.water.name=Water
 tile.LTStorageBlockTile.name=Little Storage Block
 
 key.categories.littletiles=LittleTiles Settings
+key.little.flip=Flip Preview
+key.little.mark=Mark Preview
+key.little.config=Configure Preview
 
 itemGroup.littletiles=LittleTiles
 
@@ -66,3 +69,15 @@ color.unit.single=unit
 color.unit.multiple=units
 
 selector.ingredients=Ingredients
+
+placement.mode.default=Default Mode
+placement.mode.default.tooltip=Can only be placed if there is space for all tiles in the aimed block.
+placement.mode.placestructure=Can place structures.
+placement.mode.fill=Fill Mode
+placement.mode.fill.tooltip=Will try to fill in the tiles if they don't fit.
+placement.mode.all=All Mode
+placement.mode.all.tooltip=Can only be placed if there is space for all tiles.
+placement.mode.overwrite=Overwrite Mode
+placement.mode.overwrite.tooltip=Will place all tiles and remove the overlapping space.\nCannot removed structure tiles.
+placement.mode.replace=Replace Mode
+placement.mode.replace.tooltip=Will only place the tiles at the overlapping space.\nCannot removed structure tiles.

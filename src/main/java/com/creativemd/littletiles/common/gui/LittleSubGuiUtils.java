@@ -5,11 +5,9 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.CreativeCollector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackCollector;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.container.SubContainerGrabber;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
@@ -30,7 +28,7 @@ public class LittleSubGuiUtils {
 			{
 				Block block = Block.getBlockFromItem(stack.getItem());
 				if(block != null && !(block instanceof BlockAir))
-					return SubContainerGrabber.isBlockValid(block);
+					return LittleAction.isBlockValid(block);
 			}
 			return false;
 		}
