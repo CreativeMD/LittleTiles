@@ -41,7 +41,7 @@ public class BlockLayerRenderBuffer {
 	
 	public BlockLayerRenderBuffer(VertexFormat format) {
 		this.format = format;
-		bufferSizePerQuad = format.getIntegerSize() * 4;
+		bufferSizePerQuad = format.getNextOffset();
 	}
 	
 	private BufferBuilder solid;
@@ -51,7 +51,7 @@ public class BlockLayerRenderBuffer {
 	
 	public int getBufferSizeForLayer(int tilesOfType)
 	{
-		return bufferSizePerQuad * 6 * tilesOfType;
+		return bufferSizePerQuad * 6 * tilesOfType + 8;
 	}
 	
 	public BufferBuilder createVertexBuffer(int tilesOfType)
