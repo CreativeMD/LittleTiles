@@ -136,7 +136,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 			}
 		}
 		
-		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false);
+		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false, mode);
 		
 		List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 		List<LittleTile> removedTiles = new ArrayList<LittleTile>();

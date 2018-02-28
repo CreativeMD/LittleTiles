@@ -102,6 +102,12 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 					addTilesToInventoryOrDrop(player, removedTiles);
 				}
 				
+				for (LittleTile tile : placedTiles) {
+					LittleTileBox box = tile.box.copy();
+					box.addOffset(tile.te.getPos());
+					boxes.add(box);
+				}
+				
 				if(!removedTiles.isEmpty())
 				{
 					destroyed = new ArrayList<>();

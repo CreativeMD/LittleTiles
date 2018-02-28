@@ -273,9 +273,9 @@ public class PlacementHelper {
 	 * @param facing if centered is true it will be used to apply the offset
 	 * @param fixed if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked)
+	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode)
 	{
-		return getPreviews(world, stack, position.pos, position.hit, centered, position.facing, fixed, allowLowResolution, marked);
+		return getPreviews(world, stack, position.pos, position.hit, centered, position.facing, fixed, allowLowResolution, marked, mode);
 	}
 	
 	/**
@@ -284,7 +284,7 @@ public class PlacementHelper {
 	 * @param facing if centered is true it will be used to apply the offset
 	 * @param fixed if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, ItemStack stack, BlockPos pos, LittleTileVec hit, boolean centered, @Nullable EnumFacing facing, boolean fixed, boolean allowLowResolution, boolean marked)
+	public static PreviewResult getPreviews(World world, ItemStack stack, BlockPos pos, LittleTileVec hit, boolean centered, @Nullable EnumFacing facing, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode)
 	{
 		PreviewResult result = new PreviewResult();
 		
@@ -301,7 +301,6 @@ public class PlacementHelper {
 			
 			result.size = getSize(tiles);
 			
-			PlacementMode mode = iTile.getPlacementMode(stack);
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
 			if(tiles.size() == 1)
