@@ -138,7 +138,7 @@ public class PreviewRenderer {
 		            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
 						}	            	
 		            }else
-		            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
+		            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null, mode);
 		            
 		            if(result != null)
 		            {
@@ -343,7 +343,7 @@ public class PreviewRenderer {
 	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
 					}	            	
 	            }else
-	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null);
+	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), true, markedPosition != null, mode);
 	            
 	            if(result != null)
 	            {
