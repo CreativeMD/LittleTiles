@@ -18,6 +18,12 @@ public class PlaceModeReplace extends PlacementMode {
 	}
 	
 	@Override
+	public boolean shouldConvertBlock()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean checkAll()
 	{
 		return false;

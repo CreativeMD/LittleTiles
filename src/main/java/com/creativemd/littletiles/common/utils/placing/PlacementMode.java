@@ -113,8 +113,14 @@ public abstract class PlacementMode {
 		return true;
 	}
 	
+	public boolean shouldConvertBlock()
+	{
+		return false;
+	}
+	
 	public static enum SelectionMode {
 		LINES,
 		PREVIEWS;
 	}
+	
 }

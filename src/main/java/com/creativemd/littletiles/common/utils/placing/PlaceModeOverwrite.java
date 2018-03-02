@@ -18,6 +18,12 @@ public class PlaceModeOverwrite extends PlacementMode {
 	}
 	
 	@Override
+	public boolean shouldConvertBlock()
+	{
+		return true;
+	}
+	
+	@Override
 	public boolean canPlaceStructures() {
 		return true;
 	}
