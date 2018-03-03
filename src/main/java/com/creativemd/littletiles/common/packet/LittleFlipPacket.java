@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -46,14 +47,7 @@ public class LittleFlipPacket extends CreativeCorePacket{
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if(PlacementHelper.getLittleInterface(stack) != null)
 		{
-			ILittleTile itile = null;
-			
-			if(stack.getItem() instanceof ILittleTile)
-			{
-				itile = (ILittleTile)stack.getItem();
-			}else if(Block.getBlockFromItem(stack.getItem()) instanceof ILittleTile){
-				itile = (ILittleTile)Block.getBlockFromItem(stack.getItem());
-			}
+			ILittleTile itile = PlacementHelper.getLittleInterface(stack);
 			
 			if(itile != null)
 			{
@@ -67,6 +61,11 @@ public class LittleFlipPacket extends CreativeCorePacket{
 					stack.getTagCompound().setTag("structure", nbt);
 				}
 			}
+		}
+		
+		if(stack.getItem() instanceof ISpecialBlockSelector)
+		{
+			((ISpecialBlockSelector) stack.getItem()).flipLittlePreview(stack, axis);
 		}
 	}
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -20,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -210,6 +212,16 @@ public abstract class SelectShape {
 	@SideOnly(Side.CLIENT)
 	public abstract void saveCustomSettings(GuiParent gui, NBTTagCompound nbt);
 	
+	public void rotate(Rotation rotation, NBTTagCompound nbt)
+	{
+		
+	}
+	
+	public void flip(Axis axis, NBTTagCompound nbt)
+	{
+		
+	}
+	
 	public abstract static class BasicSelectShape extends SelectShape {
 		
 		public BasicSelectShape(String name) {
@@ -346,7 +358,15 @@ public abstract class SelectShape {
 			shape.saveCustomSettings(gui, nbt);
 		}
 		
+		@Override
+		public void flip(Axis axis, NBTTagCompound nbt) {
+			shape.flip(nbt, axis);
+		}
 		
+		@Override
+		public void rotate(Rotation rotation, NBTTagCompound nbt) {
+			shape.rotate(nbt, rotation);
+		}
 		
 	}
 	
