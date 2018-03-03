@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubContainer;
@@ -34,6 +35,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -162,5 +164,19 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack), false).execute();
 		}
 		return true;
+	}
+
+	@Override
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
+		SelectShape shape = getShape(stack);
+		if(shape != null)
+			shape.rotate(rotation, stack.getTagCompound());
+	}
+
+	@Override
+	public void flipLittlePreview(ItemStack stack, Axis axis) {
+		SelectShape shape = getShape(stack);
+		if(shape != null)
+			shape.flip(axis, stack.getTagCompound());
 	}
 }

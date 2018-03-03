@@ -13,11 +13,14 @@ import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.gui.SubGuiMarkMode;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -30,6 +33,8 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.placing.MarkMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 
 import net.minecraft.block.Block;
@@ -48,10 +53,12 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -264,17 +271,16 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		if(min != null)
 		{
 			List<LittleTileBox> boxes = null;
-			boolean low = allowLowResolution && !marked;
-			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != low)
+			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != allowLowResolution)
 			{
 				
 				DragShape shape = getShape(stack);
 				LittleTileBox newBox = getBox();
-				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), low, min, lastMax);
+				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = new ArrayList<>(boxes);
 				cachedSettings = stack.getTagCompound().copy();
-				cachedLow = low;
+				cachedLow = allowLowResolution;
 			}else
 				boxes = cachedShape;
 			
@@ -398,5 +404,42 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
+	}
+	
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		return PlacementMode.fill;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public MarkMode onMark(EntityPlayer player, ItemStack stack) {
+		return new MarkMode(){
+			
+			@Override
+			public SubGui getConfigurationGui() {
+				return new SubGuiMarkMode(this){
+					@Override
+					public void createControls() {
+						super.createControls();
+						controls.add(new GuiButton(I18n.translateToLocal("markmode.gui.switchpos"), 10, 20) {
+							
+							@Override
+							public void onClicked(int x, int y, int button) {
+								if(lastMax == null)
+									lastMax = min.copy();							
+								
+								mode.position.facing = EnumFacing.EAST;
+								mode.position.pos = min.getBlockPos();
+								mode.position.hit = min.copy();
+								mode.position.hit.sub(position.pos);
+								
+								min = lastMax;
+							}
+						});
+					}
+				};
+			}
+		};
 	}
 }

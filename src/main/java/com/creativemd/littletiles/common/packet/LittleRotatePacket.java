@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -67,6 +68,11 @@ public class LittleRotatePacket extends CreativeCorePacket{
 					stack.getTagCompound().setTag("structure", nbt);
 				}
 			}
+		}
+		
+		if(stack.getItem() instanceof ISpecialBlockSelector)
+		{
+			((ISpecialBlockSelector) stack.getItem()).rotateLittlePreview(stack, rotation);
 		}
 	}
 

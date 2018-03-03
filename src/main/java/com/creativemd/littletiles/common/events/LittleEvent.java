@@ -1,11 +1,16 @@
 package com.creativemd.littletiles.common.events;
 
 import java.awt.event.MouseWheelEvent;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.mc.GuiContainerSub;
@@ -14,6 +19,7 @@ import com.creativemd.creativecore.gui.premade.SubContainerEmpty;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
@@ -22,6 +28,8 @@ import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
+import com.creativemd.littletiles.common.packet.LittleFlipPacket;
+import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -50,9 +58,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
@@ -75,6 +85,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -98,16 +109,6 @@ public class LittleEvent {
 	
 	@SideOnly(Side.CLIENT)
 	private boolean leftClicked;
-	
-	private void middleClickMouse(RayTraceResult result, EntityPlayer player, World world)
-    {
-        if (result != null && result.typeOfHit != RayTraceResult.Type.MISS)
-        {
-        	if(!onMouseWheelClick(result, player, world))
-        		net.minecraftforge.common.ForgeHooks.onPickBlock(result, player, world);
-            // We delete this code wholly instead of commenting it out, to make sure we detect changes in it between MC versions
-        }
-    }
 	
 	@SideOnly(Side.CLIENT)
 	public static boolean onMouseWheelClick(RayTraceResult result, EntityPlayer player, World world)
@@ -288,9 +289,9 @@ public class LittleEvent {
 				if(iTile.arePreviewsAbsolute())
 					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false, false), iTile.getLittleStructure(stack), mode, true).execute();
 				else
-					new LittleActionPlaceRelative(PreviewRenderer.markedPosition != null ? PreviewRenderer.markedPosition : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
+					new LittleActionPlaceRelative(PreviewRenderer.marked != null ? PreviewRenderer.marked.position : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
 				
-				PreviewRenderer.markedPosition = null;
+				PreviewRenderer.marked = null;
 	        }
 			iTile.onDeselect(player, stack);
 		}
@@ -309,6 +310,48 @@ public class LittleEvent {
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 			if(stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget())))
 			{
+				while (LittleTilesClient.flip.isPressed())
+				{
+					int i4 = MathHelper.floor((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+					EnumFacing direction = null;
+					switch(i4)
+					{
+					case 0:
+						direction = EnumFacing.SOUTH;
+						break;
+					case 1:
+						direction = EnumFacing.WEST;
+						break;
+					case 2:
+						direction = EnumFacing.NORTH;
+						break;
+					case 3:
+						direction = EnumFacing.EAST;
+						break;
+					}
+					if(player.rotationPitch > 45)
+						direction = EnumFacing.DOWN;
+					if(player.rotationPitch < -45)
+						direction = EnumFacing.UP;
+					
+					LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
+					packet.executeClient(player);
+					PacketHandler.sendPacketToServer(packet);
+				}
+				
+				//Rotate Block
+		        while (LittleTilesClient.up.isPressed())
+		        	processRotateKey(player, Rotation.Z_CLOCKWISE);
+		        
+		        while (LittleTilesClient.down.isPressed())
+		        	processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE);
+		        
+		        while (LittleTilesClient.right.isPressed())
+		        	processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE);
+		        
+		        while (LittleTilesClient.left.isPressed())
+		        	processRotateKey(player, Rotation.Y_CLOCKWISE);
+				
 				double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
 		        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
 		        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
@@ -338,6 +381,13 @@ public class LittleEvent {
 			}
 			
 		}
+	}
+	
+	public void processRotateKey(EntityPlayer player, Rotation rotation)
+	{
+		LittleRotatePacket packet = new LittleRotatePacket(rotation);
+		packet.executeClient(player);
+		PacketHandler.sendPacketToServer(packet);
 	}
 	
 	@SubscribeEvent
@@ -413,6 +463,50 @@ public class LittleEvent {
 		}
 		
 	}*/
+	
+	public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
+	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");
+	
+	public static void markTEAsUpdated(TileEntityLittleTiles te)
+	{
+		try {
+			List<TileEntity> changed = (List<TileEntity>) tickstatechanged.get(te.getWorld());
+			if(changed == null)
+			{
+				changed = new ArrayList<>();
+				tickstatechanged.set(te.getWorld(), changed);
+			}
+			changed.add(te);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void processStateUpdates(World world)
+	{
+		try {
+			if(world.isRemote)
+			{
+				List<TileEntity> changed = (List<TileEntity>) tickstatechanged.get(world);
+				if(changed == null)
+				{
+					changed = new ArrayList<>();
+					tickstatechanged.set(world, changed);
+				}
+				if(changed.isEmpty())
+					return ;
+				for (TileEntity te : changed) {
+					if(te instanceof TileEntityLittleTiles && !((TileEntityLittleTiles) te).getUpdateTiles().isEmpty())
+						world.tickableTileEntities.add(te);
+					else
+						world.tickableTileEntities.remove(te);
+				}
+				changed.clear();
+			}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
+	}
 	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
