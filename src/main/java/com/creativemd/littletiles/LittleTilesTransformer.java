@@ -323,27 +323,90 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		/*addTransformer(new Transformer("net.minecraft.world.World") {
+		addTransformer(new Transformer("net.minecraft.util.ITickable") {
 			
 			@Override
 			public void transform(ClassNode node) {
-				String className = patchClassName("net/minecraft/tileentity/TileEntity");
-				String methodName = TransformerNames.patchMethodName("onLoad", "()V", className);
+				MethodNode m = new MethodNode(Opcodes.ACC_PUBLIC, "shouldUpdate", "()Z", null, null);
+				LabelNode start = new LabelNode();
+				LabelNode end = new LabelNode();
+				m.instructions.add(start);
+				m.instructions.add(new InsnNode(Opcodes.ICONST_1));
+				m.instructions.add(new InsnNode(Opcodes.IRETURN));
+				m.instructions.add(end);
+				m.localVariables.add(new LocalVariableNode("this", patchDESC("Lnet/minecraft/util/ITickable;"), null, start, end, 0));
+				m.maxLocals = 1;
+				m.maxStack = 1;
+				node.methods.add(m);
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.world.World") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "tickstatechanged", "Ljava/util/List;", "Ljava/util/List<Lnet/minecraft/tileentity/TileEntity;>;", null));
+				
+				String className = patchClassName("net/minecraft/util/ITickable");
 				
 				MethodNode m = findMethod(node, "addTileEntity", "(Lnet/minecraft/tileentity/TileEntity;)Z");
 				
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
 					
-					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals(methodName) && ((MethodInsnNode) insn).owner.equals(className))
+					if(insn instanceof TypeInsnNode && insn.getOpcode() == Opcodes.INSTANCEOF && ((TypeInsnNode) insn).desc.equals(className))
 					{
-						VarInsnNode before = (VarInsnNode) insn.getPrevious();
-						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/utils/converting/ChiselAndBitsConveration", "onAddedTileEntity", patchDESC("(Lnet/minecraft/tileentity/TileEntity;)V"), false));
-						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, before.var));
+						int varIndex = ((VarInsnNode) insn.getPrevious()).var;
+						LabelNode elseNode = ((JumpInsnNode) insn.getNext()).label;
+						
+						insn = insn.getNext();
+						m.instructions.insert(insn, new JumpInsnNode(Opcodes.IFEQ, elseNode));
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKEINTERFACE, className, "shouldUpdate", "()Z", true));
+						m.instructions.insert(insn, new TypeInsnNode(Opcodes.CHECKCAST, className));
+						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, varIndex));
+						break;
+					}
+				}
+				
+				m = findMethod(node, "updateEntities", "()V");
+				
+				String worldClass = patchClassName("net/minecraft/world/World");
+				String fieldName = patchFieldName("processingLoadedTiles");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof FieldInsnNode && insn.getOpcode() == Opcodes.PUTFIELD && ((FieldInsnNode) insn).name.equals(fieldName) && ((FieldInsnNode) insn).owner.equals(worldClass))
+					{
+						insn = insn.getNext();
+						
+						m.instructions.insertBefore(insn, new LabelNode());
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "processStateUpdates", "(L" + worldClass + ";)V", false));
+						break;
 					}
 				}
 			}
-		});*/
+		});
+		/*addTransformer(new Transformer("net.minecraft.world.World") {
+		
+		@Override
+		public void transform(ClassNode node) {
+			String className = patchClassName("net/minecraft/tileentity/TileEntity");
+			String methodName = TransformerNames.patchMethodName("onLoad", "()V", className);
+			
+			MethodNode m = findMethod(node, "addTileEntity", "(Lnet/minecraft/tileentity/TileEntity;)Z");
+			
+			for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+				AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+				
+				if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals(methodName) && ((MethodInsnNode) insn).owner.equals(className))
+				{
+					VarInsnNode before = (VarInsnNode) insn.getPrevious();
+					m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/utils/converting/ChiselAndBitsConveration", "onAddedTileEntity", patchDESC("(Lnet/minecraft/tileentity/TileEntity;)V"), false));
+					m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, before.var));
+				}
+			}
+		}
+	});*/
 	}
 
 }

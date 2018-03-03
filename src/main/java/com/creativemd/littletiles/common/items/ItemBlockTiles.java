@@ -9,6 +9,8 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -19,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -159,6 +162,17 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(stack != null)
 			return getItemRenderingCubes(stack);
 		return new ArrayList<>();
+	}
+	
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		return ItemMultiTiles.currentMode;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack);
 	}
 
 }

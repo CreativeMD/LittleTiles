@@ -49,7 +49,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiCreator{
+public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiCreator {
 	
 	public ItemRecipe(){
 		setCreativeTab(LittleTiles.littleTab);
@@ -71,6 +71,54 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return new ActionResult(EnumActionResult.PASS, stack);
     }
 	
+	public List<LittleTilePreview> saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+	{
+		List<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
+		
+		for (int posX = minX; posX <= maxX; posX++) {
+			for (int posY = minY; posY <= maxY; posY++) {
+				for (int posZ = minZ; posZ <= maxZ; posZ++) {
+					BlockPos newPos = new BlockPos(posX, posY, posZ);
+					TileEntity tileEntity = world.getTileEntity(newPos);
+					LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
+					if(tileEntity instanceof TileEntityLittleTiles)
+					{
+						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+							
+							LittleTilePreview preview = ((LittleTile) iterator.next()).getPreviewTile();
+							preview.box.addOffset(offset);
+							previews.add(preview);
+						}
+					}
+					List<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
+					if(specialPreviews != null)
+					{
+						for (int i = 0; i < specialPreviews.size(); i++) {
+							specialPreviews.get(i).box.addOffset(offset);
+							previews.add(specialPreviews.get(i));
+						}
+					}
+				}
+			}
+		}
+		return previews;
+	}
+	
+	public void saveRecipe(World world, ItemStack stack, BlockPos second)
+	{
+		int firstX = stack.getTagCompound().getInteger("x");
+		int firstY = stack.getTagCompound().getInteger("y");
+		int firstZ = stack.getTagCompound().getInteger("z");
+		
+		stack.getTagCompound().removeTag("x");
+		stack.getTagCompound().removeTag("y");
+		stack.getTagCompound().removeTag("z");
+		
+		LittleTilePreview.savePreviewTiles(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()),
+				Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);	
+	}
+	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
@@ -89,52 +137,10 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		{
 			if(!world.isRemote)
 			{
-				int firstX = stack.getTagCompound().getInteger("x");
-				int firstY = stack.getTagCompound().getInteger("y");
-				int firstZ = stack.getTagCompound().getInteger("z");
-				int minX = Math.min(firstX, pos.getX());
-				int maxX = Math.max(firstX, pos.getX());
-				int minY = Math.min(firstY, pos.getY());
-				int maxY = Math.max(firstY, pos.getY());
-				int minZ = Math.min(firstZ, pos.getZ());
-				int maxZ = Math.max(firstZ, pos.getZ());
-				
-				ArrayList<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
-				
-				stack.getTagCompound().removeTag("x");
-				stack.getTagCompound().removeTag("y");
-				stack.getTagCompound().removeTag("z");
-				
-				for (int posX = minX; posX <= maxX; posX++) {
-					for (int posY = minY; posY <= maxY; posY++) {
-						for (int posZ = minZ; posZ <= maxZ; posZ++) {
-							BlockPos newPos = new BlockPos(posX, posY, posZ);
-							TileEntity tileEntity = world.getTileEntity(newPos);
-							LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
-							if(tileEntity instanceof TileEntityLittleTiles)
-							{
-								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-									
-									LittleTilePreview preview = ((LittleTile) iterator.next()).getPreviewTile();
-									preview.box.addOffset(offset);
-									previews.add(preview);
-								}
-							}
-							List<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
-							if(specialPreviews != null)
-							{
-								for (int i = 0; i < specialPreviews.size(); i++) {
-									specialPreviews.get(i).box.addOffset(offset);
-									previews.add(specialPreviews.get(i));
-								}
-							}
-						}
-					}
-				}
+				saveRecipe(world, stack, pos);
 				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
-				LittleTilePreview.savePreviewTiles(previews, stack);
 			}
+				
 			return EnumActionResult.SUCCESS;
 		}else if(!stack.hasTagCompound()){
 			if(!world.isRemote)
@@ -187,6 +193,11 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return new ArrayList<RenderCubeObject>();
 	}
 	
+	public ModelResourceLocation getBackgroundLocation()
+	{
+		return new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory");
+	}
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType)
@@ -198,7 +209,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		{
 			if(cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
-			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
+			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(getBackgroundLocation());
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);

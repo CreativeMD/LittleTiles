@@ -34,7 +34,7 @@ public interface ISpecialBlockSelector {
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTileVec absoluteHit);
 	
-	//public void rotateLittlePreview(ItemStack stack, Rotation rotation);
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation);
 	
-	//public void flipLittlePreview(ItemStack stack, Axis axis);
+	public void flipLittlePreview(ItemStack stack, Axis axis);
 }

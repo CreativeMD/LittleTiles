@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -36,6 +37,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -121,6 +123,20 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos,
 			IBlockState state) {
 		return new SubContainerHammer(player, stack);
+	}
+	
+	@Override
+	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
+		SelectShape shape = getShape(stack);
+		if(shape != null)
+			shape.rotate(rotation, stack.getTagCompound());
+	}
+
+	@Override
+	public void flipLittlePreview(ItemStack stack, Axis axis) {
+		SelectShape shape = getShape(stack);
+		if(shape != null)
+			shape.flip(axis, stack.getTagCompound());
 	}
 	
 	public static SelectShape getShape(ItemStack stack)

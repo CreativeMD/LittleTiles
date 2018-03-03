@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -116,5 +117,11 @@ public interface ILittleTile {
 	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack)
 	{
 		return null;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default MarkMode onMark(EntityPlayer player, ItemStack stack)
+	{
+		return new MarkMode();
 	}
 }

@@ -22,6 +22,7 @@ import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -87,6 +88,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public CopyOnWriteArrayList<LittleTile> getTiles()
 	{
 		return tiles;
+	}
+	
+	public CopyOnWriteArrayList<LittleTile> getUpdateTiles()
+	{
+		return updateTiles;
 	}
 	
 	private boolean hasLoaded = false;
@@ -331,6 +337,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	{
 		if(updateTiles.isEmpty() == ticking)
 		{
+			if(world.isRemote)
+			{
+				LittleEvent.markTEAsUpdated(this);
+				return;
+			}
 			try {
 				if(!processingLoadedTiles.getBoolean(world))
 				{
@@ -1113,4 +1124,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return highest != null ? highest.getBlockState() : null;
 	}
 	
+	public boolean shouldUpdate()
+	{
+		if(world.isRemote)
+			ticking = !updateTiles.isEmpty();
+		else
+			ticking = true;
+		return ticking;
+	}
 }
