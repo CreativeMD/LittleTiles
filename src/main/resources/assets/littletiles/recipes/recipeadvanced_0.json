@@ -1,0 +1,21 @@
+{
+  "result": {
+    "item": "littletiles:recipeadvanced",
+    "data": 0,
+    "count": 5
+  },
+  "pattern": [
+    "XLX",
+    "LXL",
+    "XLX"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "minecraft:paper"
+    },
+	"L": {
+      "item": "minecraft:redstone"
+    }
+  }
+}

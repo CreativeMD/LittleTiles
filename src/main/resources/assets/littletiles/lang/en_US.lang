@@ -10,6 +10,7 @@ item.LTRubberMallet.name=Little Rubber Mallet
 item.LTColorTube.name=Little Paint Brush
 item.LTUtilityKnife.name=Little Utility Knife
 item.LTGrabber.name=Little Glove
+item.LTRecipeAdvanced.name=Miniature Recipe
 
 tile.LTParticleBlock.name=Little Particle Block
 tile.LTColoredBlock.clean.name=Colored Block Clean
@@ -81,3 +82,6 @@ placement.mode.overwrite=Overwrite Mode
 placement.mode.overwrite.tooltip=Will place all tiles and remove the overlapping space.\nCannot removed structure tiles.
 placement.mode.replace=Replace Mode
 placement.mode.replace.tooltip=Will only place the tiles at the overlapping space.\nCannot removed structure tiles.
+
+markmode.gui.allowlowresolution=Low resolution
+markmode.gui.switchpos=Switch Position

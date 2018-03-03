@@ -114,6 +114,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.recipeadvanced);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);
@@ -125,6 +126,10 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);	
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 0, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced", "inventory"));
+		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 1, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);	
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
