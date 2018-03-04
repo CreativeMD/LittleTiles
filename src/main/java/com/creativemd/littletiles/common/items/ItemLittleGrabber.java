@@ -33,6 +33,8 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.gui.SubGuiGrabber;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -46,6 +48,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -214,6 +217,17 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
 		return getMode(stack).onMouseWheelClickBlock(player, stack, result);
+	}
+	
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		return ItemMultiTiles.currentMode;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack);
 	}
 	
 	public static GrabberMode getMode(String name)
