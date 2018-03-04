@@ -93,6 +93,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -387,6 +389,10 @@ public class LittleTiles {
 		GameRegistry.addRecipe(new ItemStack(recipe, 5),  new Object[]
 				{
 				"XAX", "AXA", "XAX", 'X', Items.PAPER
+				});
+		GameRegistry.addRecipe(new ItemStack(recipeAdvanced, 5),  new Object[]
+				{
+				"XAX", "AXA", "XAX", 'X', Items.PAPER, 'A', Items.REDSTONE
 				});
 		
 		GameRegistry.addRecipe(new ItemStack(hammer),  new Object[]

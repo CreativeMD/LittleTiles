@@ -335,7 +335,7 @@ public class PreviewRenderer {
 						PlacePreviewTile preview = result.placePreviews.get(i);
 						List<LittleRenderingCube> cubes = preview.getPreviews();
 						for (LittleRenderingCube cube : cubes) {
-							RenderGlobal.drawSelectionBoundingBox(cube.getAxis().grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+							RenderGlobal.drawSelectionBoundingBox(cube.getAxis().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 						}
 					}
 		            

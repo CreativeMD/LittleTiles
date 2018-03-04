@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;

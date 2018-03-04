@@ -114,7 +114,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);
-		CreativeCoreClient.registerItemRenderer(LittleTiles.recipeadvanced);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.recipeAdvanced);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.saw);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.container);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.wrench);

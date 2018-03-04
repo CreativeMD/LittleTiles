@@ -328,6 +328,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			@Override
 			public void transform(ClassNode node) {
 				MethodNode m = new MethodNode(Opcodes.ACC_PUBLIC, "shouldUpdate", "()Z", null, null);
+				node.version = Opcodes.V1_8;
 				LabelNode start = new LabelNode();
 				LabelNode end = new LabelNode();
 				m.instructions.add(start);

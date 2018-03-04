@@ -137,7 +137,7 @@ public class MarkMode {
         
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
-        AxisAlignedBB box = new LittleTileBox(position.getAbsoluteVec(), new LittleTileSize(1, 1, 1)).getBox().grow(0.0020000000949949026D).offset(-d0, -d1, -d2);
+        AxisAlignedBB box = new LittleTileBox(position.getAbsoluteVec(), new LittleTileSize(1, 1, 1)).getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2);
         
         
         GlStateManager.glLineWidth(4.0F);

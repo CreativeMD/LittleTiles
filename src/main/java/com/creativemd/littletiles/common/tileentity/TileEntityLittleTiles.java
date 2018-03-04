@@ -1109,7 +1109,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		{
 			box = box.expand(0, LittleTile.gridMCLength, 0);
 			for (LittleTile tile : tiles) {
-				if(tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
+				if(tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersectsWith(box))
 					return ((LittleTileBlock) tile).getBlockState();
 			}
 			return null;
@@ -1117,7 +1117,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		box = box.expand(0, -1, 0);
 		LittleTileBlock highest = null;
 		for (LittleTile tile : tiles) {
-			if(tile instanceof LittleTileBlock && (highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersects(box))
+			if(tile instanceof LittleTileBlock && (highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersectsWith(box))
 				highest = (LittleTileBlock) tile;
 				
 		}
