@@ -21,6 +21,8 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.gui.SubGuiMarkMode;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -406,9 +408,23 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 	}
 	
+	public static PlacementMode currentMode = PlacementMode.fill;
+	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
-		return PlacementMode.fill;
+		return currentMode;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack){
+			
+			@Override
+			public void saveConfiguration() {
+				currentMode = getMode();
+			}
+		};
 	}
 	
 	@Override
