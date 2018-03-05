@@ -138,6 +138,12 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false, mode);
 		
+		if(result == null)
+		{
+			boxes = new ArrayList<>();
+			return new ArrayList<>();
+		}
+		
 		List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 		List<LittleTile> removedTiles = new ArrayList<LittleTile>();
 		
@@ -179,8 +185,9 @@ public class LittleActionPlaceRelative extends LittleAction {
 				boxes.add(box);
 			}
 			return placedTiles;
-		}
-       return placedTiles;
+		}else
+			boxes = new ArrayList<>();
+		return placedTiles;
     }
 	
 	public static List<LittleTile> placeTilesWithoutPlayer(World world, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing)
