@@ -192,6 +192,7 @@ public class LittleTiles {
 		GameRegistry.register(hammer);
 		GameRegistry.register(recipe);
 		GameRegistry.register(recipeAdvanced);
+		GameRegistry.register(grabber);
 		GameRegistry.register(saw);
 		GameRegistry.register(container);
 		GameRegistry.register(wrench);
