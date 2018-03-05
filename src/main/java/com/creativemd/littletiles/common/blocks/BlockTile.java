@@ -992,7 +992,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null && !world.isRemote)
     	{
-    		float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, "explosionSize", "field_77280_f");
+    		float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, "size", "field_77280_f");
     		Vec3d center = explosion.getPosition();
     		ArrayList<LittleTile> removeTiles = new ArrayList<>();
     		for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
