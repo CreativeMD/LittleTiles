@@ -388,9 +388,12 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	}
 	
 	@Override
-	public boolean isVecInsideBox(LittleTileVec vec)
+	public boolean isVecInsideBox(LittleTileBox box, LittleTileVec vec)
 	{
-		return isVecInsideBox(vec.x, vec.y, vec.z);
+		if(box.isCompletelyFilled())
+			return isVecInsideBox(vec.x, vec.y, vec.z);
+		
+		return LittleTileBox.intersectsWith(box, extractBox(vec.x, vec.y, vec.z));		
 	}
 	
 	@Override

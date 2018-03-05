@@ -572,10 +572,12 @@ public class LittleTileBox {
 		if(intersectsWith(box))
 		{
 			List<LittleTileBox> boxes = new ArrayList<>();
+			LittleTileVec vec = new LittleTileVec(0, 0, 0);
 			for (int littleX = minX; littleX < maxX; littleX++) {
 				for (int littleY = minY; littleY < maxY; littleY++) {
 					for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
-						if(!box.isVecInsideBox(littleX, littleY, littleZ))
+						vec.set(littleX, littleY, littleZ);
+						if(!box.isVecInsideBox(box, vec))
 							extractBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1, boxes);
 					}
 				}
@@ -622,7 +624,7 @@ public class LittleTileBox {
 				for (int y = minY; y < maxY; y++) {
 					for (int z = minZ; z < maxZ; z++) {
 						vec.set(x, y, z);
-						if(isVecInsideBox(vec))
+						if(isVecInsideBox(otherBox, vec))
 							filled[x-otherBox.minX][y-otherBox.minY][z-otherBox.minZ] = true;
 					}
 				}
@@ -758,9 +760,9 @@ public class LittleTileBox {
 		return x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
 	}
 	
-	public boolean isVecInsideBox(LittleTileVec vec)
+	public boolean isVecInsideBox(LittleTileBox box, LittleTileVec vec)
 	{
-		return vec.x >= minX && vec.x < maxX && vec.y >= minY && vec.y < maxY && vec.z >= minZ && vec.z < maxZ;
+		return isVecInsideBox(vec.x, vec.y, vec.z);
 	}
 	
 	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely)
