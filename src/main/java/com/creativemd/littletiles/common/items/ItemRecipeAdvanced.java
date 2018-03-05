@@ -3,11 +3,13 @@ package com.creativemd.littletiles.common.items;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
+import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -21,6 +23,7 @@ import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManag
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -81,6 +84,7 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 		int scale = stack.getTagCompound().getInteger("scale");
 		
 		List<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
+		HashMapList<BlockPos, LittleTile> tiles = new HashMapList<>();
 		
 		MutableBlockPos newPos = new MutableBlockPos();
 		
@@ -93,10 +97,19 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 					{
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 						tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, scale, scale, scale);
-						tile.box.addOffset(new LittleTileVec((posX-minX)*scale, (posY-minY)*scale, (posZ-minZ)*scale));
-						previews.add(tile.getPreviewTile());
+						LittleTileVec offset = new LittleTileVec((posX-minX)*scale, (posY-minY)*scale, (posZ-minZ)*scale);
+						tile.box.addOffset(offset);
+						tiles.add(offset.getBlockPos(), tile);
+						
 					}
 				}
+			}
+		}
+		
+		for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+			BasicCombiner.combineTiles(entry.getValue());
+			for (LittleTile tile : entry.getValue()) {
+				previews.add(tile.getPreviewTile());
 			}
 		}
 		
