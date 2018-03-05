@@ -105,7 +105,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return previews;
 	}
 	
-	public void saveRecipe(World world, ItemStack stack, BlockPos second)
+	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second)
 	{
 		int firstX = stack.getTagCompound().getInteger("x");
 		int firstY = stack.getTagCompound().getInteger("y");
@@ -137,7 +137,7 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		{
 			if(!world.isRemote)
 			{
-				saveRecipe(world, stack, pos);
+				saveRecipe(world, player, stack, pos);
 				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}
 				

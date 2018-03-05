@@ -19,7 +19,7 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		super.onPacketReceive(nbt);
-		((ItemRecipeAdvanced) stack.getItem()).saveRecipe(player.world, stack, second);
+		((ItemRecipeAdvanced) stack.getItem()).saveRecipe(player.world, player, stack, second);
 	}
 
 }
