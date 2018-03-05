@@ -62,18 +62,18 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 	}
 	
 	@Override
-	public void saveRecipe(World world, ItemStack stack, BlockPos second)
+	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second)
 	{
 		if(stack.getTagCompound().hasKey("scale"))
 		{
-			super.saveRecipe(world, stack, second);
+			super.saveRecipe(world, player, stack, second);
 			stack.getTagCompound().removeTag("scale");			
 		}else{
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setInteger("posX", second.getX());
 			nbt.setInteger("posY", second.getY());
 			nbt.setInteger("posZ", second.getZ());
-			GuiHandler.openGui("recipeadvanced", nbt);
+			GuiHandler.openGui("recipeadvanced", nbt, player);
 		}
 	}
 	
