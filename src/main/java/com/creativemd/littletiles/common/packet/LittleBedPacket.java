@@ -7,7 +7,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
@@ -17,19 +17,19 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleBedPacket extends CreativeCorePacket {
 	
-	public LittleTileAbsoluteCoord coord;
+	public LittleTileIdentifierAbsolute coord;
 	public int playerID;
 	
 	public LittleBedPacket() {
 		
 	}
 	
-	public LittleBedPacket(LittleTileAbsoluteCoord coord) {
+	public LittleBedPacket(LittleTileIdentifierAbsolute coord) {
 		this.coord = coord;
 		this.playerID = -1;
 	}
 	
-	public LittleBedPacket(LittleTileAbsoluteCoord coord, EntityPlayer player) {
+	public LittleBedPacket(LittleTileIdentifierAbsolute coord, EntityPlayer player) {
 		this(coord);
 		this.playerID = player.getEntityId();
 	}

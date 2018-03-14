@@ -101,7 +101,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		{
 			Vec3d offset = new Vec3d(0.5, 1, 0.5);
 			if(tile != null)
-				offset = tile.box.getMinVec().getVec().addVector(LittleTile.gridMCLength/2, particle.spawnBelow ? -LittleTile.gridMCLength*2 : LittleTile.gridMCLength, LittleTile.gridMCLength/2);
+				offset = tile.box.getMinVec().getVec(tile.getContext()).addVector(tile.getContext().gridMCLength/2, particle.spawnBelow ? -tile.getContext().gridMCLength*2 : tile.getContext().gridMCLength, tile.getContext().gridMCLength/2);
 				
 			if(speed >= 1)
 			{

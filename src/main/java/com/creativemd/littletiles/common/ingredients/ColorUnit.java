@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.ingredients;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.init.Items;
@@ -141,15 +142,15 @@ public class ColorUnit {
 		return null;
 	}
 	
-	public static ColorUnit getRequiredColors(LittleTilePreview preview)
+	public static ColorUnit getRequiredColors(LittleGridContext context, LittleTilePreview preview)
 	{
 		if(preview.hasColor())
 		{
 			ColorUnit color = getRequiredColors(preview.getColor());
-			color.BLACK *= preview.getPercentVolume();
-			color.RED *= preview.getPercentVolume();
-			color.GREEN *= preview.getPercentVolume();
-			color.BLUE *= preview.getPercentVolume();
+			color.BLACK *= preview.getPercentVolume(context);
+			color.RED *= preview.getPercentVolume(context);
+			color.GREEN *= preview.getPercentVolume(context);
+			color.BLUE *= preview.getPercentVolume(context);
 			return color;
 		}
 		return null;

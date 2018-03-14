@@ -5,6 +5,7 @@ import java.util.List;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 public class CombinedIngredients {
 	
@@ -20,19 +21,19 @@ public class CombinedIngredients {
 		this.block = block;
 	}
 	
-	public void addPreview(List<LittleTilePreview> previews)
+	public void addPreview(LittleGridContext context, List<LittleTilePreview> previews)
 	{
 		for (LittleTilePreview preview : previews) {
-			addPreview(preview);
+			addPreview(context, preview);
 		}
 	}
 	
-	public void addPreview(LittleTilePreview preview)
+	public void addPreview(LittleGridContext context, LittleTilePreview preview)
 	{
 		if(preview.canBeConvertedToBlockEntry())
 		{
-			block.addIngredient(preview.getBlockIngredient());
-			color.addColorUnit(ColorUnit.getRequiredColors(preview));
+			block.addIngredient(preview.getBlockIngredient(context));
+			color.addColorUnit(ColorUnit.getRequiredColors(context, preview));
 		}
 	}
 	
@@ -40,7 +41,7 @@ public class CombinedIngredients {
 	{
 		if(preview.canBeConvertedToBlockEntry())
 		{
-			BlockIngredient ingredient = preview.getBlockIngredient();
+			BlockIngredient ingredient = preview.getBlockIngredient(LittleGridContext.get());
 			ingredient.value = volume;
 			block.addIngredient(ingredient);
 			color.addColorUnit(ColorUnit.getRequiredColors(preview, volume));

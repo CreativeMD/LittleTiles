@@ -12,7 +12,9 @@ import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -26,9 +28,9 @@ import net.minecraft.world.World;
 
 public abstract class LittleActionBoxes extends LittleAction {
 	
-	public List<LittleTileBox> boxes;
+	public LittleBoxes boxes;
 	
-	public LittleActionBoxes(List<LittleTileBox> boxes) {
+	public LittleActionBoxes(LittleBoxes boxes) {
 		this.boxes = boxes;
 	}
 	
@@ -36,7 +38,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 		
 	}
 	
-	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes) throws LittleActionException;
+	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException;
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -45,17 +47,15 @@ public abstract class LittleActionBoxes extends LittleAction {
 		
 		boolean placed = false;
 		World world = player.world;
-		HashMapList<BlockPos, LittleTileBox> boxesMap = new HashMapList<>();
+		
 		
 		if(SpecialServerConfig.isEditLimited(player))
 		{
-			if(LittleTileBox.getSurroundingBox(boxes).getPercentVolume() > SpecialServerConfig.maxEditBlocks)
+			if(boxes.getSurroundingBox().getPercentVolume(boxes.context) > SpecialServerConfig.maxEditBlocks)
 				throw new SpecialServerConfig.NotAllowedToEditException();
 		}
 		
-		for (int i = 0; i < boxes.size(); i++) {
-			boxes.get(i).split(boxesMap);
-		}
+		HashMapList<BlockPos, LittleTileBox> boxesMap = boxes.split();
 		
 		for (Iterator<Entry<BlockPos, ArrayList<LittleTileBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
 			Entry<BlockPos, ArrayList<LittleTileBox>> entry = iterator.next();
@@ -68,7 +68,8 @@ public abstract class LittleActionBoxes extends LittleAction {
 			}
 			
 			placed = true;
-			action(world, player, pos, state, entry.getValue());
+			
+			action(world, player, pos, state, entry.getValue(), boxes.context);
 		}
 		
 		world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
@@ -77,19 +78,12 @@ public abstract class LittleActionBoxes extends LittleAction {
 
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		buf.writeInt(boxes.size());
-		for (LittleTileBox box : boxes) {
-			writeLittleBox(box, buf);
-		}
+		writeBoxes(boxes, buf);
 	}
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		int size = buf.readInt();
-		boxes = new ArrayList<>();
-		for (int i = 0; i < size; i++) {
-			boxes.add(readLittleBox(buf));
-		}
+		boxes = readBoxes(buf);
 	}
 	
 }

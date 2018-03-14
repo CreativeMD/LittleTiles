@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.entity;
 
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityTNTPrimed;
@@ -19,21 +20,22 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
 		super(worldIn);
 	}
 	
+	public LittleGridContext context;
 	public LittleTileSize size;
 	
-	public EntitySizedTNTPrimed(World worldIn, double x, double y, double z, EntityLivingBase igniter, LittleTileSize size)
+	public EntitySizedTNTPrimed(World worldIn, double x, double y, double z, EntityLivingBase igniter, LittleGridContext context, LittleTileSize size)
     {
 		super(worldIn, x, y, z, igniter);
 		//setFuse(1000);
-		setSize(size);
-		setSize((float) size.getPosX(), (float) size.getPosY());
+		setSize(context, size);
+		setSize((float) size.getPosX(context), (float) size.getPosY(context));
     }
 	
 	@Override
 	protected void entityInit()
     {
         super.entityInit();
-        this.dataManager.register(TNTSIZE, "16.16.16");
+        this.dataManager.register(TNTSIZE, "1.1.1.1");
     }
 	
 	@Override
@@ -41,6 +43,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
     {
 		super.writeEntityToNBT(compound);
         size.writeToNBT("size", compound);
+        context.set(compound);
     }
 
     @Override
@@ -48,6 +51,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
     {
     	super.readEntityFromNBT(compound);
         size = new LittleTileSize("size", compound);
+        context = LittleGridContext.get(compound);
     }
     
     @Override
@@ -55,14 +59,19 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
     {
         if (TNTSIZE.equals(key))
         {
-            this.size = new LittleTileSize((String) this.dataManager.get(TNTSIZE));
+        	String data = (String) this.dataManager.get(TNTSIZE);
+            this.size = new LittleTileSize(data);
+            String[] coords = data.split("\\.");
+            this.context = LittleGridContext.get(Integer.parseInt(coords[coords.length-1]));
+            
         }
     }
     
-    public void setSize(LittleTileSize size)
+    public void setSize(LittleGridContext context, LittleTileSize size)
     {
-        this.dataManager.set(TNTSIZE, size.toString());
+        this.dataManager.set(TNTSIZE, size.toString() + "." + context.size);
         this.size = size;
+        this.context = context;
     }
 	
 	public void onUpdate()
@@ -81,7 +90,7 @@ public class EntitySizedTNTPrimed extends EntityTNTPrimed {
 
 	protected void explode()
 	{
-	    this.world.createExplosion(this, this.posX, this.posY + (double)(this.height / 16.0F), this.posZ, (float) (4.0D*size.getPercentVolume()), true);
+	    this.world.createExplosion(this, this.posX, this.posY + (double)(this.height / 16.0F), this.posZ, (float) (4.0D*size.getPercentVolume(context)), true);
 	}
 
 }

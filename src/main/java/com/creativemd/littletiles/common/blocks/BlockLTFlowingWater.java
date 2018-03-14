@@ -154,7 +154,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	public Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion)
 	{
 		AxisAlignedBB box = entityIn.getEntityBoundingBox();
-		LittleTileVec center = new LittleTileVec(new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos()))); 
+		LittleTileVec center = new LittleTileVec(tile.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos()))); 
 		
 		if(tile.box.isVecInsideBox(center.x, center.y, center.z))
 		{

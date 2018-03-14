@@ -22,10 +22,13 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileRelativeCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileStructureCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -63,25 +66,6 @@ public abstract class LittleTile {
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	private static HashMap<String, Class<? extends LittleTile>> invTileIDs = new HashMap<String, Class<? extends LittleTile>>();
 	private static HashMap<String, LittleTilePreviewHandler> previewHandlers = new HashMap<String, LittleTilePreviewHandler>();
-	
-	public static int gridSize = 16;
-	public static int halfGridSize = gridSize/2;
-	public static double gridMCLength = 1D/gridSize;
-	public static int minPos = 0;
-	public static int maxPos = gridSize;
-	public static int maxTilesPerBlock = gridSize*gridSize*gridSize;
-	public static double minimumTileSize = 1D/maxTilesPerBlock;
-	
-	public static void setGridSize(int size)
-	{
-		gridSize = size;
-		halfGridSize = gridSize/2;
-		gridMCLength = 1D/gridSize;
-		minPos = 0;
-		maxPos = gridSize;
-		maxTilesPerBlock = gridSize*gridSize*gridSize;
-		minimumTileSize = 1D/maxTilesPerBlock;
-	}
 	
 	public static Class<? extends LittleTile> getClassByID(String id)
 	{
@@ -134,7 +118,7 @@ public abstract class LittleTile {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");
 				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
-				box.addOffset(new LittleTileVec(halfGridSize, halfGridSize, halfGridSize));
+				box.addOffset(new LittleTileVec(LittleGridContext.oldHaldGridSize, LittleGridContext.oldHaldGridSize, LittleGridContext.oldHaldGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
 				tile.box = box;
 				return tile;
@@ -174,17 +158,28 @@ public abstract class LittleTile {
 	
 	//================Position & Size================
 	
-	public abstract boolean canBeConvertedToVanilla();
-	
-	/**Might cause issues in regions x, y or z above 134,217,728**/
-	public LittleTileVec getAbsoluteCoordinates()
+	public LittleGridContext getContext()
 	{
-		LittleTileVec coord = new LittleTileVec(te.getPos());
-		coord.add(box.getMinVec());
-		return coord;
+		return te.getContext();
 	}
 	
-	//public ArrayList<LittleTileBox> boundingBoxes; Major Change!!! Does methods below should still allow you to implement multiple boxes
+	public int getSmallestContext(LittleGridContext context)
+	{
+		return box.getSmallestContext(context);
+	}
+	
+	public void convertTo(LittleGridContext from, LittleGridContext to)
+	{
+		box.convertTo(from, to);
+	}
+	
+	public abstract boolean canBeConvertedToVanilla();
+	
+	public LittleTilePos getAbsolutePos()
+	{
+		return new LittleTilePos(te.getPos(), getContext(), box.getMinVec());
+	}
+	
 	public LittleTileBox box;
 	
 	public LittleTileVec getMinVec()
@@ -199,7 +194,7 @@ public abstract class LittleTile {
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos)
 	{
-		return box.getSelectionBox(pos);
+		return box.getSelectionBox(getContext(), pos);
 	}
 	
 	public double getVolume()
@@ -209,7 +204,7 @@ public abstract class LittleTile {
 	
 	public double getPercentVolume()
 	{
-		return box.getPercentVolume();
+		return box.getPercentVolume(getContext());
 	}
 	
 	public LittleTileSize getSize()
@@ -219,12 +214,12 @@ public abstract class LittleTile {
 	
 	public boolean doesFillEntireBlock()
 	{
-		return box.doesFillEntireBlock();
+		return box.doesFillEntireBlock(getContext());
 	}
 	
 	public void fillFace(LittleTileFace face)
 	{
-		this.box.fill(face);
+		this.box.fill(getContext(), face);
 	}
 	
 	public void fillInSpace(boolean[][][] filled)
@@ -258,8 +253,11 @@ public abstract class LittleTile {
 	 * It's faster than isAt()
 	 * @return if the min vec of the box equals the given coordinates
 	 */
-	public boolean is(int[] identifier)
+	public boolean is(LittleGridContext context, int[] identifier)
 	{
+		identifier = LittleTileIdentifierAbsolute.convertTo(identifier, context, getContext());
+		if(identifier == null)
+			return false;
 		return box.is(identifier);
 	}
 	
@@ -304,7 +302,7 @@ public abstract class LittleTile {
 	
 	public RayTraceResult rayTrace(Vec3d pos, Vec3d look)
     {
-		return box.calculateIntercept(te.getPos(), pos, look);
+		return box.calculateIntercept(getContext(), te.getPos(), pos, look);
     }
 	
 	public boolean equalsBox(LittleTileBox box)
@@ -550,11 +548,11 @@ public abstract class LittleTile {
 				{
 					LittleTilePosition pos = new LittleTilePosition(nbt);
 					
-					coord = new LittleTileStructureCoord(te, pos.coord, new int[]{pos.position.x, pos.position.y, pos.position.z}, LittleStructureAttribute.NONE);
+					coord = new LittleTileIdentifierStructure(te, pos.coord, LittleGridContext.get(), new int[]{pos.position.x, pos.position.y, pos.position.z}, LittleStructureAttribute.NONE);
 					
 					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
 				}else
-					coord = new LittleTileStructureCoord(nbt);
+					coord = new LittleTileIdentifierStructure(nbt);
 			}
 		}
 	}
@@ -829,7 +827,7 @@ public abstract class LittleTile {
 	
 	public LittleStructure structure;
 	
-	public LittleTileStructureCoord coord;
+	public LittleTileIdentifierStructure coord;
 	
 	public boolean isMainBlock = false;
 	
@@ -855,7 +853,7 @@ public abstract class LittleTile {
 				TileEntity tileEntity = world.getTileEntity(absoluteCoord);
 				if(tileEntity instanceof TileEntityLittleTiles)
 				{
-					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.identifier);
+					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.context, coord.identifier);
 					if(tile != null && tile.isStructureBlock)
 					{
 						if(tile.isMainBlock)

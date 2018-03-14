@@ -4,6 +4,7 @@ import java.security.InvalidParameterException;
 
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -80,9 +81,9 @@ public class LittleTileSize {
 	}
 	
 	/**@return the volume in percent to a size of a normal block*/
-	public double getPercentVolume()
+	public double getPercentVolume(LittleGridContext context)
 	{
-		return (double) getVolume() / (double) (LittleTile.maxTilesPerBlock);
+		return (double) getVolume() / (double) (context.maxTilesPerBlock);
 	}
 	
 	public LittleTileVec calculateInvertedCenter()
@@ -102,19 +103,19 @@ public class LittleTileSize {
 		return new LittleTileVec((int)Math.floor(x), (int)Math.floor(y), (int)Math.floor(z));
 	}
 	
-	public double getPosX()
+	public double getPosX(LittleGridContext context)
 	{
-		return (double)sizeX/LittleTile.gridSize;
+		return context.toVanillaGrid(sizeX);
 	}
 	
-	public double getPosY()
+	public double getPosY(LittleGridContext context)
 	{
-		return (double)sizeY/LittleTile.gridSize;
+		return context.toVanillaGrid(sizeY);
 	}
 	
-	public double getPosZ()
+	public double getPosZ(LittleGridContext context)
 	{
-		return (double)sizeZ/LittleTile.gridSize;
+		return context.toVanillaGrid(sizeZ);
 	}
 	
 	public int get(Axis axis)

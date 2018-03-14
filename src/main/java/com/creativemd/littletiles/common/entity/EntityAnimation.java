@@ -22,9 +22,12 @@ import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -50,13 +53,14 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
     }
 	
-	public void setCenterVec(LittleTileVec axis)
+	public void setCenterVec(LittleTilePos axis)
 	{
+		axis.removeInternalBlockOffset();
+		
 		this.center = axis;
-        this.baseOffset = axis.getBlockPos();
+        this.baseOffset = axis.pos;
         
-        this.inBlockCenter = axis.copy();
-        this.inBlockCenter.sub(new LittleTileVec(baseOffset));
+        this.inBlockCenter = axis.contextVec;
         this.chunkOffset = getRenderChunkPos(baseOffset);
         
         
@@ -72,20 +76,20 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		return new BlockPos(blockPos.getX() >> 4, blockPos.getY() >> 4, blockPos.getZ() >> 4);
 	}
 	
-	protected LittleTileVec center;
-	protected LittleTileVec inBlockCenter;
+	protected LittleTilePos center;
+	protected LittleTileVecContext inBlockCenter;
 	protected BlockPos baseOffset;
 	protected BlockPos chunkOffset;
 	protected BlockPos inChunkOffset;
 	
 	public BlockPos startOffset;
 	
-	public LittleTileVec getCenter()
+	public LittleTilePos getCenter()
 	{
 		return center;
 	}
 	
-	public LittleTileVec getInsideBlockCenter()
+	public LittleTileVecContext getInsideBlockCenter()
 	{
 		return inBlockCenter;
 	}
@@ -108,7 +112,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	//================World Data================
 	
 	public LittleDoorBase structure;
-	public ArrayList<PlacePreviewTile> previews;
+	public PlacePreviews previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	
 	public double prevWorldRotX = 0;
@@ -175,7 +179,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				LittleTile tile = iterator2.next();
 				List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
 				for (LittleTileBox box : tileBoxes) {
-					boxes.add(box.getBox(te.getPos()));
+					boxes.add(box.getBox(te.getContext(), te.getPos()));
 				}
 			}
 			
@@ -228,7 +232,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, BlockPos pos, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews, UUID uuid, LittleTileVec center) {
+	public EntityAnimation(World world, BlockPos pos, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -319,7 +323,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			double maxY = -Double.MAX_VALUE;
 			double maxZ = -Double.MAX_VALUE;
 			
-			Vector3d origin = new Vector3d(center.getPosX()+LittleTile.gridMCLength/2, center.getPosY()+LittleTile.gridMCLength/2, center.getPosZ()+LittleTile.gridMCLength/2);
+			Vector3d origin = new Vector3d(center.getPosX()+center.getContext().gridMCLength/2, center.getPosY()+center.getContext().gridMCLength/2, center.getPosZ()+center.getContext().gridMCLength/2);
 			
 			for (int i = 0; i < boxPoints.size(); i++) {
 				Vector3d vec = boxPoints.get(i);
@@ -473,7 +477,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		animation.setUniqueId(getUniqueID());
 		animation.setCenterVec(center.copy());
 		animation.structure = structure;
-		animation.previews = new ArrayList<>(previews);
+		animation.previews = previews.copy();
 		animation.blocks = new ArrayList<>(blocks);
 		
 		animation.worldBoundingBox = worldBoundingBox;
@@ -509,7 +513,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		startOffset = new BlockPos(compound.getInteger("strOffX"), compound.getInteger("strOffY"), compound.getInteger("strOffZ"));
 		
-		setCenterVec(new LittleTileVec("axis", compound));
+		setCenterVec(new LittleTilePos("axis", compound));
 		
 		World worldFake = WorldFake.createFakeWorld(world);
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
@@ -531,8 +535,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			worldFake.setTileEntity(te.getPos(), te);
 		}
 		
-		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
-		LittleTileVec axisPoint = structure.getAbsoluteAxisVec();
+		/*ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
+		LittleTilePos axisPoint = structure.getAbsoluteAxisVec();
 		
 		LittleTileVec invaxis = axisPoint.copy();
 		invaxis.invert();
@@ -560,7 +564,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			//box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
 			box.box.addOffset(internalOffset);
 			previews.add(box);
-		}
+		}*/
+		
 		
 		updateWorldCollision();
 		updateBoundingBox();

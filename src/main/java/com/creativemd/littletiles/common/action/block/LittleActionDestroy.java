@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.action.block;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.InventoryUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
@@ -16,6 +17,8 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -44,13 +47,14 @@ public class LittleActionDestroy extends LittleActionInteract {
 		return true;
 	}
 	
-	public List<LittleTilePreview> destroyedTiles;
+	public LittleAbsolutePreviews destroyedTiles;
 	public StructurePreview structurePreview;
 	
 	@Override
 	public LittleAction revert() {
 		if(structurePreview != null)
 			return structurePreview.getPlaceAction();
+		destroyedTiles.convertToSmallest();
 		return new LittleActionPlaceAbsolute(destroyedTiles, PlacementMode.normal);
 	}
 	
@@ -80,7 +84,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				throw new LittleActionException.StructureNotLoadedException();
 		}else{
 			
-			destroyedTiles = new ArrayList<>();
+			destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 			List<LittleTile> tiles = new ArrayList<>();
 			
 			if(BlockTile.selectEntireBlock(player, secondMode))
@@ -89,9 +93,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				for (LittleTile toDestory : te.getTiles()) {
 					if(!toDestory.isStructureBlock)
 					{
-						LittleTilePreview preview = toDestory.getPreviewTile();
-						preview.box.addOffset(toDestory.te.getPos());
-						destroyedTiles.add(preview);
+						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one block
 						tiles.add(toDestory);
 					}else
 						remains.add(toDestory);
@@ -101,7 +103,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 					addPreviewToInventory(player, destroyedTiles);
 				else if(!world.isRemote){
 					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-					LittleTilePreview.saveTiles(world, tiles, drop);
+					LittleTilePreview.saveTiles(world, te.getContext(), tiles, drop);
 					WorldUtils.dropItem(world, drop, pos);
 				}
 				
@@ -111,9 +113,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				te.getTiles().addAll(remains);
 				te.updateTiles();
 			}else{
-				LittleTilePreview preview = tile.getPreviewTile();
-				preview.box.addOffset(tile.te.getPos());
-				destroyedTiles.add(preview);
+				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
 				
 				addPreviewToInventory(player, destroyedTiles);
 				
@@ -133,17 +133,15 @@ public class LittleActionDestroy extends LittleActionInteract {
 	
 	public static class StructurePreview {
 		
-		public List<LittleTilePreview> previews;
+		public LittleAbsolutePreviews previews;
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
-			previews = new ArrayList<>();
-			for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
-				LittleTile tile2 = iterator.next();
-				LittleTilePreview preview = tile2.getPreviewTile();
-				preview.box.addOffset(tile2.te.getPos());
-				previews.add(preview);
+			previews = new LittleAbsolutePreviews(structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.entrySet()) {
+				previews.addTiles(entry.getValue());
 			}
+			previews.convertToSmallest();
 			this.structure = structure;
 		}
 		

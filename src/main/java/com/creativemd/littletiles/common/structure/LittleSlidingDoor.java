@@ -30,10 +30,15 @@ import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformation;
 import com.creativemd.littletiles.common.utils.rotation.SlidingDoorTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -57,16 +62,18 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public EnumFacing moveDirection;
 	public int moveDistance;
+	public LittleGridContext moveContext;
 	
-	public LittleTileVec placedAxis;
+	public LittleTilePos placedAxis;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
 		moveDistance = nbt.getInteger("distance");
 		moveDirection = EnumFacing.getFront(nbt.getInteger("direction"));
+		moveContext = LittleGridContext.get(nbt);
 		if(nbt.hasKey("placedAxis"))
-			placedAxis = new LittleTileVec("placedAxis", nbt);
+			placedAxis = new LittleTilePos("placedAxis", nbt);
 	}
 
 	@Override
@@ -74,6 +81,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		super.writeToNBTExtra(nbt);
 		nbt.setInteger("distance", moveDistance);
 		nbt.setInteger("direction", moveDirection.getIndex());
+		moveContext.set(nbt);
 		if(placedAxis != null)
 			placedAxis.writeToNBT("placedAxis", nbt);
 	}
@@ -101,47 +109,32 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid)
 	{
-		ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, moveContext);
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			previews.addTile(tile);
+		}
 		
-		placedAxis = new LittleTileVec(pos);
-		
-		LittleTileVec invaxis = placedAxis.copy();
-		invaxis.invert();
-		
+		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
 		
 		LittleTileVec offset = new LittleTileVec(moveDirection);
 		offset.scale(moveDistance);
+		if(moveContext != previews.context)
+			offset.convertTo(moveContext, previews.context);
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tileOfList = iterator.next();
-			NBTTagCompound nbt = new NBTTagCompound();
-			
-			LittleTilePreview preview = tileOfList.getPreviewTile();
-			preview.box.addOffset(tileOfList.te.getPos());
-			preview.box.addOffset(invaxis);
-			preview.box.addOffset(offset);
-			
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));
-		}
-		
-		LittleTileVec internalOffset = new LittleTileVec(placedAxis.x-pos.getX()*LittleTile.gridSize, placedAxis.y-pos.getY()*LittleTile.gridSize, placedAxis.z-pos.getZ()*LittleTile.gridSize);
-		
-		ArrayList<PlacePreviewTile> previews = new ArrayList<>();
-		for (int i = 0; i < defaultpreviews.size(); i++) {
-			PlacePreviewTile box = defaultpreviews.get(i);
-			box.box.addOffset(internalOffset);
-			previews.add(box);
+		for (LittleTilePreview preview : previews) {
+			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, offset));
 		}
 		
 		LittleSlidingDoor structure = new LittleSlidingDoor();
-		structure.placedAxis = placedAxis;
+		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, new LittleTileVec(0, 0, 0)));;
 		structure.duration = duration;
 		structure.moveDirection = moveDirection.getOpposite();
 		structure.moveDistance = moveDistance;
 		structure.setTiles(new HashMapList<>());
 		
 		
-		return place(world, structure, player, previews, pos, new SlidingDoorTransformation(moveDirection, moveDistance), uuid, getAbsoluteAxisVec(), getAdditionalAxisVec());
+		return place(world, structure, player, defaultpreviews, pos, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, getAbsoluteAxisVec(), getAdditionalAxisVec());
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
@@ -185,7 +178,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 
 	@Override
-	public LittleTileVec getAbsoluteAxisVec() {
+	public LittleTilePos getAbsoluteAxisVec() {
 		return placedAxis;
 	}
 	

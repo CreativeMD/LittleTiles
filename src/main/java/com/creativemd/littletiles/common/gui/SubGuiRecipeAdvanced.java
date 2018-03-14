@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
@@ -8,6 +9,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiListBox;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
 
@@ -16,11 +18,8 @@ public class SubGuiRecipeAdvanced extends SubGuiConfigure {
 	public static List<String> getScaleRatios()
 	{
 		List<String> scales = new ArrayList<>();
-		double scale = LittleTile.gridSize;
-		while(scale % 1 == 0)
-		{
-			scales.add(LittleTile.gridSize + ":" + ((int) scale));
-			scale /= 2D;
+		for (int i = 0; i < LittleGridContext.gridSizes.length; i++) {
+			scales.add("1:" + ((int) LittleGridContext.gridSizes[i]));
 		}
 		return scales;
 	}
@@ -32,7 +31,7 @@ public class SubGuiRecipeAdvanced extends SubGuiConfigure {
 	@Override
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("scale");
-		stack.getTagCompound().setInteger("scale", Integer.parseInt(box.caption.replace(LittleTile.gridSize + ":", "")));
+		stack.getTagCompound().setInteger("scale", Integer.parseInt(box.caption.replace("1:", "")));
 	}
 
 	@Override

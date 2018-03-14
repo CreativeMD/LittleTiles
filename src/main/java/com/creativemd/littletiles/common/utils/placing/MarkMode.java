@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 
@@ -52,7 +53,7 @@ public class MarkMode {
 	{
 		if(!absolute)
 		{
-			position.hit = preview.box.getCenter();
+			position.contextVec.vec = preview.box.getCenter();
 			
 			LittleTileVec center = preview.size.calculateCenter();
 			LittleTileVec centerInv = preview.size.calculateInvertedCenter();
@@ -60,22 +61,22 @@ public class MarkMode {
 			switch(position.facing)
 			{
 			case EAST:
-				position.hit.x -= center.x;
+				position.contextVec.vec.x -= center.x;
 				break;
 			case WEST:
-				position.hit.x += centerInv.x;
+				position.contextVec.vec.x += centerInv.x;
 				break;
 			case UP:
-				position.hit.y -= center.y;
+				position.contextVec.vec.y -= center.y;
 				break;
 			case DOWN:
-				position.hit.y += centerInv.y;
+				position.contextVec.vec.y += centerInv.y;
 				break;
 			case SOUTH:
-				position.hit.z -= center.z;
+				position.contextVec.vec.z -= center.z;
 				break;
 			case NORTH:
-				position.hit.z += centerInv.z;
+				position.contextVec.vec.z += centerInv.z;
 				break;
 			default:
 				break;
@@ -83,7 +84,7 @@ public class MarkMode {
 			
 			if(!preview.singleMode && preview.placedFixed)
 			{
-				position.hit.sub(preview.offset);
+				position.contextVec.vec.sub(preview.offset.contextVec.vec);
 			}
 		}
 		return position;
@@ -119,10 +120,10 @@ public class MarkMode {
 		
 	}
 	
-	public void move(EnumFacing facing)
+	public void move(LittleGridContext context, EnumFacing facing)
 	{
 		LittleTileVec vec = new LittleTileVec(facing);
-		vec.scale(GuiScreen.isCtrlKeyDown() ? LittleTile.gridSize : 1);
+		vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
 		position.subVec(vec);
 	}
 	
@@ -137,7 +138,7 @@ public class MarkMode {
         
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
-        AxisAlignedBB box = new LittleTileBox(position.getAbsoluteVec(), new LittleTileSize(1, 1, 1)).getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2);
+        AxisAlignedBB box = position.getBox().expandXyz(0.0020000000949949026D).offset(-d0, -d1, -d2);
         
         
         GlStateManager.glLineWidth(4.0F);

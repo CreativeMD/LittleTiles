@@ -7,9 +7,11 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -22,40 +24,48 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ILittleTile {
 	
-	public static LittleTileVec rotationCenter = new LittleTileVec(LittleTile.halfGridSize*2, LittleTile.halfGridSize*2, LittleTile.halfGridSize*2);
+	
 	
 	public boolean hasLittlePreview(ItemStack stack);
 	
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack);
+	public LittlePreviews getLittlePreview(ItemStack stack);
 	
-	public default List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
+	public default LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		return getLittlePreview(stack);
 	}
 	
-	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews);
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews);
 	
-	public default void rotateLittlePreview(ItemStack stack, Rotation rotation)
+	public default LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation)
 	{
-		List<LittleTilePreview> previews = getLittlePreview(stack, false, false);
+		LittlePreviews previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.rotatePreview(rotation, rotationCenter);
+			preview.rotatePreview(rotation, previews.context.rotationCenter);
 		}
 		saveLittlePreview(stack, previews);
+		return previews.context;
 	}
 	
-	public default void flipLittlePreview(ItemStack stack, Axis axis)
+	public default LittleGridContext flipLittlePreview(ItemStack stack, Axis axis)
 	{
-		List<LittleTilePreview> previews = getLittlePreview(stack, false, false);
+		LittlePreviews previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
-			preview.flipPreview(axis, rotationCenter);
+			preview.flipPreview(axis, previews.context.rotationCenter);
 		}
 		saveLittlePreview(stack, previews);
+		return previews.context;
 	}
 	
 	public LittleStructure getLittleStructure(ItemStack stack);
+	
+	@SideOnly(Side.CLIENT)
+	public default LittleGridContext getPositionContext(ItemStack stack)
+	{
+		return LittleGridContext.get();
+	}
 	
 	/**
 	 * @return Whether it should try to place it or not.
@@ -69,15 +79,7 @@ public interface ILittleTile {
 	@SideOnly(Side.CLIENT)
 	public default void onDeselect(EntityPlayer player, ItemStack stack) {}
 	
-	public default boolean arePreviewsAbsolute()
-	{
-		return false;
-	}
-	
-	public default boolean containsIngredients(ItemStack stack)
-	{
-		return !arePreviewsAbsolute();
-	}
+	public boolean containsIngredients(ItemStack stack);
 	
 	@SideOnly(Side.CLIENT)
 	public default void onClickAir(EntityPlayer player, ItemStack stack) {}

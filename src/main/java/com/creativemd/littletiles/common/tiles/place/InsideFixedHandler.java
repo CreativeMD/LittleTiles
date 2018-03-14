@@ -2,8 +2,10 @@ package com.creativemd.littletiles.common.tiles.place;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.BlockPos;
@@ -14,51 +16,51 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class InsideFixedHandler extends FixedHandler{
 
 	@Override
-	public double getDistance(LittleTileVec suggestedPos) {
+	public double getDistance(LittleTilePos suggestedPos) {
 		return 1;
 	}
 
 	@Override
-	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleTileBox suggested) {
+	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested) {
 		LittleTileSize size = suggested.getSize();
 		
 		double offset = 0;
-		if(size.sizeX <= LittleTile.gridSize)
+		if(size.sizeX <= context.size)
 		{
-			if(suggested.minX < LittleTile.minPos)
+			if(suggested.minX < context.minPos)
 			{
-				offset = LittleTile.minPos-suggested.minX;
+				offset = context.minPos-suggested.minX;
 				
-			}else if(suggested.maxX > LittleTile.maxPos){
-				offset = LittleTile.maxPos-suggested.maxX;
+			}else if(suggested.maxX > context.maxPos){
+				offset = context.maxPos-suggested.maxX;
 			}
 			suggested.minX += offset;
 			suggested.maxX += offset;
 		}
 		
-		if(size.sizeY <= LittleTile.gridSize)
+		if(size.sizeY <= context.size)
 		{
 			offset = 0;
-			if(suggested.minY < LittleTile.minPos)
+			if(suggested.minY < context.minPos)
 			{
-				offset = LittleTile.minPos-suggested.minY;
+				offset = context.minPos-suggested.minY;
 				
-			}else if(suggested.maxY > LittleTile.maxPos){
-				offset = LittleTile.maxPos-suggested.maxY;
+			}else if(suggested.maxY > context.maxPos){
+				offset = context.maxPos-suggested.maxY;
 			}
 			suggested.minY += offset;
 			suggested.maxY += offset;
 		}
 		
-		if(size.sizeZ <= LittleTile.gridSize)
+		if(size.sizeZ <= context.size)
 		{
 			offset = 0;
-			if(suggested.minZ < LittleTile.minPos)
+			if(suggested.minZ < context.minPos)
 			{
-				offset = LittleTile.minPos-suggested.minZ;
+				offset = context.minPos-suggested.minZ;
 				
-			}else if(suggested.maxZ > LittleTile.maxPos){
-				offset = LittleTile.maxPos-suggested.maxZ;
+			}else if(suggested.maxZ > context.maxPos){
+				offset = context.maxPos-suggested.maxZ;
 			}
 			suggested.minZ += offset;
 			suggested.maxZ += offset;
@@ -69,7 +71,7 @@ public class InsideFixedHandler extends FixedHandler{
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void handleRendering(Minecraft mc, double x, double y, double z) {
+	public void handleRendering(LittleGridContext context, Minecraft mc, double x, double y, double z) {
 		
 	}
 

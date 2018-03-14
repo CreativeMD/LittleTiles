@@ -31,10 +31,16 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -91,10 +97,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		shape.addExtraInformation(stack.getTagCompound(), list);
 	}
 	
-	public static LittleTileVec min;
+	public static LittleTilePos min;
 	
 	@SideOnly(Side.CLIENT)
-	public static LittleTileVec lastMax;
+	public static LittleTilePos lastMax;
 	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player)
@@ -164,7 +170,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		
 		IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
 		LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-		tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+		tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 		LittleTilePreview preview = tile.getPreviewTile();
 		setPreview(stack, preview);
 		return preview;
@@ -243,8 +249,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		return min != null;
 	}
 	
-	private static LittleTileVec cachedPos;
-	private static List<LittleTileBox> cachedShape;
+	private static LittleTilePos cachedPos;
+	private static LittleBoxes cachedShape;
 	private static boolean cachedLow;
 	private static NBTTagCompound cachedSettings;
 	
@@ -254,48 +260,43 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		return Minecraft.getMinecraft().player;
 	}
 	
-	public static LittleTileBox getBox()
-	{
-		if(lastMax == null)
-			lastMax = min.copy();
-		
-		return new LittleTileBox(new LittleTileBox(min), new LittleTileBox(lastMax));
-	}
-	
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack)
+	public LittleAbsolutePreviews getLittlePreview(ItemStack stack)
 	{
 		return null;
 	}
 	
 	@Override
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
+	public LittleAbsolutePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		if(min != null)
 		{
-			List<LittleTileBox> boxes = null;
+			min.ensureBothAreEqual(lastMax);
+			
+			LittleTilePos offset = new LittleTilePos(min.pos, min.getContext());
+			if(lastMax == null)
+				lastMax = min.copy();
+			
+			LittleBoxes boxes = null;
 			if(cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != allowLowResolution)
 			{
 				
 				DragShape shape = getShape(stack);
-				LittleTileBox newBox = getBox();
-				boxes = shape.getBoxes(newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
+				LittleTileBox newBox = new LittleTileBox(new LittleTileBox(min.getRelative(offset).vec), new LittleTileBox(lastMax.getRelative(offset).vec));				
+				boxes = shape.getBoxes(new LittleBoxes(offset.pos, offset.getContext()), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
-				cachedShape = new ArrayList<>(boxes);
+				cachedShape = boxes.copy();
 				cachedSettings = stack.getTagCompound().copy();
 				cachedLow = allowLowResolution;
 			}else
 				boxes = cachedShape;
 			
-			List<LittleTilePreview> previews = new ArrayList<>();
+			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.pos, offset.getContext());
 			
 			LittleTilePreview preview = getPreview(stack);
-			//int color = getColor(stack);
-			//LittleTileBlock tile = !ColorUtils.isWhite(color) ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), color) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-			
 			for (int i = 0; i < boxes.size(); i++) {
 				LittleTilePreview newPreview = preview.copy();
 				newPreview.box = boxes.get(i);
-				previews.add(newPreview);
+				previews.addWithoutCheckingPreview(newPreview);
 			}
 			
 			return previews;
@@ -304,18 +305,20 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {}
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {}
 	
 	@Override
-	public void rotateLittlePreview(ItemStack stack, Rotation rotation)
+	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation)
 	{
 		getShape(stack).rotate(stack.getTagCompound(), rotation);
+		return LittleGridContext.get();
 	}
 	
 	@Override
-	public void flipLittlePreview(ItemStack stack, Axis axis)
+	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis)
 	{
 		getShape(stack).flip(stack.getTagCompound(), axis);
+		return LittleGridContext.get();
 	}
 	
 	@Override
@@ -336,9 +339,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		//lastMax = new LittleTileVec(result);
-		lastMax = position.getAbsoluteVec();
+		lastMax = position.copy();
 		if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			lastMax.add(position.facing);
+			lastMax.contextVec.vec.add(position.facing);
 	}
 	
 	@Override
@@ -346,12 +349,6 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	public boolean shouldCache()
 	{
 		return false;
-	}
-	
-	@Override
-	public boolean arePreviewsAbsolute()
-	{
-		return true;
 	}
 
 	@Override
@@ -363,11 +360,11 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
 	{
-		LittleTileVec absoluteHit = new LittleTileVec(result);
+		LittleTilePos absoluteHit = new LittleTilePos(result, getPositionContext(stack));
 		if(ItemLittleChisel.min == null)
 		{
 			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
-				absoluteHit.add(result.sideHit);
+				absoluteHit.contextVec.vec.add(result.sideHit);
 			
 			ItemLittleChisel.min = absoluteHit;
 		}else if(LittleAction.isUsingSecondMode(player))
@@ -446,9 +443,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 									lastMax = min.copy();							
 								
 								mode.position.facing = EnumFacing.EAST;
-								mode.position.pos = min.getBlockPos();
-								mode.position.hit = min.copy();
-								mode.position.hit.sub(position.pos);
+								mode.position.pos = min.pos;
+								mode.position.contextVec = min.contextVec.copy();
 								
 								min = lastMax;
 							}
@@ -457,5 +453,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 				};
 			}
 		};
+	}
+
+	@Override
+	public boolean containsIngredients(ItemStack stack) {
+		return false;
 	}
 }

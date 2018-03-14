@@ -3,37 +3,41 @@ package com.creativemd.littletiles.common.tiles.vec;
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class LittleTileRelativeCoord {
+public class LittleTileIdentifierRelative {
 	
 	protected BlockPos coord;
+	public LittleGridContext context;
 	public int[] identifier;
 	
-	public LittleTileRelativeCoord(TileEntity te, BlockPos coord, int[] identifier)
+	public LittleTileIdentifierRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier)
 	{
-		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, identifier);
+		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, context, identifier);
 	}
 	
-	public LittleTileRelativeCoord(BlockPos origin, BlockPos coord, int[] identifier)
+	public LittleTileIdentifierRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier)
 	{
-		this(origin.getX(), origin.getY(), origin.getZ(), coord, identifier);
+		this(origin.getX(), origin.getY(), origin.getZ(), coord, context, identifier);
 	}
 	
-	public LittleTileRelativeCoord(int baseX, int baseY, int baseZ, BlockPos coord, int[] identifier)
+	public LittleTileIdentifierRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier)
 	{
-		this(coord.getX() - baseX, coord.getY() - baseY, coord.getZ() - baseZ, identifier);
+		this(coord.getX() - baseX, coord.getY() - baseY, coord.getZ() - baseZ, context, identifier);
 	}
 	
-	protected LittleTileRelativeCoord(int relativeX, int relativeY, int relativeZ, int[] identifier)
+	protected LittleTileIdentifierRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier)
 	{
 		this.coord = new BlockPos(relativeX, relativeY, relativeZ);
+		this.context = context;
 		this.identifier = identifier;
 	}
 	
-	public LittleTileRelativeCoord(String id, NBTTagCompound nbt)
+	public LittleTileIdentifierRelative(String id, NBTTagCompound nbt)
 	{
 		if(nbt.hasKey(id + "coord"))
 		{
@@ -51,9 +55,10 @@ public class LittleTileRelativeCoord {
 			identifier = new int[]{position.x, position.y, position.z};
 		}else
 			identifier = nbt.getIntArray("id");
+		context = LittleGridContext.get(nbt);
 	}
 	
-	public LittleTileRelativeCoord(NBTTagCompound nbt)
+	public LittleTileIdentifierRelative(NBTTagCompound nbt)
 	{
 		this("", nbt);
 	}
@@ -81,6 +86,7 @@ public class LittleTileRelativeCoord {
 		nbt.setIntArray(id + "coord", new int[]{coord.getX(), coord.getY(), coord.getZ()});
 		//position.writeToNBT(id + "pos", nbt);
 		nbt.setIntArray("id", identifier);
+		context.set(nbt);
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt)
@@ -94,9 +100,9 @@ public class LittleTileRelativeCoord {
 		return "coord:[" + coord.getX() + "," + coord.getY() + "," + coord.getZ() + "]|position:" + Arrays.toString(identifier);
 	}
 	
-	public LittleTileRelativeCoord copy()
+	public LittleTileIdentifierRelative copy()
 	{
-		return new LittleTileRelativeCoord(coord.getX(), coord.getY(), coord.getZ(), identifier.clone());
+		return new LittleTileIdentifierRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone());
 	}
 	
 }

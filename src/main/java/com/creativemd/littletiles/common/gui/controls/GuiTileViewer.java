@@ -24,6 +24,7 @@ import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -31,6 +32,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import net.java.games.input.Component.Identifier.Axis;
 import net.minecraft.block.state.IBlockState;
@@ -71,6 +74,8 @@ public class GuiTileViewer extends GuiParent{
 	public int axisY = 1;
 	public int axisZ = 1;
 	
+	public LittleGridContext context;
+	
 	private boolean even;
 	
 	public void setEven(boolean even)
@@ -91,6 +96,8 @@ public class GuiTileViewer extends GuiParent{
 	
 	public GuiTileViewer(String name, int x, int y, int width, int height, ItemStack stack) {
 		super(name, x, y, width, height);
+		if(PlacementHelper.isLittleBlock(stack))
+			this.context = PlacementHelper.getLittleInterface(stack).getLittlePreview(stack).context;
 		this.stack = stack;
 		this.marginWidth = 0;
 		updateNormalAxis();
@@ -230,8 +237,8 @@ public class GuiTileViewer extends GuiParent{
         if(visibleAxis)
         {
         	ArrayList<RenderCubeObject> cubes = new ArrayList<>();
-        	CubeObject cube = new CubeObject(LittleUtils.toVanillaGrid(axisX/2F) - (float) LittleTile.gridMCLength/2, LittleUtils.toVanillaGrid(axisY/2F) - (float) LittleTile.gridMCLength/2, LittleUtils.toVanillaGrid(axisZ/2F) - (float) LittleTile.gridMCLength/2,
-        			LittleUtils.toVanillaGrid(axisX/2F) + (float) LittleTile.gridMCLength/2, LittleUtils.toVanillaGrid(axisY/2F) + (float) LittleTile.gridMCLength/2, LittleUtils.toVanillaGrid(axisZ/2F) + (float) LittleTile.gridMCLength/2);
+        	CubeObject cube = new CubeObject(context.toVanillaGrid(axisX/2F) - (float) context.gridMCLength/2, context.toVanillaGrid(axisY/2F) - (float) context.gridMCLength/2, context.toVanillaGrid(axisZ/2F) - (float) context.gridMCLength/2,
+        			context.toVanillaGrid(axisX/2F) + (float) context.gridMCLength/2, context.toVanillaGrid(axisY/2F) + (float) context.gridMCLength/2, context.toVanillaGrid(axisZ/2F) + (float) context.gridMCLength/2);
         	RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
         	normalCube.keepVU = true;
         	float min = -100*1/scale;

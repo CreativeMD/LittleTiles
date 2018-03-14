@@ -70,7 +70,7 @@ public class DefaultBlockHandler {
 				BlockPos pos = tile.te.getPos();
 				LittleTileSize size = tile.box.getSize();
 				LittleTileVec min = tile.box.getMinVec();
-		        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), (double)((float)pos.getX() + min.getPosX() + size.getPosX()/2), (double)(pos.getY() + min.getPosY() + size.getPosY()/2), (double)((float)pos.getZ() + min.getPosZ() + size.getPosZ()/2), entity, size);
+		        EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), (double)((float)pos.getX() + min.getPosX(tile.getContext()) + size.getPosX(tile.getContext())/2), (double)(pos.getY() + min.getPosY(tile.getContext()) + size.getPosY(tile.getContext())/2), (double)((float)pos.getZ() + min.getPosZ(tile.getContext()) + size.getPosZ(tile.getContext())/2), entity, tile.getContext(), size);
 		        if(randomFuse)
 		        	entitytntprimed.setFuse((short)(tile.te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
 		        tile.te.getWorld().spawnEntity(entitytntprimed);

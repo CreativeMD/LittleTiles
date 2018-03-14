@@ -263,7 +263,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     				List<LittleTileBox> collision = tile.getCollisionBoxes();
         			for (int j = 0; j < collision.size(); j++) {
         				LittleTileBox box = collision.get(j).copy();
-        				if(bb.intersectsWith(box.getBox(te.getPos())))
+        				if(bb.intersectsWith(box.getBox(te.getContext(), te.getPos())))
         					return true;
 					}
     			}
@@ -316,7 +316,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				LittleTile tile = (LittleTile) iterator.next();
 				List<LittleTileBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
-					boxes.get(i).addCollisionBoxes(entityBox, collidingBoxes, pos);
+					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
 				}
 				
 			}
@@ -489,7 +489,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 			if(selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player)))
 			{
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-				LittleTilePreview.saveTiles(world, result.te.getTiles(), drop);
+				LittleTilePreview.saveTiles(world, result.te.getContext(), result.te.getTiles(), drop);
 				return drop;
 			}
 			ArrayList<ItemStack> drops = result.tile.getDrops();
@@ -791,7 +791,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			LittleTile tile = (LittleTile) iterator.next();
     			if(tile.shouldCheckForCollision())
     			{
-    				if(tile.box.getBox().offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
+    				if(tile.box.getBox(te.getContext()).offset(pos).intersectsWith(entityIn.getEntityBoundingBox()))
 						tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
     			}
     		}
@@ -891,7 +891,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 								EnumFacing facing = EnumFacing.VALUES[k];
 								if(cube.getSidedRendererType(facing).outside)
 								{
-									LittleTileFace face = cube.box.getFace(facing);
+									LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
 									
 									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
 									//face.move(facing);
@@ -923,7 +923,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 						LittleRenderingCube cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
-							LittleTileFace face = cube.box.getFace(facing);
+							LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
 							
 							cube.customData = tile;
 							
@@ -973,7 +973,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 				{
 					LittleTileVec vec = tile.getCenter();
 					Vec3d newVec = new Vec3d(pos);
-					newVec = newVec.addVector(vec.getPosX(), vec.getPosY(), vec.getPosZ());
+					newVec = newVec.add(vec.getVec(te.getContext()));
 					
 					int explosionStrength = (int) ((50D/center.distanceTo(newVec))*size);
 					double random = Math.random()*explosionStrength;
@@ -1085,7 +1085,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     	{
     		Vec3d vec = Vec3d.ZERO;
 	    	for (LittleTile tile : te.getTiles()) {
-				if(tile.box.getBox(pos).intersectsWith(boundingBox))
+				if(tile.box.getBox(te.getContext(), pos).intersectsWith(boundingBox))
 				{
 					Vec3d tileMotion = tile.modifyAcceleration(world, pos, entityIn, motion);
 					if(tileMotion != null)
@@ -1112,7 +1112,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		if(te != null)
 		{
 			for (LittleTile tile : te.getTiles()) {
-				if(tile.isMaterial(materialIn) && tile.box.getBox(pos).intersectsWith(boundingBox))
+				if(tile.isMaterial(materialIn) && tile.box.getBox(te.getContext(), pos).intersectsWith(boundingBox))
 					return true;
 			}
 		}
@@ -1126,7 +1126,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		if(te != null)
 		{
 			for (LittleTile tile : te.getTiles()) {
-				if(tile.isLiquid() && tile.box.getBox(pos).intersectsWith(boundingBox))
+				if(tile.isLiquid() && tile.box.getBox(te.getContext(), pos).intersectsWith(boundingBox))
 					return true;
 			}
 		}

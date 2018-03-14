@@ -12,8 +12,10 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.google.common.collect.Lists;
 
@@ -77,7 +79,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
     }
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		LittleTilePreview.savePreviewTiles(previews, stack);
 	}
 	
@@ -87,12 +89,12 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	}
 
 	@Override
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack) {
+	public LittlePreviews getLittlePreview(ItemStack stack) {
 		return LittleTilePreview.getPreview(stack);
 	}
 	
 	@Override
-	public List<LittleTilePreview> getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
+	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
@@ -118,7 +120,8 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		if(stack.hasTagCompound())
 		{
 			LittleTileSize size = LittleTilePreview.getSize(stack);
-			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(), Math.max(size.getPosY(), size.getPosZ()))));
+			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
+			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 	}
@@ -153,4 +156,8 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		return new SubGuiModeSelector(stack);
 	}
 	
+	@Override
+	public boolean containsIngredients(ItemStack stack) {
+		return true;
+	}
 }

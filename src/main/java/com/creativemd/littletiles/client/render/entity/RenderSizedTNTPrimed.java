@@ -2,6 +2,7 @@ package com.creativemd.littletiles.client.render.entity;
 
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;
@@ -26,9 +27,10 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 		LittleTileSize size = ((EntitySizedTNTPrimed) entity).size;
 		BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
         GlStateManager.pushMatrix();
-        GlStateManager.translate((float)x, (float)y + size.getPosY()/2, (float)z);
+        LittleGridContext context = ((EntitySizedTNTPrimed) entity).context;
+        GlStateManager.translate((float)x, (float)y + size.getPosY(context)/2, (float)z);
         
-        GlStateManager.scale(size.getPosX(), size.getPosY(), size.getPosZ());
+        GlStateManager.scale(size.getPosX(context), size.getPosY(context), size.getPosZ(context));
 
         if ((float)entity.getFuse() - partialTicks + 1.0F < 10.0F)
         {

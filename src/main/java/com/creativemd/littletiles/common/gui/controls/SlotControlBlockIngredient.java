@@ -4,6 +4,7 @@ import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.controls.container.SlotControl;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
@@ -30,13 +31,13 @@ public class SlotControlBlockIngredient extends SlotControl {
 	@Override
 	public int getStackLimit(Slot slot, ItemStack stack)
 	{
-		return LittleTile.maxTilesPerBlock;
+		return LittleGridContext.get().maxTilesPerBlock;
 	}
 	
 	@Override
 	public int getItemStackLimit(ItemStack stack)
 	{
-		return LittleTile.maxTilesPerBlock;
+		return LittleGridContext.get().maxTilesPerBlock;
 	}
 	
 	@Override
@@ -47,7 +48,7 @@ public class SlotControlBlockIngredient extends SlotControl {
 	
 	public boolean isFullItem()
 	{
-		return slot.getStack().getCount() >= LittleTile.maxTilesPerBlock;
+		return slot.getStack().getCount() >= LittleGridContext.get().maxTilesPerBlock;
 	}
 	
 	public ItemStack getFullStack()
@@ -55,7 +56,7 @@ public class SlotControlBlockIngredient extends SlotControl {
 		if(ingredient != null)
 		{
 			ItemStack stack = ingredient.getItemStack();
-			stack.setCount(slot.getStack().getCount() / LittleTile.maxTilesPerBlock);
+			stack.setCount(slot.getStack().getCount() / LittleGridContext.get().maxTilesPerBlock);
 			return stack;
 		}
 		return ItemStack.EMPTY;
@@ -84,7 +85,7 @@ public class SlotControlBlockIngredient extends SlotControl {
 		else
 			stack.shrink(amount-copy.getCount());
 		
-		slot.getStack().shrink((countbefore - stack.getCount()) * LittleTile.maxTilesPerBlock);
+		slot.getStack().shrink((countbefore - stack.getCount()) * LittleGridContext.get().maxTilesPerBlock);
 	}
 	
 	@Override
@@ -109,7 +110,7 @@ public class SlotControlBlockIngredient extends SlotControl {
 			inventoryplayer.setItemStack(newHand);
 			slotItem.shrink(stackSize);
 			
-			slot.getStack().shrink((countbefore - slotItem.getCount()) * LittleTile.maxTilesPerBlock);
+			slot.getStack().shrink((countbefore - slotItem.getCount()) * LittleGridContext.get().maxTilesPerBlock);
 			
 			slot.onTake(getPlayer(), inventoryplayer.getItemStack());
 		}

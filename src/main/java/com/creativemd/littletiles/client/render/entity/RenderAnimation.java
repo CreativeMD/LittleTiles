@@ -11,6 +11,7 @@ import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -104,6 +105,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		
 		Vec3d rotation = entity.getRotVector(partialTicks);
 		
+		LittleGridContext context = entity.getInsideBlockCenter().context;
 		
 		//SETUP OPENGL
 		
@@ -149,7 +151,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				GlStateManager.translate(x, y, z);
 				
-				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX()/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY()/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ()/2);
+				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
 				
 				
 				GL11.glRotated(rotation.xCoord, 1, 0, 0);
@@ -159,7 +161,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				GlStateManager.translate(posX, posY, posZ);
 				
-				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX()/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY()/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ()/2);
+				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
 				
     			//Render
     			if ( layer == BlockRenderLayer.TRANSLUCENT )
@@ -243,7 +245,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	                
 	                GlStateManager.translate(x, y, z);
 	        		
-	        		GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+LittleTile.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+LittleTile.gridMCLength/2);
+	        		GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+context.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+context.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+context.gridMCLength/2);
 	        		
 	        		GL11.glRotated(rotation.xCoord, 1, 0, 0);
 	        		GL11.glRotated(rotation.yCoord, 0, 1, 0);
@@ -251,14 +253,14 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        		
 	        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 	        		
-					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
+					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-context.gridMCLength/2);
 					//Render TileEntity
 	        		
 	        		//GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
 	        		
 					TileEntityRendererDispatcher.instance.renderTileEntity(te, partialTicks, -1);
 					
-					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-LittleTile.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-LittleTile.gridMCLength/2);
+					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-context.gridMCLength/2);
 					GlStateManager.popMatrix();
 				}
 			}

@@ -10,7 +10,10 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -103,9 +106,9 @@ public abstract class TileSelector {
 	
 	public abstract boolean is(LittleTile tile);
 	
-	public static List<LittleTileBox> getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector)
+	public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector)
 	{
-		List<LittleTileBox> boxes = new ArrayList<>();
+		LittleBoxes boxes = new LittleBoxes(pos, LittleGridContext.getMin());
 		
 		int minX = Math.min(pos.getX(), pos2.getX());
 		int maxX = Math.max(pos.getX(), pos2.getX());
@@ -129,11 +132,7 @@ public abstract class TileSelector {
 					
 					for (LittleTile tile : te.getTiles()) {
 						if(selector.is(tile))
-						{
-							LittleTileBox box = tile.box.copy();
-							box.addOffset(position);
-							boxes.add(box);
-						}
+							boxes.addBox(tile);
 					}
 				}
 			}

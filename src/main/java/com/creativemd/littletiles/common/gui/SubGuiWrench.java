@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,7 +43,7 @@ public class SubGuiWrench extends SubGui {
 				{
 					if(stack1.getItem() instanceof ItemRecipe)
 					{
-						List<LittleTilePreview> previews = LittleTilePreview.getPreview(stack1);
+						LittlePreviews previews = LittleTilePreview.getPreview(stack1);
 						
 						EntityPlayer player = getPlayer();
 						
@@ -51,8 +52,8 @@ public class SubGuiWrench extends SubGui {
 						for (LittleTilePreview preview : previews) {
 							if(preview.canBeConvertedToBlockEntry())
 							{
-								ingredients.addIngredient(preview.getBlockIngredient());
-								color.addColorUnit(ColorUnit.getRequiredColors(preview));
+								ingredients.addIngredient(preview.getBlockIngredient(previews.context));
+								color.addColorUnit(ColorUnit.getRequiredColors(previews.context, preview));
 							}
 						}
 						try {
@@ -64,7 +65,7 @@ public class SubGuiWrench extends SubGui {
 							if(e instanceof NotEnoughVolumeExcepion)
 							{
 								for (BlockIngredient ingredient : ingredients.getIngredients()) {
-									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value*LittleTile.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
+									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value*previews.context.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
 								}
 							}else
 								label.caption = e.getLocalizedMessage();
