@@ -5,6 +5,7 @@ import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -71,18 +72,19 @@ public abstract class LittleTilePreviewHandler {
 			
 		}
 
+		@Override
 		@SideOnly(Side.CLIENT)
-		public RenderCubeObject getCubeBlock(LittleTilePreview preview)
+		public RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview)
 		{
-			RenderCubeObject cube = preview.box.getRenderingCube(getPreviewBlock(preview), getPreviewBlockMeta(preview));
+			RenderCubeObject cube = preview.box.getRenderingCube(context, getPreviewBlock(preview), getPreviewBlockMeta(preview));
 			if(preview.getTileData().hasKey("color"))
 				cube.color = preview.getTileData().getInteger("color");
 			return cube;
 		}
 
 		@Override
-		public BlockIngredient getBlockIngredient(LittleTilePreview preview) {
-			return new BlockIngredient(preview.getPreviewBlock(), preview.getPreviewBlockMeta(), preview.getPercentVolume());
+		public BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
+			return new BlockIngredient(preview.getPreviewBlock(), preview.getPreviewBlockMeta(), preview.getPercentVolume(context));
 		}
 
 		@Override
@@ -118,9 +120,9 @@ public abstract class LittleTilePreviewHandler {
 	public abstract void setColor(LittleTilePreview preview, int color);
 	
 	@SideOnly(Side.CLIENT)
-	public abstract RenderCubeObject getCubeBlock(LittleTilePreview preview);
+	public abstract RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview);
 	
-	public abstract BlockIngredient getBlockIngredient(LittleTilePreview preview);
+	public abstract BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview);
 	
 	public abstract void flipPreview(Axis axis, LittleTilePreview previewn, LittleTileVec doubledCenter);
 	

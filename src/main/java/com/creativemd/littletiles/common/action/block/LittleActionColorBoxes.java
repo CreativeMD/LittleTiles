@@ -15,8 +15,10 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -30,7 +32,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	public int color;
 	public boolean toVanilla;
 	
-	public LittleActionColorBoxes(List<LittleTileBox> boxes, int color, boolean toVanilla) {
+	public LittleActionColorBoxes(LittleBoxes boxes, int color, boolean toVanilla) {
 		super(boxes);
 		this.color = color;
 		this.toVanilla = toVanilla;
@@ -54,23 +56,19 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		toVanilla = buf.readBoolean();
 	}
 	
-	public HashMapList<Integer, LittleTileBox> revertList;
+	public HashMapList<Integer, LittleBoxes> revertList;
 	
-	public void addRevert(int color, List<LittleTileBox> boxes, LittleTileVec offset)
+	public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleTileBox> boxes)
 	{
-		List<LittleTileBox> newBoxes = new ArrayList<>();
+		LittleBoxes newBoxes = new LittleBoxes(pos, context);
 		for (LittleTileBox box : boxes) {
-			box = box.copy();
-			box.addOffset(offset);
-			newBoxes.add(box);
+			newBoxes.add(box.copy());
 		}
 		revertList.add(color, newBoxes);
 	}
 	
-	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate)
+	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate, LittleGridContext context)
 	{
-		LittleTileVec offset = new LittleTileVec(te.getPos());
-		
 		double colorVolume = 0;
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -101,8 +99,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					List<LittleTileBox> cutout = new ArrayList<>();
 					tile.cutOut(boxes, cutout);
 					for (LittleTileBox box2 : cutout) {
-						colorVolume += box2.getPercentVolume();
-						volume += box2.getPercentVolume();
+						colorVolume += box2.getPercentVolume(context);
+						volume += box2.getPercentVolume(context);
 					}
 					
 					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), volume));
@@ -113,7 +111,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					
 					if(newBoxes != null)
 					{						
-						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), cutout, offset);
+						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
 						
 						LittleTile tempTile = tile.copy();
 						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
@@ -158,7 +156,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					List<LittleTileBox> oldBoxes = new ArrayList<>();
 					oldBoxes.add(tile.box);
 					
-					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), oldBoxes, offset);
+					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
 					
 					LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 					if(changedTile != null)
@@ -193,12 +191,22 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	}
 
 	@Override
-	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes) throws LittleActionException {
+	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
 		TileEntity tileEntity = loadTe(player, world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{			
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+			
+			te.ensureMinContext(context);
+			
+			if(context != te.getContext())
+			{
+				for (LittleTileBox box : boxes) {
+					box.convertTo(context, te.getContext());
+				}
+				context = te.getContext();
+			}
 			
 			List<BlockIngredient> entries = new ArrayList<>();
 			
@@ -206,18 +214,19 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			ColorUnit gained = new ColorUnit();
 			
-			ColorUnit toDrain = action(te, boxes, gained, true);
+			ColorUnit toDrain = action(te, boxes, gained, true, context);
 			
 			if(addIngredients(player, null, gained, true))
 			{
 				drainIngredients(player, null, toDrain);
 				addIngredients(player, null, gained);
 				
-				action(te, boxes, gained, false);
+				action(te, boxes, gained, false, context);
 			}
 			
 			te.preventUpdate = false;
 			
+			te.convertToSmallest();
 			te.combineTiles();
 			
 			if(toVanilla)
@@ -238,13 +247,14 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 
 	@Override
 	public LittleAction revert() {
-		LittleAction[] actions = new LittleAction[revertList.size()];
-		int i = 0;
-		for (Entry<Integer, ArrayList<LittleTileBox>> entry : revertList.entrySet()) {
-			actions[i] = new LittleActionColorBoxes(entry.getValue(), entry.getKey(), true);
-			i++;
+		List<LittleAction> actions = new ArrayList<>();
+		for (Entry<Integer, ArrayList<LittleBoxes>> entry : revertList.entrySet()) {
+			for (LittleBoxes boxes : entry.getValue()) {
+				boxes.convertToSmallest();
+				actions.add(new LittleActionColorBoxes(boxes, entry.getKey(), true));
+			}
 		}
-		return new LittleActionCombined(actions);
+		return new LittleActionCombined(actions.toArray(new LittleAction[0]));
 	}
 	
 }

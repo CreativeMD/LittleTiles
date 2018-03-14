@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -50,7 +51,7 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 	public static int inventoryHeight = 4;
 	public static int inventorySize = inventoryWidth*inventoryHeight;
 	public static int maxStackSize = 64;
-	public static int maxStackSizeOfTiles = maxStackSize*LittleTile.maxTilesPerBlock;
+	public static int maxStackSizeOfTiles = maxStackSize*LittleGridContext.get().maxTilesPerBlock;
 	
 	public ItemTileContainer()
 	{

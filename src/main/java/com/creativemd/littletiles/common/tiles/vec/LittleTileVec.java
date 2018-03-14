@@ -5,6 +5,7 @@ import java.security.InvalidParameterException;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -51,23 +52,23 @@ public class LittleTileVec {
 		}
 	}
 	
-	public LittleTileVec(RayTraceResult result)
+	public LittleTileVec(LittleGridContext context, RayTraceResult result)
 	{
-		this(result.hitVec, result.sideHit);
+		this(context, result.hitVec, result.sideHit);
 	}
 	
-	public LittleTileVec(Vec3d vec, EnumFacing facing)
+	public LittleTileVec(LittleGridContext context, Vec3d vec, EnumFacing facing)
 	{
-		this(vec);
-		if(facing.getAxisDirection() == AxisDirection.POSITIVE && !LittleUtils.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
+		this(context, vec);
+		if(facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
 			setAxis(facing.getAxis(), getAxis(facing.getAxis()) + 1);
 	}
 	
-	public LittleTileVec(Vec3d vec)
+	public LittleTileVec(LittleGridContext context, Vec3d vec)
 	{		
-		this.x = LittleUtils.toGrid(vec.x);
-		this.y = LittleUtils.toGrid(vec.y);
-		this.z = LittleUtils.toGrid(vec.z);
+		this.x = context.toGrid(vec.x);
+		this.y = context.toGrid(vec.y);
+		this.z = context.toGrid(vec.z);
 	}
 	
 	public LittleTileVec(EnumFacing facing)
@@ -103,9 +104,9 @@ public class LittleTileVec {
 		set(x, y, z);
 	}
 	
-	public LittleTileVec(Vec3i vec)
+	public LittleTileVec(LittleGridContext context, Vec3i vec)
 	{
-		this(vec.getX()*LittleTile.gridSize, vec.getY()*LittleTile.gridSize, vec.getZ()*LittleTile.gridSize);
+		this(context.toGrid(vec.getX()), context.toGrid(vec.getY()), context.toGrid(vec.getZ()));
 	}
 	
 	public void set(int x, int y, int z)
@@ -115,37 +116,54 @@ public class LittleTileVec {
 		this.z = z;
 	}
 	
-	public LittleTileVec getRelativeVec(BlockPos pos)
+	public int getSmallestContext(LittleGridContext context)
 	{
-		LittleTileVec vec = new LittleTileVec(pos);
-		vec.invert();
-		vec.add(this);
-		return vec;
+		int size = LittleGridContext.minSize;
+		size = Math.max(size, context.getMinGrid(x));
+		size = Math.max(size, context.getMinGrid(y));
+		size = Math.max(size, context.getMinGrid(z));
+		return size;
 	}
 	
-	public BlockPos getBlockPos()
+	public void convertTo(LittleGridContext from, LittleGridContext to)
 	{
-		return new BlockPos((int) Math.floor(getPosX()), (int) Math.floor(getPosY()), (int) Math.floor(getPosZ()));
+		if(from.size > to.size)
+		{
+			int ratio = from.size/to.size;
+			x /= ratio;
+			y /= ratio;
+			z /= ratio;
+		}else{
+			int ratio = to.size/from.size;
+			x *= ratio;
+			y *= ratio;
+			z *= ratio;
+		}
 	}
 	
-	public Vec3d getVec()
+	public BlockPos getBlockPos(LittleGridContext context)
 	{
-		return new Vec3d(getPosX(), getPosY(), getPosZ());
+		return new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
 	}
 	
-	public double getPosX()
+	public Vec3d getVec(LittleGridContext context)
 	{
-		return (double)x/LittleTile.gridSize;
+		return new Vec3d(context.toVanillaGrid(x), context.toVanillaGrid(y), context.toVanillaGrid(z));
 	}
 	
-	public double getPosY()
+	public double getPosX(LittleGridContext context)
 	{
-		return (double)y/LittleTile.gridSize;
+		return context.toVanillaGrid(x);
 	}
 	
-	public double getPosZ()
+	public double getPosY(LittleGridContext context)
 	{
-		return (double)z/LittleTile.gridSize;
+		return context.toVanillaGrid(y);
+	}
+	
+	public double getPosZ(LittleGridContext context)
+	{
+		return context.toVanillaGrid(z);
 	}
 	
 	public void setAxis(Axis axis, int value)
@@ -179,12 +197,6 @@ public class LittleTileVec {
 		return 0;
 	}
 	
-	public void add(Vec3i vec)
-	{
-		x += LittleUtils.toGrid(vec.getX());
-		y += LittleUtils.toGrid(vec.getY());
-		z += LittleUtils.toGrid(vec.getZ());
-	}
 	
 	public void add(EnumFacing facing)
 	{
@@ -196,13 +208,6 @@ public class LittleTileVec {
 		this.x += vec.x;
 		this.y += vec.y;
 		this.z += vec.z;
-	}
-	
-	public void sub(Vec3i vec)
-	{
-		x -= LittleUtils.toGrid(vec.getX());
-		y -= LittleUtils.toGrid(vec.getY());
-		z -= LittleUtils.toGrid(vec.getZ());
 	}
 	
 	public void sub(EnumFacing facing)

@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -32,7 +33,7 @@ public class ChiselsAndBitsManager {
 	/**Keeping the grid size of C&B variable, maybe it does change some time**/
 	public static int convertingFrom = 16;
 	
-	public static List<LittleTilePreview> getPreviews(ItemStack stack)
+	public static LittlePreviews getPreviews(ItemStack stack)
 	{
 		if(isInstalled())
 			return ChiselsAndBitsInteractor.getPreviews(stack);
@@ -54,7 +55,7 @@ public class ChiselsAndBitsManager {
 		return false;
 	}
 	
-	public static List<LittleTilePreview> getPreviews(TileEntity te)
+	public static LittlePreviews getPreviews(TileEntity te)
 	{
 		if(isInstalled())
 			return ChiselsAndBitsInteractor.getPreviews(te);

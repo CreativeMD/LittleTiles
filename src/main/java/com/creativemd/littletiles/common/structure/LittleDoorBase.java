@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -20,8 +21,10 @@ import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
@@ -77,14 +80,14 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return parseStructure(gui, (int) slider.value);
 	}
 	
-	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, ArrayList<PlacePreviewTile> previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTileVec absolute, LittleTileVec additional)
+	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, PlacePreviews previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional)
 	{
-		HashMapList<BlockPos, PlacePreviewTile> splitted = LittleActionPlaceRelative.getSplittedTiles(previews, pos);
-		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, new ArrayList<>(splitted.keySet()), PlacementMode.all))
+		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, pos);
+		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, pos), PlacementMode.all))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = WorldFake.createFakeWorld(world);
-			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews.context, previews, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
 				if(te instanceof TileEntityLittleTiles)
@@ -99,7 +102,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return false;
 	}
 	
-	public abstract LittleTileVec getAbsoluteAxisVec();
+	public abstract LittleTilePos getAbsoluteAxisVec();
 	
 	public abstract LittleTileVec getAdditionalAxisVec();
 	

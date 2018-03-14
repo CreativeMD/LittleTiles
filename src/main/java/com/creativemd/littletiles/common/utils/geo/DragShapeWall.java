@@ -12,9 +12,12 @@ import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -30,8 +33,7 @@ public class DragShapeWall extends DragShape {
 	}
 
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
-		ArrayList<LittleTileBox> boxes = new ArrayList<>();
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
 		LittleTileBox box = new LittleTileBox(min, max);
 		
 		int direction = nbt.getInteger("direction");
@@ -43,22 +45,22 @@ public class DragShapeWall extends DragShape {
 		int thicknessYInv = nbt.getInteger("thickness") > 1 ? (int) Math.ceil((nbt.getInteger("thickness")-1)/2D) : 0;
 		int thicknessY = nbt.getInteger("thickness") > 1 ? (int) Math.floor((nbt.getInteger("thickness")-1)/2D) : 0;
 		
-		int w = originalMax.x - originalMin.x;
-	    int h = originalMax.z - originalMin.z;
+		int w = originalMax.contextVec.vec.x - originalMin.contextVec.vec.x;
+	    int h = originalMax.contextVec.vec.z - originalMin.contextVec.vec.z;
 	    
-	    int x = originalMin.x;
-	    int y = originalMin.z;
+	    int x = originalMin.contextVec.vec.x;
+	    int y = originalMin.contextVec.vec.z;
 	    
 	    if(direction == 1){
-	    	w = originalMax.y - originalMin.y;
-	    	h = originalMax.z - originalMin.z;
-	    	x = originalMin.y;
-	    	y = originalMin.z;
+	    	w = originalMax.contextVec.vec.y - originalMin.contextVec.vec.y;
+	    	h = originalMax.contextVec.vec.z - originalMin.contextVec.vec.z;
+	    	x = originalMin.contextVec.vec.y;
+	    	y = originalMin.contextVec.vec.z;
 		}else if(direction == 2){
-			w = originalMax.x - originalMin.x;
-	    	h = originalMax.y - originalMin.y;
-	    	x = originalMin.x;
-	    	y = originalMin.y;
+			w = originalMax.contextVec.vec.x - originalMin.contextVec.vec.x;
+	    	h = originalMax.contextVec.vec.y - originalMin.contextVec.vec.y;
+	    	x = originalMin.contextVec.vec.x;
+	    	y = originalMin.contextVec.vec.y;
 		}
 	    
 	    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;
@@ -135,17 +137,17 @@ public class DragShapeWall extends DragShape {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
+	public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 		List<GuiControl> controls = new ArrayList<>();
 			
-		controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
+		controls.add(new GuiSteppedSlider("thickness", 5, 5, 100, 14, nbt.getInteger("thickness"), 1, context.size));
 		controls.add(new GuiStateButton("direction", nbt.getInteger("direction"), 5, 27, "facing: y", "facing: x", "facing: z"));
 		return controls;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt) {
+	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
 		
 		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
 		nbt.setInteger("thickness", (int) slider.value);

@@ -20,9 +20,12 @@ import com.creativemd.littletiles.common.gui.SubGuiGrabber;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -60,7 +63,7 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 		tooltip.add("can be used to chisel blocks");
 		SelectShape shape = getShape(stack);
 		tooltip.add("mode: " + shape.key);
-		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip);
+		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
 	}
 	
 	@Override
@@ -74,19 +77,18 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
     }
 	
 	@Override
-	public List<LittleTileBox> getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
-			LittleTileVec absoluteHit) {
+	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
-		return shape.getHighlightBoxes(player, stack.getTagCompound(), result);
+		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTileVec absoluteHit) {
+	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
-		if(shape.leftClick(player, stack.getTagCompound(), result))
-			new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result)).execute();
+		if(shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
+			new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
 	}
 	
@@ -104,12 +106,12 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	
 	@Override
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
-		getShape(stack).deselect(player, stack.getTagCompound());
+		getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
 	}
 	
 	@Override
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result,
-			LittleTileVec absoluteHit) {
+			LittleTilePos absoluteHit) {
 		return LittleAction.isBlockValid(state.getBlock()) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
 	}
 	
@@ -145,5 +147,10 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 			stack.setTagCompound(new NBTTagCompound());
 		
 		return SelectShape.getShape(stack.getTagCompound().getString("shape"));
+	}
+
+	@Override
+	public LittleGridContext getContext(ItemStack stack) {
+		return LittleGridContext.get();
 	}
 }

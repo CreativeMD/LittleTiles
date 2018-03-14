@@ -11,9 +11,12 @@ import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -29,13 +32,12 @@ public class DragShapeSphere extends DragShape {
 	}
 
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
-		ArrayList<LittleTileBox> boxes = new ArrayList<>();
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
 		LittleTileBox box = new LittleTileBox(min, max);
 		
 		boolean hollow = nbt.getBoolean("hollow");
 		LittleTileSize size = box.getSize();
-		if(preview && size.getPercentVolume() > 4)
+		if(preview && size.getPercentVolume(boxes.context) > 4)
 		{
 			boxes.add(box);
 			return boxes;
@@ -127,18 +129,18 @@ public class DragShapeSphere extends DragShape {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
+	public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 		List<GuiControl> controls = new ArrayList<>();
 		
 		controls.add(new GuiCheckBox("hollow", 5, 0, nbt.getBoolean("hollow")));			
-		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, LittleTile.gridSize));
+		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, context.size));
 		
 		return controls;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt) {
+	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
 		
 		GuiCheckBox box = (GuiCheckBox) gui.get("hollow");
 		nbt.setBoolean("hollow", box.value);

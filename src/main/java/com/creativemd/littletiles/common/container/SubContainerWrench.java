@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsExcept
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -102,7 +103,7 @@ public class SubContainerWrench extends SubContainer{
 			{
 				if(stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x"))
 				{
-					List<LittleTilePreview> tiles = LittleTilePreview.getPreview(stack1);
+					LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
 					
 					try {
 						if(LittleAction.drainPreviews(player, tiles))
@@ -117,7 +118,7 @@ public class SubContainerWrench extends SubContainer{
 					}
 				}
 			}else if(ChiselsAndBitsManager.isChiselsAndBitsStructure(stack1)){
-				List<LittleTilePreview> previews = ChiselsAndBitsManager.getPreviews(stack1);
+				LittlePreviews previews = ChiselsAndBitsManager.getPreviews(stack1);
 				if(previews != null && !previews.isEmpty() && stack2.isEmpty())
 				{
 					stack2 = new ItemStack(LittleTiles.multiTiles);

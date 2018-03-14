@@ -24,9 +24,12 @@ import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAct
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -131,27 +134,27 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
 		SelectShape shape = getShape(stack);
 		if(shape != null)
-			shape.deselect(player, stack.getTagCompound());
+			shape.deselect(player, stack.getTagCompound(), getContext(stack));
 	}
 
 	@Override
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state,
-			RayTraceResult result, LittleTileVec absoluteHit) {
+			RayTraceResult result, LittleTilePos absoluteHit) {
 		return getShape(stack) != null;
 	}
 
 	@Override
-	public List<LittleTileBox> getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
-			LittleTileVec absoluteHit) {
+	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
+			LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
-		return shape.getHighlightBoxes(player, stack.getTagCompound(), result);
+		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result,
-			LittleTileVec absoluteHit) {
+			LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if(LittleAction.isUsingSecondMode(player))
 		{
@@ -162,8 +165,8 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
 			else
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
-		}else if(shape.leftClick(player, stack.getTagCompound(), result)){
-			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result), getColor(stack), false).execute();
+		}else if(shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))){
+			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
 		}
 		return true;
 	}
@@ -180,5 +183,10 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 		SelectShape shape = getShape(stack);
 		if(shape != null)
 			shape.flip(axis, stack.getTagCompound());
+	}
+	
+	@Override
+	public LittleGridContext getContext(ItemStack stack) {
+		return LittleGridContext.get();
 	}
 }

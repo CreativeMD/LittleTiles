@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -21,6 +22,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.Block;
@@ -86,28 +88,24 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	}
 	
 	@Override
-	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
-		ArrayList<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
-		previews.add(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
+	public LittlePreviews getLittlePreview(ItemStack stack) {
+		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(stack.getTagCompound()));
+		previews.addWithoutCheckingPreview(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;
 	}
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		if(previews.size() > 0)
 		{
 			LittleTilePreview preview = previews.get(0);
 			NBTTagCompound nbt = preview.getTileData().copy();
+			previews.context.set(nbt);
 			LittleTileBox tempBox = preview.box;
 			preview.box = preview.box.copy();
 			preview.box.subOffset(preview.box.getMinVec());
 			preview.writeToNBT(nbt);
-			preview.box = tempBox;
-			//preview.size.writeToNBT("size", nbt);
-			
-			//if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
-				//nbt.setString("type", preview.getTypeID());
-			
+			preview.box = tempBox;			
 			stack.setTagCompound(nbt);
 		}else
 			stack.setTagCompound(new NBTTagCompound());
@@ -139,14 +137,14 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 				LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
 				if(!(block instanceof BlockAir))
 				{
-					LittleRenderingCube cube = new LittleTileBox(new LittleTileVec(LittleTile.halfGridSize, LittleTile.halfGridSize, LittleTile.halfGridSize), size).getRenderingCube(block, meta);
+					LittleRenderingCube cube = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ).getRenderingCube(LittleGridContext.get(), block, meta);
 					if(stack.getTagCompound().hasKey("color"))
 						cube.color = stack.getTagCompound().getInteger("color");
 					cubes.add(cube);
 				}
 			}else{
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
-				cubes.add((LittleRenderingCube) preview.getCubeBlock());
+				cubes.add((LittleRenderingCube) preview.getCubeBlock(LittleGridContext.get(stack.getTagCompound())));
 			}
 		}
 		return cubes;
@@ -173,6 +171,16 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack);
+	}
+	
+	@Override
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return LittleGridContext.get();
+	}
+
+	@Override
+	public boolean containsIngredients(ItemStack stack) {
+		return true;
 	}
 
 }

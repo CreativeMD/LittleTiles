@@ -24,10 +24,12 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -79,11 +81,13 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 	}
 	
 	@Override
-	public List<LittleTilePreview> saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+	public LittlePreviews saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
 	{
 		int scale = stack.getTagCompound().getInteger("scale");
 		
-		List<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
+		LittleGridContext context = LittleGridContext.get(scale);
+		
+		LittlePreviews previews = new LittlePreviews(context);
 		HashMapList<BlockPos, LittleTile> tiles = new HashMapList<>();
 		
 		MutableBlockPos newPos = new MutableBlockPos();
@@ -96,10 +100,9 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 					if(LittleAction.isBlockValid(state.getBlock()))
 					{
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-						tile.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, scale, scale, scale);
-						LittleTileVec offset = new LittleTileVec((posX-minX)*scale, (posY-minY)*scale, (posZ-minZ)*scale);
-						tile.box.addOffset(offset);
-						tiles.add(offset.getBlockPos(), tile);
+						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+						tile.box.addOffset(new LittleTileVec((posX-minX), (posY-minY), (posZ-minZ)));
+						tiles.add(new BlockPos((posX-minX), (posY-minY), (posZ-minZ)), tile);
 						
 					}
 				}
@@ -109,7 +112,7 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 		for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet()) {
 			BasicCombiner.combineTiles(entry.getValue());
 			for (LittleTile tile : entry.getValue()) {
-				previews.add(tile.getPreviewTile());
+				previews.addPreview(null, tile.getPreviewTile(), context);
 			}
 		}
 		

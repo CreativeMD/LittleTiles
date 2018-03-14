@@ -1,10 +1,12 @@
 package com.creativemd.littletiles.common.utils.placing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
@@ -28,7 +30,7 @@ public class PlaceModeAll extends PlaceModeNormal {
 	}
 
 	@Override
-	public List<BlockPos> getCoordsToCheck(HashMapList<BlockPos, PlacePreviewTile> splittedTiles, BlockPos pos) {
+	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return new ArrayList<>(splittedTiles.keySet());
 	}
 }

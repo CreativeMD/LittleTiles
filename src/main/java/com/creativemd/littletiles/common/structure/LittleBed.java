@@ -25,7 +25,8 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -68,7 +69,7 @@ public class LittleBed extends LittleStructure{
 	
 	public EntityLivingBase sleepingPlayer = null;
 	@SideOnly(Side.CLIENT)
-	public LittleTileVec playerPostion;
+	public LittleTilePos playerPostion;
 	public EnumFacing direction;
 	
 	@SideOnly(Side.CLIENT)
@@ -186,9 +187,9 @@ public class LittleBed extends LittleStructure{
 	
 	public static Field littleBed = ReflectionHelper.findField(EntityPlayer.class, "littleBed");;
 	
-	public SleepResult trySleep(EntityPlayer player, LittleTileVec highest)
+	public SleepResult trySleep(EntityPlayer player, LittleTilePos highest)
 	{		
-		BlockPos center = highest.getBlockPos();
+		BlockPos center = highest.pos;
 
         if (!player.world.isRemote)
         {
@@ -319,7 +320,7 @@ public class LittleBed extends LittleStructure{
 		}
         if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
         {
-        	LittleTileVec vec = getHighestCenterPoint();
+        	LittleTilePos vec = getHighestCenterPoint();
         	if(this.sleepingPlayer != null)
         	{
         		player.sendStatusMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]), true);
@@ -330,8 +331,8 @@ public class LittleBed extends LittleStructure{
             if (enumstatus == SleepResult.OK)
             {
             	player.addStat(StatList.SLEEP_IN_BED);
-            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileAbsoluteCoord(getMainTile())), (EntityPlayerMP) player);
-            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileAbsoluteCoord(getMainTile()), player), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
+            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
                 return true;
             }
             else

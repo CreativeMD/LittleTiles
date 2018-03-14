@@ -86,6 +86,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
@@ -176,7 +177,12 @@ public class LittleTiles {
 		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleTile.setGridSize(config.getInt("gridSize", "core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."),
+				config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"),
+				config.getInt("scale", "core", 7, 1, Integer.MAX_VALUE, "How many grids there are. Make sure that it is enough for the defaultSize to exist."),
+				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). Default is two -> (1, 2, 4, 8, 16, 32, 64 etc.)."));
+		//LittleGridContext.loadGrid(1, 16, 7, 2);
+		//LittleTile.setGridSize(config.getInt("gridSize", "core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
 		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
 		for(String categoryName : config.getCategoryNames())
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
@@ -291,13 +297,13 @@ public class LittleTiles {
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getGui(player, stack);
+				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
 			}
 
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
+				return ItemLittleGrabber.getMode(stack).getContainer(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
 			}
 		});
 		

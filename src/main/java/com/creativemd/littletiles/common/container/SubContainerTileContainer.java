@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -46,7 +47,7 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 				if(slot.slot.getStack().isEmpty())
 					slot.ingredient = null;
 				else if(slot.ingredient != null)
-					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleTile.maxTilesPerBlock;
+					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleGridContext.get().maxTilesPerBlock;
 				
 				List<BlockIngredient> inventory = new ArrayList<>();
 				for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {

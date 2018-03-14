@@ -10,7 +10,7 @@ import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,7 +23,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile)
 	{
-		new LittleTileAbsoluteCoord(tile).writeToNBT(nbt);
+		new LittleTileIdentifierAbsolute(tile).writeToNBT(nbt);
 		
 		GuiHandler.openGui(id, nbt, player);
 	}
@@ -33,7 +33,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	@Override
 	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 		try {
-			return getContainer(player, nbt, LittleAction.getTile(player.world, new LittleTileAbsoluteCoord(nbt)));
+			return getContainer(player, nbt, LittleAction.getTile(player.world, new LittleTileIdentifierAbsolute(nbt)));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}
@@ -47,7 +47,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 		try {
-			return getGui(player, nbt, LittleAction.getTile(player.world, new LittleTileAbsoluteCoord(nbt)));
+			return getGui(player, nbt, LittleAction.getTile(player.world, new LittleTileIdentifierAbsolute(nbt)));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}

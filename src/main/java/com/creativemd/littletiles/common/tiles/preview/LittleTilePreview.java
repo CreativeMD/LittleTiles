@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
 import net.minecraft.block.Block;
@@ -153,9 +154,9 @@ public class LittleTilePreview {
 	
 	/**Rendering inventory**/
 	@SideOnly(Side.CLIENT)
-	public RenderCubeObject getCubeBlock()
+	public RenderCubeObject getCubeBlock(LittleGridContext context)
 	{
-		return handler.getCubeBlock(this);
+		return handler.getCubeBlock(context, this);
 	}
 	
 	public boolean isInvisible()
@@ -173,19 +174,29 @@ public class LittleTilePreview {
 		return tileData;
 	}
 	
-	public BlockIngredient getBlockIngredient()
+	public BlockIngredient getBlockIngredient(LittleGridContext context)
 	{
-		return handler.getBlockIngredient(this);
+		return handler.getBlockIngredient(context, this);
 	}
 	
-	public double getPercentVolume()
+	public double getPercentVolume(LittleGridContext context)
 	{
-		return box.getPercentVolume();
+		return box.getPercentVolume(context);
 	}
 	
 	public double getVolume()
 	{
 		return box.getVolume();
+	}
+	
+	public int getSmallestContext(LittleGridContext context)
+	{
+		return box.getSmallestContext(context);
+	}
+	
+	public void convertTo(LittleGridContext from, LittleGridContext to)
+	{
+		box.convertTo(from, to);
 	}
 	
 	//================Copy================
@@ -318,47 +329,14 @@ public class LittleTilePreview {
 	
 	public static int lowResolutionMode = 2000;
 	
-	public static List<LittleTilePreview> getPreview(ItemStack stack)
+	public static LittlePreviews getPreview(ItemStack stack)
 	{
 		return getPreview(stack, false);
 	}
 	
-	public static List<LittleTilePreview> getPreview(ItemStack stack, boolean allowLowResolution)
+	public static LittlePreviews getPreview(ItemStack stack, boolean allowLowResolution)
 	{
-		if(!stack.hasTagCompound())
-			return Collections.emptyList();
-		if(stack.getTagCompound().getTag("tiles") instanceof NBTTagInt)
-		{
-			ArrayList<LittleTilePreview> result = new ArrayList<LittleTilePreview>();
-			int tiles = stack.getTagCompound().getInteger("tiles");
-			for (int i = 0; i < tiles; i++) {
-				NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
-				if(preview != null)
-					result.add(preview);
-			}
-			return result;
-		}else{
-			if(allowLowResolution && stack.getTagCompound().hasKey("pos"))
-			{
-				ArrayList<LittleTilePreview> result = new ArrayList<LittleTilePreview>();
-				NBTTagCompound tileData = new NBTTagCompound();
-				LittleTile tile = new LittleTileBlock(LittleTiles.coloredBlock);
-				tile.saveTileExtra(tileData);
-				tileData.setString("tID", tile.getID());	
-				
-				NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
-				for (int i = 0; i < list.tagCount(); i++) {
-					int[] array = list.getIntArrayAt(i);
-					BlockPos pos = new BlockPos(array[0], array[1], array[2]);
-					LittleTileVec max = new LittleTileVec(pos);
-					max.add(new LittleTileVec(LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize));
-					result.add(new LittleTilePreview(new LittleTileBox(new LittleTileVec(pos), max), tileData));
-				}
-				return result;
-			}
-			return LittleNBTCompressionTools.readPreviews(stack.getTagCompound().getTagList("tiles", 10));
-		}
+		return LittlePreviews.getPreview(stack, allowLowResolution);
 	}
 	
 	public static LittleTileSize getSize(ItemStack stack)
@@ -368,10 +346,15 @@ public class LittleTilePreview {
 		return new LittleTileSize(1, 1, 1);
 	}
 	
-	public static void savePreviewTiles(List<LittleTilePreview> previews, ItemStack stack)
+	public static void savePreviewTiles(LittlePreviews previews, ItemStack stack)
 	{
+		if(previews instanceof LittleAbsolutePreviews)
+			throw new IllegalArgumentException("Absolute positions cannot be saved!");
+		
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
+		
+		previews.context.set(stack.getTagCompound());
 		
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
@@ -401,7 +384,7 @@ public class LittleTilePreview {
 			HashSet<BlockPos> positions = new HashSet<>();
 			
 			for (int i = 0; i < previews.size(); i++) { //Will not be sorted after rotating
-				BlockPos pos = previews.get(i).box.getMinVec().getBlockPos();
+				BlockPos pos = previews.get(i).box.getMinVec().getBlockPos(previews.context);
 				if(!positions.contains(pos))
 				{
 					positions.add(pos);
@@ -416,44 +399,23 @@ public class LittleTilePreview {
 		stack.getTagCompound().setTag("tiles", list);
 		
 		stack.getTagCompound().setInteger("count", previews.size());
-		
-		/*stack.getTagCompound().setInteger("tiles", previews.size());
-		for (int i = 0; i < previews.size(); i++) {
-			NBTTagCompound nbt = new NBTTagCompound();
-			previews.get(i).writeToNBT(nbt);			
-			stack.getTagCompound().setTag("tile" + i, nbt);
-		}*/
 	}
 	
-	public static void saveTiles(World world, List<LittleTile> tiles, ItemStack stack)
+	public static void saveTiles(World world, LittleGridContext context, List<LittleTile> tiles, ItemStack stack)
 	{
 		stack.setTagCompound(new NBTTagCompound());
 		
-		List<LittleTilePreview> previews = new ArrayList<>();
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTilePreview preview = tiles.get(i).getPreviewTile();
-			previews.add(preview);
-		}
-		
+		LittlePreviews previews = new LittlePreviews(context);
+		previews.addTiles(tiles);		
 		savePreviewTiles(previews, stack);
 	}
 	
-	/*@SideOnly(Side.CLIENT)
-	public static void updateSize(ArrayList<RenderCubeObject> cubes, ItemStack stack)
-	{
-		if(stack.hasTagCompound())
-		{
-			Vec3d size = CubeObject.getSizeOfCubes(cubes);
-			stack.getTagCompound().setDouble("size", Math.max(1, Math.max(size.xCoord, Math.max(size.yCoord, size.zCoord))));
-		}
-	}*/
-	
 	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getCubes(List<LittleTilePreview> previews)
+	public static ArrayList<RenderCubeObject> getCubes(LittlePreviews previews)
 	{
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
 		for (int i = 0; i < previews.size(); i++) {
-			cubes.add(previews.get(i).getCubeBlock());
+			cubes.add(previews.get(i).getCubeBlock(previews.context));
 		}
 		return cubes;
 	}
@@ -471,9 +433,9 @@ public class LittleTilePreview {
 				cubes.add(new RenderCubeObject(array[0], array[1], array[2], array[0]+1, array[1]+1, array[2]+1, LittleTiles.coloredBlock));
 			}
 		}else{
-			List<LittleTilePreview> previews = getPreview(stack);
+			LittlePreviews previews = getPreview(stack);
 			for (int i = 0; i < previews.size(); i++) {
-				cubes.add(previews.get(i).getCubeBlock());
+				cubes.add(previews.get(i).getCubeBlock(previews.context));
 			}
 		}
 		return cubes;

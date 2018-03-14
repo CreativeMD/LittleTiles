@@ -6,9 +6,11 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
@@ -23,6 +25,11 @@ public ItemStack stack;
 		this.stack = stack;
 	}
 	
+	public LittleGridContext getContext()
+	{
+		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
+	}
+	
 	@Override
 	public void onClosed() {
 		GuiComboBox box = (GuiComboBox) get("shape");
@@ -31,7 +38,7 @@ public ItemStack stack;
 		
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("shape", shape.key);
-		shape.saveCustomSettings(scroll, nbt);
+		shape.saveCustomSettings(scroll, nbt, getContext());
 		sendPacketToServer(nbt);
 		
 		super.onClosed();
@@ -61,7 +68,7 @@ public ItemStack stack;
 		
 		SelectShape shape = SelectShape.getShape(box.caption);
 		scroll.controls.clear();
-		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound()));
+		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
 	}
 	

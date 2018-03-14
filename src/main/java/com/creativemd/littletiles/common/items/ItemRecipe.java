@@ -19,9 +19,11 @@ import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -71,32 +73,29 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return new ActionResult(EnumActionResult.PASS, stack);
     }
 	
-	public List<LittleTilePreview> saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
+	public LittlePreviews saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
 	{
-		List<LittleTilePreview> previews = new ArrayList<LittleTilePreview>();
+		LittlePreviews previews = new LittlePreviews(LittleGridContext.getMin());
 		
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
 					BlockPos newPos = new BlockPos(posX, posY, posZ);
 					TileEntity tileEntity = world.getTileEntity(newPos);
-					LittleTileVec offset = new LittleTileVec((posX-minX)*LittleTile.gridSize, (posY-minY)*LittleTile.gridSize, (posZ-minZ)*LittleTile.gridSize);
 					if(tileEntity instanceof TileEntityLittleTiles)
 					{
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-							
-							LittleTilePreview preview = ((LittleTile) iterator.next()).getPreviewTile();
-							preview.box.addOffset(offset);
-							previews.add(preview);
+							LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
+							preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
 						}
 					}
-					List<LittleTilePreview> specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
+					LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
 					if(specialPreviews != null)
 					{
 						for (int i = 0; i < specialPreviews.size(); i++) {
-							specialPreviews.get(i).box.addOffset(offset);
-							previews.add(specialPreviews.get(i));
+							LittleTilePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
+							preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
 						}
 					}
 				}
@@ -222,7 +221,8 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		if(stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
 		{
 			LittleTileSize size = LittleTilePreview.getSize(stack);
-			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(), Math.max(size.getPosY(), size.getPosZ()))));
+			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
+			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 		

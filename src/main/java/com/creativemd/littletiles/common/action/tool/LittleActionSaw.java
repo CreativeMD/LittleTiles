@@ -14,9 +14,11 @@ import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -50,14 +52,14 @@ public class LittleActionSaw extends LittleActionInteract {
 	}
 	
 	public LittleTileBox oldBox = null;
-	public LittleTileBox newBox = null;
-	public LittleTileAbsoluteCoord coord = null;
+	public LittleBoxes newBoxes;
+	public LittleTileIdentifierAbsolute coord = null;
 	public EnumFacing facing;
 	
 	@Override
 	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile)
 	{
-		return new LittleTileBox(tile.box).calculateIntercept(te.getPos(), pos, look);
+		return new LittleTileBox(tile.box).calculateIntercept(te.getContext(), te.getPos(), pos, look);
 	}
 	
 	@Override
@@ -78,20 +80,32 @@ public class LittleActionSaw extends LittleActionInteract {
 			else
 			{	
 				box = tile.box.grow(facing);
-				if(tile.box.isFaceAtEdge(facing))
+				if(tile.box.isFaceAtEdge(te.getContext(), facing))
 				{
 					BlockPos newPos = te.getPos().offset(facing);
+					
+					box = box.createOutsideBlockBox(te.getContext(), facing);
+					LittleGridContext context = LittleGridContext.get(box.getSmallestContext(te.getContext()));
 					te = loadTe(player, world, newPos, false);
-					box = box.createOutsideBlockBox(facing);
-					outside = true;
+					
 					if(te == null)
 						return false;
+					
+					if(context != te.getContext())
+					{
+						if(context.size > te.getContext().size)
+							te.ensureMinContext(context);
+						else
+							box.convertTo(context, te.getContext());
+					}
+					
+					outside = true;
 				}
 				
 				if(toLimit)
 				{
 					LittleTileBox before = null;
-					while(!box.isFaceAtEdge(facing) && te.isSpaceForLittleTile(box, tile))
+					while(!box.isFaceAtEdge(te.getContext(), facing) && te.isSpaceForLittleTile(box, tile))
 					{
 						before = box;
 						box = box.grow(facing);
@@ -105,10 +119,10 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if(box != null)
 			{
-				double amount = Math.abs(box.getPercentVolume()-tile.box.getPercentVolume());
+				double amount = Math.abs(box.getPercentVolume(te.getContext())-tile.box.getPercentVolume(te.getContext()));
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredient ingredient = preview.getBlockIngredient();
+				BlockIngredient ingredient = preview.getBlockIngredient(te.getContext());
 				ingredient.value = amount;
 				ingredients.addIngredient(ingredient);
 				
@@ -133,18 +147,16 @@ public class LittleActionSaw extends LittleActionInteract {
 					newTile.box = box;
 					newTile.te = te;
 					newTile.place();
-					//littleTe.addTile(newTile);
 					te.updateBlock();
-					coord = new LittleTileAbsoluteCoord(newTile);
-					newBox = box.copy();
-					newBox.addOffset(te.getPos());
+					newBoxes = new LittleBoxes(te.getPos(), te.getContext());
+					newBoxes.addBox(newTile);
 					return true;
 				}
 				else
 				{
 					tile.box = box;
 					te.updateBlock();
-					coord = new LittleTileAbsoluteCoord(tile);
+					coord = new LittleTileIdentifierAbsolute(tile);
 					return true;
 				}
 			}
@@ -159,12 +171,8 @@ public class LittleActionSaw extends LittleActionInteract {
 
 	@Override
 	public LittleAction revert() {
-		if(newBox != null)
-		{
-			List<LittleTileBox> boxes = new ArrayList<>();
-			boxes.add(newBox);
-			return new LittleActionDestroyBoxes(boxes);
-		}
+		if(newBoxes != null)
+			return new LittleActionDestroyBoxes(newBoxes);
 		return new LittleActionSawRevert(coord, oldBox, facing);
 	}
 	
@@ -184,11 +192,11 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		public LittleTileBox oldBox;
 		public LittleTileBox replacedBox;
-		public LittleTileAbsoluteCoord coord;
-		public LittleTileAbsoluteCoord newCoord;
+		public LittleTileIdentifierAbsolute coord;
+		public LittleTileIdentifierAbsolute newCoord;
 		public EnumFacing facing;
 		
-		public LittleActionSawRevert(LittleTileAbsoluteCoord coord, LittleTileBox oldBox, EnumFacing facing) {
+		public LittleActionSawRevert(LittleTileIdentifierAbsolute coord, LittleTileBox oldBox, EnumFacing facing) {
 			this.coord = coord;
 			this.oldBox = oldBox;
 			this.facing = facing;
@@ -215,10 +223,10 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if(tile.canSawResizeTile(facing, player))
 			{
-				double amount = Math.abs(oldBox.getPercentVolume()-tile.box.getPercentVolume());
+				double amount = Math.abs(oldBox.getPercentVolume(tile.getContext())-tile.box.getPercentVolume(tile.getContext()));
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredient ingredient = preview.getBlockIngredient();
+				BlockIngredient ingredient = preview.getBlockIngredient(tile.getContext());
 				ingredient.value = amount;
 				ingredients.addIngredient(ingredient);
 				
@@ -243,7 +251,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				tile.te.updateBlock();
 				
-				newCoord = new LittleTileAbsoluteCoord(tile);
+				newCoord = new LittleTileIdentifierAbsolute(tile);
 				return true;
 			}
 			

@@ -13,7 +13,10 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,11 +50,11 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getPreviews()
+	public List<LittleRenderingCube> getPreviews(LittleGridContext context)
 	{
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		LittleTileBox preview = box.copy();
-		int max = 40*LittleTile.gridSize;
+		int max = 40*context.size;
 		int min = -max;
 		switch(axis)
 		{
@@ -70,9 +73,9 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		default:
 			break;
 		}
-		LittleRenderingCube cube = preview.getRenderingCube(null, 0);
-		cube.sub(new Vec3d(LittleTile.gridMCLength/2, LittleTile.gridMCLength/2, LittleTile.gridMCLength/2));
-		cube.add(additionalOffset.getVec().scale(0.5));
+		LittleRenderingCube cube = preview.getRenderingCube(context, null, 0);
+		cube.sub(new Vec3d(context.gridMCLength/2, context.gridMCLength/2, context.gridMCLength/2));
+		cube.add(additionalOffset.getVec(context).scale(0.5));
 		cube.color = red;
 		cubes.add(cube);
 		return cubes;
@@ -84,14 +87,12 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 		if(structure instanceof LittleDoor)
 		{
 			LittleDoor door = (LittleDoor) structure;
-			door.doubledRelativeAxis = box.getMinVec();
-			door.doubledRelativeAxis.add(pos);
+			LittleTilePos absolute = new LittleTilePos(pos, teLT.getContext(), box.getMinVec());
 			if(door.getMainTile() == null)
 				door.selectMainTile();
-			if(door.getMainTile() != null)
-				door.doubledRelativeAxis.sub(door.getMainTile().getAbsoluteCoordinates());
-			door.doubledRelativeAxis.scale(2);
-			door.doubledRelativeAxis.add(additionalOffset);
+			door.doubledRelativeAxis = absolute.getRelative(door.getMainTile().getAbsolutePos());
+			door.doubledRelativeAxis.vec.scale(2);
+			door.doubledRelativeAxis.vec.add(additionalOffset);
 		}
 		return Collections.EMPTY_LIST;
 	}

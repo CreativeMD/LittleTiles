@@ -36,6 +36,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -53,14 +54,16 @@ public abstract class SubGuiGrabber extends SubGui {
 	public final GrabberMode mode;
 	public final int index;
 	public final GrabberMode[] modes;
+	public LittleGridContext context;
 	
-	public SubGuiGrabber(GrabberMode mode, ItemStack stack, int width, int height)
+	public SubGuiGrabber(GrabberMode mode, ItemStack stack, int width, int height, LittleGridContext context)
 	{
 		super(width, height);
 		this.stack = stack;
 		this.mode = mode;
 		this.modes = ItemLittleGrabber.getModes();
 		this.index = ItemLittleGrabber.indexOf(mode);
+		this.context = context;
 	}
 	
 	public abstract void saveChanges();

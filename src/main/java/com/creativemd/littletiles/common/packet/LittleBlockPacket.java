@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import joptsimple.internal.AbbreviationMap;
@@ -75,7 +76,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
 					EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				LittleTilePreview preview = tile.getPreviewTile();
-				preview.box = new LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				preview.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 				ItemLittleChisel.setPreview(stack, preview);
 			}
 		},

@@ -12,9 +12,12 @@ import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -102,10 +105,9 @@ public class DragShapeLine extends DragShape {
 	}
 	
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
-		ArrayList<LittleTileBox> boxes = new ArrayList<>();
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
 		
-		visitAll(originalMin.x + 0.5, originalMin.y + 0.5, originalMin.z + 0.5, originalMax.x + 0.5, originalMax.y + 0.5, originalMax.z + 0.5, boxes);
+		visitAll(originalMin.contextVec.vec.x + 0.5, originalMin.contextVec.vec.y + 0.5, originalMin.contextVec.vec.z + 0.5, originalMax.contextVec.vec.x + 0.5, originalMax.contextVec.vec.y + 0.5, originalMax.contextVec.vec.z + 0.5, boxes);
 		
 		LittleTileBox.combineBoxesBlocks(boxes);
 		
@@ -119,13 +121,13 @@ public class DragShapeLine extends DragShape {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
+	public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 		return new ArrayList<>();
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt) {
+	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
 		
 	}
 

@@ -13,6 +13,8 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
@@ -61,8 +63,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super(worldIn);
 	}
 	
-	public EntityDoorAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, ArrayList<PlacePreviewTile> previews,
-			LittleTileVec axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
+	public EntityDoorAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
+			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
 		super(world, pos, blocks, previews, uuid, axis);
 		
 		this.activator = activator;
@@ -171,12 +173,12 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				if(!world.isRemote || approved)
 				{
-					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews, structure, PlacementMode.all, baseOffset, null, null, null, EnumFacing.EAST) != null)
+					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, baseOffset, null, null, null, EnumFacing.EAST) != null)
 					{
 						if(world.isRemote)
 						{
 							waitingForRender = new ArrayList<>();
-							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews, baseOffset).keySet());
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, baseOffset).keySet());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 								if(te instanceof TileEntityLittleTiles)

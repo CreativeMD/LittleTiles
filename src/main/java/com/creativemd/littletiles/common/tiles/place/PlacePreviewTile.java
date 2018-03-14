@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.jcraft.jorbis.Block;
 
@@ -53,10 +54,10 @@ public class PlacePreviewTile {
 		return true;
 	}
 	
-	public List<LittleRenderingCube> getPreviews()
+	public List<LittleRenderingCube> getPreviews(LittleGridContext context)
 	{
 		ArrayList<LittleRenderingCube> previews = new ArrayList<>();
-		previews.add(box.getRenderingCube(null, 0));
+		previews.add(box.getRenderingCube(context, null, 0));
 		return previews;
 	}
 	
@@ -85,22 +86,32 @@ public class PlacePreviewTile {
 		return tiles;
 	}
 	
-	public boolean split(HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)
+	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)
 	{		
-		if(preview != null && !preview.canSplit && box.needsMultipleBlocks())
+		if(preview != null && !preview.canSplit && box.needsMultipleBlocks(context))
 			return false;
 		
 		HashMapList<BlockPos, LittleTileBox> boxes = new HashMapList<>();
-		this.box.split(boxes);
+		this.box.split(context, pos, boxes);
 		for (Entry<BlockPos, ArrayList<LittleTileBox>> entry : boxes.entrySet()) {
 			for (LittleTileBox box : entry.getValue()) {
 				PlacePreviewTile tile = this.copy();
 				tile.box = box;
-				tiles.add(entry.getKey().add(pos), tile);
+				tiles.add(entry.getKey(), tile);
 			}
 		}
 		
 		return true;
+	}
+
+	public void convertTo(LittleGridContext context, LittleGridContext to)
+	{
+		box.convertTo(context, to);	
+	}
+
+	public int getSmallestContext(LittleGridContext context)
+	{
+		return box.getSmallestContext(context);
 	}
 	
 }

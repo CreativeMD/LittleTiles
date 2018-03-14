@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
 
@@ -24,14 +25,14 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 		ItemStack stack = super.getStackToRender();
 		if(stack.getItem() instanceof ItemBlockTiles)
 		{
-			if(stack.getCount() >= LittleTile.maxTilesPerBlock)
+			if(stack.getCount() >= LittleGridContext.get().maxTilesPerBlock)
 			{
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
-				stack = new ItemStack(preview.getPreviewBlock(), stack.getCount()/LittleTile.maxTilesPerBlock, preview.getPreviewBlockMeta());
+				stack = new ItemStack(preview.getPreviewBlock(), stack.getCount()/LittleGridContext.get().maxTilesPerBlock, preview.getPreviewBlockMeta());
 			}else{
 				stack = stack.copy();
 				stack.setCount(1);
-				new LittleTileSize(LittleTile.gridSize/4*3, LittleTile.gridSize/4*3, LittleTile.gridSize/4*3).writeToNBT("size", stack.getTagCompound());
+				new LittleTileSize(LittleGridContext.get().size/4*3, LittleGridContext.get().size/4*3, LittleGridContext.get().size/4*3).writeToNBT("size", stack.getTagCompound());
 			}
 		}
 		return stack;
@@ -47,7 +48,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 			if(ingredient.value > 1)
 				tooltip.add("volume: " + ingredient.value + " blocks");
 			else
-				tooltip.add("volume: " + (int) (ingredient.value*LittleTile.maxTilesPerBlock) + " pixels");
+				tooltip.add("volume: " + (int) (ingredient.value*LittleGridContext.get().maxTilesPerBlock) + " pixels");
 		}
 		return tooltip;
 	}

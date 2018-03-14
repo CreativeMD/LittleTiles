@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -114,11 +115,12 @@ public class PreviewRenderer {
 				if(marked != null)
 					marked.renderWorld(event.getPartialTicks());
 				
-				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver);
-				
-				processRoateKeys();
-				
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+				
+				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
+				
+				processRotateKeys(position.getContext());
+				
 	            iTile.tickPreview(player, stack, position, mc.objectMouseOver);
 	            
 	            PlacementMode mode = iTile.getPlacementMode(stack);
@@ -131,19 +133,11 @@ public class PreviewRenderer {
 		            GL11.glDisable(GL11.GL_TEXTURE_2D);
 		            GL11.glDepthMask(false);
 		            
-		            boolean absolute = iTile.arePreviewsAbsolute();
+		            
 		            
 		            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-		            PreviewResult result = null;
-		            if(absolute)
-		            {
-		            	result = new PreviewResult();
-		            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, allowLowResolution, marked != null);
-		            	for (int i = 0; i < tiles.size(); i++) {
-		            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
-						}	            	
-		            }else
-		            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+		            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+		            boolean absolute = result.isAbsolute();
 		            
 		            if(result != null)
 		            {
@@ -157,7 +151,7 @@ public class PreviewRenderer {
 			            for (int i = 0; i < result.placePreviews.size(); i++) {
 							
 							PlacePreviewTile preview = result.placePreviews.get(i);
-							List<LittleRenderingCube> cubes = preview.getPreviews();
+							List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 							for (LittleRenderingCube cube : cubes) {
 								GL11.glPushMatrix();
 								cube.renderCubePreview(absolute, x, y, z, iTile);
@@ -175,7 +169,7 @@ public class PreviewRenderer {
 			            	 
 			            	 for (int i = 0; i < shifthandlers.size(); i++) {
 			            		//GL11.glPushMatrix();
-								shifthandlers.get(i).handleRendering(mc, x, y, z);
+								shifthandlers.get(i).handleRendering(result.context, mc, x, y, z);
 								//GL11.glPopMatrix();
 							}
 			            }
@@ -209,7 +203,7 @@ public class PreviewRenderer {
 		PacketHandler.sendPacketToServer(packet);
 	}
 	
-	public void processRoateKeys()
+	public void processRotateKeys(LittleGridContext context)
 	{
 		while (LittleTilesClient.flip.isPressed())
 		{
@@ -244,7 +238,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.up.isPressed())
         {
         	if(marked != null)
-        		marked.move(LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
+        		marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
         	else
         		processRotateKey(Rotation.Z_CLOCKWISE);
         }
@@ -252,7 +246,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.down.isPressed())
         {
         	if(marked != null)
-        		marked.move(LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
+        		marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
         	else
         		processRotateKey(Rotation.Z_COUNTER_CLOCKWISE);
         }
@@ -260,7 +254,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.right.isPressed())
         {
         	if(marked != null)
-        		marked.move(EnumFacing.SOUTH);
+        		marked.move(context, EnumFacing.SOUTH);
         	else
         		processRotateKey(Rotation.Y_COUNTER_CLOCKWISE);
         }
@@ -268,7 +262,7 @@ public class PreviewRenderer {
         while (LittleTilesClient.left.isPressed())
         {
         	if(marked != null)
-        		marked.move(EnumFacing.NORTH);
+        		marked.move(context, EnumFacing.NORTH);
         	else
         		processRotateKey(Rotation.Y_CLOCKWISE);
         }
@@ -294,22 +288,12 @@ public class PreviewRenderer {
 				BlockPos pos = event.getTarget().getBlockPos();
 				IBlockState state = world.getBlockState(pos);
 				
-				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver);
-	            
-	            boolean absolute = iTile.arePreviewsAbsolute();
-	            
+				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
+				
 	            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
 	            
-	            PreviewResult result = null;
-	            if(absolute)
-	            {
-	            	result = new PreviewResult();
-	            	List<LittleTilePreview> tiles = iTile.getLittlePreview(stack, allowLowResolution, marked != null);
-	            	for (int i = 0; i < tiles.size(); i++) {
-	            		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
-					}	            	
-	            }else
-	            	result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+	            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+	            boolean absolute = result.isAbsolute();
 	            
 	            if(result != null)
 	            {
@@ -333,7 +317,7 @@ public class PreviewRenderer {
 		            
 		            for (int i = 0; i < result.placePreviews.size(); i++) {
 						PlacePreviewTile preview = result.placePreviews.get(i);
-						List<LittleRenderingCube> cubes = preview.getPreviews();
+						List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 						for (LittleRenderingCube cube : cubes) {
 							RenderGlobal.drawSelectionBoundingBox(cube.getAxis().grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 						}

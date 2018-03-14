@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.utils.placing;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
@@ -8,6 +9,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -30,7 +32,7 @@ public class PlaceModeReplace extends PlacementMode {
 	}
 	
 	@Override
-	public List<BlockPos> getCoordsToCheck(HashMapList<BlockPos, PlacePreviewTile> splittedTiles, BlockPos pos) {
+	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return null;
 	}
 

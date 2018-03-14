@@ -14,9 +14,13 @@ import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +32,7 @@ import net.minecraft.world.World;
 
 public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	
-	public LittleActionDestroyBoxes(List<LittleTileBox> boxes) {
+	public LittleActionDestroyBoxes(LittleBoxes boxes) {
 		super(boxes);
 	}
 	
@@ -37,7 +41,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	}
 	
 	public List<StructurePreview> destroyedStructures;
-	public List<LittleTilePreview> previews;
+	public LittleAbsolutePreviews previews;
 	
 	private boolean containsStructure(LittleStructure structure)
 	{
@@ -48,9 +52,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		return false;
 	}
 	
-	public CombinedIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate)
+	public CombinedIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context)
 	{
-		LittleTileVec offset = new LittleTileVec(te.getPos());
+		if(previews == null)
+			previews = new LittleAbsolutePreviews(te.getPos(), context);
+		
 		CombinedIngredients ingredients = new CombinedIngredients();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -92,13 +98,12 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					}
 					
 					for (int l = 0; l < cutout.size(); l++) {
-						volume += cutout.get(l).getPercentVolume();
+						volume += cutout.get(l).getPercentVolume(context);
 						if(!simulate)
 						{
 							LittleTilePreview preview2 = preview.copy();
 							preview2.box = cutout.get(l).copy();
-							preview2.box.addOffset(offset);
-							previews.add(preview2);
+							previews.addPreview(te.getPos(), preview2, te.getContext());
 						}
 					}		
 				}
@@ -106,7 +111,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				if(volume > 0)
 					ingredients.addPreview(preview, volume);
 			}else{
-				ingredients.addPreview(tile.getPreviewTile());
+				ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
 				
 				if(!simulate)
 				{
@@ -122,8 +127,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 						//tile.structure.removeWorldProperties();
 					}else{
 						LittleTilePreview preview = tile.getPreviewTile();
-						preview.box.addOffset(offset);
-						previews.add(preview);
+						previews.addPreview(te.getPos(), preview, te.getContext());
 						tile.destroy();
 					}
 				}
@@ -135,19 +139,30 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	}
 
 	@Override
-	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes) throws LittleActionException {
+	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
 		TileEntity tileEntity = loadTe(player, world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)
 		{
-			if(addIngredients(player, action(player, (TileEntityLittleTiles) tileEntity, boxes, true)))
-				action(player, (TileEntityLittleTiles) tileEntity, boxes, false);
+			((TileEntityLittleTiles) tileEntity).ensureMinContext(context);
+			
+			if(context != ((TileEntityLittleTiles) tileEntity).getContext())
+			{
+				for (LittleTileBox box : boxes) {
+					box.convertTo(context, ((TileEntityLittleTiles) tileEntity).getContext());
+				}
+				context = ((TileEntityLittleTiles) tileEntity).getContext();
+			}
+			
+			if(addIngredients(player, action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
+				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
+			
+			((TileEntityLittleTiles) tileEntity).convertToSmallest();
 		}
 	}
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		previews = new ArrayList<>();
 		destroyedStructures = new ArrayList<>();
 		return super.action(player);
 	}
@@ -159,10 +174,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 
 	@Override
 	public LittleAction revert() {
-		boolean additionalPreviews = previews.size() > 0;
+		boolean additionalPreviews = previews != null && previews.size() > 0;
 		LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
 		if(additionalPreviews)
+		{
+			previews.convertToSmallest();
 			actions[0] = new LittleActionPlaceAbsolute(previews, null, PlacementMode.fill, true);
+		}
 		for (int i = 0; i < destroyedStructures.size(); i++) {
 			actions[additionalPreviews ? 1 : 0 + i] = destroyedStructures.get(i).getPlaceAction();
 		}
@@ -170,7 +188,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	}
 	
 	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleTileBox toCut)
-	{
+	{		
 		List<LittleTile> removed = new ArrayList<>();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {

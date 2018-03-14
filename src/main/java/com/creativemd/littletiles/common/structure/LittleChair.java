@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.Block;
@@ -44,7 +45,7 @@ public class LittleChair extends LittleStructure{
 	{
 		if(!world.isRemote)
 		{
-			LittleTileVec vec = getHighestCenterPoint();
+			LittleTilePos vec = getHighestCenterPoint();
 			if(vec != null)
 			{
 				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());

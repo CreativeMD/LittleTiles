@@ -38,7 +38,9 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -169,7 +171,7 @@ public class LittleEvent {
 				
 				if(stack.getItem() instanceof ISpecialBlockSelector)
 				{
-					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTileVec(ray)))
+					if(((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTilePos(ray, ((ISpecialBlockSelector) stack.getItem()).getContext(stack))));
 						event.setCanceled(true);
 					blockSelector = (ISpecialBlockSelector) stack.getItem();
 					lastSelectedItem = stack;
@@ -203,7 +205,7 @@ public class LittleEvent {
             {
             	AxisAlignedBB bb = player.getEntityBoundingBox();
             	for (LittleTile tile : ((TileEntityLittleTiles) te).getTiles()) {
-    				if(tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(blockpos).intersects(bb))
+    				if(tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(tile.getContext(), blockpos).intersects(bb))
     				{
     					Vec3d color = ColorUtils.IntToVec(((LittleTileBlockColored) tile).color);
     					//GlStateManager.color((float) color.x, (float) color.y, (float) color.z);
@@ -290,11 +292,7 @@ public class LittleEvent {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
 			{
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
-				
-				if(iTile.arePreviewsAbsolute())
-					new LittleActionPlaceAbsolute(iTile.getLittlePreview(stack, false, false), iTile.getLittleStructure(stack), mode, true).execute();
-				else
-					new LittleActionPlaceRelative(PreviewRenderer.marked != null ? PreviewRenderer.marked.position : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
+				new LittleActionPlaceRelative(PreviewRenderer.marked != null ? PreviewRenderer.marked.position : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver, iTile.getPositionContext(stack)), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
 				
 				PreviewRenderer.marked = null;
 	        }
@@ -313,78 +311,82 @@ public class LittleEvent {
 			BlockPos pos = event.getTarget().getBlockPos();
 			IBlockState state = world.getBlockState(pos);
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if(stack.getItem() instanceof ISpecialBlockSelector && ((ISpecialBlockSelector) stack.getItem()).hasCustomBox(world, stack, player, state, event.getTarget(), new LittleTileVec(event.getTarget())))
+			if(stack.getItem() instanceof ISpecialBlockSelector)
 			{
-				while (LittleTilesClient.flip.isPressed())
+				ISpecialBlockSelector selector = (ISpecialBlockSelector) stack.getItem();
+				LittleTilePos result = new LittleTilePos(event.getTarget(), selector.getContext(stack));
+				if(selector.hasCustomBox(world, stack, player, state, event.getTarget(), result))
 				{
-					int i4 = MathHelper.floor((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
-					EnumFacing direction = null;
-					switch(i4)
+					while (LittleTilesClient.flip.isPressed())
 					{
-					case 0:
-						direction = EnumFacing.SOUTH;
-						break;
-					case 1:
-						direction = EnumFacing.WEST;
-						break;
-					case 2:
-						direction = EnumFacing.NORTH;
-						break;
-					case 3:
-						direction = EnumFacing.EAST;
-						break;
+						int i4 = MathHelper.floor((double)(player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+						EnumFacing direction = null;
+						switch(i4)
+						{
+						case 0:
+							direction = EnumFacing.SOUTH;
+							break;
+						case 1:
+							direction = EnumFacing.WEST;
+							break;
+						case 2:
+							direction = EnumFacing.NORTH;
+							break;
+						case 3:
+							direction = EnumFacing.EAST;
+							break;
+						}
+						if(player.rotationPitch > 45)
+							direction = EnumFacing.DOWN;
+						if(player.rotationPitch < -45)
+							direction = EnumFacing.UP;
+						
+						LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
+						packet.executeClient(player);
+						PacketHandler.sendPacketToServer(packet);
 					}
-					if(player.rotationPitch > 45)
-						direction = EnumFacing.DOWN;
-					if(player.rotationPitch < -45)
-						direction = EnumFacing.UP;
 					
-					LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
-					packet.executeClient(player);
-					PacketHandler.sendPacketToServer(packet);
+					//Rotate Block
+			        while (LittleTilesClient.up.isPressed())
+			        	processRotateKey(player, Rotation.Z_CLOCKWISE);
+			        
+			        while (LittleTilesClient.down.isPressed())
+			        	processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE);
+			        
+			        while (LittleTilesClient.right.isPressed())
+			        	processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE);
+			        
+			        while (LittleTilesClient.left.isPressed())
+			        	processRotateKey(player, Rotation.Y_CLOCKWISE);
+					
+					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
+			        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
+			        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
+			        LittleBoxes boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), result);
+			        //box.addOffset(new LittleTileVec(pos));
+			        
+			        GlStateManager.enableBlend();
+		            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		            GlStateManager.glLineWidth(4.0F);
+		            GlStateManager.disableTexture2D();
+		            GlStateManager.depthMask(false);
+		            for (int i = 0; i < boxes.size(); i++) {
+		            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+					}
+	
+		            if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos))
+		            {
+		            	GlStateManager.glLineWidth(1.0F);
+		                RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+		            }
+		            
+					GlStateManager.depthMask(true);
+		            GlStateManager.enableTexture2D();
+		            GlStateManager.disableBlend();
+		            
+					event.setCanceled(true);
 				}
-				
-				//Rotate Block
-		        while (LittleTilesClient.up.isPressed())
-		        	processRotateKey(player, Rotation.Z_CLOCKWISE);
-		        
-		        while (LittleTilesClient.down.isPressed())
-		        	processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE);
-		        
-		        while (LittleTilesClient.right.isPressed())
-		        	processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE);
-		        
-		        while (LittleTilesClient.left.isPressed())
-		        	processRotateKey(player, Rotation.Y_CLOCKWISE);
-				
-				double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
-		        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
-		        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
-		        List<LittleTileBox> boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), new LittleTileVec(event.getTarget()));
-		        //box.addOffset(new LittleTileVec(pos));
-		        
-		        GlStateManager.enableBlend();
-	            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-	            GlStateManager.glLineWidth(4.0F);
-	            GlStateManager.disableTexture2D();
-	            GlStateManager.depthMask(false);
-	            for (int i = 0; i < boxes.size(); i++) {
-	            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox().grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
-				}
-
-	            if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos))
-	            {
-	            	GlStateManager.glLineWidth(1.0F);
-	                RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
-	            }
-	            
-				GlStateManager.depthMask(true);
-	            GlStateManager.enableTexture2D();
-	            GlStateManager.disableBlend();
-	            
-				event.setCanceled(true);
 			}
-			
 		}
 	}
 	

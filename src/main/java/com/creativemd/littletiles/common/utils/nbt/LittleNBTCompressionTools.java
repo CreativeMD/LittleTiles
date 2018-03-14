@@ -10,7 +10,9 @@ import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBufInputStream;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -92,7 +94,7 @@ public class LittleNBTCompressionTools {
 		return tiles;
 	}
 	
-	public static NBTTagList writePreviews(List<LittleTilePreview> previews)
+	public static NBTTagList writePreviews(LittlePreviews previews)
 	{
 		HashMapList<String, LittleTilePreview> groups = new HashMapList<>();
 		
@@ -180,9 +182,8 @@ public class LittleNBTCompressionTools {
 		registerPreviewCompressionHandler("", ordinaryPreviewHandler);
 	}
 	
-	public static List<LittleTilePreview> readPreviews(NBTTagList list)
+	public static LittlePreviews readPreviews(LittlePreviews previews, NBTTagList list)
 	{
-		List<LittleTilePreview> previews = new ArrayList<>();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			if(nbt.getBoolean("group"))
@@ -195,15 +196,20 @@ public class LittleNBTCompressionTools {
 				for (int j = 0; j < nbts.size(); j++) {
 					LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbts.get(j));
 					if(preview != null)
-						previews.add(preview);
+						previews.addWithoutCheckingPreview(preview);
 				}
 			}else{
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
 				if(preview != null)
-					previews.add(preview);
+					previews.addWithoutCheckingPreview(preview);
 			}
 		}
 		return previews;
+	}
+	
+	public static LittlePreviews readPreviews(LittleGridContext context, NBTTagList list)
+	{
+		return readPreviews(new LittlePreviews(context), list);
 	}
 	
 }

@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
 import net.minecraft.block.state.IBlockState;
@@ -85,7 +86,7 @@ public class LittleStorage extends LittleStructure  {
 		return stack;
 	}
 	
-	public static int getSizeOfInventory(List<LittleTilePreview> previews)
+	public static int getSizeOfInventory(LittlePreviews previews)
 	{
 		int size = 0;
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
@@ -118,7 +119,7 @@ public class LittleStorage extends LittleStructure  {
 		
 		LittleStorage storage = new LittleStorage();
 		storage.invisibleStorageTiles = ((GuiCheckBox) gui.get("invisible")).value;
-		List<LittleTilePreview> previews = LittleTilePreview.getPreview(((SubGuiStructure) gui).stack);
+		LittlePreviews previews = LittleTilePreview.getPreview(((SubGuiStructure) gui).stack);
 		for (int i = 0; i < previews.size(); i++) {
 			if(previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
 				previews.get(i).setInvisibile(storage.invisibleStorageTiles);

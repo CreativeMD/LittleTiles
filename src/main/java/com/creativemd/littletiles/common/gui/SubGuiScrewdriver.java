@@ -21,8 +21,11 @@ import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.AnySelector;
 import com.creativemd.littletiles.common.utils.selection.BlockSelector;
@@ -142,7 +145,7 @@ public class SubGuiScrewdriver extends SubGui {
 			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
 		}
 		
-		List<LittleTileBox> boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
+		LittleBoxes boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
 		boolean remove = ((GuiCheckBox)get("remove")).value;
 		boolean replace = ((GuiCheckBox)get("replace")).value;
 		boolean colorize = ((GuiCheckBox)get("colorize")).value;
@@ -165,12 +168,12 @@ public class SubGuiScrewdriver extends SubGui {
 						return null;
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));
-					List<LittleTilePreview> previews = new ArrayList<>();
+					LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
 					for(LittleTileBox box : boxes)
 					{
 						LittleTileBlock tile = new LittleTileBlock(replacementBlock, stackReplace.getItemDamage());
 						tile.box = box;
-						previews.add(tile.getPreviewTile());
+						previews.addPreview(pos, tile.getPreviewTile(), boxes.context);
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));
 					actions.add(new LittleActionPlaceAbsolute(previews, null, PlacementMode.all, false));

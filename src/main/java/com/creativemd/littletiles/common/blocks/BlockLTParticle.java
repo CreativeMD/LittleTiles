@@ -20,9 +20,11 @@ import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
@@ -81,23 +83,23 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
     }
 
 	@Override
-	public ArrayList<LittleTilePreview> getLittlePreview(ItemStack stack) {
-		ArrayList<LittleTilePreview> previews = new ArrayList<>();
+	public LittlePreviews getLittlePreview(ItemStack stack) {
+		LittlePreviews previews = new LittlePreviews(LittleGridContext.get());
 		NBTTagCompound nbt = new NBTTagCompound();
 		LittleTileParticle particle = new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle());
 		particle.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-		previews.add(particle.getPreviewTile());
+		previews.addTile(particle);
 		return previews;
 	}
 
 	@Override
-	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
-		
+	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
+		return LittleGridContext.get();
 	}
 
 	@Override
-	public void flipLittlePreview(ItemStack stack, Axis axis) {
-		
+	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
+		return LittleGridContext.get();
 	}
 
 	@Override
@@ -106,7 +108,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 	}
 
 	@Override
-	public void saveLittlePreview(ItemStack stack, List<LittleTilePreview> previews) {
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		
 	}
 	
@@ -119,6 +121,12 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
+		return true;
+	}
+
+	@Override
+	public boolean containsIngredients(ItemStack stack)
+	{
 		return true;
 	}
 

@@ -6,8 +6,8 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileAbsoluteCoord;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
@@ -22,11 +22,11 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileUpdatePacket extends CreativeCorePacket {
 	
-	public LittleTileAbsoluteCoord coord;
+	public LittleTileIdentifierAbsolute coord;
 	public NBTTagCompound nbt;
 	
 	public LittleTileUpdatePacket(LittleTile tile, NBTTagCompound nbt) {
-		this.coord = new LittleTileAbsoluteCoord(tile);
+		this.coord = new LittleTileIdentifierAbsolute(tile);
 		this.nbt = nbt;
 	}
 	

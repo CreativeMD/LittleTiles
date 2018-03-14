@@ -184,7 +184,7 @@ public class LittleTileBlock extends LittleTile{
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		if(block != Blocks.BARRIER)
-			cubes.add(box.getRenderingCube(block, meta));
+			cubes.add(box.getRenderingCube(getContext(), block, meta));
 		return cubes;
 	}
 	

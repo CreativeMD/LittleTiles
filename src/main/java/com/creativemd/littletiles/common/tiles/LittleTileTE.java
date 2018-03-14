@@ -205,7 +205,7 @@ public class LittleTileTE extends LittleTileBlock {
     public AxisAlignedBB getRenderBoundingBox()
     {
 		if(tileEntity != null)
-			return getTileEntity().getRenderBoundingBox().offset(LittleUtils.toVanillaGrid(box.minX), LittleUtils.toVanillaGrid(box.minY), LittleUtils.toVanillaGrid(box.minZ));
+			return getTileEntity().getRenderBoundingBox().offset(getContext().toVanillaGrid(box.minX), getContext().toVanillaGrid(box.minY), getContext().toVanillaGrid(box.minZ));
 		return super.getRenderBoundingBox();
     }
 	

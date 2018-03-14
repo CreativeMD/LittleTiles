@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -45,7 +46,7 @@ public class BlockIngredient {
 		nbt.setString("tID", "BlockTileBlock");
 		stack.setTagCompound(nbt);
 		
-		stack.setCount((int) (value/LittleTile.minimumTileSize));
+		stack.setCount((int) (value/LittleGridContext.get().minimumTileSize));
 		return stack;
 	}
 	

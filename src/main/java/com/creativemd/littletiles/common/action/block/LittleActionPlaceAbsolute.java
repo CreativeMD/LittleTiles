@@ -10,9 +10,12 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -24,12 +27,12 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleActionPlaceAbsolute extends LittleAction {
 	
-	public List<LittleTilePreview> previews;
+	public LittleAbsolutePreviews previews;
 	public PlacementMode mode;
 	public LittleStructure structure;
 	public boolean toVanilla;
 	
-	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, LittleStructure structure, PlacementMode mode, boolean toVanilla) {
+	public LittleActionPlaceAbsolute(LittleAbsolutePreviews previews, LittleStructure structure, PlacementMode mode, boolean toVanilla) {
 		super();
 		this.previews = previews;
 		this.mode = mode;
@@ -38,7 +41,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		checkMode();
 	}
 	
-	public LittleActionPlaceAbsolute(List<LittleTilePreview> previews, PlacementMode mode) {
+	public LittleActionPlaceAbsolute(LittleAbsolutePreviews previews, PlacementMode mode) {
 		this(previews, null, mode, false);
 	}
 	
@@ -60,42 +63,44 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		return true;
 	}
 	
-	public List<LittleTileBox> boxes;
+	public LittleBoxes boxes;
 
 	@Override
 	public LittleAction revert() {
+		boxes.convertToSmallest();
+		
 		if(destroyed != null)
+		{
+			destroyed.convertToSmallest();
 			return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, null, PlacementMode.normal, true));
+		}	
+			
 		return new LittleActionDestroyBoxes(boxes);
 	}
 	
-	public List<LittleTile> placedTiles;
-	public List<LittleTilePreview> destroyed;
+	public LittleAbsolutePreviews destroyed;
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		
-		if(drainPreviews(player, previews))
+		if(canDrainPreviews(player, previews))
 		{
-			BlockPos pos = previews.get(0).box.getMinVec().getBlockPos();
-			LittleTileVec offset = new LittleTileVec(pos);
-			LittleTileVec zero = new LittleTileVec(0, 0, 0);
 			ArrayList<PlacePreviewTile> placePreviews = new ArrayList<>();
-			boxes = new ArrayList<>();
-			
+			LittleTileVec zero = new LittleTileVec(0, 0, 0);
 			for (LittleTilePreview preview : previews) {
-				preview = preview.copy();
-				preview.box.subOffset(offset);
-				placePreviews.add(preview.getPlaceableTile(null, true, offset));
+				placePreviews.add(preview.getPlaceableTile(null, true, zero));
 			}
 			
 			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			List<LittleTile> removedTiles = new ArrayList<LittleTile>();
 			
-			placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, placePreviews, structure, mode, pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
+			List<LittleTile> placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, previews.context, placePreviews, structure, mode, previews.pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
 			
+			boxes = new LittleBoxes(previews.pos, LittleGridContext.get());
 			if(placedTiles != null)
 			{
+				drainPreviews(player, getIngredientsPreviews(placedTiles));
+				
 				if(!player.world.isRemote)
 				{
 					addTilesToInventoryOrDrop(player, unplaceableTiles);
@@ -103,18 +108,14 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				}
 				
 				for (LittleTile tile : placedTiles) {
-					LittleTileBox box = tile.box.copy();
-					box.addOffset(tile.te.getPos());
-					boxes.add(box);
+					boxes.addBox(tile);
 				}
 				
 				if(!removedTiles.isEmpty())
 				{
-					destroyed = new ArrayList<>();
+					destroyed = new LittleAbsolutePreviews(previews.pos, previews.context);
 					for (LittleTile tile : removedTiles) {
-						LittleTilePreview preview = tile.getPreviewTile();
-						preview.box.addOffset(tile.te.getPos());
-						destroyed.add(preview);
+						destroyed.addTile(tile);
 					}
 				}
 				
@@ -130,6 +131,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 					}
 				}
 			}
+			
 			return placedTiles != null;
 		}
 		return false;
@@ -137,10 +139,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
-		writeNBT(buf, nbt);
-		writeString(buf, mode.name);
+		writeAbsolutePreviews(previews, buf);
+		writePlacementMode(mode, buf);
 		buf.writeBoolean(toVanilla);
 		
 		if(structure == null)
@@ -158,8 +158,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 
 	@Override
 	public void readBytes(ByteBuf buf) {
-		previews = LittleNBTCompressionTools.readPreviews(readNBT(buf).getTagList("list", 10));
-		mode = PlacementMode.getModeOrDefault(readString(buf));
+		previews = readAbsolutePreviews(buf);
+		mode = readPlacementMode(buf);
 		toVanilla = buf.readBoolean();
 		
 		if(buf.readBoolean())

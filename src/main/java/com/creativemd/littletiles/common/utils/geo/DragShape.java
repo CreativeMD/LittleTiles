@@ -8,13 +8,17 @@ import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -46,15 +50,15 @@ public abstract class DragShape {
 		new SelectShape.DragSelectShape(this);
 	}
 	
-	public abstract List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTileVec originalMin, LittleTileVec originalMax);
+	public abstract LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax);
 	
 	public abstract void addExtraInformation(NBTTagCompound nbt, List<String> list);
 	
 	@SideOnly(Side.CLIENT)
-	public abstract List<GuiControl> getCustomSettings(NBTTagCompound nbt);
+	public abstract List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context);
 	
 	@SideOnly(Side.CLIENT)
-	public abstract void saveCustomSettings(GuiParent gui, NBTTagCompound nbt);
+	public abstract void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context);
 	
 	public abstract void rotate(NBTTagCompound nbt, Rotation rotation);
 	

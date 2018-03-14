@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
@@ -67,7 +68,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	//================Conversions================
 	
 	@Override
-	public void addCollisionBoxes(AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, BlockPos offset)
+	public void addCollisionBoxes(LittleGridContext context, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, BlockPos offset)
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -81,8 +82,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		RotationUtils.setValue(max, getMaxSlice(one), one);
 		RotationUtils.setValue(max, getMaxSlice(two), two);
 		
-		AxisAlignedBB bb = new AxisAlignedBBOrdinarySliced(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
-				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ(), slice);
+		AxisAlignedBB bb = new AxisAlignedBBOrdinarySliced(context.toVanillaGrid(min.x) + offset.getX(), context.toVanillaGrid(min.y) + offset.getY(), context.toVanillaGrid(min.z) + offset.getZ(),
+				context.toVanillaGrid(max.x) + offset.getX(), context.toVanillaGrid(max.y) + offset.getY(), context.toVanillaGrid(max.z) + offset.getZ(), slice);
 		
         if (entityBox.intersects(bb))
 	        collidingBoxes.add(bb);
@@ -109,8 +110,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
         		RotationUtils.setValue(max, boxTwo ? getMax(two) : getMaxSlice(two), two);
         	}
         	
-        	bb = new AxisAlignedBB(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
-    				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ());
+        	bb = new AxisAlignedBB(context.toVanillaGrid(min.x) + offset.getX(), context.toVanillaGrid(min.y) + offset.getY(), context.toVanillaGrid(min.z) + offset.getZ(),
+    				context.toVanillaGrid(max.x) + offset.getX(), context.toVanillaGrid(max.y) + offset.getY(), context.toVanillaGrid(max.z) + offset.getZ());
         	if (entityBox.intersects(bb))
     	        collidingBoxes.add(bb);
         }
@@ -135,8 +136,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
         		RotationUtils.setValue(max, getMax(two), two);
         	}
         	
-        	bb = new AxisAlignedBB(min.x/(double)LittleTile.gridSize + offset.getX(), min.y/(double)LittleTile.gridSize + offset.getY(), min.z/(double)LittleTile.gridSize + offset.getZ(), 
-    				max.x/(double)LittleTile.gridSize + offset.getX(), max.y/(double)LittleTile.gridSize + offset.getY(), max.z/(double)LittleTile.gridSize + offset.getZ());
+        	bb = new AxisAlignedBB(context.toVanillaGrid(min.x) + offset.getX(), context.toVanillaGrid(min.y) + offset.getY(), context.toVanillaGrid(min.z) + offset.getZ(),
+    				context.toVanillaGrid(max.x) + offset.getX(), context.toVanillaGrid(max.y) + offset.getY(), context.toVanillaGrid(max.z) + offset.getZ());
         	if (entityBox.intersects(bb))
     	        collidingBoxes.add(bb);
         }
@@ -151,6 +152,26 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	//================Size & Volume================
+	
+	@Override
+	public void convertTo(LittleGridContext from, LittleGridContext to)
+	{
+		super.convertTo(from, to);
+		if(from.size > to.size)
+		{
+			int ratio = from.size/to.size;
+			startOne /= ratio;
+			startTwo /= ratio;
+			endOne /= ratio;
+			endTwo /= ratio;
+		}else{
+			int ratio = to.size/from.size;
+			startOne *= ratio;
+			startTwo *= ratio;
+			endOne *= ratio;
+			endTwo *= ratio;
+		}
+	}
 	
 	@Override
 	public double getVolume()
@@ -171,7 +192,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	//================Block Integration================
 	
 	@Override
-	public LittleTileBox createOutsideBlockBox(EnumFacing facing)
+	public LittleTileBox createOutsideBlockBox(LittleGridContext context, EnumFacing facing)
 	{
 		if(facing == slice.emptySideOne || facing == slice.emptySideTwo)
 			return null;
@@ -184,33 +205,33 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			{
 			case EAST:
 				box.minX = 0;
-				box.maxX -= LittleTile.gridSize;
+				box.maxX -= context.size;
 				break;
 			case WEST:
-				box.minX += LittleTile.gridSize;
-				box.maxX = LittleTile.gridSize;
+				box.minX += context.size;
+				box.maxX = context.size;
 				break;
 			case UP:
 				box.minY = 0;
-				box.maxY -= LittleTile.gridSize;
+				box.maxY -= context.size;
 				break;
 			case DOWN:
-				box.minY += LittleTile.gridSize;
-				box.maxY = LittleTile.gridSize;
+				box.minY += context.size;
+				box.maxY = context.size;
 				break;
 			case SOUTH:
 				box.minZ = 0;
-				box.maxZ -= LittleTile.gridSize;
+				box.maxZ -= context.size;
 				break;
 			case NORTH:
-				box.minZ += LittleTile.gridSize;
-				box.maxZ = LittleTile.gridSize;
+				box.minZ += context.size;
+				box.maxZ = context.size;
 				break;
 			}
 			return box;
 		}
 		
-		return super.createOutsideBlockBox(facing);
+		return super.createOutsideBlockBox(context, facing);
 	}
 	
 	/*@Override
@@ -551,7 +572,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			
 			if(slice.isFacingPositive(one))
         	{
-				if(posOne <= getMinSlice(one) / LittleTile.gridSize)
+				if(posOne <= getMinSlice(one))
 					return true;
         	}else{
         		if(posOne >= getMaxSlice(one))
@@ -719,7 +740,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		
 	}
 	
-	public boolean intersectsWithFace(EnumFacing facing, Vec3d vec)
+	public boolean intersectsWithFace(LittleGridContext context, EnumFacing facing, Vec3d vec)
     {
 		Axis axis = facing.getAxis();
 		
@@ -729,15 +750,15 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			switch(axis)
 			{
 			case X:
-				if(!intersectsWithYZ(vec))
+				if(!intersectsWithYZ(context, vec))
 					return false;
 				break;
 			case Y:
-				if(!intersectsWithXZ(vec))
+				if(!intersectsWithXZ(context, vec))
 					return false;
 				break;
 			case Z:
-				if(!intersectsWithXY(vec))
+				if(!intersectsWithXY(context, vec))
 					return false;
 				break;
 			}
@@ -750,33 +771,33 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			
 			if(slice.isFacingPositive(one))
         	{
-				if(posOne <= getMinSlice(one) / LittleTile.gridSize)
+				if(posOne <= getMinSlice(one) / context.size)
 					return true;
         	}else{
-        		if(posOne > getMaxSlice(one) / LittleTile.gridSize)
+        		if(posOne > getMaxSlice(one) / context.size)
 					return true;
         	}
 			
 			if(slice.isFacingPositive(two))
         	{
-				if(posTwo <= getMinSlice(two) / LittleTile.gridSize)
+				if(posTwo <= getMinSlice(two) / context.size)
 					return true;
         	}else{
-        		if(posTwo > getMaxSlice(two) / LittleTile.gridSize)
+        		if(posTwo > getMaxSlice(two) / context.size)
 					return true;
         	}
 			
 			LittleCorner corner = slice.getFilledCorner();
 			
-			double difOne = Math.abs(getSliceCornerValue(corner, one) / LittleTile.gridSize - posOne);
-			double difTwo = Math.abs(getSliceCornerValue(corner, two) / LittleTile.gridSize - posTwo);
-			double sizeOne = getSliceSize(one) / (double) LittleTile.gridSize;
-			double sizeTwo = getSliceSize(two) / (double) LittleTile.gridSize;
+			double difOne = Math.abs(getSliceCornerValue(corner, one) / context.size - posOne);
+			double difTwo = Math.abs(getSliceCornerValue(corner, two) / context.size - posTwo);
+			double sizeOne = getSliceSize(one) / (double) context.size;
+			double sizeTwo = getSliceSize(two) / (double) context.size;
 			
 			double diff = difOne / sizeOne + difTwo / sizeTwo;
 			return sizeOne >= difOne && sizeTwo >= difTwo && diff <= 1;
 		}else{
-			if(!super.intersectsWithAxis(axis, vec))
+			if(!super.intersectsWithAxis(context, axis, vec))
 				return false;
 			
 			Axis other = RotationUtils.getDifferentAxisFirst(slice.axis) == axis ? RotationUtils.getDifferentAxisSecond(slice.axis) : RotationUtils.getDifferentAxisFirst(slice.axis);
@@ -784,31 +805,31 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			if(slice.isFacingPositive(axis) == (facing.getAxisDirection() == AxisDirection.POSITIVE))
 			{
 				if(slice.isFacingPositive(other))
-					return RotationUtils.get(other, vec) <= getMinSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) <= getMinSlice(other) / context.size;
 				else
-					return RotationUtils.get(other, vec) > getMaxSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) > getMaxSlice(other) / context.size;
 			}else{
 				if(slice.isFacingPositive(other))
-					return RotationUtils.get(other, vec) < getMaxSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) < getMaxSlice(other) / context.size;
 				else
-					return RotationUtils.get(other, vec) >= getMinSlice(other) / LittleTile.gridSize;
+					return RotationUtils.get(other, vec) >= getMinSlice(other) / context.size;
 			}
 		}
 		
 	}
 	
 	@Nullable
-    protected Vec3d collideWithPlane(EnumFacing facing, double value, Vec3d vecA, Vec3d vecB)
+    protected Vec3d collideWithPlane(LittleGridContext context, EnumFacing facing, double value, Vec3d vecA, Vec3d vecB)
     {
 		Axis axis = facing.getAxis();
         Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA.getIntermediateWithXValue(vecB, value);
         
-        return vec3d != null && intersectsWithFace(facing, vec3d) ? vec3d : null;
+        return vec3d != null && intersectsWithFace(context, facing, vec3d) ? vec3d : null;
     }
 	
 	@Override
 	@Nullable
-    public RayTraceResult calculateIntercept(BlockPos pos, Vec3d vecA, Vec3d vecB)
+    public RayTraceResult calculateIntercept(LittleGridContext context, BlockPos pos, Vec3d vecA, Vec3d vecB)
     {
 		vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
 		vecB = vecB.subtract(pos.getX(), pos.getY(), pos.getZ());
@@ -817,7 +838,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		EnumFacing collided = null;
 		
 		for (EnumFacing facing : EnumFacing.VALUES) {
-			Vec3d temp = collideWithPlane(facing, (double) getValueOfFacing(facing)/LittleTile.gridSize, vecA, vecB);
+			Vec3d temp = collideWithPlane(context, facing, (double) getValueOfFacing(facing)/context.size, vecA, vecB);
 			if(temp != null && isClosest(vecA, collision, temp))
 			{
 				collided = facing;
@@ -827,7 +848,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSizeOfSlice());
 		Vector3d sliceCorner = getSliceCorner(slice.start);
-		Vec3d temp = linePlaneIntersection(new Vec3d(sliceCorner.x / LittleTile.gridSize, sliceCorner.y / LittleTile.gridSize, sliceCorner.z / LittleTile.gridSize), getSliceNormal(), vecA, vecB.subtract(vecA));
+		Vec3d temp = linePlaneIntersection(new Vec3d(sliceCorner.x / context.size, sliceCorner.y / context.size, sliceCorner.z / context.size), getSliceNormal(), vecA, vecB.subtract(vecA));
 		if(temp != null)
 		{
 			boolean inside = false; /*temp.x >= LittleUtils.toGrid(minX) && temp.x < LittleUtils.toGrid(maxX) &&
@@ -836,13 +857,13 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			switch(diagonal.getAxis())
 			{
 			case X:
-				inside = intersectsWithYZ(temp);
+				inside = intersectsWithYZ(context, temp);
 				break;
 			case Y:
-				inside = intersectsWithXZ(temp);
+				inside = intersectsWithXZ(context, temp);
 				break;
 			case Z:
-				inside = intersectsWithXY(temp);
+				inside = intersectsWithXY(context, temp);
 				break;
 			}
 			//if(temp != null && intersectsWithAxis(diagonal.getAxis(), temp) && isClosest(vecA, collision, temp))
@@ -1071,9 +1092,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public LittleRenderingCube getRenderingCube(CubeObject cube, Block block, int meta)
+	public LittleRenderingCube getRenderingCube(LittleGridContext context, CubeObject cube, Block block, int meta)
 	{
-		return new LittleSlicedRenderingCube(cube, this, block, meta);
+		return new LittleSlicedRenderingCube(context, cube, this, block, meta);
 	}	
 	
 	//================Sliced================
@@ -1257,16 +1278,16 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return vec;
 	}
 	
-	public CubeObject getSlicedCube()
+	public CubeObject getSlicedCube(LittleGridContext context)
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
-		CubeObject cube = super.getCube();
-		cube.setMin(one, LittleUtils.toVanillaGrid((float) getMinSlice(one)));
-		cube.setMax(one, LittleUtils.toVanillaGrid((float) getMaxSlice(one)));
-		cube.setMin(two, LittleUtils.toVanillaGrid((float) getMinSlice(two)));
-		cube.setMax(two, LittleUtils.toVanillaGrid((float) getMaxSlice(two)));
+		CubeObject cube = super.getCube(context);
+		cube.setMin(one, context.toVanillaGrid((float) getMinSlice(one)));
+		cube.setMax(one, context.toVanillaGrid((float) getMaxSlice(one)));
+		cube.setMin(two, context.toVanillaGrid((float) getMinSlice(two)));
+		cube.setMax(two, context.toVanillaGrid((float) getMaxSlice(two)));
 		return cube;
 	}
 	

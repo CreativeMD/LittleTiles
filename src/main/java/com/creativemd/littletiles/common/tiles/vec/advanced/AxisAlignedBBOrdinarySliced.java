@@ -455,7 +455,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		for (EnumFacing facing : EnumFacing.VALUES) {
 			if(slice.emptySideOne != facing && slice.emptySideTwo != facing)
 			{
-				Vec3d temp = collideWithPlane(facing.getAxis(), (double) getValueOfFacing(facing)/LittleTile.gridSize, vecA, vecB);
+				Vec3d temp = collideWithPlane(facing.getAxis(), (double) getValueOfFacing(facing), vecA, vecB);
 				if(temp != null && isClosest(vecA, collision, temp))
 				{
 					collided = facing;

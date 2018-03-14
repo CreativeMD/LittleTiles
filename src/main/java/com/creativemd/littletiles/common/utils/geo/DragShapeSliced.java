@@ -6,10 +6,13 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,9 +25,7 @@ public class DragShapeSliced extends DragShape {
 	}
 
 	@Override
-	public List<LittleTileBox> getBoxes(LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt,
-			boolean preview, LittleTileVec originalMin, LittleTileVec originalMax) {
-		List<LittleTileBox> boxes = new ArrayList<>();
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
 		boxes.add(new LittleTileSlicedOrdinaryBox(min.x, min.y, min.z, max.x, max.y, max.z, LittleSlice.values()[nbt.getInteger("slice")]));
 		return boxes;
 	}
@@ -35,12 +36,12 @@ public class DragShapeSliced extends DragShape {
 	}
 
 	@Override
-	public List<GuiControl> getCustomSettings(NBTTagCompound nbt) {
+	public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 		return new ArrayList<>();
 	}
 
 	@Override
-	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt) {
+	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
 		
 	}
 

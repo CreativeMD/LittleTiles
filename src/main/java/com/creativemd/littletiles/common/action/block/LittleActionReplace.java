@@ -15,7 +15,10 @@ import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -63,8 +66,8 @@ public class LittleActionReplace extends LittleActionInteract {
 		return false;
 	}
 	
-	public List<LittleTilePreview> replacedTiles;
-	public List<LittleTileBox> boxes;
+	public LittleAbsolutePreviews replacedTiles;
+	public LittleBoxes boxes;
 
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
@@ -73,8 +76,8 @@ public class LittleActionReplace extends LittleActionInteract {
 		if(tile.isStructureBlock)
 			return false;
 		
-		replacedTiles = new ArrayList<>();
-		boxes = new ArrayList<>();
+		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
+		boxes = new LittleBoxes(pos, te.getContext());
 		
 		if(BlockTile.selectEntireBlock(player, secondMode))
 		{
@@ -82,10 +85,8 @@ public class LittleActionReplace extends LittleActionInteract {
 			for (LittleTile toDestroy : te.getTiles()) {
 				if(!toDestroy.isStructureBlock && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile))
 				{
-					LittleTilePreview preview = toDestroy.getPreviewTile();
-					preview.box.addOffset(toDestroy.te.getPos());
-					replacedTiles.add(preview);
-					boxes.add(preview.box);
+					replacedTiles.addTile(toDestroy);
+					boxes.addBox(toDestroy);
 					toRemove.add(toDestroy);
 				}
 			}
@@ -104,31 +105,30 @@ public class LittleActionReplace extends LittleActionInteract {
 			}
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
 			addTilesToInventoryOrDrop(player, unplaceableTiles);
 			
 		}else{
-			LittleTilePreview preview = tile.getPreviewTile();
-			preview.box.addOffset(tile.te.getPos());
-			replacedTiles.add(preview);
-			boxes.add(preview.box);
+			replacedTiles.addTile(tile);
+			boxes.addBox(tile);
 			addPreviewToInventory(player, replacedTiles);
 			
 			tile.destroy();
 			
-			List<LittleTilePreview> toBePlaced = new ArrayList<>();
+			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
 			toReplace.box = tile.box;
-			toBePlaced.add(toReplace);
+			toBePlaced.addPreview(null, toReplace, te.getContext());
 			drainPreviews(player, toBePlaced);
 			
 			List<PlacePreviewTile> previews = new ArrayList<>();
 			previews.add(toReplace.getPlaceableTile(null, true, null));
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
 			addTilesToInventoryOrDrop(player, unplaceableTiles);
 		}
 		
+		te.convertToSmallest();		
 		world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
 		
 		return true;

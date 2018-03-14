@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -42,50 +43,53 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	public LittleRenderingCube cubeOne;
 	public LittleRenderingCube cubeTwo;
 	
-	public LittleSlicedRenderingCube(CubeObject cube, LittleTileSlicedBox box, Block block, int meta) {
+	public LittleGridContext context;
+	
+	public LittleSlicedRenderingCube(LittleGridContext context, CubeObject cube, LittleTileSlicedBox box, Block block, int meta) {
 		super(cube, box, block, meta);
-		dynamicCube = new LittleDynamicCube(box.getSlicedCube(), box.slice, box.getSize());
+		this.context = context;
+		dynamicCube = new LittleDynamicCube(box.getSlicedCube(context), box.slice, box.getSize());
 		
 		Axis one = RotationUtils.getDifferentAxisFirst(box.slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(box.slice.axis);
 		
 		if(box.hasAdditionalBoxTwo())
 		{
-			cubeTwo = new LittleRenderingCube(box.getCube(), box, block, meta);
+			cubeTwo = new LittleRenderingCube(box.getCube(context), box, block, meta);
 			
-			cubeTwo.setMin(one, LittleUtils.toVanillaGrid((float) box.getMinSlice(one)));
-			cubeTwo.setMax(one, LittleUtils.toVanillaGrid((float) box.getMaxSlice(one)));
+			cubeTwo.setMin(one, context.toVanillaGrid((float) box.getMinSlice(one)));
+			cubeTwo.setMax(one, context.toVanillaGrid((float) box.getMaxSlice(one)));
         	
         	if(box.slice.isFacingPositive(two))
         	{
-        		cubeTwo.setMin(two, LittleUtils.toVanillaGrid((float) box.getMin(two)));
-        		cubeTwo.setMax(two, LittleUtils.toVanillaGrid((float) box.getMinSlice(two)));
+        		cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMin(two)));
+        		cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMinSlice(two)));
         	}else{
-        		cubeTwo.setMin(two, LittleUtils.toVanillaGrid((float) box.getMaxSlice(two)));
-        		cubeTwo.setMax(two, LittleUtils.toVanillaGrid((float) box.getMax(two)));
+        		cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
+        		cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMax(two)));
         	}
 		}
 		
 		if(box.hasAdditionalBoxOne())
 		{
-			cubeOne = new LittleRenderingCube(box.getCube(), box, block, meta);
+			cubeOne = new LittleRenderingCube(box.getCube(context), box, block, meta);
 			
 			if(box.slice.isFacingPositive(one))
         	{
-				cubeOne.setMin(one, LittleUtils.toVanillaGrid((float) box.getMin(one)));
-				cubeOne.setMax(one, LittleUtils.toVanillaGrid((float) box.getMinSlice(one)));
+				cubeOne.setMin(one, context.toVanillaGrid((float) box.getMin(one)));
+				cubeOne.setMax(one, context.toVanillaGrid((float) box.getMinSlice(one)));
         	}else{
-        		cubeOne.setMin(one, LittleUtils.toVanillaGrid((float) box.getMaxSlice(one)));
-        		cubeOne.setMax(one, LittleUtils.toVanillaGrid((float) box.getMax(one)));
+        		cubeOne.setMin(one, context.toVanillaGrid((float) box.getMaxSlice(one)));
+        		cubeOne.setMax(one, context.toVanillaGrid((float) box.getMax(one)));
         	}
         	
         	if(box.slice.isFacingPositive(two))
         	{
-        		cubeOne.setMin(two, cubeTwo != null ? LittleUtils.toVanillaGrid((float) box.getMin(two)) : LittleUtils.toVanillaGrid((float) box.getMinSlice(two)));
-        		cubeOne.setMax(two, LittleUtils.toVanillaGrid((float) box.getMaxSlice(two)));
+        		cubeOne.setMin(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMin(two)) : context.toVanillaGrid((float) box.getMinSlice(two)));
+        		cubeOne.setMax(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
         	}else{
-        		cubeOne.setMin(two, LittleUtils.toVanillaGrid((float) box.getMinSlice(two)));
-        		cubeOne.setMax(two, cubeTwo != null ? LittleUtils.toVanillaGrid((float) box.getMax(two)) : LittleUtils.toVanillaGrid((float) box.getMaxSlice(two)));
+        		cubeOne.setMin(two, context.toVanillaGrid((float) box.getMinSlice(two)));
+        		cubeOne.setMax(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMax(two)) : context.toVanillaGrid((float) box.getMaxSlice(two)));
         	}
 		}
 	}
@@ -93,7 +97,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	@Override
 	public CubeObject offset(BlockPos pos)
 	{
-		return new LittleSlicedRenderingCube(new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedBox) this.box, block, meta);
+		return new LittleSlicedRenderingCube(context, new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedBox) this.box, block, meta);
 	}
 
 	@Override

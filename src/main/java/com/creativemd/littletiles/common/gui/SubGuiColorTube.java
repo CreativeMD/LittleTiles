@@ -12,9 +12,12 @@ import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.FontRenderer;
@@ -30,6 +33,11 @@ public class SubGuiColorTube extends SubGui{
 	public SubGuiColorTube(ItemStack stack) {
 		super(140, 173);
 		this.stack = stack;
+	}
+	
+	public LittleGridContext getContext()
+	{
+		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
 	}
 	
 	@Override
@@ -60,7 +68,7 @@ public class SubGuiColorTube extends SubGui{
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
 		nbt.setInteger("color", ColorUtils.RGBAToInt(picker.color));
 		if(shape != null)
-			shape.saveCustomSettings(scroll, nbt);
+			shape.saveCustomSettings(scroll, nbt, getContext());
 		sendPacketToServer(nbt);
 		
 		super.onClosed();
@@ -82,7 +90,7 @@ public class SubGuiColorTube extends SubGui{
 		SelectShape shape =  box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
 		if(shape != null)
 		{
-			scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound()));
+			scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 			scroll.refreshControls();
 		}
 	}

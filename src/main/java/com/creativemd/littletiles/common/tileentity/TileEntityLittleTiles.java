@@ -32,6 +32,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
 import net.minecraft.block.state.IBlockState;
@@ -70,12 +71,49 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		
 	}
 	
-	private CopyOnWriteArrayList<LittleTile> tiles = createTileList();
+	protected LittleGridContext context;
 	
-	private CopyOnWriteArrayList<LittleTile> updateTiles = createTileList();
+	public LittleGridContext getContext()
+	{
+		return context;
+	}
+	
+	public void ensureMinContext(LittleGridContext context)
+	{
+		if(context.size > this.context.size)
+			convertTo(context);		
+	}
+	
+	public void convertToSmallest()
+	{
+		LittleGridContext smallest = getSmallest();
+		if(smallest.size < context.size)
+			convertTo(smallest);
+	}
+	
+	public LittleGridContext getSmallest()
+	{
+		int size = LittleGridContext.minSize;
+		for (LittleTile tile : tiles) {
+			size = Math.max(size, tile.getSmallestContext(context));
+		}
+		
+		return LittleGridContext.get(size);
+	}
+	
+	public void convertTo(LittleGridContext newContext)
+	{
+		for (LittleTile tile : tiles) {
+			tile.convertTo(context, newContext);
+		}
+		this.context = newContext;
+	}
+	
+	protected CopyOnWriteArrayList<LittleTile> tiles = createTileList();
+	protected CopyOnWriteArrayList<LittleTile> updateTiles = createTileList();
 	
 	@SideOnly(Side.CLIENT)
-	private CopyOnWriteArrayList<LittleTile> renderTiles;
+	protected CopyOnWriteArrayList<LittleTile> renderTiles;
 	
 	@SideOnly(Side.CLIENT)
 	public CopyOnWriteArrayList<LittleTile> getRenderTiles()
@@ -107,17 +145,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		hasLoaded = true;
 	}
 	
-	/*public void setTiles(CopyOnWriteArrayList<LittleTile> tiles)
-	{
-		this.tiles = tiles;
-	}*/
-	
-	//@SideOnly(Side.CLIENT)
-	//public boolean forceChunkRenderUpdate;
-	
-	//@SideOnly(Side.CLIENT)
-	//public boolean isRendering;
-	
 	@SideOnly(Side.CLIENT)
 	public int renderIndex;
 	
@@ -139,55 +166,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public EntityDoorAnimation waitingAnimation;
 	
-	/*@SideOnly(Side.CLIENT)
-	private HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> quadCache;
-	
-	public HashMap<BlockRenderLayer, HashMap<EnumFacing, QuadCache[]>> getRenderCacheQuads()
-	{
-		if(quadCache == null)
-			quadCache = new HashMap<>();
-		return quadCache;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void setQuadCache(QuadCache[] cache, BlockRenderLayer layer, EnumFacing facing)
-	{
-		HashMap<EnumFacing, QuadCache[]> facingCache = getRenderCacheQuads().get(layer);
-		if(facingCache == null)
-			facingCache = new HashMap<>();
-		facingCache.put(facing, cache);
-		getRenderCacheQuads().put(layer, facingCache);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public QuadCache[] getQuadCache(BlockRenderLayer layer, EnumFacing facing)
-	{
-		HashMap<EnumFacing, QuadCache[]> facingCache = getRenderCacheQuads().get(layer);
-		if(facingCache != null)
-			return facingCache.get(facing);
-		return null;
-	}*/
-	
-	/*@SideOnly(Side.CLIENT)
-	private AtomicBoolean hasBeenAddedToBuffer;
-	
-	public AtomicBoolean getBeenAddedToBuffer()
-	{
-		if(hasBeenAddedToBuffer == null)
-			hasBeenAddedToBuffer = new AtomicBoolean(false);
-		return hasBeenAddedToBuffer;
-	}*/
-	
 	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
 	
 	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(RenderChunk chunk)
 	{
-		//System.out.println("update cache at pos=" + getPos());
 		lastRenderedChunk = chunk;
-		
-		//getBeenAddedToBuffer().set(false);
 		
 		if(renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
@@ -204,25 +189,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		hasNeighborChanged = false;
 		
 		if(doesNeedUpdate)
-			addToRenderUpdate(); //worldObj.getBlockState(pos).getActualState(worldObj, pos));
-		//else if(!rendering.get())
-			//RenderUploader.finishChunkUpdateNonThreadSafe(this);
+			addToRenderUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
 	private AtomicReference<BlockLayerRenderBuffer> buffer;
-	
-	/*@SideOnly(Side.CLIENT)
-	private AtomicReference<BlockLayerRenderBuffer> oldBuffer;
-	
-	public void deleteOldBuffer()
-	{
-		if(oldBuffer != null)
-		{
-			oldBuffer.get().deleteBufferData();
-			oldBuffer = null;
-		}
-	}*/
 	
 	@SideOnly(Side.CLIENT)
 	public void setBuffer(BlockLayerRenderBuffer buffer)
@@ -452,7 +423,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				return false;
 			firstTile = tiles.get(0);
 		}else{
-			boolean[][][] filled = new boolean[LittleTile.gridSize][LittleTile.gridSize][LittleTile.gridSize];
+			boolean[][][] filled = new boolean[context.size][context.size][context.size];
 			for (LittleTile tile : tiles) {
 				if(firstTile == null)
 				{
@@ -601,12 +572,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public AxisAlignedBB getSelectionBox()
 	{
-		int minX = LittleTile.gridSize;
-		int minY = LittleTile.gridSize;
-		int minZ = LittleTile.gridSize;
-		int maxX = LittleTile.minPos;
-		int maxY = LittleTile.minPos;
-		int maxZ = LittleTile.minPos;
+		int minX = context.size;
+		int minY = context.size;
+		int minZ = context.size;
+		int maxX = context.minPos;
+		int maxY = context.minPos;
+		int maxZ = context.minPos;
 		for (LittleTile tile : tiles) {
 			LittleTileBox box = tile.getCompleteBox();
 			minX = Math.min(box.minX, minX);
@@ -616,7 +587,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			maxY = Math.max(box.maxY, maxY);
 			maxZ = Math.max(box.maxZ, maxZ);
 		}
-		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(pos);
+		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
 	}
 	
 	//public boolean needFullUpdate = true;
@@ -713,6 +684,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         collisionChecks = 0;
         preventUpdate = true;
         
+        context = LittleGridContext.get(nbt);
+        
         if(nbt.hasKey("tilesCount"))
         {
         
@@ -743,7 +716,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
     public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
-        super.writeToNBT(nbt);        
+        super.writeToNBT(nbt);
+        context.set(nbt);
         nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(tiles));
 		return nbt;
     }
@@ -751,6 +725,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     @Override
     public void getDescriptionNBT(NBTTagCompound nbt)
 	{
+    	context.set(nbt);
+    	
     	int i = 0;
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
@@ -780,6 +756,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     
     public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt)
     {
+    	LittleGridContext context = LittleGridContext.get(nbt);
+    	
+    	if(context != this.context)
+    		convertTo(context);
+    	
     	ArrayList<LittleTile> exstingTiles = new ArrayList<LittleTile>();
     	ArrayList<LittleTile> tilesToAdd = new ArrayList<LittleTile>();
     	exstingTiles.addAll(tiles);
@@ -792,7 +773,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         	LittleTile tile = null;
         	if(list.tagCount() > 0)
         	{
-        		tile = getTile(LittleTileBox.createBox(list.getIntArrayAt(0)).getIdentifier());
+        		tile = getTile(getContext(), LittleTileBox.createBox(list.getIntArrayAt(0)).getIdentifier());
         	}
 			if(!exstingTiles.contains(tile))
 				tile = null;
@@ -856,11 +837,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
     /**
      * uses the corner and is therefore faster
      */
-    public LittleTile getTile(int[] identifier)
+    public LittleTile getTile(LittleGridContext context, int[] identifier)
     {
     	for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			if(tile.is(identifier))
+			if(tile.is(context, identifier))
 				return tile;
 		}
     	return null;
@@ -1014,22 +995,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 			switch(facing)
 			{
 			case EAST:
-				box = new LittleTileBox(LittleTile.gridSize-1, 0, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				box = new LittleTileBox(context.size-1, 0, 0, context.size, context.size, context.size);
 				break;
 			case WEST:
-				box = new LittleTileBox(0, 0, 0, 1, LittleTile.gridSize, LittleTile.gridSize);
+				box = new LittleTileBox(0, 0, 0, 1, context.size, context.size);
 				break;
 			case UP:
-				box = new LittleTileBox(0, LittleTile.gridSize-1, 0, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				box = new LittleTileBox(0, context.size-1, 0, context.size, context.size, context.size);
 				break;
 			case DOWN:
-				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, 1, LittleTile.gridSize);
+				box = new LittleTileBox(0, 0, 0, context.size, 1, context.size);
 				break;
 			case SOUTH:
-				box = new LittleTileBox(0, 0, LittleTile.gridSize-1, LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
+				box = new LittleTileBox(0, 0, context.size-1, context.size, context.size, context.size);
 				break;
 			case NORTH:
-				box = new LittleTileBox(0, 0, 0, LittleTile.gridSize, LittleTile.gridSize, 1);
+				box = new LittleTileBox(0, 0, 0, context.size, context.size, 1);
 				break;
 			default:
 				box = null;
@@ -1107,7 +1088,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public IBlockState getState(AxisAlignedBB box, boolean realistic) {
 		if(realistic)
 		{
-			box = box.expand(0, LittleTile.gridMCLength, 0);
+			box = box.expand(0, context.gridMCLength, 0);
 			for (LittleTile tile : tiles) {
 				if(tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
 					return ((LittleTileBlock) tile).getBlockState();

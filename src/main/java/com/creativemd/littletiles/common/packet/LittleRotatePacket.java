@@ -5,6 +5,7 @@ import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
@@ -58,11 +59,11 @@ public class LittleRotatePacket extends CreativeCorePacket{
 			
 			if(itile != null)
 			{
-				itile.rotateLittlePreview(stack, rotation);
+				LittleGridContext context = itile.rotateLittlePreview(stack, rotation);
 				LittleStructure structure = itile.getLittleStructure(stack);
 				if(structure != null)
 				{
-					structure.onRotate(player.world, player, stack, rotation, ILittleTile.rotationCenter);
+					structure.onRotate(player.world, player, stack, rotation, context.rotationCenter);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
 					stack.getTagCompound().setTag("structure", nbt);

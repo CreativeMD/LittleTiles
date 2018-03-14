@@ -14,8 +14,10 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.google.gson.JsonArray;
@@ -49,7 +51,7 @@ public class StructureStringUtils {
 		{
 			JsonObject object = new JsonObject();
 			NBTTagCompound nbt = new NBTTagCompound();
-			List<LittleTilePreview> previews = null;
+			LittlePreviews previews = null;
 			LittleStructure structure = null;
 			if(stack.getItem() instanceof ItemRecipe)
 			{
@@ -148,7 +150,7 @@ public class StructureStringUtils {
 		if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
 		{
 			NBTTagCompound nbt = new NBTTagCompound();
-			List<LittleTilePreview> previews = null;
+			LittlePreviews previews = null;
 			LittleStructure structure = null;
 			if(stack.getItem() instanceof ItemRecipe)
 			{
@@ -160,32 +162,7 @@ public class StructureStringUtils {
 				structure = tile.getLittleStructure(stack);
 			}
 			
-			/*nbt.setInteger("tiles", previews.size());
-			ArrayList<String> blockNames = new ArrayList<>();
-			for (int i = 0; i < previews.size(); i++) {
-				if(previews.get(i).box != null)
-				{
-					LittleTileBox box = previews.get(i).box;
-					String blockName = previews.get(i).getPreviewBlockName();
-					if(!blockNames.contains(blockName))
-						blockNames.add(blockName);
-					
-					String tileString = blockNames.indexOf(blockName) + "." + previews.get(i).getPreviewBlockMeta();
-					if(previews.get(i).hasColor())
-						tileString += "." + previews.get(i).getColor();
-					
-					nbt.setString("" + i, box.minX+"."+box.minY+"."+box.minZ+"."+box.maxX+"."+box.maxY+"."+box.maxZ+"."+tileString);
-				}
-			}
-			
-			StringBuilder builder = new StringBuilder();
-			for (int i = 0; i < blockNames.size(); i++) {
-				if(i > 0)
-					builder.append(".");
-				builder.append(blockNames.get(i));
-			}
-			nbt.setString("names", builder.toString());*/
-			
+			previews.context.setOverall(nbt);	
 			nbt.setTag("tiles", LittleNBTCompressionTools.writePreviews(previews));
 			
 			if(structure != null)
@@ -245,9 +222,7 @@ public class StructureStringUtils {
 			
 			itemNBT.setInteger("tiles", tiles);
 		}else{
-			List<LittleTilePreview> previews = LittleNBTCompressionTools.readPreviews(nbt.getTagList("tiles", 10));
-			
-			LittleTilePreview.savePreviewTiles(previews, stack);
+			LittleTilePreview.savePreviewTiles(LittleNBTCompressionTools.readPreviews(LittleGridContext.getOverall(nbt), nbt.getTagList("tiles", 10)), stack);
 		}
 		
 		
