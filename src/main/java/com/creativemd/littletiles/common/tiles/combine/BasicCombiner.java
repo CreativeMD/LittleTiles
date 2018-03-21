@@ -91,7 +91,7 @@ public class BasicCombiner {
 		}
 		this.tiles = tiles;
 		modified = true;
-		while(modified)
+		//while(modified)
 		{
 			modified = false;
 			i = 0;
@@ -106,11 +106,25 @@ public class BasicCombiner {
 						{
 							tiles.get(i).box = box;
 							tiles.get(i).combineTiles(tiles.get(j));
-							tiles.remove(j);
-							boxes.set(i, box);
-							boxes.remove(j);
+							
+							LittleTile tile = tiles.get(i);		
 							if(i > j)
+							{
+								boxes.remove(i);
+								boxes.remove(j);
+								tiles.remove(i);
+								tiles.remove(j);
 								i--;
+							}else{
+								boxes.remove(j);
+								boxes.remove(i);
+								tiles.remove(j);
+								tiles.remove(i);
+								j--;
+							}
+							boxes.add(box);
+							tiles.add(tile);
+							
 							modified = true;
 							continue;
 						}
@@ -140,7 +154,7 @@ public class BasicCombiner {
 		
 		boolean isMainTile = false;
 		modified = true;
-		while(modified)
+		//while(modified)
 		{
 			modified = false;
 			
@@ -172,11 +186,25 @@ public class BasicCombiner {
 						{
 							tiles.get(i).box = box;
 							tiles.get(i).combineTiles(tiles.get(j));
-							tiles.remove(j);
-							boxes.set(i, box);
-							boxes.remove(j);
+							
+							LittleTile tile = tiles.get(i);		
 							if(i > j)
+							{
+								boxes.remove(i);
+								boxes.remove(j);
+								tiles.remove(i);
+								tiles.remove(j);
 								i--;
+							}else{
+								boxes.remove(j);
+								boxes.remove(i);
+								tiles.remove(j);
+								tiles.remove(i);
+								j--;
+							}
+							boxes.add(box);
+							tiles.add(tile);
+							
 							modified = true;
 							continue;
 						}
@@ -200,7 +228,7 @@ public class BasicCombiner {
 	{
 		this.boxes = boxes;
 		modified = true;
-		while(modified)
+		//while(modified)
 		{
 			modified = false;
 			i = 0;
@@ -212,11 +240,18 @@ public class BasicCombiner {
 						LittleTileBox box = boxes.get(i).combineBoxes(boxes.get(j), this);
 						if(box != null)
 						{
-							boxes.set(i, box);
-							boxes.remove(j);
-							modified = true;
 							if(i > j)
+							{
+								boxes.remove(i);
+								boxes.remove(j);
 								i--;
+							}else{
+								boxes.remove(j);
+								boxes.remove(i);
+								j--;
+							}
+							boxes.add(box);
+							modified = true;
 							continue;
 						}
 					}

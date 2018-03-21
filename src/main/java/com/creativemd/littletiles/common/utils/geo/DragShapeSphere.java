@@ -11,6 +11,8 @@ import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -114,6 +116,11 @@ public class DragShapeSphere extends DragShape {
 		
 		LittleTileBox.combineBoxesBlocks(boxes);
 		
+		if(preview && boxes.size() > LittleTilePreview.lowResolutionMode)
+		{
+			boxes.clear();
+			boxes.add(box);
+		}
 		return boxes;
 	}
 

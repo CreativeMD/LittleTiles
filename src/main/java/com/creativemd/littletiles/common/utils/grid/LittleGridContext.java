@@ -34,7 +34,7 @@ public class LittleGridContext {
 		int size = min;
 		for (int i = 0; i < gridSizes.length; i++) {
 			gridSizes[i] = size;
-			context[i] = new LittleGridContext(size, i);
+			context[i] = new LittleGridContext(size);
 			if(context[i].isDefault)
 				defaultSizeIndex = i;
 			size *= exponent;
@@ -101,7 +101,7 @@ public class LittleGridContext {
 	
 	public final int[] minSizes;
 	
-	protected LittleGridContext(int gridSize, int index) {
+	protected LittleGridContext(int gridSize) {
 		size = gridSize;
 		gridMCLength = 1D/gridSize;
 		minPos = 0;

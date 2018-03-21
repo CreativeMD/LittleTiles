@@ -76,11 +76,29 @@ public class LittleTilesConfig {
 	public static class Core
 	{
 		
-		@Config.Name("gridSize")
+		@Config.Name("defaultSize")
 		@Config.RequiresMcRestart
-		@Config.Comment("ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!")
+		@Config.Comment("Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!")
 		@Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
-		public int gridSize = 16;
+		public int defaultSize = 16;
+		
+		@Config.Name("minSize")
+		@Config.RequiresMcRestart
+		@Config.Comment("The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world.")
+		@Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+		public int minSize = 1;
+		
+		@Config.Name("scale")
+		@Config.RequiresMcRestart
+		@Config.Comment("How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist.")
+		@Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
+		public int scale = 6;
+		
+		@Config.Name("exponent")
+		@Config.RequiresMcRestart
+		@Config.Comment("minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).")
+		@Config.RangeInt(min = 2, max = Integer.MAX_VALUE)
+		public int exponent = 2;
 	}
 	
 	@LittleConfig

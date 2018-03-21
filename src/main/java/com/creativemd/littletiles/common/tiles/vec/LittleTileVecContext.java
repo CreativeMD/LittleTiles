@@ -8,6 +8,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import scala.annotation.meta.param;
 
 public class LittleTileVecContext {
 	
@@ -114,6 +115,32 @@ public class LittleTileVecContext {
 	public void writeToNBT(String name, NBTTagCompound nbt)
 	{
 		nbt.setIntArray(name, new int[]{vec.x, vec.y, vec.z, context.size});
+	}
+	
+	@Override
+	public int hashCode() {
+		return vec.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object paramObject) {
+		if(paramObject instanceof LittleTileVecContext)
+		{
+			LittleTileVecContext otherVec = (LittleTileVecContext) paramObject;
+			LittleGridContext oldContext = context;
+			LittleGridContext oldContextPos = otherVec.context;
+			
+			ensureBothAreEqual(otherVec);
+			
+			boolean equal = context == otherVec.context && vec.equals(otherVec.vec);
+			
+			otherVec.convertTo(oldContextPos);
+			convertTo(oldContext);
+			
+			return equal;			
+		}
+		
+		return super.equals(paramObject);
 	}
 	
 	@Override

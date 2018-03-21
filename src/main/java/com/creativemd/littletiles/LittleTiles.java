@@ -179,8 +179,8 @@ public class LittleTiles {
 		config.load();
 		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."),
 				config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"),
-				config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. Make sure that it is enough for the defaultSize to exist."),
-				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
+				config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist."),
+				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
 		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
 		for(String categoryName : config.getCategoryNames())
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);

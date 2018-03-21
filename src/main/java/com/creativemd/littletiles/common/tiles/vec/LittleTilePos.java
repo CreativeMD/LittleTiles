@@ -216,6 +216,21 @@ public class LittleTilePos {
 	}
 	
 	@Override
+	public int hashCode() {
+		return pos.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object paramObject) {
+		if(paramObject instanceof LittleTilePos)
+		{
+			LittleTilePos pos = (LittleTilePos) paramObject;
+			return pos.pos.equals(this.pos) && pos.contextVec.equals(this.contextVec);			
+		}
+		return super.equals(paramObject);
+	}
+	
+	@Override
 	public String toString() {
 		return "[" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ",grid:" + contextVec.context.size + "," + contextVec.vec.x + "," + contextVec.vec.y + "," + contextVec.vec.z + "]"; 
 	}
