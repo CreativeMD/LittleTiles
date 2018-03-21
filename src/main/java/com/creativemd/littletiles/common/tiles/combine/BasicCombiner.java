@@ -106,8 +106,6 @@ public class BasicCombiner {
 						{
 							tiles.get(i).box = box;
 							tiles.get(i).combineTiles(tiles.get(j));
-							
-							LittleTile tile = tiles.get(i);		
 							if(i > j)
 							{
 								boxes.remove(i);
@@ -121,9 +119,13 @@ public class BasicCombiner {
 								tiles.remove(j);
 								tiles.remove(i);
 								j--;
+								
+								if(i == j && i > 0)
+									i--;
 							}
+							
 							boxes.add(box);
-							tiles.add(tile);
+							tiles.add(currentTile);
 							
 							modified = true;
 							continue;
@@ -187,7 +189,6 @@ public class BasicCombiner {
 							tiles.get(i).box = box;
 							tiles.get(i).combineTiles(tiles.get(j));
 							
-							LittleTile tile = tiles.get(i);		
 							if(i > j)
 							{
 								boxes.remove(i);
@@ -201,9 +202,13 @@ public class BasicCombiner {
 								tiles.remove(j);
 								tiles.remove(i);
 								j--;
+								
+								if(i == j && i > 0)
+									i--;
 							}
+							
 							boxes.add(box);
-							tiles.add(tile);
+							tiles.add(this.currentTile);
 							
 							modified = true;
 							continue;
@@ -249,7 +254,11 @@ public class BasicCombiner {
 								boxes.remove(j);
 								boxes.remove(i);
 								j--;
+								
+								if(i == j && i > 0)
+									i--;
 							}
+							
 							boxes.add(box);
 							modified = true;
 							continue;
