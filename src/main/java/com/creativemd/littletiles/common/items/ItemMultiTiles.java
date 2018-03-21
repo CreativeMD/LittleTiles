@@ -41,6 +41,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
 	
 	public static PlacementMode currentMode = PlacementMode.getDefault();
+	public static LittleGridContext currentContext = LittleGridContext.get();
 	
 	public ItemMultiTiles()
 	{
@@ -153,11 +154,24 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack);
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode){
+
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemMultiTiles.currentContext = context;
+				ItemMultiTiles.currentMode = mode;
+			}
+			
+		};
 	}
 	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return true;
+	}
+	
+	@Override
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return currentContext;
 	}
 }

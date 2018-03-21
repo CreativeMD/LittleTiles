@@ -38,7 +38,7 @@ public class LittleBoxes extends ArrayList<LittleTileBox>{
 				convertTo(context);
 		}
 		
-		box.addOffset(new LittleTileVec(context, this.pos.subtract(pos)));
+		box.addOffset(new LittleTileVec(context, pos.subtract(this.pos)));
 		add(box);
 	}
 	
@@ -69,7 +69,26 @@ public class LittleBoxes extends ArrayList<LittleTileBox>{
 	
 	public LittleTileBox getSurroundingBox()
 	{
-		return LittleTileBox.getSurroundingBox(this);
+		if(isEmpty())
+			return null;
+		
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		
+		for (LittleTileBox box : this) {
+			minX = Math.min(minX, box.minX);
+			minY = Math.min(minY, box.minY);
+			minZ = Math.min(minZ, box.minZ);
+			maxX = Math.max(maxX, box.maxX);
+			maxY = Math.max(maxY, box.maxY);
+			maxZ = Math.max(maxZ, box.maxZ);
+		}
+		
+		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 
 	public HashMapList<BlockPos, LittleTileBox> split()

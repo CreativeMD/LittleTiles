@@ -347,6 +347,19 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return new LittleTileIdentifierAbsolute(pos, readContext(buf), identifier);
 	}
 	
+	public static void writePreviews(LittlePreviews previews, ByteBuf buf)
+	{
+		writeContext(previews.context, buf);
+		NBTTagCompound nbt = new NBTTagCompound();
+		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
+		writeNBT(buf, nbt);
+	}
+	
+	public static LittlePreviews readPreviews(ByteBuf buf)
+	{
+		return LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), readNBT(buf).getTagList("list", 10));
+	}
+	
 	public static void writeAbsolutePreviews(LittleAbsolutePreviews previews, ByteBuf buf)
 	{
 		writePos(buf, previews.pos);

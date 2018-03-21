@@ -157,7 +157,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			if(addIngredients(player, action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
 				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
 			
-			((TileEntityLittleTiles) tileEntity).convertToSmallest();
+			((TileEntityLittleTiles) tileEntity).combineTiles();
 		}
 	}
 	
@@ -187,8 +187,20 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		return new LittleActionCombined(actions);
 	}
 	
-	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleTileBox toCut)
-	{		
+	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut)
+	{
+		te.preventUpdate = true;
+		if(context != te.getContext())
+		{
+			if(context.size > te.getContext().size)
+				te.convertTo(context);
+			else
+			{
+				toCut.convertTo(context, te.getContext());
+				context = te.getContext();
+			}
+		}
+		
 		List<LittleTile> removed = new ArrayList<>();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -226,11 +238,27 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			}else
 				removed.add(tile);
 		}
+		
+		te.preventUpdate = false;
+		te.combineTiles();		
 		return removed;
 	}
 	
-	public static List<LittleTile> removeBoxes(TileEntityLittleTiles te, List<LittleTileBox> boxes)
+	public static List<LittleTile> removeBoxes(TileEntityLittleTiles te, LittleGridContext context, List<LittleTileBox> boxes)
 	{
+		te.preventUpdate = true;
+		if(context != te.getContext())
+		{
+			if(context.size > te.getContext().size)
+				te.convertTo(context);
+			else
+			{
+				for (LittleTileBox box : boxes) {
+					box.convertTo(context, te.getContext());
+				}
+				context = te.getContext();
+			}
+		}
 		List<LittleTile> removed = new ArrayList<>();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -280,6 +308,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			}else
 				removed.add(tile);
 		}
+		te.preventUpdate = false;
+		te.combineTiles();	
+		
 		return removed;
 	}
 }

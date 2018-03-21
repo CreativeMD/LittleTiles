@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
@@ -87,14 +88,14 @@ public abstract class LittleDoorBase extends LittleStructure {
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			World fakeWorld = WorldFake.createFakeWorld(world);
-			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews.context, previews, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
+			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
 				if(te instanceof TileEntityLittleTiles)
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, pos, structure, blocks, previews, absolute /*structure.getAbsoluteAxisVec()*/, transformation, uuid, player, additional /*structure.getAdditionalAxisVec()*/);
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, structure, blocks, previews, absolute, transformation, uuid, player, additional);
 			world.spawnEntity(animation);
 			return true;
 		}
@@ -106,11 +107,14 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public abstract LittleTileVec getAdditionalAxisVec();
 	
-	public abstract ArrayList<PlacePreviewTile> getAdditionalPreviews();
-	
 	@SideOnly(Side.CLIENT)
 	public abstract LittleDoorBase parseStructure(SubGui gui, int duration);
 	
 	public abstract LittleDoorBase copyToPlaceDoor();
+	
+	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews)
+	{
+		return new ArrayList<>();
+	}
 
 }

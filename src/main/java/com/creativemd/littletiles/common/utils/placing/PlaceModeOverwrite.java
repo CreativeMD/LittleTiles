@@ -46,7 +46,7 @@ public class PlaceModeOverwrite extends PlacementMode {
 			boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
 		if(requiresCollisionTest)
-			removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, tile.box));		
+			removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, te.getContext(), tile.box));		
 		tiles.add(tile);
 		return tiles;
 	}

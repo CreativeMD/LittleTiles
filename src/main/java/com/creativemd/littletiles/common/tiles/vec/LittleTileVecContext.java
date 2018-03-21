@@ -102,8 +102,22 @@ public class LittleTileVecContext {
 		return vec.getVec(context);
 	}
 	
+	public LittleTileVec getVec(LittleGridContext context)
+	{
+		if(context == this.context)
+			return vec.copy();
+		LittleTileVec newVec = vec.copy();
+		newVec.convertTo(this.context, context);
+		return newVec;
+	}
+	
 	public void writeToNBT(String name, NBTTagCompound nbt)
 	{
 		nbt.setIntArray(name, new int[]{vec.x, vec.y, vec.z, context.size});
+	}
+	
+	@Override
+	public String toString() {
+		return "[" + vec.x + "," + vec.y + "," + vec.z + ",grid:" + context.size + "]";
 	}
 }

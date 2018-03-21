@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -9,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
@@ -46,6 +48,8 @@ public class LittleTilePos {
 		long z = context.toGridAccurate(result.hitVec.z);
 		this.pos = new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
 		this.contextVec = new LittleTileVecContext(context, new LittleTileVec((int) (x - context.toGridAccurate(pos.getX())), (int) (y - context.toGridAccurate(pos.getY())), (int) (z - context.toGridAccurate(pos.getZ()))));
+		//if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			//contextVec.vec.setAxis(result.sideHit.getAxis(), contextVec.vec.getAxis(result.sideHit.getAxis()) + 1);
 	}
 	
 	public LittleTilePos(BlockPos pos, LittleGridContext context)
@@ -83,6 +87,7 @@ public class LittleTilePos {
 	{
 		ensureBothAreEqual(pos);
 		LittleTileVecContext newVec = new LittleTileVecContext(getContext(), new LittleTileVec(getContext(), this.pos.subtract(pos.pos)));
+		newVec.vec.add(this.contextVec.vec);
 		newVec.vec.sub(pos.contextVec.vec);
 		
 		pos.convertToSmallest();
@@ -210,4 +215,8 @@ public class LittleTilePos {
 		return contextVec.context;
 	}
 	
+	@Override
+	public String toString() {
+		return "[" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ",grid:" + contextVec.context.size + "," + contextVec.vec.x + "," + contextVec.vec.y + "," + contextVec.vec.z + "]"; 
+	}
 }

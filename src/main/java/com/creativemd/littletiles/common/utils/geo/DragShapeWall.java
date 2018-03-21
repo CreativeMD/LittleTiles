@@ -45,22 +45,27 @@ public class DragShapeWall extends DragShape {
 		int thicknessYInv = nbt.getInteger("thickness") > 1 ? (int) Math.ceil((nbt.getInteger("thickness")-1)/2D) : 0;
 		int thicknessY = nbt.getInteger("thickness") > 1 ? (int) Math.floor((nbt.getInteger("thickness")-1)/2D) : 0;
 		
-		int w = originalMax.contextVec.vec.x - originalMin.contextVec.vec.x;
-	    int h = originalMax.contextVec.vec.z - originalMin.contextVec.vec.z;
+		LittleTilePos absolute = new LittleTilePos(boxes.pos, boxes.context);
+		
+		LittleTileVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
+		LittleTileVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
+		
+		int w = originalMaxVec.x - originalMinVec.x;
+	    int h = originalMaxVec.z - originalMinVec.z;
 	    
-	    int x = originalMin.contextVec.vec.x;
-	    int y = originalMin.contextVec.vec.z;
+	    int x = originalMinVec.x;
+	    int y = originalMinVec.z;
 	    
 	    if(direction == 1){
-	    	w = originalMax.contextVec.vec.y - originalMin.contextVec.vec.y;
-	    	h = originalMax.contextVec.vec.z - originalMin.contextVec.vec.z;
-	    	x = originalMin.contextVec.vec.y;
-	    	y = originalMin.contextVec.vec.z;
+	    	w = originalMaxVec.y - originalMinVec.y;
+	    	h = originalMaxVec.z - originalMinVec.z;
+	    	x = originalMinVec.y;
+	    	y = originalMinVec.z;
 		}else if(direction == 2){
-			w = originalMax.contextVec.vec.x - originalMin.contextVec.vec.x;
-	    	h = originalMax.contextVec.vec.y - originalMin.contextVec.vec.y;
-	    	x = originalMin.contextVec.vec.x;
-	    	y = originalMin.contextVec.vec.y;
+			w = originalMaxVec.x - originalMinVec.x;
+	    	h = originalMaxVec.y - originalMinVec.y;
+	    	x = originalMinVec.x;
+	    	y = originalMinVec.y;
 		}
 	    
 	    int dx1 = 0, dy1 = 0, dx2 = 0, dy2 = 0 ;

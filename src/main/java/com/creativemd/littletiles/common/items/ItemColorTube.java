@@ -185,6 +185,6 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	
 	@Override
 	public LittleGridContext getContext(ItemStack stack) {
-		return LittleGridContext.get();
+		return ItemMultiTiles.currentContext;
 	}
 }

@@ -226,7 +226,6 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			te.preventUpdate = false;
 			
-			te.convertToSmallest();
 			te.combineTiles();
 			
 			if(toVanilla)

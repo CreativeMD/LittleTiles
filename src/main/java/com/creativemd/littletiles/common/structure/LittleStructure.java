@@ -608,7 +608,12 @@ public abstract class LittleStructure {
 		return true;
 	}
 	
-	public ArrayList<PlacePreviewTile> getSpecialTiles()
+	public LittleGridContext getMinContext()
+	{
+		return LittleGridContext.getMin();
+	}
+	
+	public ArrayList<PlacePreviewTile> getSpecialTiles(LittleGridContext context)
 	{
 		return new ArrayList<>();
 	}
@@ -650,7 +655,7 @@ public abstract class LittleStructure {
 			for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
 				LittleTilePreview preview = previews.addTile(tile);
-				preview.box.addOffset(new LittleTileVec(tile.getContext(), tile.te.getPos().subtract(pos)));
+				preview.box.addOffset(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 			}
 			
 			LittleTilePreview.savePreviewTiles(previews, stack);
@@ -694,48 +699,6 @@ public abstract class LittleStructure {
 	
 	
 	//====================Helpers====================
-	
-	/*public LittleTileSize getSize()
-	{
-		if(tiles == null)
-			return null;
-		
-		long minX = Long.MAX_VALUE;
-		long minY = Long.MAX_VALUE;
-		long minZ = Long.MAX_VALUE;	
-		long maxX = Long.MIN_VALUE;
-		long maxY = Long.MIN_VALUE;
-		long maxZ = Long.MIN_VALUE;
-		
-		LittleGridContext context = LittleGridContext.get();
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if(context.size < entry.getKey().getContext().size)
-			{
-				int modifier = entry.getKey().getContext().size / context.size;
-				minX *= modifier;
-				minY *= modifier;
-				minZ *= modifier;
-				maxX *= modifier;
-				maxY *= modifier;
-				maxZ *= modifier;
-				context = entry.getKey().getContext();
-			}
-		
-			for (LittleTile tile : entry.getValue()) {
-				LittleTileBox tileBox = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX()*entry.getKey().getContext().size+tileBox.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY()*entry.getKey().getContext().size+tileBox.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ()*entry.getKey().getContext().size+tileBox.minZ);
-				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX()*entry.getKey().getContext().size+tileBox.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY()*entry.getKey().getContext().size+tileBox.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ()*entry.getKey().getContext().size+tileBox.maxZ);
-			}
-		}
-		
-		return new LittleTileSize(sizeX, sizeY, sizeZ) <-- Missing context in return type. Maybe create a new class???
-	}*/
 	
 	public LittleTilePos getHighestCenterPoint()
 	{

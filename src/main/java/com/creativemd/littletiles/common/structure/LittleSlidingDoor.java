@@ -109,6 +109,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid)
 	{
+		placedAxis = new LittleTilePos(pos, moveContext);
+		
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, moveContext);
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
@@ -127,10 +129,11 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		
 		LittleSlidingDoor structure = new LittleSlidingDoor();
-		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, new LittleTileVec(0, 0, 0)));;
+		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
 		structure.duration = duration;
 		structure.moveDirection = moveDirection.getOpposite();
 		structure.moveDistance = moveDistance;
+		structure.moveContext = moveContext;
 		structure.setTiles(new HashMapList<>());
 		
 		
@@ -184,12 +187,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public LittleTileVec getAdditionalAxisVec() {
-		return new LittleTileVec(0, 0, 0);
+		return LittleTileVec.ZERO;
 	}
-
+	
 	@Override
-	public ArrayList<PlacePreviewTile> getAdditionalPreviews() {
-		return new ArrayList<>();
+	public LittleGridContext getMinContext()
+	{
+		return moveContext;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -319,6 +323,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		door.duration = duration;
 		door.moveDirection = direction;
 		door.moveDistance = (int) slider.value;
+		door.moveContext = ((GuiTileViewer) gui.get("tileviewer")).context;
 		return door;
 	}
 
@@ -328,6 +333,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.setTiles(new HashMapList<>());
 		structure.moveDirection = moveDirection;
 		structure.moveDistance = moveDistance;
+		structure.moveContext = moveContext;
 		structure.duration = this.duration;
 		return structure;
 	}

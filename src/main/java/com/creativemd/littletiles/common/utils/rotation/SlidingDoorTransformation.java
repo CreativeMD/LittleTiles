@@ -21,6 +21,7 @@ public class SlidingDoorTransformation extends DoorTransformation {
 	public SlidingDoorTransformation(EnumFacing direction, LittleGridContext context, int distance) {
 		this.direction = direction;
 		this.distance = distance;
+		this.context = context;
 	}
 
 	@Override
@@ -42,22 +43,22 @@ public class SlidingDoorTransformation extends DoorTransformation {
 		switch(direction)
 		{
 		case EAST:
-			animation.posX = animation.getAxisPos().getX() - animation.startOffset.getX() - (distance*context.gridMCLength*(1-progress));
+			animation.posX = animation.getAxisPos().getX() - (distance*context.gridMCLength*(1-progress));
 			break;
 		case WEST:
-			animation.posX = animation.getAxisPos().getX() - animation.startOffset.getX() + (distance*context.gridMCLength*(1-progress));
+			animation.posX = animation.getAxisPos().getX() + (distance*context.gridMCLength*(1-progress));
 			break;
 		case UP:
-			animation.posY = animation.getAxisPos().getY() - animation.startOffset.getY() - (distance*context.gridMCLength*(1-progress));
+			animation.posY = animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress));
 			break;
 		case DOWN:
-			animation.posY = animation.getAxisPos().getY() - animation.startOffset.getY() + (distance*context.gridMCLength*(1-progress));
+			animation.posY = animation.getAxisPos().getY() + (distance*context.gridMCLength*(1-progress));
 			break;
 		case SOUTH:
-			animation.posZ = animation.getAxisPos().getZ() - animation.startOffset.getZ() - (distance*context.gridMCLength*(1-progress));
+			animation.posZ = animation.getAxisPos().getZ() - (distance*context.gridMCLength*(1-progress));
 			break;
 		case NORTH:
-			animation.posZ = animation.getAxisPos().getZ() - animation.startOffset.getZ() + (distance*context.gridMCLength*(1-progress));
+			animation.posZ = animation.getAxisPos().getZ() + (distance*context.gridMCLength*(1-progress));
 			break;
 		default:
 			break;

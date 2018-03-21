@@ -24,6 +24,8 @@ import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class LittleTileVec {
 	
+	public static final LittleTileVec ZERO = new LittleTileVec(0, 0, 0);
+	
 	public int x;
 	public int y;
 	public int z;

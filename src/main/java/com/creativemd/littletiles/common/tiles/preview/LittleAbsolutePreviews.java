@@ -20,13 +20,13 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public boolean isAbsolute()
 	{
-		return false;
+		return true;
 	}
 	
 	@Override
 	public BlockPos getBlockPos()
 	{
-		return null;
+		return pos;
 	}
 	
 	@Override
@@ -40,7 +40,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 				convertTo(context);
 		}
 		
-		preview.box.addOffset(new LittleTileVec(context, this.pos.subtract(pos)));
+		preview.box.addOffset(new LittleTileVec(context, pos.subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
@@ -49,7 +49,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	public LittleTilePreview addTile(LittleTile tile)
 	{
 		LittleTilePreview preview = getPreview(tile);
-		preview.box.addOffset(new LittleTileVec(context, this.pos.subtract(tile.te.getPos())));
+		preview.box.addOffset(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
@@ -58,7 +58,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset)
 	{
 		LittleTilePreview preview = getPreview(tile);
-		preview.box.addOffset(new LittleTileVec(context, this.pos.subtract(tile.te.getPos())));
+		preview.box.addOffset(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
 		preview.box.addOffset(offset);
 		previews.add(preview);
 		return preview;

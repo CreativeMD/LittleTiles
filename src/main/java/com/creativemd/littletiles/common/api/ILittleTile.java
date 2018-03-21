@@ -71,7 +71,7 @@ public interface ILittleTile {
 	 * @return Whether it should try to place it or not.
 	 */
 	@SideOnly(Side.CLIENT)
-	public default boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	public default boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		return true;
 	}
@@ -85,7 +85,7 @@ public interface ILittleTile {
 	public default void onClickAir(EntityPlayer player, ItemStack stack) {}
 	
 	@SideOnly(Side.CLIENT)
-	public default void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {}
+	public default void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
 	
 	@SideOnly(Side.CLIENT)
 	public default boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
