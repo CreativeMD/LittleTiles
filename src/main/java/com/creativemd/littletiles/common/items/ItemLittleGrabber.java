@@ -52,6 +52,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -205,14 +206,14 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	public void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		getMode(stack).onClickBlock(player, stack, result);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		return getMode(stack).onRightClick(player, stack, result);
 	}
@@ -230,7 +231,20 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack);
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode){
+
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemMultiTiles.currentContext = context;
+				ItemMultiTiles.currentMode = mode;
+			}
+			
+		};
+	}
+	
+	@Override
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return ItemMultiTiles.currentContext;
 	}
 	
 	public static GrabberMode getMode(String name)
@@ -557,6 +571,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					setPreview(stack, preview);
 				}
 			};
+		}
+		
+		@Override
+		public LittleGridContext getContext(ItemStack stack)
+		{
+			return ItemMultiTiles.currentContext;
 		}
 		
 		@Override

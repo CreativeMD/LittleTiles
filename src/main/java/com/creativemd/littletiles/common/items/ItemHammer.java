@@ -151,6 +151,6 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 
 	@Override
 	public LittleGridContext getContext(ItemStack stack) {
-		return LittleGridContext.get();
+		return ItemMultiTiles.currentContext;
 	}
 }

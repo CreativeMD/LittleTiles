@@ -42,7 +42,7 @@ public class PlaceModeReplace extends PlacementMode {
 		if(!requiresCollisionTest)
 			return new ArrayList<>();
 		List<LittleTile> tiles = new ArrayList<>();
-		removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, tile.box));		
+		removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, te.getContext(), tile.box));		
 		for (LittleTile lt : removedTiles) {
 			LittleTile newTile = tile.copy();
 			newTile.te = lt.te;

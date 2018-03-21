@@ -36,10 +36,12 @@ import net.minecraft.world.World;
 public class LittleActionSaw extends LittleActionInteract {
 	
 	public boolean toLimit;
+	public LittleGridContext context;
 	
-	public LittleActionSaw(BlockPos blockPos, EntityPlayer player, boolean toLimit) {
+	public LittleActionSaw(BlockPos blockPos, EntityPlayer player, boolean toLimit, LittleGridContext context) {
 		super(blockPos, player);
 		this.toLimit = toLimit;
+		this.context = context;
 	}
 	
 	public LittleActionSaw() {
@@ -73,12 +75,14 @@ public class LittleActionSaw extends LittleActionInteract {
 			oldBox = tile.box.copy();
 			Axis axis = facing.getAxis();
 			
+			te.ensureMinContext(context);
+			
 			boolean outside = false;
 			
 			if(secondMode)
 				box = tile.box.shrink(facing, toLimit);
 			else
-			{	
+			{
 				box = tile.box.grow(facing);
 				if(tile.box.isFaceAtEdge(te.getContext(), facing))
 				{
@@ -150,6 +154,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					te.updateBlock();
 					newBoxes = new LittleBoxes(te.getPos(), te.getContext());
 					newBoxes.addBox(newTile);
+					te.convertToSmallest();
 					return true;
 				}
 				else
@@ -157,6 +162,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					tile.box = box;
 					te.updateBlock();
 					coord = new LittleTileIdentifierAbsolute(tile);
+					te.convertToSmallest();
 					return true;
 				}
 			}
@@ -173,19 +179,21 @@ public class LittleActionSaw extends LittleActionInteract {
 	public LittleAction revert() {
 		if(newBoxes != null)
 			return new LittleActionDestroyBoxes(newBoxes);
-		return new LittleActionSawRevert(coord, oldBox, facing);
+		return new LittleActionSawRevert(context, coord, oldBox, facing);
 	}
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		super.writeBytes(buf);
 		buf.writeBoolean(toLimit);
+		writeContext(context, buf);
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		super.readBytes(buf);
 		toLimit = buf.readBoolean();
+		context = readContext(buf);
 	}
 	
 	public static class LittleActionSawRevert extends LittleAction {
@@ -195,11 +203,13 @@ public class LittleActionSaw extends LittleActionInteract {
 		public LittleTileIdentifierAbsolute coord;
 		public LittleTileIdentifierAbsolute newCoord;
 		public EnumFacing facing;
+		public LittleGridContext context;
 		
-		public LittleActionSawRevert(LittleTileIdentifierAbsolute coord, LittleTileBox oldBox, EnumFacing facing) {
+		public LittleActionSawRevert(LittleGridContext context, LittleTileIdentifierAbsolute coord, LittleTileBox oldBox, EnumFacing facing) {
 			this.coord = coord;
 			this.oldBox = oldBox;
 			this.facing = facing;
+			this.context = context;
 		}
 		
 		public LittleActionSawRevert() {
@@ -213,7 +223,7 @@ public class LittleActionSaw extends LittleActionInteract {
 
 		@Override
 		public LittleAction revert() throws LittleActionException {
-			return new LittleActionSawRevert(newCoord, replacedBox, facing.getOpposite());
+			return new LittleActionSawRevert(context, newCoord, replacedBox, facing.getOpposite());
 		}
 
 		@Override
@@ -263,6 +273,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			writeAbsoluteCoord(coord, buf);
 			writeLittleBox(oldBox, buf);
 			writeFacing(buf, facing);
+			writeContext(context, buf);
 		}
 
 		@Override
@@ -270,6 +281,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			coord = readAbsoluteCoord(buf);
 			oldBox = readLittleBox(buf);
 			facing = readFacing(buf);
+			context = readContext(buf);
 		}
 	}
 }

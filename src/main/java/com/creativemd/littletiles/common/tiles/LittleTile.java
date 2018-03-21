@@ -219,7 +219,7 @@ public abstract class LittleTile {
 	
 	public void fillFace(LittleTileFace face)
 	{
-		this.box.fill(getContext(), face);
+		this.box.fill(face);
 	}
 	
 	public void fillInSpace(boolean[][][] filled)

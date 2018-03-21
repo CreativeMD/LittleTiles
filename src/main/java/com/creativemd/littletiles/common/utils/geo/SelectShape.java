@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -243,14 +244,14 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			boxes.add(getBox(new LittleTilePos(result, context).contextVec.vec, Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			boxes.add(getBox(new LittleTilePos(result, context).getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
 		@Override
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			boxes.add(getBox(new LittleTilePos(result, context).contextVec.vec, Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			boxes.add(getBox(new LittleTilePos(result, context).getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
@@ -292,19 +293,19 @@ public abstract class SelectShape {
 		{
 			min.ensureBothAreEqual(max);
 			LittleTilePos offset = new LittleTilePos(min.pos, min.getContext());
-			LittleTileBox box = new LittleTileBox(new LittleTileBox(min.getRelative(offset).vec), new LittleTileBox(max.getRelative(offset).vec));	
+			LittleTileBox box = new LittleTileBox(new LittleTileBox(min.getRelative(offset).getVec(context)), new LittleTileBox(max.getRelative(offset).getVec(context)));	
 			return shape.getBoxes(new LittleBoxes(offset.pos, context), box.getMinVec(), box.getMaxVec(), player, nbt, preview, min, max);
 		}
 
 		@Override
 		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleTilePos vec = new LittleTilePos(result, context);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.contextVec.vec.sub(result.sideHit);
 			if(first == null)
 			{
 				LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-				boxes.add(new LittleTileBox(new LittleTilePos(result, context).contextVec.vec));
+				boxes.add(new LittleTileBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context)));
 				return boxes;
 			}
 			return getBoxes(player, nbt, first, vec, true, context);
@@ -320,7 +321,7 @@ public abstract class SelectShape {
 			if(first != null)
 				return true;
 			first = new LittleTilePos(result, context);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				first.contextVec.vec.sub(result.sideHit);
 			return false;
 		}
@@ -333,7 +334,7 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleTilePos vec = new LittleTilePos(result, context);
-			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE)
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.contextVec.vec.sub(result.sideHit);
 			LittleBoxes boxes = getBoxes(player, nbt, first, vec, false, context);
 			first = null;

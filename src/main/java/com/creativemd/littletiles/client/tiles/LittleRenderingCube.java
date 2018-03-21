@@ -25,20 +25,14 @@ public class LittleRenderingCube extends RenderCubeObject {
 		this.box = box;
 	}
 	
-	public void renderCubePreview(boolean absolute, double x, double y, double z, ILittleTile iTile)
+	public void renderCubePreview(double x, double y, double z, ILittleTile iTile)
 	{
 		Vec3d size = getSize();
 		double cubeX = x+minX+size.x/2D;
-		if(absolute)
-			cubeX -= x+TileEntityRendererDispatcher.staticPlayerX;
 		
 		double cubeY = y+minY+size.y/2D;
-		if(absolute)
-			cubeY -= y+TileEntityRendererDispatcher.staticPlayerY;
 		
 		double cubeZ = z+minZ+size.z/2D;
-		if(absolute)
-			cubeZ -= z+TileEntityRendererDispatcher.staticPlayerZ;
 		
 		Vec3d color = ColorUtils.IntToVec(this.color);
 		RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.x, size.y, size.z, 0, 0, 0, color.x, color.y, color.z, (Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());

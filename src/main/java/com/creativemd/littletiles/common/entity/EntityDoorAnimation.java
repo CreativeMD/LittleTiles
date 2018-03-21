@@ -63,9 +63,9 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super(worldIn);
 	}
 	
-	public EntityDoorAnimation(World world, BlockPos pos, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
+	public EntityDoorAnimation(World world, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
 			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
-		super(world, pos, blocks, previews, uuid, axis);
+		super(world, blocks, previews, uuid, axis);
 		
 		this.activator = activator;
 		this.structure = structure;

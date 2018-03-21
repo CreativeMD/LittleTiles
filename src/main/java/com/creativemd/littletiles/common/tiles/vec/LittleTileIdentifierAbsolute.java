@@ -55,9 +55,9 @@ public class LittleTileIdentifierAbsolute {
 	{
 		if(from == to)
 			return identifier;
-		if(from.size > to.size)
+		identifier = identifier.clone();
+		if(from.size < to.size)
 		{
-			identifier = identifier.clone();
 			int scale = to.size / from.size;
 			identifier[0] *= scale;
 			identifier[1] *= scale;

@@ -108,7 +108,8 @@ public class PlacementHelper {
 		{
 			PositionResult result = new PositionResult();
 			result.facing = facing;
-			result.contextVec.copy();
+			result.contextVec = contextVec.copy();
+			result.pos = pos;
 			return result;
 		}
 	}
@@ -161,7 +162,7 @@ public class PlacementHelper {
 		for (int i = 0; i < tiles.size(); i++) {
 			LittleTilePreview tile = tiles.get(i);
 			if(tile == null)
-				return new LittleTileVec(0, 0, 0);
+				return LittleTileVec.ZERO;
 			if(tile.box != null)
 			{
 				minX = Math.min(minX, tile.box.minX);
@@ -246,8 +247,7 @@ public class PlacementHelper {
 		
 		result.facing = moving.sideHit;
 		result.assign(getHitVec(moving, context, canBePlacedInsideBlock));
-		result.convertToSmallest();
-		//result.position.pos = new BlockPos(x, y, z);
+		result.pos = new BlockPos(x, y, z);
 		
 		return result;
 	}
@@ -259,7 +259,27 @@ public class PlacementHelper {
 	 */
 	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode)
 	{
-		return getPreviews(world, stack, position, centered, position.facing, fixed, allowLowResolution, marked, mode);
+		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+		
+		LittlePreviews tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTagCompound()) ? lastPreviews.copy() : null;
+		if(tiles == null && iTile != null)
+			tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
+		
+		PreviewResult result = getPreviews(world, tiles, iTile.getLittleStructure(stack), stack, position, centered, fixed, allowLowResolution, mode);
+		
+		if(result != null)
+		{
+			if(stack.getTagCompound() == null)
+			{
+				lastCached = null;
+				lastPreviews = null;
+			}else{
+				lastLowResolution = allowLowResolution;
+				lastCached = stack.getTagCompound().copy();
+				lastPreviews = tiles.copy();
+			}
+		}
+		return result;
 	}
 	
 	/**
@@ -268,26 +288,22 @@ public class PlacementHelper {
 	 * @param facing if centered is true it will be used to apply the offset
 	 * @param fixed if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, @Nullable EnumFacing facing, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode)
+	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, @Nullable LittleStructure structure, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode)
 	{
 		PreviewResult result = new PreviewResult();
 		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
-		LittlePreviews tiles = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTagCompound()) ? lastPreviews.copy() : null;
-		
-		if(tiles == null && iTile != null)
-			tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
-		
 		if(tiles != null && tiles.size() > 0)
 		{
-			if(!tiles.isAbsolute())
+			if(tiles.isAbsolute())
 			{
 				result.context = tiles.context;
 				result.previews = tiles;
 				result.singleMode = false;
 				result.placedFixed = false;
-				result.offset = new LittleTilePos(tiles.getBlockPos(), result.context, new LittleTileVec(0, 0, 0));
+				result.offset = new LittleTilePos(tiles.getBlockPos(), result.context, LittleTileVec.ZERO);
+				position.assign(result.offset);
 				result.placePreviews = new ArrayList<>();				
 				for (int i = 0; i < tiles.size(); i++) {
             		result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
@@ -295,10 +311,20 @@ public class PlacementHelper {
 				return result;
 			}
 			
+			if(structure != null)
+			{
+				LittleGridContext structureContext = structure.getMinContext();
+				if(structureContext.size > position.contextVec.context.size)
+					position.convertTo(structureContext);
+			}
+			
 			tiles.ensureContext(position.getContext());
+			if(position.getContext() != tiles.context)
+				position.convertTo(tiles.context);
 			
 			LittleGridContext context = tiles.context;
 			
+			result.context = context;
 			result.previews = tiles;
 			
 			result.size = getSize(tiles);
@@ -313,7 +339,7 @@ public class PlacementHelper {
 				centered = true;
 			}
 			
-			result.box = getTilesBox(position, result.size, centered, facing, mode);
+			result.box = getTilesBox(position, result.size, centered, position.facing, mode);
 			
 			boolean canBePlaceFixed = false;
 			
@@ -384,17 +410,16 @@ public class PlacementHelper {
 					if(preview != null)
 					{
 						if((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == SelectionMode.LINES)
-							if(position.contextVec.vec.getAxis(facing.getAxis()) % context.size == 0)
-								preview.box.addOffset(new LittleTileVec(context, facing.getOpposite().getDirectionVec()));
+							if(position.contextVec.vec.getAxis(position.facing.getAxis()) % context.size == 0)
+								preview.box.addOffset(new LittleTileVec(context, position.facing.getOpposite().getDirectionVec()));
 						result.placePreviews.add(preview);
 					}
 				}
 			}
 			
-			LittleStructure structure = iTile.getLittleStructure(stack);
 			if(structure != null)
 			{
-				ArrayList<PlacePreviewTile> newBoxes = structure.getSpecialTiles();
+				ArrayList<PlacePreviewTile> newBoxes = structure.getSpecialTiles(context);
 				
 				for (int i = 0; i < newBoxes.size(); i++) {
 					if(!canBePlaceFixed)
@@ -403,17 +428,6 @@ public class PlacementHelper {
 				
 				result.placePreviews.addAll(newBoxes);
 			}
-			
-			if(stack.getTagCompound() == null)
-			{
-				lastCached = null;
-				lastPreviews = null;
-			}else{
-				lastLowResolution = allowLowResolution;
-				lastCached = stack.getTagCompound().copy();
-				lastPreviews = tiles.copy();
-			}
-			
 			return result;
 		}
 		

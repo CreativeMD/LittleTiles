@@ -43,6 +43,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.material.Material;
@@ -181,7 +182,7 @@ public class LittleEvent {
 				
 				if(iLittleTile != null)
 				{
-					iLittleTile.onClickBlock(event.getEntityPlayer(), stack, ray);
+					iLittleTile.onClickBlock(event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray);
 					lastSelectedItem = stack;
 				}
 				
@@ -285,14 +286,21 @@ public class LittleEvent {
 	}
 	
 	@SideOnly(Side.CLIENT)
+	public static PositionResult getPosition(World world, ILittleTile iTile, ItemStack stack, RayTraceResult result)
+	{
+		return PreviewRenderer.marked != null ? PreviewRenderer.marked.position.copy() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack));
+	}
+	
+	@SideOnly(Side.CLIENT)
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
 	{
-		if(iTile.onRightClick(player, stack, Minecraft.getMinecraft().objectMouseOver))
+		if(iTile.onRightClick(player, stack, getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver), Minecraft.getMinecraft().objectMouseOver))
 		{
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
 			{
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
-				new LittleActionPlaceRelative(PreviewRenderer.marked != null ? PreviewRenderer.marked.position : PlacementHelper.getPosition(world, Minecraft.getMinecraft().objectMouseOver, iTile.getPositionContext(stack)), PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
+				PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
+				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
 				
 				PreviewRenderer.marked = null;
 	        }
@@ -371,7 +379,7 @@ public class LittleEvent {
 		            GlStateManager.disableTexture2D();
 		            GlStateManager.depthMask(false);
 		            for (int i = 0; i < boxes.size(); i++) {
-		            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
+		            	RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).offset(boxes.pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 					}
 	
 		            if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos))

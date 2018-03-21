@@ -44,6 +44,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -57,17 +58,28 @@ public class LittleActionPlaceRelative extends LittleAction {
 	public boolean centered;
 	public boolean fixed;
 	public PlacementMode mode;
+	public LittlePreviews previews;
 	
-	public LittleActionPlaceRelative(PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
+	public LittleActionPlaceRelative(ItemStack stack, LittlePreviews previews, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
 		super();
 		this.position = position;
 		this.centered = centered;
 		this.fixed = fixed;
 		this.mode = mode;
+		this.previews = previews;
 	}
 	
 	public LittleActionPlaceRelative() {
 		super();
+	}
+	
+	public void checkMode(LittleStructure structure)
+	{
+		if(structure != null && !mode.canPlaceStructures())
+		{
+			System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
+			this.mode = PlacementMode.getStructureDefault();
+		}
 	}
 
 	@Override
@@ -101,7 +113,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 			return false;
 		}
 		
-		if(PlacementHelper.isLittleBlock(stack))
+		if(PlacementHelper.getLittleInterface(stack) != null)
 		{
 			List<LittleTile> tiles = placeTile(player, stack, player.world, position, centered, fixed, mode);
 			
@@ -122,6 +134,12 @@ public class LittleActionPlaceRelative extends LittleAction {
 		buf.writeBoolean(centered);
 		buf.writeBoolean(fixed);
 		writePlacementMode(mode, buf);
+		
+		buf.writeBoolean(previews.isAbsolute());
+		if(previews.isAbsolute())
+			writeAbsolutePreviews((LittleAbsolutePreviews) previews, buf);
+		else
+			writePreviews(previews, buf);
 	}
 
 	@Override
@@ -130,25 +148,22 @@ public class LittleActionPlaceRelative extends LittleAction {
 		this.centered = buf.readBoolean();
 		this.fixed = buf.readBoolean();
 		this.mode = readPlacementMode(buf);
+		
+		if(buf.readBoolean())
+			this.previews = readAbsolutePreviews(buf);
+		else
+			this.previews = readPreviews(buf);
 	}
 	
 	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, World world, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) throws LittleActionException
     {
-		LittleStructure structure = null;
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-		structure = iTile.getLittleStructure(stack);
-		
+		LittleStructure structure = iTile.getLittleStructure(stack);
+		checkMode(structure);
 		if(structure != null)
-		{
 			structure.setTiles(new HashMapList<>());
-			if(!mode.canPlaceStructures())
-			{
-				System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
-				mode = PlacementMode.getStructureDefault();
-			}
-		}
 		
-		PreviewResult result = PlacementHelper.getPreviews(world, stack, position, centered, fixed, false, false, mode);
+		PreviewResult result = PlacementHelper.getPreviews(world, previews, structure, stack, position, centered, fixed, false, mode);
 		
 		if(result == null)
 		{
@@ -164,9 +179,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 		if(needIngredients(player))
 		{
 			if(iTile.containsIngredients(stack))
-			{
 				stack.shrink(1);
-			}else
+			else
 				canDrainPreviews(player, result.previews);
 		}
 			
@@ -197,6 +211,16 @@ public class LittleActionPlaceRelative extends LittleAction {
 		return placedTiles;
     }
 	
+	public static List<LittleTile> placeTilesWithoutPlayer(World world, LittleGridContext context, HashMap<BlockPos, PlacePreviews> splitted, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing)
+	{
+
+		try {
+			return placeTiles(world, null, context, splitted, structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
+		} catch (LittleActionException e) {
+			return null;
+		}
+	}
+	
 	public static List<LittleTile> placeTilesWithoutPlayer(World world, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing)
 	{
 		try {
@@ -206,15 +230,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 		}
 	}
 	
-	public static List<LittleTile> placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException
+	private static List<LittleTile> placeTiles(World world, EntityPlayer player, LittleGridContext context, HashMap<BlockPos, PlacePreviews> splitted, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException
 	{
-		if(player != null)
-		{
-			if(SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
-				throw new SpecialServerConfig.NotAllowedToPlaceException();
-		}
-		
-		HashMap<BlockPos, PlacePreviews> splitted = getSplittedTiles(context, previews, pos);
 		if(splitted == null)
 			return null;
 		
@@ -224,7 +241,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		{
 			List<LittleTile> placed = new ArrayList<>();
 			List<SoundType> soundsToBePlayed = new ArrayList<>();
-			List<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); //Used in structures, to be sure that this is the last thing which will be placed
+			List<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); // Used for structures, to be sure that this is the last thing which will be placed
 			
 			for (Entry<BlockPos, PlacePreviews> entry : splitted.entrySet()) {
 				BlockPos coord = entry.getKey();
@@ -239,7 +256,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 						i++;
 					}
 					else{
-						lastPlacedTiles.add(new LastPlacedTile(placeTiles.get(i), coord));
+						lastPlacedTiles.add(new LastPlacedTile(placeTiles.get(i), coord, placeTiles.context));
 						placeTiles.remove(i);
 					}
 				}
@@ -260,7 +277,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 						placeTiles.ensureBothAreEqual(te);
 						
 						for (int j = 0; j < placeTiles.size(); j++) {
-							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te, structure, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
+							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te.getContext(), te, structure, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
 								if(structure == null || structure.shouldPlaceTile(LT))
 								{
 									if(!soundsToBePlayed.contains(LT.getSound()))
@@ -279,13 +296,13 @@ public class LittleActionPlaceRelative extends LittleAction {
 						}
 						
 						te.preventUpdate = false;
-						te.updateTiles();
+						te.combineTiles();
 					}
 				}
 			}
 			
 			for (int j = 0; j < lastPlacedTiles.size(); j++) {
-				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, null, structure, unplaceableTiles, removedTiles, mode, facing, true))
+				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, lastPlacedTiles.get(j).context, null, structure, unplaceableTiles, removedTiles, mode, facing, true))
 				{
 					if(tile != null)
 						placed.add(tile);
@@ -309,6 +326,17 @@ public class LittleActionPlaceRelative extends LittleAction {
 			return placed;
 		}
 		return null;
+	}
+	
+	public static List<LittleTile> placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException
+	{
+		if(player != null)
+		{
+			if(SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
+				throw new SpecialServerConfig.NotAllowedToPlaceException();
+		}
+		
+		return placeTiles(world, player, context, getSplittedTiles(context, previews, pos), structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
 	}
 	
 	public static double getVolume(LittleGridContext context, List<PlacePreviewTile> tiles)
@@ -402,10 +430,12 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		public final PlacePreviewTile tile;
 		public final BlockPos pos;
+		public final LittleGridContext context;
 		
-		public LastPlacedTile(PlacePreviewTile tile, BlockPos pos) {
+		public LastPlacedTile(PlacePreviewTile tile, BlockPos pos, LittleGridContext context) {
 			this.tile = tile;
 			this.pos = pos;
+			this.context = context;
 		}
 		
 	}	

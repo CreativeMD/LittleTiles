@@ -101,8 +101,9 @@ public class ItemRecipeAdvanced extends ItemRecipe {
 					{
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-						tile.box.addOffset(new LittleTileVec((posX-minX), (posY-minY), (posZ-minZ)));
-						tiles.add(new BlockPos((posX-minX), (posY-minY), (posZ-minZ)), tile);
+						LittleTileVec offset = new LittleTileVec((posX-minX), (posY-minY), (posZ-minZ));
+						tile.box.addOffset(offset);
+						tiles.add(offset.getBlockPos(context), tile);
 						
 					}
 				}

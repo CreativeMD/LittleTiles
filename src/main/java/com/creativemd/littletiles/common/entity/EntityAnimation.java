@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -81,8 +82,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	protected BlockPos baseOffset;
 	protected BlockPos chunkOffset;
 	protected BlockPos inChunkOffset;
-	
-	public BlockPos startOffset;
 	
 	public LittleTilePos getCenter()
 	{
@@ -232,7 +231,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, BlockPos pos, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
+	public EntityAnimation(World world, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -243,14 +242,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         
         setCenterVec(center);
         
-        startOffset = pos.subtract(baseOffset);
-        
         if(world.isRemote)
         	createClient();
         
         updateWorldCollision();
         
-        setPosition(pos.getX(), pos.getY(), pos.getZ());
+        setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
         
 	}
 	
@@ -340,10 +337,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				maxY = Math.max(maxY, vec.y);
 				maxZ = Math.max(maxZ, vec.z);
 			}
-			BlockPos realStart = baseOffset.add(startOffset);
-			double offsetX = posX - realStart.getX();
-			double offsetY = posY - realStart.getY();
-			double offsetZ = posZ - realStart.getZ();
+			//BlockPos realStart = baseOffset.add(startOffset);
+			double offsetX = posX - baseOffset.getX();
+			double offsetY = posY - baseOffset.getY();
+			double offsetZ = posZ - baseOffset.getZ();
 			setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(offsetX, offsetY, offsetZ));
 		}
 	}
@@ -385,9 +382,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			if(i == 0)
 			{
 				WorldFake fakeWorld = (WorldFake) blocks.get(i).getWorld();
-				fakeWorld.offsetX = posX - (getAxisPos().getX() - startOffset.getX());
-				fakeWorld.offsetY = posY - (getAxisPos().getY() - startOffset.getY());
-				fakeWorld.offsetZ = posZ - (getAxisPos().getZ() - startOffset.getZ());
+				fakeWorld.offsetX = posX - (getAxisPos().getX());
+				fakeWorld.offsetY = posY - (getAxisPos().getY());
+				fakeWorld.offsetZ = posZ - (getAxisPos().getZ());
 				if(fakeWorld.axis == null)
 				{
 					Vec3d vec = getCenter().getVec();
@@ -499,7 +496,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		animation.worldRotY = worldRotY;
 		animation.worldRotZ = worldRotZ;
 		
-		animation.startOffset = startOffset;
+		//animation.startOffset = startOffset;
 		
 		copyExtra(animation);
 		
@@ -511,7 +508,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		
-		startOffset = new BlockPos(compound.getInteger("strOffX"), compound.getInteger("strOffY"), compound.getInteger("strOffZ"));
+		//startOffset = new BlockPos(compound.getInteger("strOffX"), compound.getInteger("strOffY"), compound.getInteger("strOffZ"));
 		
 		setCenterVec(new LittleTilePos("axis", compound));
 		
@@ -535,37 +532,24 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			worldFake.setTileEntity(te.getPos(), te);
 		}
 		
-		/*ArrayList<PlacePreviewTile> defaultpreviews = new ArrayList<>();
-		LittleTilePos axisPoint = structure.getAbsoluteAxisVec();
-		
-		LittleTileVec invaxis = axisPoint.copy();
-		invaxis.invert();
-		
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTile tileOfList = tiles.get(i);
-			NBTTagCompound nbt = new NBTTagCompound();
-			
-			LittleTilePreview preview = tileOfList.getPreviewTile();
-			preview.box.addOffset(tileOfList.te.getPos());
-			preview.box.addOffset(invaxis);
-			
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, new LittleTileVec(0, 0, 0)));
+		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(absoluteAxis.pos, absoluteAxis.getContext());
+		for (LittleTile tile : tiles) {
+			previews.addTile(tile);
 		}
 		
-		defaultpreviews.addAll(structure.getAdditionalPreviews());
+		previews.ensureContext(structure.getMinContext());		
+		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
+		absoluteAxis.convertTo(previews.context);
 		
-		//defaultpreviews.add(new PreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, structure.axis));
+		for (LittleTilePreview preview : previews) {
+			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, absoluteAxis.contextVec.vec));
+		}
 		
-		LittleTileVec internalOffset = new LittleTileVec(axisPoint.x-baseOffset.getX()*LittleTile.gridSize, axisPoint.y-baseOffset.getY()*LittleTile.gridSize, axisPoint.z-baseOffset.getZ()*LittleTile.gridSize);
-		
-		previews = new ArrayList<>();
-		for (int i = 0; i < defaultpreviews.size(); i++) {
-			PlacePreviewTile box = defaultpreviews.get(i); //.copy();
-			//box.box.rotateBoxWithCenter(direction, new Vec3d(1/32D, 1/32D, 1/32D));
-			box.box.addOffset(internalOffset);
-			previews.add(box);
-		}*/
-		
+		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(defaultpreviews)) {
+			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
+			defaultpreviews.add(placePreview);
+		}
 		
 		updateWorldCollision();
 		updateBoundingBox();
@@ -574,9 +558,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {
 		
-		compound.setInteger("strOffX", startOffset.getX());
+		/*compound.setInteger("strOffX", startOffset.getX());
 		compound.setInteger("strOffY", startOffset.getY());
-		compound.setInteger("strOffZ", startOffset.getZ());
+		compound.setInteger("strOffZ", startOffset.getZ());*/
 		center.writeToNBT("axis", compound);
 		
 		NBTTagList list = new NBTTagList();

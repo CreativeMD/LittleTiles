@@ -170,12 +170,20 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack);
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode){
+
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemMultiTiles.currentContext = context;
+				ItemMultiTiles.currentMode = mode;
+			}
+			
+		};
 	}
 	
 	@Override
 	public LittleGridContext getPositionContext(ItemStack stack) {
-		return LittleGridContext.get();
+		return ItemMultiTiles.currentContext;
 	}
 
 	@Override

@@ -30,6 +30,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	public LittleAbsolutePreviews previews;
 	public PlacementMode mode;
 	public LittleStructure structure;
+	public NBTTagCompound structureNBT;
 	public boolean toVanilla;
 	
 	public LittleActionPlaceAbsolute(LittleAbsolutePreviews previews, LittleStructure structure, PlacementMode mode, boolean toVanilla) {
@@ -37,6 +38,13 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		this.previews = previews;
 		this.mode = mode;
 		this.structure = structure;
+		if(structure != null)
+		{
+			this.structureNBT = new NBTTagCompound();
+			this.structure.setTiles(null);
+			this.structure.writeToNBT(structureNBT);
+			this.structure.setTiles(new HashMapList<>());
+		}
 		this.toVanilla = toVanilla;
 		checkMode();
 	}
@@ -86,9 +94,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		if(canDrainPreviews(player, previews))
 		{
 			ArrayList<PlacePreviewTile> placePreviews = new ArrayList<>();
-			LittleTileVec zero = new LittleTileVec(0, 0, 0);
 			for (LittleTilePreview preview : previews) {
-				placePreviews.add(preview.getPlaceableTile(null, true, zero));
+				placePreviews.add(preview.getPlaceableTile(null, true, LittleTileVec.ZERO));
 			}
 			
 			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
@@ -148,10 +155,6 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		else
 		{
 			buf.writeBoolean(true);
-			NBTTagCompound structureNBT = new NBTTagCompound();
-			structure.setTiles(null);
-			structure.writeToNBT(structureNBT);
-			structure.setTiles(new HashMapList<>());
 			writeNBT(buf, structureNBT);
 		}
 	}

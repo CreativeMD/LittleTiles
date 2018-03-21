@@ -81,6 +81,10 @@ public class GuiTileViewer extends GuiParent{
 		super(name, x, y, width, height);
 		if(PlacementHelper.isLittleBlock(stack))
 			this.context = PlacementHelper.getLittleInterface(stack).getLittlePreview(stack).context;
+		else if(stack.getItem() instanceof ItemRecipe)
+			this.context = ((ItemRecipe) stack.getItem()).getContext(stack);
+		else
+			this.context = LittleGridContext.get();
 		this.stack = stack;
 		this.marginWidth = 0;
 		updateNormalAxis();

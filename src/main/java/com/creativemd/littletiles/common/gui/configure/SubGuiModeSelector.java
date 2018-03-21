@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.gui.GuiControl;
+import com.creativemd.creativecore.gui.GuiRenderHelper;
+import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
@@ -20,6 +23,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -28,13 +32,18 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
 
-public class SubGuiModeSelector extends SubGuiConfigure {
+public abstract class SubGuiModeSelector extends SubGuiConfigure {
 	
-	public SubGuiModeSelector(ItemStack stack) {
-		super(140, 150, stack);
+	public LittleGridContext context;
+	public PlacementMode mode;
+	
+	public SubGuiModeSelector(ItemStack stack, LittleGridContext context, PlacementMode mode) {
+		super(150, 150, stack);
+		this.context = context;
+		this.mode = mode;
 	}
 	
-	public static List<String> names;
+	public List<String> names;
 	
 	@Override
 	public void createControls() {
@@ -43,6 +52,9 @@ public class SubGuiModeSelector extends SubGuiConfigure {
 		box.select(I18n.translateToLocal(ItemMultiTiles.currentMode.name));
 		controls.add(box);
 		controls.add(new GuiTextBox("text", "", 0, 22, 120));
+		GuiComboBox contextBox = new GuiComboBox("grid", 128, 0, 15, LittleGridContext.getNames());
+		contextBox.select(ItemMultiTiles.currentContext.size + "");
+		controls.add(contextBox);
 		onControlChanged(new GuiControlChangedEvent(box));
 	}
 	
@@ -63,10 +75,20 @@ public class SubGuiModeSelector extends SubGuiConfigure {
 			((GuiTextBox) get("text")).setText((mode.canPlaceStructures() ? ChatFormatting.BOLD + I18n.translateToLocal("placement.mode.placestructure") + '\n' + ChatFormatting.WHITE : "") + I18n.translateToLocal(mode.name + ".tooltip"));
 		}
 	}
+	
+	public abstract void saveConfiguration(LittleGridContext context, PlacementMode mode);
 
 	@Override
 	public void saveConfiguration() {
-		ItemMultiTiles.currentMode = getMode();
+		mode = getMode();
+		GuiComboBox contextBox = (GuiComboBox) get("grid");
+		try
+		{
+			context = LittleGridContext.get(Integer.parseInt(contextBox.caption));
+		}catch(NumberFormatException e){
+			context = LittleGridContext.get();
+		}
+		saveConfiguration(context, mode);
 	}
 
 }

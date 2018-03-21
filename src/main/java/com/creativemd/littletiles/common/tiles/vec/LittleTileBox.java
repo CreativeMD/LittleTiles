@@ -1030,7 +1030,7 @@ public class LittleTileBox {
 		return new LittleTileFace(context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
-	public boolean intersectsWith(LittleGridContext context, LittleTileFace face)
+	public boolean intersectsWith(LittleTileFace face)
 	{
 		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && 
 				face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) &&
@@ -1042,9 +1042,9 @@ public class LittleTileBox {
 		return true;
 	}
 	
-	public void fill(LittleGridContext context, LittleTileFace face)
+	public void fill(LittleTileFace face)
 	{
-		if(intersectsWith(context, face))
+		if(intersectsWith(face))
 		{
 			int minOne = Math.max(getMin(face.one), face.minOne);
 			int maxOne = Math.min(getMax(face.one), face.maxOne);
@@ -1090,6 +1090,30 @@ public class LittleTileBox {
 		public int oldOrigin;
 		
 		public boolean[][] filled;
+		
+		public void convertTo(LittleGridContext context)
+		{
+			if(this.context.size > context.size)
+			{
+				int ratio = this.context.size/context.size;
+				this.minOne = (int) Math.ceil(this.minOne / (double) ratio);
+				this.minTwo = (int) Math.ceil(this.minTwo / (double) ratio);
+				this.maxOne = (int) Math.ceil(this.maxOne / (double) ratio);
+				this.maxTwo = (int) Math.ceil(this.maxTwo / (double) ratio);
+				this.origin = (int) Math.ceil(this.origin / (double) ratio);
+				this.oldOrigin = (int) Math.ceil(this.oldOrigin / (double) ratio);
+			}else{
+				int ratio = context.size/this.context.size;
+				this.minOne *= ratio;
+				this.minTwo *= ratio;
+				this.maxOne *= ratio;
+				this.maxTwo *= ratio;
+				this.origin *= ratio;
+				this.oldOrigin *= ratio;
+			}
+			
+			filled = new boolean[maxOne-minOne][maxTwo-minTwo];
+		}
 		
 		public LittleTileFace(LittleGridContext context, EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
 			this.context = context;
@@ -1237,29 +1261,5 @@ public class LittleTileBox {
 		if(box.getClass() == LittleTileBox.class)
 			return box2.intersectsWith(box);
 		return box.intersectsWith(box2);
-	}
-	
-	public static LittleTileBox getSurroundingBox(List<LittleTileBox> boxes)
-	{
-		if(boxes.isEmpty())
-			return null;
-		
-		int minX = Integer.MAX_VALUE;
-		int minY = Integer.MAX_VALUE;
-		int minZ = Integer.MAX_VALUE;
-		int maxX = Integer.MIN_VALUE;
-		int maxY = Integer.MIN_VALUE;
-		int maxZ = Integer.MIN_VALUE;
-		
-		for (LittleTileBox box : boxes) {
-			minX = Math.min(minX, box.minX);
-			minY = Math.min(minY, box.minY);
-			minZ = Math.min(minZ, box.minZ);
-			maxX = Math.max(maxX, box.maxX);
-			maxY = Math.max(maxY, box.maxY);
-			maxZ = Math.max(maxZ, box.maxZ);
-		}
-		
-		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 }

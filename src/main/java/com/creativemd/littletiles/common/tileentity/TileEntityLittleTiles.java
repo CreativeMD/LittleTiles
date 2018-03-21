@@ -71,7 +71,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		
 	}
 	
-	protected LittleGridContext context;
+	protected LittleGridContext context = LittleGridContext.get();
 	
 	public LittleGridContext getContext()
 	{
@@ -607,6 +607,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileFace face, LittleTile rendered)
 	{
+		if(face.context != context)
+			face.convertTo(context);
+		
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if(tile != rendered && (tile.doesProvideSolidFace(facing) || tile.canBeRenderCombined(rendered)))
@@ -950,6 +953,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void combineTiles() {
 		combineTilesList(tiles);
 		
+		convertToSmallest();
 		updateBlock();
 		updateCollisionCache();
 	}

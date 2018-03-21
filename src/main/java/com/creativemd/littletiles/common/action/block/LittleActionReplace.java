@@ -128,7 +128,6 @@ public class LittleActionReplace extends LittleActionInteract {
 			addTilesToInventoryOrDrop(player, unplaceableTiles);
 		}
 		
-		te.convertToSmallest();		
 		world.playSound((EntityPlayer)null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
 		
 		return true;

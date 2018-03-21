@@ -82,12 +82,12 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, TileEntityLittleTiles teLT, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest)
+	public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest)
 	{
 		if(structure instanceof LittleDoor)
 		{
 			LittleDoor door = (LittleDoor) structure;
-			LittleTilePos absolute = new LittleTilePos(pos, teLT.getContext(), box.getMinVec());
+			LittleTilePos absolute = new LittleTilePos(pos, context, box.getMinVec());
 			if(door.getMainTile() == null)
 				door.selectMainTile();
 			door.doubledRelativeAxis = absolute.getRelative(door.getMainTile().getAbsolutePos());

@@ -70,9 +70,8 @@ public class LittleActionDestroy extends LittleActionInteract {
 				if(loaded)
 				{
 					structurePreview = new StructurePreview(tile.structure);
-					ItemStack drop = tile.structure.getStructureDrop();
 					if(needIngredients(player) && !player.world.isRemote)
-						WorldUtils.dropItem(world, drop, pos);
+						WorldUtils.dropItem(world, tile.structure.getStructureDrop(), pos);
 					tile.destroy();
 				}
 				else

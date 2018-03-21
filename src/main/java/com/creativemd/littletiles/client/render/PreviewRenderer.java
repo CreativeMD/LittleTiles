@@ -117,11 +117,13 @@ public class PreviewRenderer {
 				
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				
-				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
+				PositionResult position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
 				
 				processRotateKeys(position.getContext());
 				
 	            iTile.tickPreview(player, stack, position, mc.objectMouseOver);
+	            
+	            
 	            
 	            PlacementMode mode = iTile.getPlacementMode(stack);
 	            
@@ -137,13 +139,10 @@ public class PreviewRenderer {
 		            
 		            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
 		            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
-		            boolean absolute = result.isAbsolute();
 		            
 		            if(result != null)
 		            {
-		            	//if(!absolute)
-		            	processMarkKey(player, iTile, stack, position, result, absolute);
-			            
+		            	processMarkKey(player, iTile, stack, result, result.isAbsolute());
 			            double x = (double)position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
 						double y = (double)position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
 						double z = (double)position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
@@ -154,12 +153,12 @@ public class PreviewRenderer {
 							List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 							for (LittleRenderingCube cube : cubes) {
 								GL11.glPushMatrix();
-								cube.renderCubePreview(absolute, x, y, z, iTile);
+								cube.renderCubePreview(x, y, z, iTile);
 								GL11.glPopMatrix();
 							}
 						}
 			            
-			            if(!absolute && marked == null && LittleAction.isUsingSecondMode(player) && result.singleMode)
+			            if(!result.isAbsolute() && marked == null && LittleAction.isUsingSecondMode(player) && result.singleMode)
 			            {
 			            	ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			            	
@@ -184,14 +183,14 @@ public class PreviewRenderer {
 		}
 	}
 	
-	public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PositionResult result, PreviewResult preview, boolean absolute)
+	public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PreviewResult preview, boolean absolute)
 	{
 		while (LittleTilesClient.mark.isPressed())
 		{
 			if(marked == null)
 				marked = iTile.onMark(player, stack);
 			
-			if(marked != null && marked.processPosition(player, result.copy(), preview, absolute))
+			if(marked != null && marked.processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack)), preview, absolute))
 				marked = null;
 		}
 	}
@@ -288,15 +287,16 @@ public class PreviewRenderer {
 				BlockPos pos = event.getTarget().getBlockPos();
 				IBlockState state = world.getBlockState(pos);
 				
-				PositionResult position = marked != null ? marked.position : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
+				PositionResult position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
 				
 	            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
 	            
 	            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
-	            boolean absolute = result.isAbsolute();
 	            
 	            if(result != null)
 	            {
+	            	processMarkKey(player, iTile, stack, result, result.isAbsolute());
+	            	
 		            double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double)event.getPartialTicks();
 			        double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double)event.getPartialTicks();
 			        double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double)event.getPartialTicks();
@@ -307,9 +307,9 @@ public class PreviewRenderer {
 		            GlStateManager.disableTexture2D();
 		            GlStateManager.depthMask(false);
 		            
-		            double x = absolute ? 0 : position.pos.getX();
-					double y = absolute ? 0 : position.pos.getY();
-					double z = absolute ? 0 : position.pos.getZ();
+		            double x = position.pos.getX();
+					double y = position.pos.getY();
+					double z = position.pos.getZ();
 					
 					d0 -= x;
 					d1 -= y;

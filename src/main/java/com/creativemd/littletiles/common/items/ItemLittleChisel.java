@@ -100,10 +100,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
 	}
 	
-	public static LittleTilePos min;
+	public static PositionResult min;
 	
 	@SideOnly(Side.CLIENT)
-	public static LittleTilePos lastMax;
+	public static PositionResult lastMax;
 	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player)
@@ -126,42 +126,6 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		
 		stack.getTagCompound().setString("shape", shape.key);
 	}
-	
-	/*public static void setColor(ItemStack stack, int color)
-	{
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		
-		stack.getTagCompound().setInteger("color", color);
-	}
-	
-	public static int getColor(ItemStack stack)
-	{
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		
-		if(!stack.getTagCompound().hasKey("color"))
-			setColor(stack, ColorUtils.WHITE);
-		
-		return stack.getTagCompound().getInteger("color");
-	}
-	
-	public static void setBlockState(ItemStack stack, IBlockState state)
-	{
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		
-		stack.getTagCompound().setInteger("state", Block.getStateId(state));
-	}
-	
-	public static IBlockState getBlockState(ItemStack stack)
-	{
-		if(!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-		
-		IBlockState state = Block.getStateById(stack.getTagCompound().getInteger("state"));
-		return state.getBlock() instanceof BlockAir ? Blocks.STONE.getDefaultState() : state;			
-	}*/
 	
 	public static LittleTilePreview getPreview(ItemStack stack)
 	{
@@ -275,7 +239,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		{
 			min.ensureBothAreEqual(lastMax);
 			
-			LittleTilePos offset = new LittleTilePos(min.pos, min.getContext());
+			LittleGridContext context = getPositionContext(stack);
+			if(context.size < min.getContext().size)
+				context = min.getContext();
+			LittleTilePos offset = new LittleTilePos(min.pos, context);
 			if(lastMax == null)
 				lastMax = min.copy();
 			
@@ -284,8 +251,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			{
 				
 				DragShape shape = getShape(stack);
-				LittleTileBox newBox = new LittleTileBox(new LittleTileBox(min.getRelative(offset).vec), new LittleTileBox(lastMax.getRelative(offset).vec));				
-				boxes = shape.getBoxes(new LittleBoxes(offset.pos, offset.getContext()), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
+				LittleTileBox newBox = new LittleTileBox(new LittleTileBox(min.getRelative(offset).getVec(context)), new LittleTileBox(lastMax.getRelative(offset).getVec(context)));
+				boxes = shape.getBoxes(new LittleBoxes(offset.pos, context), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = boxes.copy();
 				cachedSettings = stack.getTagCompound().copy();
@@ -293,7 +260,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			}else
 				boxes = cachedShape;
 			
-			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.pos, offset.getContext());
+			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.pos, boxes.context);
 			
 			LittleTilePreview preview = getPreview(stack);
 			for (int i = 0; i < boxes.size(); i++) {
@@ -341,7 +308,6 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@SideOnly(Side.CLIENT)
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
-		//lastMax = new LittleTileVec(result);
 		lastMax = position.copy();
 		if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
 			lastMax.contextVec.vec.add(position.facing);
@@ -361,15 +327,15 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
-		LittleTilePos absoluteHit = new LittleTilePos(result, getPositionContext(stack));
 		if(ItemLittleChisel.min == null)
 		{
+			position = position.copy();
 			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
-				absoluteHit.contextVec.vec.add(result.sideHit);
+				position.contextVec.vec.add(result.sideHit);
 			
-			ItemLittleChisel.min = absoluteHit;
+			ItemLittleChisel.min = position;
 		}else if(LittleAction.isUsingSecondMode(player))
 			ItemLittleChisel.min = null;
 		else
@@ -403,7 +369,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
+	public void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 	}
@@ -418,11 +384,12 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack){
-			
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode){
+
 			@Override
-			public void saveConfiguration() {
-				currentMode = getMode();
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				currentMode = mode;
+				ItemMultiTiles.currentContext = context;
 			}
 		};
 	}
@@ -445,11 +412,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 								if(lastMax == null)
 									lastMax = min.copy();							
 								
-								mode.position.facing = EnumFacing.EAST;
-								mode.position.pos = min.pos;
-								mode.position.contextVec = min.contextVec.copy();
-								
+								mode.position = min;
 								min = lastMax;
+								lastMax = mode.position;
 							}
 						});
 					}
@@ -461,5 +426,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return false;
+	}
+	
+	@Override
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return ItemMultiTiles.currentContext;
 	}
 }

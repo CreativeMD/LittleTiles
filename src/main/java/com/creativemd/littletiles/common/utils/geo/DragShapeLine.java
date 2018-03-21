@@ -106,8 +106,12 @@ public class DragShapeLine extends DragShape {
 	
 	@Override
 	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
+		LittleTilePos absolute = new LittleTilePos(boxes.pos, boxes.context);
 		
-		visitAll(originalMin.contextVec.vec.x + 0.5, originalMin.contextVec.vec.y + 0.5, originalMin.contextVec.vec.z + 0.5, originalMax.contextVec.vec.x + 0.5, originalMax.contextVec.vec.y + 0.5, originalMax.contextVec.vec.z + 0.5, boxes);
+		LittleTileVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
+		LittleTileVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
+		
+		visitAll(originalMinVec.x + 0.5, originalMinVec.y + 0.5, originalMinVec.z + 0.5, originalMaxVec.x + 0.5, originalMaxVec.y + 0.5, originalMaxVec.z + 0.5, boxes);
 		
 		LittleTileBox.combineBoxesBlocks(boxes);
 		

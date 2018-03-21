@@ -104,6 +104,11 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		return previews;
 	}
 	
+	public LittleGridContext getContext(ItemStack stack)
+	{
+		return LittleGridContext.get(stack.getTagCompound());
+	}
+	
 	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second)
 	{
 		int firstX = stack.getTagCompound().getInteger("x");

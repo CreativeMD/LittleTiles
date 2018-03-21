@@ -144,19 +144,19 @@ public class LittleTiles {
 	
 	public static Block flowingWater = new BlockLTFlowingWater().setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
 	
-	public static Item hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
-	public static Item recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
-	public static Item recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
-	public static Item multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
-	public static Item saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
-	public static Item container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
-	public static Item wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
-	public static Item screwdriver = new ItemLittleScrewdriver().setUnlocalizedName("LTScrewdriver").setRegistryName("screwdriver");
-	public static Item chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
-	public static Item colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
-	public static Item rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
-	public static Item utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
-	public static Item grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
+	public static Item hammer;
+	public static Item recipe;
+	public static Item recipeAdvanced;
+	public static Item multiTiles;
+	public static Item saw;
+	public static Item container;
+	public static Item wrench;
+	public static Item screwdriver;
+	public static Item chisel;
+	public static Item colorTube;
+	public static Item rubberMallet;
+	public static Item utilityKnife;
+	public static Item grabber;
 	
 	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames)
 	{
@@ -179,15 +179,27 @@ public class LittleTiles {
 		config.load();
 		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."),
 				config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"),
-				config.getInt("scale", "core", 7, 1, Integer.MAX_VALUE, "How many grids there are. Make sure that it is enough for the defaultSize to exist."),
-				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). Default is two -> (1, 2, 4, 8, 16, 32, 64 etc.)."));
-		//LittleGridContext.loadGrid(1, 16, 7, 2);
-		//LittleTile.setGridSize(config.getInt("gridSize", "core", 16, 1, Integer.MAX_VALUE, "ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"));
+				config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. Make sure that it is enough for the defaultSize to exist."),
+				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
 		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
 		for(String categoryName : config.getCategoryNames())
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
 		proxy.loadSidePre();
+		
+		hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
+		recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
+		recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
+		multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
+		saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
+		container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
+		wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
+		screwdriver = new ItemLittleScrewdriver().setUnlocalizedName("LTScrewdriver").setRegistryName("screwdriver");
+		chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
+		colorTube = new ItemColorTube().setUnlocalizedName("LTColorTube").setRegistryName("colorTube");
+		rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
+		utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
+		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 	}
 	
 	@SubscribeEvent

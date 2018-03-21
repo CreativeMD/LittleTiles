@@ -101,24 +101,12 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	}
 
 	@Override
-	public void renderCubePreview(boolean absolute, double x, double y, double z, ILittleTile iTile) {
-		
-		double cubeX = x;
-		if(absolute)
-			cubeX -= x+TileEntityRendererDispatcher.staticPlayerX;
-		
-		double cubeY = y;
-		if(absolute)
-			cubeY -= y+TileEntityRendererDispatcher.staticPlayerY;
-		
-		double cubeZ = z;
-		if(absolute)
-			cubeZ -= z+TileEntityRendererDispatcher.staticPlayerZ;
+	public void renderCubePreview(double x, double y, double z, ILittleTile iTile) {
 		
 		Vec3d color = ColorUtils.IntToVec(this.color);
 		
 		GlStateManager.pushMatrix();
-		GlStateManager.translate(cubeX, cubeY, cubeZ);
+		GlStateManager.translate(x, y, z);
 		GlStateManager.enableRescaleNormal();
 		
 		GlStateManager.color((float)color.x, (float)color.y, (float)color.z, (float)(Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());

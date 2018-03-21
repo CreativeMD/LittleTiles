@@ -1,6 +1,8 @@
 package com.creativemd.littletiles.common.utils.grid;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -20,6 +22,7 @@ public class LittleGridContext {
 	public static int minSize;
 	public static int exponent;
 	public static int defaultSize;
+	private static int defaultSizeIndex;
 	public static LittleGridContext[] context;
 	
 	public static LittleGridContext loadGrid(int min, int defaultGrid, int scale, int exponent)
@@ -32,20 +35,37 @@ public class LittleGridContext {
 		for (int i = 0; i < gridSizes.length; i++) {
 			gridSizes[i] = size;
 			context[i] = new LittleGridContext(size, i);
+			if(context[i].isDefault)
+				defaultSizeIndex = i;
 			size *= exponent;
 		}
 		
 		return get();
 	}
 	
+	public static List<String> getNames()
+	{
+		List<String> names = new ArrayList<>();
+		for (int i = 0; i < context.length; i++) {
+			names.add(context[i].size + "");
+		}
+		return names;
+	}
+	
 	public static LittleGridContext get(int size)
 	{
-		return context[(size/minSize)-1];
+		if(defaultSize == size)
+			return context[LittleGridContext.defaultSizeIndex];
+		for (int i = 0; i < context.length; i++) {
+			if(context[i].size == size)
+				return context[i];
+		}
+		throw new RuntimeException("Invalid gridsize = '" + size + "'!");
 	}
 	
 	public static LittleGridContext get()
 	{
-		return get(defaultSize);
+		return context[LittleGridContext.defaultSizeIndex];
 	}
 	
 	public static LittleGridContext get(NBTTagCompound nbt)
@@ -103,6 +123,8 @@ public class LittleGridContext {
 	{
 		if(!isDefault)
     		nbt.setInteger("grid", size);
+		else
+			nbt.removeTag("grid");
 	}
 	
 	public void setOverall(NBTTagCompound nbt)
@@ -113,7 +135,7 @@ public class LittleGridContext {
 	
 	public int getMinGrid(int value)
 	{
-		return minSizes[value % size];
+		return minSizes[Math.abs(value % size)];
 	}
 	
 	public double toVanillaGrid(double grid)
@@ -174,5 +196,10 @@ public class LittleGridContext {
 		if(context.size > this.size)
 			return context;
 		return this;
+	}
+	
+	@Override
+	public String toString() {
+		return "" + size;
 	}
 }

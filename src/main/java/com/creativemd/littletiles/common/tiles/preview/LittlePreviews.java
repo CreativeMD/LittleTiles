@@ -98,7 +98,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	public LittleTilePreview addTile(LittleTile tile)
 	{
 		LittleTilePreview preview = getPreview(tile);
-		previews.add(getPreview(tile));
+		previews.add(preview);
 		return preview;
 		
 	}

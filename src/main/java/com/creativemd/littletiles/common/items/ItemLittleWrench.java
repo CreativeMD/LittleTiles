@@ -27,6 +27,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -68,6 +69,7 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 		{
 			if(!world.isRemote)
 			{
+				player.sendStatusMessage(new TextComponentString("grid:" + ((TileEntityLittleTiles) tileEntity).getContext()), true);
 				((TileEntityLittleTiles) tileEntity).combineTiles();
 				((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
 			}
