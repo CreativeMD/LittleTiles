@@ -1,0 +1,22 @@
+{
+  "result": {
+    "item": "littletiles:grabber",
+    "data": 0
+  },
+  "pattern": [
+    "LLL",
+    "WWW",
+    "LLL"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "W": {
+      "item": "minecraft:wool",
+      "data": 11
+    },
+    "L": {
+      "item": "minecraft:dye",
+      "data": 4
+    }
+  }
+}
