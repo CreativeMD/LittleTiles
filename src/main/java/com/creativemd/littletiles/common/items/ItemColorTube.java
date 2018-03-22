@@ -14,9 +14,12 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerColorTube;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -28,6 +31,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -47,6 +51,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSelector{
+	
+	public static TileSelector currentFilter = null;
 
 	public ItemColorTube()
 	{
@@ -164,7 +170,10 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 			else
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		}else if(shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))){
-			new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
+			if(currentFilter != null)
+				new LittleActionColorBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, currentFilter).execute();
+			else
+				new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
 		}
 		return true;
 	}
@@ -186,5 +195,18 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	@Override
 	public LittleGridContext getContext(ItemStack stack) {
 		return ItemMultiTiles.currentContext;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
+			
+			@Override
+			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
+				ItemMultiTiles.currentContext = context;
+				currentFilter = selector;
+			}
+		};
 	}
 }

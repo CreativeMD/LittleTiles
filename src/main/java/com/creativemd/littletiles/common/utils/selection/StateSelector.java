@@ -38,5 +38,11 @@ public class StateSelector extends BlockSelector {
 			return ((LittleTileBlock) tile).getMeta() == meta;
 		return false;
 	}
-
+	
+	@Override
+	public IBlockState getState()
+	{
+		return block.getStateFromMeta(meta);
+	}
+	
 }

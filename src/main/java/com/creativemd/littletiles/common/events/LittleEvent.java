@@ -563,6 +563,10 @@ public class LittleEvent {
 						SubGui gui = iTile.getConfigureGUI(mc.player, stack);
 						if(gui != null)
 							GuiHandler.openGui("configure", new NBTTagCompound());
+					}else if(stack.getItem() instanceof ISpecialBlockSelector){
+						SubGui gui = ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(mc.player, stack);
+						if(gui != null)
+							GuiHandler.openGui("configure", new NBTTagCompound());
 					}
 				}
 			}
