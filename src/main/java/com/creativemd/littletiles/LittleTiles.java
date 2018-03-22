@@ -11,8 +11,10 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
@@ -21,6 +23,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.Littl
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
@@ -281,6 +284,8 @@ public class LittleTiles {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				if(iTile != null)
 					return iTile.getConfigureGUI(player, stack);
+				else if(stack.getItem() instanceof ISpecialBlockSelector)
+					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(player, stack);
 				return null;
 			}
 			
@@ -376,8 +381,8 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		
 		LittleAction.registerLittleAction("act", LittleActionActivated.class);
-		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class);
-		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class);
+		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
+		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
 		LittleAction.registerLittleAction("des", LittleActionDestroy.class);
 		LittleAction.registerLittleAction("plR", LittleActionPlaceRelative.class);
 		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class);

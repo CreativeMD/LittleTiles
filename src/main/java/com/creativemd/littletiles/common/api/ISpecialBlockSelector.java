@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.api;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -11,6 +12,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -42,4 +44,10 @@ public interface ISpecialBlockSelector {
 	public void rotateLittlePreview(ItemStack stack, Rotation rotation);
 	
 	public void flipLittlePreview(ItemStack stack, Axis axis);
+	
+	@SideOnly(Side.CLIENT)
+	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack)
+	{
+		return null;
+	}
 }

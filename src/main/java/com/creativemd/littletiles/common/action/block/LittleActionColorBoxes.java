@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -67,12 +68,23 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		revertList.add(color, newBoxes);
 	}
 	
+	public boolean shouldSkipTile(LittleTile tile)
+	{
+		return false;
+	}
+	
+	public boolean doneSomething;
+	
 	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate, LittleGridContext context)
 	{
+		doneSomething = false;
 		double colorVolume = 0;
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
+			
+			if(shouldSkipTile(tile))
+				continue;
 			
 			LittleTileBox intersecting = null;
 			boolean intersects = false;
@@ -90,6 +102,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			if(!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
 				continue;
+			
+			doneSomething = true;
 			
 			if(tile.canBeSplitted() && !tile.equalsBox(intersecting))
 			{				
@@ -228,7 +242,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			te.combineTiles();
 			
-			if(toVanilla)
+			if(toVanilla || !doneSomething)
 				te.convertBlockToVanilla();
 		}
 	}
@@ -256,4 +270,34 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		return new LittleActionCombined(actions.toArray(new LittleAction[0]));
 	}
 	
+	public static class LittleActionColorBoxesFiltered extends LittleActionColorBoxes {
+		
+		public TileSelector selector;
+		
+		public LittleActionColorBoxesFiltered(LittleBoxes boxes, int color, boolean toVanilla, TileSelector selector) {
+			super(boxes, color, toVanilla);
+			this.selector = selector;
+		}
+		
+		public LittleActionColorBoxesFiltered() {
+			
+		}
+		
+		@Override
+		public void writeBytes(ByteBuf buf) {
+			super.writeBytes(buf);
+			writeSelector(selector, buf);
+		}
+		
+		@Override
+		public void readBytes(ByteBuf buf) {
+			super.readBytes(buf);
+			selector = readSelector(buf);
+		}
+		
+		@Override
+		public boolean shouldSkipTile(LittleTile tile) {
+			return !selector.is(tile);
+		}
+	}
 }

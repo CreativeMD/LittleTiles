@@ -4,6 +4,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
@@ -34,6 +35,11 @@ public class BlockSelector extends TileSelector {
 		if(tile instanceof LittleTileBlock)
 			return ((LittleTileBlock) tile).getBlock() == block;
 		return false;
+	}
+	
+	public IBlockState getState()
+	{
+		return block.getDefaultState();
 	}
 
 }

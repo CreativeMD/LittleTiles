@@ -14,10 +14,13 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
 import com.creativemd.littletiles.common.gui.SubGuiGrabber;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
@@ -26,6 +29,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.geo.SelectShape;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -48,6 +52,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreator {
+	
+	public static TileSelector currentFilter = null;
 	
 	public ItemHammer()
 	{
@@ -88,7 +94,10 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if(shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
-			new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
+			if(currentFilter != null)
+				new LittleActionDestroyBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), currentFilter).execute();
+			else
+				new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
 	}
 	
@@ -139,6 +148,19 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 		SelectShape shape = getShape(stack);
 		if(shape != null)
 			shape.flip(axis, stack.getTagCompound());
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
+			
+			@Override
+			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
+				ItemMultiTiles.currentContext = context;
+				currentFilter = selector;
+			}
+		};
 	}
 	
 	public static SelectShape getShape(ItemStack stack)

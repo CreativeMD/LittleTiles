@@ -96,7 +96,7 @@ public abstract class TileSelector {
 	
 	public NBTTagCompound writeNBT(NBTTagCompound nbt)
 	{
-		writeNBT(nbt);
+		saveNBT(nbt);
 		nbt.setString("type", getTypeID(this.getClass()));
 		return nbt;
 	}

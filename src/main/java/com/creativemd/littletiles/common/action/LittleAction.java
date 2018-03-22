@@ -35,6 +35,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -448,6 +449,16 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static LittleTileVec readLittleVec(ByteBuf buf)
 	{
 		return new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+	}
+	
+	public static void writeSelector(TileSelector selector, ByteBuf buf)
+	{
+		writeNBT(buf, selector.writeNBT(new NBTTagCompound()));
+	}
+	
+	public static TileSelector readSelector(ByteBuf buf)
+	{
+		return TileSelector.loadSelector(readNBT(buf));
 	}
 	
 	public static void writeLittleBox(LittleTileBox box, ByteBuf buf)

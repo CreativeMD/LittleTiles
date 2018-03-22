@@ -15,14 +15,14 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.selection.TileSelector;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -52,8 +52,17 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		return false;
 	}
 	
+	public boolean shouldSkipTile(LittleTile tile)
+	{
+		return false;
+	}
+	
+	public boolean doneSomething;
+	
 	public CombinedIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context)
 	{
+		doneSomething = false;
+		
 		if(previews == null)
 			previews = new LittleAbsolutePreviews(te.getPos(), context);
 		
@@ -61,6 +70,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
+			
+			if(shouldSkipTile(tile))
+				continue;
 			
 			LittleTileBox intersecting = null;
 			boolean intersects = false;
@@ -76,6 +88,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			if(!intersects)
 				continue;
 			
+			doneSomething = true;
 			if(!tile.isStructureBlock && tile.canBeSplitted() && !tile.equalsBox(intersecting))
 			{
 				double volume = 0;
@@ -158,6 +171,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
 			
 			((TileEntityLittleTiles) tileEntity).combineTiles();
+			
+			if(!doneSomething)
+				((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
 		}
 	}
 	
@@ -185,6 +201,38 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			actions[additionalPreviews ? 1 : 0 + i] = destroyedStructures.get(i).getPlaceAction();
 		}
 		return new LittleActionCombined(actions);
+	}
+	
+	public static class LittleActionDestroyBoxesFiltered extends LittleActionDestroyBoxes {
+		
+		public TileSelector selector;
+		
+		public LittleActionDestroyBoxesFiltered(LittleBoxes boxes, TileSelector selector) {
+			super(boxes);
+			this.selector = selector;
+		}
+		
+		public LittleActionDestroyBoxesFiltered() {
+			
+		}
+		
+		@Override
+		public void writeBytes(ByteBuf buf) {
+			super.writeBytes(buf);
+			writeSelector(selector, buf);
+		}
+		
+		@Override
+		public void readBytes(ByteBuf buf) {
+			super.readBytes(buf);
+			selector = readSelector(buf);
+		}
+		
+		@Override
+		public boolean shouldSkipTile(LittleTile tile) {
+			return !selector.is(tile);
+		}
+		
 	}
 	
 	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut)

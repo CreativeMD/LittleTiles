@@ -73,9 +73,15 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			TEResult te = BlockTile.loadTeAndTile(player.world, result.getBlockPos(), player);
-			LittleBoxes boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
+			
+			LittleBoxes boxes;
 			if(te.isComplete())
+			{
+				boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
 				boxes.add(te.tile.box.copy());
+			}else
+				boxes = new LittleBoxes(result.getBlockPos(), context);
+			
 			return boxes;
 		}
 		
