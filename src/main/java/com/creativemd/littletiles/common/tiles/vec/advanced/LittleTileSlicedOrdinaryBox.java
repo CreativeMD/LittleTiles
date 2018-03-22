@@ -395,7 +395,10 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		if(box.isCompletelyFilled())
 			return isVecInsideBox(vec.x, vec.y, vec.z);
 		
-		return LittleTileBox.intersectsWith(box, extractBox(vec.x, vec.y, vec.z));		
+		LittleTileBox box2 = extractBox(vec.x, vec.y, vec.z);
+		if(box2 != null)
+			return LittleTileBox.intersectsWith(box, box2);
+		return false;
 	}
 	
 	@Override
