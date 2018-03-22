@@ -80,7 +80,7 @@ public class LittleTilePos {
 	
 	public void ensureBothAreEqual(LittleTilePos pos)
 	{
-		this.contextVec.ensureBothAreEqual(contextVec);
+		this.contextVec.ensureBothAreEqual(pos.contextVec);
 	}
 	
 	public LittleTileVecContext getRelative(LittleTilePos pos)
