@@ -34,6 +34,7 @@ import com.creativemd.littletiles.common.blocks.ItemBlockFlowingWater;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
+import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.config.IGCMLoader;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerExport;
@@ -562,5 +563,6 @@ public class LittleTiles {
 	{
 		event.registerServerCommand(new ExportCommand());
 		event.registerServerCommand(new ImportCommand());
+		event.registerServerCommand(new OpenCommand());
 	}
 }

@@ -355,100 +355,121 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	public Rotation getDefaultRotation()
 	{
-		if(world.isRemote && axis != null && !isWaitingForApprove)
+		return Rotation.getRotation(axis, true);
+	}
+	
+	@Override
+	public boolean activate(World world, @Nullable EntityPlayer player, @Nullable Rotation rotation, BlockPos pos)
+	{
+		if(axis != null && !isWaitingForApprove)
 		{
 			if(!hasLoaded())
 			{
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
-				return true;
+				return false;
 			}
 						
 			//Calculate rotation
-			Rotation rotation = null;
-			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
-			boolean rotX = playerRotation <= -90 || playerRotation >= 90;
-			boolean rotY = player.rotationPitch > 0;
-			boolean rotZ = playerRotation > 0 && playerRotation <= 180;
-			boolean inverse = false;
+			if(rotation == null)
+			{
+				double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
+				boolean rotX = playerRotation <= -90 || playerRotation >= 90;
+				boolean rotY = player.rotationPitch > 0;
+				boolean rotZ = playerRotation > 0 && playerRotation <= 180;
+				
+				switch(axis)
+				{
+				case X:
+					//System.out.println(normalDirection);
+					rotation = Rotation.X_CLOCKWISE;
+					switch(normalDirection)
+					{
+					case UP:
+						if(!rotY)
+							rotation = Rotation.X_COUNTER_CLOCKWISE;
+						break;
+					case DOWN:
+						if(rotY)
+							rotation = Rotation.X_COUNTER_CLOCKWISE;
+						break;
+					case SOUTH:
+						if(!rotX)
+							rotation = Rotation.X_COUNTER_CLOCKWISE;
+						break;
+					case NORTH:
+						if(rotX)
+							rotation = Rotation.X_COUNTER_CLOCKWISE;			
+						break;
+					default:
+						break;
+					}
+					break;
+				case Y:
+					rotation = Rotation.Y_CLOCKWISE;
+					switch(normalDirection)
+					{
+					case EAST:
+						if(rotX)
+							rotation = Rotation.Y_COUNTER_CLOCKWISE;
+						break;
+					case WEST:
+						if(!rotX)
+							rotation = Rotation.Y_COUNTER_CLOCKWISE;			
+						break;
+					case SOUTH:
+						if(!rotZ)
+							rotation = Rotation.Y_COUNTER_CLOCKWISE;
+						break;
+					case NORTH:
+						if(rotZ)
+							rotation = Rotation.Y_COUNTER_CLOCKWISE;
+						break;
+					default:
+						break;
+					}
+					break;
+				case Z:
+					rotation = Rotation.Z_CLOCKWISE;				
+					switch(normalDirection)
+					{
+					case EAST:
+						if(rotZ)
+							rotation = Rotation.Z_COUNTER_CLOCKWISE;
+						break;
+					case WEST:
+						if(!rotZ)
+							rotation = Rotation.Z_COUNTER_CLOCKWISE;			
+						break;
+					case UP:
+						if(!rotY)
+							rotation = Rotation.Z_COUNTER_CLOCKWISE;
+						break;
+					case DOWN:
+						if(rotY)
+							rotation = Rotation.Z_COUNTER_CLOCKWISE;
+						break;
+					default:
+						break;
+					}
+					break;
+				default:
+					break;
+				}
 			
+			}
+			
+			boolean inverse = false;
 			switch(axis)
 			{
 			case X:
-				//System.out.println(normalDirection);
-				rotation = Rotation.X_CLOCKWISE;
-				switch(normalDirection)
-				{
-				case UP:
-					if(!rotY)
-						rotation = Rotation.X_COUNTER_CLOCKWISE;
-					break;
-				case DOWN:
-					if(rotY)
-						rotation = Rotation.X_COUNTER_CLOCKWISE;
-					break;
-				case SOUTH:
-					if(!rotX)
-						rotation = Rotation.X_COUNTER_CLOCKWISE;
-					break;
-				case NORTH:
-					if(rotX)
-						rotation = Rotation.X_COUNTER_CLOCKWISE;			
-					break;
-				default:
-					break;
-				}
 				inverse = rotation == Rotation.X_CLOCKWISE;
 				break;
 			case Y:
-				rotation = Rotation.Y_CLOCKWISE;
-				switch(normalDirection)
-				{
-				case EAST:
-					if(rotX)
-						rotation = Rotation.Y_COUNTER_CLOCKWISE;
-					break;
-				case WEST:
-					if(!rotX)
-						rotation = Rotation.Y_COUNTER_CLOCKWISE;			
-					break;
-				case SOUTH:
-					if(!rotZ)
-						rotation = Rotation.Y_COUNTER_CLOCKWISE;
-					break;
-				case NORTH:
-					if(rotZ)
-						rotation = Rotation.Y_COUNTER_CLOCKWISE;
-					break;
-				default:
-					break;
-				}
 				inverse = rotation == Rotation.Y_CLOCKWISE;
 				break;
 			case Z:
-				rotation = Rotation.Z_CLOCKWISE;				
-				switch(normalDirection)
-				{
-				case EAST:
-					if(rotZ)
-						rotation = Rotation.Z_COUNTER_CLOCKWISE;
-					break;
-				case WEST:
-					if(!rotZ)
-						rotation = Rotation.Z_COUNTER_CLOCKWISE;			
-					break;
-				case UP:
-					if(!rotY)
-						rotation = Rotation.Z_COUNTER_CLOCKWISE;
-					break;
-				case DOWN:
-					if(rotY)
-						rotation = Rotation.Z_COUNTER_CLOCKWISE;
-					break;
-				default:
-					break;
-				}
 				inverse = rotation == Rotation.Z_CLOCKWISE;
 				break;
 			default:
@@ -456,9 +477,19 @@ public class LittleDoor extends LittleDoorBase{
 			}
 			
 			UUID uuid = UUID.randomUUID();
-			PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse, uuid));
+			if(world.isRemote)
+				PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse, uuid));
 			interactWithDoor(world, player, rotation, inverse, uuid);
+			return true;
 		}
+		return false;
+	}
+	
+	@Override
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+	{
+		if(world.isRemote)
+			activate(world, player, null, pos);
 		return true;
 	}
 	

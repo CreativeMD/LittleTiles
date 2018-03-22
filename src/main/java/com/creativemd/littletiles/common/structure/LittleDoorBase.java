@@ -6,7 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.container.SubGui;
@@ -102,6 +105,13 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		return false;
 	}
+	
+	public Rotation getDefaultRotation()
+	{
+		return null;
+	}
+	
+	public abstract boolean activate(World world, @Nullable EntityPlayer player, Rotation rotation, BlockPos pos);
 	
 	public abstract LittleTilePos getAbsoluteAxisVec();
 	
