@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
+import javax.management.RuntimeErrorException;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.HashMapList;
@@ -188,9 +189,13 @@ public class LittleDoor extends LittleDoorBase{
 		LittleTilePos absolute = tile.getAbsolutePos();
 		if(getMainTile() != null)
 		{
+			LittleGridContext context = doubledRelativeAxis.context;
 			LittleTileVecContext newVec = lastMainTileVec.getRelative(absolute);
+			newVec.convertTo(context);
 			newVec.vec.scale(2);
 			doubledRelativeAxis.add(newVec);
+			
+			doubledRelativeAxis.convertTo(context);
 		}
 		lastMainTileVec = absolute;
 		super.setMainTile(tile);
@@ -279,13 +284,15 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public ArrayList<PlacePreviewTile> getSpecialTiles(LittleGridContext context)
 	{
+		if(context.size < doubledRelativeAxis.context.size)
+			throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
 		doubledRelativeAxis.convertTo(context);
 		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
 		LittleTileBox box = new LittleTileBox(doubledRelativeAxis.vec.x / 2, doubledRelativeAxis.vec.y / 2, doubledRelativeAxis.vec.z / 2,
 				doubledRelativeAxis.vec.x / 2 + 1, doubledRelativeAxis.vec.y / 2 + 1, doubledRelativeAxis.vec.z / 2 + 1);
 		
 		boxes.add(new PlacePreviewTileAxis(box, null, axis, getAdditionalAxisVec()));
-		doubledRelativeAxis.convertToSmallest();
+		//doubledRelativeAxis.convertToSmallest();
 		return boxes;
 	}
 	
@@ -341,6 +348,7 @@ public class LittleDoor extends LittleDoorBase{
 		
 		for (PlacePreviewTile placePreview : getAdditionalPreviews(defaultpreviews)) {
 			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
+			System.out.println(absoluteAxis);
 			defaultpreviews.add(placePreview);
 		}
 		
