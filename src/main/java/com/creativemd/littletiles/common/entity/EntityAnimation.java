@@ -533,22 +533,22 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 		
 		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(absoluteAxis.pos, absoluteAxis.getContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(baseOffset, absoluteAxis.getContext());
 		for (LittleTile tile : tiles) {
 			previews.addTile(tile);
 		}
 		
 		previews.ensureContext(structure.getMinContext());		
-		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
+		this.previews = new PlacePreviews(previews.context);
 		absoluteAxis.convertTo(previews.context);
 		
 		for (LittleTilePreview preview : previews) {
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, absoluteAxis.contextVec.vec));
+			this.previews.add(preview.getPlaceableTile(preview.box, false, LittleTileVec.ZERO));
 		}
 		
-		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(defaultpreviews)) {
+		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(this.previews)) {
 			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
-			defaultpreviews.add(placePreview);
+			this.previews.add(placePreview);
 		}
 		
 		updateWorldCollision();
