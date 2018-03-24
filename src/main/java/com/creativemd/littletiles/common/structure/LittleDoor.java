@@ -44,6 +44,7 @@ import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformati
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -223,35 +224,35 @@ public class LittleDoor extends LittleDoorBase{
 			viewer.viewDirection = viewer.viewDirection.getOpposite();
 			viewer.baked = null;
 			//viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton) event.source).getState()+2);
-		}else if(event.source instanceof GuiButton){			
+		}else if(event.source instanceof GuiButton){
+			int amount = GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2;
 			if(event.source.is("<-"))
 			{
 				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ += 2;
+					viewer.axisZ += amount;
 				else
-					viewer.axisX -= 2;
+					viewer.axisX -= amount;
 			}
 			if(event.source.is("->"))
 			{
 				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ -= 2;
+					viewer.axisZ -= amount;
 				else
-					viewer.axisX += 2;
+					viewer.axisX += amount;
 			}
 			if(event.source.is("up"))
 			{
 				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ -= 2;
+					viewer.axisZ -= amount;
 				else
-					viewer.axisY += 2;
-				
+					viewer.axisY += amount;
 			}
 			if(event.source.is("down"))
 			{
 				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ += 2;
+					viewer.axisZ += amount;
 				else
-					viewer.axisY -= 2;
+					viewer.axisY -= amount;
 			}else if(event.source.is("swap normal")){
 				viewer.changeNormalAxis();
 			}
