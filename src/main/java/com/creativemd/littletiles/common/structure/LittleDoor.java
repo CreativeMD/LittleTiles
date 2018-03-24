@@ -311,12 +311,11 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional)
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid, LittleAbsolutePreviews originalPreviews, LittleTilePos absoluteAxis, LittleTileVec additional)
 	{
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(absoluteAxis.pos, getMinContext());
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			previews.addTile(tile);
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(originalPreviews.pos, originalPreviews.context);
+		for (LittleTilePreview preview : originalPreviews) {
+			previews.addWithoutCheckingPreview(preview.copy());
 		}
 		
 		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
@@ -506,7 +505,13 @@ public class LittleDoor extends LittleDoorBase{
 			entry.getKey().preventUpdate = false;
 		}
 		
-		if(tryToPlacePreviews(world, player, main, rotation, !inverse, uuid, axisPoint, additional) || tryToPlacePreviews(world, player, main, rotation.getOpposite(), inverse, uuid, axisPoint, additional))
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(axisPoint.pos, getMinContext());
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			previews.addTile(tile);
+		}
+		
+		if(tryToPlacePreviews(world, player, main, rotation, !inverse, uuid, previews, axisPoint, additional) || tryToPlacePreviews(world, player, main, rotation.getOpposite(), inverse, uuid, previews, axisPoint, additional))
 		{
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 				entry.getKey().updateTiles();
