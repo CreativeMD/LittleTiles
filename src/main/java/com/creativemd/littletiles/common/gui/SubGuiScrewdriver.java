@@ -146,6 +146,10 @@ public class SubGuiScrewdriver extends SubGui {
 		}
 		
 		LittleBoxes boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
+		
+		if(boxes.isEmpty())
+			return null;
+		
 		boolean remove = ((GuiCheckBox)get("remove")).value;
 		boolean replace = ((GuiCheckBox)get("replace")).value;
 		boolean colorize = ((GuiCheckBox)get("colorize")).value;
