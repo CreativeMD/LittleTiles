@@ -127,10 +127,8 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 		if(player.isSneaking())
 		{
 			if(!world.isRemote)
-			{
 				stack.setTagCompound(null);
-			}
-				
+			
 			return EnumActionResult.SUCCESS;
 		}
 		
@@ -141,7 +139,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 				saveRecipe(world, player, stack, pos);
 				player.sendMessage(new TextComponentTranslation("Second position: x=" + pos.getX() + ",y=" + pos.getY() + ",z=" + pos.getZ()));
 			}
-				
 			return EnumActionResult.SUCCESS;
 		}else if(!stack.hasTagCompound()){
 			if(!world.isRemote)

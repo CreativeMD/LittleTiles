@@ -569,6 +569,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
 					setPreview(stack, preview);
+					context.set(stack.getTagCompound());
 				}
 			};
 		}
