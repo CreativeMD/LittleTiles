@@ -17,6 +17,11 @@ public class LittleTileVecContext {
 	
 	public LittleTileVecContext(String name, NBTTagCompound nbt)
 	{
+		loadFromNBT(name, nbt);
+	}
+	
+	protected void loadFromNBT(String name, NBTTagCompound nbt)
+	{
 		int[] array = nbt.getIntArray(name);
 		if(array.length == 3) //Loading vec
 		{

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -65,18 +66,16 @@ public class LittleDoor extends LittleDoorBase{
 		super.loadFromNBTExtra(nbt);
 		if(nbt.hasKey("ax"))
 		{
-			doubledRelativeAxis = new LittleTileVecContext("a", nbt);
+			LittleTileVecContext vec = new LittleTileVecContext("a", nbt);
 			if(getMainTile() != null)
-				doubledRelativeAxis.sub(new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec()));
-			doubledRelativeAxis.vec.scale(2);
-			doubledRelativeAxis.vec.add(new LittleTileVec(1, 1, 1));
+				vec.sub(new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec()));
+			doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, new LittleTileVec(1, 1, 1));
 			
 		}else if(nbt.hasKey("av")){
-			doubledRelativeAxis = new LittleTileVecContext("av", nbt);
-			doubledRelativeAxis.vec.scale(2);
-			doubledRelativeAxis.vec.add(new LittleTileVec(1, 1, 1));
+			LittleTileVecContext vec = new LittleTileVecContext("av", nbt);
+			doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, new LittleTileVec(1, 1, 1));
 		}else{
-			doubledRelativeAxis = new LittleTileVecContext("avec", nbt);
+			doubledRelativeAxis = new LittleRelativeDoubledAxis("avec", nbt);
 		}
 		axis = EnumFacing.Axis.values()[nbt.getInteger("axis")];
 		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
@@ -106,11 +105,11 @@ public class LittleDoor extends LittleDoorBase{
 			/*tile.axisX = door.axisPoint.x;
 			tile.axisY = door.axisPoint.y;
 			tile.axisZ = door.axisPoint.z;*/
-			tile.axisX = door.doubledRelativeAxis.vec.x;
-			tile.axisY = door.doubledRelativeAxis.vec.y;
-			tile.axisZ = door.doubledRelativeAxis.vec.z;
+			tile.axisX = door.doubledRelativeAxis.vec.x * 2;
+			tile.axisY = door.doubledRelativeAxis.vec.y * 2;
+			tile.axisZ = door.doubledRelativeAxis.vec.z * 2;
 			tile.normalAxis = door.normalDirection.getAxis();
-			even = door.doubledRelativeAxis.vec.x % 2 == 0;
+			even = door.doubledRelativeAxis.isEven();
 			tile.setEven(even);
 		}else{
 			tile.setEven(false);
@@ -154,32 +153,26 @@ public class LittleDoor extends LittleDoorBase{
 	
 	public EnumFacing normalDirection;
 	public EnumFacing.Axis axis;
-	public LittleTileVecContext doubledRelativeAxis;
+	public LittleRelativeDoubledAxis doubledRelativeAxis;
 	public LittleTilePos lastMainTileVec = null;
 	
 	@Override
 	public LittleTilePos getAbsoluteAxisVec()
 	{
 		LittleTilePos pos = getMainTile().getAbsolutePos();
-		
-		LittleTileVecContext axis = doubledRelativeAxis.copy();
-		axis.vec.x /= 2;
-		axis.vec.y /= 2;
-		axis.vec.z /= 2;
-		pos.add(axis);
+		pos.add(doubledRelativeAxis.getNonDoubledVec());
 		return pos;
 	}
 	
 	@Override
 	public LittleTileVec getAdditionalAxisVec()
 	{
-		return new LittleTileVec(doubledRelativeAxis.vec.x % 2, doubledRelativeAxis.vec.y % 2, doubledRelativeAxis.vec.z % 2);
+		return doubledRelativeAxis.additional.copy();
 	}
 	
 	@Override
 	public void moveStructure(EnumFacing facing)
 	{
-		doubledRelativeAxis.vec.add(facing);
 		doubledRelativeAxis.vec.add(facing);
 	}
 	
@@ -188,15 +181,7 @@ public class LittleDoor extends LittleDoorBase{
 	{
 		LittleTilePos absolute = tile.getAbsolutePos();
 		if(getMainTile() != null)
-		{
-			LittleGridContext context = doubledRelativeAxis.context;
-			LittleTileVecContext newVec = lastMainTileVec.getRelative(absolute);
-			newVec.convertTo(context);
-			newVec.vec.scale(2);
-			doubledRelativeAxis.add(newVec);
-			
-			doubledRelativeAxis.convertTo(context);
-		}
+			doubledRelativeAxis.add(lastMainTileVec.getRelative(absolute));
 		lastMainTileVec = absolute;
 		super.setMainTile(tile);
 	}
@@ -286,13 +271,12 @@ public class LittleDoor extends LittleDoorBase{
 	{
 		if(context.size < doubledRelativeAxis.context.size)
 			throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
-		doubledRelativeAxis.convertTo(context);
-		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
-		LittleTileBox box = new LittleTileBox(doubledRelativeAxis.vec.x / 2, doubledRelativeAxis.vec.y / 2, doubledRelativeAxis.vec.z / 2,
-				doubledRelativeAxis.vec.x / 2 + 1, doubledRelativeAxis.vec.y / 2 + 1, doubledRelativeAxis.vec.z / 2 + 1);
 		
-		boxes.add(new PlacePreviewTileAxis(box, null, axis, getAdditionalAxisVec()));
-		//doubledRelativeAxis.convertToSmallest();
+		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
+		doubledRelativeAxis.convertTo(context);
+		boxes.add(new PlacePreviewTileAxis(new LittleTileBox(doubledRelativeAxis.vec.x, doubledRelativeAxis.vec.y, doubledRelativeAxis.vec.z,
+				doubledRelativeAxis.vec.x + 1, doubledRelativeAxis.vec.y + 1, doubledRelativeAxis.vec.z + 1), null, axis, getAdditionalAxisVec()));
+		doubledRelativeAxis.convertToSmallest();
 		return boxes;
 	}
 	
@@ -300,7 +284,6 @@ public class LittleDoor extends LittleDoorBase{
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
 	{
 		LittleTileVec doubleddoubled = doubledCenter.copy();
-		doubleddoubled.scale(2);
 		doubledRelativeAxis.vec.scale(2);
 		doubledRelativeAxis.vec.sub(doubleddoubled);
 		doubledRelativeAxis.vec.flip(axis);
@@ -315,7 +298,6 @@ public class LittleDoor extends LittleDoorBase{
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter)
 	{
 		LittleTileVec doubleddoubled = doubledCenter.copy();
-		doubleddoubled.scale(2);
 		doubledRelativeAxis.vec.scale(2);
 		doubledRelativeAxis.vec.sub(doubleddoubled);
 		doubledRelativeAxis.vec.rotateVec(rotation);
@@ -331,7 +313,7 @@ public class LittleDoor extends LittleDoorBase{
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional)
 	{
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(absoluteAxis.pos, absoluteAxis.getContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(absoluteAxis.pos, getMinContext());
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			previews.addTile(tile);
@@ -348,12 +330,11 @@ public class LittleDoor extends LittleDoorBase{
 		
 		for (PlacePreviewTile placePreview : getAdditionalPreviews(defaultpreviews)) {
 			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
-			System.out.println(absoluteAxis);
 			defaultpreviews.add(placePreview);
 		}
 		
 		LittleDoor structure = new LittleDoor();
-		structure.doubledRelativeAxis = new LittleTileVecContext(LittleGridContext.getMin(), LittleTileVec.ZERO);
+		structure.doubledRelativeAxis = new LittleRelativeDoubledAxis(LittleGridContext.getMin(), LittleTileVec.ZERO, LittleTileVec.ZERO);
 		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
@@ -513,6 +494,11 @@ public class LittleDoor extends LittleDoorBase{
 		BlockPos main = axisPoint.pos;
 		
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
+		
+		for (TileEntityLittleTiles te : tempTiles.keySet()) {
+			tempContext.put(te, te.getContext());
+		}
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 			entry.getKey().preventUpdate = true;
@@ -529,6 +515,7 @@ public class LittleDoor extends LittleDoorBase{
 		}
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().convertTo(tempContext.get(entry.getKey()));
 			entry.getKey().addTiles(entry.getValue());
 		}
 		
@@ -556,12 +543,10 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
 	{
-		LittleTileVecContext axisPointBackup = doubledRelativeAxis.copy();
+		LittleRelativeDoubledAxis axisPointBackup = doubledRelativeAxis.copy();
 		LittleTileVecContext vec = new LittleTilePos(getMainTile().te.getPos(), axisPointBackup.context).getRelative(new LittleTilePos(newCenter, axisPointBackup.context));
-		vec.vec.scale(2);
 		doubledRelativeAxis.add(vec);
 		vec = new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec());
-		vec.vec.scale(2);
 		doubledRelativeAxis.add(vec);
 		super.writeToNBTPreview(nbt, newCenter);
 		doubledRelativeAxis = axisPointBackup;
@@ -572,7 +557,7 @@ public class LittleDoor extends LittleDoorBase{
 	public LittleDoorBase parseStructure(SubGui gui, int duration) {
 		LittleDoor door = new LittleDoor();
 		GuiTileViewer viewer = (GuiTileViewer) gui.get("tileviewer");
-		door.doubledRelativeAxis = new LittleTileVecContext(viewer.context, new LittleTileVec(viewer.axisX, viewer.axisY, viewer.axisZ));
+		door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
 		door.axis = viewer.axisDirection;
 		door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
 		door.duration = duration;
@@ -582,7 +567,7 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
 		LittleDoor structure = new LittleDoor();
-		structure.doubledRelativeAxis = new LittleTileVecContext(LittleGridContext.getMin(), LittleTileVec.ZERO);
+		structure.doubledRelativeAxis = new LittleRelativeDoubledAxis(LittleGridContext.getMin(), LittleTileVec.ZERO, LittleTileVec.ZERO);
 		structure.setTiles(new HashMapList<>());
 		structure.axis = this.axis;
 		structure.normalDirection = this.normalDirection;
@@ -594,8 +579,95 @@ public class LittleDoor extends LittleDoorBase{
 	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews)
 	{
 		List<PlacePreviewTile> additional = new ArrayList<>();
-		additional.add(new PlacePreviewTileAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), null, axis, getAdditionalAxisVec()));
+		LittleTileBox box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+		//box.convertTo(doubledRelativeAxis.context, previews.context);
+		additional.add(new PlacePreviewTileAxis(box, null, axis, getAdditionalAxisVec()));
 		return additional;
+	}
+	
+	public static class LittleRelativeDoubledAxis extends LittleTileVecContext {
+		
+		public LittleTileVec additional;
+
+		public LittleRelativeDoubledAxis(LittleGridContext context, LittleTileVec vec, LittleTileVec additional) {
+			super(context, vec);
+			this.additional = additional;
+		}
+		
+		public LittleRelativeDoubledAxis(String name, NBTTagCompound nbt)
+		{
+			super(name, nbt);
+		}
+		
+		@Override
+		protected void loadFromNBT(String name, NBTTagCompound nbt) {
+			int[] array = nbt.getIntArray(name);
+			if(array.length == 4)
+			{
+				this.vec = new LittleTileVec(array[0], array[1], array[2]); 
+				this.context = LittleGridContext.get(array[3]);
+				this.additional = new LittleTileVec(vec.x % 2, vec.y % 2, vec.z % 2);
+				this.vec.x /= 2;
+				this.vec.y /= 2;
+				this.vec.z /= 2;
+			}
+			else if(array.length == 7)
+			{
+				this.vec = new LittleTileVec(array[0], array[1], array[2]); 
+				this.context = LittleGridContext.get(array[3]);
+				this.additional = new LittleTileVec(array[4], array[5], array[6]);
+			}
+			else
+				throw new InvalidParameterException("No valid coords given " + nbt);
+		}
+		
+		public LittleTileVecContext getNonDoubledVec()
+		{
+			return new LittleTileVecContext(context, vec);
+		}
+		
+		public LittleTileVec getRotationVec()
+		{
+			LittleTileVec vec = this.vec.copy();
+			vec.scale(2);
+			vec.add(additional);
+			return vec;
+		}
+		
+		@Override
+		public LittleRelativeDoubledAxis copy() {
+			return new LittleRelativeDoubledAxis(context, vec.copy(), additional.copy());
+		}
+		
+		@Override
+		public void convertTo(LittleGridContext to) {
+			LittleTileVec newVec = getRotationVec();
+			newVec.convertTo(context, to);
+			super.convertTo(to);
+			additional = new LittleTileVec(newVec.x % 2, newVec.y % 2, newVec.z % 2);
+			vec = newVec;
+			vec.x /= 2;
+			vec.y /= 2;
+			vec.z /= 2;
+		}
+		
+		@Override
+		public boolean equals(Object paramObject) {
+			if(paramObject instanceof LittleRelativeDoubledAxis)
+				return super.equals(paramObject) && additional.equals(((LittleRelativeDoubledAxis) paramObject).additional);
+			return false;
+		}
+		
+		public boolean isEven()
+		{
+			return additional.x % 2 == 0;
+		}
+		
+		@Override
+		public void writeToNBT(String name, NBTTagCompound nbt)
+		{
+			nbt.setIntArray(name, new int[]{vec.x, vec.y, vec.z, context.size, additional.x, additional.y, additional.z});
+		}
 	}
 	
 }

@@ -71,7 +71,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		
 	}
 	
-	protected LittleGridContext context = LittleGridContext.get();
+	protected LittleGridContext context = LittleGridContext.getMin();
 	
 	public LittleGridContext getContext()
 	{
