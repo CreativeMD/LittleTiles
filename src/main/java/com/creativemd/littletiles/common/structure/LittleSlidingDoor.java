@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.UUID;
 import java.util.Map.Entry;
@@ -160,6 +161,11 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
 	{
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
+		
+		for (TileEntityLittleTiles te : tempTiles.keySet()) {
+			tempContext.put(te, te.getContext());
+		}
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 			entry.getKey().preventUpdate = true;
@@ -176,6 +182,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().convertTo(tempContext.get(entry.getKey()));
 			entry.getKey().addTiles(entry.getValue());
 		}
 		

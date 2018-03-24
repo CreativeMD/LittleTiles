@@ -8,6 +8,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.ColoredCube;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.structure.LittleDoor.LittleRelativeDoubledAxis;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -90,9 +91,8 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 			LittleTilePos absolute = new LittleTilePos(pos, context, box.getMinVec());
 			if(door.getMainTile() == null)
 				door.selectMainTile();
-			door.doubledRelativeAxis = absolute.getRelative(door.getMainTile().getAbsolutePos());
-			door.doubledRelativeAxis.vec.scale(2);
-			door.doubledRelativeAxis.vec.add(additionalOffset);
+			LittleTileVecContext vec = absolute.getRelative(door.getMainTile().getAbsolutePos());
+			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, additionalOffset);
 		}
 		return Collections.EMPTY_LIST;
 	}

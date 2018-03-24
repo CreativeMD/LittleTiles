@@ -415,6 +415,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 									te.convertToSmallest();
 									return false;
 								}
+					
+					//tiles.convertToSmallest();
 				}else{
 					IBlockState state = world.getBlockState(pos);
 					if(!(state.getBlock() instanceof BlockTile) && !state.getMaterial().isReplaceable())
