@@ -1027,7 +1027,7 @@ public class LittleTileBox {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
 		
-		return new LittleTileFace(context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+		return new LittleTileFace(this, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
 	public boolean intersectsWith(LittleTileFace face)
@@ -1075,10 +1075,9 @@ public class LittleTileBox {
 		}
 	}
 	
-	public class LittleTileFace {
-		
-		
-		public final LittleGridContext context;
+	public static class LittleTileFace {
+		public LittleGridContext context;
+		public LittleTileBox box;
 		public Axis one;
 		public Axis two;
 		public EnumFacing face;
@@ -1093,6 +1092,9 @@ public class LittleTileBox {
 		
 		public void convertTo(LittleGridContext context)
 		{
+			if(context == this.context)
+				return ;
+			
 			if(this.context.size > context.size)
 			{
 				int ratio = this.context.size/context.size;
@@ -1111,11 +1113,14 @@ public class LittleTileBox {
 				this.origin *= ratio;
 				this.oldOrigin *= ratio;
 			}
-			
+			box = box.copy(); //Make sure the original one will not be modified
+			box.convertTo(this.context, context);
+			this.context = context;
 			filled = new boolean[maxOne-minOne][maxTwo-minTwo];
 		}
 		
-		public LittleTileFace(LittleGridContext context, EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+		public LittleTileFace(LittleTileBox box, LittleGridContext context, EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
+			this.box = box;
 			this.context = context;
 			this.face = face;
 			this.one = RotationUtils.getDifferentAxisFirst(face.getAxis());
@@ -1139,7 +1144,7 @@ public class LittleTileBox {
 				for (int two = 0; two < filled[one].length; two++) {
 					vec.setAxis(this.one, minOne + one);
 					vec.setAxis(this.two, minTwo + two);
-					if(!filled[one][two] && LittleTileBox.this.intersectsWithFace(face, vec, false)) //&& LittleTileBox.this.isVecInsideBox(vec))
+					if(!filled[one][two] && box.intersectsWithFace(face, vec, false)) //&& LittleTileBox.this.isVecInsideBox(vec))
 						return false;
 				}
 			}
@@ -1148,7 +1153,7 @@ public class LittleTileBox {
 		
 		public LittleTileBox getBox()
 		{
-			return LittleTileBox.this;
+			return box;
 		}
 		
 		public boolean isFaceInsideBlock()
