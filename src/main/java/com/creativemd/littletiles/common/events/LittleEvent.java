@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.Rotation;
@@ -27,6 +28,8 @@ import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.entity.EntityAABB;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
@@ -53,6 +56,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -83,6 +87,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBloc
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
+import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -462,18 +467,22 @@ public class LittleEvent {
 		}
 	}
 	
-	/*@SubscribeEvent
+	@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event)
 	{
-		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) {
+		AxisAlignedBB box = event.getAabb();
+		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) { //Needs to be changed
 			Entity entity = event.getWorld().loadedEntityList.get(i);
-			if(entity instanceof EntityDoorAnimation)
+			if(entity instanceof EntityAnimation && ((EntityAnimation) entity).getEntityBoundingBox().intersects(box))
 			{
-				
+				for (EntityAABB bb : ((EntityAnimation<?>) entity).worldCollisionBoxes) {
+					if(bb.intersects(box))
+						event.getCollisionBoxesList().add(bb);
+				}
 			}
 		}
 		
-	}*/
+	}
 	
 	public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
 	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");

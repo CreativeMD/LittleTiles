@@ -11,6 +11,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.BoxUtils;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
@@ -110,6 +111,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================World Data================
 	
+	public WorldFake fakeWorld;
 	public LittleDoorBase structure;
 	public PlacePreviews previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
@@ -131,15 +133,15 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================Collision================
 	
-	/**
-	 * Rotated and moved collision boxes
-	 */
-	public ArrayList<AxisAlignedBB> collisionBoxes;
+	///**
+	// * Rotated and moved collision boxes
+	// */
+	//public ArrayList<AxisAlignedBB> collisionBoxes;
 	
 	/**
 	 * Static not affected by direction or entity offset
 	 */
-	public ArrayList<AxisAlignedBB> worldCollisionBoxes;
+	public List<EntityAABB> worldCollisionBoxes;
 	
 	/**
 	 * Static not affected by direction or entity offset
@@ -182,12 +184,14 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				}
 			}
 			
-			BoxUtils.compressBoxes(boxes, 1.0F);
+			BoxUtils.compressBoxes(boxes, 0.0F);
 			
-			worldCollisionBoxes.addAll(boxes);
+			for (AxisAlignedBB box : boxes) {
+				worldCollisionBoxes.add(new EntityAABB(fakeWorld, box));
+			}
 		}
 		
-		BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
+		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
 		
 		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
@@ -231,7 +235,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
+	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -239,6 +243,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		this.entityUniqueID = uuid;
         this.cachedUniqueIdString = this.entityUniqueID.toString();
+        
+        this.fakeWorld = fakeWorld;
         
         setCenterVec(center);
         
@@ -479,8 +485,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		animation.worldBoundingBox = worldBoundingBox;
 		animation.worldCollisionBoxes = new ArrayList<>(worldCollisionBoxes);
-		if(collisionBoxes != null)
-			animation.collisionBoxes = new ArrayList<>(collisionBoxes);
+		//if(collisionBoxes != null)
+			//animation.collisionBoxes = new ArrayList<>(collisionBoxes);
 		
 		if(world.isRemote)
 		{
@@ -512,15 +518,15 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		setCenterVec(new LittleTilePos("axis", compound));
 		
-		World worldFake = WorldFake.createFakeWorld(world);
+		this.fakeWorld = WorldFake.createFakeWorld(world);
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		ArrayList<LittleTile> tiles = new ArrayList<>();
 		structure = null; 
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(worldFake, nbt);
-			te.setWorld(worldFake);
+			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
+			te.setWorld(fakeWorld);
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
@@ -528,8 +534,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 					this.structure = (LittleDoorBase) tile.structure;
 				tiles.add(tile);
 			}
-			worldFake.setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
-			worldFake.setTileEntity(te.getPos(), te);
+			fakeWorld.setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
+			fakeWorld.setTileEntity(te.getPos(), te);
 		}
 		
 		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();

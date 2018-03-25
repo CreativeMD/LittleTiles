@@ -90,7 +90,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, pos), PlacementMode.all))
 		{
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
-			World fakeWorld = WorldFake.createFakeWorld(world);
+			WorldFake fakeWorld = WorldFake.createFakeWorld(world);
 			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
@@ -98,7 +98,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, structure, blocks, previews, absolute, transformation, uuid, player, additional);
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, structure, blocks, previews, absolute, transformation, uuid, player, additional);
 			world.spawnEntity(animation);
 			return true;
 		}

@@ -8,13 +8,18 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
+import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.entity.EntityAABB;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
@@ -33,6 +38,7 @@ import shadersmod.client.ShadersRender;
 
 public class RenderAnimation extends Render<EntityDoorAnimation> {
 	
+	public static Minecraft mc = Minecraft.getMinecraft();	
 	public static final VertexBufferUploader uploader = new VertexBufferUploader();
 	
 	public RenderAnimation(RenderManager renderManager) {
@@ -267,6 +273,32 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		}
 		
 		RenderHelper.enableStandardItemLighting();
+		
+		if (mc.getRenderManager().isDebugBoundingBox() && !mc.isReducedDebug())
+		{
+			GlStateManager.depthMask(false);
+	        GlStateManager.disableTexture2D();
+	        GlStateManager.disableLighting();
+	        GlStateManager.disableCull();
+	        GlStateManager.disableBlend();
+	        
+	        GlStateManager.glLineWidth(4.0F);
+            
+            for (EntityAABB bb : entity.worldCollisionBoxes) {
+            	GlStateManager.pushMatrix();
+            	RenderGlobal.drawBoundingBox(bb.getRealMinX() - entity.posX + x, bb.getRealMinY() - entity.posY + y, bb.getRealMinZ() - entity.posZ + z,
+            			bb.getRealMaxX() - entity.posX + x, bb.getRealMaxY() - entity.posY + y, bb.getRealMaxZ() - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+            	GlStateManager.popMatrix();
+			}
+            
+            GlStateManager.glLineWidth(2.0F);
+            
+            GlStateManager.enableTexture2D();
+            GlStateManager.enableLighting();
+            GlStateManager.enableCull();
+            GlStateManager.disableBlend();
+            GlStateManager.depthMask(true);
+		}
     }
 
 	@Override
