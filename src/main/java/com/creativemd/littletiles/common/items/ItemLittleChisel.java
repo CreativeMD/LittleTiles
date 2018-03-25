@@ -237,6 +237,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	{
 		if(min != null)
 		{
+			if(lastMax == null)
+				lastMax = min.copy();
+			
 			min.ensureBothAreEqual(lastMax);
 			
 			LittleGridContext context = getPositionContext(stack);
