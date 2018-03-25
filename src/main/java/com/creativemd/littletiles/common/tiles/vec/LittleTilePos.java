@@ -43,9 +43,9 @@ public class LittleTilePos {
 	
 	public LittleTilePos(RayTraceResult result, LittleGridContext context)
 	{
-		long x = context.toGridAccurate(result.hitVec.x);
-		long y = context.toGridAccurate(result.hitVec.y);
-		long z = context.toGridAccurate(result.hitVec.z);
+		long x = context.toGridAccurate(result.hitVec.xCoord);
+		long y = context.toGridAccurate(result.hitVec.yCoord);
+		long z = context.toGridAccurate(result.hitVec.zCoord);
 		this.pos = new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
 		this.contextVec = new LittleTileVecContext(context, new LittleTileVec((int) (x - context.toGridAccurate(pos.getX())), (int) (y - context.toGridAccurate(pos.getY())), (int) (z - context.toGridAccurate(pos.getZ()))));
 		//if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))

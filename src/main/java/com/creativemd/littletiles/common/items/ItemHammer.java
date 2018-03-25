@@ -66,7 +66,7 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 		list.add("can be used to chisel blocks");
 		SelectShape shape = getShape(stack);
 		list.add("mode: " + shape.key);
-		shape.addExtraInformation(player.world, stack.getTagCompound(), tooltip, getContext(stack));
+		shape.addExtraInformation(player.world, stack.getTagCompound(), list, getContext(stack));
 	}
 	
 	@Override
