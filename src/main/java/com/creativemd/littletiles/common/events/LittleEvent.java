@@ -474,10 +474,10 @@ public class LittleEvent {
 		AxisAlignedBB box = event.getAabb();
 		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) { //Needs to be changed
 			Entity entity = event.getWorld().loadedEntityList.get(i);
-			if(entity instanceof EntityAnimation && ((EntityAnimation) entity).getEntityBoundingBox().intersects(box))
+			if(entity instanceof EntityAnimation && ((EntityAnimation) entity).getEntityBoundingBox().intersectsWith(box))
 			{
 				for (EntityAABB bb : ((EntityAnimation<?>) entity).worldCollisionBoxes) {
-					if(bb.intersects(box))
+					if(bb.intersectsWith(box))
 						event.getCollisionBoxesList().add(bb);
 				}
 			}

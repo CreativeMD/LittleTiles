@@ -151,7 +151,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
     
     @Override
-    public EntityAABB expand(double x, double y, double z)
+    public EntityAABB addCoord(double x, double y, double z)
     {
         double d0 = this.minX;
         double d1 = this.minY;
@@ -191,7 +191,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
     
     @Override
-    public EntityAABB grow(double x, double y, double z)
+    public EntityAABB expand(double x, double y, double z)
     {
         double d0 = this.minX - x;
         double d1 = this.minY - y;
@@ -203,9 +203,9 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
     
     @Override
-    public EntityAABB grow(double value)
+    public EntityAABB expandXyz(double value)
     {
-        return this.grow(value, value, value);
+        return this.expand(value, value, value);
     }
     
     @Override
@@ -289,9 +289,9 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
 
     @Override
-    public EntityAABB offset(Vec3d vec)
+    public EntityAABB move(Vec3d vec)
     {
-        return this.offset(vec.x, vec.y, vec.z);
+        return this.offset(vec.xCoord, vec.yCoord, vec.zCoord);
     }
 
     @Override
@@ -484,7 +484,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
 
     @Override
-    public boolean intersects(AxisAlignedBB other)
+    public boolean intersectsWith(AxisAlignedBB other)
     {
     	if(other instanceof EntityAABB)
     	{
@@ -503,13 +503,13 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
 
     @Override
-    public boolean contains(Vec3d vec)
+    public boolean isVecInside(Vec3d vec)
     {
-        if (vec.x > this.getRealMinX() && vec.x < this.getRealMaxX())
+        if (vec.xCoord > this.getRealMinX() && vec.xCoord < this.getRealMaxX())
         {
-            if (vec.y > this.getRealMinY() && vec.y < this.getRealMaxY())
+            if (vec.yCoord > this.getRealMinY() && vec.yCoord < this.getRealMaxY())
             {
-                return vec.z > this.getRealMinZ() && vec.z < this.getRealMaxZ();
+                return vec.zCoord > this.getRealMinZ() && vec.zCoord < this.getRealMaxZ();
             }
             else
             {
@@ -605,21 +605,21 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     @VisibleForTesting
     public boolean intersectsWithYZ(Vec3d vec)
     {
-        return vec.y >= this.getRealMinY() && vec.y <= this.getRealMaxY() && vec.z >= this.getRealMinZ() && vec.z <= this.getRealMaxZ();
+        return vec.yCoord >= this.getRealMinY() && vec.yCoord <= this.getRealMaxY() && vec.zCoord >= this.getRealMinZ() && vec.zCoord <= this.getRealMaxZ();
     }
 
     @Override
     @VisibleForTesting
     public boolean intersectsWithXZ(Vec3d vec)
     {
-        return vec.x >= this.getRealMinX() && vec.x <= this.getRealMaxX() && vec.z >= this.getRealMinZ() && vec.z <= this.getRealMaxZ();
+        return vec.xCoord >= this.getRealMinX() && vec.xCoord <= this.getRealMaxX() && vec.zCoord >= this.getRealMinZ() && vec.zCoord <= this.getRealMaxZ();
     }
 
     @Override
     @VisibleForTesting
     public boolean intersectsWithXY(Vec3d vec)
     {
-        return vec.x >= this.getRealMinX() && vec.x <= this.getRealMaxX() && vec.y >= this.getRealMinY() && vec.y <= this.getRealMaxY();
+        return vec.xCoord >= this.getRealMinX() && vec.xCoord <= this.getRealMaxX() && vec.yCoord >= this.getRealMinY() && vec.yCoord <= this.getRealMaxY();
     }
 
     @Override
