@@ -334,7 +334,7 @@ public class LittleTiles {
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getContainer(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
 			}
 		});
 		
