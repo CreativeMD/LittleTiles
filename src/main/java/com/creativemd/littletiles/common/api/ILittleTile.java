@@ -85,7 +85,10 @@ public interface ILittleTile {
 	public default void onClickAir(EntityPlayer player, ItemStack stack) {}
 	
 	@SideOnly(Side.CLIENT)
-	public default void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
+	public default boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
+	{
+		return false;
+	}
 	
 	@SideOnly(Side.CLIENT)
 	public default boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result)
