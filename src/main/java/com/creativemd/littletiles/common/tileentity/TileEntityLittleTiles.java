@@ -954,8 +954,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		combineTilesList(tiles);
 		
 		convertToSmallest();
-		updateBlock();
-		updateCollisionCache();
+		updateTiles();
 	}
 
 	public static void combineTilesList(List<LittleTile> tiles) {
