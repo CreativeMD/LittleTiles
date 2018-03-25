@@ -206,9 +206,10 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
+	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		getMode(stack).onClickBlock(player, stack, result);
+		return true;
 	}
 	
 	@Override

@@ -183,7 +183,8 @@ public class LittleEvent {
 				
 				if(iLittleTile != null)
 				{
-					iLittleTile.onClickBlock(event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray);
+					if(iLittleTile.onClickBlock(event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray))
+						event.setCanceled(true);
 					lastSelectedItem = stack;
 				}
 				

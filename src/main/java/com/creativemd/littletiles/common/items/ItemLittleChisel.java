@@ -369,9 +369,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
+	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
+		return true;
 	}
 	
 	public static PlacementMode currentMode = PlacementMode.fill;
