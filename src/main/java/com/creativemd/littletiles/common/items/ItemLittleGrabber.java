@@ -337,7 +337,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@SideOnly(Side.CLIENT)
 		public abstract SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context);
-		public abstract SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack, LittleGridContext context);
+		public abstract SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack);
 		
 		public abstract LittlePreviews getPreviews(ItemStack stack);
 		
@@ -581,7 +581,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@Override
-		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack, LittleGridContext context) {
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
 			return new SubContainerConfigure(player, stack);
 		}
 		
@@ -705,7 +705,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 
 		@Override
-		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack, LittleGridContext context) {
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
 			return new SubContainerConfigure(player, stack);
 		}
 
@@ -740,7 +740,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 
 		@Override
-		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack, LittleGridContext context) {
+		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
 			return new SubContainerConfigure(player, stack);
 		}
 
