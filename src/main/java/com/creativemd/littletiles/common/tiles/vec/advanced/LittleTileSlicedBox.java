@@ -535,7 +535,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		else
 		{
 			// check axis one
-			if(RotationUtils.get(axisOne, minVec) > pointOne)
+			if(RotationUtils.get(axisOne, minVec) >= pointOne)
 				return true;
 		}
 		
@@ -550,7 +550,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		else
 		{
 			// check axis one
-			if(RotationUtils.get(axisTwo, minVec) > pointTwo)
+			if(RotationUtils.get(axisTwo, minVec) >= pointTwo)
 				return true;
 		}
 		
@@ -969,8 +969,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	public boolean equals(Object object)
 	{
 		if(object instanceof LittleTileSlicedBox)
-			return super.equals(object) && ((LittleTileSlicedBox) object).startOne == startOne && ((LittleTileSlicedBox) object).startTwo == startTwo &&
-			((LittleTileSlicedBox) object).endOne == endOne && ((LittleTileSlicedBox) object).endTwo == endTwo;
+			return super.equals(object) && LittleUtils.equals(((LittleTileSlicedBox) object).startOne, startOne) && LittleUtils.equals(((LittleTileSlicedBox) object).startTwo, startTwo) &&
+			LittleUtils.equals(((LittleTileSlicedBox) object).endOne, endOne) && LittleUtils.equals(((LittleTileSlicedBox) object).endTwo, endTwo);
 		return false;
 	}
 	
