@@ -607,14 +607,21 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@SideOnly(Side.CLIENT)
 	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileFace face, LittleTile rendered)
 	{
+		face.ensureContext(context);
+		
+		LittleGridContext tempContext = context;
 		if(face.context != context)
-			face.convertTo(context);
+			convertTo(face.context);
 		
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if(tile != rendered && (tile.doesProvideSolidFace(facing) || tile.canBeRenderCombined(rendered)))
 				tile.fillFace(face);
 		}
+		
+		if(tempContext != context)
+			convertTo(tempContext);
+		
 		return !face.isFilled();
 	}
 	

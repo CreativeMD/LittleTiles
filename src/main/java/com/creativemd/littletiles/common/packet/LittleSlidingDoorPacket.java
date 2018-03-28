@@ -71,7 +71,7 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 		{
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-			if(tile != null && tile.isLoaded() && tile.structure instanceof LittleSlidingDoor)
+			if(tile != null && tile.isLoaded() && tile.structure instanceof LittleSlidingDoor && tile.structure.hasLoaded())
 			{
 				((LittleSlidingDoor) tile.structure).interactWithDoor(world, blockPos, player, uuid);
 				//System.out.println("Open Door");

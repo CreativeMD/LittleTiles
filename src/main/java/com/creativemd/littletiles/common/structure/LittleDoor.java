@@ -608,6 +608,15 @@ public class LittleDoor extends LittleDoorBase{
 		@Override
 		protected void loadFromNBT(String name, NBTTagCompound nbt) {
 			int[] array = nbt.getIntArray(name);
+			if(array.length == 3)
+			{
+				this.vec = new LittleTileVec(array[0], array[1], array[2]); 
+				this.context = LittleGridContext.get();
+				this.additional = new LittleTileVec(vec.x % 2, vec.y % 2, vec.z % 2);
+				this.vec.x /= 2;
+				this.vec.y /= 2;
+				this.vec.z /= 2;
+			}
 			if(array.length == 4)
 			{
 				this.vec = new LittleTileVec(array[0], array[1], array[2]); 

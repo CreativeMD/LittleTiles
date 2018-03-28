@@ -1090,29 +1090,18 @@ public class LittleTileBox {
 		
 		public boolean[][] filled;
 		
-		public void convertTo(LittleGridContext context)
+		public void ensureContext(LittleGridContext context)
 		{
-			if(context == this.context)
+			if(context == this.context || this.context.size > context.size)
 				return ;
 			
-			if(this.context.size > context.size)
-			{
-				int ratio = this.context.size/context.size;
-				this.minOne = (int) Math.ceil(this.minOne / (double) ratio);
-				this.minTwo = (int) Math.ceil(this.minTwo / (double) ratio);
-				this.maxOne = (int) Math.ceil(this.maxOne / (double) ratio);
-				this.maxTwo = (int) Math.ceil(this.maxTwo / (double) ratio);
-				this.origin = (int) Math.ceil(this.origin / (double) ratio);
-				this.oldOrigin = (int) Math.ceil(this.oldOrigin / (double) ratio);
-			}else{
-				int ratio = context.size/this.context.size;
-				this.minOne *= ratio;
-				this.minTwo *= ratio;
-				this.maxOne *= ratio;
-				this.maxTwo *= ratio;
-				this.origin *= ratio;
-				this.oldOrigin *= ratio;
-			}
+			int ratio = this.context.size/context.size;
+			this.minOne *= ratio;
+			this.minTwo *= ratio;
+			this.maxOne *= ratio;
+			this.maxTwo *= ratio;
+			this.origin *= ratio;
+			this.oldOrigin *= ratio;
 			box = box.copy(); //Make sure the original one will not be modified
 			box.convertTo(this.context, context);
 			this.context = context;
