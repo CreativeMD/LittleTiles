@@ -229,7 +229,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if(!(tileEntity instanceof TileEntityLittleTiles))
 		{
 			List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(tileEntity);
-			LittleGridContext context = LittleGridContext.get();
+			LittleGridContext context = tiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
 			if(tileEntity == null && tiles == null)
 			{
 				IBlockState state = world.getBlockState(pos);

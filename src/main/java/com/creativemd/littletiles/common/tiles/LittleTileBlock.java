@@ -177,7 +177,7 @@ public class LittleTileBlock extends LittleTile{
 		saveTileExtra(stack.getTagCompound());
 		box.getSize().writeToNBT("size", stack.getTagCompound());
 		return stack;*/
-		return ItemBlockTiles.getStackFromPreview(getPreviewTile());
+		return ItemBlockTiles.getStackFromPreview(getContext(), getPreviewTile());
 	}
 
 	@Override

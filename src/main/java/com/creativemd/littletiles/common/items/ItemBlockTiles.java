@@ -111,7 +111,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			stack.setTagCompound(new NBTTagCompound());
 	}
 	
-	public static ItemStack getStackFromPreview(LittleTilePreview preview)
+	public static ItemStack getStackFromPreview(LittleGridContext context, LittleTilePreview preview)
 	{
 		ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		NBTTagCompound nbt = preview.getTileData().copy();
@@ -121,7 +121,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		
 		//if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
 			//nbt.setString("type", preview.getTypeID());
-		
+		context.set(nbt);
 		stack.setTagCompound(nbt);
 		return stack;
 	}
