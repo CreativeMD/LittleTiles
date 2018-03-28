@@ -7,6 +7,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -25,6 +26,7 @@ public class ChiselAndBitsConveration {
 		World world = event.world;
 		if(!world.isRemote && event.phase == Phase.END)
 		{
+			LittleGridContext chiselContext = LittleGridContext.get(ChiselsAndBitsManager.convertingFrom);
 			int progress = 0;
 			int size = tileentities.size();
 			if(!tileentities.isEmpty())
@@ -37,7 +39,7 @@ public class ChiselAndBitsConveration {
 				{
 					te.getWorld().setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
 					TileEntity tileEntity = te.getWorld().getTileEntity(te.getPos());
-					
+					((TileEntityLittleTiles) tileEntity).convertTo(chiselContext);
 					for (LittleTile tile : tiles) {
 						tile.te = (TileEntityLittleTiles) tileEntity;
 						tile.place();

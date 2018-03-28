@@ -522,7 +522,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
 					preview.box.set(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
 					
-					label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(preview));
+					label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(context, preview));
 				}
 				
 				@CustomEventSubscribe

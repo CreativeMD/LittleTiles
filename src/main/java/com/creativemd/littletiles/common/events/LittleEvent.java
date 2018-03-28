@@ -472,7 +472,7 @@ public class LittleEvent {
 		}
 	}
 	
-	@SubscribeEvent
+	/*@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event)
 	{
 		AxisAlignedBB box = event.getAabb();
@@ -487,7 +487,7 @@ public class LittleEvent {
 			}
 		}
 		
-	}
+	}*/
 	
 	public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
 	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");

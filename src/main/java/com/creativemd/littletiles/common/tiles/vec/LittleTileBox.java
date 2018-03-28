@@ -1095,7 +1095,7 @@ public class LittleTileBox {
 			if(context == this.context || this.context.size > context.size)
 				return ;
 			
-			int ratio = this.context.size/context.size;
+			int ratio = context.size/this.context.size;
 			this.minOne *= ratio;
 			this.minTwo *= ratio;
 			this.maxOne *= ratio;
