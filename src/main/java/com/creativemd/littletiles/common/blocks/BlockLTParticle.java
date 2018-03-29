@@ -87,7 +87,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator ,ILit
 		NBTTagCompound nbt = new NBTTagCompound();
 		LittleTileParticle particle = new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle());
 		particle.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-		previews.addTile(particle);
+		previews.addWithoutCheckingPreview(particle.getPreviewTile());
 		return previews;
 	}
 
