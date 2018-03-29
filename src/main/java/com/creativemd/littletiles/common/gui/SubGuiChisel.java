@@ -46,12 +46,12 @@ public class SubGuiChisel extends SubGuiConfigure {
 	
 	@Override
 	public void createControls() {
-		
-		Color color = ColorUtils.IntToRGBA(ItemColorTube.getColor(stack));
+		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		Color color = ColorUtils.IntToRGBA(preview.getColor());
 		color.setAlpha(255);
 		controls.add(new GuiColorPicker("picker", 2, 2, color));
 		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 40, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
-		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		
 		selector.setSelectedForce(preview.getBlockIngredient(LittleGridContext.get()).getItemStack());
 		controls.add(selector);
 		GuiComboBox box = new GuiComboBox("shape", 0, 65, 134, new ArrayList<>(DragShape.shapes.keySet()));
