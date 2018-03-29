@@ -717,25 +717,31 @@ public abstract class LittleStructure {
 		long maxY = Long.MIN_VALUE;
 		long maxZ = Long.MIN_VALUE;
 		
-		LittleGridContext context = LittleGridContext.get();
+		LittleGridContext context = LittleGridContext.getMin();
+		boolean first = true;
 		
 		HashMap<BlockPos, TileEntityLittleTiles> map = new HashMap<>();
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
 			if(context.size < entry.getKey().getContext().size)
 			{
-				int modifier = entry.getKey().getContext().size / context.size;
-				minX *= modifier;
-				minY *= modifier;
-				minZ *= modifier;
-				maxX *= modifier;
-				maxY *= modifier;
-				maxZ *= modifier;
-				
-				minYPos *= modifier;
-				maxYPos *= modifier;
+				if(!first)
+				{
+					int modifier = entry.getKey().getContext().size / context.size;
+					minX *= modifier;
+					minY *= modifier;
+					minZ *= modifier;
+					maxX *= modifier;
+					maxY *= modifier;
+					maxZ *= modifier;
+					
+					minYPos *= modifier;
+					maxYPos *= modifier;
+				}
 				context = entry.getKey().getContext();
 			}
+			
+			first = false;
 			
 			for (LittleTile tile : entry.getValue()) {
 				LittleTileBox box = tile.getCompleteBox();
