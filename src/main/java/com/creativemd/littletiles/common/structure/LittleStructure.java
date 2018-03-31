@@ -727,16 +727,24 @@ public abstract class LittleStructure {
 			{
 				if(!first)
 				{
-					int modifier = entry.getKey().getContext().size / context.size;
-					minX *= modifier;
-					minY *= modifier;
-					minZ *= modifier;
-					maxX *= modifier;
-					maxY *= modifier;
-					maxZ *= modifier;
-					
-					minYPos *= modifier;
-					maxYPos *= modifier;
+					if(context.size > entry.getKey().getContext().size)
+					{
+						int modifier = context.size/entry.getKey().getContext().size;
+						minX /= modifier;
+						minY /= modifier;
+						minZ /= modifier;
+						maxX /= modifier;
+						maxY /= modifier;
+						maxZ /= modifier;
+					}else{
+						int modifier = entry.getKey().getContext().size/context.size;
+						minX *= modifier;
+						minY *= modifier;
+						minZ *= modifier;
+						maxX *= modifier;
+						maxY *= modifier;
+						maxZ *= modifier;
+					}
 				}
 				context = entry.getKey().getContext();
 			}
@@ -776,6 +784,7 @@ public abstract class LittleStructure {
 			ArrayList<LittleTile> tilesInCenter = tiles.getValues(te);
 			if(tilesInCenter != null)
 			{
+				te.convertTo(context);
 				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX+1, context.maxPos, centerTileZ+1);
 				//int highest = LittleTile.minPos;
 				for (int i = 0; i < tilesInCenter.size(); i++) {
@@ -789,7 +798,7 @@ public abstract class LittleStructure {
 						}
 					}
 				}
-				
+				te.convertToSmallest();
 			}
 		}
 		
