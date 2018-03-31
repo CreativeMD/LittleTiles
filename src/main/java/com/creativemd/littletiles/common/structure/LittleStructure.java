@@ -785,7 +785,7 @@ public abstract class LittleStructure {
 						if(LittleTileBox.intersectsWith(box, littleBox))
 						{
 							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - centerY)*context.size+littleBox.maxY, pos.contextVec.vec.y);
+							pos.contextVec.vec.y = Math.max((y - minYPos)*context.size+littleBox.maxY, pos.contextVec.vec.y);
 						}
 					}
 				}
@@ -793,6 +793,7 @@ public abstract class LittleStructure {
 			}
 		}
 		
+		pos.removeInternalBlockOffset();
 		pos.convertToSmallest();		
 		return pos;
 	}
