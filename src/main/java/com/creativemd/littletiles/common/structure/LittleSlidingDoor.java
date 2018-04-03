@@ -191,7 +191,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter)
 	{
 		if(axis == this.moveDirection.getAxis())
 			this.moveDirection = this.moveDirection.getOpposite();
@@ -199,7 +199,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) 
 	{
 		moveDirection = RotationUtils.rotateFacing(moveDirection, rotation);
 	}

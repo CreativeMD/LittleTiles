@@ -282,30 +282,44 @@ public class LittleDoor extends LittleDoorBase{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter)
 	{
-		LittleTileVec doubleddoubled = doubledCenter.copy();
-		doubledRelativeAxis.vec.scale(2);
-		doubledRelativeAxis.vec.sub(doubleddoubled);
-		doubledRelativeAxis.vec.flip(axis);
-		doubledRelativeAxis.vec.add(doubleddoubled);
-		doubledRelativeAxis.vec.x /= 2;
-		doubledRelativeAxis.vec.y /= 2;
-		doubledRelativeAxis.vec.z /= 2;
+		doubledCenter = doubledCenter.copy();
+		if(context.size > doubledRelativeAxis.context.size)
+			doubledRelativeAxis.convertTo(context);
+		else
+		{
+			doubledCenter.convertTo(context, doubledRelativeAxis.context);
+			context = doubledRelativeAxis.context;
+		}
+		LittleTileVec doubleddoubled = doubledRelativeAxis.vec.copy();
+		doubleddoubled.scale(2);
+		doubleddoubled.add(doubledRelativeAxis.additional);
+		doubleddoubled.sub(doubledCenter);
+		doubleddoubled.flip(axis);
+		doubleddoubled.add(doubledCenter);
+		doubledRelativeAxis = new LittleRelativeDoubledAxis(doubledRelativeAxis.context, new LittleTileVec(doubleddoubled.x / 2, doubleddoubled.y / 2, doubleddoubled.z / 2), new LittleTileVec(doubleddoubled.x % 2, doubleddoubled.y % 2, doubleddoubled.z % 2));
 	}
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter)
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter)
 	{
-		LittleTileVec doubleddoubled = doubledCenter.copy();
-		doubledRelativeAxis.vec.scale(2);
-		doubledRelativeAxis.vec.sub(doubleddoubled);
-		doubledRelativeAxis.vec.rotateVec(rotation);
-		doubledRelativeAxis.vec.add(doubleddoubled);
-		doubledRelativeAxis.vec.x /= 2;
-		doubledRelativeAxis.vec.y /= 2;
-		doubledRelativeAxis.vec.z /= 2;
+		doubledCenter = doubledCenter.copy();
+		if(context.size > doubledRelativeAxis.context.size)
+			doubledRelativeAxis.convertTo(context);
+		else
+		{
+			doubledCenter.convertTo(context, doubledRelativeAxis.context);
+			context = doubledRelativeAxis.context;
+		}
+		LittleTileVec doubleddoubled = doubledRelativeAxis.vec.copy();
+		doubleddoubled.scale(2);
+		doubleddoubled.add(doubledRelativeAxis.additional);
+		doubleddoubled.sub(doubledCenter);
+		doubleddoubled.rotateVec(rotation);
+		doubleddoubled.add(doubledCenter);
+		doubledRelativeAxis = new LittleRelativeDoubledAxis(doubledRelativeAxis.context, new LittleTileVec(doubleddoubled.x / 2, doubleddoubled.y / 2, doubleddoubled.z / 2), new LittleTileVec(doubleddoubled.x % 2, doubleddoubled.y % 2, doubleddoubled.z % 2));
 		
 		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacing(axis), rotation).getAxis();
 		this.normalDirection = RotationUtils.rotateFacing(normalDirection, rotation);
