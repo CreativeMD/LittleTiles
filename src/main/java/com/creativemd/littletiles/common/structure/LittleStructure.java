@@ -686,9 +686,9 @@ public abstract class LittleStructure {
 		return coords;
 	}*/
 	
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter){}
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter){}
 	
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter){}
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter){}
 	
 	//====================GUI STUFF====================
 	@SideOnly(Side.CLIENT)

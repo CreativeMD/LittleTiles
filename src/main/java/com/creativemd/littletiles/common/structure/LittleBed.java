@@ -29,6 +29,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -353,7 +354,7 @@ public class LittleBed extends LittleStructure{
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, Axis axis, LittleTileVec doubledCenter)
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter)
 	{
 		if(axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
@@ -361,7 +362,7 @@ public class LittleBed extends LittleStructure{
 	
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, Rotation rotation, LittleTileVec doubledCenter) 
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) 
 	{
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}
