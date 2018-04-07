@@ -51,6 +51,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public void setTransformationStartOffset()
 	{
+		preventPush = true;
 		transformation.performTransformation(this, 0);
 		prevWorldRotX = worldRotX;
 		prevWorldRotY = worldRotY;
@@ -58,6 +59,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		prevPosX = posX;
 		prevPosY = posY;
 		prevPosZ = posZ;
+		preventPush = false;
 	}
 
 	public EntityDoorAnimation(World worldIn) {
@@ -77,6 +79,10 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
         this.additionalAxis = additionalAxis.copy();
         
         setTransformationStartOffset();
+        
+        prevPosY -= 0.1; // To force an update
+        updateBoundingBox();
+        initialTick();
 	}
 	
 	@Override

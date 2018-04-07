@@ -43,22 +43,22 @@ public class SlidingDoorTransformation extends DoorTransformation {
 		switch(direction)
 		{
 		case EAST:
-			animation.posX = animation.getAxisPos().getX() - (distance*context.gridMCLength*(1-progress));
+			animation.moveXTo(animation.getAxisPos().getX() - (distance*context.gridMCLength*(1-progress)));
 			break;
 		case WEST:
-			animation.posX = animation.getAxisPos().getX() + (distance*context.gridMCLength*(1-progress));
+			animation.moveXTo(animation.getAxisPos().getX() + (distance*context.gridMCLength*(1-progress)));
 			break;
 		case UP:
-			animation.posY = animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress));
+			animation.moveYTo( animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress)));
 			break;
 		case DOWN:
-			animation.posY = animation.getAxisPos().getY() + (distance*context.gridMCLength*(1-progress));
+			animation.moveYTo(animation.getAxisPos().getY() + (distance*context.gridMCLength*(1-progress)));
 			break;
 		case SOUTH:
-			animation.posZ = animation.getAxisPos().getZ() - (distance*context.gridMCLength*(1-progress));
+			animation.moveZTo(animation.getAxisPos().getZ() - (distance*context.gridMCLength*(1-progress)));
 			break;
 		case NORTH:
-			animation.posZ = animation.getAxisPos().getZ() + (distance*context.gridMCLength*(1-progress));
+			animation.moveZTo(animation.getAxisPos().getZ() + (distance*context.gridMCLength*(1-progress)));
 			break;
 		default:
 			break;

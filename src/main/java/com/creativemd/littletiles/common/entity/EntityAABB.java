@@ -482,6 +482,20 @@ public class EntityAABB extends CreativeAxisAlignedBB {
         
         return offsetZ;
     }
+    
+    public boolean intersects(AxisAlignedBB other, double expandX, double expandY, double expandZ)
+    {
+    	if(other instanceof EntityAABB)
+    	{
+    		if(((EntityAABB) other).origin == origin)
+    			return this.minX + (expandX < 0 ? expandX : 0) < other.maxX && this.maxX + (expandX > 0 ? expandX : 0) > other.minX &&
+    					this.minY + (expandY < 0 ? expandY : 0) < other.maxY && this.maxY + (expandY > 0 ? expandY : 0) > other.minY &&
+    					this.minZ + (expandZ < 0 ? expandZ : 0) < other.maxZ && this.maxZ + (expandZ > 0 ? expandZ : 0) > other.minZ;
+			else
+				return this.intersectsExpand(expandX, expandY, expandZ, ((EntityAABB) other).getRealMinX(), ((EntityAABB) other).getRealMinY(), ((EntityAABB) other).getRealMinZ(), ((EntityAABB) other).getRealMaxX(), ((EntityAABB) other).getRealMaxY(), ((EntityAABB) other).getRealMaxZ());
+    	}
+        return this.intersectsExpand(expandX, expandY, expandZ, other.minX, other.minY, other.minZ, other.maxX, other.maxY, other.maxZ);
+    }
 
     @Override
     public boolean intersects(AxisAlignedBB other)
@@ -495,11 +509,54 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	}
         return this.intersects(other.minX, other.minY, other.minZ, other.maxX, other.maxY, other.maxZ);
     }
+    
+    public boolean intersectsExpand(double expandX, double expandY, double expandZ, double x1, double y1, double z1, double x2, double y2, double z2)
+    {
+        return this.getRealMinX() + (expandX < 0 ? expandX : 0) < x2 && this.getRealMaxX() + (expandX > 0 ? expandX : 0) > x1 &&
+        		this.getRealMinY() + (expandY < 0 ? expandY : 0) < y2 && this.getRealMaxY() + (expandY > 0 ? expandY : 0) > y1 &&
+        		this.getRealMinZ() + (expandZ < 0 ? expandZ : 0) < z2 && this.getRealMaxZ() + (expandZ > 0 ? expandZ : 0) > z1;
+    }
 
     @Override
     public boolean intersects(double x1, double y1, double z1, double x2, double y2, double z2)
     {
         return this.getRealMinX() < x2 && this.getRealMaxX() > x1 && this.getRealMinY() < y2 && this.getRealMaxY() > y1 && this.getRealMinZ() < z2 && this.getRealMaxZ() > z1;
+    }
+    
+    public double getDistanceX(AxisAlignedBB other)
+    {
+    	if(other instanceof EntityAABB)
+    	{
+    		if(((EntityAABB) other).origin == origin)
+    			return (this.minX >= other.maxX ? this.minX - other.maxX : this.maxX - other.minX);
+			else
+				return (this.getRealMinX() >= ((EntityAABB) other).getRealMaxX() ? this.getRealMinX() - ((EntityAABB) other).getRealMaxX() : this.getRealMaxX() - ((EntityAABB) other).getRealMinX());
+    	}
+    	return (this.getRealMinX() >= other.maxX ? this.getRealMinX() - other.maxX : this.getRealMaxX() - other.minX);
+    }
+    
+    public double getDistanceY(AxisAlignedBB other)
+    {
+    	if(other instanceof EntityAABB)
+    	{
+    		if(((EntityAABB) other).origin == origin)
+    			return (this.minY >= other.maxY ? this.minY - other.maxY : this.maxY - other.minY);
+			else
+				return (this.getRealMinY() >= ((EntityAABB) other).getRealMaxY() ? this.getRealMinY() - ((EntityAABB) other).getRealMaxY() : this.getRealMaxY() - ((EntityAABB) other).getRealMinY());
+    	}
+    	return (this.getRealMinY() >= other.maxY ? this.getRealMinY() - other.maxY : this.getRealMaxY() - other.minY);
+    }
+    
+    public double getDistanceZ(AxisAlignedBB other)
+    {
+    	if(other instanceof EntityAABB)
+    	{
+    		if(((EntityAABB) other).origin == origin)
+    			return (this.minZ >= other.maxZ ? this.minZ - other.maxZ : this.maxZ - other.minZ);
+			else
+				return (this.getRealMinZ() >= ((EntityAABB) other).getRealMaxZ() ? this.getRealMinZ() - ((EntityAABB) other).getRealMaxZ() : this.getRealMaxZ() - ((EntityAABB) other).getRealMinZ());
+    	}
+    	return (this.getRealMinZ() >= other.maxZ ? this.getRealMinZ() - other.maxZ : this.getRealMaxZ() - other.minZ);
     }
 
     @Override
