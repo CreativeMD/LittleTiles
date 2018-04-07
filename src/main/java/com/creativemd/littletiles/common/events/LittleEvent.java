@@ -75,6 +75,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
@@ -468,21 +469,19 @@ public class LittleEvent {
 		}
 	}
 	
-	/*@SubscribeEvent
+	@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event)
 	{
 		AxisAlignedBB box = event.getAabb();
-		for (int i = 0; i < event.getWorld().loadedEntityList.size(); i++) { //Needs to be changed
-			Entity entity = event.getWorld().loadedEntityList.get(i);
-			if(entity instanceof EntityAnimation && ((EntityAnimation) entity).getEntityBoundingBox().intersectsWith(box))
-			{
-				for (EntityAABB bb : ((EntityAnimation<?>) entity).worldCollisionBoxes) {
-					if(bb.intersectsWith(box))
-						event.getCollisionBoxesList().add(bb);
-				}
+		for (EntityAnimation<?> animation : event.getWorld().getEntitiesWithinAABB(EntityAnimation.class, box)) {
+			if(animation.noCollision)
+				continue;
+			for (EntityAABB bb : animation.worldCollisionBoxes) {
+				if(bb.intersects(box))
+					event.getCollisionBoxesList().add(bb);
 			}
 		}
-	}*/
+	}
 	
 	public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
 	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");

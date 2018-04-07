@@ -30,8 +30,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -47,6 +49,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class EntityAnimation<T extends EntityAnimation> extends Entity {
+	
+	protected static Predicate<Entity> NO_ANIMATION = new Predicate<Entity>() {
+
+		@Override
+		public boolean apply(Entity input) {
+			return !(input instanceof EntityAnimation);
+		}
+		
+	};
 	
 	//================World Data================
 	
@@ -133,10 +144,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================Collision================
 	
-	///**
-	// * Rotated and moved collision boxes
-	// */
-	//public ArrayList<AxisAlignedBB> collisionBoxes;
+	public boolean preventPush = false;
+	
+	/**
+	 * Is true when animation moves other entities
+	 */
+	public boolean noCollision = false;
 	
 	/**
 	 * Static not affected by direction or entity offset
@@ -184,7 +197,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				}
 			}
 			
-			BoxUtils.compressBoxes(boxes, 0.0F);
+			//BoxUtils.compressBoxes(boxes, 0.0F);
 			
 			for (AxisAlignedBB box : boxes) {
 				worldCollisionBoxes.add(new EntityAABB(fakeWorld, box));
@@ -194,6 +207,121 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
 		
 		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
+	public void moveXTo(double x)
+	{
+		moveAnimation(x - posX, 0, 0);
+	}
+	
+	public void moveYTo(double y)
+	{
+		moveAnimation(0, y - posY, 0);
+	}
+	
+	public void moveZTo(double z)
+	{
+		moveAnimation(0, 0, z - posZ);
+	}
+	
+	private static double minIgnore(double par1, double par2)
+	{
+		if(Math.abs(par2) < Math.abs(par1))
+			return par2;
+		return par1;
+	}
+	
+	private static double maxIgnore(double par1, double par2)
+	{
+		if(Math.abs(par2) > Math.abs(par1))
+			return par2;
+		return par1;
+	}
+	
+	public void moveAnimation(double x, double y, double z)
+	{
+		if(!preventPush)
+		{
+			AxisAlignedBB bb = getEntityBoundingBox().expand(x, y, z);
+			
+			noCollision = true;
+			
+			List<EntityAABB> boxes = new ArrayList<>();
+			for (Entity entity : world.getEntitiesWithinAABB(Entity.class, bb, EntityAnimation.NO_ANIMATION)) {
+				
+				AxisAlignedBB entityBox = entity.getEntityBoundingBox();
+				
+				for (EntityAABB box : worldCollisionBoxes) {
+					if(box.intersects(entityBox, x, y, z))
+						boxes.add(box);
+				}
+				
+				boolean collidedHorizontally = entity.collidedHorizontally;
+				boolean collidedVertically = entity.collidedVertically;
+				boolean onGround = entity.onGround;
+				
+				if(y != 0)
+				{
+					double distance = y;
+					for (EntityAABB box : boxes) {
+						if(box.intersects(entityBox, 0, y, 0))
+							distance = minIgnore(distance, box.getDistanceY(entityBox));
+					}
+					
+					if(distance != y)
+					{
+						entity.move(MoverType.SELF, 0, y > 0 ? y + distance + 0.00000000000001D : y - distance - 0.00000000000001D, 0);
+						collidedVertically = true;
+						entityBox = entity.getEntityBoundingBox();
+						
+						if(y > 0)
+							onGround = true;
+					}
+				}
+				
+				if(x != 0)
+				{
+					double distance = x;
+					for (EntityAABB box : boxes) {
+						if(box.intersects(entityBox, x, 0, 0))
+							distance = minIgnore(distance, box.getDistanceX(entityBox));
+					}
+					
+					if(distance != x)
+					{
+						entity.move(MoverType.SELF, x > 0 ? x + distance + 0.00000000000001D : x - distance - 0.00000000000001D, 0, 0);
+						collidedHorizontally = true;
+						entityBox = entity.getEntityBoundingBox();
+					}
+				}
+				
+				if(z != 0)
+				{
+					double distance = z;
+					for (EntityAABB box : boxes) {
+						if(box.intersects(entityBox, 0, 0, z))
+							distance = minIgnore(distance, box.getDistanceZ(entityBox));
+					}
+					
+					if(distance != z)
+					{
+						entity.move(MoverType.SELF, 0, 0, z > 0 ? z + distance + 0.00000000000001D : z - distance - 0.00000000000001D);
+						collidedHorizontally = true;
+					}
+				}
+				
+				entity.collidedHorizontally = collidedHorizontally;
+				entity.collidedVertically = collidedVertically;
+				entity.onGround = onGround;
+				boxes.clear();
+			}
+			
+			noCollision = false;
+		}
+		
+		posX += x;
+		posY += y;
+		posZ += z;
 	}
 	
 	//================Rendering================
@@ -254,7 +382,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         updateWorldCollision();
         
         setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
-        
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -349,6 +476,21 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			double offsetZ = posZ - baseOffset.getZ();
 			setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(offsetX, offsetY, offsetZ));
 		}
+	}
+	
+	public void initialTick()
+	{
+		fakeWorld.offsetX = posX - (getAxisPos().getX());
+		fakeWorld.offsetY = posY - (getAxisPos().getY());
+		fakeWorld.offsetZ = posZ - (getAxisPos().getZ());
+		if(fakeWorld.axis == null)
+		{
+			Vec3d vec = getCenter().getVec();
+			fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
+		}
+		fakeWorld.rotX = worldRotX;
+		fakeWorld.rotY = worldRotY;
+		fakeWorld.rotZ = worldRotZ;
 	}
 	
 	public void onTick()
