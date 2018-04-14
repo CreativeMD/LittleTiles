@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
-public class LittleActionActivated extends LittleActionInteract{
+public class LittleActionActivated extends LittleActionInteract {
 	
 	public LittleActionActivated(BlockPos blockPos, EntityPlayer player) {
 		super(blockPos, player);

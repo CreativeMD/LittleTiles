@@ -847,11 +847,6 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	public boolean noCollisionBoxes()
-	{
-		return false;
-	}
-	
 	public boolean shouldCheckForCollision()
 	{
 		return false;

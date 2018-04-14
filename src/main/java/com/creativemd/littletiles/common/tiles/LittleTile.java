@@ -810,9 +810,7 @@ public abstract class LittleTile {
 	
 	public List<LittleTileBox> getCollisionBoxes()
 	{
-		if(shouldCheckForCollision())
-			return new ArrayList<>();
-		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded() && structure.noCollisionBoxes())
+		if(getStructureAttribute() == LittleStructureAttribute.COLLISION)
 			return new ArrayList<>();
 		List<LittleTileBox> boxes = new ArrayList<>();
 		boxes.add(box);
@@ -821,7 +819,7 @@ public abstract class LittleTile {
 	
 	public boolean shouldCheckForCollision()
 	{
-		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded())
+		if(getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded() && structure.shouldCheckForCollision())
 			return true;
 		return false;
 	}
