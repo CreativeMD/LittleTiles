@@ -313,6 +313,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				entity.collidedHorizontally = collidedHorizontally;
 				entity.collidedVertically = collidedVertically;
 				entity.onGround = onGround;
+				entity.collided = collidedHorizontally || collidedVertically;
 				boxes.clear();
 			}
 			
@@ -480,17 +481,17 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void initialTick()
 	{
-		fakeWorld.offsetX = posX - (getAxisPos().getX());
-		fakeWorld.offsetY = posY - (getAxisPos().getY());
-		fakeWorld.offsetZ = posZ - (getAxisPos().getZ());
+		fakeWorld.offX(posX - (getAxisPos().getX()));
+		fakeWorld.offY(posY - (getAxisPos().getY()));
+		fakeWorld.offZ(posZ - (getAxisPos().getZ()));
 		if(fakeWorld.axis == null)
 		{
 			Vec3d vec = getCenter().getVec();
 			fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
 		}
-		fakeWorld.rotX = worldRotX;
-		fakeWorld.rotY = worldRotY;
-		fakeWorld.rotZ = worldRotZ;
+		fakeWorld.rotX(worldRotX);
+		fakeWorld.rotY(worldRotY);
+		fakeWorld.rotZ(worldRotZ);
 	}
 	
 	public void onTick()
@@ -530,17 +531,17 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			if(i == 0)
 			{
 				WorldFake fakeWorld = (WorldFake) blocks.get(i).getWorld();
-				fakeWorld.offsetX = posX - (getAxisPos().getX());
-				fakeWorld.offsetY = posY - (getAxisPos().getY());
-				fakeWorld.offsetZ = posZ - (getAxisPos().getZ());
+				fakeWorld.offX(posX - (getAxisPos().getX()));
+				fakeWorld.offY(posY - (getAxisPos().getY()));
+				fakeWorld.offZ(posZ - (getAxisPos().getZ()));
 				if(fakeWorld.axis == null)
 				{
 					Vec3d vec = getCenter().getVec();
 					fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
 				}
-				fakeWorld.rotX = worldRotX;
-				fakeWorld.rotY = worldRotY;
-				fakeWorld.rotZ = worldRotZ;
+				fakeWorld.rotX(worldRotX);
+				fakeWorld.rotY(worldRotY);
+				fakeWorld.rotZ(worldRotZ);
 			}
 			
 			if(blocks.get(i).shouldTick()) //place enhance this since it's quite horrible for larger animations
