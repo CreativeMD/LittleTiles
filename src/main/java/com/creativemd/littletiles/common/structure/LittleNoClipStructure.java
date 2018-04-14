@@ -46,15 +46,8 @@ public class LittleNoClipStructure extends LittleStructure {
 	}
 	
 	@Override
-	public boolean noCollisionBoxes()
-	{
+	public boolean shouldCheckForCollision() {
 		return true;
-	}
-	
-	@Override
-	public boolean shouldCheckForCollision()
-	{
-		return web;
 	}
 	
 	@Override
