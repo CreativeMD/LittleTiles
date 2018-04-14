@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.entity;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
+import com.creativemd.creativecore.common.utils.IVecOrigin;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.google.common.annotations.VisibleForTesting;
 
@@ -16,46 +17,46 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityAABB extends CreativeAxisAlignedBB {
 	
-	public WorldFake origin;
+	public IVecOrigin origin;
 	
-	public EntityAABB(WorldFake origin, double x1, double y1, double z1, double x2, double y2, double z2) {
+	public EntityAABB(IVecOrigin origin, double x1, double y1, double z1, double x2, double y2, double z2) {
 		super(x1, y1, z1, x2, y2, z2);
 		this.origin = origin;
 	}
 	
-	public EntityAABB(WorldFake origin, AxisAlignedBB bb) {
+	public EntityAABB(IVecOrigin origin, AxisAlignedBB bb) {
 		super(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ);
 		this.origin = origin;
 	}
 	
 	public double getRealMinX()
 	{
-		return this.minX + origin.offsetX;
+		return this.minX + origin.offX();
 	}
 	
 	public double getRealMinY()
 	{
-		return this.minY + origin.offsetY;
+		return this.minY + origin.offY();
 	}
 	
 	public double getRealMinZ()
 	{
-		return this.minZ + origin.offsetZ;
+		return this.minZ + origin.offZ();
 	}
 	
 	public double getRealMaxX()
 	{
-		return this.maxX + origin.offsetX;
+		return this.maxX + origin.offX();
 	}
 	
 	public double getRealMaxY()
 	{
-		return this.maxY + origin.offsetY;
+		return this.maxY + origin.offY();
 	}
 	
 	public double getRealMaxZ()
 	{
-		return this.maxZ + origin.offsetZ;
+		return this.maxZ + origin.offZ();
 	}
 	
 	@Override
@@ -689,7 +690,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     @SideOnly(Side.CLIENT)
     public Vec3d getCenter()
     {
-        return new Vec3d(origin.offsetX + this.minX + (this.maxX - this.minX) * 0.5D, origin.offsetY + this.minY + (this.maxY - this.minY) * 0.5D, origin.offsetZ + this.minZ + (this.maxZ - this.minZ) * 0.5D);
+        return new Vec3d(origin.offX() + this.minX + (this.maxX - this.minX) * 0.5D, origin.offY() + this.minY + (this.maxY - this.minY) * 0.5D, origin.offZ() + this.minZ + (this.maxZ - this.minZ) * 0.5D);
     }
     
 }
