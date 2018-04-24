@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import org.lwjgl.opengl.GL11;
@@ -11,6 +13,7 @@ import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.entity.EntityAABB;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -31,6 +34,7 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -53,59 +57,42 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		if(entity.isDead)
 			return ;
 		
-        /*double d0 = entityIn.posX - this.prevRenderSortX;
-        double d1 = entityIn.posY - this.prevRenderSortY;
-        double d2 = entityIn.posZ - this.prevRenderSortZ;
-
-        if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
-        {
-            this.prevRenderSortX = entityIn.posX;
-            this.prevRenderSortY = entityIn.posY;
-            this.prevRenderSortZ = entityIn.posZ;
-            int k = 0;
-
-            for (RenderGlobal.ContainerLocalRenderInformation renderglobal$containerlocalrenderinformation : this.renderInfos)
-            {
-                if (renderglobal$containerlocalrenderinformation.renderChunk.compiledChunk.isLayerStarted(blockLayerIn) && k++ < 15)
-                {
-                    this.renderDispatcher.updateTransparencyLater(renderglobal$containerlocalrenderinformation.renderChunk);
-                }
-            }
-        }*/
-		
-		if(entity.renderData == null)
-		{
+		if(entity.renderChunks == null)
 			entity.createClient();
-		}
-		
-		if(entity.renderQueue == null)
-			return ;
 		
 		/**===Setting up finished render-data===**/
-		ArrayList<TileEntityLittleTiles> TEtoRemove = new ArrayList<>();
-		for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
-			if(!te.rendering.get())
-			{
-				BlockLayerRenderBuffer layers = te.getBuffer();
-				if(layers != null)
+		
+		if(entity.renderQueue != null)
+		{
+			for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
+				TileEntityLittleTiles te = iterator.next();
+				if(!te.rendering.get())
 				{
-					for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-						BlockRenderLayer layer = BlockRenderLayer.values()[i];
-						net.minecraft.client.renderer.BufferBuilder tempBuffer = layers.getBufferByLayer(layer);
-						if(tempBuffer != null)
-						{
-							VertexBuffer bufferToCreate = new VertexBuffer(DefaultVertexFormats.BLOCK);
-							uploader.setVertexBuffer(bufferToCreate);
-							uploader.draw(tempBuffer);
-							entity.renderData.add(layer, new TERenderData(bufferToCreate, EntityDoorAnimation.getRenderChunkPos(te.getPos()), te.getPos()));
-						}
+					BlockPos renderChunkPos = EntityDoorAnimation.getRenderChunkPos(te.getPos());
+					LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
+					if(chunk == null)
+					{
+						chunk = new LittleRenderChunk(renderChunkPos);
+						entity.renderChunks.put(renderChunkPos, chunk);
 					}
-					TEtoRemove.add(te);
+					
+					chunk.addRenderData(te);				
+					iterator.remove();
 				}
 			}
+			
+			if(entity.renderQueue.isEmpty())
+			{
+				for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+					chunk.markCompleted();
+				}
+				entity.renderQueue = null;
+			}
 		}
-		entity.renderQueue.removeAll(TEtoRemove);
+		
+		for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+			chunk.uploadBuffer();	
+		}
 		
 		/**===Render static part===**/
 		
@@ -133,41 +120,46 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 		GlStateManager.glEnableClientState( 32886 );
 		
-		for (Iterator<BlockRenderLayer> iterator = entity.renderData.keySet().iterator(); iterator.hasNext();) {
-			
-			BlockRenderLayer layer = iterator.next();
+		float f = (float)mc.getRenderViewEntity().posX;
+        float f1 = (float)mc.getRenderViewEntity().posY + mc.getRenderViewEntity().getEyeHeight();
+        float f2 = (float)mc.getRenderViewEntity().posZ;
+		
+		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
+			BlockRenderLayer layer = BlockRenderLayer.values()[i];
 			
 			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 				ShadersRender.preRenderChunkLayer(layer);
 			
-			List<TERenderData> blocksToRender = entity.renderData.getValues(layer);
-			if(blocksToRender == null)
-				continue;
-			for (int i = 0; i < blocksToRender.size(); i++) {
-				TERenderData data = blocksToRender.get(i);
+			for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+				
+				if(layer == BlockRenderLayer.TRANSLUCENT)
+					chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
+				
+				VertexBuffer buffer = chunk.getLayerBuffer(layer);
+				
+				if(buffer == null)
+					continue;
 				
 				//Render buffer
 				GlStateManager.pushMatrix();
 				
-				double posX = (data.chunkPos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
-				double posY = (data.chunkPos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
-				double posZ = (data.chunkPos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
-				
-				
+				double posX = (chunk.pos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
+				double posY = (chunk.pos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
+				double posZ = (chunk.pos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
 				
 				GlStateManager.translate(x, y, z);
 				
-				GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
-				
+				//GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
+				GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 				
 				GL11.glRotated(rotation.x, 1, 0, 0);
 				GL11.glRotated(rotation.y, 0, 1, 0);
 				GL11.glRotated(rotation.z, 0, 0, 1);
-				//GlStateManager.rotate((float)entity.progress/(float)entity.duration * 90F, 0, 1, 0);
 				
 				GlStateManager.translate(posX, posY, posZ);
 				
-				GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
+				//GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
+				GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
 				
     			//Render
     			if ( layer == BlockRenderLayer.TRANSLUCENT )
@@ -180,8 +172,11 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     				GlStateManager.disableBlend();
     				GlStateManager.enableAlpha();
     			}
+    			
+    			
 
-    			data.buffer.bindBuffer();
+    			buffer.bindBuffer();
+    			
     			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
     				ShadersRender.setupArrayPointersVbo();
     			else
@@ -194,19 +189,16 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 					OpenGlHelper.setClientActiveTexture( OpenGlHelper.defaultTexUnit );
 				}
 				
-				data.buffer.drawArrays( GL11.GL_QUADS );
+				buffer.drawArrays( GL11.GL_QUADS );
+				buffer.unbindBuffer();
 				
-				data.buffer.unbindBuffer();
-
+				GlStateManager.popMatrix();				
 				
-				GlStateManager.popMatrix();
 			}
 			
 			if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 				ShadersRender.postRenderChunkLayer(layer);
 		}
-		
-		
 		
 		for ( final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements())
 		{
@@ -248,19 +240,20 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	                
 	                BlockPos newpos = te.getPos().subtract(entity.getAxisPos());
 	                
-	                
 	                GlStateManager.translate(x, y, z);
 	        		
-	        		GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+context.gridMCLength/2, entity.getInsideBlockCenter().getPosY()+context.gridMCLength/2, entity.getInsideBlockCenter().getPosZ()+context.gridMCLength/2);
-	        		
+	                //GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
+	                GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+	                
 	        		GL11.glRotated(rotation.x, 1, 0, 0);
 	        		GL11.glRotated(rotation.y, 0, 1, 0);
 	        		GL11.glRotated(rotation.z, 0, 0, 1);
 	        		
 	        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 	        		
-					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosY()-context.gridMCLength/2, -entity.getInsideBlockCenter().getPosZ()-context.gridMCLength/2);
-					//Render TileEntity
+	        		//GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
+	        		GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+	        		//Render TileEntity
 	        		
 	        		//GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
 	        		
@@ -283,13 +276,46 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        GlStateManager.disableBlend();
 	        
 	        GlStateManager.glLineWidth(4.0F);
-            
+	        
+	        GlStateManager.pushMatrix();
+	        
+	        GlStateManager.translate(x, y, z);
+			
+			//GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
+			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+	        
+			GL11.glRotated(rotation.x, 1, 0, 0);
+			GL11.glRotated(rotation.y, 0, 1, 0);
+			GL11.glRotated(rotation.z, 0, 0, 1);
+			
+			GlStateManager.translate(entity.fakeWorld.offX(), entity.fakeWorld.offY(), entity.fakeWorld.offZ());
+			
+			//GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
+			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+			
+			GlStateManager.translate(-x, -y, -z);
+			
+			 AxisAlignedBB entityBB = entity.getFakeWorldOrientatedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
+			 
             for (EntityAABB bb : entity.worldCollisionBoxes) {
             	GlStateManager.pushMatrix();
-            	RenderGlobal.drawBoundingBox(bb.getRealMinX() - entity.posX + x, bb.getRealMinY() - entity.posY + y, bb.getRealMinZ() - entity.posZ + z,
-            			bb.getRealMaxX() - entity.posX + x, bb.getRealMaxY() - entity.posY + y, bb.getRealMaxZ() - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+            	boolean intersect = bb.intersects(entityBB);
+            	RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z,
+            			bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ- entity.posZ + z, 1.0F, intersect ? 0.0F : 1.0F, intersect ? 0.0F : 1.0F, 1.0F);
             	GlStateManager.popMatrix();
 			}
+            
+            GlStateManager.pushMatrix();
+            
+            double d0 = (Minecraft.getMinecraft().player.posX - Minecraft.getMinecraft().player.prevPosX) * (double)partialTicks;
+            double d1 = (Minecraft.getMinecraft().player.posY - Minecraft.getMinecraft().player.prevPosY) * (double)partialTicks;
+            double d2 = (Minecraft.getMinecraft().player.posZ - Minecraft.getMinecraft().player.prevPosZ) * (double)partialTicks;
+            
+        	RenderGlobal.drawBoundingBox(entityBB.minX - entity.posX + x + d0, entityBB.minY - entity.posY + y + d1, entityBB.minZ - entity.posZ + z + d2,
+        			entityBB.maxX - entity.posX + x + d0, entityBB.maxY - entity.posY + y + d1, entityBB.maxZ- entity.posZ + z + d2, 1.0F, 1.0F, 1.0F, 1.0F);
+        	GlStateManager.popMatrix();
+            
+            GlStateManager.popMatrix();
             
             GlStateManager.glLineWidth(2.0F);
             

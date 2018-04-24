@@ -7,10 +7,10 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
@@ -23,20 +23,20 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public enum LittleSlice {
 	
-	X_US_DN_RIGHT(Axis.X, true, 2, 0, LittleCorner.EUS, LittleCorner.EDN),
-	X_US_DN_LEFT(Axis.X, false, 0, 2, LittleCorner.EUS, LittleCorner.EDN),	
-	X_DS_UN_RIGHT(Axis.X, true, 0, 2, LittleCorner.EDS, LittleCorner.EUN),
-	X_DS_UN_LEFT(Axis.X, false, 2, 0, LittleCorner.EDS, LittleCorner.EUN),
+	X_US_DN_RIGHT(Axis.X, true, 2, 0, BoxCorner.EUS, BoxCorner.EDN),
+	X_US_DN_LEFT(Axis.X, false, 0, 2, BoxCorner.EUS, BoxCorner.EDN),	
+	X_DS_UN_RIGHT(Axis.X, true, 0, 2, BoxCorner.EDS, BoxCorner.EUN),
+	X_DS_UN_LEFT(Axis.X, false, 2, 0, BoxCorner.EDS, BoxCorner.EUN),
 	
-	Y_ES_WN_RIGHT(Axis.Y, true, 1, 0, LittleCorner.EUS, LittleCorner.WUN),
-	Y_ES_WN_LEFT(Axis.Y, false, 0, 1, LittleCorner.EUS, LittleCorner.WUN),
-	Y_WS_EN_RIGHT(Axis.Y, true, 0, 1, LittleCorner.WUS, LittleCorner.EUN),
-	Y_WS_EN_LEFT(Axis.Y, false, 1, 0, LittleCorner.WUS, LittleCorner.EUN),
+	Y_ES_WN_RIGHT(Axis.Y, true, 1, 0, BoxCorner.EUS, BoxCorner.WUN),
+	Y_ES_WN_LEFT(Axis.Y, false, 0, 1, BoxCorner.EUS, BoxCorner.WUN),
+	Y_WS_EN_RIGHT(Axis.Y, true, 0, 1, BoxCorner.WUS, BoxCorner.EUN),
+	Y_WS_EN_LEFT(Axis.Y, false, 1, 0, BoxCorner.WUS, BoxCorner.EUN),
 	
-	Z_WU_ED_RIGHT(Axis.Z, true, 2, 0, LittleCorner.WUS, LittleCorner.EDS),
-	Z_WU_ED_LEFT(Axis.Z, false, 0, 2, LittleCorner.WUS, LittleCorner.EDS),	
-	Z_WD_EU_RIGHT(Axis.Z, true, 0, 2, LittleCorner.WDS, LittleCorner.EUS),
-	Z_WD_EU_LEFT(Axis.Z, false, 2, 0, LittleCorner.WDS, LittleCorner.EUS);
+	Z_WU_ED_RIGHT(Axis.Z, true, 2, 0, BoxCorner.WUS, BoxCorner.EDS),
+	Z_WU_ED_LEFT(Axis.Z, false, 0, 2, BoxCorner.WUS, BoxCorner.EDS),	
+	Z_WD_EU_RIGHT(Axis.Z, true, 0, 2, BoxCorner.WDS, BoxCorner.EUS),
+	Z_WD_EU_LEFT(Axis.Z, false, 2, 0, BoxCorner.WDS, BoxCorner.EUS);
 	
 	public final Axis axis;
 	public final Vec3i sliceVec;
@@ -44,8 +44,8 @@ public enum LittleSlice {
 	public final EnumFacing emptySideTwo;
 	public final boolean isRight;
 	
-	public final LittleCorner start;
-	public final LittleCorner end;
+	public final BoxCorner start;
+	public final BoxCorner end;
 	
 	public final int traingleOrderPositive;
 	public final int traingleOrderNegative;
@@ -116,7 +116,7 @@ public enum LittleSlice {
 		
 	}
 	
-	private LittleSlice(Axis axis, boolean isRight, int traingleOrderPositive, int traingleOrderNegative, LittleCorner start, LittleCorner end)
+	private LittleSlice(Axis axis, boolean isRight, int traingleOrderPositive, int traingleOrderNegative, BoxCorner start, BoxCorner end)
 	{
 		this.axis = axis;
 		this.isRight = isRight;
@@ -254,20 +254,20 @@ public enum LittleSlice {
 	/**
 	 * Theoretically there are two corners, but it will always return the one with a positive direction
 	 */
-	public LittleCorner getFilledCorner()
+	public BoxCorner getFilledCorner()
 	{
-		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideTwo.getOpposite());
+		return BoxCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne.getOpposite(), emptySideTwo.getOpposite());
 	}
 	
 	/**
 	 * Theoretically there are two corners, but it will always return the one with a positive direction
 	 */
-	public LittleCorner getEmptyCorner()
+	public BoxCorner getEmptyCorner()
 	{
-		return LittleCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne, emptySideTwo);
+		return BoxCorner.getCornerUnsorted(RotationUtils.getFacing(axis), emptySideOne, emptySideTwo);
 	}
 	
-	public boolean isCornerAffected(LittleCorner corner)
+	public boolean isCornerAffected(BoxCorner corner)
 	{
 		return (corner.x == emptySideOne || corner.y == emptySideOne || corner.z == emptySideOne) &&
 				(corner.x == emptySideTwo || corner.y == emptySideTwo || corner.z == emptySideTwo);

@@ -2,23 +2,21 @@ package com.creativemd.littletiles.common.entity;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.vecmath.Matrix3d;
+import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.BoxUtils;
-import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
-import com.creativemd.littletiles.client.render.entity.TERenderData;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -38,7 +36,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -66,7 +63,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
     }
 	
-	public void setCenterVec(LittleTilePos axis)
+	public void setCenterVec(LittleTilePos axis, LittleTileVec additional)
 	{
 		axis.removeInternalBlockOffset();
 		
@@ -81,7 +78,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		int chunkY = intFloorDiv(baseOffset.getY(), 16);
 		int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
         
-        inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX*16), baseOffset.getY() - (chunkY*16), baseOffset.getZ() - (chunkZ*16));
+        this.inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX*16), baseOffset.getY() - (chunkY*16), baseOffset.getZ() - (chunkZ*16));
+        this.additionalAxis = additional;
+        
+        this.rotationCenter = new Vector3d(axis.getPosX()+additionalAxis.getPosX(axis.getContext())/2, axis.getPosY()+additionalAxis.getPosY(axis.getContext())/2, axis.getPosZ()+additionalAxis.getPosZ(axis.getContext())/2);
+        this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX()+additionalAxis.getPosX(inBlockCenter.context)/2, inBlockCenter.getPosY()+additionalAxis.getPosY(inBlockCenter.context)/2, inBlockCenter.getPosZ()+additionalAxis.getPosZ(inBlockCenter.context)/2);
+        this.fakeWorld.axis = rotationCenter;
 	}
 	
 	public static BlockPos getRenderChunkPos(BlockPos blockPos)
@@ -94,6 +96,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	protected BlockPos baseOffset;
 	protected BlockPos chunkOffset;
 	protected BlockPos inChunkOffset;
+	protected LittleTileVec additionalAxis;
+	public Vector3d rotationCenter;
+	public Vector3d rotationCenterInsideBlock;
 	
 	public LittleTilePos getCenter()
 	{
@@ -209,6 +214,49 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
+	private static double minIgnore(double par1, double par2)
+	{
+		if(Math.abs(par2) < Math.abs(par1))
+			return par2;
+		return par1;
+	}
+	
+	private static double maxIgnore(double par1, double par2)
+	{
+		if(Math.abs(par2) > Math.abs(par1))
+			return par2;
+		return par1;
+	}
+	
+	public void rotXTo(double x)
+	{
+		rotAnimation(x - worldRotX, 0, 0);
+	}
+	
+	public void rotYTo(double y)
+	{
+		rotAnimation(0, y - worldRotY, 0);
+	}
+	
+	public void rotZTo(double z)
+	{
+		rotAnimation(0, 0, z - worldRotZ);
+	}
+	
+	public void rotAnimation(double x, double y, double z)
+	{
+		if(!preventPush)
+		{
+			
+		}
+		
+		worldRotX += x;
+		worldRotY += y;
+		worldRotZ += z;
+		
+		updateOrigin();
+	}
+	
 	public void moveXTo(double x)
 	{
 		moveAnimation(x - posX, 0, 0);
@@ -222,20 +270,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public void moveZTo(double z)
 	{
 		moveAnimation(0, 0, z - posZ);
-	}
-	
-	private static double minIgnore(double par1, double par2)
-	{
-		if(Math.abs(par2) < Math.abs(par1))
-			return par2;
-		return par1;
-	}
-	
-	private static double maxIgnore(double par1, double par2)
-	{
-		if(Math.abs(par2) > Math.abs(par1))
-			return par2;
-		return par1;
 	}
 	
 	public void moveAnimation(double x, double y, double z)
@@ -323,21 +357,28 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		posX += x;
 		posY += y;
 		posZ += z;
+		
+		updateOrigin();
+	}
+	
+	public EntityAABB getFakeWorldOrientatedBox(AxisAlignedBB box)
+	{
+		Matrix3d invertedX = new Matrix3d(fakeWorld.rotationX());
+		invertedX.invert();
+		Matrix3d invertedY = new Matrix3d(fakeWorld.rotationY());
+		invertedY.invert();
+		Matrix3d invertedZ = new Matrix3d(fakeWorld.rotationZ());
+		invertedZ.invert();
+		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, invertedX, invertedY, invertedZ, new Vector3d()));
 	}
 	
 	//================Rendering================
 	
 	@SideOnly(Side.CLIENT)
-	public HashMap<BlockPos, LittleRenderChunk> chunk;
-	
-	@SideOnly(Side.CLIENT)
-	public HashMapList<BlockRenderLayer, TERenderData> renderData;
+	public LinkedHashMap<BlockPos, LittleRenderChunk> renderChunks;
 	
 	@SideOnly(Side.CLIENT)
 	public ArrayList<TileEntityLittleTiles> renderQueue;
-	
-	//@SideOnly(Side.CLIENT)
-	//public AxisAlignedBB renderBoundingBox;
 	
 	@SideOnly(Side.CLIENT)
 	protected ArrayList<TileEntityLittleTiles> waitingForRender;
@@ -355,7 +396,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public void removeWaitingTe(TileEntityLittleTiles te)
 	{
 		waitingForRender.remove(te);
-		renderData.removeValue(new TERenderData(null, null, te.getPos()));
+	}
+	
+	public void unloadRenderCache()
+	{
+		for (LittleRenderChunk chunk : renderChunks.values()) {
+			chunk.unload();
+		}
 	}
 	
 	//================Constructors================
@@ -364,7 +411,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center) {
+	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -375,7 +422,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         
         this.fakeWorld = fakeWorld;
         
-        setCenterVec(center);
+        setCenterVec(center, additional);
         
         if(world.isRemote)
         	createClient();
@@ -390,7 +437,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	{
 		if(blocks != null)
 		{
-			this.renderData = new HashMapList<>();
+			this.renderChunks = new LinkedHashMap<>();
 			this.renderQueue = new ArrayList<>(blocks);
 		}
 	}
@@ -419,76 +466,21 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void updateBoundingBox()
 	{
-		if(worldBoundingBox == null)
+		if(worldBoundingBox == null || fakeWorld == null)
 			return ;
 		
 		boolean rotated = prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ;
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
 		if(rotated || moved)
-		{
-			Matrix3d rotationX = new Matrix3d();
-			rotationX.rotX(Math.toRadians(worldRotX));
-			Matrix3d rotationY = new Matrix3d();
-			rotationY.rotY(Math.toRadians(worldRotY));
-			Matrix3d rotationZ = new Matrix3d();
-			rotationZ.rotZ(Math.toRadians(worldRotZ));
-			
-			ArrayList<Vector3d> boxPoints = new ArrayList<>();
-			boxPoints.add(new Vector3d(worldBoundingBox.minX, worldBoundingBox.minY, worldBoundingBox.minZ));
-			
-			boxPoints.add(new Vector3d(worldBoundingBox.maxX, worldBoundingBox.minY, worldBoundingBox.minZ));
-			boxPoints.add(new Vector3d(worldBoundingBox.minX, worldBoundingBox.maxY, worldBoundingBox.minZ));
-			boxPoints.add(new Vector3d(worldBoundingBox.minX, worldBoundingBox.minY, worldBoundingBox.maxZ));
-			
-			boxPoints.add(new Vector3d(worldBoundingBox.maxX, worldBoundingBox.maxY, worldBoundingBox.minZ));
-			boxPoints.add(new Vector3d(worldBoundingBox.maxX, worldBoundingBox.minY, worldBoundingBox.maxZ));
-			boxPoints.add(new Vector3d(worldBoundingBox.minX, worldBoundingBox.maxY, worldBoundingBox.maxZ));
-			
-			boxPoints.add(new Vector3d(worldBoundingBox.maxX, worldBoundingBox.maxY, worldBoundingBox.maxZ));
-			
-			double minX = Double.MAX_VALUE;
-			double minY = Double.MAX_VALUE;
-			double minZ = Double.MAX_VALUE;
-			double maxX = -Double.MAX_VALUE;
-			double maxY = -Double.MAX_VALUE;
-			double maxZ = -Double.MAX_VALUE;
-			
-			Vector3d origin = new Vector3d(center.getPosX()+center.getContext().gridMCLength/2, center.getPosY()+center.getContext().gridMCLength/2, center.getPosZ()+center.getContext().gridMCLength/2);
-			
-			for (int i = 0; i < boxPoints.size(); i++) {
-				Vector3d vec = boxPoints.get(i);
-				vec.sub(origin);
-				rotationX.transform(vec);
-				rotationY.transform(vec);
-				rotationZ.transform(vec);
-				vec.add(origin);
-				
-				minX = Math.min(minX, vec.x);
-				minY = Math.min(minY, vec.y);
-				minZ = Math.min(minZ, vec.z);
-				maxX = Math.max(maxX, vec.x);
-				maxY = Math.max(maxY, vec.y);
-				maxZ = Math.max(maxZ, vec.z);
-			}
-			//BlockPos realStart = baseOffset.add(startOffset);
-			double offsetX = posX - baseOffset.getX();
-			double offsetY = posY - baseOffset.getY();
-			double offsetZ = posZ - baseOffset.getZ();
-			setEntityBoundingBox(new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ).offset(offsetX, offsetY, offsetZ));
-		}
+			setEntityBoundingBox(BoxUtils.getRotated(worldBoundingBox, rotationCenter, fakeWorld.rotationX(), fakeWorld.rotationY(), fakeWorld.rotationZ(), fakeWorld.translation()));
 	}
 	
-	public void initialTick()
+	public void updateOrigin()
 	{
 		fakeWorld.offX(posX - (getAxisPos().getX()));
 		fakeWorld.offY(posY - (getAxisPos().getY()));
 		fakeWorld.offZ(posZ - (getAxisPos().getZ()));
-		if(fakeWorld.axis == null)
-		{
-			Vec3d vec = getCenter().getVec();
-			fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
-		}
 		fakeWorld.rotX(worldRotX);
 		fakeWorld.rotY(worldRotY);
 		fakeWorld.rotZ(worldRotZ);
@@ -528,22 +520,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		updateBoundingBox();
 		
 		for (int i = 0; i < blocks.size(); i++) {
-			if(i == 0)
-			{
-				WorldFake fakeWorld = (WorldFake) blocks.get(i).getWorld();
-				fakeWorld.offX(posX - (getAxisPos().getX()));
-				fakeWorld.offY(posY - (getAxisPos().getY()));
-				fakeWorld.offZ(posZ - (getAxisPos().getZ()));
-				if(fakeWorld.axis == null)
-				{
-					Vec3d vec = getCenter().getVec();
-					fakeWorld.axis = new Vector3d(vec.x, vec.y, vec.z);
-				}
-				fakeWorld.rotX(worldRotX);
-				fakeWorld.rotY(worldRotY);
-				fakeWorld.rotZ(worldRotZ);
-			}
-			
 			if(blocks.get(i).shouldTick()) //place enhance this since it's quite horrible for larger animations
 				blocks.get(i).update();
 		}
@@ -621,7 +597,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 		
 		animation.setUniqueId(getUniqueID());
-		animation.setCenterVec(center.copy());
+		animation.fakeWorld = fakeWorld;
+		animation.setCenterVec(center.copy(), additionalAxis.copy());
 		animation.structure = structure;
 		animation.previews = previews.copy();
 		animation.blocks = new ArrayList<>(blocks);
@@ -633,7 +610,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		if(world.isRemote)
 		{
-			animation.renderData = renderData;
+			animation.renderChunks = renderChunks;
 			animation.renderQueue = renderQueue;
 		}
 		
@@ -657,11 +634,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		
-		//startOffset = new BlockPos(compound.getInteger("strOffX"), compound.getInteger("strOffY"), compound.getInteger("strOffZ"));
-		
-		setCenterVec(new LittleTilePos("axis", compound));
-		
 		this.fakeWorld = WorldFake.createFakeWorld(world);
+		setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		ArrayList<LittleTile> tiles = new ArrayList<>();
@@ -706,11 +680,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {
-		
-		/*compound.setInteger("strOffX", startOffset.getX());
-		compound.setInteger("strOffY", startOffset.getY());
-		compound.setInteger("strOffZ", startOffset.getZ());*/
 		center.writeToNBT("axis", compound);
+		additionalAxis.writeToNBT("additional", compound);
 		
 		NBTTagList list = new NBTTagList();
 		

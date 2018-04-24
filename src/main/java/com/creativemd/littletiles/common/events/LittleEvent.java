@@ -68,6 +68,7 @@ import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
@@ -99,6 +100,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
+import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -480,8 +482,10 @@ public class LittleEvent {
 		for (EntityAnimation<?> animation : event.getWorld().getEntitiesWithinAABB(EntityAnimation.class, box)) {
 			if(animation.noCollision)
 				continue;
+			
+			AxisAlignedBB newAlignedBox = animation.getFakeWorldOrientatedBox(box);			
 			for (EntityAABB bb : animation.worldCollisionBoxes) {
-				if(bb.intersects(box))
+				if(bb.intersects(newAlignedBox))
 					event.getCollisionBoxesList().add(bb);
 			}
 		}
@@ -528,6 +532,44 @@ public class LittleEvent {
 			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static int transparencySortingIndex;
+	
+	private static Field prevRenderSortX;
+	private static Field prevRenderSortY;
+	private static Field prevRenderSortZ;
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void onRenderTick(RenderTickEvent event)
+	{
+		if(event.phase == Phase.START)
+		{			
+			Minecraft mc = Minecraft.getMinecraft();
+			
+			if(mc.player != null && mc.renderGlobal != null)
+			{
+				if(prevRenderSortX == null)
+				{
+					prevRenderSortX = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortX", "field_147596_f");
+					prevRenderSortY = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortY", "field_147597_g");
+					prevRenderSortZ = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortZ", "field_147602_h");
+				}
+				
+				Entity entityIn = mc.getRenderViewEntity();
+				try {
+					double d0 = entityIn.posX - prevRenderSortX.getDouble(mc.renderGlobal);
+		            double d1 = entityIn.posY - prevRenderSortY.getDouble(mc.renderGlobal);
+		            double d2 = entityIn.posZ - prevRenderSortZ.getDouble(mc.renderGlobal);
+		            if (d0 * d0 + d1 * d1 + d2 * d2 > 1.0D)
+		            	transparencySortingIndex++;
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 	

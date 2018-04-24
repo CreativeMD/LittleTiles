@@ -5,7 +5,7 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.tiles.LittleCorner;
+import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
@@ -185,7 +185,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     	if(!slice.isFacingPositive(Axis.Y))
     	{
     		Axis axis = Axis.Y;
-    		LittleCorner filledCorner = slice.getFilledCorner();
+    		BoxCorner filledCorner = slice.getFilledCorner();
         	Vec3d otherVec = getCorner(otherY, filledCorner);
         	Axis one = axis;
         	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -235,7 +235,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     		}
             
     		// For anyone who reads this, this was a story of a life time spend on the most complicated problem, while solved with brute force, it shows it elegance ingame. just enjoy ;) - n247s
-    		LittleCorner filledCorner = slice.getFilledCorner();
+    		BoxCorner filledCorner = slice.getFilledCorner();
         	Vec3d otherVec = getCorner(other, filledCorner);
         	Axis one = axis;
         	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
@@ -320,7 +320,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		if(RotationUtils.get(one, vec) >= getMin(one) && RotationUtils.get(one, vec) < getMax(one) &&
     			RotationUtils.get(two, vec) >= getMin(two) && RotationUtils.get(two, vec) < getMax(two))
 		{
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getCornerValue(corner, one) - RotationUtils.get(one, vec));
 			double difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, vec));
@@ -344,8 +344,8 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 				getMax(other, axisTwo) > getMin(axisTwo) && getMin(other, axisTwo) < getMax(axisTwo)))
 			return false;
 		
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
+		BoxCorner cornerMin = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		BoxCorner cornerMax = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		double pointOne = getValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
 		double pointTwo = getValueOfFacing(slice.getEmptySide(axisTwo).getOpposite());
@@ -412,7 +412,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getCornerValue(corner, one) - RotationUtils.get(one, vec));
 			double difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, vec));
@@ -465,7 +465,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		}
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSize());
-		Vec3d temp = LittleTileSlicedOrdinaryBox.linePlaneIntersection(getCorner(LittleCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideTwo.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
+		Vec3d temp = LittleTileSlicedOrdinaryBox.linePlaneIntersection(getCorner(BoxCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideTwo.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
 		if(temp != null && intersectsWithAxis(diagonal.getAxis(), temp) && isClosest(vecA, collision, temp))
 		{
 			collision = temp;
@@ -482,177 +482,5 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
     public String toString()
     {
         return "slicedbox[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + ", " + this.slice + "]";
-    }
-    
-    protected double getValueOfFacing(EnumFacing facing)
-	{
-		switch(facing)
-		{
-		case EAST:
-			return maxX;
-		case WEST:
-			return minX;
-		case UP:
-			return maxY;
-		case DOWN:
-			return minY;
-		case SOUTH:
-			return maxZ;
-		case NORTH:
-			return minZ;
-		
-		}
-		return 0;
-	}
-    
-    public Vec3d getCorner(LittleCorner corner)
-	{
-		return new Vec3d(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
-	}
-	
-	public double getCornerValue(LittleCorner corner, Axis axis)
-	{
-		return getValueOfFacing(corner.getFacing(axis));
-	}
-	
-	public double getCornerX(LittleCorner corner)
-	{
-		return getValueOfFacing(corner.x);
-	}
-	
-	public double getCornerY(LittleCorner corner)
-	{
-		return getValueOfFacing(corner.y);
-	}
-	
-	public double getCornerZ(LittleCorner corner)
-	{
-		return getValueOfFacing(corner.z);
-	}
-	
-	public Vec3d getSize()
-	{
-		return new Vec3d(maxX - minX, maxY - minY, maxZ - minZ);
-	}
-	
-	public double getSize(Axis axis)
-	{
-		switch (axis)
-		{
-		case X:
-			return maxX - minX;
-		case Y:
-			return maxY - minY;
-		case Z:
-			return maxZ - minZ;
-		}
-		return 0;
-	}
-	
-	public double getMin(Axis axis)
-	{
-		switch (axis)
-		{
-		case X:
-			return minX;
-		case Y:
-			return minY;
-		case Z:
-			return minZ;
-		}
-		return 0;
-	}
-	
-	public double getMax(Axis axis)
-	{
-		switch (axis)
-		{
-		case X:
-			return maxX;
-		case Y:
-			return maxY;
-		case Z:
-			return maxZ;
-		}
-		return 0;
-	}
-	
-	protected static double getValueOfFacing(AxisAlignedBB bb, EnumFacing facing)
-	{
-		switch(facing)
-		{
-		case EAST:
-			return bb.maxX;
-		case WEST:
-			return bb.minX;
-		case UP:
-			return bb.maxY;
-		case DOWN:
-			return bb.minY;
-		case SOUTH:
-			return bb.maxZ;
-		case NORTH:
-			return bb.minZ;
-		
-		}
-		return 0;
-	}
-	
-	public static double getMin(AxisAlignedBB bb, Axis axis)
-	{
-		switch (axis)
-		{
-		case X:
-			return bb.minX;
-		case Y:
-			return bb.minY;
-		case Z:
-			return bb.minZ;
-		}
-		return 0;
-	}
-	
-	public static double getMax(AxisAlignedBB bb, Axis axis)
-	{
-		switch (axis)
-		{
-		case X:
-			return bb.maxX;
-		case Y:
-			return bb.maxY;
-		case Z:
-			return bb.maxZ;
-		}
-		return 0;
-	}
-	
-	public static Vec3d getCorner(AxisAlignedBB bb, LittleCorner corner)
-	{
-		return new Vec3d(getCornerX(bb, corner), getCornerY(bb, corner), getCornerZ(bb, corner));
-	}
-	
-	public static double getCornerValue(AxisAlignedBB bb, LittleCorner corner, Axis axis)
-	{
-		return getValueOfFacing(bb, corner.getFacing(axis));
-	}
-	
-	public static double getCornerX(AxisAlignedBB bb, LittleCorner corner)
-	{
-		return getValueOfFacing(bb, corner.x);
-	}
-	
-	public static double getCornerY(AxisAlignedBB bb, LittleCorner corner)
-	{
-		return getValueOfFacing(bb, corner.y);
-	}
-	
-	public static double getCornerZ(AxisAlignedBB bb, LittleCorner corner)
-	{
-		return getValueOfFacing(bb, corner.z);
-	}
-	
-	public static boolean isClosest(Vec3d p_186661_1_, @Nullable Vec3d p_186661_2_, Vec3d p_186661_3_)
-    {
-        return p_186661_2_ == null || p_186661_1_.squareDistanceTo(p_186661_3_) < p_186661_1_.squareDistanceTo(p_186661_2_);
     }
 }

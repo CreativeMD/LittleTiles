@@ -1,13 +1,19 @@
 package com.creativemd.littletiles.common.entity;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
+import com.creativemd.creativecore.common.utils.BoxUtils;
 import com.creativemd.creativecore.common.utils.IVecOrigin;
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.google.common.annotations.VisibleForTesting;
 
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -294,10 +300,230 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     {
         return this.offset(vec.x, vec.y, vec.z);
     }
+    
+    /**
+     * @return -1 -> value is too small; 0 -> value is inside min and max; 1 -> value is too large
+     */
+    private static int getCornerOffset(double value, double min, double max)
+    {
+    	if(value < min)
+    		return -1;
+    	else if(value > max)
+    		return 1;
+    	return 0;
+    }
+    
+    /**
+     * @return if result is negative there should be no collision
+     */
+    public double calculateDistanceRotated(AxisAlignedBB other, Axis axis, double offset)
+    {
+    	boolean positive = offset > 0;
+    	EnumFacing facing = EnumFacing.getFacingFromAxis(!positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
+    	double closestValue = getValueOfFacing(other, facing.getOpposite());
+    	Vector3d[] corners = BoxUtils.getOuterCorner(other, facing, origin, this);
+    	
+    	Axis one = RotationUtils.getDifferentAxisFirst(axis);
+    	Axis two = RotationUtils.getDifferentAxisSecond(axis);
+    	
+    	double minOne = getMin(other, one);
+    	double minTwo = getMin(other, two);
+    	double maxOne = getMax(other, one);
+    	double maxTwo = getMax(other, two);
+    	
+    	Vector3d outerCorner = corners[0];
+    	double outerCornerOne = RotationUtils.get(one, outerCorner);
+    	double outerCornerTwo = RotationUtils.get(two, outerCorner);
+    	
+    	int outerCornerOffsetOne = getCornerOffset(outerCornerOne, minOne, maxOne);
+    	int outerCornerOffsetTwo = getCornerOffset(outerCornerTwo, minTwo, maxTwo);
+    	
+    	if(outerCornerOffsetOne == 0 && outerCornerOffsetTwo == 0) // Hits the outer corner
+    	{
+    		if(positive)
+    			return RotationUtils.get(axis, outerCorner) - closestValue;
+    		return closestValue - RotationUtils.get(axis, outerCorner);
+    	}
+    	
+    	double minDistance = Double.MAX_VALUE;
+    	
+    	Vector2d[] directions = new Vector2d[3];
+    	
+    	for (int i = 1; i <= 3; i++) { // Check all faces which connect to the outer corner
+    		
+    		Vector3d corner = corners[i];
+    		
+    		int cornerOffsetOne = getCornerOffset(RotationUtils.get(one, corner), minOne, maxOne);
+    		if(outerCornerOffsetOne != 0 && outerCornerOffsetOne == cornerOffsetOne)
+    			continue;
+    		
+    		int cornerOffsetTwo = getCornerOffset(RotationUtils.get(two, corner), minTwo, maxTwo);
+    		if(outerCornerOffsetTwo != 0 && outerCornerOffsetTwo == cornerOffsetTwo)
+    			continue;
+    		
+    		LittleTile2DLine line = new LittleTile2DLine(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
+    		directions[i-1] = new Vector2d(line.directionOne, line.directionTwo);
+    		
+    		double axisStart = RotationUtils.get(axis, outerCorner);
+    		double axisDirection = RotationUtils.get(axis, corner) - axisStart;
+    		
+    		if(outerCornerOffsetOne == -1)
+    		{
+    			double coordinateTwo = line.get(one, minOne);
+    			if(coordinateTwo > minTwo && coordinateTwo < maxTwo)
+    			{ 
+    				double valueAxis = axisStart + ((minOne - line.originOne) / line.directionOne) * axisDirection;
+    				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				
+    				if(distance < 0)
+    					return -1;
+    				
+    				minDistance = Math.min(distance, minDistance);
+    			}
+    		}
+    		else if(outerCornerOffsetOne == 1)
+    		{
+    			double coordinateTwo = line.get(one, maxOne);
+    			if(coordinateTwo > minTwo && coordinateTwo < maxTwo)
+    			{ 
+    				double valueAxis = axisStart + ((maxOne - line.originOne) / line.directionOne) * axisDirection;
+    				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				
+    				if(distance < 0)
+    					return -1;
+    				
+    				minDistance = Math.min(distance, minDistance);
+    			}
+    		}
+    		
+    		if(outerCornerOffsetTwo == -1)
+    		{
+    			double coordinateOne = line.get(two, minTwo);
+    			if(coordinateOne > minOne && coordinateOne < maxOne)
+    			{ 
+    				double valueAxis = axisStart + ((minTwo - line.originTwo) / line.directionTwo) * axisDirection;
+    				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				
+    				if(distance < 0)
+    					return -1;
+    				
+    				minDistance = Math.min(distance, minDistance);
+    			}
+    		}
+    		else if(outerCornerOffsetTwo == 1)
+    		{
+    			if(outerCornerOffsetTwo == 1 || cornerOffsetTwo == 1)
+        		{
+        			double coordinateOne = line.get(two, maxTwo);
+        			if(coordinateOne > minOne && coordinateOne < maxOne)
+        			{ 
+        				double valueAxis = axisStart + ((maxTwo - line.originTwo) / line.directionTwo) * axisDirection;
+        				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+        				
+        				if(distance < 0)
+        					return -1;
+        				
+        				minDistance = Math.min(distance, minDistance);
+        			}
+        		}
+    		}    		
+		}
+    	
+    	if(minDistance == Double.MAX_VALUE)
+    	{
+    		boolean minOneOffset = outerCornerOne > minOne;
+    		boolean minTwoOffset = outerCornerTwo > minTwo;
+    		boolean maxOneOffset = outerCornerOne > maxOne;
+    		boolean maxTwoOffset = outerCornerTwo > maxTwo;
+    		
+    		Vector2d[] vectors;
+    		
+    		if(minOneOffset == minTwoOffset && maxOneOffset == maxTwoOffset) 
+    			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo)};
+    		else if(minOneOffset == maxOneOffset)
+    			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, minTwo - outerCornerOffsetTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, maxTwo - outerCornerOffsetTwo)};
+    		else if(minTwoOffset == maxTwoOffset) 
+    			vectors = new Vector2d[] {new Vector2d(minOne - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo), new Vector2d(maxOne - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo)};
+    		else
+    			vectors = new Vector2d[] {}; // that one cannot exist {new Vector2d(minOne, minTwo), new Vector2d(maxOne, minTwo), new Vector2d(minOne, maxTwo), new Vector2d(maxOne, maxTwo)};
+    		
+    		for (int i = 0; i < 3; i++) { // Calculate faces
+    			
+    			int indexFirst = i;
+    			int indexSecond = i == 2 ? 0 : i + 1;
+    			
+    			Vector2d first = directions[indexFirst];
+    			Vector2d second = directions[indexSecond];
+    			
+    			for (int j = 0; j < vectors.length; j++) {
+					
+    				Vector2d vector = vectors[j];
+    				
+    				int cornerOffsetOne = getCornerOffset(RotationUtils.get(one, first), minOne, maxOne);
+    				
+    				double t = (v_x*b_y-v_y*b_x)/(a_x*b_y+a_y*b_x);
+    				double s = (v_y-t*a_y)/b_y;
+    				
+    				
+    				t>=0<=1
+    				s>=0<=1
+    				t+s<=2
+
+				}
+    			
+    			
+    		    // intersecting coordinates
+    		    double xi = closestCorner.x;
+    		    double zi = closestCorner.z;
+    		    double yi;
+    		    
+    		    // part 1
+    		    vec3d xVec = getAdjecentCorner(outerCorner, direction.x);
+    		    
+    		    yi1 = ((xi - outerCorner.x) / (xVec.x - outerCorner.x)) * (xVec.y - outerCorner.y);
+    		    
+    		    // part 2
+    		    vec3d zVec = getAdjecentCorner(outerCorner, direction.z);
+    		    
+    		    yi2 = ((zi - outerCorner.z) / (zVec.z - outerCorner.z)) * (zVec.y - outerCorner.y);
+    		    
+    		    yi = yi1 + yi2; // or minus, not sure, may be dependend on direction
+			}
+    		
+    		return -1;
+    	}
+    	
+    	return minDistance;
+    }
+    
+    public double calculateOffsetRotated(AxisAlignedBB other, Axis axis, double offset)
+    {
+    	double distance = calculateDistanceRotated(other, axis, offset);
+    	
+    	if(distance < 0)
+    		return offset;
+    	
+    	if (offset > 0.0D)
+        {
+            if (distance < offset)
+	            return distance;
+            return offset;
+        }
+        else if (offset < 0.0D)
+        {
+            if (-distance > offset)
+            	return -distance;
+            return offset;
+        }
+        return offset;
+    }
 
     @Override
     public double calculateXOffset(AxisAlignedBB other, double offsetX)
     {
+    	if(origin.isRotated())
+    		return calculateOffsetRotated(other, Axis.X, offsetX);
+    	
     	if(other instanceof EntityAABB)
     	{
     		if(((EntityAABB) other).origin == origin)
@@ -361,6 +587,9 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     @Override
     public double calculateYOffset(AxisAlignedBB other, double offsetY)
     {
+    	if(origin.isRotated())
+    		return calculateOffsetRotated(other, Axis.Y, offsetY);
+    	
     	if(other instanceof EntityAABB)
     	{
     		if(((EntityAABB) other).origin == origin)
@@ -424,6 +653,9 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     @Override
     public double calculateZOffset(AxisAlignedBB other, double offsetZ)
     {
+    	if(origin.isRotated())
+    		return calculateOffsetRotated(other, Axis.Z, offsetZ);
+    	
     	if(other instanceof EntityAABB)
     	{
     		if(((EntityAABB) other).origin == origin)
@@ -627,12 +859,6 @@ public class EntityAABB extends CreativeAxisAlignedBB {
         }
 
         return vec3d == null ? null : new RayTraceResult(vec3d, enumfacing);
-    }
-
-    @VisibleForTesting
-    protected static boolean isClosest(Vec3d p_186661_1_, @Nullable Vec3d p_186661_2_, Vec3d p_186661_3_)
-    {
-        return p_186661_2_ == null || p_186661_1_.squareDistanceTo(p_186661_3_) < p_186661_1_.squareDistanceTo(p_186661_2_);
     }
 
     @Nullable

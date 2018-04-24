@@ -52,10 +52,10 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		super();
 	}
 	
-	private static Method growBuffer = ReflectionHelper.findMethod(BufferBuilder.class, "growBuffer",  "func_181670_b", int.class);
+	public static Method growBuffer = ReflectionHelper.findMethod(BufferBuilder.class, "growBuffer",  "func_181670_b", int.class);
 	
-	private static Field rawIntBufferField = ReflectionHelper.findField(BufferBuilder.class, "rawIntBuffer", "field_178999_b");
-	private static Field vertexCountField = ReflectionHelper.findField(BufferBuilder.class, "vertexCount", "field_178997_d");
+	public static Field rawIntBufferField = ReflectionHelper.findField(BufferBuilder.class, "rawIntBuffer", "field_178999_b");
+	public static Field vertexCountField = ReflectionHelper.findField(BufferBuilder.class, "vertexCount", "field_178997_d");
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	

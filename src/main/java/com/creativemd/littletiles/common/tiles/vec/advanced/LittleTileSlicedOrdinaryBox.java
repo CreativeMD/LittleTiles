@@ -1,26 +1,20 @@
 package com.creativemd.littletiles.common.tiles.vec.advanced;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.client.tiles.LittleSlicedOrdinaryRenderingCube;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -30,10 +24,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -240,7 +232,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		
 		if(posOne >= getMin(one) && posOne < getMax(one) && posTwo >= getMin(two) && posTwo < getMax(two))
 		{
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getCornerValue(corner, two) - posTwo);
@@ -260,8 +252,8 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		Axis axisTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
 		// cube vectors
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
+		BoxCorner cornerMin = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		BoxCorner cornerMax = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		// vec triangle
 		int pointOne = getValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
@@ -347,7 +339,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getCornerValue(corner, one) - RotationUtils.get(one, vec));
 			double difTwo = Math.abs(getCornerValue(corner, two) - RotationUtils.get(two, vec));
@@ -367,7 +359,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			int posOne = RotationUtils.get(one, x, y, z);
 			int posTwo = RotationUtils.get(two, x, y, z);
@@ -428,7 +420,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			if(completely == slice.isFacingPositive(two))
 				copy.setAxis(two, copy.getAxis(two)+1);
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getCornerValue(corner, one) - copy.getAxis(one));
 			double difTwo = Math.abs(getCornerValue(corner, two) - copy.getAxis(two));
@@ -451,7 +443,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(context.toVanillaGrid(getCornerValue(corner, one)) - RotationUtils.get(one, vec));
 			double difTwo = Math.abs(context.toVanillaGrid(getCornerValue(corner, two)) - RotationUtils.get(two, vec));
@@ -857,7 +849,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	@Override
 	public int[] getIdentifier()
 	{
-		LittleCorner corner = slice.getFilledCorner();
+		BoxCorner corner = slice.getFilledCorner();
 		return new int[]{getCornerX(corner), getCornerY(corner), getCornerZ(corner), slice.ordinal()};
 	}
 	
@@ -866,7 +858,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	{
 		if(identifier.length == 4 && identifier[3] == slice.ordinal())
 		{
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			return identifier[0] == getCornerX(corner) && identifier[1] == getCornerY(corner) && identifier[2] == getCornerZ(corner);
 		}
 		return false;

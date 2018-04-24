@@ -47,8 +47,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public DoorTransformation transformation;
 	
-	public LittleTileVec additionalAxis;
-	
 	public void setTransformationStartOffset()
 	{
 		preventPush = true;
@@ -68,7 +66,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
 			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
-		super(world, worldFake, blocks, previews, uuid, axis);
+		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
 		this.structure = structure;
@@ -76,13 +74,11 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
         this.transformation = transformation;
         this.duration = structure.duration;
         
-        this.additionalAxis = additionalAxis.copy();
-        
         setTransformationStartOffset();
         
         prevPosY -= 0.1; // To force an update
         updateBoundingBox();
-        initialTick();
+        updateOrigin();
 	}
 	
 	@Override
@@ -165,7 +161,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 			ticksToWait--;
 			if(waitingForRender.size() == 0 || ticksToWait < 0)
 			{
-				//System.out.println("KILL IT!");
+				unloadRenderCache();
 				isDead = true;
 			}else
 				isDead = false;
@@ -217,9 +213,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		setProgress(compound.getInteger("progress"));
 		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
-		
-		additionalAxis = new LittleTileVec("additional", compound);
-		
 		setTransformationStartOffset();
 		
 	}
@@ -232,8 +225,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		compound.setInteger("progress", progress);
 		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
-		
-		additionalAxis.writeToNBT("additional", compound);
 	}
 	
 }
