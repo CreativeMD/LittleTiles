@@ -313,6 +313,13 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	return 0;
     }
     
+    private static boolean isFurtherOrEqualThan(double value, double toCheck)
+    {
+    	if(value < 0)
+    		return toCheck < value;
+    	return toCheck > value;
+    }
+    
     /**
      * @return if result is negative there should be no collision
      */
@@ -334,6 +341,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	Vector3d outerCorner = corners[0];
     	double outerCornerOne = RotationUtils.get(one, outerCorner);
     	double outerCornerTwo = RotationUtils.get(two, outerCorner);
+    	double outerCornerAxis = RotationUtils.get(axis, outerCorner);
     	
     	int outerCornerOffsetOne = getCornerOffset(outerCornerOne, minOne, maxOne);
     	int outerCornerOffsetTwo = getCornerOffset(outerCornerTwo, minTwo, maxTwo);
@@ -459,38 +467,30 @@ public class EntityAABB extends CreativeAxisAlignedBB {
 					
     				Vector2d vector = vectors[j];
     				
-    				int cornerOffsetOne = getCornerOffset(RotationUtils.get(one, first), minOne, maxOne);
-    				
-    				double t = (v_x*b_y-v_y*b_x)/(a_x*b_y+a_y*b_x);
-    				double s = (v_y-t*a_y)/b_y;
-    				
-    				
-    				t>=0<=1
-    				s>=0<=1
-    				t+s<=2
-
+    				if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) ||
+    						(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
+    				{
+    					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y+first.y*second.x);
+    					if(t < 0 || t > 1)
+    						continue;
+    					
+        				double s = (vector.y-t*first.y)/second.y;
+        				if(s < 0 || s > 1)
+    						continue;
+        				
+        				double valueAxis = outerCornerAxis + (RotationUtils.get(axis, corners[indexFirst+1]) - outerCornerAxis) * t + (RotationUtils.get(axis, corners[indexSecond+1]) - outerCornerAxis) * s;
+        				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+        				
+        				if(distance < 0)
+        					return -1;
+        				
+        				minDistance = Math.min(distance, minDistance);
+    				}
 				}
-    			
-    			
-    		    // intersecting coordinates
-    		    double xi = closestCorner.x;
-    		    double zi = closestCorner.z;
-    		    double yi;
-    		    
-    		    // part 1
-    		    vec3d xVec = getAdjecentCorner(outerCorner, direction.x);
-    		    
-    		    yi1 = ((xi - outerCorner.x) / (xVec.x - outerCorner.x)) * (xVec.y - outerCorner.y);
-    		    
-    		    // part 2
-    		    vec3d zVec = getAdjecentCorner(outerCorner, direction.z);
-    		    
-    		    yi2 = ((zi - outerCorner.z) / (zVec.z - outerCorner.z)) * (zVec.y - outerCorner.y);
-    		    
-    		    yi = yi1 + yi2; // or minus, not sure, may be dependend on direction
 			}
     		
-    		return -1;
+    		if(minDistance == Double.MAX_VALUE)
+    			return -1;
     	}
     	
     	return minDistance;
