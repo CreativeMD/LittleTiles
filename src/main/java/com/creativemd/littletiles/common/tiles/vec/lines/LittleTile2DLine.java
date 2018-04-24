@@ -25,8 +25,8 @@ public class LittleTile2DLine {
 	public LittleTile2DLine(Axis one, Axis two, Vector3d origin, double directionOne, double directionTwo) {
 		this.one = one;
 		this.two = two;
-		this.originOne = RotationUtils.get(one, origin.x, origin.y, origin.z);
-		this.originTwo = RotationUtils.get(two, origin.x, origin.y, origin.z);
+		this.originOne = RotationUtils.get(one, origin);
+		this.originTwo = RotationUtils.get(two, origin);
 		this.directionOne = directionOne;
 		this.directionTwo = directionTwo;
 	}

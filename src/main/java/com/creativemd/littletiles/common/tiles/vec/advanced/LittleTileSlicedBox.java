@@ -9,11 +9,11 @@ import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
+import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.client.tiles.LittleSlicedOrdinaryRenderingCube;
 import com.creativemd.littletiles.client.tiles.LittleSlicedRenderingCube;
@@ -182,7 +182,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public Vec3d getExactCorner(LittleCorner corner)
+	public Vec3d getExactCorner(BoxCorner corner)
 	{
 		return new Vec3d(slice.isFacingPositive(Axis.X) == corner.isFacingPositive(Axis.X) ? getSliceCornerValue(corner, Axis.X) : getCornerX(corner),
 				slice.isFacingPositive(Axis.Y) == corner.isFacingPositive(Axis.Y) ? getSliceCornerValue(corner, Axis.Y) : getCornerY(corner),
@@ -483,7 +483,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
@@ -504,8 +504,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		Axis axisTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
 		// cube vectors
-		LittleCorner cornerMin = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
-		LittleCorner cornerMax = LittleCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
+		BoxCorner cornerMin = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne.getOpposite(), slice.emptySideTwo.getOpposite());
+		BoxCorner cornerMax = BoxCorner.getCornerUnsorted(ignoreFace, slice.emptySideOne, slice.emptySideTwo);
 		
 		// vec triangle
 		double pointOne = getSliceValueOfFacing(slice.getEmptySide(axisOne).getOpposite());
@@ -588,7 +588,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
@@ -635,7 +635,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
@@ -712,7 +712,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) - posTwo);
@@ -787,7 +787,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return true;
         	}
 			
-			LittleCorner corner = slice.getFilledCorner();
+			BoxCorner corner = slice.getFilledCorner();
 			
 			double difOne = Math.abs(getSliceCornerValue(corner, one) / context.size - posOne);
 			double difTwo = Math.abs(getSliceCornerValue(corner, two) / context.size - posTwo);
@@ -1111,12 +1111,12 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		return getMinSlice(facing.getAxis());
 	}
 	
-	public double getSliceCornerValue(LittleCorner corner, Axis axis)
+	public double getSliceCornerValue(BoxCorner corner, Axis axis)
 	{
 		return getSliceValueOfFacing(corner.getFacing(axis));
 	}
 	
-	public Vector3d getSliceCorner(LittleCorner corner) {
+	public Vector3d getSliceCorner(BoxCorner corner) {
 		return new Vector3d(corner.x.getAxisDirection() == AxisDirection.POSITIVE ? getMaxSlice(Axis.X) : getMinSlice(Axis.X), 
 				corner.y.getAxisDirection() == AxisDirection.POSITIVE ? getMaxSlice(Axis.Y) : getMinSlice(Axis.Y), 
 				corner.z.getAxisDirection() == AxisDirection.POSITIVE ? getMaxSlice(Axis.Z) : getMinSlice(Axis.Z));

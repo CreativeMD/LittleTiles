@@ -24,25 +24,26 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 
 	@Override
 	public void performTransformation(EntityDoorAnimation animation, double progress) {
+		progress = 0.5;
 		switch(rotation)
 		{
 		case X_CLOCKWISE:
-			animation.worldRotX = -90+progress*90;
+			animation.rotXTo(-90+progress*90);
 			break;
 		case X_COUNTER_CLOCKWISE:
-			animation.worldRotX = (1-progress)*90;
+			animation.rotXTo((1-progress)*90);
 			break;
 		case Y_CLOCKWISE:
-			animation.worldRotY = -90+progress*90;
+			animation.rotYTo(-90+progress*90);
 			break;
 		case Y_COUNTER_CLOCKWISE:
-			animation.worldRotY = (1-progress)*90;
+			animation.rotYTo((1-progress)*90);
 			break;
 		case Z_CLOCKWISE:
-			animation.worldRotZ = -90+progress*90;
+			animation.rotZTo(-90+progress*90);
 			break;
 		case Z_COUNTER_CLOCKWISE:
-			animation.worldRotZ = (1-progress)*90;
+			animation.rotZTo((1-progress)*90);
 			break;	
 		}
 	}

@@ -3,34 +3,28 @@ package com.creativemd.littletiles.common.tiles.vec;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.tiles.LittleCorner;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.google.common.annotations.VisibleForTesting;
 
-import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagIntArray;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -39,10 +33,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import scala.collection.generic.BitOperations.Int;
 
 public class LittleTileBox {
 	
@@ -242,32 +234,32 @@ public class LittleTileBox {
 		return 0;
 	}
 	
-	public LittleTileVec getCorner(LittleCorner corner)
+	public LittleTileVec getCorner(BoxCorner corner)
 	{
 		return new LittleTileVec(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
 	}
 	
-	public Vec3d getExactCorner(LittleCorner corner)
+	public Vec3d getExactCorner(BoxCorner corner)
 	{
 		return new Vec3d(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
 	}
 	
-	public int getCornerValue(LittleCorner corner, Axis axis)
+	public int getCornerValue(BoxCorner corner, Axis axis)
 	{
 		return getValueOfFacing(corner.getFacing(axis));
 	}
 	
-	public int getCornerX(LittleCorner corner)
+	public int getCornerX(BoxCorner corner)
 	{
 		return getValueOfFacing(corner.x);
 	}
 	
-	public int getCornerY(LittleCorner corner)
+	public int getCornerY(BoxCorner corner)
 	{
 		return getValueOfFacing(corner.y);
 	}
 	
-	public int getCornerZ(LittleCorner corner)
+	public int getCornerZ(BoxCorner corner)
 	{
 		return getValueOfFacing(corner.z);
 	}
