@@ -306,9 +306,9 @@ public class EntityAABB extends CreativeAxisAlignedBB {
      */
     private static int getCornerOffset(double value, double min, double max)
     {
-    	if(value < min)
+    	if(value <= min)
     		return -1;
-    	else if(value > max)
+    	else if(value >= max)
     		return 1;
     	return 0;
     }
@@ -316,8 +316,8 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     private static boolean isFurtherOrEqualThan(double value, double toCheck)
     {
     	if(value < 0)
-    		return toCheck < value;
-    	return toCheck > value;
+    		return toCheck <= value;
+    	return toCheck >= value;
     }
     
     /**
@@ -328,7 +328,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	boolean positive = offset > 0;
     	EnumFacing facing = EnumFacing.getFacingFromAxis(!positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
     	double closestValue = getValueOfFacing(other, facing.getOpposite());
-    	Vector3d[] corners = BoxUtils.getOuterCorner(other, facing, origin, this);
+    	Vector3d[] corners = BoxUtils.getOuterCorner(facing, origin, this);
     	
     	Axis one = RotationUtils.getDifferentAxisFirst(axis);
     	Axis two = RotationUtils.getDifferentAxisSecond(axis);
@@ -357,9 +357,12 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	
     	Vector2d[] directions = new Vector2d[3];
     	
-    	for (int i = 1; i <= 3; i++) { // Check all faces which connect to the outer corner
+    	for (int i = 1; i <= 3; i++) { // Check all lines which connect to the outer corner
     		
     		Vector3d corner = corners[i];
+    		
+    		LittleTile2DLine line = new LittleTile2DLine(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
+    		directions[i-1] = new Vector2d(line.directionOne, line.directionTwo);
     		
     		int cornerOffsetOne = getCornerOffset(RotationUtils.get(one, corner), minOne, maxOne);
     		if(outerCornerOffsetOne != 0 && outerCornerOffsetOne == cornerOffsetOne)
@@ -368,9 +371,6 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     		int cornerOffsetTwo = getCornerOffset(RotationUtils.get(two, corner), minTwo, maxTwo);
     		if(outerCornerOffsetTwo != 0 && outerCornerOffsetTwo == cornerOffsetTwo)
     			continue;
-    		
-    		LittleTile2DLine line = new LittleTile2DLine(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
-    		directions[i-1] = new Vector2d(line.directionOne, line.directionTwo);
     		
     		double axisStart = RotationUtils.get(axis, outerCorner);
     		double axisDirection = RotationUtils.get(axis, corner) - axisStart;
@@ -384,7 +384,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
     				
     				if(distance < 0)
-    					return -1;
+    					return distance;
     				
     				minDistance = Math.min(distance, minDistance);
     			}
@@ -398,7 +398,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
     				
     				if(distance < 0)
-    					return -1;
+	    				return distance;
     				
     				minDistance = Math.min(distance, minDistance);
     			}
@@ -413,91 +413,99 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
     				
     				if(distance < 0)
-    					return -1;
+    					return distance;
     				
     				minDistance = Math.min(distance, minDistance);
     			}
     		}
     		else if(outerCornerOffsetTwo == 1)
     		{
-    			if(outerCornerOffsetTwo == 1 || cornerOffsetTwo == 1)
-        		{
-        			double coordinateOne = line.get(two, maxTwo);
-        			if(coordinateOne > minOne && coordinateOne < maxOne)
-        			{ 
-        				double valueAxis = axisStart + ((maxTwo - line.originTwo) / line.directionTwo) * axisDirection;
-        				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
-        				
-        				if(distance < 0)
-        					return -1;
-        				
-        				minDistance = Math.min(distance, minDistance);
-        			}
-        		}
-    		}    		
+    			double coordinateOne = line.get(two, maxTwo);
+    			if(coordinateOne > minOne && coordinateOne < maxOne)
+    			{ 
+    				double valueAxis = axisStart + ((maxTwo - line.originTwo) / line.directionTwo) * axisDirection;
+    				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				
+    				if(distance < 0)
+	    				return distance;
+    				
+    				minDistance = Math.min(distance, minDistance);
+    			}
+    		}
 		}
     	
-    	if(minDistance == Double.MAX_VALUE)
-    	{
-    		boolean minOneOffset = outerCornerOne > minOne;
-    		boolean minTwoOffset = outerCornerTwo > minTwo;
-    		boolean maxOneOffset = outerCornerOne > maxOne;
-    		boolean maxTwoOffset = outerCornerTwo > maxTwo;
-    		
-    		Vector2d[] vectors;
-    		
-    		if(minOneOffset == minTwoOffset && maxOneOffset == maxTwoOffset) 
-    			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo)};
-    		else if(minOneOffset == maxOneOffset)
-    			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, minTwo - outerCornerOffsetTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOffsetOne, maxTwo - outerCornerOffsetTwo)};
-    		else if(minTwoOffset == maxTwoOffset) 
-    			vectors = new Vector2d[] {new Vector2d(minOne - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo), new Vector2d(maxOne - outerCornerOffsetOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerOffsetTwo)};
-    		else
-    			vectors = new Vector2d[] {}; // that one cannot exist {new Vector2d(minOne, minTwo), new Vector2d(maxOne, minTwo), new Vector2d(minOne, maxTwo), new Vector2d(maxOne, maxTwo)};
-    		
-    		for (int i = 0; i < 3; i++) { // Calculate faces
-    			
-    			int indexFirst = i;
-    			int indexSecond = i == 2 ? 0 : i + 1;
-    			
-    			Vector2d first = directions[indexFirst];
-    			Vector2d second = directions[indexSecond];
-    			
-    			for (int j = 0; j < vectors.length; j++) {
+		boolean minOneOffset = outerCornerOne > minOne;
+		boolean minTwoOffset = outerCornerTwo > minTwo;
+		boolean maxOneOffset = outerCornerOne > maxOne;
+		boolean maxTwoOffset = outerCornerTwo > maxTwo;
+		
+		Vector2d[] vectors;
+		
+		if(minOneOffset == minTwoOffset && maxOneOffset == maxTwoOffset) 
+			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
+		else if(minOneOffset == maxOneOffset)
+			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo)};
+		else if(minTwoOffset == maxTwoOffset) 
+			vectors = new Vector2d[] {new Vector2d(minOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo), new Vector2d(maxOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
+		else
+			vectors = new Vector2d[] {}; // that one cannot exist {new Vector2d(minOne, minTwo), new Vector2d(maxOne, minTwo), new Vector2d(minOne, maxTwo), new Vector2d(maxOne, maxTwo)};		
+		
+		for (int i = 0; i < 3; i++) { // Calculate faces
+			
+			int indexFirst = i;
+			int indexSecond = i == 2 ? 0 : i + 1;
+			
+			Vector2d first = directions[indexFirst];
+			Vector2d second = directions[indexSecond];
+			
+			if(first.x == 0 || second.y == 0)
+			{
+				int temp = indexFirst;
+				indexFirst = indexSecond;
+				indexSecond = temp;
+				first = directions[indexFirst];
+				second = directions[indexSecond];
+			}
+			
+			for (int j = 0; j < vectors.length; j++) {
+				
+				Vector2d vector = vectors[j];			
+				
+				if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
+						(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
+				{					
+					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y-first.y*second.x);
+					if(t <= 0 || t >= 1 || Double.isNaN(t))
+						continue;
 					
-    				Vector2d vector = vectors[j];
+    				double s = (vector.y-t*first.y)/second.y;
+    				if(s <= 0 || s >= 1 || Double.isNaN(s))
+						continue;
     				
-    				if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) ||
-    						(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
-    				{
-    					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y+first.y*second.x);
-    					if(t < 0 || t > 1)
-    						continue;
-    					
-        				double s = (vector.y-t*first.y)/second.y;
-        				if(s < 0 || s > 1)
-    						continue;
-        				
-        				double valueAxis = outerCornerAxis + (RotationUtils.get(axis, corners[indexFirst+1]) - outerCornerAxis) * t + (RotationUtils.get(axis, corners[indexSecond+1]) - outerCornerAxis) * s;
-        				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
-        				
-        				if(distance < 0)
-        					return -1;
-        				
-        				minDistance = Math.min(distance, minDistance);
-    				}
+    				double valueAxis = outerCornerAxis + (RotationUtils.get(axis, corners[indexFirst+1]) - outerCornerAxis) * t + (RotationUtils.get(axis, corners[indexSecond+1]) - outerCornerAxis) * s;
+    				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				distance -= 0.00000000001;
+    				
+    				if(distance < 0)
+    					continue;
+    				
+    				minDistance = Math.min(distance, minDistance);
 				}
 			}
-    		
-    		if(minDistance == Double.MAX_VALUE)
-    			return -1;
-    	}
+			
+		}
+    	
+		if(minDistance == Double.MAX_VALUE)
+			return -1;
     	
     	return minDistance;
     }
     
     public double calculateOffsetRotated(AxisAlignedBB other, Axis axis, double offset)
     {
+    	if(offset == 0)
+    		return offset;
+    	
     	double distance = calculateDistanceRotated(other, axis, offset);
     	
     	if(distance < 0)

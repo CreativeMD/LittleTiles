@@ -98,6 +98,17 @@ public abstract class LittleDoorBase extends LittleStructure {
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
+			if(world.isRemote)
+			{
+				for (TileEntityLittleTiles te : tiles.keySet()) {
+					if(te.waitingAnimation != null)
+					{
+						te.waitingAnimation.removeWaitingTe(te);
+						te.waitingAnimation = null;
+					}
+				}
+			}
+			
 			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, structure, blocks, previews, absolute, transformation, uuid, player, additional);
 			world.spawnEntity(animation);
 			return true;
