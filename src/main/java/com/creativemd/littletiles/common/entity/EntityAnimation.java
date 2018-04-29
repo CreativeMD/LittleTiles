@@ -363,13 +363,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public EntityAABB getFakeWorldOrientatedBox(AxisAlignedBB box)
 	{
-		Matrix3d invertedX = new Matrix3d(fakeWorld.rotationX());
-		invertedX.invert();
-		Matrix3d invertedY = new Matrix3d(fakeWorld.rotationY());
-		invertedY.invert();
-		Matrix3d invertedZ = new Matrix3d(fakeWorld.rotationZ());
-		invertedZ.invert();
-		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, invertedX, invertedY, invertedZ, new Vector3d()));
+		Matrix3d inverted = new Matrix3d(fakeWorld.rotation());
+		inverted.invert();
+		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, inverted, new Vector3d()));
 	}
 	
 	//================Rendering================
@@ -473,17 +469,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
 		if(rotated || moved)
-			setEntityBoundingBox(BoxUtils.getRotated(worldBoundingBox, rotationCenter, fakeWorld.rotationX(), fakeWorld.rotationY(), fakeWorld.rotationZ(), fakeWorld.translation()));
+			setEntityBoundingBox(BoxUtils.getRotated(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation()));
 	}
 	
 	public void updateOrigin()
 	{
-		fakeWorld.offX(posX - (getAxisPos().getX()));
-		fakeWorld.offY(posY - (getAxisPos().getY()));
-		fakeWorld.offZ(posZ - (getAxisPos().getZ()));
-		fakeWorld.rotX(worldRotX);
-		fakeWorld.rotY(worldRotY);
-		fakeWorld.rotZ(worldRotZ);
+		fakeWorld.off(posX - (getAxisPos().getX()), posY - (getAxisPos().getY()), posZ - (getAxisPos().getZ()));
+		fakeWorld.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	
 	public void onTick()
