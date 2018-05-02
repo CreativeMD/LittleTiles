@@ -158,7 +158,7 @@ public class LittleTileBlock extends LittleTile{
 		{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
 			thisTile.setBlock(block, meta);
-			if(FMLCommonHandler.instance().getSide().isClient())
+			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 				thisTile.translucent = translucent;
 		}
 	}

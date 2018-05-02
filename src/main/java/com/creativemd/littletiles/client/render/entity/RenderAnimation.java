@@ -9,6 +9,7 @@ import java.util.List;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.entity.EntityAABB;
@@ -64,6 +65,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		
 		if(entity.renderQueue != null)
 		{
+			int i = 0;
 			for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
 				if(!te.rendering.get())
@@ -76,22 +78,23 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 						entity.renderChunks.put(renderChunkPos, chunk);
 					}
 					
+					i++;
 					chunk.addRenderData(te);				
 					iterator.remove();
 				}
-			}
-			
-			if(entity.renderQueue.isEmpty())
-			{
-				for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-					chunk.markCompleted();
-				}
-				entity.renderQueue = null;
 			}
 		}
 		
 		for (LittleRenderChunk chunk : entity.renderChunks.values()) {
 			chunk.uploadBuffer();	
+		}
+		
+		if(entity.renderQueue != null && entity.renderQueue.isEmpty())
+		{
+			for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+				chunk.markCompleted();
+			}
+			entity.renderQueue = null;
 		}
 		
 		/**===Render static part===**/
@@ -305,7 +308,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
             	GlStateManager.popMatrix();
 			}
             
-            GlStateManager.pushMatrix();
+            /*GlStateManager.pushMatrix();
             
             double d0 = (Minecraft.getMinecraft().player.posX - Minecraft.getMinecraft().player.prevPosX) * (double)partialTicks;
             double d1 = (Minecraft.getMinecraft().player.posY - Minecraft.getMinecraft().player.prevPosY) * (double)partialTicks;
@@ -313,7 +316,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
             
         	RenderGlobal.drawBoundingBox(entityBB.minX - entity.posX + x + d0, entityBB.minY - entity.posY + y + d1, entityBB.minZ - entity.posZ + z + d2,
         			entityBB.maxX - entity.posX + x + d0, entityBB.maxY - entity.posY + y + d1, entityBB.maxZ- entity.posZ + z + d2, 1.0F, 1.0F, 1.0F, 1.0F);
-        	GlStateManager.popMatrix();
+        	GlStateManager.popMatrix();*/
             
             GlStateManager.popMatrix();
             

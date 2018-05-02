@@ -24,7 +24,6 @@ public class OrdinaryDoorTransformation extends DoorTransformation{
 
 	@Override
 	public void performTransformation(EntityDoorAnimation animation, double progress) {
-		//progress = 0.6;
 		switch(rotation)
 		{
 		case X_CLOCKWISE:

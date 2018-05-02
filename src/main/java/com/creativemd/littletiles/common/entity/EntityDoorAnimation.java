@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -79,19 +80,9 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
         prevPosY -= 0.1; // To force an update
         updateBoundingBox();
         updateOrigin();
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void onScanningTE(TileEntityLittleTiles te)
-	{
-		if(world.isRemote)
-		{
-			te.rendering = new AtomicBoolean(false);
-			te.setLoaded();
-			RenderingThread.addCoordToUpdate(te, 0, false);
-		}
-		super.onScanningTE(te);
+        
+        if(world.isRemote)
+        	approved = false;
 	}
 	
 	@Override
@@ -99,7 +90,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	public void createClient()
 	{
 		super.createClient();
-		approved = false;
 	}
 	
 	public void copyExtra(EntityDoorAnimation animation)
@@ -159,8 +149,16 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		if(world.isRemote && isWaitingForRender())
 		{
 			ticksToWait--;
+			
+			for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
+				TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
+				if(te != te.getWorld().getTileEntity(te.getPos()))
+					iterator.remove();
+			}
+			
 			if(waitingForRender.size() == 0 || ticksToWait < 0)
 			{
+				System.out.println("Skipping " + waitingForRender.size() + " ...");
 				unloadRenderCache();
 				isDead = true;
 			}else
@@ -190,7 +188,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 									waitingForRender.add((TileEntityLittleTiles) te);
 								}
 							}
-							ticksToWait = waitingForRender.size()*10;
+							ticksToWait = 200;
 							isDead = false;
 							//System.out.println("Start waiting");
 							return ;
