@@ -49,7 +49,14 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	@Override
 	public void executeClient(EntityPlayer player) {
 		EntityDoorAnimation animation = null;
-		for (Iterator<Entity> iterator = player.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+		for (Iterator<EntityDoorAnimation> iterator = player.world.getEntities(EntityDoorAnimation.class, new Predicate<EntityDoorAnimation>() {
+
+			@Override
+			public boolean apply(EntityDoorAnimation input) {
+				return true;
+			}
+			
+		}).iterator(); iterator.hasNext();) {
 			Entity entity = iterator.next();
 			if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
 			{
@@ -65,12 +72,12 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				animation.setDead();
 			}else if(completeData){
 				animation.readFromNBT(nbt);
-				animation.createClient();
+				//animation.createClient();
 				animation.updateBoundingBox();
 				animation.approved = true;
 			}else{
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
-				animation.approved = animation.transformation.equals(transformation);			
+				animation.approved = animation.transformation.equals(transformation);
 			}
 			
 		}

@@ -184,8 +184,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		worldCollisionBoxes = new ArrayList<>();
 		
 		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
-			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
-			
 			TileEntityLittleTiles te = iterator.next();
 			
 			onScanningTE(te);
@@ -196,6 +194,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			maxX = Math.max(maxX, bb.maxX);
 			maxY = Math.max(maxY, bb.maxY);
 			maxZ = Math.max(maxZ, bb.maxZ);
+			
+			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 			
 			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
 				LittleTile tile = iterator2.next();
@@ -504,9 +504,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         
         setCenterVec(center, additional);
         
-        if(world.isRemote)
-        	createClient();
-        
         updateWorldCollision();
         
         setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
@@ -528,9 +525,11 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public void onScanningTE(TileEntityLittleTiles te)
 	{
 		te.setLoaded();
-		if(te.isClientSide())
+		if(world.isRemote)
 		{
-			te.rendering = new AtomicBoolean(false);
+			if(te.rendering == null)
+				te.rendering = new AtomicBoolean(false);
+			
 			RenderingThread.addCoordToUpdate(te, 0, false);
 		}
 	}
