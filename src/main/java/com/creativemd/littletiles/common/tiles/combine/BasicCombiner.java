@@ -118,11 +118,9 @@ public class BasicCombiner {
 								boxes.remove(i);
 								tiles.remove(j);
 								tiles.remove(i);
-								j--;
-								
-								if(i == j && i > 0)
-									i--;
 							}
+							
+							j = 0;
 							
 							boxes.add(box);
 							tiles.add(currentTile);
@@ -201,11 +199,9 @@ public class BasicCombiner {
 								boxes.remove(i);
 								tiles.remove(j);
 								tiles.remove(i);
-								j--;
-								
-								if(i == j && i > 0)
-									i--;
 							}
+							
+							j = 0;
 							
 							boxes.add(box);
 							tiles.add(this.currentTile);
@@ -253,11 +249,9 @@ public class BasicCombiner {
 							}else{
 								boxes.remove(j);
 								boxes.remove(i);
-								j--;
-								
-								if(i == j && i > 0)
-									i--;
 							}
+							
+							j = 0;
 							
 							boxes.add(box);
 							modified = true;

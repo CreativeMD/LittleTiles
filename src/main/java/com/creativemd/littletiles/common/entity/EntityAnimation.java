@@ -37,6 +37,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -156,6 +157,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	 */
 	public boolean noCollision = false;
 	
+	public AABBCombiner collisionBoxWorker;
+	
 	/**
 	 * Static not affected by direction or entity offset
 	 */
@@ -209,7 +212,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			}
 		}
 		
-		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased to save performance
+		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
+		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased txco save performance
 		
 		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 	}
@@ -228,6 +232,21 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		return par1;
 	}
 	
+	public double getRot(Axis axis)
+	{
+		switch(axis)
+		{
+		case X:
+			return worldRotX;
+		case Y:
+			return worldRotY;
+		case Z:
+			return worldRotZ;
+		default:
+			return 0;
+		}
+	}
+	
 	public void rotXTo(double x)
 	{
 		rotAnimation(x - worldRotX, 0, 0);
@@ -243,16 +262,81 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		rotAnimation(0, 0, z - worldRotZ);
 	}
 	
-	public void rotAnimation(double x, double y, double z)
+	protected void rotByPartially(List<Entity> entity, Axis axis, double angle)
 	{
 		if(!preventPush)
 		{
 			
+			
+			
 		}
 		
-		worldRotX += x;
-		worldRotY += y;
-		worldRotZ += z;
+		switch(axis)
+		{
+		case X:
+			worldRotX += angle;
+			break;
+		case Y:
+			worldRotY += angle;
+			break;
+		case Z:
+			worldRotZ += angle;
+			break;
+		}
+	}
+	
+	public void rotBy(List<Entity> entity, Axis axis, double angle)
+	{
+		double rotAxis = getRot(axis);
+		int before = (int) Math.floor(rotAxis / 90);
+		int after = (int) Math.floor((rotAxis + angle) / 90);
+		boolean positive = angle > 0;
+		double rotated = 0;
+		
+		for (int i = before; positive ? i <= after : i >= after; i += positive ? 1 : -1) {
+			double toRotate;
+			if(i == before)
+			{
+				if(i == after)
+					toRotate = angle;
+				else
+					if(positive)
+						toRotate = (before + 1) * 90 - rotAxis;
+					else
+						toRotate = (before - 1) * 90 - rotAxis;
+			}
+			else
+			{
+				if(i == after)
+					toRotate = angle - rotated;
+				else
+					toRotate = positive ? 90 : -90;
+			}
+			rotated += toRotate;
+			if(toRotate != 0)
+				rotByPartially(entity, axis, toRotate);
+		}
+		
+	}
+	
+	public void rotAnimation(double x, double y, double z)
+	{
+		List<Entity> entities;
+		if(preventPush)
+			entities = null;
+		else
+		{
+			entities = new ArrayList<>(); // Needs to be changed
+		}
+		
+		if(x != 0)
+			rotBy(entities, Axis.X, x);
+		
+		if(y != 0)
+			rotBy(entities, Axis.Y, y);
+		
+		if(z != 0)
+			rotBy(entities, Axis.Z, z);
 		
 		updateOrigin();
 	}
@@ -496,6 +580,14 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		
 		if(blocks == null)
 			return ;
+		
+		if(collisionBoxWorker != null)
+		{
+			collisionBoxWorker.work();
+			
+			if(collisionBoxWorker.hasFinished())
+				collisionBoxWorker = null;
+		}
 		
 		prevWorldRotX = worldRotX;
 		prevWorldRotY = worldRotY;
