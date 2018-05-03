@@ -158,7 +158,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 			
 			if(waitingForRender.size() == 0 || ticksToWait < 0)
 			{
-				System.out.println("Skipping " + waitingForRender.size() + " ...");
 				unloadRenderCache();
 				isDead = true;
 			}else

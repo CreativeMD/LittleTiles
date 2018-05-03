@@ -444,7 +444,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
 		
 		Vector2d[] vectors;
 		
-		if(minOneOffset == minTwoOffset && maxOneOffset == maxTwoOffset) 
+		if(minOneOffset == maxOneOffset && minTwoOffset == maxTwoOffset) 
 			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
 		else if(minOneOffset == maxOneOffset)
 			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo)};
@@ -490,7 +490,10 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     				//distance -= 0.00000000001;
     				
     				if(distance < 0)
-    					continue;
+    					return distance;
+    				
+    				if(distance > 0.00000000001)
+    					distance -= 0.00000000001;
     				
     				minDistance = Math.min(distance, minDistance);
 				}

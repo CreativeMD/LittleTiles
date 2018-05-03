@@ -6,8 +6,15 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.vecmath.Vector2d;
+import javax.vecmath.Vector3d;
+
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
+import com.creativemd.creativecore.common.utils.BoxUtils;
+import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
@@ -18,6 +25,7 @@ import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
@@ -34,7 +42,10 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -65,11 +76,15 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		
 		if(entity.renderQueue != null)
 		{
-			int i = 0;
 			for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
 				if(!te.rendering.get())
 				{
+					if(te.getBuffer() == null)
+					{
+						RenderingThread.addCoordToUpdate(te, 0, false);
+						continue;
+					}
 					BlockPos renderChunkPos = EntityDoorAnimation.getRenderChunkPos(te.getPos());
 					LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
 					if(chunk == null)
@@ -77,8 +92,6 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 						chunk = new LittleRenderChunk(renderChunkPos);
 						entity.renderChunks.put(renderChunkPos, chunk);
 					}
-					
-					i++;
 					chunk.addRenderData(te);				
 					iterator.remove();
 				}
@@ -298,7 +311,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			
 			GlStateManager.translate(-x, -y, -z);
 			
-			 AxisAlignedBB entityBB = entity.getFakeWorldOrientatedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
+			AxisAlignedBB entityBB = entity.getFakeWorldOrientatedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
 			 
             for (EntityAABB bb : entity.worldCollisionBoxes) {
             	GlStateManager.pushMatrix();
@@ -320,6 +333,8 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
             
             GlStateManager.popMatrix();
             
+            renderTempShit(entity, x, y, z);
+            
             GlStateManager.glLineWidth(2.0F);
             
             GlStateManager.enableTexture2D();
@@ -329,6 +344,142 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
             GlStateManager.depthMask(true);
 		}
     }
+	
+	public void renderTempShit(EntityDoorAnimation entity, double x, double y, double z)
+	{
+		GlStateManager.pushMatrix();
+		if(entity.worldCollisionBoxes.size() > 1)
+			return;
+		
+		GlStateManager.enableAlpha();
+		GlStateManager.enableBlend();
+		
+		EntityAABB aabb = entity.worldCollisionBoxes.get(0);
+		AxisAlignedBB box = Minecraft.getMinecraft().player.getEntityBoundingBox();
+		
+		renderShitFace(aabb, box, EnumFacing.UP, x - entity.posX, y - entity.posY, z - entity.posZ);
+		renderShitFace(aabb, box, EnumFacing.WEST, x - entity.posX, y - entity.posY, z - entity.posZ);		
+    	
+    	GlStateManager.popMatrix();
+	}
+	
+	public void renderShitFace(EntityAABB aabb, AxisAlignedBB other, EnumFacing facing, double x, double y, double z)
+	{
+		Axis axis = facing.getAxis();
+		double alpha = 0.5;
+		Vector3d color = new Vector3d(1, 0, 0);
+		if(axis == Axis.Y)
+			color.set(0, 1, 1);
+		else if(axis == Axis.Z)
+			color.set(0, 0, 1);
+    	double closestValue = CreativeAxisAlignedBB.getValueOfFacing(other, facing.getOpposite());
+    	Vector3d[] corners = BoxUtils.getOuterCorner(facing, aabb.origin, aabb);
+    	
+    	Vector3d outerCorner = corners[0];
+    	
+    	RenderHelper3D.renderBlock(outerCorner.x + x, outerCorner.y + y, outerCorner.z + z, 0.1, 0.1, 0.1, 0, 0, 0, color.x, color.y, color.z, alpha);
+    	
+    	
+    	Axis one = RotationUtils.getDifferentAxisFirst(axis);
+    	Axis two = RotationUtils.getDifferentAxisSecond(axis);
+    	
+    	double minOne = CreativeAxisAlignedBB.getMin(other, one);
+    	double minTwo = CreativeAxisAlignedBB.getMin(other, two);
+    	double maxOne = CreativeAxisAlignedBB.getMax(other, one);
+    	double maxTwo = CreativeAxisAlignedBB.getMax(other, two);
+    	
+    	double outerCornerOne = RotationUtils.get(one, outerCorner);
+    	double outerCornerTwo = RotationUtils.get(two, outerCorner);
+    	double outerCornerAxis = RotationUtils.get(axis, outerCorner);
+    	
+    	Vector2d[] directions = new Vector2d[3];
+    	
+    	for (int i = 1; i <= 3; i++) { // Check all lines which connect to the outer corner
+    		
+    		Vector3d corner = corners[i];
+    		
+    		LittleTile2DLine line = new LittleTile2DLine(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
+    		directions[i-1] = new Vector2d(line.directionOne, line.directionTwo);
+    	}
+    	
+    	boolean minOneOffset = outerCornerOne >= minOne;
+		boolean minTwoOffset = outerCornerTwo >= minTwo;
+		boolean maxOneOffset = outerCornerOne > maxOne;
+		boolean maxTwoOffset = outerCornerTwo > maxTwo;
+		
+		Vector2d[] vectors;
+		
+		if(minOneOffset == maxOneOffset && minTwoOffset == maxTwoOffset) 
+			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
+		else if(minOneOffset == maxOneOffset)
+			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo)};
+		else if(minTwoOffset == maxTwoOffset) 
+			vectors = new Vector2d[] {new Vector2d(minOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo), new Vector2d(maxOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
+		else
+			vectors = new Vector2d[] {};
+		
+		for (int i = 0; i < vectors.length; i++) {
+			
+			Vector3d vector = new Vector3d();
+			RotationUtils.setValue(vector, vectors[i].x + outerCornerOne, one);
+			RotationUtils.setValue(vector, vectors[i].y + outerCornerTwo, two);
+			RotationUtils.setValue(vector, closestValue, axis);
+			
+			RenderHelper3D.renderBlock(vector.x + x, vector.y + y, vector.z + z, 0.1, 0.1, 0.1, 0, 0, 0, color.x, color.y, color.z, alpha);
+		}
+		
+		for (int i = 0; i < 3; i++) { // Calculate faces
+			
+			int indexFirst = i;
+			int indexSecond = i == 2 ? 0 : i + 1;
+			
+			Vector2d first = directions[indexFirst];
+			Vector2d second = directions[indexSecond];
+			
+			if(first.x == 0 || second.y == 0)
+			{
+				int temp = indexFirst;
+				indexFirst = indexSecond;
+				indexSecond = temp;
+				first = directions[indexFirst];
+				second = directions[indexSecond];
+			}
+			
+			for (int j = 0; j < vectors.length; j++) {
+				
+				Vector2d vector = vectors[j];			
+				
+				//if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
+						//(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
+				{					
+					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y-first.y*second.x);
+					if(t <= 0 || t >= 1 || Double.isNaN(t))
+						continue;
+					
+    				double s = (vector.y-t*first.y)/second.y;
+    				if(s <= 0 || s >= 1 || Double.isNaN(s))
+						continue;
+    				
+    				double valueAxis = outerCornerAxis + (RotationUtils.get(axis, corners[indexFirst+1]) - outerCornerAxis) * t + (RotationUtils.get(axis, corners[indexSecond+1]) - outerCornerAxis) * s;
+    				
+    				Vector3d vector2 = new Vector3d();
+    				RotationUtils.setValue(vector2, first.x * t + outerCornerOne, one);
+    				RotationUtils.setValue(vector2, second.y * s + outerCornerTwo, two);
+    				RotationUtils.setValue(vector2, valueAxis, axis);
+    				
+    				RenderHelper3D.renderBlock(vector2.x + x, vector2.y + y, vector2.z + z, 0.1, 0.1, 0.1, 0, 0, 0, color.x, color.y, color.z+1.0, alpha);
+    				//double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
+    				//distance -= 0.00000000001;
+    				
+    				//if(distance < 0)
+    					//continue;
+    				
+    				//minDistance = Math.min(distance, minDistance);
+				}
+			}
+			
+		}
+	}
 
 	@Override
 	protected ResourceLocation getEntityTexture(EntityDoorAnimation entity) {

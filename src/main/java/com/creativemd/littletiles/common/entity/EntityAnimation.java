@@ -684,7 +684,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		animation.setCenterVec(center.copy(), additionalAxis.copy());
 		animation.structure = structure;
 		animation.previews = previews.copy();
-		animation.blocks = new ArrayList<>(blocks);
+		animation.blocks = blocks;
 		
 		animation.worldBoundingBox = worldBoundingBox;
 		animation.worldCollisionBoxes = new ArrayList<>(worldCollisionBoxes);
