@@ -923,7 +923,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	@Override
 	public void update()
 	{		
-		if(updateTiles.isEmpty())
+		if(updateTiles.isEmpty() && !world.isRemote)
 		{
 			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return ;
