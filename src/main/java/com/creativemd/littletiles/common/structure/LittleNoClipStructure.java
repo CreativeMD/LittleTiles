@@ -53,7 +53,8 @@ public class LittleNoClipStructure extends LittleStructure {
 	@Override
     public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
     {
-		entityIn.setInWeb();
+		if(web)
+			entityIn.setInWeb();
     }
 
 }
