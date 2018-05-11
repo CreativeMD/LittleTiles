@@ -10,8 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
+import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
+import com.creativemd.creativecore.common.utils.ColorUtils;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.TickUtils;
 import com.creativemd.creativecore.common.utils.WorldUtils;
@@ -24,9 +26,11 @@ import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.mods.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -35,6 +39,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.nbt.LittleNBTCompressionTools;
 
+import elucent.albedo.lighting.ILightProvider;
+import elucent.albedo.lighting.Light;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -55,12 +61,16 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TileEntityLittleTiles extends TileEntityCreative implements ITickable, ILittleTileTE {
+
+@Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
+public class TileEntityLittleTiles extends TileEntityCreative implements ITickable, ILittleTileTE, ILightProvider {
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -1115,5 +1125,38 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		else
 			ticking = true;
 		return ticking;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	@Method(modid = "albedo")
+	public Light provideLight() {
+		if(ColoredLightsManager.isInstalled())
+		{
+			AxisAlignedBB box = null;
+			int color = -1;
+			for (LittleTile tile : tiles) {
+				if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == ColoredLightsManager.getInvertedColorsBlock())
+				{
+					int tileColor = ColoredLightsManager.getColorFromBlock(((LittleTileBlock) tile).getBlockState());
+					if(tile instanceof LittleTileBlockColored)
+						tileColor = ColorUtils.blend(tileColor, ((LittleTileBlockColored) tile).color);
+					if(box == null)
+					{
+						box = tile.getCompleteBox().getBox(context, pos);
+						color = tileColor;
+					}
+					else
+					{
+						box = box.union(tile.getCompleteBox().getBox(context, pos));
+						color = ColorUtils.blend(color, tileColor);
+					}
+				}	
+			}
+			
+			if(box != null)
+				return new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build();
+		}
+		return null;
 	}
 }
