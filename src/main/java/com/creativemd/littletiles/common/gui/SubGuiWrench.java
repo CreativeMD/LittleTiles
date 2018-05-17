@@ -53,7 +53,7 @@ public class SubGuiWrench extends SubGui {
 							if(preview.canBeConvertedToBlockEntry())
 							{
 								ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-								color.addColorUnit(ColorUnit.getRequiredColors(previews.context, preview));
+								color.addColorUnit(ColorUnit.getColors(previews.context, preview));
 							}
 						}
 						try {

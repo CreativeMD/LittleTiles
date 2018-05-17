@@ -495,7 +495,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				if(preview.canBeConvertedToBlockEntry())
 				{
 					ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-					color.addColorUnit(ColorUnit.getRequiredColors(previews.context, preview));
+					color.addColorUnit(ColorUnit.getColors(previews.context, preview));
 				}
 			}
 			return canDrainIngredients(player, ingredients, color);
@@ -513,7 +513,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				if(preview.canBeConvertedToBlockEntry())
 				{
 					ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-					color.addColorUnit(ColorUnit.getRequiredColors(previews.context, preview));
+					color.addColorUnit(ColorUnit.getColors(previews.context, preview));
 				}
 			}
 			return drainIngredients(player, ingredients, color);
@@ -550,7 +550,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 						if(preview.canBeConvertedToBlockEntry())
 						{
 							ingredients.block.addIngredient(preview.getBlockIngredient(tiles.context));
-							ingredients.color.addColorUnit(ColorUnit.getRequiredColors(tiles.context, preview));
+							ingredients.color.addColorUnit(ColorUnit.getColors(tiles.context, preview));
 						}
 					}
 					return ingredients;
@@ -754,7 +754,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				if(preview.canBeConvertedToBlockEntry())
 				{
 					ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-					color.addColorUnit(ColorUnit.getRequiredColors(previews.context, preview));
+					color.addColorUnit(ColorUnit.getColors(previews.context, preview));
 				}
 			}
 			return addIngredients(player, ingredients, color);

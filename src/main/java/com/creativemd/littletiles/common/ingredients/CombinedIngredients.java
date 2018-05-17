@@ -33,7 +33,7 @@ public class CombinedIngredients {
 		if(preview.canBeConvertedToBlockEntry())
 		{
 			block.addIngredient(preview.getBlockIngredient(context));
-			color.addColorUnit(ColorUnit.getRequiredColors(context, preview));
+			color.addColorUnit(ColorUnit.getColors(context, preview));
 		}
 	}
 	
@@ -44,7 +44,7 @@ public class CombinedIngredients {
 			BlockIngredient ingredient = preview.getBlockIngredient(LittleGridContext.get());
 			ingredient.value = volume;
 			block.addIngredient(ingredient);
-			color.addColorUnit(ColorUnit.getRequiredColors(preview, volume));
+			color.addColorUnit(ColorUnit.getColors(preview, volume));
 		}
 	}
 	

@@ -24,9 +24,9 @@ public class SubGuiTileContainer extends SubGui{
 	}
 	
 	public static Style blackStyle = new Style("black", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(50, 50, 50));
-	public static Style redStyle = new Style("red", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(255, 0, 0), new ColoredDisplayStyle(50, 50, 50));
-	public static Style greenStyle = new Style("green", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(0, 255, 0), new ColoredDisplayStyle(50, 50, 50));
-	public static Style blueStyle = new Style("blue", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(0, 0, 255), new ColoredDisplayStyle(50, 50, 50));
+	public static Style cyanStyle = new Style("cyan", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(0, 255, 255), new ColoredDisplayStyle(50, 50, 50));
+	public static Style magentaStyle = new Style("magenta", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(255, 0, 255), new ColoredDisplayStyle(50, 50, 50));
+	public static Style yellowStyle = new Style("yellow", new ColoredDisplayStyle(0, 0, 0), new ColoredDisplayStyle(120, 120, 120), DisplayStyle.emptyDisplay, new ColoredDisplayStyle(255, 255, 0), new ColoredDisplayStyle(50, 50, 50));
 	@Override
 	public void createControls() {
 		if(!stack.hasTagCompound())
@@ -35,9 +35,9 @@ public class SubGuiTileContainer extends SubGui{
 		ColorUnit unit = ItemTileContainer.loadColorUnit(stack);
 		
 		controls.add(new GuiProgressBar("black", 120, 26, 45, 3, ItemTileContainer.colorUnitMaximum, unit.BLACK).setStyle(blackStyle));
-		controls.add(new GuiProgressBar("red", 120, 40, 45, 3, ItemTileContainer.colorUnitMaximum, unit.RED).setStyle(redStyle));
-		controls.add(new GuiProgressBar("green", 120, 54, 45, 3, ItemTileContainer.colorUnitMaximum, unit.GREEN).setStyle(greenStyle));
-		controls.add(new GuiProgressBar("blue", 120, 68, 45, 3, ItemTileContainer.colorUnitMaximum, unit.BLUE).setStyle(blueStyle));
+		controls.add(new GuiProgressBar("cyan", 120, 40, 45, 3, ItemTileContainer.colorUnitMaximum, unit.CYAN).setStyle(cyanStyle));
+		controls.add(new GuiProgressBar("magenta", 120, 54, 45, 3, ItemTileContainer.colorUnitMaximum, unit.MAGENTA).setStyle(magentaStyle));
+		controls.add(new GuiProgressBar("yellow", 120, 68, 45, 3, ItemTileContainer.colorUnitMaximum, unit.YELLOW).setStyle(yellowStyle));
 	}
 	
 	@Override

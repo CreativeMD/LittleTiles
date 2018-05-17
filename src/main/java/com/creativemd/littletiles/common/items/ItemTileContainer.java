@@ -45,7 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemTileContainer extends Item implements IGuiCreator{
 	
-	public static int colorUnitMaximum = 1000000;
+	public static int colorUnitMaximum = 10000000;
 	public static int inventoryWidth = 6;
 	public static int inventoryHeight = 4;
 	public static int inventorySize = inventoryWidth*inventoryHeight;
@@ -199,15 +199,15 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		if(!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
-		return new ColorUnit(stack.getTagCompound().getInteger("black"), stack.getTagCompound().getInteger("red"), stack.getTagCompound().getInteger("green"), stack.getTagCompound().getInteger("blue"));
+		return new ColorUnit(stack.getTagCompound().getInteger("black"), stack.getTagCompound().getInteger("cyan"), stack.getTagCompound().getInteger("magenta"), stack.getTagCompound().getInteger("yellow"));
 	}
 	
 	public static void saveColorUnit(ItemStack stack, ColorUnit unit)
 	{
 		stack.getTagCompound().setInteger("black", unit.BLACK);
-		stack.getTagCompound().setInteger("red", unit.RED);
-		stack.getTagCompound().setInteger("green", unit.GREEN);
-		stack.getTagCompound().setInteger("blue", unit.BLUE);
+		stack.getTagCompound().setInteger("cyan", unit.CYAN);
+		stack.getTagCompound().setInteger("magenta", unit.MAGENTA);
+		stack.getTagCompound().setInteger("yellow", unit.YELLOW);
 	}
 	
 	public static ColorUnit storeColor(ItemStack stack, ColorUnit unit, boolean simulate)
@@ -221,24 +221,24 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		if(stack.getTagCompound().getInteger("black") != maxBlack)
 			result.BLACK -= maxBlack - stack.getTagCompound().getInteger("black");
 		
-		int maxRed = Math.min(stack.getTagCompound().getInteger("red") + unit.RED, colorUnitMaximum);
-		if(stack.getTagCompound().getInteger("red") != maxRed)
-			result.RED -= maxRed - stack.getTagCompound().getInteger("red");
+		int maxRed = Math.min(stack.getTagCompound().getInteger("cyan") + unit.CYAN, colorUnitMaximum);
+		if(stack.getTagCompound().getInteger("cyan") != maxRed)
+			result.CYAN -= maxRed - stack.getTagCompound().getInteger("cyan");
 		
-		int maxGreen = Math.min(stack.getTagCompound().getInteger("green") + unit.GREEN, colorUnitMaximum);
-		if(stack.getTagCompound().getInteger("green") != maxGreen)
-			result.GREEN -= maxGreen - stack.getTagCompound().getInteger("green");
+		int maxGreen = Math.min(stack.getTagCompound().getInteger("magenta") + unit.MAGENTA, colorUnitMaximum);
+		if(stack.getTagCompound().getInteger("magenta") != maxGreen)
+			result.MAGENTA -= maxGreen - stack.getTagCompound().getInteger("magenta");
 		
-		int maxBlue = Math.min(stack.getTagCompound().getInteger("blue") + unit.BLUE, colorUnitMaximum);
-		if(stack.getTagCompound().getInteger("blue") != maxBlue)
-			result.BLUE -= maxBlue - stack.getTagCompound().getInteger("blue");
+		int maxBlue = Math.min(stack.getTagCompound().getInteger("yellow") + unit.YELLOW, colorUnitMaximum);
+		if(stack.getTagCompound().getInteger("yellow") != maxBlue)
+			result.YELLOW -= maxBlue - stack.getTagCompound().getInteger("yellow");
 		
 		if(!simulate)
 		{
 			stack.getTagCompound().setInteger("black", maxBlack);
-			stack.getTagCompound().setInteger("red", maxRed);
-			stack.getTagCompound().setInteger("green", maxGreen);
-			stack.getTagCompound().setInteger("blue", maxBlue);
+			stack.getTagCompound().setInteger("cyan", maxRed);
+			stack.getTagCompound().setInteger("magenta", maxGreen);
+			stack.getTagCompound().setInteger("yellow", maxBlue);
 		}
 		
 		if(result.isEmpty())
@@ -257,21 +257,21 @@ public class ItemTileContainer extends Item implements IGuiCreator{
 		int drainBlack = Math.min(unit.BLACK, stack.getTagCompound().getInteger("black"));
 		result.BLACK -= drainBlack;
 		
-		int drainRed = Math.min(unit.RED, stack.getTagCompound().getInteger("red"));
-		result.RED -= drainRed;
+		int drainRed = Math.min(unit.CYAN, stack.getTagCompound().getInteger("cyan"));
+		result.CYAN -= drainRed;
 		
-		int drainGreen = Math.min(unit.GREEN, stack.getTagCompound().getInteger("green"));
-		result.GREEN -= drainGreen;
+		int drainGreen = Math.min(unit.MAGENTA, stack.getTagCompound().getInteger("magenta"));
+		result.MAGENTA -= drainGreen;
 		
-		int drainBlue = Math.min(unit.BLUE, stack.getTagCompound().getInteger("blue"));
-		result.BLUE -= drainBlue;
+		int drainBlue = Math.min(unit.YELLOW, stack.getTagCompound().getInteger("yellow"));
+		result.YELLOW -= drainBlue;
 		
 		if(!simulate)
 		{
 			stack.getTagCompound().setInteger("black", stack.getTagCompound().getInteger("black") - drainBlack);
-			stack.getTagCompound().setInteger("red", stack.getTagCompound().getInteger("red") - drainRed);
-			stack.getTagCompound().setInteger("green", stack.getTagCompound().getInteger("green") - drainGreen);
-			stack.getTagCompound().setInteger("blue", stack.getTagCompound().getInteger("blue") - drainBlue);
+			stack.getTagCompound().setInteger("cyan", stack.getTagCompound().getInteger("cyan") - drainRed);
+			stack.getTagCompound().setInteger("magenta", stack.getTagCompound().getInteger("magenta") - drainGreen);
+			stack.getTagCompound().setInteger("yellow", stack.getTagCompound().getInteger("yellow") - drainBlue);
 		}
 		
 		if(result.isEmpty())
