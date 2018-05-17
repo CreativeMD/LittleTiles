@@ -120,7 +120,25 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 		thinner,
 		thinnest,
 		
-		water;
+		water
+		{
+			@Override
+			public boolean isWater() {
+				return true;
+			}
+		},
+		white_water
+		{
+			@Override
+			public boolean isWater() {
+				return true;
+			}
+		};
+		
+		public boolean isWater()
+		{
+			return false;
+		}
 		
 		public static EnumType byMetadata(int meta)
 		{
@@ -140,14 +158,14 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 
 	@Override
 	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
-		if(tile.getBlockState().getValue(VARIANT) == EnumType.water)
+		if(tile.getBlockState().getValue(VARIANT).isWater())
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
 	
 	@Override
 	public boolean isMaterial(LittleTileBlock tile, Material material) {
-		if(tile.getBlockState().getValue(VARIANT) == EnumType.water)
+		if(tile.getBlockState().getValue(VARIANT).isWater())
 			return material == Material.WATER;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
 	}
@@ -155,19 +173,19 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	@Override
 	public boolean isLiquid(LittleTileBlock tile)
 	{
-		if(tile.getBlockState().getValue(VARIANT) == EnumType.water)
+		if(tile.getBlockState().getValue(VARIANT).isWater())
 			return true;
 		return ISpecialBlockHandler.super.isLiquid(tile);
 	}
 	
 	@Override
 	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
-		return tile.getBlockState().getValue(VARIANT) != EnumType.water;
+		return !tile.getBlockState().getValue(VARIANT).isWater();
 	}
 
 	@Override
 	public IBlockState getFakeState(IBlockState state) {
-		if(state.getValue(VARIANT) == EnumType.water)
+		if(state.getValue(VARIANT).isWater())
 			return Blocks.WATER.getDefaultState();
 		return state;
 	}
@@ -176,9 +194,12 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state,
 			EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY,
 			float hitZ) {
-		if(state.getValue(VARIANT) == EnumType.water && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket)
+		if(state.getValue(VARIANT).isWater() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket)
 		{
-			tile.setBlock(LittleTiles.flowingWater, 0);
+			if(state.getValue(VARIANT) == EnumType.water)
+				tile.setBlock(LittleTiles.flowingWater, 0);
+			else
+				tile.setBlock(LittleTiles.whiteFlowingWater, 0);
 			tile.te.updateTiles();
 			return true;
 		}
@@ -190,7 +211,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
 	{
-		if(thisTile.getMeta() == EnumType.water.ordinal())
+		if(EnumType.values()[thisTile.getMeta()].isWater())
 			return tile.getBlock() == LittleTiles.flowingWater;			
 		return false;
 	}

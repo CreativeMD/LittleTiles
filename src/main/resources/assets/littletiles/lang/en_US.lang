@@ -34,6 +34,7 @@ tile.LTTransparentColoredBlock.thin.name=Colored Block Thin
 tile.LTTransparentColoredBlock.thinner.name=Colored Block Thinner
 tile.LTTransparentColoredBlock.thinnest.name=Colored Block Thinnest
 tile.LTTransparentColoredBlock.water.name=Water
+tile.LTTransparentColoredBlock.white_water.name=White Water
 
 tile.LTStorageBlockTile.name=Little Storage Block
 
