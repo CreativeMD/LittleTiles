@@ -37,6 +37,8 @@ public class LittleActionCombined extends LittleAction {
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
+		if(actions.length == 0)
+			return true;
 		boolean success = false;
 		for (int i = 0; i < actions.length; i++) {
 			if(actions[i].action(player))
