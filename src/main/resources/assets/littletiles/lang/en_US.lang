@@ -64,9 +64,9 @@ exception.permission.edit=You are not allowed to edit more than %s blocks
 exception.permission.place=You are not allowed to place more than %s blocks
 
 color.unit.black=black
-color.unit.red=red
-color.unit.green=green
-color.unit.blue=blue
+color.unit.cyan=cyan
+color.unit.magenta=magenta
+color.unit.yellow=yellow
 color.unit.single=unit
 color.unit.multiple=units
 

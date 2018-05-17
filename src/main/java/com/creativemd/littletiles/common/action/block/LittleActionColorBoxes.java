@@ -117,7 +117,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						volume += box2.getPercentVolume(context);
 					}
 					
-					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), volume));
+					gained.addColorUnit(ColorUnit.getColors(tile.getPreviewTile(), volume));
 					
 				}else{
 					List<LittleTileBox> cutout = new ArrayList<>();
@@ -165,7 +165,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				if(simulate)
 				{
 					colorVolume += tile.getPercentVolume();
-					gained.addColorUnit(ColorUnit.getRequiredColors(tile.getPreviewTile(), tile.getPercentVolume()));
+					gained.addColorUnit(ColorUnit.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
 				}else{
 					List<LittleTileBox> oldBoxes = new ArrayList<>();
 					oldBoxes.add(tile.box);
@@ -196,7 +196,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				}
 			}
 		}
-		ColorUnit toDrain = ColorUnit.getRequiredColors(color);
+		ColorUnit toDrain = ColorUnit.getColors(color);
 		toDrain.scale(colorVolume);
 		
 		gained.drain(toDrain);

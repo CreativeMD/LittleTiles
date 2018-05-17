@@ -133,11 +133,8 @@ public class LittleActionSaw extends LittleActionInteract {
 				ColorUnit unit = null;
 				if(preview.hasColor())
 				{
-					unit = ColorUnit.getRequiredColors(preview.getColor());
-					unit.BLACK *= amount;
-					unit.RED *= amount;
-					unit.GREEN *= amount;
-					unit.BLUE *= amount;
+					unit = ColorUnit.getColors(preview.getColor());
+					unit.scaleLoose(amount);
 				}
 				
 				if(secondMode)
@@ -243,11 +240,8 @@ public class LittleActionSaw extends LittleActionInteract {
 				ColorUnit unit = null;
 				if(preview.hasColor())
 				{
-					unit = ColorUnit.getRequiredColors(preview.getColor());
-					unit.BLACK *= amount;
-					unit.RED *= amount;
-					unit.GREEN *= amount;
-					unit.BLUE *= amount;
+					unit = ColorUnit.getColors(preview.getColor());
+					unit.scaleLoose(amount);
 				}
 				
 				if(oldBox.getVolume() < tile.box.getVolume())

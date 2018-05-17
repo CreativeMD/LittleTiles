@@ -94,6 +94,7 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
 				}else if(input.getItem() instanceof ItemDye){
 					ColorUnit color = ColorUnit.getColors(ItemDye.DYE_COLORS[input.getItemDamage()]);
+					color.scale(2);
 					ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
 					if(result != null && result.equals(color))
 						return ;
