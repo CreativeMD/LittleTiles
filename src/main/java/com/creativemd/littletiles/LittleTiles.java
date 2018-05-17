@@ -147,7 +147,8 @@ public class LittleTiles {
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
 	
-	public static Block flowingWater = new BlockLTFlowingWater().setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
+	public static Block flowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.water).setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
+	public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.white_water).setRegistryName("LTWhiteFlowingWater").setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
 	
 	public static Item hammer;
 	public static Item recipe;
@@ -241,6 +242,7 @@ public class LittleTiles {
 		GameRegistry.register(utilityKnife);
 		
 		GameRegistry.register(flowingWater);
+		GameRegistry.register(whiteFlowingWater);
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");

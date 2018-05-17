@@ -6,6 +6,7 @@
         "variant=thinner": { "model": "littletiles:colored_transparent_block_thinner" },
         "variant=thinnest": { "model": "littletiles:colored_transparent_block_thinnest" },
         
-        "variant=water": { "model": "littletiles:colored_transparent_block_water" }
+        "variant=water": { "model": "littletiles:colored_transparent_block_water" },
+		"variant=white_water": { "model": "littletiles:colored_transparent_block_white_water" }
     }
 }

@@ -62,8 +62,11 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	
 	public static final PropertyEnum<EnumFacing> DIRECTION = PropertyEnum.<EnumFacing>create("direction", EnumFacing.class);
 	
-	public BlockLTFlowingWater() {
+	public final BlockLTTransparentColored.EnumType still;
+	
+	public BlockLTFlowingWater(BlockLTTransparentColored.EnumType still) {
 		super(Material.WATER);
+		this.still = still;
 		setCreativeTab(LittleTiles.littleTab);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.EAST));
 	}
@@ -193,7 +196,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		{
 			int meta = tile.getMeta() + 1;
 			if(meta > EnumFacing.VALUES.length)
-				tile.setBlock(LittleTiles.transparentColoredBlock, BlockLTTransparentColored.EnumType.water.ordinal());
+				tile.setBlock(LittleTiles.transparentColoredBlock, still.ordinal());
 			else
 				tile.setMeta(meta);
 			tile.te.updateTiles();
@@ -209,7 +212,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	{
 		if(tile.getBlock() == this)
 			return true;
-		if(tile.getBlock() == LittleTiles.transparentColoredBlock && tile.getMeta() == EnumType.water.ordinal())
+		if(tile.getBlock() == LittleTiles.transparentColoredBlock && EnumType.values()[tile.getMeta()].isWater())
 			return true;			
 		return false;
 	}
