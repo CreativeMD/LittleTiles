@@ -5,6 +5,7 @@ import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -89,30 +90,11 @@ public class LittleRenderChunk {
 			        tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
 			        tempBuffers[i] = tempBuffer;
 				}else {
-					try {
-						LittleChunkDispatcher.growBuffer.invoke(tempBuffer, tempBuffer.getVertexFormat().getIntegerSize() * expand * 4);
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-						e1.printStackTrace();
-					}
+					BufferBuilderUtils.growBuffer(tempBuffer, tempBuffer.getVertexFormat().getIntegerSize() * expand * 4);
 				}
 				
 				for (BufferBuilder teBuffer : queuedBuffers[i]) {
-					int size = teBuffer.getVertexFormat().getIntegerSize() * teBuffer.getVertexCount();
-					try {
-						IntBuffer rawIntBuffer = (IntBuffer) LittleChunkDispatcher.rawIntBufferField.get(teBuffer);
-						rawIntBuffer.rewind();
-						rawIntBuffer.limit(size);
-						
-						LittleChunkDispatcher.growBuffer.invoke(tempBuffer, size * 4);
-						IntBuffer chunkIntBuffer = (IntBuffer) LittleChunkDispatcher.rawIntBufferField.get(tempBuffer);
-				        chunkIntBuffer.position(tempBuffer.getVertexFormat().getIntegerSize() * tempBuffer.getVertexCount());
-				        chunkIntBuffer.put(rawIntBuffer);
-				        
-				        LittleChunkDispatcher.vertexCountField.setInt(tempBuffer, LittleChunkDispatcher.vertexCountField.getInt(tempBuffer) + size / tempBuffer.getVertexFormat().getIntegerSize());
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					
+					BufferBuilderUtils.addBuffer(tempBuffer, teBuffer);					
 				}
 				
 				queuedBuffers[i] = null;				

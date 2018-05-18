@@ -1,11 +1,11 @@
 package com.creativemd.littletiles.client.render;
 
-import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
@@ -52,52 +52,21 @@ public class BlockLayerRenderBuffer {
 	private VertexBuffer cutout;
 	private VertexBuffer translucent;
 	
-	public int getBufferSizeForLayer(int tilesOfType)
-	{
-		return bufferSizePerQuad * 6 * tilesOfType + 8;
-	}
+	private BufferBuilder solid;
+	private BufferBuilder cutout_mipped;
+	private BufferBuilder cutout;
+	private BufferBuilder translucent;
 	
-	public VertexBuffer createVertexBuffer(int tilesOfType)
+	public BufferBuilder createVertexBuffer(List<? extends RenderCubeObject> cubes)
 	{
-		return new VertexBuffer(getBufferSizeForLayer(tilesOfType));
-	}
-	
-	/*public VertexBuffer getTemporaryBufferByLayer(BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
-		case SOLID:
-			return solidTemp;
-		case CUTOUT_MIPPED:
-			return cutout_mippedTemp;
-		case CUTOUT:
-			return cutoutTemp;
-		case TRANSLUCENT:
-			return translucentTemp;
+		int size = 1;
+		for (RenderCubeObject cube : cubes) {
+			size += cube.getQuads();
 		}
-		return null;
+		return new BufferBuilder(bufferSizePerQuad * size);
 	}
 	
-	public void setTemporaryBufferByLayer(VertexBuffer buffer, BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
-		case SOLID:
-			solidTemp = buffer;
-			break;
-		case CUTOUT_MIPPED:
-			cutout_mippedTemp = buffer;
-			break;
-		case CUTOUT:
-			cutoutTemp = buffer;
-			break;
-		case TRANSLUCENT:
-			translucentTemp = buffer;
-			break;
-		}
-	}*/
-	
-	public VertexBuffer getBufferByLayer(BlockRenderLayer layer)
+	public BufferBuilder getBufferByLayer(BlockRenderLayer layer)
 	{
 		switch(layer)
 		{
