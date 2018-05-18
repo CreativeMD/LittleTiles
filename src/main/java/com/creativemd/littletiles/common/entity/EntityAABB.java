@@ -316,7 +316,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	return 0;
     }
     
-    private static boolean isFurtherOrEqualThan(double value, double toCheck)
+    public static boolean isFurtherOrEqualThan(double value, double toCheck)
     {
     	if(value < 0)
     		return toCheck <= value;
@@ -474,8 +474,8 @@ public class EntityAABB extends CreativeAxisAlignedBB {
 				
 				Vector2d vector = vectors[j];			
 				
-				//if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
-						//(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
+				if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
+						(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
 				{					
 					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y-first.y*second.x);
 					if(t <= 0 || t >= 1 || Double.isNaN(t))
@@ -487,7 +487,6 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     				
     				double valueAxis = outerCornerAxis + (RotationUtils.get(axis, corners[indexFirst+1]) - outerCornerAxis) * t + (RotationUtils.get(axis, corners[indexSecond+1]) - outerCornerAxis) * s;
     				double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
-    				//distance -= 0.00000000001;
     				
     				if(distance < 0)
     					return distance;

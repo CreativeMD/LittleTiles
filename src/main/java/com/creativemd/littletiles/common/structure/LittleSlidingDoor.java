@@ -19,6 +19,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
@@ -154,8 +155,12 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.moveContext = moveContext;
 		structure.setTiles(new HashMapList<>());
 		
-		
-		return place(world, structure, player, defaultpreviews, pos, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, getAbsoluteAxisVec(), getAdditionalAxisVec());
+		LittleTileVec moveVec = new LittleTileVec(moveDirection);
+		moveVec.scale(moveDistance);
+		LittleTilePos absolute = getAbsoluteAxisVec();
+		absolute.add(new LittleTileVecContext(moveContext, moveVec));
+		absolute.removeInternalBlockOffset();
+		return place(world, structure, player, defaultpreviews, pos, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, absolute, getAdditionalAxisVec());
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid)
@@ -228,7 +233,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		{
 			SubGuiStructure gui = ((SubGuiStructure) event.source.parent);
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
-			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+			/*GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
 			
 			LittleTileSize size = LittleTilePreview.getSize(gui.stack);
 			
@@ -237,7 +242,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			if(gui.structure instanceof LittleSlidingDoor && ((LittleSlidingDoor) gui.structure).moveDirection == direction)
 				slider.value = ((LittleSlidingDoor) gui.structure).moveDistance;
 			else
-				slider.value = slider.maxValue-1;
+				slider.value = slider.maxValue-1;*/
 		}
 		
 		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
@@ -322,7 +327,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		int distance = size.getSizeOfAxis(EnumFacing.getFront(index).getAxis());
 		if(door != null)
 			distance = door.moveDistance;
-		gui.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance, 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
+		gui.addControl(new GuiTextfield("distance", "" + distance, 110, 51, 60, 14).setNumbersOnly());
+		//gui.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance, 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
 		
 		gui.addControl(new GuiIDButton("reset view", 110, 75, 0));
 		gui.addControl(new GuiIDButton("change view", 110, 95, 1));
@@ -341,12 +347,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	public LittleDoorBase parseStructure(SubGui gui, int duration) {
 		EnumFacing direction = EnumFacing.getFront(((GuiStateButton) gui.get("direction")).getState());
 		
-		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+		//GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+		GuiTextfield distance = (GuiTextfield) gui.get("distance");
 		
 		LittleSlidingDoor door = new LittleSlidingDoor();
 		door.duration = duration;
 		door.moveDirection = direction;
-		door.moveDistance = (int) slider.value;
+		door.moveDistance = (int) Integer.parseInt(distance.text);
 		door.moveContext = ((GuiTileViewer) gui.get("tileviewer")).context;
 		return door;
 	}

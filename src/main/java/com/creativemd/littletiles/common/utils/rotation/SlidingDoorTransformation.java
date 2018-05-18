@@ -49,7 +49,7 @@ public class SlidingDoorTransformation extends DoorTransformation {
 			animation.moveXTo(animation.getAxisPos().getX() + (distance*context.gridMCLength*(1-progress)));
 			break;
 		case UP:
-			animation.moveYTo( animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress)));
+			animation.moveYTo(animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress)));
 			break;
 		case DOWN:
 			animation.moveYTo(animation.getAxisPos().getY() + (distance*context.gridMCLength*(1-progress)));

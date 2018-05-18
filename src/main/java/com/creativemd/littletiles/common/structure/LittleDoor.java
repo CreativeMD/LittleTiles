@@ -181,7 +181,7 @@ public class LittleDoor extends LittleDoorBase{
 	public void setMainTile(LittleTile tile)
 	{
 		LittleTilePos absolute = tile.getAbsolutePos();
-		if(getMainTile() != null)
+		if(getMainTile() != null && (lastMainTileVec == null || !lastMainTileVec.equals(absolute)))
 			doubledRelativeAxis.add(lastMainTileVec.getRelative(absolute));
 		lastMainTileVec = absolute;
 		super.setMainTile(tile);
@@ -264,6 +264,7 @@ public class LittleDoor extends LittleDoorBase{
 	@Override
 	public LittleGridContext getMinContext()
 	{
+		doubledRelativeAxis.convertToSmallest();
 		return doubledRelativeAxis.context;
 	}
 	
@@ -681,6 +682,12 @@ public class LittleDoor extends LittleDoorBase{
 		}
 		
 		@Override
+		public void convertToSmallest() {
+			if(isEven())
+				super.convertToSmallest();
+		}
+		
+		@Override
 		public boolean equals(Object paramObject) {
 			if(paramObject instanceof LittleRelativeDoubledAxis)
 				return super.equals(paramObject) && additional.equals(((LittleRelativeDoubledAxis) paramObject).additional);
@@ -696,6 +703,11 @@ public class LittleDoor extends LittleDoorBase{
 		public void writeToNBT(String name, NBTTagCompound nbt)
 		{
 			nbt.setIntArray(name, new int[]{vec.x, vec.y, vec.z, context.size, additional.x, additional.y, additional.z});
+		}
+		
+		@Override
+		public String toString() {
+			return "[" + vec.x + "," + vec.y + "," + vec.z + ",grid:" + context.size + ",additional:" + additional + "]";
 		}
 	}
 	
