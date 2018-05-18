@@ -48,6 +48,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public DoorTransformation transformation;
 	
+	public BlockPos previewPos;
+	
 	public void setTransformationStartOffset()
 	{
 		preventPush = true;
@@ -66,7 +68,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	}
 	
 	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
-			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
+			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, BlockPos previewPos) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
@@ -74,6 +76,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
         
         this.transformation = transformation;
         this.duration = structure.duration;
+        
+        this.previewPos = previewPos;
         
         setTransformationStartOffset();
         
@@ -173,12 +177,12 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				if(!world.isRemote || approved)
 				{
-					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, baseOffset, null, null, null, EnumFacing.EAST) != null)
+					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null)
 					{
 						if(world.isRemote)
 						{
 							waitingForRender = new ArrayList<>();
-							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, baseOffset).keySet());
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, previewPos).keySet());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 								if(te instanceof TileEntityLittleTiles)
@@ -209,6 +213,12 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		duration = compound.getInteger("duration");
 		setProgress(compound.getInteger("progress"));
 		
+		int[] array = compound.getIntArray("previewPos");
+		if(array.length == 3)
+			previewPos = new BlockPos(array[0], array[1], array[2]);
+		else
+			previewPos = baseOffset;
+		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
 		setTransformationStartOffset();
 		
@@ -220,6 +230,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		
 		compound.setInteger("duration", duration);
 		compound.setInteger("progress", progress);
+		
+		compound.setIntArray("previewPos", new int[] {previewPos.getX(), previewPos.getY(), previewPos.getZ()});
 		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
 	}

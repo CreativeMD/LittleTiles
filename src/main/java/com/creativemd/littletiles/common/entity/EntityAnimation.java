@@ -480,6 +480,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void unloadRenderCache()
 	{
+		if(renderChunks == null)
+			return ;
 		for (LittleRenderChunk chunk : renderChunks.values()) {
 			chunk.unload();
 		}
@@ -557,7 +559,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void updateOrigin()
 	{
-		fakeWorld.off(posX - (getAxisPos().getX()), posY - (getAxisPos().getY()), posZ - (getAxisPos().getZ()));
+		fakeWorld.off(posX - getAxisPos().getX(), posY - getAxisPos().getY(), posZ - getAxisPos().getZ());
 		fakeWorld.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	

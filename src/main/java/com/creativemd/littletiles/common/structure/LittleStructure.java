@@ -658,6 +658,8 @@ public abstract class LittleStructure {
 				preview.box.addOffset(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 			}
 			
+			previews.convertToSmallest();
+			
 			LittleTilePreview.savePreviewTiles(previews, stack);
 			
 			NBTTagCompound structureNBT = new NBTTagCompound();

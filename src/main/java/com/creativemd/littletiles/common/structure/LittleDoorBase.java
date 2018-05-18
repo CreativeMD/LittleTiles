@@ -109,7 +109,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 				}
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, structure, blocks, previews, absolute, transformation, uuid, player, additional);
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, structure, blocks, previews, absolute, transformation, uuid, player, additional, pos);
 			world.spawnEntity(animation);
 			return true;
 		}

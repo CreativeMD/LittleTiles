@@ -92,7 +92,7 @@ public class PlacePreviewTileAxis extends PlacePreviewTile{
 			if(door.getMainTile() == null)
 				door.selectMainTile();
 			LittleTileVecContext vec = absolute.getRelative(door.getMainTile().getAbsolutePos());
-			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, additionalOffset);
+			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, additionalOffset.copy());
 		}
 		return Collections.EMPTY_LIST;
 	}

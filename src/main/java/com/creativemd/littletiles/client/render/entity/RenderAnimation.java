@@ -110,8 +110,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			entity.renderQueue = null;
 		}
 		
-		/**===Render static part===**/
-		
+		/**===Render static part===**/		
 		Vec3d rotation = entity.getRotVector(partialTicks);
 		
 		LittleGridContext context = entity.getInsideBlockCenter().context;
@@ -357,7 +356,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		EntityAABB aabb = entity.worldCollisionBoxes.get(0);
 		AxisAlignedBB box = Minecraft.getMinecraft().player.getEntityBoundingBox();
 		
-		renderShitFace(aabb, box, EnumFacing.UP, x - entity.posX, y - entity.posY, z - entity.posZ);
+		renderShitFace(aabb, box, EnumFacing.NORTH, x - entity.posX, y - entity.posY, z - entity.posZ);
 		renderShitFace(aabb, box, EnumFacing.WEST, x - entity.posX, y - entity.posY, z - entity.posZ);		
     	
     	GlStateManager.popMatrix();
@@ -409,7 +408,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		
 		Vector2d[] vectors;
 		
-		if(minOneOffset == maxOneOffset && minTwoOffset == maxTwoOffset) 
+		if(minOneOffset == maxOneOffset && minTwoOffset == maxTwoOffset)
 			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo)};
 		else if(minOneOffset == maxOneOffset)
 			vectors = new Vector2d[] {new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo)};
@@ -449,8 +448,8 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				Vector2d vector = vectors[j];			
 				
-				//if((isFurtherOrEqualThan(vector.x, first.x) || isFurtherOrEqualThan(vector.x, second.x) || isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
-						//(isFurtherOrEqualThan(vector.y, first.y) || isFurtherOrEqualThan(vector.y, second.y) || isFurtherOrEqualThan(vector.y, first.y + second.y)))
+				if((EntityAABB.isFurtherOrEqualThan(vector.x, first.x) || EntityAABB.isFurtherOrEqualThan(vector.x, second.x) || EntityAABB.isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
+						(EntityAABB.isFurtherOrEqualThan(vector.y, first.y) || EntityAABB.isFurtherOrEqualThan(vector.y, second.y) || EntityAABB.isFurtherOrEqualThan(vector.y, first.y + second.y)))
 				{					
 					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y-first.y*second.x);
 					if(t <= 0 || t >= 1 || Double.isNaN(t))
@@ -468,13 +467,6 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     				RotationUtils.setValue(vector2, valueAxis, axis);
     				
     				RenderHelper3D.renderBlock(vector2.x + x, vector2.y + y, vector2.z + z, 0.1, 0.1, 0.1, 0, 0, 0, color.x, color.y, color.z+1.0, alpha);
-    				//double distance = positive ? valueAxis - closestValue : closestValue - valueAxis;
-    				//distance -= 0.00000000001;
-    				
-    				//if(distance < 0)
-    					//continue;
-    				
-    				//minDistance = Math.min(distance, minDistance);
 				}
 			}
 			
