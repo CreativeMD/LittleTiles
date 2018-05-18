@@ -9,6 +9,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.lwjgl.BufferUtils;
+
+import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -51,11 +54,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	public LittleChunkDispatcher() {
 		super();
 	}
-	
-	public static Method growBuffer = ReflectionHelper.findMethod(BufferBuilder.class, "growBuffer",  "func_181670_b", int.class);
-	
-	public static Field rawIntBufferField = ReflectionHelper.findField(BufferBuilder.class, "rawIntBuffer", "field_178999_b");
-	public static Field vertexCountField = ReflectionHelper.findField(BufferBuilder.class, "vertexCount", "field_178997_d");
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	
@@ -188,11 +186,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 						e1.printStackTrace();
 					}
 				
-				try {
-					growBuffer.invoke(buffer, buffer.getVertexFormat().getIntegerSize() * expanded * 4);
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-					e1.printStackTrace();
-				}
+				BufferBuilderUtils.growBuffer(buffer, buffer.getVertexFormat().getIntegerSize() * expanded * 4);
 				
 				for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
 					TileEntityLittleTiles te = iterator.next();
@@ -201,27 +195,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 						continue;
 					BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
 					if(teBuffer != null)
-					{
-						int size = teBuffer.getVertexFormat().getIntegerSize() * teBuffer.getVertexCount();
-						try {
-							IntBuffer rawIntBuffer = (IntBuffer) rawIntBufferField.get(teBuffer);
-							rawIntBuffer.rewind();
-							rawIntBuffer.limit(size);
-							/*int[] data = new int[size];
-							rawIntBuffer.get(data);*/
-							
-							growBuffer.invoke(buffer, size * 4);
-							IntBuffer chunkIntBuffer = (IntBuffer) rawIntBufferField.get(buffer);
-					        chunkIntBuffer.position(buffer.getVertexFormat().getIntegerSize() * buffer.getVertexCount());
-					        chunkIntBuffer.put(rawIntBuffer);
-					        
-					        vertexCountField.setInt(buffer, vertexCountField.getInt(buffer) + size / buffer.getVertexFormat().getIntegerSize());
-							
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
-					}
-					
+						BufferBuilderUtils.addBuffer(buffer, teBuffer);					
 				}
 					
 				if(layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null)

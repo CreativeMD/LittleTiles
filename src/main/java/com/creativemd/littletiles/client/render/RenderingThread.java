@@ -151,9 +151,6 @@ public class RenderingThread extends Thread {
 		}
 	}
 	
-	//public static RenderingThread nearbyRenderer = new RenderingThread();
-	//public static RenderingThread distanceRenderer = new RenderingThread();
-	
 	public RenderingThread() {
 		start();
 	}
@@ -237,7 +234,7 @@ public class RenderingThread extends Thread {
 								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 								BufferBuilder buffer = null;
 								if(cubes != null && cubes.size() > 0)
-									buffer = layerBuffer.createVertexBuffer(cubes.size());
+									buffer = layerBuffer.createVertexBuffer(cubes);
 								
 								if(buffer != null)
 								{
@@ -316,6 +313,9 @@ public class RenderingThread extends Thread {
 				}catch(Exception e){
 					updateCoords.add(data);
 					//e.printStackTrace();
+				}catch(OutOfMemoryError error) {
+					updateCoords.add(data);
+					error.printStackTrace();
 				}
 			}else if(world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())){
 				updateCoords.clear();
