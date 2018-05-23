@@ -76,6 +76,8 @@ public class LittleActionSaw extends LittleActionInteract {
 			Axis axis = facing.getAxis();
 			
 			te.ensureMinContext(context);
+			if(context != te.getContext())
+				context = te.getContext();
 			
 			boolean outside = false;
 			
@@ -230,7 +232,14 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if(tile.canSawResizeTile(facing, player))
 			{
-				double amount = Math.abs(oldBox.getPercentVolume(tile.getContext())-tile.box.getPercentVolume(tile.getContext()));
+				tile.te.ensureMinContext(context);
+				if(tile.getContext() != context)
+				{
+					oldBox.convertTo(context, tile.getContext());
+					context = tile.getContext();
+				}
+				
+				double amount = Math.abs(oldBox.getPercentVolume(context)-tile.box.getPercentVolume(tile.getContext()));
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
 				BlockIngredient ingredient = preview.getBlockIngredient(tile.getContext());
@@ -251,8 +260,9 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				replacedBox = tile.box.copy();
 				//replacedBox.addOffset(tile.te.getPos());
-				tile.box = oldBox;
+				tile.box = oldBox.copy();
 				
+				tile.te.convertToSmallest();
 				tile.te.updateBlock();
 				
 				newCoord = new LittleTileIdentifierAbsolute(tile);
