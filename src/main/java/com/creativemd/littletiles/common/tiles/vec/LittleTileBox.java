@@ -9,8 +9,10 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.RangedBitSet.BitRange;
 import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.RangedBitSet;
 import com.creativemd.creativecore.common.utils.Rotation;
 import com.creativemd.creativecore.common.utils.RotationUtils;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -19,6 +21,8 @@ import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedBox;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.SplitRangeBoxes;
+import com.creativemd.littletiles.common.utils.vec.SplitRangeBoxes.SplitRangeBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagByte;
@@ -37,6 +41,8 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileBox {
+	
+	public static final int secondMethodVolume = 256;
 	
 	//================Data================
 	
@@ -531,62 +537,99 @@ public class LittleTileBox {
 		return null;
 	}
 	
+	public SplitRangeBoxes split(List<LittleTileBox> boxes)
+	{
+		RangedBitSet x = split(Axis.X, boxes);
+		RangedBitSet y = split(Axis.Y, boxes);
+		RangedBitSet z = split(Axis.Z, boxes);
+		if(x != null && y != null && z != null)
+			return new SplitRangeBoxes(x, y, z);
+		return null;
+	}
+	
+	protected RangedBitSet split(Axis axis, List<LittleTileBox> boxes)
+	{
+		int min = getMin(axis);
+		int max = getMax(axis);
+		RangedBitSet set = new RangedBitSet(min, max);
+		
+		for (LittleTileBox box : boxes) {
+			
+			if(!box.isCompletelyFilled())
+				return null;
+			
+			if(box.intersectsWith(this))
+				set.set(box.getMin(axis), box.getMax(axis));
+		}
+		
+		return set;
+	}
+	 
 	/**
 	 * @param cutout a list of boxes which have been cut out.
 	 * @return all remaining boxes or null if the box remains as it is
 	 */
 	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout)
 	{
-		boolean[][][] filled = new boolean[getSize(Axis.X)][getSize(Axis.Y)][getSize(Axis.Z)];
-		
-		for (LittleTileBox box : boxes) {
-			box.fillInSpace(this, filled);
-		}
-		
-		boolean expected = filled[0][0][0];
-		boolean continuous = true;
-		
-		loop:
-		for (int x = 0; x < filled.length; x++) {
-			for (int y = 0; y < filled[x].length; y++) {
-				for (int z = 0; z < filled[x][y].length; z++) {
-					if(filled[x][y][z] != expected)
-					{
-						continuous = false;
-						break loop;
-					}
-				}
-			}
-		}
-		
-		if(continuous)
-		{
-			if(expected)
-			{
-				cutout.add(this.copy());
-				return new ArrayList<>();
-			}
-			List<LittleTileBox> newBoxes = new ArrayList<>();
-			newBoxes.add(this.copy());
-			return newBoxes;
-		}
-		
 		List<LittleTileBox> newBoxes = new ArrayList<>();
-		
-		for (int x = 0; x < filled.length; x++) {
-			for (int y = 0; y < filled[x].length; y++) {
-				for (int z = 0; z < filled[x][y].length; z++) {
-					LittleTileBox box = extractBox(x + minX, y + minY, z + minZ);
-					if(box != null)
-					{
-						if(filled[x][y][z])
-							cutout.add(box);
-						else
-							newBoxes.add(box);
+		SplitRangeBoxes ranges;
+		if(getVolume() > secondMethodVolume && (ranges = split(boxes)) != null)
+		{
+			for (SplitRangeBox range : ranges) {
+				extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, range.value ? cutout : newBoxes);
+			}
+		}
+		else
+		{
+			boolean[][][] filled = new boolean[getSize(Axis.X)][getSize(Axis.Y)][getSize(Axis.Z)];
+			
+			for (LittleTileBox box : boxes) {
+				box.fillInSpace(this, filled);
+			}
+			
+			boolean expected = filled[0][0][0];
+			boolean continuous = true;
+			
+			loop:
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						if(filled[x][y][z] != expected)
+						{
+							continuous = false;
+							break loop;
+						}
+					}
+				}
+			}
+			
+			if(continuous)
+			{
+				if(expected)
+				{
+					cutout.add(this.copy());
+					return new ArrayList<>();
+				}
+				newBoxes.add(this.copy());
+				return newBoxes;
+			}
+			
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						LittleTileBox box = extractBox(x + minX, y + minY, z + minZ);
+						if(box != null)
+						{
+							if(filled[x][y][z])
+								cutout.add(box);
+							else
+								newBoxes.add(box);
+						}
 					}
 				}
 			}
 		}
+		
 		BasicCombiner.combineBoxes(newBoxes);		
 		BasicCombiner.combineBoxes(cutout);
 		
@@ -601,13 +644,29 @@ public class LittleTileBox {
 		if(intersectsWith(box))
 		{
 			List<LittleTileBox> boxes = new ArrayList<>();
-			LittleTileVec vec = new LittleTileVec(0, 0, 0);
-			for (int littleX = minX; littleX < maxX; littleX++) {
-				for (int littleY = minY; littleY < maxY; littleY++) {
-					for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
-						vec.set(littleX, littleY, littleZ);
-						if(!box.isVecInsideBox(box, vec))
-							extractBox(littleX, littleY, littleZ, littleX+1, littleY+1, littleZ+1, boxes);
+			
+			if(getVolume() > secondMethodVolume && box.isCompletelyFilled())
+			{
+				List<LittleTileBox> splitting = new ArrayList<>();
+				splitting.add(box);
+				
+				for (SplitRangeBox range : split(splitting)) {
+					if(!range.value)
+						extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, boxes);
+				}
+				
+				return boxes;
+			}
+			else
+			{
+				LittleTileVec vec = new LittleTileVec(0, 0, 0);
+				for (int littleX = minX; littleX < maxX; littleX++) {
+					for (int littleY = minY; littleY < maxY; littleY++) {
+						for (int littleZ = minZ; littleZ < maxZ; littleZ++) {
+							vec.set(littleX, littleY, littleZ);
+							if(!box.isVecInsideBox(box, vec))
+								boxes.add(extractBox(littleX, littleY, littleZ));
+						}
 					}
 				}
 			}
