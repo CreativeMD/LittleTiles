@@ -701,7 +701,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         
         if(nbt.hasKey("tilesCount"))
         {
-        
 	        int count = nbt.getInteger("tilesCount");
 	        for (int i = 0; i < count; i++) {
 	        	NBTTagCompound tileNBT = new NBTTagCompound();
@@ -782,18 +781,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
         	NBTTagCompound tileNBT = new NBTTagCompound();
         	tileNBT = nbt.getCompoundTag("t" + i);
         	
-        	NBTTagList list = tileNBT.getTagList("boxes", 11);
         	LittleTile tile = null;
-        	if(list.tagCount() > 0)
-        	{
-        		tile = getTile(getContext(), LittleTileBox.createBox(list.getIntArrayAt(0)).getIdentifier());
-        	}
+        	if(tileNBT.hasKey("box"))
+        		tile = getTile(getContext(), LittleTileBox.createBox(tileNBT.getIntArray("box")).getIdentifier());
+        	
 			if(!exstingTiles.contains(tile))
 				tile = null;
 			
 			boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
 			if(isIdentical)
-			{
+			{				
 				if(tile.supportsUpdatePacket() && tileNBT.hasKey("update"))
 					tile.receivePacket(tileNBT.getCompoundTag("update"), net);
 				else
