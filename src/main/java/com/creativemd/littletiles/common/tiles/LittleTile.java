@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tiles;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -412,7 +413,7 @@ public abstract class LittleTile {
 	
 	public boolean isIdenticalToNBT(NBTTagCompound nbt)
 	{
-		return getID().equals(nbt.getString("tID")) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible") && box.getArray().equals(nbt.getIntArray("box"));
+		return getID().equals(nbt.getString("tID")) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible") && Arrays.equals(box.getArray(), nbt.getIntArray("box"));
 	}
 	
 	//================Save & Loading================
@@ -484,12 +485,6 @@ public abstract class LittleTile {
 	public void saveTileCore(NBTTagCompound nbt)
 	{
 		nbt.setString("tID", getID());
-		
-		/*NBTTagList list = new NBTTagList();
-		for (int i = 0; i < boundingBoxes.size(); i++) {
-			list.appendTag(boundingBoxes.get(i).getNBTIntArray());
-		}
-		nbt.setTag("boxes", list);*/
 		nbt.setIntArray("box", box.getArray());
 		
 		if(isStructureBlock)
@@ -536,7 +531,7 @@ public abstract class LittleTile {
 		if(isStructureBlock)
 		{
 			if(nbt.getBoolean("main"))
-			{
+			{				
 				isMainBlock = true;
 				if(structure == null)
 					structure = LittleStructure.createAndLoadStructure(nbt, this);
@@ -550,12 +545,12 @@ public abstract class LittleTile {
 					structure.loadFromNBT(nbt);
 				}
 			}else{
+				structure = null;
+				
 				if(nbt.hasKey("coX"))
 				{
 					LittleTilePosition pos = new LittleTilePosition(nbt);
-					
 					coord = new LittleTileIdentifierStructure(te, pos.coord, LittleGridContext.get(), new int[]{pos.position.x, pos.position.y, pos.position.z}, LittleStructureAttribute.NONE);
-					
 					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
 				}else
 					coord = new LittleTileIdentifierStructure(nbt);
