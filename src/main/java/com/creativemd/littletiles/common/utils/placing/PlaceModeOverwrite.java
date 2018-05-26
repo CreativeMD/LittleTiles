@@ -48,8 +48,7 @@ public class PlaceModeOverwrite extends PlacementMode {
 		List<LittleTile> tiles = new ArrayList<>();
 		LittleGridContext context = te.getContext();
 		if(requiresCollisionTest)
-			removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, context, tile.box));
-		te.preventUpdate = true;
+			removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, context, tile.box, false));
 		te.convertTo(context);
 		tiles.add(tile);
 		return tiles;
