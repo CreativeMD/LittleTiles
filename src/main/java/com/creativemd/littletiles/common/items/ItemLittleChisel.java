@@ -44,6 +44,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -308,9 +309,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@SideOnly(Side.CLIENT)
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
-		lastMax = position.copy();
-		if(position.facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			lastMax.contextVec.vec.add(position.facing);
+		lastMax = getPosition(position, result, currentMode);
 	}
 	
 	@Override
@@ -326,16 +325,25 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		lastMax = null;
 	}
 	
+	protected static PositionResult getPosition(PositionResult position, RayTraceResult result, PlacementMode mode)
+	{
+		position = position.copy();
+		
+		EnumFacing facing = result.sideHit;
+		if(mode.mode == SelectionMode.LINES)
+			facing = facing.getOpposite();
+		if(facing.getAxisDirection() == AxisDirection.NEGATIVE)
+			position.contextVec.vec.add(facing);
+		
+		return position;
+	}
+	
 	@Override
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result)
 	{
 		if(ItemLittleChisel.min == null)
-		{
-			position = position.copy();
-			if(result.sideHit.getAxisDirection() == AxisDirection.NEGATIVE)
-				position.contextVec.vec.add(result.sideHit);
-			
-			ItemLittleChisel.min = position;
+		{			
+			ItemLittleChisel.min = getPosition(position, result, currentMode);
 		}else if(LittleAction.isUsingSecondMode(player))
 			ItemLittleChisel.min = null;
 		else
