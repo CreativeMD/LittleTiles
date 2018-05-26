@@ -234,9 +234,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 	}
 	
-	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut)
+	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut, boolean preventUpdate)
 	{
-		te.preventUpdate = true;
+		if(preventUpdate)
+			te.preventUpdate = true;
+		
 		if(context != te.getContext())
 		{
 			if(context.size > te.getContext().size)
@@ -286,8 +288,11 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				removed.add(tile);
 		}
 		
-		te.preventUpdate = false;
-		te.combineTiles();		
+		if(preventUpdate)
+		{
+			te.preventUpdate = false;
+			te.combineTiles();
+		}
 		return removed;
 	}
 	
