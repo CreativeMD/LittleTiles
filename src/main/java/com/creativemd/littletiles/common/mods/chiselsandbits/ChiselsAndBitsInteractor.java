@@ -69,8 +69,8 @@ public class ChiselsAndBitsInteractor {
 	{
 		List<LittleTile> tiles = getTiles(blob);
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-		for (int i = 0; i < tiles.size(); i++) {
-			previews.addTile(tiles.get(i));
+		for (LittleTile tile : tiles) {
+			previews.addWithoutCheckingPreview(tile.getPreviewTile());
 		}
 		return previews;
 	}
@@ -113,7 +113,7 @@ public class ChiselsAndBitsInteractor {
 			if(context == null)
 				throw new Exception();
 		}catch(Exception e){
-			throw new Exception("The grid-size 16 is not supported! Min=" + LittleGridContext.minSize + ", Exponent=" + LittleGridContext.exponent);
+			throw new Exception("The grid-size 16 is not supported! Base=" + LittleGridContext.minSize + ", Exponent=" + LittleGridContext.exponent + ", Scale=" + LittleGridContext.gridSizes.length);
 		}
 		
 		te.convertTo(context);
