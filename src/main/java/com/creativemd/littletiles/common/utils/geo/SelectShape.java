@@ -103,7 +103,7 @@ public abstract class SelectShape {
 			LittleTileVec offset = new LittleTileVec(side);
 			offset.scale((int) (thickness-1)/2);
 			vec.sub(offset);
-			if(((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE) || side.getAxisDirection() == AxisDirection.POSITIVE)
+			if((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE)
 				vec.sub(side);
 			
 			LittleTileBox box = new LittleTileBox(vec, new LittleTileSize(thickness, thickness, thickness));
@@ -250,14 +250,20 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			boxes.add(getBox(new LittleTilePos(result, context).getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			LittleTilePos vec = new LittleTilePos(result, context);
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+				vec.contextVec.vec.sub(result.sideHit);
+			boxes.add(getBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
 		@Override
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			boxes.add(getBox(new LittleTilePos(result, context).getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			LittleTilePos vec = new LittleTilePos(result, context);
+			if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+				vec.contextVec.vec.sub(result.sideHit);
+			boxes.add(getBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
