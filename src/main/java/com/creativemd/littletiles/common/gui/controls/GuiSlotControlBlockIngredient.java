@@ -48,7 +48,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 			if(ingredient.value > 1)
 				tooltip.add("volume: " + ingredient.value + " blocks");
 			else
-				tooltip.add("volume: " + (int) (ingredient.value*LittleGridContext.get().maxTilesPerBlock) + " pixels");
+				tooltip.add("volume: " + (double) (ingredient.value*LittleGridContext.get().maxTilesPerBlock) + " pixels");
 		}
 		return tooltip;
 	}
