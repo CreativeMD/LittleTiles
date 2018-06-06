@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -51,13 +52,25 @@ public class LittleTileBlock extends LittleTile{
 	
 	private void updateSpecialHandler()
 	{
-		handler = SpecialBlockHandler.getSpecialBlockHandler(block, meta);
+		if(!(block instanceof BlockAir))
+			handler = SpecialBlockHandler.getSpecialBlockHandler(block, meta);
 		updateBlockState();
 	}
 	
 	public boolean hasSpecialBlockHandler()
 	{
 		return handler != null;
+	}
+	
+	protected void setBlock(String defaultName, Block block, int meta)
+	{
+		if(block == null || block instanceof BlockAir)
+		{
+			this.block = Blocks.AIR;
+			this.meta = meta;
+			this.handler = new MissingBlockHandler(defaultName);
+		}else
+			setBlock(block, meta);
 	}
 	
 	public void setBlock(Block block, int meta)
@@ -139,14 +152,14 @@ public class LittleTileBlock extends LittleTile{
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		super.saveTileExtra(nbt);
-		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
+		nbt.setString("block", handler instanceof MissingBlockHandler ? ((MissingBlockHandler) handler).blockname : Block.REGISTRY.getNameForObject(block).toString());
 		nbt.setInteger("meta", meta);
 	}
 
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
-		setBlock(Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
+		setBlock(nbt.getString("block"), Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
 		if(te.isClientSide())
 			updateClient();
 	}
@@ -157,7 +170,10 @@ public class LittleTileBlock extends LittleTile{
 		if(tile instanceof LittleTileBlock)
 		{
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
-			thisTile.setBlock(block, meta);
+			thisTile.handler = this.handler;
+			thisTile.block = this.block;
+			thisTile.meta = this.meta;
+			//thisTile.setBlock(block, meta);
 			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
 				thisTile.translucent = translucent;
 		}
@@ -364,5 +380,15 @@ public class LittleTileBlock extends LittleTile{
 				return preview;
 		}
 		return super.getPreviewTile();
+	}
+	
+	public static class MissingBlockHandler implements ISpecialBlockHandler {
+		
+		public final String blockname;
+		
+		public MissingBlockHandler(String blockname)
+		{
+			this.blockname = blockname;
+		}
 	}
 }
