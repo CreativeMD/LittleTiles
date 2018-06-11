@@ -327,7 +327,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			
 			@Override
 			public void transform(ClassNode node) {
-				MethodNode m = new MethodNode(Opcodes.ACC_PUBLIC, "shouldUpdate", "()Z", null, null);
+				MethodNode m = new MethodNode(Opcodes.ACC_PUBLIC, "shouldLTUpdate", "()Z", null, null);
 				LabelNode start = new LabelNode();
 				LabelNode end = new LabelNode();
 				m.instructions.add(start);
@@ -360,7 +360,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						
 						insn = insn.getNext();
 						m.instructions.insert(insn, new JumpInsnNode(Opcodes.IFEQ, elseNode));
-						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKEINTERFACE, className, "shouldUpdate", "()Z", true));
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKEINTERFACE, className, "shouldLTUpdate", "()Z", true));
 						m.instructions.insert(insn, new TypeInsnNode(Opcodes.CHECKCAST, className));
 						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, varIndex));
 						break;
