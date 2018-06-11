@@ -1115,7 +1115,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		return highest != null ? highest.getBlockState() : null;
 	}
 	
-	public boolean shouldUpdate()
+	public boolean shouldLTUpdate()
 	{
 		if(world.isRemote)
 			ticking = !updateTiles.isEmpty();
