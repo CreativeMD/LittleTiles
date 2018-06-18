@@ -632,7 +632,7 @@ public class LittleDoor extends LittleDoorBase{
 				this.vec.y /= 2;
 				this.vec.z /= 2;
 			}
-			if(array.length == 4)
+			else if(array.length == 4)
 			{
 				this.vec = new LittleTileVec(array[0], array[1], array[2]); 
 				this.context = LittleGridContext.get(array[3]);
