@@ -56,7 +56,7 @@ public abstract class LittleTilePreviewHandler {
 		
 		@Override
 		public void setColor(LittleTilePreview preview, int color) {
-			if(ColorUtils.isWhite(color))
+			if(ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
 			{
 				if(preview.getTileData().getString("tID").equals("BlockTileColored"))
 					preview.getTileData().setString("tID", "BlockTileBlock");

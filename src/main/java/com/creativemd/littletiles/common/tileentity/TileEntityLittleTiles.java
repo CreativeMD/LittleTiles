@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tileentity;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -23,6 +24,7 @@ import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
@@ -70,7 +72,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 
 @Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityLittleTiles extends TileEntityCreative implements ITickable, ILittleTileTE, ILightProvider {
+public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider {
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -79,6 +81,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public TileEntityLittleTiles() {
 		
+	}
+	
+	protected void assign(TileEntityLittleTiles te)
+	{
+		try {
+			for(Field field : TileEntityLittleTiles.class.getDeclaredFields())
+			{
+				if(!Modifier.isStatic(field.getModifiers()))
+					field.set(this, field.get(te));
+			}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	protected LittleGridContext context = LittleGridContext.getMin();
@@ -166,7 +181,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	public int collisionChecks = 0;
 	
-	public final SideSolidCache sideCache = new SideSolidCache();
+	public SideSolidCache sideCache = new SideSolidCache();
 	
 	public boolean shouldCheckForCollision()
 	{
@@ -316,45 +331,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	
 	private void customTilesUpdate()
 	{
-		if(updateTiles.isEmpty() == ticking)
+		if(updateTiles.isEmpty() == isTicking() && !world.isRemote)
 		{
-			if(world.isRemote)
-			{
-				LittleEvent.markTEAsUpdated(this);
-				return;
-			}
-			try {
-				if(!processingLoadedTiles.getBoolean(world))
-				{
-					if(!WorldUtils.isMainThread(world))
-					{
-						Runnable run = new Runnable() {
-							@Override
-							public void run() {
-								if(updateTiles.isEmpty())
-									world.tickableTileEntities.remove(TileEntityLittleTiles.this);
-								else
-									world.tickableTileEntities.add(TileEntityLittleTiles.this);
-							}
-						};
-						if(world.isRemote)
-							clientCustomUpdate(run);
-						else
-							world.getMinecraftServer().addScheduledTask(run);
-					}else{
-						if(updateTiles.isEmpty())
-							world.tickableTileEntities.remove(this);
-						else
-							world.tickableTileEntities.add(this);
-					}
-					ticking = !updateTiles.isEmpty();
-				}else
-					System.out.println("Could not remove/add ticking tileentity.");
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
+			TileEntityLittleTiles newTe;
+			if(updateTiles.isEmpty())
+				newTe = new TileEntityLittleTiles();
+			else
+				newTe = new TileEntityLittleTilesTicking();
+			
+			newTe.assign(this);
+			
+			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty()), 2);
+			world.setTileEntity(pos, newTe);
 		}
-		
 	}
 	
 	public void updateTiles()
@@ -490,7 +479,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 		}
 		if(isClientSide())
 			hasNeighborChanged = true;
-		world.notifyNeighborsOfStateChange(getPos(), LittleTiles.blockTile, true);
+		world.notifyNeighborsOfStateChange(getPos(), getBlockType(), true);
 	}
 	
 	@Override
@@ -921,25 +910,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 	public void onLoad()
     {
 		setLoaded();
-		
-		customTilesUpdate();
     }
 	
-	public boolean ticking = true;
-	
-	@Override
-	public void update()
-	{		
-		if(updateTiles.isEmpty() && !world.isRemote)
-		{
-			System.out.println("Ticking tileentity which shouldn't " + pos);
-			return ;
-		}
-		
-		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			tile.updateEntity();
-		}
+	public boolean isTicking()
+	{
+		return false;
 	}
 	
 	public void combineTiles(LittleStructure structure) {
@@ -966,11 +941,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 
 	public static void combineTilesList(List<LittleTile> tiles) {
 		BasicCombiner.combineTiles(tiles);
-	}
-
-	public boolean shouldTick()
-	{
-		return !updateTiles.isEmpty();
 	}
 
 	@Override
@@ -1113,15 +1083,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ITickab
 				
 		}
 		return highest != null ? highest.getBlockState() : null;
-	}
-	
-	public boolean shouldLTUpdate()
-	{
-		if(world.isRemote)
-			ticking = !updateTiles.isEmpty();
-		else
-			ticking = true;
-		return ticking;
 	}
 
 	@Override

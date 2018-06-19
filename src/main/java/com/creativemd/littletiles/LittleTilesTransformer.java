@@ -323,7 +323,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		addTransformer(new Transformer("net.minecraft.util.ITickable") {
+		/*addTransformer(new Transformer("net.minecraft.util.ITickable") {
 			
 			@Override
 			public void transform(ClassNode node) {
@@ -385,7 +385,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 				}
 			}
-		});
+		});*/
 		/*addTransformer(new Transformer("net.minecraft.world.World") {
 		
 			@Override

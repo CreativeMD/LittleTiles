@@ -25,18 +25,23 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.IBlockAccess;
 
 public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube {
 	
@@ -99,6 +104,34 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	{
 		return new LittleSlicedRenderingCube(context, new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedBox) this.box, block, meta);
 	}
+	
+	@Override
+	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha)
+	{
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x, y, z);
+		
+		LittleTileSlicedBox box = (LittleTileSlicedBox) this.box;
+		
+		Axis one = RotationUtils.getDifferentAxisFirst(box.slice.axis);
+		Axis two = RotationUtils.getDifferentAxisSecond(box.slice.axis);
+		
+		LittleTileSize size = box.getSize();
+		
+		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
+			EnumFacing facing = EnumFacing.VALUES[i];
+			if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
+				LittleSlicedOrdinaryRenderingCube.renderFaceLine(dynamicCube, facing, facing.getAxis() == box.slice.axis, red, green, blue, alpha);
+			
+			if(cubeOne != null && facing != box.slice.getEmptySide(one))
+				renderFaceLine(cubeOne, facing, false, red, green, blue, alpha);
+			
+			if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
+				renderFaceLine(cubeTwo, facing, false, red, green, blue, alpha);
+		}
+		
+		GlStateManager.pushMatrix();
+	}
 
 	@Override
 	public void renderCubePreview(double x, double y, double z, ILittleTile iTile) {
@@ -133,6 +166,27 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
         GlStateManager.popMatrix();
 	}
 	
+	public static void renderFaceLine(CubeObject cube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha)
+	{
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+        
+		Vector3f vec = new Vector3f();
+		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
+		
+		for (int i = 0; i < 4; i++) {			
+			
+			vec = cube.get(face.getVertexInformation(i), vec);
+			
+			if(i == 0)
+				bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, 0.0F).endVertex();
+			bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, alpha).endVertex();
+		}
+		
+		tessellator.draw();
+	}
+	
 	public static void renderFace(CubeObject cube, EnumFacing facing, boolean isTraingle, LittleSlice slice)
 	{
 		GL11.glBegin(GL11.GL_POLYGON);
@@ -153,7 +207,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	}
 	
 	@Override
-	public List<BakedQuad> getBakedQuad(BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, long rand, boolean overrideTint, int defaultColor)
+	public List<BakedQuad> getBakedQuad(IBlockAccess world, BlockPos pos, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
 	{
 		LittleTileSlicedBox box = (LittleTileSlicedBox) this.box;
 		LittleTileSize size = box.getSize();
@@ -177,14 +231,14 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		
 		if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
 		{
-			quads.addAll(super.getBakedQuad(offset, state, blockModel, facing, rand, overrideTint, defaultColor));
+			quads.addAll(super.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		}
 		
 		if(cubeOne != null && facing != box.slice.getEmptySide(one))
-			quads.addAll(cubeOne.getBakedQuad(offset, state, blockModel, facing, rand, overrideTint, defaultColor));
+			quads.addAll(cubeOne.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
 		if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
-			quads.addAll(cubeTwo.getBakedQuad(offset, state, blockModel, facing, rand, overrideTint, defaultColor));
+			quads.addAll(cubeTwo.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
 		return quads;
 	}

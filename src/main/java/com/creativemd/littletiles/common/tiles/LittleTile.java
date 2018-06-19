@@ -585,7 +585,7 @@ public abstract class LittleTile {
 	{
 		if(isStructureBlock)
 		{
-			if(!te.getWorld().isRemote && isLoaded())
+			if(isLoaded())
 				structure.onLittleTileDestroy();
 		}else
 			te.removeTile(this);

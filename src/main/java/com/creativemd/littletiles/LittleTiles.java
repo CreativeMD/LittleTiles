@@ -82,6 +82,7 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -141,7 +142,8 @@ public class LittleTiles {
 		}
 	};
 	
-	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
+	public static BlockTile blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false).setRegistryName("BlockLittleTiles");
+	public static BlockTile blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true).setRegistryName("BlockLittleTilesTicking");
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
@@ -210,7 +212,7 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTile, storageBlock, particleBlock, flowingWater, whiteFlowingWater);
+		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTileNoTicking, blockTileTicking, storageBlock, particleBlock, flowingWater, whiteFlowingWater);
 	}
 	
 	@SubscribeEvent
@@ -219,7 +221,8 @@ public class LittleTiles {
 				new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()),
 				new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
 				new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()),
-				new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()),
+				new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()),
+				new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()),
 				new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()),
 				new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()));
 		
@@ -232,6 +235,7 @@ public class LittleTiles {
 		ForgeModContainer.fullBoundingBoxLadders = true;
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
+		GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);

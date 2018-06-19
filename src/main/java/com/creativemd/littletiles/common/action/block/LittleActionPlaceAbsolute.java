@@ -1,13 +1,16 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative.LittlePlaceResult;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
@@ -98,24 +101,30 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				placePreviews.add(preview.getPlaceableTile(null, true, LittleTileVec.ZERO));
 			}
 			
+			if(structure != null)
+			{
+				previews.ensureContext(structure.getMinContext());
+				
+				for (PlacePreviewTile preview : structure.getSpecialTiles(previews.context)) {
+					placePreviews.add(preview);
+				}
+			}
+			
 			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			List<LittleTile> removedTiles = new ArrayList<LittleTile>();
 			
-			List<LittleTile> placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, previews.context, placePreviews, structure, mode, previews.pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
+			LittlePlaceResult placedTiles = LittleActionPlaceRelative.placeTiles(player.world, player, previews.context, placePreviews, structure, mode, previews.pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
 			
-			boxes = new LittleBoxes(previews.pos, LittleGridContext.get());
 			if(placedTiles != null)
 			{
-				drainPreviews(player, getIngredientsPreviews(placedTiles));
+				boxes = placedTiles.placedBoxes;
+				
+				drainPreviews(player, placedTiles.placedPreviews);
 				
 				if(!player.world.isRemote)
 				{
 					addTilesToInventoryOrDrop(player, unplaceableTiles);
 					addTilesToInventoryOrDrop(player, removedTiles);
-				}
-				
-				for (LittleTile tile : placedTiles) {
-					boxes.addBox(tile);
 				}
 				
 				if(!removedTiles.isEmpty())
@@ -128,16 +137,12 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				
 				if(toVanilla)
 				{
-					BlockPos lastPos = null;
-					for (LittleTile tile : placedTiles) {
-						if(tile.te.getPos() != lastPos)
-						{
-							lastPos = tile.te.getPos();
-							tile.te.convertBlockToVanilla();
-						}
+					for (TileEntityLittleTiles te : placedTiles.tileEntities) {
+						te.convertBlockToVanilla();
 					}
 				}
-			}
+			}else
+				boxes = new LittleBoxes(previews.pos, LittleGridContext.get());
 			
 			return placedTiles != null;
 		}

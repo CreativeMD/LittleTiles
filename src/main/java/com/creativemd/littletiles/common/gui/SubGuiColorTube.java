@@ -43,15 +43,15 @@ public class SubGuiColorTube extends SubGui{
 	@Override
 	public void createControls() {
 		Color color = ColorUtils.IntToRGBA(ItemColorTube.getColor(stack));
-		color.setAlpha(255);
-		controls.add(new GuiColorPicker("picker", 2, 2, color));
+		//color.setAlpha(255);
+		controls.add(new GuiColorPicker("picker", 2, 2, color, getPlayer().isCreative()));
 		
 		ArrayList<String> shapes = new ArrayList<>(SelectShape.shapes.keySet());
 		shapes.add(0, "tile");
-		GuiComboBox box = new GuiComboBox("shape", 0, 40, 134, shapes);
+		GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
 		SelectShape shape = ItemColorTube.getShape(stack);
 		box.select(shape == null ? "tile" : shape.key);
-		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 63, 134, 90);
+		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 73, 134, 90);
 		controls.add(box);
 		controls.add(scroll);
 		onChange();

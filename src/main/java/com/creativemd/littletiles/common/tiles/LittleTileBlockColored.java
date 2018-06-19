@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
@@ -101,6 +102,14 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
+	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer) {
+		
+		if(ColorUtils.isTransparent(color))
+			return layer == BlockRenderLayer.TRANSLUCENT;
+		return super.shouldBeRenderedInLayer(layer);
+	}
+	
+	@Override
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks)
 	{
 		Vec3d color = ColorUtils.IntToVec(this.color);
@@ -109,14 +118,14 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	
 	public static boolean needsToBeRecolored(LittleTileBlock tile, int color)
 	{
-		if(ColorUtils.isWhite(color))
+		if(ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
 			return tile.getClass() != LittleTileBlock.class;
 		return tile.getClass() != LittleTileBlockColored.class || ((LittleTileBlockColored) tile).color != color;
 	}
 	
 	public static LittleTileBlock setColor(LittleTileBlock tile, int color)
 	{
-		if(ColorUtils.isWhite(color))
+		if(ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
 			return removeColor(tile);
 		if(tile instanceof LittleTileBlockColored)
 		{

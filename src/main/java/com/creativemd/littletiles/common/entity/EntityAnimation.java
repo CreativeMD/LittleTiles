@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -39,6 +40,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -605,8 +607,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		updateBoundingBox();
 		
 		for (int i = 0; i < blocks.size(); i++) {
-			if(blocks.get(i).shouldTick()) //place enhance this since it's quite horrible for larger animations
-				blocks.get(i).update();
+			if(blocks.get(i).isTicking()) //place enhance this since it's quite horrible for larger animations
+				((ITickable) blocks.get(i)).update();
 		}
 		
 		
@@ -736,7 +738,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 					this.structure = (LittleDoorBase) tile.structure;
 				tiles.add(tile);
 			}
-			fakeWorld.setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
+			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking()));
 			fakeWorld.setTileEntity(te.getPos(), te);
 		}
 		

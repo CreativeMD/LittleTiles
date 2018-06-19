@@ -85,7 +85,12 @@ public class LittleGridContext {
 	
 	public static LittleGridContext getMin()
 	{
-		return get(minSize);
+		return context[0];
+	}
+	
+	public static LittleGridContext getMax()
+	{
+		return context[context.length-1];
 	}
 	
 	public final int size;

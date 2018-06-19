@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
@@ -204,7 +205,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.chisel);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.multiTiles);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.grabber);
-		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTile);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
 		
 		LittleParticleType.initClient();
 	}
@@ -212,9 +214,12 @@ public class LittleTilesClient extends LittleTilesServer{
 	@Override
 	public void loadSide()
 	{
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new TileEntityTilesRenderer());
+		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTicking.class, renderer);
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);

@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
+import com.creativemd.littletiles.common.mods.chisel.ChiselManager;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
@@ -31,6 +32,7 @@ import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -71,11 +73,15 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
+import net.minecraftforge.fml.common.Optional.Interface;
+import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.chisel.ctm.api.IFacade;
 
-public class BlockTile extends BlockContainer implements ICreativeRendered {//ICustomCachedCreativeRendered {
+@Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
+public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {//ICustomCachedCreativeRendered {
 	
 	public static class TEResult {
 		
@@ -125,11 +131,27 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
 
-	public BlockTile(Material material) {
+	public final boolean ticking;
+	
+	public BlockTile(Material material, boolean ticking) {
 		super(material);
+		this.ticking = ticking;
 		setCreativeTab(LittleTiles.littleTab);
 		setResistance(3.0F);
 		setSoundType(SILENT);
+	}
+	
+	public static IBlockState getState(boolean ticking)
+	{
+		return ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState();
+	}
+	
+	public static IBlockState getState(List<LittleTile> tiles)
+	{
+		for (LittleTile tile : tiles)
+			if (tile.shouldTick())
+				return getState(true);
+		return getState(false);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -181,16 +203,25 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		if(te != null)
 		{
 			LittleStructure bed = null;
-			try {
-				bed = (LittleStructure) LittleBed.littleBed.get(player);
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
+			if(player != null)
+			{
+				try {
+					bed = (LittleStructure) LittleBed.littleBed.get(player);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
 			}
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
-				if(tile.structure == bed)
-					return true;
-			}
+			if(bed != null)
+				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+					LittleTile tile = (LittleTile) iterator.next();
+					if(tile.structure == bed)
+						return true;
+				}
+			else
+				for (LittleTile tile : te.getTiles()) {
+					if(tile.isStructureBlock && tile.isLoaded() && tile.structure.isBed(world, pos, (EntityLivingBase) player))
+						return true;
+				}
 		}
 		return false;
     }
@@ -199,6 +230,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos)
     {
 		return EnumFacing.SOUTH;
+    }
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+    public boolean hasCustomBreakingProgress(IBlockState state)
+    {
+        return false;
     }
 	
 	@Override
@@ -241,7 +279,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 	
 	protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos)
     {
-        return worldIn.getBlockState(pos.down()).isFullBlock() && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
+        return worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
     }
 	
 	@Override
@@ -828,6 +866,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
+		if(ticking)
+			return new TileEntityLittleTilesTicking();
 		return new TileEntityLittleTiles();
 	}
 	
@@ -1016,7 +1056,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
     			removeTiles.get(i).destroy();
     			//te.removeTile(removeTiles.get(i));
 			}
-    		te.update();
+    		te.updateTiles();
     	}
         /*world.setBlockToAir(pos);
         onBlockDestroyedByExplosion(world, pos, explosion);*/
@@ -1176,5 +1216,26 @@ public class BlockTile extends BlockContainer implements ICreativeRendered {//IC
 		}
         return false;
     }
+    
+    @Override
+    @Method(modid = "ctm")
+	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side) {
+		return world.getBlockState(pos);
+	}
+
+	@Override
+	@Method(modid = "ctm")
+	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side, BlockPos connection) {
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if(te != null)
+		{
+			IBlockState lookingFor = ChiselManager.isInstalled() ? ChiselManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
+			for (LittleTile tile : te.getTiles()) {
+				if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == lookingFor.getBlock() && ((LittleTileBlock) tile).getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
+					return lookingFor;
+			}
+		}
+		return this.getDefaultState();
+	}
 
 }

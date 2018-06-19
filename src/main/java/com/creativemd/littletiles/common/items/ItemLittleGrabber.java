@@ -481,8 +481,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.sizeZ, 1, context.size));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
-					color.setAlpha(255);
-					controls.add(new GuiColorPicker("picker", 0, 70, color));
+					controls.add(new GuiColorPicker("picker", 0, 70, color, player.isCreative()));
 					
 					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
 					label.name = "avatar";
@@ -490,7 +489,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					label.avatarSize = 32;
 					controls.add(label);
 					
-					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 110, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
+					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
 					selector.setSelectedForce(preview.getBlockIngredient(context).getItemStack());
 					controls.add(selector);
 					
@@ -530,7 +529,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				{
 					ItemStack slotStack = container.getSlots().get(0).getStack();
 					Block block = Block.getBlockFromItem(slotStack.getItem());
-					if(block == LittleTiles.blockTile)
+					if(block instanceof BlockTile)
 					{
 						LittlePreviews previews = ((ILittleTile) slotStack.getItem()).getLittlePreview(slotStack);
 						if(previews.size() > 0)

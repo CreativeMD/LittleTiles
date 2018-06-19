@@ -133,25 +133,30 @@ public class LittleActionDestroy extends LittleActionInteract {
 	public static class StructurePreview {
 		
 		public LittleAbsolutePreviews previews;
+		public NBTTagCompound structureNBT;
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
+			if(!structure.hasLoaded())
+				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
 			previews = new LittleAbsolutePreviews(structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.entrySet()) {
 				previews.addTiles(entry.getValue());
 			}
 			previews.convertToSmallest();
+			this.structureNBT = new NBTTagCompound();
+			structure.writeToNBTPreview(structureNBT, previews.pos);
 			this.structure = structure;
 		}
 		
 		public LittleAction getPlaceAction()
 		{
-			return new LittleActionPlaceAbsolute(previews, structure, PlacementMode.all, false);
+			return new LittleActionPlaceAbsolute(previews, LittleStructure.createAndLoadStructure(structureNBT, null), PlacementMode.all, false);
 		}
 		
 		@Override
 		public int hashCode() {
-			return structure.hashCode();
+			return structureNBT.hashCode();
 		}
 		
 		@Override
