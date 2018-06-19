@@ -22,12 +22,16 @@ import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdi
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
@@ -35,6 +39,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
+import net.minecraft.world.IBlockAccess;
 
 public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	
@@ -50,7 +55,46 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	{
 		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedOrdinaryBox) this.box, block, meta);
 	}
-
+	
+	@Override
+	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha)
+	{
+		GlStateManager.pushMatrix();
+		GlStateManager.translate(x, y, z);
+		
+		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
+		LittleTileSize size = box.getSize();
+		
+		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
+			EnumFacing facing = EnumFacing.VALUES[i];
+			if(box.slice.shouldRenderSide(facing, size))
+				renderFaceLine(dynamicCube, facing, facing.getAxis() == box.slice.axis, red, green, blue, alpha);
+		}
+		
+        GlStateManager.popMatrix();
+	}
+	
+	public static void renderFaceLine(LittleDynamicCube dynamicCube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha)
+	{		
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder bufferbuilder = tessellator.getBuffer();
+        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+        
+		Vector3f vec = new Vector3f();
+		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
+		
+		for (int i = 0; i < 4; i++) {			
+			
+			vec = dynamicCube.get(facing, face.getVertexInformation(i), vec);
+			
+			if(i == 0)
+				bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, 0.0F).endVertex();
+			bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, alpha).endVertex();
+		}
+		
+		tessellator.draw();
+	}
+	
 	@Override
 	public void renderCubePreview(double x, double y, double z, ILittleTile iTile) {
 		
@@ -109,7 +153,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	}
 	
 	@Override
-	public List<BakedQuad> getBakedQuad(BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, long rand, boolean overrideTint, int defaultColor)
+	public List<BakedQuad> getBakedQuad(IBlockAccess world, BlockPos pos, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
 	{
 		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
 		//LittleTileSize size = box.getSize();
@@ -117,7 +161,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		if(!box.slice.shouldRenderSide(facing, dynamicCube.defaultCube.getSize()))
 			return Collections.emptyList();
 		
-		List<BakedQuad> blockQuads = blockModel.getQuads(state, facing, rand);
+		List<BakedQuad> blockQuads = getBakedQuad(world, blockModel, state, facing, pos, layer, rand);
 		if(blockQuads.isEmpty())
 			return Collections.emptyList();
 		
@@ -181,7 +225,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			
 			
 			//Check if it is intersecting, otherwise there is no need to render it
-			if(!intersectsWithFace(facing, minX, minY, minZ, maxX, maxY, maxZ, offset))
+			if(!intersectsWithFace(facing, minX, minY, minZ, maxX, maxY, maxZ, pos))
 				continue;
 			
 			float sizeX = maxX - minX;
@@ -217,13 +261,13 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				
 				index = k * quad.getFormat().getIntegerSize();
 				
-				float x = facing.getAxis() == Axis.X ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - offset.getX() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - offset.getX(), minX, maxX);
-				float y = facing.getAxis() == Axis.Y ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - offset.getY() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - offset.getY(), minY, maxY);
-				float z = facing.getAxis() == Axis.Z ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - offset.getZ() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - offset.getZ(), minZ, maxZ);
+				float x = facing.getAxis() == Axis.X ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - pos.getX() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.xIndex) - pos.getX(), minX, maxX);
+				float y = facing.getAxis() == Axis.Y ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - pos.getY() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.yIndex) - pos.getY(), minY, maxY);
+				float z = facing.getAxis() == Axis.Z ? dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - pos.getZ() : MathHelper.clamp(dynamicCube.defaultCube.getVertexInformationPosition(vertex.zIndex) - pos.getZ(), minZ, maxZ);
 				
 				vec.set(x, y, z);
 				
-				dynamicCube.sliceVector(facing, vec, offset);
+				dynamicCube.sliceVector(facing, vec, pos);
 				
 				x = vec.x;
 				y = vec.y;
@@ -233,9 +277,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				float oldY = Float.intBitsToFloat(quad.getVertexData()[index+1]);
 				float oldZ = Float.intBitsToFloat(quad.getVertexData()[index+2]);
 				
-				quad.getVertexData()[index] = Float.floatToIntBits(x + offset.getX());
-				quad.getVertexData()[index+1] = Float.floatToIntBits(y + offset.getY());
-				quad.getVertexData()[index+2] = Float.floatToIntBits(z + offset.getZ());
+				quad.getVertexData()[index] = Float.floatToIntBits(x + pos.getX());
+				quad.getVertexData()[index+1] = Float.floatToIntBits(y + pos.getY());
+				quad.getVertexData()[index+2] = Float.floatToIntBits(z + pos.getZ());
 				
 				if(keepVU)
 					continue;

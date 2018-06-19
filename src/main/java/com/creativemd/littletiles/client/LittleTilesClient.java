@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
@@ -103,6 +104,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
@@ -125,8 +127,13 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
-		
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
+				
+
+		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTicking.class, renderer);
+
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);	
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 0, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 1, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));

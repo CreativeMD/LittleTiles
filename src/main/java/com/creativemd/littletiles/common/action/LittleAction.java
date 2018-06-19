@@ -12,6 +12,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
@@ -248,14 +249,14 @@ public abstract class LittleAction extends CreativeCorePacket {
 				else if(state.getMaterial().isReplaceable())
 				{
 					//new TileEntityLittleTiles();
-					world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+					world.setBlockState(pos, BlockTile.getState(false));
 					tileEntity = (TileEntityLittleTiles) world.getTileEntity(pos);
 				}
 			}
 			
 			if(tiles != null && tiles.size() > 0)
 			{
-				world.setBlockState(pos, LittleTiles.blockTile.getDefaultState());
+				world.setBlockState(pos, BlockTile.getState(tiles));
 				tileEntity = world.getTileEntity(pos);
 				((TileEntityLittleTiles) tileEntity).convertTo(context);
 				for (LittleTile tile : tiles) {
@@ -714,7 +715,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static boolean addTilesToInventoryOrDrop(EntityPlayer player, List<LittleTile> tiles)
 	{
-		if(needIngredients(player))
+		if(needIngredients(player) && !tiles.isEmpty())
 		{
 			LittlePreviews previews = getIngredientsPreviews(tiles);
 			try {

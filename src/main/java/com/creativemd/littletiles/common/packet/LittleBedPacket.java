@@ -56,7 +56,7 @@ public class LittleBedPacket extends CreativeCorePacket {
 				tile = LittleAction.getTile(player.world, coord);
 				if(tile.isLoaded() && tile.structure instanceof LittleBed)
 				{
-					((LittleBed) tile.structure).trySleep((EntityPlayer) entity, tile.structure.getHighestCenterPoint());
+					((LittleBed) tile.structure).trySleep((EntityPlayer) entity, tile.structure.getHighestCenterVec());
 				}
 			} catch (LittleActionException e) {
 				e.printStackTrace();

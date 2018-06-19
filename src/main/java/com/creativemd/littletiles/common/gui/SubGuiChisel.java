@@ -48,15 +48,14 @@ public class SubGuiChisel extends SubGuiConfigure {
 	public void createControls() {
 		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
 		Color color = ColorUtils.IntToRGBA(preview.getColor());
-		color.setAlpha(255);
-		controls.add(new GuiColorPicker("picker", 2, 2, color));
-		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 40, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
+		controls.add(new GuiColorPicker("picker", 2, 2, color, getPlayer().isCreative()));
+		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 45, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
 		
 		selector.setSelectedForce(preview.getBlockIngredient(LittleGridContext.get()).getItemStack());
 		controls.add(selector);
-		GuiComboBox box = new GuiComboBox("shape", 0, 65, 134, new ArrayList<>(DragShape.shapes.keySet()));
+		GuiComboBox box = new GuiComboBox("shape", 0, 66, 134, new ArrayList<>(DragShape.shapes.keySet()));
 		box.select(ItemLittleChisel.getShape(stack).key);
-		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 86, 134, 58);
+		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 87, 133, 58);
 		controls.add(box);
 		controls.add(scroll);
 		onChange();

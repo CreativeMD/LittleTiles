@@ -36,7 +36,7 @@ public class BlockIngredient {
 	
 	public ItemStack getTileItemStack()
 	{
-		ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = new NBTTagCompound();
 		new LittleTileSize(1, 1, 1).writeToNBT("size", nbt);
 		

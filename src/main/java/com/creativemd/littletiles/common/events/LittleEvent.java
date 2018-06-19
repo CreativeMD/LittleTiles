@@ -461,7 +461,7 @@ public class LittleEvent {
 					LittleTile tile = (LittleTile) iterator.next();
 					if(tile.structure instanceof LittleBed && ((LittleBed) tile.structure).hasBeenActivated)
 					{
-						((LittleBed) tile.structure).trySleep(event.getEntityPlayer(), tile.structure.getHighestCenterPoint());
+						((LittleBed) tile.structure).trySleep(event.getEntityPlayer(), tile.structure.getHighestCenterVec());
 						event.setResult(SleepResult.OK);
 						((LittleBed) tile.structure).hasBeenActivated = false;
 						return ;
@@ -487,10 +487,10 @@ public class LittleEvent {
 		}
 	}
 	
-	public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
+	//public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
 	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");
 	
-	public static void markTEAsUpdated(TileEntityLittleTiles te)
+	/*public static void markTEAsUpdated(TileEntityLittleTiles te)
 	{
 		try {
 			List<TileEntity> changed = (List<TileEntity>) tickstatechanged.get(te.getWorld());
@@ -529,7 +529,7 @@ public class LittleEvent {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	@SideOnly(Side.CLIENT)
 	public static int transparencySortingIndex;

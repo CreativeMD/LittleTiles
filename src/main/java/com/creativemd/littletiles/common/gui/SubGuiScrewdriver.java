@@ -45,7 +45,7 @@ public class SubGuiScrewdriver extends SubGui {
 	public ItemStack stack;
 	
 	public SubGuiScrewdriver(ItemStack stack) {
-		super(200, 200);
+		super(200, 205);
 		this.stack = stack;
 	}
 	
@@ -68,10 +68,10 @@ public class SubGuiScrewdriver extends SubGui {
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
 		
-		Color color = new Color(255, 255, 255);
+		Color color = new Color(255, 255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
 		
-		controls.add(new GuiColorPicker("picker", 5, 160, color));
+		controls.add(new GuiColorPicker("picker", 5, 160, color, getPlayer().isCreative()));
 		
 		controls.add(new GuiButton("undo", "undo", 150, 135, 40){
 					

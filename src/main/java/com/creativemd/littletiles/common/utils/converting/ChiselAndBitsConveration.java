@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -37,7 +38,7 @@ public class ChiselAndBitsConveration {
 				List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(te);
 				if(tiles != null && tiles.size() > 0)
 				{
-					te.getWorld().setBlockState(te.getPos(), LittleTiles.blockTile.getDefaultState());
+					te.getWorld().setBlockState(te.getPos(), BlockTile.getState(tiles));
 					TileEntity tileEntity = te.getWorld().getTileEntity(te.getPos());
 					((TileEntityLittleTiles) tileEntity).convertTo(chiselContext);
 					for (LittleTile tile : tiles) {

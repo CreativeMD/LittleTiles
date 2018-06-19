@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,6 +24,11 @@ public class LittleRenderingCube extends RenderCubeObject {
 	public LittleRenderingCube(CubeObject cube, LittleTileBox box, Block block, int meta) {
 		super(cube, block, meta);
 		this.box = box;
+	}
+	
+	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha)
+	{
+		RenderGlobal.drawBoundingBox(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z, red, green, blue, alpha);
 	}
 	
 	public void renderCubePreview(double x, double y, double z, ILittleTile iTile)

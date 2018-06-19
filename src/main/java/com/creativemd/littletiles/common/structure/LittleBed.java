@@ -57,6 +57,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -70,7 +71,7 @@ public class LittleBed extends LittleStructure{
 	
 	public EntityLivingBase sleepingPlayer = null;
 	@SideOnly(Side.CLIENT)
-	public LittleTilePos playerPostion;
+	public Vec3d playerPostion;
 	public EnumFacing direction;
 	
 	@SideOnly(Side.CLIENT)
@@ -188,10 +189,8 @@ public class LittleBed extends LittleStructure{
 	
 	public static Field littleBed = ReflectionHelper.findField(EntityPlayer.class, "littleBed");;
 	
-	public SleepResult trySleep(EntityPlayer player, LittleTilePos highest)
-	{		
-		BlockPos center = highest.pos;
-
+	public SleepResult trySleep(EntityPlayer player, Vec3d highest)
+	{
         if (!player.world.isRemote)
         {
             if (player.isPlayerSleeping() || !player.isEntityAlive())
@@ -211,7 +210,7 @@ public class LittleBed extends LittleStructure{
 
             double d0 = 8.0D;
             double d1 = 5.0D;
-            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)center.getX() - 8.0D, (double)center.getY() - 5.0D, (double)center.getZ() - 8.0D, (double)center.getX() + 8.0D, (double)center.getY() + 5.0D, (double)center.getZ() + 8.0D));
+            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)highest.x - 8.0D, (double)highest.y - 5.0D, (double)highest.z - 8.0D, (double)highest.x + 8.0D, (double)highest.y + 5.0D, (double)highest.z + 8.0D));
 
             if (!list.isEmpty())
             {
@@ -244,7 +243,7 @@ public class LittleBed extends LittleStructure{
         
         player.renderOffsetX = -1.8F * (float)direction.getFrontOffsetX();
         player.renderOffsetZ = -1.8F * (float)direction.getFrontOffsetZ();
-        player.setPosition((double)((float)highest.getPosX() - 0.5F + f1), (double)((float)highest.getPosY()), (double)((float)highest.getPosZ() - 0.5F + f));
+        player.setPosition((double)((float)highest.x - 0.5F + f1), (double)((float)highest.y), (double)((float)highest.z - 0.5F + f));
         
         try {
         	sleeping.setBoolean(player, true);
@@ -314,6 +313,8 @@ public class LittleBed extends LittleStructure{
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
 	{
+		if(!hasLoaded())
+			return false;
 		if(world.isRemote)
 		{
 			hasBeenActivated = true;
@@ -321,7 +322,7 @@ public class LittleBed extends LittleStructure{
 		}
         if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
         {
-        	LittleTilePos vec = getHighestCenterPoint();
+        	Vec3d vec = getHighestCenterVec();
         	if(this.sleepingPlayer != null)
         	{
         		player.sendStatusMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]), true);

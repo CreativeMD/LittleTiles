@@ -124,11 +124,12 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				if(volume > 0)
 					ingredients.addPreview(preview, volume);
 			}else{
-				ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
+				if(!tile.isStructureBlock)
+					ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
 				
 				if(!simulate)
 				{
-					if(!containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded())
+					if(tile.isStructureBlock && !containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded())
 					{
 						destroyedStructures.add(new StructurePreview(tile.structure));
 						ItemStack drop = tile.structure.getStructureDrop();

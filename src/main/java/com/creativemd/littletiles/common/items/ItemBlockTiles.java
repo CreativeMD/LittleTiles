@@ -57,7 +57,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if(stack.hasTagCompound())
 		{
 			LittleTileSize size = stack.getTagCompound().hasKey("size") ? new LittleTileSize("size", stack.getTagCompound()) : LittleTileBox.loadBox("bBox", stack.getTagCompound()).getSize();
-			result += " (x=" + size.sizeX + ",y=" + size.sizeY + "z=" + size.sizeZ + ")";
+			result += " (x=" + size.sizeX + ",y=" + size.sizeY + ",z=" + size.sizeZ + ")";
 		}
 		return result;
     }
@@ -113,7 +113,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	public static ItemStack getStackFromPreview(LittleGridContext context, LittleTilePreview preview)
 	{
-		ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = preview.getTileData().copy();
 		
 		//preview.size.writeToNBT("size", nbt);

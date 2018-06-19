@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -13,6 +15,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.utils.CubeObject;
+import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
@@ -38,6 +41,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -48,6 +52,8 @@ import shadersmod.client.SVertexBuilder;
 
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
+	
+	private static final String[] fakeWorldMods = new String[] {"chisel"};
 	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
 	public static ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
@@ -86,7 +92,7 @@ public class RenderingThread extends Thread {
 					count.getAndIncrement();
 				}
 			}
-			renderer.updateCoords.add(new RenderingData(te, LittleTiles.blockTile.getDefaultState(), te.getPos(), requiresUpdate));
+			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking()), te.getPos(), requiresUpdate));
 		}
 	}
 	
@@ -109,13 +115,16 @@ public class RenderingThread extends Thread {
 	
 	private static int threadIndex;
 	
-	public static RenderingThread getNextThread()
+	public static synchronized RenderingThread getNextThread()
 	{
-		RenderingThread thread = threads.get(threadIndex);
-		threadIndex++;
-		if(threadIndex >= threads.size())
-			threadIndex = 0;
-		return thread;
+		synchronized (threads)
+		{
+			RenderingThread thread = threads.get(threadIndex);
+			threadIndex++;
+			if(threadIndex >= threads.size())
+				threadIndex = 0;
+			return thread;
+		}
 	}
 	
 	public static void initThreads(int count)
@@ -154,6 +163,7 @@ public class RenderingThread extends Thread {
 		start();
 	}
 	
+	private IBlockAccessFake fakeAccess = new IBlockAccessFake();
 	public boolean active = true;
 	
 	@Override
@@ -161,7 +171,7 @@ public class RenderingThread extends Thread {
 	{
 		while(active)
 		{
-			World world = mc.world;
+			IBlockAccess world = mc.world;
 			
 			if(world != null && updateCoords.size() > 0)
 			{
@@ -189,6 +199,14 @@ public class RenderingThread extends Thread {
 							RenderCubeObject cube = cubes.get(j);
 							if(cube.doesNeedQuadUpdate)
 							{
+								if(ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain()))
+								{
+									fakeAccess.set(mc.world, pos, cube.getBlockState());
+									world = fakeAccess;
+								}
+								else
+									world = mc.world;
+								
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
 								IBakedModel blockModel = mc.getBlockRendererDispatcher().getModelForState(modelState);
 								modelState = cube.getModelState(modelState, world, pos);
@@ -198,7 +216,7 @@ public class RenderingThread extends Thread {
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(cube, offset, modelState, blockModel, facing, 0, false));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
 									}else
 										cube.setQuad(facing, null);
 								}
@@ -207,6 +225,8 @@ public class RenderingThread extends Thread {
 						}
 					}
 		            
+					world = mc.world;
+					
 		            BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
 		            if(!layerBuffer.isDrawing())
 					{
@@ -223,7 +243,7 @@ public class RenderingThread extends Thread {
 							
 							consumer.setWorld(renderWorld);
 							consumer.setBlockPos(pos);
-							consumer.setState(LittleTiles.blockTile.getDefaultState());
+							consumer.setState(data.state);
 							consumer.getBlockInfo().updateLightMatrix();
 							
 							//Render vertex buffer
@@ -255,16 +275,17 @@ public class RenderingThread extends Thread {
 									for (int j = 0; j < cubes.size(); j++) {
 										RenderCubeObject cube = cubes.get(j);
 										consumer.cube = cube;
-										consumer.setState(cube.getBlockState());
-										consumer.getBlockInfo().updateShift(false);
+										IBlockState state = cube.getBlockState();		
 										
 										if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 										{
-											IBlockState state = cube.getBlockState();
 											if(state.getBlock() instanceof IFakeRenderingBlock)
 												state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
 											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
 										}
+										
+										consumer.setState(state);
+										consumer.getBlockInfo().updateShift();
 										
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 											List<BakedQuad> quads = cube.getQuad(EnumFacing.VALUES[h]);

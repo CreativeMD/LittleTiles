@@ -82,6 +82,7 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -141,7 +142,8 @@ public class LittleTiles {
 		}
 	};
 	
-	public static BlockTile blockTile = (BlockTile) new BlockTile(Material.ROCK).setRegistryName("BlockLittleTiles");
+	public static BlockTile blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false).setRegistryName("BlockLittleTiles");
+	public static BlockTile blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true).setRegistryName("BlockLittleTilesTicking");
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
@@ -235,6 +237,9 @@ public class LittleTiles {
 		GameRegistry.register(blockTile);
 		GameRegistry.register(new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
 		
+		GameRegistry.register(blockTileNoTicking);
+		GameRegistry.register(new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()));
+		
 		GameRegistry.registerWithItem(storageBlock);
 		GameRegistry.registerWithItem(particleBlock);
 		
@@ -245,6 +250,7 @@ public class LittleTiles {
 		GameRegistry.register(whiteFlowingWater);
 		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
+		GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
