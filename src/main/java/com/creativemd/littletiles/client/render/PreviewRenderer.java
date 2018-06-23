@@ -110,7 +110,7 @@ public class PreviewRenderer {
 			
 			handleUndoAndRedo(player);
 			
-			if(PlacementHelper.isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK)))
+			if(PlacementHelper.isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null)))
 			{
 				if(marked != null)
 					marked.renderWorld(event.getPartialTicks());
