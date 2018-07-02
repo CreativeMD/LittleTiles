@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.rotation;
+package com.creativemd.littletiles.common.utils.transformation;
 
 import javax.vecmath.Matrix3f;
 

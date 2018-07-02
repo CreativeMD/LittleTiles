@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
+import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
 import com.google.common.base.Predicate;
 
 import io.netty.buffer.ByteBuf;

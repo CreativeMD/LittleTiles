@@ -31,8 +31,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.rotation.DoorTransformation;
-import com.creativemd.littletiles.common.utils.rotation.OrdinaryDoorTransformation;
+import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
+import com.creativemd.littletiles.common.utils.transformation.OrdinaryDoorTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
