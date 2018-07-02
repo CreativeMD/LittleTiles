@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.utils.geo.DragShape;
+import com.creativemd.littletiles.common.utils.shape.DragShape;
 
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;

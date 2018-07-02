@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
@@ -291,6 +292,18 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        GlStateManager.disableBlend();
 	        
 	        GlStateManager.glLineWidth(4.0F);
+	        
+	        GlStateManager.pushMatrix();
+	        
+	        //GlStateManager.translate(x, y, z);
+	        double rotY = entity.worldRotY - entity.prevWorldRotY;
+	        Matrix3d rotationY = BoxUtils.createRotationMatrixY(rotY);
+	        AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.fakeWorld.rotation(), entity.fakeWorld.translation(), null, 0, rotationY, rotY, null, 0, null);
+	        RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z,
+	        		moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ- entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+	        
+	        GlStateManager.popMatrix();
+	        
 	        
 	        GlStateManager.pushMatrix();
 	        

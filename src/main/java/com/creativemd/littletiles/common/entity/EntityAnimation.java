@@ -169,7 +169,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	/**
 	 * Static not affected by direction or entity offset
 	 */
-	public AxisAlignedBB worldBoundingBox;
+	public EntityAABB worldBoundingBox;
 	
 	/**
 	 * Should be called if the world of the animation will be modified (Currently not possible)
@@ -217,7 +217,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
 		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased txco save performance
 		
-		worldBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
+		worldBoundingBox = new EntityAABB(fakeWorld, minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
 	private static double minIgnore(double par1, double par2)
@@ -251,94 +251,68 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void rotXTo(double x)
 	{
-		rotAnimation(x - worldRotX, 0, 0);
+		rotateAnimation(x - worldRotX, 0, 0);
 	}
 	
 	public void rotYTo(double y)
 	{
-		rotAnimation(0, y - worldRotY, 0);
+		rotateAnimation(0, y - worldRotY, 0);
 	}
 	
 	public void rotZTo(double z)
 	{
-		rotAnimation(0, 0, z - worldRotZ);
+		rotateAnimation(0, 0, z - worldRotZ);
 	}
 	
-	protected void rotByPartially(List<Entity> entity, Axis axis, double angle)
+	public void rotateAnimation(double rotX, double rotY, double rotZ)
+	{
+		moveAndRotateAnimation(0, 0, 0, rotX, rotY, rotZ);
+	}
+	
+	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ)
 	{
 		if(!preventPush)
 		{
+			//Create rotation matrix to transform to caclulate surrounding box			
+			Matrix3d rotationX = rotX != 0 ? BoxUtils.createRotationMatrixX(rotX) : null;
+			Matrix3d rotationY = rotY != 0 ? BoxUtils.createRotationMatrixY(rotY) : null;
+			Matrix3d rotationZ = rotZ != 0 ? BoxUtils.createRotationMatrixZ(rotZ) : null;
+			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
+			//Matrix4d combined = new Matrix4d(rotation, translation, 1);
 			
+			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 			
+			noCollision = true;
 			
-		}
-		
-		switch(axis)
-		{
-		case X:
-			worldRotX += angle;
-			break;
-		case Y:
-			worldRotY += angle;
-			break;
-		case Z:
-			worldRotZ += angle;
-			break;
-		}
-	}
-	
-	public void rotBy(List<Entity> entity, Axis axis, double angle)
-	{
-		double rotAxis = getRot(axis);
-		int before = (int) Math.floor(rotAxis / 90);
-		int after = (int) Math.floor((rotAxis + angle) / 90);
-		boolean positive = angle > 0;
-		double rotated = 0;
-		
-		for (int i = before; positive ? i <= after : i >= after; i += positive ? 1 : -1) {
-			double toRotate;
-			if(i == before)
+			List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityAnimation.NO_ANIMATION);
+			if(!entities.isEmpty())
 			{
-				if(i == after)
-					toRotate = angle;
-				else
-					if(positive)
-						toRotate = (before + 1) * 90 - rotAxis;
-					else
-						toRotate = (before - 1) * 90 - rotAxis;
+				List<AxisAlignedBB> surroundingBoxes = new ArrayList<>();
+				for (AxisAlignedBB box : worldCollisionBoxes) {
+					surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
+				}
+				
+				for (Entity entity : entities) {
+					for (AxisAlignedBB hittingBB : surroundingBoxes) {
+						if(hittingBB.intersects(entity.getEntityBoundingBox()))
+						{
+							// There we go! Now implement phase 2!!!!
+							
+						}
+					}
+				}
 			}
-			else
-			{
-				if(i == after)
-					toRotate = angle - rotated;
-				else
-					toRotate = positive ? 90 : -90;
-			}
-			rotated += toRotate;
-			if(toRotate != 0)
-				rotByPartially(entity, axis, toRotate);
+			
+			noCollision = false;
 		}
 		
-	}
-	
-	public void rotAnimation(double x, double y, double z)
-	{
-		List<Entity> entities;
-		if(preventPush)
-			entities = null;
-		else
-		{
-			entities = new ArrayList<>(); // Needs to be changed
-		}
+		posX += x;
+		posY += y;
+		posZ += z;
 		
-		if(x != 0)
-			rotBy(entities, Axis.X, x);
-		
-		if(y != 0)
-			rotBy(entities, Axis.Y, y);
-		
-		if(z != 0)
-			rotBy(entities, Axis.Z, z);
+		worldRotX += rotX;
+		worldRotY += rotY;
+		worldRotZ += rotZ;
 		
 		updateOrigin();
 	}
@@ -360,91 +334,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public void moveAnimation(double x, double y, double z)
 	{
-		if(!preventPush)
-		{
-			AxisAlignedBB bb = getEntityBoundingBox().expand(x, y, z);
-			
-			noCollision = true;
-			
-			List<EntityAABB> boxes = new ArrayList<>();
-			for (Entity entity : world.getEntitiesWithinAABB(Entity.class, bb, EntityAnimation.NO_ANIMATION)) {
-				
-				AxisAlignedBB entityBox = entity.getEntityBoundingBox();
-				
-				for (EntityAABB box : worldCollisionBoxes) {
-					if(box.intersects(entityBox, x, y, z))
-						boxes.add(box);
-				}
-				
-				boolean collidedHorizontally = entity.collidedHorizontally;
-				boolean collidedVertically = entity.collidedVertically;
-				boolean onGround = entity.onGround;
-				
-				if(y != 0)
-				{
-					double distance = y;
-					for (EntityAABB box : boxes) {
-						if(box.intersects(entityBox, 0, y, 0))
-							distance = minIgnore(distance, box.getDistanceY(entityBox));
-					}
-					
-					if(distance != y)
-					{
-						entity.move(MoverType.SELF, 0, y > 0 ? y + distance + 0.00000000000001D : y - distance - 0.00000000000001D, 0);
-						collidedVertically = true;
-						entityBox = entity.getEntityBoundingBox();
-						
-						if(y > 0)
-							onGround = true;
-					}
-				}
-				
-				if(x != 0)
-				{
-					double distance = x;
-					for (EntityAABB box : boxes) {
-						if(box.intersects(entityBox, x, 0, 0))
-							distance = minIgnore(distance, box.getDistanceX(entityBox));
-					}
-					
-					if(distance != x)
-					{
-						entity.move(MoverType.SELF, x > 0 ? x + distance + 0.00000000000001D : x - distance - 0.00000000000001D, 0, 0);
-						collidedHorizontally = true;
-						entityBox = entity.getEntityBoundingBox();
-					}
-				}
-				
-				if(z != 0)
-				{
-					double distance = z;
-					for (EntityAABB box : boxes) {
-						if(box.intersects(entityBox, 0, 0, z))
-							distance = minIgnore(distance, box.getDistanceZ(entityBox));
-					}
-					
-					if(distance != z)
-					{
-						entity.move(MoverType.SELF, 0, 0, z > 0 ? z + distance + 0.00000000000001D : z - distance - 0.00000000000001D);
-						collidedHorizontally = true;
-					}
-				}
-				
-				entity.collidedHorizontally = collidedHorizontally;
-				entity.collidedVertically = collidedVertically;
-				entity.onGround = onGround;
-				entity.collided = collidedHorizontally || collidedVertically;
-				boxes.clear();
-			}
-			
-			noCollision = false;
-		}
-		
-		posX += x;
-		posY += y;
-		posZ += z;
-		
-		updateOrigin();
+		moveAndRotateAnimation(x, y, z, 0, 0, 0);
+	}
+	
+	public AxisAlignedBB getWorldOrientatedBox(EntityAABB box)
+	{
+		return BoxUtils.getRotated(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation());
 	}
 	
 	public EntityAABB getFakeWorldOrientatedBox(AxisAlignedBB box)
@@ -556,7 +451,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
 		if(rotated || moved)
-			setEntityBoundingBox(BoxUtils.getRotated(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation()));
+			setEntityBoundingBox(getWorldOrientatedBox(worldBoundingBox));
 	}
 	
 	public void updateOrigin()

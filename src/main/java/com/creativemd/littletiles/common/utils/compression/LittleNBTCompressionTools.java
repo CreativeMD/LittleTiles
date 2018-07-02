@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.nbt;
+package com.creativemd.littletiles.common.utils.compression;
 
 import java.io.IOException;
 import java.util.ArrayList;

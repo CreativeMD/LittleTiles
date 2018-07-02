@@ -9,8 +9,8 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
-import com.creativemd.littletiles.common.utils.geo.SelectShape;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

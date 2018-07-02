@@ -13,6 +13,7 @@ public class TileEntityLittleTilesTicking extends TileEntityLittleTiles implemen
 	{		
 		if(updateTiles.isEmpty() && !world.isRemote)
 		{
+			customTilesUpdate();
 			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return ;
 		}
