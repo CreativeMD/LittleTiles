@@ -1,32 +1,25 @@
 package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
+import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
-import com.creativemd.creativecore.common.utils.CubeObject;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
-import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
-import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.google.common.cache.LoadingCache;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -36,7 +29,6 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -45,10 +37,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import shadersmod.client.SVertexBuilder;
+import net.optifine.shaders.SVertexBuilder;
 
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
@@ -99,7 +90,8 @@ public class RenderingThread extends Thread {
 	public static void addCoordToUpdate(TileEntityLittleTiles te) //, IBlockState state)
 	{
 		try{
-			addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
+			if(!(te.getWorld() instanceof WorldFake))
+				addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -261,16 +253,35 @@ public class RenderingThread extends Thread {
 									consumer.layer = layer;
 									
 									buffer.begin(7, DefaultVertexFormats.BLOCK);
-									int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-									int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-									int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
-									int offsetX = pos.getX() - (chunkX*16);//MathHelper.bucketInt(pos.getX(), 16);
-							        int offsetY = pos.getY() - (chunkY*16);//MathHelper.bucketInt(pos.getY(), 16);
-							        int offsetZ = pos.getZ() - (chunkZ*16);//MathHelper.bucketInt(pos.getZ(), 16);
-									//buffer.setTranslation(16-offsetX, 16-offsetY, 16-offsetZ);
-									//System.out.println(offsetX+","+offsetY+","+offsetZ + ",pos=" + pos);
-									buffer.setTranslation(offsetX, offsetY, offsetZ);
-									//buffer.setTranslation((double)(-chunk.getPosition().getX()), (double)(-chunk.getPosition().getY()), (double)(-chunk.getPosition().getZ()));
+									if(FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && data.requiresUpdate)
+									{
+										int bits = 8;
+										int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
+										int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
+										int dz = data.te.lastRenderedChunk.getPosition().getZ() >> bits << bits;
+										
+								      	dx = OptifineHelper.getRenderChunkRegionX(data.te.lastRenderedChunk);
+								      	dz = OptifineHelper.getRenderChunkRegionZ(data.te.lastRenderedChunk);
+								      	
+										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
+										int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
+										int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+										int offsetX = pos.getX() - dx;
+										int offsetY = pos.getY() - dy;
+										int offsetZ = pos.getZ() - dz;
+								      	//buffer.setTranslation(dx+offsetX, dy+offsetY, dz+offsetZ);
+										buffer.setTranslation(offsetX, offsetY, offsetZ);
+									}
+									else
+									{
+										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
+										int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
+										int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+										int offsetX = pos.getX() - (chunkX*16);
+								        int offsetY = pos.getY() - (chunkY*16);
+								        int offsetZ = pos.getZ() - (chunkZ*16);
+										buffer.setTranslation(offsetX, offsetY, offsetZ);
+									}
 									
 									for (int j = 0; j < cubes.size(); j++) {
 										RenderCubeObject cube = cubes.get(j);
