@@ -906,13 +906,13 @@ public abstract class LittleStructure {
 			{
 				te.convertTo(context);
 				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX+1, context.maxPos, centerTileZ+1);
-				if(context.size >= centerTileX)
+				if(context.size <= centerTileX)
 				{
 					box.minX = context.size-1;
 					box.maxX = context.size;
 				}
 				
-				if(context.size >= centerTileZ)
+				if(context.size <= centerTileZ)
 				{
 					box.minZ = context.size-1;
 					box.maxZ = context.size;
