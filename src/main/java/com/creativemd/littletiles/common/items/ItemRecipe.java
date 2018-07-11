@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -30,6 +30,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -48,7 +49,7 @@ import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiCreator {
+public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	
 	public ItemRecipe(){
 		setCreativeTab(LittleTiles.littleTab);
@@ -225,13 +226,6 @@ public class ItemRecipe extends Item implements IExtendedCreativeRendered, IGuiC
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 		
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public List<BakedQuad> getSpecialBakedQuads(IBlockState state, TileEntity te, EnumFacing side, long rand,
-			ItemStack stack) {
-		return new ArrayList<>();
 	}
 	
 	@Override
