@@ -85,7 +85,8 @@ public class MarkMode {
 			
 			if(!preview.singleMode && preview.placedFixed)
 			{
-				position.contextVec.sub(preview.offset.contextVec);
+				position.contextVec.ensureBothAreEqual(preview.offset.contextVec);
+				position.contextVec.vec.sub(preview.offset.contextVec.vec);
 			}
 		}
 		return position;
