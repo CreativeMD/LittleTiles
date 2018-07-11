@@ -246,6 +246,13 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	
 	protected boolean intersectsWithBetweenSliceAndBox(LittleTileBox box)
 	{
+		if(box instanceof LittleTileSlicedOrdinaryBox)
+			return intersectsWithBetweenSliceAndBox2(box) && ((LittleTileSlicedOrdinaryBox) box).intersectsWithBetweenSliceAndBox2(this);
+		return intersectsWithBetweenSliceAndBox2(box);
+	}
+	
+	protected boolean intersectsWithBetweenSliceAndBox2(LittleTileBox box)
+	{
 		EnumFacing ignoreFace = RotationUtils.getFacing(slice.axis);
 		
 		Axis axisOne = RotationUtils.getDifferentAxisFirst(slice.axis);
@@ -273,7 +280,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 			return true;
 		
 		// pointing positive
-		if(slice.getNormal()[axisOne.ordinal()] > 0)
+		if(slice.isFacingPositive(axisOne))
 		{
 			// check axis one
 			if(minVec.getAxis(axisOne) <= pointOne) 
@@ -288,7 +295,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		}
 		
 		// pointing positive
-		if(slice.getNormal()[axisTwo.ordinal()] > 0)
+		if(slice.isFacingPositive(axisTwo))
 		{
 			// check axis one
 			if(minVec.getAxis(axisTwo) <= pointTwo)
