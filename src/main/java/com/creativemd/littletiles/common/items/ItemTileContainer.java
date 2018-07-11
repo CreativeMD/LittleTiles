@@ -7,7 +7,7 @@ import java.util.List;
 import org.fusesource.jansi.Ansi.Color;
 
 import com.creativemd.creativecore.CreativeCore;
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;

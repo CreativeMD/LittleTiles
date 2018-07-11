@@ -4,9 +4,8 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;

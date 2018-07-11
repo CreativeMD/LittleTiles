@@ -9,7 +9,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.IExtendedCreativeRendered;
-import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;

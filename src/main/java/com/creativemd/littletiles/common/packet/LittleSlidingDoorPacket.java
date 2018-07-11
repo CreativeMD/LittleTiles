@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.packet;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.common.utils.TickUtils;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.common.structure.LittleDoor;
 import com.creativemd.littletiles.common.structure.LittleSlidingDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

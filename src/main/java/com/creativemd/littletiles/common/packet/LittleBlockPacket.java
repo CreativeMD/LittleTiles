@@ -7,10 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.TickUtils;
-import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.blocks.BlockTile;

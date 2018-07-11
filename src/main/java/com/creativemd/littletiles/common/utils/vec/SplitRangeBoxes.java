@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.utils.vec;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.RangedBitSet;
-import com.creativemd.creativecore.common.utils.RangedBitSet.BitRange;
+import com.creativemd.creativecore.common.utils.math.RangedBitSet;
+import com.creativemd.creativecore.common.utils.math.RangedBitSet.BitRange;
 
 public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> {
 	

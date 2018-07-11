@@ -8,13 +8,13 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
-import com.creativemd.creativecore.common.utils.RangedBitSet.BitRange;
-import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.RangedBitSet;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.RangedBitSet;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.RangedBitSet.BitRange;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;

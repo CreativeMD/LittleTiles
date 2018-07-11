@@ -12,7 +12,11 @@ import javax.vecmath.Matrix3d;
 import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.utils.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.MatrixUtils.MatrixLookupTable;
+import com.creativemd.creativecore.common.utils.math.Plane3d;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
@@ -274,36 +278,87 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		if(!preventPush)
 		{
 			//Create rotation matrix to transform to caclulate surrounding box			
-			Matrix3d rotationX = rotX != 0 ? BoxUtils.createRotationMatrixX(rotX) : null;
-			Matrix3d rotationY = rotY != 0 ? BoxUtils.createRotationMatrixY(rotY) : null;
-			Matrix3d rotationZ = rotZ != 0 ? BoxUtils.createRotationMatrixZ(rotZ) : null;
+			Matrix3d rotationX = rotX != 0 ? MatrixUtils.createRotationMatrixX(rotX) : null;
+			Matrix3d rotationY = rotY != 0 ? MatrixUtils.createRotationMatrixY(rotY) : null;
+			Matrix3d rotationZ = rotZ != 0 ? MatrixUtils.createRotationMatrixZ(rotZ) : null;
 			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
-			//Matrix4d combined = new Matrix4d(rotation, translation, 1);
 			
-			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
-			
-			noCollision = true;
-			
-			List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityAnimation.NO_ANIMATION);
-			if(!entities.isEmpty())
-			{
-				List<AxisAlignedBB> surroundingBoxes = new ArrayList<>();
-				for (AxisAlignedBB box : worldCollisionBoxes) {
-					surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
-				}
+			if(rotationX != null || rotationY != null || rotationZ != null || translation != null)
+			{				
+				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 				
-				for (Entity entity : entities) {
-					for (AxisAlignedBB hittingBB : surroundingBoxes) {
-						if(hittingBB.intersects(entity.getEntityBoundingBox()))
-						{
-							// There we go! Now implement phase 2!!!!
-							
+				noCollision = true;
+				
+				List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityAnimation.NO_ANIMATION);
+				if(!entities.isEmpty())
+				{					
+					List<AxisAlignedBB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
+					for (EntityAABB box : worldCollisionBoxes) {
+						
+						if(box.cache == null)
+							box.buildCache();
+						box.cache.reset();
+						
+						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
+					}
+					
+					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, fakeWorld);
+					Double t = null;
+					
+					for (Entity entity : entities) {
+						AxisAlignedBB entityBox = entity.getEntityBoundingBox();
+						Vector3d center = new Vector3d(entityBox.minX + (entityBox.maxX - entityBox.minX) * 0.5D, entityBox.minY + (entityBox.maxY - entityBox.minY) * 0.5D, entityBox.minZ + (entityBox.maxZ - entityBox.minZ) * 0.5D);
+						
+						Vector3d temp = new Vector3d(entityBox.minX, entityBox.minY, entityBox.minZ);
+						temp.sub(center);
+						double radius = temp.lengthSquared();
+						
+						transformPointToFakeWorld(center);
+						
+						checking_all_boxes:
+						for (int i = 0; i < surroundingBoxes.size(); i++) {
+							if(surroundingBoxes.get(i).intersects(entityBox))
+							{
+								//Check for earliest hit
+								EntityAABB box = worldCollisionBoxes.get(i);
+								
+								if(!box.cache.isCached())
+									box.cache.planes = Plane3d.getPlanes(box, box.cache, table);
+								
+								//Binary search
+								for (int j = 0; j < box.cache.planes.length; j++) {
+									Plane3d plane = box.cache.planes[j];
+									Double tempT = plane.binarySearch(t, entityBox, radius, center, table);
+									if(tempT != null)
+									{
+										t = tempT;
+										if(t == 0)
+											break checking_all_boxes;
+									}
+								}
+							}
 						}
+						
+						// Applying found t
+						if(t != null)
+						{
+							Vector3d newCenter = new Vector3d(center);
+							table.transform(newCenter, 1 - t);
+							
+							transformPointToWorld(center);
+							transformPointToWorld(newCenter);
+							
+							entity.move(MoverType.SELF, newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);
+							
+							//Also take care of collisionHorizontally, onGround and so on ...
+						
+						}
+						
 					}
 				}
+				
+				noCollision = false;
 			}
-			
-			noCollision = false;
 		}
 		
 		posX += x;
@@ -337,6 +392,24 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		moveAndRotateAnimation(x, y, z, 0, 0, 0);
 	}
 	
+	public void transformPointToWorld(Vector3d vec)
+	{
+		vec.sub(rotationCenter);
+		fakeWorld.rotation().transform(vec);
+		vec.add(rotationCenter);
+		
+		vec.add(fakeWorld.translation());
+	}
+	
+	public void transformPointToFakeWorld(Vector3d vec)
+	{
+		vec.sub(fakeWorld.translation());
+		
+		vec.sub(rotationCenter);
+		fakeWorld.rotationInv().transform(vec);
+		vec.add(rotationCenter);
+	}
+	
 	public AxisAlignedBB getWorldOrientatedBox(EntityAABB box)
 	{
 		return BoxUtils.getRotated(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation());
@@ -344,9 +417,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public EntityAABB getFakeWorldOrientatedBox(AxisAlignedBB box)
 	{
-		Matrix3d inverted = new Matrix3d(fakeWorld.rotation());
-		inverted.invert();
-		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, inverted, new Vector3d()));
+		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, fakeWorld.rotationInv(), new Vector3d()));
 	}
 	
 	//================Rendering================

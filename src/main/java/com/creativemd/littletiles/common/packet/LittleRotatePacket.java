@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.structure.LittleStructure;

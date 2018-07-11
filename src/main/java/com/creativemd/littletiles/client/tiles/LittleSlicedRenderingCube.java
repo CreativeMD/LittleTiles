@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
 import org.lwjgl.opengl.GL11;
@@ -11,9 +12,9 @@ import org.lwjgl.opengl.GL11;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
-import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -207,7 +208,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	}
 	
 	@Override
-	public List<BakedQuad> getBakedQuad(IBlockAccess world, BlockPos pos, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
+	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
 	{
 		LittleTileSlicedBox box = (LittleTileSlicedBox) this.box;
 		LittleTileSize size = box.getSize();
@@ -215,7 +216,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		//if(!box.slice.shouldRenderSide(facing, size))
 			//return Collections.emptyList();
 		
-		List<BakedQuad> blockQuads = blockModel.getQuads(state, facing, rand);
+		List<BakedQuad> blockQuads = getBakedQuad(world, blockModel, state, facing, pos, layer, rand);
 		if(blockQuads.isEmpty())
 			return Collections.emptyList();
 		
@@ -231,14 +232,14 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		
 		if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
 		{
-			quads.addAll(super.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
+			quads.addAll(super.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		}
 		
 		if(cubeOne != null && facing != box.slice.getEmptySide(one))
-			quads.addAll(cubeOne.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
+			quads.addAll(cubeOne.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
 		if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
-			quads.addAll(cubeTwo.getBakedQuad(world, pos, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
+			quads.addAll(cubeTwo.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
 		return quads;
 	}

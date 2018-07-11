@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.api;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.structure.LittleStructure;

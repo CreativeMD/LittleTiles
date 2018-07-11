@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tiles.vec.lines;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.advanced.AxisAlignedBBOrdinarySliced;
 

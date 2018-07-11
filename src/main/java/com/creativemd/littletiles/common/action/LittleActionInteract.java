@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.action;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.creativemd.creativecore.common.utils.TickUtils;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

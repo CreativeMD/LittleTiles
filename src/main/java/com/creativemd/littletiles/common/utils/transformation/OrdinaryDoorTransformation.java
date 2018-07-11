@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.utils.transformation;
 
 import javax.vecmath.Matrix3f;
 
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 

@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.utils.InventoryUtils;
-import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;

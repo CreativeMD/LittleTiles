@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;

@@ -7,7 +7,7 @@ import java.util.List;
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAvatarLabel;

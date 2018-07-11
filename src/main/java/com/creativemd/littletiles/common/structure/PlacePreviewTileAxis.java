@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.ColorUtils;
-import com.creativemd.creativecore.common.utils.ColoredCube;
+import com.creativemd.creativecore.common.utils.math.ColoredCube;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleDoor.LittleRelativeDoubledAxis;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

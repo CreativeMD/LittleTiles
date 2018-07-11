@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;

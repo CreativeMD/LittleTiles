@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.entity.EntitySit;
-import com.creativemd.creativecore.common.utils.HashMapList;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;

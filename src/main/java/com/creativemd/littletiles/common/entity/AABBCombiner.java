@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.entity;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils;
 
 import net.minecraft.util.math.AxisAlignedBB;
 
