@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.tiles.vec;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 
@@ -550,7 +551,7 @@ public class LittleTileBox {
 	protected RangedBitSet split(Axis axis, List<LittleTileBox> boxes)
 	{
 		int min = getMin(axis);
-		int max = getMax(axis);
+		int max = getMax(axis);		
 		RangedBitSet set = new RangedBitSet(min, max);
 		
 		for (LittleTileBox box : boxes) {
@@ -559,7 +560,10 @@ public class LittleTileBox {
 				return null;
 			
 			if(box.intersectsWith(this))
-				set.set(box.getMin(axis), box.getMax(axis));
+			{
+				set.add(box.getMin(axis));
+				set.add(box.getMax(axis));
+			}
 		}
 		
 		return set;
@@ -575,8 +579,26 @@ public class LittleTileBox {
 		SplitRangeBoxes ranges;
 		if(getVolume() > secondMethodVolume && (ranges = split(boxes)) != null)
 		{
+			List<LittleTileBox> tempBoxes = new ArrayList<>();
 			for (SplitRangeBox range : ranges) {
-				extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, range.value ? cutout : newBoxes);
+				extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, tempBoxes);
+				
+				boolean cutted = false;
+				outer_loop:
+				for (LittleTileBox box : tempBoxes) {
+					for (LittleTileBox cutBox : boxes) {
+						if(cutBox.intersectsWith(box)) // This should also work for slices, since it's compressed by the range
+						{
+							cutted = true;
+							break outer_loop;
+						}
+					}
+				}
+				if(cutted)
+					cutout.addAll(tempBoxes);
+				else
+					newBoxes.addAll(tempBoxes);
+				tempBoxes.clear();
 			}
 		}
 		else
@@ -650,9 +672,21 @@ public class LittleTileBox {
 				List<LittleTileBox> splitting = new ArrayList<>();
 				splitting.add(box);
 				
+				List<LittleTileBox> tempBoxes = new ArrayList<>();
 				for (SplitRangeBox range : split(splitting)) {
-					if(!range.value)
-						extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, boxes);
+					extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, tempBoxes);
+					
+					boolean cutted = false;
+					for (LittleTileBox tempBox : tempBoxes) {
+						if(box.intersectsWith(tempBox)) // This should also work for slices, since it's compressed by the range
+						{
+							cutted = true;
+							break;
+						}
+					}
+					if(!cutted)
+						boxes.addAll(tempBoxes);
+					tempBoxes.clear();
 				}
 				
 				return boxes;
