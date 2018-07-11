@@ -434,7 +434,8 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.IRETURN));
 			}
 		});
-		addTransformer(new Transformer("net.minecraft.client.renderer.block.model.BakedQuad") {
+		// Doesn't do anything anyway
+		/*addTransformer(new Transformer("net.minecraft.client.renderer.block.model.BakedQuad") {
 			
 			@Override
 			public void transform(ClassNode node) {
@@ -447,7 +448,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					m.instructions.add(new InsnNode(Opcodes.IRETURN));
 				}
 			}
-		});
+		});*/
 		/*addTransformer(new Transformer("net.minecraft.util.ITickable") {
 			
 			@Override
