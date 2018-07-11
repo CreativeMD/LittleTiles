@@ -200,7 +200,7 @@ public class RenderingThread extends Thread {
 									world = mc.world;
 								
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
-								IBakedModel blockModel = mc.getBlockRendererDispatcher().getModelForState(modelState);
+								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
 								modelState = cube.getModelState(modelState, world, pos);
 								BlockPos offset = cube.getOffset();								
 								for (int h = 0; h < EnumFacing.VALUES.length; h++) {
@@ -208,7 +208,7 @@ public class RenderingThread extends Thread {
 									if(cube.shouldSideBeRendered(facing))
 									{
 										if(cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
 									}else
 										cube.setQuad(facing, null);
 								}

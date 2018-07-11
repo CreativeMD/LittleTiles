@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.common.utils.Rotation;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

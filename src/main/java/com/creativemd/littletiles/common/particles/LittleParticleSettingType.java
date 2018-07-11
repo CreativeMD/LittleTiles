@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.particles;
 
 import java.awt.Color;
 
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;

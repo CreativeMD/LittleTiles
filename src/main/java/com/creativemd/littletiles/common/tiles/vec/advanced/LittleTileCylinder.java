@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.tiles.vec.advanced;
 
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.util.EnumFacing;

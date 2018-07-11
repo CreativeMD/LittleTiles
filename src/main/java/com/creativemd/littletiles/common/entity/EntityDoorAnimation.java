@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.creativemd.creativecore.common.utils.HashMapList;
-import com.creativemd.creativecore.common.utils.WorldUtils;
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleAction;

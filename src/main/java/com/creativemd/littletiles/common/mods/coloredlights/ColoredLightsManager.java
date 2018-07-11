@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.mods.coloredlights;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;

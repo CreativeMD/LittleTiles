@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.action.tool;
 
-import com.creativemd.creativecore.common.utils.InventoryUtils;
+import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;

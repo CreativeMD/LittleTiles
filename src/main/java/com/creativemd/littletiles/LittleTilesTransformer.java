@@ -1,5 +1,6 @@
 package com.creativemd.littletiles;
 
+import java.lang.reflect.Method;
 import java.util.Iterator;
 import java.util.ListIterator;
 
@@ -275,7 +276,31 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		addTransformer(new Transformer("DynamicLight") {
+		addTransformer(new Transformer("net.minecraft.client.Minecraft") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "middleClickMouse", "()V");
+				String className = patchClassName("net/minecraft/client/Minecraft");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESTATIC && ((MethodInsnNode) insn).owner.equals("net/minecraftforge/common/ForgeHooks") && ((MethodInsnNode) insn).name.equals("onPickBlock") && ((MethodInsnNode) insn).desc.equals(patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z")))
+					{
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "onMouseWheelClick", patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
+						m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFNE, findNextLabel(insn)));
+						m.instructions.insertBefore(insn, new LabelNode());
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("objectMouseOver"), patchDESC("Lnet/minecraft/util/math/RayTraceResult;")));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("player"), patchDESC("Lnet/minecraft/client/entity/EntityPlayerSP;")));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("world"), patchDESC("Lnet/minecraft/client/multiplayer/WorldClient;")));
+						break;
+					}
+				}
+			}
+		});
+		addTransformer(new Transformer("net.optifine.DynamicLight") {
 			
 			@Override
 			public void transform(ClassNode node) {
@@ -299,27 +324,127 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		addTransformer(new Transformer("net.minecraft.client.Minecraft") {
+		addTransformer(new Transformer("net.optifine.ConnectedTextures") {
 			
 			@Override
 			public void transform(ClassNode node) {
-				MethodNode m = findMethod(node, "middleClickMouse", "()V");
-				String className = patchClassName("net/minecraft/client/Minecraft");
+				MethodNode m = findMethod(node, "getConnectedTextureSingle", "(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;Lnet/minecraft/client/renderer/block/model/BakedQuad;ZILnet/optifine/render/RenderEnv;)[Lnet/minecraft/client/renderer/block/model/BakedQuad;");
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
-					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESTATIC && ((MethodInsnNode) insn).owner.equals("net/minecraftforge/common/ForgeHooks") && ((MethodInsnNode) insn).name.equals("onPickBlock") && ((MethodInsnNode) insn).desc.equals(patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z")))
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals("matchesBlockId") && ((MethodInsnNode) insn).owner.equals("net/optifine/ConnectedProperties"))
 					{
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "onMouseWheelClick", patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
-						m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFNE, findNextLabel(insn)));
-						m.instructions.insertBefore(insn, new LabelNode());
+						m.instructions.remove(insn.getPrevious());
+						m.instructions.remove(insn.getPrevious());
+						
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("objectMouseOver"), patchDESC("Lnet/minecraft/util/math/RayTraceResult;")));
-						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("player"), patchDESC("Lnet/minecraft/client/entity/EntityPlayerSP;")));
-						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("world"), patchDESC("Lnet/minecraft/client/multiplayer/WorldClient;")));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
+						
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;)Z"), false));
+						m.instructions.remove(insn);
 						break;
 					}
+				}
+				
+				m = findMethod(node, "getConnectedTexture", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/BlockStateBase;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/block/model/BakedQuad;ILnet/optifine/render/RenderEnv;)[Lnet/minecraft/client/renderer/block/model/BakedQuad;");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals("matchesBlock") && ((MethodInsnNode) insn).owner.equals("net/optifine/ConnectedProperties"))
+					{
+						AbstractInsnNode before = insn.getPrevious();
+						
+						m.instructions.remove(before.getPrevious());
+						m.instructions.remove(before.getPrevious());
+						
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
+						
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
+						m.instructions.remove(insn);
+						
+						break;
+					}
+				}
+				
+				m = findMethod(node, "isNeighbourMatching", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals("matchesBlock") && ((MethodInsnNode) insn).owner.equals("net/optifine/ConnectedProperties"))
+					{
+						AbstractInsnNode before = insn.getPrevious().getPrevious();
+						
+						m.instructions.remove(before.getPrevious());
+						m.instructions.remove(before.getPrevious());
+						
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
+						
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
+						m.instructions.remove(insn);
+						break;
+					}
+				}
+				
+				m = findMethod(node, "isNeighbourOverlay", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESTATIC && ((MethodInsnNode) insn).name.equals("block") && ((MethodInsnNode) insn).owner.equals("net/optifine/config/Matches"))
+					{
+						m.instructions.remove(insn.getPrevious());
+						m.instructions.remove(insn.getPrevious());
+						
+						AbstractInsnNode before = insn.getPrevious().getPrevious();
+						
+						m.instructions.remove(before.getPrevious());
+						m.instructions.remove(before.getPrevious());
+						
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
+						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
+						
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
+						m.instructions.remove(insn);
+					}
+				}
+				
+				m = findMethod(node, "isNeighbour", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
+				
+				LabelNode insn = (LabelNode) m.instructions.getFirst();
+				m.instructions.insertBefore(insn, new LabelNode());
+				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 1));
+				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
+				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 3));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "isNeighbour", patchDESC("(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;)Z"), false));
+				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
+				m.instructions.insertBefore(insn, new LabelNode());
+				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
+				m.instructions.insertBefore(insn, new InsnNode(Opcodes.IRETURN));
+				
+				m = findMethod(node, "isFullCubeModel", "(Lnet/minecraft/block/state/IBlockState;)Z");
+				insn = (LabelNode) m.instructions.getFirst();
+				m.instructions.insertBefore(insn, new LabelNode());
+				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "isFullCube", patchDESC("(Lnet/minecraft/block/state/IBlockState;)Z"), false));
+				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
+				m.instructions.insertBefore(insn, new LabelNode());
+				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
+				m.instructions.insertBefore(insn, new InsnNode(Opcodes.IRETURN));
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.block.model.BakedQuad") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "isFullQuad", "()Z");
+				if(m != null)
+				{
+					m.instructions.clear();
+					m.instructions.add(new LabelNode());
+					m.instructions.add(new InsnNode(Opcodes.ICONST_1));
+					m.instructions.add(new InsnNode(Opcodes.IRETURN));
 				}
 			}
 		});

@@ -1,10 +1,6 @@
 package com.creativemd.littletiles.client.render.entity;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector2d;
@@ -12,20 +8,17 @@ import javax.vecmath.Vector3d;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
-import com.creativemd.creativecore.common.utils.BoxUtils;
-import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.creativecore.common.utils.math.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.client.render.optifine.OptifineHelper;
-import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.entity.EntityAABB;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -44,14 +37,13 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import shadersmod.client.ShadersRender;
+import net.optifine.shaders.ShadersRender;
 
 public class RenderAnimation extends Render<EntityDoorAnimation> {
 	
@@ -297,7 +289,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        
 	        //GlStateManager.translate(x, y, z);
 	        double rotY = entity.worldRotY - entity.prevWorldRotY;
-	        Matrix3d rotationY = BoxUtils.createRotationMatrixY(rotY);
+	        Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
 	        AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.fakeWorld.rotation(), entity.fakeWorld.translation(), null, 0, rotationY, rotY, null, 0, null);
 	        RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z,
 	        		moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ- entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);

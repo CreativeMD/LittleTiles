@@ -5,10 +5,11 @@ import javax.vecmath.Vector2d;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
-import com.creativemd.creativecore.common.utils.BoxUtils;
-import com.creativemd.creativecore.common.utils.IVecOrigin;
-import com.creativemd.creativecore.common.utils.RotationUtils;
-import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.IVecOrigin;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.Plane3d.PlaneCache;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.google.common.annotations.VisibleForTesting;
@@ -27,6 +28,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class EntityAABB extends CreativeAxisAlignedBB {
 	
 	public IVecOrigin origin;
+	public PlaneCache cache;
+	
+	public void buildCache()
+	{
+		this.cache = new PlaneCache(this);
+	}
 	
 	public EntityAABB(IVecOrigin origin, double x1, double y1, double z1, double x2, double y2, double z2) {
 		super(x1, y1, z1, x2, y2, z2);

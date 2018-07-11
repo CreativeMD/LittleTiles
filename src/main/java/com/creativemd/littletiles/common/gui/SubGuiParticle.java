@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 import org.lwjgl.util.Color;
 
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiAnalogeSlider;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;

@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.common.utils.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 

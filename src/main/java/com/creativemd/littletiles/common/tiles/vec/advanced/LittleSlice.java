@@ -7,10 +7,10 @@ import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.CreativeCore;
-import com.creativemd.creativecore.common.utils.BoxUtils.BoxCorner;
-import com.creativemd.creativecore.common.utils.CubeObject;
-import com.creativemd.creativecore.common.utils.Rotation;
-import com.creativemd.creativecore.common.utils.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
