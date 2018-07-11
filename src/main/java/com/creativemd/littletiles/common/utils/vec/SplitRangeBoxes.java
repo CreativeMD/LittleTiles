@@ -64,14 +64,12 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
 		public BitRange x;
 		public BitRange y;
 		public BitRange z;
-		public boolean value;
 		
 		public void set(BitRange x, BitRange y, BitRange z)
 		{
 			this.x = x;
 			this.y = y;
 			this.z = z;
-			this.value = x.value && y.value && z.value;
 		}
 		
 	}
