@@ -54,6 +54,7 @@ public class MarkMode {
 		if(!absolute)
 		{
 			position.contextVec.vec = preview.box.getCenter();
+			position.contextVec.context = preview.context;
 			
 			LittleTileVec center = preview.size.calculateCenter();
 			LittleTileVec centerInv = preview.size.calculateInvertedCenter();
@@ -84,7 +85,7 @@ public class MarkMode {
 			
 			if(!preview.singleMode && preview.placedFixed)
 			{
-				position.contextVec.vec.sub(preview.offset.contextVec.vec);
+				position.contextVec.sub(preview.offset.contextVec);
 			}
 		}
 		return position;
