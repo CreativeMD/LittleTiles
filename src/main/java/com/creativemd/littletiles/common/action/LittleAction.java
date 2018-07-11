@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
@@ -289,16 +290,21 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing)
 	{
-		if(player == null || player.world.isRemote)
+		if(player == null)
 			return true;
+		
+		if(player.isSpectator() || PlayerUtils.isAdventure(player))
+			return false;
+		
+		if(player.world.isRemote)
+			return true;
+		
 		if(WorldEditEvent != null)
 		{
 			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
 			try {
 				if(worldEditInstance == null)
-				{
 					loadWorldEditEvent();
-				}
 				WorldEditEvent.invoke(worldEditInstance, event);
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
