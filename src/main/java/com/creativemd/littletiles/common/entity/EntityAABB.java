@@ -9,9 +9,10 @@ import com.creativemd.creativecore.common.utils.math.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
-import com.creativemd.creativecore.common.utils.math.Plane3d.PlaneCache;
+import com.creativemd.creativecore.common.utils.math.CollidingPlane.PlaneCache;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
 import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
+import com.creativemd.littletiles.common.utils.vec.BoxPlane;
 import com.google.common.annotations.VisibleForTesting;
 
 import net.minecraft.util.EnumFacing;
@@ -952,10 +953,110 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
     public Vec3d getCenter()
     {
         return new Vec3d(origin.offX() + this.minX + (this.maxX - this.minX) * 0.5D, origin.offY() + this.minY + (this.maxY - this.minY) * 0.5D, origin.offZ() + this.minZ + (this.maxZ - this.minZ) * 0.5D);
+    }
+    
+    public Vector3d getCenter3d()
+    {
+        return new Vector3d(origin.offX() + this.minX + (this.maxX - this.minX) * 0.5D, origin.offY() + this.minY + (this.maxY - this.minY) * 0.5D, origin.offZ() + this.minZ + (this.maxZ - this.minZ) * 0.5D);
+    }
+    
+    public double getPushOutScale(double minScale, EntityAABB fakeBox, AxisAlignedBB originalBox, Vector3d pushVec, Vector3d pushVecInv, @Nullable BoxPlane xPlane, @Nullable BoxPlane yPlane, @Nullable BoxPlane zPlane)
+    {
+    	double scale = Double.MAX_VALUE;
+    	
+    	boolean pushX = pushVec.x != 0;
+    	boolean pushY = pushVec.y != 0;
+    	boolean pushZ = pushVec.z != 0;
+    	
+    	if(pushX)
+    		if(pushVec.x > 0)
+    			scale = Math.min(scale, (this.maxX - fakeBox.minX) / pushVec.x);
+    		else
+    			scale = Math.min(scale, (this.minX - fakeBox.maxX) / pushVec.x);
+    	
+    	if(pushY)
+    		if(pushVec.y > 0)
+    			scale = Math.min(scale, (this.maxY - fakeBox.minY) / pushVec.y);
+    		else
+    			scale = Math.min(scale, (this.minY - fakeBox.maxY) / pushVec.y);
+    	
+    	if(pushZ)
+    		if(pushVec.z > 0)
+    			scale = Math.min(scale, (this.maxZ - fakeBox.minZ) / pushVec.z);
+    		else
+    			scale = Math.min(scale, (this.minZ - fakeBox.maxZ) / pushVec.z);
+    	
+    	if(scale <= minScale)
+    		return minScale;
+    	
+    	for(BoxCorner corner : BoxCorner.values())
+    	{
+    		if(corner.x.getAxisDirection() == AxisDirection.POSITIVE)
+    		{
+    			if(pushVec.x < 0)
+    				continue;
+    		}
+    		else
+    		{
+    			if(pushVec.x > 0)
+    				continue;
+    		}
+    		
+    		if(corner.y.getAxisDirection() == AxisDirection.POSITIVE)
+    		{
+    			if(pushVec.y < 0)
+    				continue;
+    		}
+    		else
+    		{
+    			if(pushVec.y > 0)
+    				continue;
+    		}
+    		
+    		if(corner.z.getAxisDirection() == AxisDirection.POSITIVE)
+    		{
+    			if(pushVec.z < 0)
+    				continue;
+    		}
+    		else
+    		{
+    			if(pushVec.z > 0)
+    				continue;
+    		}
+    		
+    		Vector3d cornerVec = getCornerVector3d(corner);
+    		
+    		if(xPlane != null)
+    		{
+    			double tempScale = xPlane.getIntersectingScale(cornerVec, pushVecInv);
+    			if(tempScale <= minScale)
+    				return minScale;
+    			scale = Math.min(scale, tempScale);
+    		}
+    		
+    		if(yPlane != null)
+    		{
+    			double tempScale = yPlane.getIntersectingScale(cornerVec, pushVecInv);
+    			if(tempScale <= minScale)
+    				return minScale;
+    			scale = Math.min(scale, tempScale);
+    		}
+    		
+    		if(zPlane != null)
+    		{
+    			double tempScale = zPlane.getIntersectingScale(cornerVec, pushVecInv);
+    			if(tempScale <= minScale)
+    				return minScale;
+    			scale = Math.min(scale, tempScale);
+    		}
+    		
+    	}
+    	
+    	return scale;
+    	
     }
     
 }

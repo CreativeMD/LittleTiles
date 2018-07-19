@@ -346,7 +346,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 				}
 				
-				m = findMethod(node, "getConnectedTexture", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/BlockStateBase;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/block/model/BakedQuad;ILnet/optifine/render/RenderEnv;)[Lnet/minecraft/client/renderer/block/model/BakedQuad;");
+				/*m = findMethod(node, "getConnectedTexture", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/BlockStateBase;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/block/model/BakedQuad;ILnet/optifine/render/RenderEnv;)[Lnet/minecraft/client/renderer/block/model/BakedQuad;");
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
 					
@@ -365,7 +365,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						
 						break;
 					}
-				}
+				}*/
 				
 				m = findMethod(node, "isNeighbourMatching", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
@@ -434,21 +434,6 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.IRETURN));
 			}
 		});
-		// Doesn't do anything anyway
-		/*addTransformer(new Transformer("net.minecraft.client.renderer.block.model.BakedQuad") {
-			
-			@Override
-			public void transform(ClassNode node) {
-				MethodNode m = findMethod(node, "isFullQuad", "()Z");
-				if(m != null)
-				{
-					m.instructions.clear();
-					m.instructions.add(new LabelNode());
-					m.instructions.add(new InsnNode(Opcodes.ICONST_1));
-					m.instructions.add(new InsnNode(Opcodes.IRETURN));
-				}
-			}
-		});*/
 		/*addTransformer(new Transformer("net.minecraft.util.ITickable") {
 			
 			@Override
