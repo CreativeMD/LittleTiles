@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
@@ -267,8 +268,8 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action))
 			return true;
 		if(hasSpecialBlockHandler())
 			return handler.onBlockActivated(this, worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
