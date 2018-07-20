@@ -170,6 +170,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 	@SideOnly(Side.CLIENT)
 	public abstract LittleAction revert() throws LittleActionException;
 	
+	public boolean sendToServer()
+	{
+		return true;
+	}
+	
 	protected abstract boolean action(EntityPlayer player) throws LittleActionException;
 	
 	@SideOnly(Side.CLIENT)
@@ -182,7 +187,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 			{
 				rememberAction(this);
 				
-				PacketHandler.sendPacketToServer(this);
+				if(sendToServer())
+					PacketHandler.sendPacketToServer(this);
 				return true;
 			}
 		} catch (LittleActionException e) {
