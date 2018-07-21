@@ -214,7 +214,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	public boolean hasLittlePreview(ItemStack stack)
 	{
-		return min != null;
+		return true;
 	}
 	
 	private static LittleTilePos cachedPos;
@@ -236,6 +236,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	public LittleAbsolutePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
 	{
+		PositionResult min = ItemLittleChisel.min;
+		if(min == null)
+			min = lastMax;
 		if(min != null)
 		{
 			if(lastMax == null)
@@ -409,6 +412,12 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@Override
 	@SideOnly(Side.CLIENT)
 	public MarkMode onMark(EntityPlayer player, ItemStack stack) {
+		if(min == null)
+			if(lastMax != null)
+				min = lastMax.copy();
+			else
+				return null;
+		
 		return new MarkMode(){
 			
 			@Override
