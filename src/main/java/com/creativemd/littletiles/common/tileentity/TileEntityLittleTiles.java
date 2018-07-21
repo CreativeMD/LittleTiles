@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
-import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;

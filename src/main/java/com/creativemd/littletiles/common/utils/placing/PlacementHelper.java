@@ -410,7 +410,7 @@ public class PlacementHelper {
 					if(preview != null)
 					{
 						if((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == SelectionMode.LINES)
-							if(position.contextVec.vec.getAxis(position.facing.getAxis()) % context.size == 0)
+							if(position.contextVec.vec.get(position.facing.getAxis()) % context.size == 0)
 								preview.box.addOffset(new LittleTileVec(context, position.facing.getOpposite().getDirectionVec()));
 						result.placePreviews.add(preview);
 					}
@@ -508,7 +508,7 @@ public class PlacementHelper {
 		LittleTilePos pos = new LittleTilePos(result, context);
 		
 		if(!isInsideOfBlock)
-			pos.contextVec.vec.setAxis(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.size);
+			pos.contextVec.vec.set(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.size);
 		
 		return pos;
 	}

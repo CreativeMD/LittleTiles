@@ -11,15 +11,15 @@ import org.lwjgl.opengl.GL11;
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
-import com.creativemd.creativecore.common.utils.math.BoxUtils;
-import com.creativemd.creativecore.common.utils.math.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.common.entity.EntityAABB;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
@@ -290,7 +290,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	        //GlStateManager.translate(x, y, z);
 	        double rotY = entity.worldRotY - entity.prevWorldRotY;
 	        Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
-	        AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.fakeWorld.rotation(), entity.fakeWorld.translation(), null, 0, rotationY, rotY, null, 0, null);
+	        AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.origin.rotation(), entity.origin.translation(), null, 0, rotationY, rotY, null, 0, null);
 	        RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z,
 	        		moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ- entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
 	        
@@ -308,16 +308,16 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			GL11.glRotated(rotation.y, 0, 1, 0);
 			GL11.glRotated(rotation.z, 0, 0, 1);
 			
-			GlStateManager.translate(entity.fakeWorld.offX(), entity.fakeWorld.offY(), entity.fakeWorld.offZ());
+			GlStateManager.translate(entity.origin.offX(), entity.origin.offY(), entity.origin.offZ());
 			
 			//GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
 			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
 			
 			GlStateManager.translate(-x, -y, -z);
 			
-			AxisAlignedBB entityBB = entity.getFakeWorldOrientatedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
+			AxisAlignedBB entityBB = entity.origin.getAxisAlignedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
 			 
-            for (EntityAABB bb : entity.worldCollisionBoxes) {
+            for (OrientatedBoundingBox bb : entity.worldCollisionBoxes) {
             	GlStateManager.pushMatrix();
             	boolean intersect = bb.intersects(entityBB);
             	RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z,
@@ -358,7 +358,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		
-		EntityAABB aabb = entity.worldCollisionBoxes.get(0);
+		OrientatedBoundingBox aabb = entity.worldCollisionBoxes.get(0);
 		AxisAlignedBB box = Minecraft.getMinecraft().player.getEntityBoundingBox();
 		
 		renderShitFace(aabb, box, EnumFacing.NORTH, x - entity.posX, y - entity.posY, z - entity.posZ);
@@ -367,7 +367,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     	GlStateManager.popMatrix();
 	}
 	
-	public void renderShitFace(EntityAABB aabb, AxisAlignedBB other, EnumFacing facing, double x, double y, double z)
+	public void renderShitFace(OrientatedBoundingBox aabb, AxisAlignedBB other, EnumFacing facing, double x, double y, double z)
 	{
 		Axis axis = facing.getAxis();
 		double alpha = 0.5;
@@ -402,7 +402,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
     		
     		Vector3d corner = corners[i];
     		
-    		LittleTile2DLine line = new LittleTile2DLine(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
+    		Ray2d line = new Ray2d(one, two, outerCorner, RotationUtils.get(one, corner) - outerCornerOne, RotationUtils.get(two, corner) - outerCornerTwo);
     		directions[i-1] = new Vector2d(line.directionOne, line.directionTwo);
     	}
     	
@@ -453,8 +453,8 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				
 				Vector2d vector = vectors[j];			
 				
-				if((EntityAABB.isFurtherOrEqualThan(vector.x, first.x) || EntityAABB.isFurtherOrEqualThan(vector.x, second.x) || EntityAABB.isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
-						(EntityAABB.isFurtherOrEqualThan(vector.y, first.y) || EntityAABB.isFurtherOrEqualThan(vector.y, second.y) || EntityAABB.isFurtherOrEqualThan(vector.y, first.y + second.y)))
+				if((OrientatedBoundingBox.isFurtherOrEqualThan(vector.x, first.x) || OrientatedBoundingBox.isFurtherOrEqualThan(vector.x, second.x) || OrientatedBoundingBox.isFurtherOrEqualThan(vector.x, first.x + second.x)) &&
+						(OrientatedBoundingBox.isFurtherOrEqualThan(vector.y, first.y) || OrientatedBoundingBox.isFurtherOrEqualThan(vector.y, second.y) || OrientatedBoundingBox.isFurtherOrEqualThan(vector.y, first.y + second.y)))
 				{					
 					double t = (vector.x*second.y-vector.y*second.x)/(first.x*second.y-first.y*second.x);
 					if(t <= 0 || t >= 1 || Double.isNaN(t))

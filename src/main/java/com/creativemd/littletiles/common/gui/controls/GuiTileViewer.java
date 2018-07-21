@@ -14,7 +14,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.client.style.ColoredDisplayStyle;

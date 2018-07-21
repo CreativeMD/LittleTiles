@@ -5,10 +5,9 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
-import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -192,7 +191,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
         	Axis one = axis;
         	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
         	
-        	LittleTile2DLine line = getSliceLine();
+        	Ray2d line = getSliceLine();
         	double newPos = line.get(two, RotationUtils.get(two, otherVec));
         	newPos = MathHelper.clamp(newPos, getMin(axis), getMax(axis));
         	
@@ -242,7 +241,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
         	Axis one = axis;
         	Axis two = RotationUtils.getDifferentAxisFirst(slice.axis) != axis ? RotationUtils.getDifferentAxisFirst(slice.axis) : RotationUtils.getDifferentAxisSecond(slice.axis);
         	
-        	LittleTile2DLine line = getSliceLine();
+        	Ray2d line = getSliceLine();
         	double newPos = line.get(two, RotationUtils.get(two, otherVec));
         	newPos = MathHelper.clamp(newPos, getMin(axis), getMax(axis));
         	
@@ -272,12 +271,12 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
         return offset;
     }
     
-    public LittleTile2DLine getSliceLine()
+    public Ray2d getSliceLine()
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		Vec3d corner = getCorner(slice.start);
-		return new LittleTile2DLine(one, two, new Vector3d(corner.xCoord, corner.yCoord, corner.zCoord), getSize(one) * slice.getDirectionScale(one), getSize(two) * slice.getDirectionScale(two));
+		return new Ray2d(one, two, new Vector3d(corner.x, corner.y, corner.z), getSize(one) * slice.getDirectionScale(one), getSize(two) * slice.getDirectionScale(two));
 	}
     
     /**

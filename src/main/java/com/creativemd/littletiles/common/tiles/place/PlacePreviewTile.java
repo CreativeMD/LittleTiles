@@ -8,8 +8,8 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.common.utils.math.ColoredCube;
-import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.ColoredCube;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;

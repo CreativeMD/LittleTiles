@@ -4,6 +4,7 @@ import java.security.InvalidParameterException;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -22,7 +23,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
-public class LittleTileVec {
+public class LittleTileVec implements IVecInt {
 	
 	public static final LittleTileVec ZERO = new LittleTileVec(0, 0, 0);
 	
@@ -63,7 +64,7 @@ public class LittleTileVec {
 	{
 		this(context, vec);
 		if(facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
-			setAxis(facing.getAxis(), getAxis(facing.getAxis()) + 1);
+			set(facing.getAxis(), get(facing.getAxis()) + 1);
 	}
 	
 	public LittleTileVec(LittleGridContext context, Vec3d vec)
@@ -166,43 +167,11 @@ public class LittleTileVec {
 	public double getPosZ(LittleGridContext context)
 	{
 		return context.toVanillaGrid(z);
-	}
-	
-	public void setAxis(Axis axis, int value)
-	{
-		switch(axis)
-		{
-		case X:
-			x = value;
-			break;
-		case Y:
-			y = value;
-			break;
-		case Z:
-			z = value;
-			break;
-		}
-		
-	}
-	
-	public int getAxis(Axis axis)
-	{
-		switch(axis)
-		{
-		case X:
-			return x;
-		case Y:
-			return y;
-		case Z:
-			return z;
-		}
-		return 0;
-	}
-	
+	}	
 	
 	public void add(EnumFacing facing)
 	{
-		setAxis(facing.getAxis(), getAxis(facing.getAxis()) + facing.getAxisDirection().getOffset());
+		set(facing.getAxis(), get(facing.getAxis()) + facing.getAxisDirection().getOffset());
 	}
 	
 	public void add(LittleTileVec vec)
@@ -214,7 +183,7 @@ public class LittleTileVec {
 	
 	public void sub(EnumFacing facing)
 	{
-		setAxis(facing.getAxis(), getAxis(facing.getAxis()) - facing.getAxisDirection().getOffset());
+		set(facing.getAxis(), get(facing.getAxis()) - facing.getAxisDirection().getOffset());
 	}
 	
 	public void sub(LittleTileVec vec)
@@ -226,7 +195,7 @@ public class LittleTileVec {
 	
 	public void flip(Axis axis)
 	{
-		setAxis(axis, -getAxis(axis));
+		set(axis, -get(axis));
 	}
 	
 	public void rotateVec(Rotation rotation)
@@ -276,5 +245,65 @@ public class LittleTileVec {
 		x *= factor;
 		y *= factor;
 		z *= factor;
+	}
+
+	@Override
+	public int getX() {
+		return x;
+	}
+
+	@Override
+	public int getY() {
+		return y;
+	}
+
+	@Override
+	public int getZ() {
+		return z;
+	}
+
+	@Override
+	public void setX(int value) {
+		x = value;
+	}
+
+	@Override
+	public void setY(int value) {
+		y = value;
+	}
+
+	@Override
+	public void setZ(int value) {
+		z = value;
+	}
+
+	@Override
+	public int get(Axis axis) {
+		switch(axis)
+		{
+		case X:
+			return x;
+		case Y:
+			return y;
+		case Z:
+			return z;
+		}
+		return 0;
+	}
+
+	@Override
+	public void set(Axis axis, int value) {
+		switch(axis)
+		{
+		case X:
+			x = value;
+			break;
+		case Y:
+			y = value;
+			break;
+		case Z:
+			z = value;
+			break;
+		}
 	}
 }
