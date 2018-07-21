@@ -949,18 +949,18 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     @Override
     public String toString()
     {
-        return "realbox[" + this.getRealMinX() + ", " + this.getRealMinY() + ", " + this.getRealMinZ() + " -> " + this.getRealMaxX() + ", " + this.getRealMaxY() + ", " + this.getRealMaxZ() + "],box[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
+        return "box[" + this.minX + ", " + this.minY + ", " + this.minZ + " -> " + this.maxX + ", " + this.maxY + ", " + this.maxZ + "]";
     }
 
-    @Override
+    /*@Override
     public Vec3d getCenter()
     {
         return new Vec3d(origin.offX() + this.minX + (this.maxX - this.minX) * 0.5D, origin.offY() + this.minY + (this.maxY - this.minY) * 0.5D, origin.offZ() + this.minZ + (this.maxZ - this.minZ) * 0.5D);
-    }
+    }*/
     
     public Vector3d getCenter3d()
     {
-        return new Vector3d(origin.offX() + this.minX + (this.maxX - this.minX) * 0.5D, origin.offY() + this.minY + (this.maxY - this.minY) * 0.5D, origin.offZ() + this.minZ + (this.maxZ - this.minZ) * 0.5D);
+        return new Vector3d(this.minX + (this.maxX - this.minX) * 0.5D, this.minY + (this.maxY - this.minY) * 0.5D, this.minZ + (this.maxZ - this.minZ) * 0.5D);
     }
     
     public double getPushOutScale(double minScale, EntityAABB fakeBox, AxisAlignedBB originalBox, Vector3d pushVec, Vector3d pushVecInv, @Nullable BoxPlane xPlane, @Nullable BoxPlane yPlane, @Nullable BoxPlane zPlane)
@@ -992,7 +992,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     	if(scale <= minScale)
     		return minScale;
     	
-    	for(BoxCorner corner : BoxCorner.values())
+    	/*for(BoxCorner corner : BoxCorner.values())
     	{
     		if(corner.x.getAxisDirection() == AxisDirection.POSITIVE)
     		{
@@ -1053,7 +1053,7 @@ public class EntityAABB extends CreativeAxisAlignedBB {
     			scale = Math.min(scale, tempScale);
     		}
     		
-    	}
+    	}*/
     	
     	return scale;
     	

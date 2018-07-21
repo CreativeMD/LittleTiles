@@ -566,13 +566,30 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							scale = intersecting.get(j).getPushOutScale(scale, fakeBox, cache.entityBox, pushVec, pushInv, xPlane, yPlane, zPlane);
 						}
 						
+						boolean collidedHorizontally = entity.collidedHorizontally;
+						boolean collidedVertically = entity.collidedVertically;
+						boolean onGround = entity.onGround;
+						
 						AxisAlignedBB originalBox = entity.getEntityBoundingBox();
-						entity.move(MoverType.SELF, cache.entityBox.minX - originalBox.minX + rotatedVec.x * scale,
-								cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale,
-								cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale);
 						
-						//Also take care of collisionHorizontally, onGround and so on ...
+						double moveX = cache.entityBox.minX - originalBox.minX + rotatedVec.x * scale;
+						double moveY = cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale;
+						double moveZ = cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale;
 						
+						entity.move(MoverType.SELF, moveX, moveY, moveZ);
+						
+						if(moveX != 0 || moveZ != 0)
+							collidedHorizontally = true;
+						if(moveY != 0)
+						{
+							collidedVertically = true;
+							onGround = true;
+						}
+						
+						entity.collidedHorizontally = collidedHorizontally;
+						entity.collidedVertically = collidedVertically;
+						entity.onGround = onGround;
+						entity.collided = collidedHorizontally || collidedVertically;						
 						
 						
 					}
