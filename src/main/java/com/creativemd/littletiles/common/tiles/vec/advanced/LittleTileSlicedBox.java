@@ -1,29 +1,21 @@
 package com.creativemd.littletiles.common.tiles.vec.advanced;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector2f;
 import javax.vecmath.Vector3d;
-import javax.vecmath.Vector3f;
 
-import com.creativemd.creativecore.common.utils.math.CubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
+import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.client.tiles.LittleSlicedOrdinaryRenderingCube;
 import com.creativemd.littletiles.client.tiles.LittleSlicedRenderingCube;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
-import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
@@ -34,7 +26,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -662,10 +653,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		if(facing.getAxis() == slice.axis)
 		{
 			if(completely == slice.isFacingPositive(one))
-				copy.setAxis(one, copy.getAxis(one)+1);
+				copy.set(one, copy.get(one)+1);
 			
 			if(completely == slice.isFacingPositive(two))
-				copy.setAxis(two, copy.getAxis(two)+1);
+				copy.set(two, copy.get(two)+1);
 		}else{
 			//Axis different = one == facing.getAxis() ? two : one;
 			//if(completely == slice.isFacingPositive(different))
@@ -674,10 +665,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			//if(completely == slice.isFacingPositive(two))
 				//copy.setAxis(two, copy.getAxis(two)+1);
 			if(completely == slice.isFacingPositive(one))
-				copy.setAxis(one, copy.getAxis(one)+1);
+				copy.set(one, copy.get(one)+1);
 			
 			if(completely == slice.isFacingPositive(two))
-				copy.setAxis(two, copy.getAxis(two)+1);
+				copy.set(two, copy.get(two)+1);
 		}
 		return intersectsWithFaceRelative(facing, new Vec3d(copy.x, copy.y, copy.z));
 	}
@@ -1004,11 +995,11 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public LittleTile2DLine getSliceLine()
+	public Ray2d getSliceLine()
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-		return new LittleTile2DLine(one, two, getSliceCorner(slice.start), getSliceSize(one) * slice.getDirectionScale(one), getSliceSize(two) * slice.getDirectionScale(two));
+		return new Ray2d(one, two, getSliceCorner(slice.start), getSliceSize(one) * slice.getDirectionScale(one), getSliceSize(two) * slice.getDirectionScale(two));
 	}
 	
 	@Override

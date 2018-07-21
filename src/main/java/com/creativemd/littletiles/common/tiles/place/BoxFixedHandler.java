@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
-import com.creativemd.creativecore.common.utils.math.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;

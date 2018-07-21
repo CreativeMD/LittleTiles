@@ -2,14 +2,15 @@ package com.creativemd.littletiles.common.entity;
 
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class AABBCombiner {
 	
 	public final double deviation;
-	public final List<EntityAABB> boxes;
+	public final List<OrientatedBoundingBox> boxes;
 
 	private boolean finished = false;
 	private int i = -1;
@@ -24,7 +25,7 @@ public class AABBCombiner {
 	 */
 	public long workingTime = 30000;
 
-	public AABBCombiner(List<EntityAABB> boxes, double deviation) {
+	public AABBCombiner(List<OrientatedBoundingBox> boxes, double deviation) {
 		this.boxes = boxes;
 		this.deviation = deviation;
 	}
@@ -49,7 +50,7 @@ public class AABBCombiner {
 				if(!skipThrough)
 				{
 					if (i != j) {
-						EntityAABB box = combineBoxes(boxes.get(i), boxes.get(j), deviation);
+						OrientatedBoundingBox box = combineBoxes(boxes.get(i), boxes.get(j), deviation);
 						if (box != null) {
 							if(i > j)
 							{
@@ -83,7 +84,7 @@ public class AABBCombiner {
 		finished = true;
 	}
 	
-	public static EntityAABB combineBoxes(EntityAABB box1, EntityAABB box2, double deviation)
+	public static OrientatedBoundingBox combineBoxes(OrientatedBoundingBox box1, OrientatedBoundingBox box2, double deviation)
 	{
 		if(deviation == 0)
 		{
@@ -98,17 +99,17 @@ public class AABBCombiner {
 			if(x && y)
 			{
 				if(box1.maxZ >= box2.minZ && box1.minZ <= box2.maxZ)
-					return new EntityAABB(box1.origin, box1.minX, box1.minY, Math.min(box1.minZ, box2.minZ), box1.maxX, box1.maxY, Math.max(box1.maxZ, box2.maxZ));
+					return new OrientatedBoundingBox(box1.origin, box1.minX, box1.minY, Math.min(box1.minZ, box2.minZ), box1.maxX, box1.maxY, Math.max(box1.maxZ, box2.maxZ));
 			}
 			if(x && z)
 			{
 				if(box1.maxY >= box2.minY && box1.minY <= box2.maxY)
-					return new EntityAABB(box1.origin, box1.minX, Math.min(box1.minY, box2.minY), box1.minZ, box1.maxX, Math.max(box1.maxY, box2.maxY), box1.maxZ);
+					return new OrientatedBoundingBox(box1.origin, box1.minX, Math.min(box1.minY, box2.minY), box1.minZ, box1.maxX, Math.max(box1.maxY, box2.maxY), box1.maxZ);
 			}
 			if(y && z)
 			{
 				if(box1.maxX >= box2.minX && box1.minX <= box2.maxX)
-					return new EntityAABB(box1.origin, Math.min(box1.minX, box2.minX), box1.minY, box1.minZ, Math.max(box1.maxX, box2.maxX), box1.maxY, box1.maxZ);
+					return new OrientatedBoundingBox(box1.origin, Math.min(box1.minX, box2.minX), box1.minY, box1.minZ, Math.max(box1.maxX, box2.maxX), box1.maxY, box1.maxZ);
 			}
 			return null;
 		}else{
@@ -132,8 +133,8 @@ public class AABBCombiner {
 		}
 	}
 	
-	public static EntityAABB sumBox(EntityAABB box1, EntityAABB box2)
+	public static OrientatedBoundingBox sumBox(OrientatedBoundingBox box1, OrientatedBoundingBox box2)
 	{
-		return new EntityAABB(box1.origin, Math.min(box1.minX, box2.minX), Math.min(box1.minY, box2.minY), Math.min(box1.minZ, box2.minZ), Math.max(box1.maxX, box2.maxX), Math.max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
+		return new OrientatedBoundingBox(box1.origin, Math.min(box1.minX, box2.minX), Math.min(box1.minY, box2.minY), Math.min(box1.minZ, box2.minZ), Math.max(box1.maxX, box2.maxX), Math.max(box1.maxY, box2.maxY), Math.max(box1.maxZ, box2.maxZ));
 	}
 }

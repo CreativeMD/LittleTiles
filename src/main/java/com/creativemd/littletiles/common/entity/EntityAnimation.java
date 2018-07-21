@@ -13,13 +13,17 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.creativecore.common.utils.math.BoxUtils;
-import com.creativemd.creativecore.common.utils.math.MatrixUtils;
-import com.creativemd.creativecore.common.utils.math.MatrixUtils.MatrixLookupTable;
-import com.creativemd.creativecore.common.utils.math.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxFace;
+import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
+import com.creativemd.creativecore.common.utils.math.vec.VecOrigin;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxFace;
-import com.creativemd.creativecore.common.utils.math.CollidingPlane;
+import com.creativemd.creativecore.common.world.IFakeWorld;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
@@ -36,7 +40,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
-import com.creativemd.littletiles.common.utils.vec.BoxPlane;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
@@ -96,7 +99,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
         
         this.rotationCenter = new Vector3d(axis.getPosX()+additionalAxis.getPosX(axis.getContext())/2, axis.getPosY()+additionalAxis.getPosY(axis.getContext())/2, axis.getPosZ()+additionalAxis.getPosZ(axis.getContext())/2);
         this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX()+additionalAxis.getPosX(inBlockCenter.context)/2, inBlockCenter.getPosY()+additionalAxis.getPosY(inBlockCenter.context)/2, inBlockCenter.getPosZ()+additionalAxis.getPosZ(inBlockCenter.context)/2);
-        this.fakeWorld.axis = rotationCenter;
+        
+        this.origin = new VecOrigin(rotationCenter);
+        ((IFakeWorld) this.fakeWorld).setOrigin(origin);
 	}
 	
 	public static BlockPos getRenderChunkPos(BlockPos blockPos)
@@ -141,6 +146,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	//================World Data================
 	
 	public WorldFake fakeWorld;
+	public VecOrigin origin;
 	public LittleDoorBase structure;
 	public PlacePreviews previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
@@ -174,12 +180,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	/**
 	 * Static not affected by direction or entity offset
 	 */
-	public List<EntityAABB> worldCollisionBoxes;
+	public List<OrientatedBoundingBox> worldCollisionBoxes;
 	
 	/**
 	 * Static not affected by direction or entity offset
 	 */
-	public EntityAABB worldBoundingBox;
+	public OrientatedBoundingBox worldBoundingBox;
 	
 	/**
 	 * Should be called if the world of the animation will be modified (Currently not possible)
@@ -220,14 +226,14 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			//BoxUtils.compressBoxes(boxes, 0.0F);
 			
 			for (AxisAlignedBB box : boxes) {
-				worldCollisionBoxes.add(new EntityAABB(fakeWorld, box));
+				worldCollisionBoxes.add(new OrientatedBoundingBox(origin, box));
 			}
 		}
 		
 		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
 		//BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be increased txco save performance
 		
-		worldBoundingBox = new EntityAABB(fakeWorld, minX, minY, minZ, maxX, maxY, maxZ);
+		worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
 	private static double minIgnore(double par1, double par2)
@@ -292,7 +298,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			
 			if(rotationX != null || rotationY != null || rotationZ != null || translation != null)
 			{				
-				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
+				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 				
 				noCollision = true;
 				
@@ -301,17 +307,17 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 				{
 					// PHASE ONE
 					List<AxisAlignedBB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
-					for (EntityAABB box : worldCollisionBoxes) {
+					for (OrientatedBoundingBox box : worldCollisionBoxes) {
 						
 						if(box.cache == null)
 							box.buildCache();
 						box.cache.reset();
 						
-						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
+						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
 					}
 					
 					// PHASE TWO
-					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, fakeWorld);
+					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, origin);
 					Double t = null;
 					
 					PushCache[] caches = new PushCache[entities.size()];
@@ -325,16 +331,16 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						temp.sub(center);
 						double radius = temp.lengthSquared();
 						
-						transformPointToFakeWorld(center);
+						origin.transformPointToFakeWorld(center);
 						
-						EntityAABB pushingBox = null;
+						OrientatedBoundingBox pushingBox = null;
 						
 						checking_all_boxes:
 						for (int i = 0; i < surroundingBoxes.size(); i++) {
 							if(surroundingBoxes.get(i).intersects(entityBox))
 							{
 								//Check for earliest hit
-								EntityAABB box = worldCollisionBoxes.get(i);
+								OrientatedBoundingBox box = worldCollisionBoxes.get(i);
 								
 								if(!box.cache.isCached())
 									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
@@ -372,8 +378,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							Vector3d newCenter = new Vector3d(center);
 							table.transform(newCenter, 1 - t);
 							
-							transformPointToWorld(center);
-							transformPointToWorld(newCenter);
+							origin.transformPointToWorld(center);
+							origin.transformPointToWorld(newCenter);
 							
 							
 							cache.pushBox = pushingBox;
@@ -416,10 +422,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						
 						for (int h = 0; h < corners.length; h++) {
 							Vector3d vec = corners[h];
-							vec.sub(fakeWorld.translation());
+							vec.sub(origin.translation());
 							
 							vec.sub(rotationCenter);
-							fakeWorld.rotationInv().transform(vec);
+							origin.rotationInv().transform(vec);
 							vec.add(rotationCenter);
 							
 							minX = Math.min(minX, vec.x);
@@ -430,7 +436,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							maxZ = Math.max(maxZ, vec.z);
 						}
 						
-						EntityAABB fakeBox = new EntityAABB(fakeWorld, minX, minY, minZ, maxX, maxY, maxZ);
+						OrientatedBoundingBox fakeBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
 						Vector3d center = fakeBox.getCenter3d();
 						
 						Axis one = cached ? RotationUtils.getDifferentAxisFirst(cache.facing.getAxis()) : null;
@@ -443,16 +449,16 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						
 						double maxVolume = 0;
 						
-						List<EntityAABB> intersecting = new ArrayList<>();
+						List<OrientatedBoundingBox> intersecting = new ArrayList<>();
 						List<EnumFacing> intersectingFacing = new ArrayList<>();
 						
 						if(cached)
 						{
-							intersecting.add((EntityAABB) cache.pushBox);
+							intersecting.add(cache.pushBox);
 							intersectingFacing.add(cache.facing);
 						}
 						
-						for (EntityAABB box : worldCollisionBoxes) {
+						for (OrientatedBoundingBox box : worldCollisionBoxes) {
 							if((!cached || box != cache.pushBox) && box.intersects(fakeBox))
 							{
 								if(!box.cache.isCached())
@@ -548,7 +554,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						Vector3d pushInv = new Vector3d(-pushVec.x, -pushVec.y, -pushVec.z);
 						
 						Vector3d rotatedVec = new Vector3d(pushVec);
-						fakeWorld.rotation().transform(rotatedVec);
+						origin.rotation().transform(rotatedVec);
 						
 						BoxPlane xPlane = BoxPlane.createOppositePlane(Axis.X, rotatedVec, corners);
 						BoxPlane yPlane = BoxPlane.createOppositePlane(Axis.Y, rotatedVec, corners);
@@ -631,34 +637,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public void moveAnimation(double x, double y, double z)
 	{
 		moveAndRotateAnimation(x, y, z, 0, 0, 0);
-	}
-	
-	public void transformPointToWorld(Vector3d vec)
-	{
-		vec.sub(rotationCenter);
-		fakeWorld.rotation().transform(vec);
-		vec.add(rotationCenter);
-		
-		vec.add(fakeWorld.translation());
-	}
-	
-	public void transformPointToFakeWorld(Vector3d vec)
-	{
-		vec.sub(fakeWorld.translation());
-		
-		vec.sub(rotationCenter);
-		fakeWorld.rotationInv().transform(vec);
-		vec.add(rotationCenter);
-	}
-	
-	public AxisAlignedBB getWorldOrientatedBox(EntityAABB box)
-	{
-		return BoxUtils.getRotated(box, rotationCenter, fakeWorld.rotation(), fakeWorld.translation());
-	}
-	
-	public EntityAABB getFakeWorldOrientatedBox(AxisAlignedBB box)
-	{
-		return new EntityAABB(fakeWorld, BoxUtils.getRotated(box.offset(-fakeWorld.translation().x, -fakeWorld.translation().y, -fakeWorld.translation().z), rotationCenter, fakeWorld.rotationInv(), new Vector3d()));
 	}
 	
 	//================Rendering================
@@ -763,13 +741,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
 		if(rotated || moved)
-			setEntityBoundingBox(getWorldOrientatedBox(worldBoundingBox));
+			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
 	}
 	
 	public void updateOrigin()
 	{
-		fakeWorld.off(posX - getAxisPos().getX(), posY - getAxisPos().getY(), posZ - getAxisPos().getZ());
-		fakeWorld.rot(worldRotX, worldRotY, worldRotZ);
+		origin.off(posX - getAxisPos().getX(), posY - getAxisPos().getY(), posZ - getAxisPos().getZ());
+		origin.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	
 	public void onTick()
@@ -927,7 +905,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
-		
 		this.fakeWorld = WorldFake.createFakeWorld(world);
 		setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());

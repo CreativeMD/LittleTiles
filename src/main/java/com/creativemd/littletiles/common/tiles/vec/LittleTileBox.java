@@ -9,12 +9,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.CubeObject;
 import com.creativemd.creativecore.common.utils.math.RangedBitSet;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.RangedBitSet.BitRange;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
@@ -891,7 +891,7 @@ public class LittleTileBox {
 	{
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-		return vec.getAxis(one) >= getMin(one) && vec.getAxis(one) <= getMax(one) && vec.getAxis(two) >= getMin(two) && vec.getAxis(two) <= getMax(two);
+		return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
 	}
 	
 	public boolean intersectsWithAxis(LittleGridContext context, Axis axis, Vec3d vec)
@@ -989,10 +989,10 @@ public class LittleTileBox {
 	 */
 	public void flipBox(Axis axis, LittleTileVec doubledCenter)
 	{
-		long tempMin = getMin(axis)*2 - doubledCenter.getAxis(axis);
-		long tempMax = getMax(axis)*2 - doubledCenter.getAxis(axis);
-		int min = (int) ((doubledCenter.getAxis(axis) - tempMin) / 2);
-		int max = (int) ((doubledCenter.getAxis(axis) - tempMax) / 2);
+		long tempMin = getMin(axis)*2 - doubledCenter.get(axis);
+		long tempMax = getMax(axis)*2 - doubledCenter.get(axis);
+		int min = (int) ((doubledCenter.get(axis) - tempMin) / 2);
+		int max = (int) ((doubledCenter.get(axis) - tempMax) / 2);
 		setMin(axis, Math.min(min, max));
 		setMax(axis, Math.max(min, max));
 	}
@@ -1150,8 +1150,8 @@ public class LittleTileBox {
 				LittleTileVec vec = new LittleTileVec(min, min, min);
 				for (int one = minOne; one < maxOne; one++) {
 					for (int two = minTwo; two < maxTwo; two++) {
-						vec.setAxis(face.one, one);
-						vec.setAxis(face.two, two);
+						vec.set(face.one, one);
+						vec.set(face.two, two);
 						if(intersectsWithFace(face.face.getOpposite(), vec, completely)) //isVecInsideBox(vec))
 							face.filled[one-face.minOne][two-face.minTwo] = true;
 					}
@@ -1216,8 +1216,8 @@ public class LittleTileBox {
 			LittleTileVec vec = new LittleTileVec(min, min, min);
 			for (int one = 0; one < filled.length; one++) {
 				for (int two = 0; two < filled[one].length; two++) {
-					vec.setAxis(this.one, minOne + one);
-					vec.setAxis(this.two, minTwo + two);
+					vec.set(this.one, minOne + one);
+					vec.set(this.two, minTwo + two);
 					if(!filled[one][two] && box.intersectsWithFace(face, vec, false)) //&& LittleTileBox.this.isVecInsideBox(vec))
 						return false;
 				}

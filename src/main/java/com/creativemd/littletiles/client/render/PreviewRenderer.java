@@ -7,8 +7,8 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.ColoredCube;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.box.ColoredCube;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;

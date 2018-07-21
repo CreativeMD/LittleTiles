@@ -3,13 +3,12 @@ package com.creativemd.littletiles.client.tiles;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
-import com.creativemd.creativecore.common.utils.math.CubeObject;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
+import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
-import com.creativemd.littletiles.common.tiles.vec.lines.LittleTile2DLine;
 
-import net.minecraft.client.renderer.EnumFaceDirection;
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -23,7 +22,7 @@ public class LittleDynamicCube {
 		this.slice = slice;
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-		this.line = new LittleTile2DLine(one, two, new Vector3d(defaultCube.getValueOfFacing(slice.start.x), defaultCube.getValueOfFacing(slice.start.y), defaultCube.getValueOfFacing(slice.start.z)), defaultCube.getSize(one) * slice.getDirectionScale(one), defaultCube.getSize(two) * slice.getDirectionScale(two));
+		this.line = new Ray2d(one, two, new Vector3d(defaultCube.getValueOfFacing(slice.start.x), defaultCube.getValueOfFacing(slice.start.y), defaultCube.getValueOfFacing(slice.start.z)), defaultCube.getSize(one) * slice.getDirectionScale(one), defaultCube.getSize(two) * slice.getDirectionScale(two));
 		this.preferedSide = slice.getPreferedSide(defaultCube.getSize());
 		/*for (LittleCorner corner : LittleCorner.values()) {
 			if(slice.isCornerAffected(corner))
@@ -50,7 +49,7 @@ public class LittleDynamicCube {
 	
 	public LittleSlice slice;
 	public EnumFacing preferedSide;
-	public LittleTile2DLine line;
+	public Ray2d line;
 	
 	public Vector3f sliceVector(EnumFacing facing, Vector3f vec, BlockPos pos)
 	{
