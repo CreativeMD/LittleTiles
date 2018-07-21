@@ -9,6 +9,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
@@ -40,7 +41,7 @@ public class LittleTileParticle extends LittleTileTE {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if(!worldIn.isRemote)
 				LittleGuiHandler.openGui("littleparticle", new NBTTagCompound(), player, this);
 		return true;
