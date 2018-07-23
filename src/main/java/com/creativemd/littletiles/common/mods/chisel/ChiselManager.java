@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.mods.chisel;
 
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -51,7 +52,12 @@ public class ChiselManager {
 				// Incorrect cached values can happen, which results in really weird glitches (sometimes blocks do connect, sometimes not).
 				((Map<BlockPos, IBlockState>) stateCache.get(world)).clear();
 				
-				IBlockAccess realWorld = (IBlockAccess) passthrough.get(world);
+				IBlockAccess realWorld;
+				Object object = passthrough.get(world);
+				if(object instanceof IBlockAccess)
+					realWorld = (IBlockAccess) object;
+				else
+					realWorld = ((WeakReference<IBlockAccess>) object).get();
 				//if(realWorld instanceof IBlockAccessFake && ((IBlockAccessFake) realWorld).pos.equals(pos))
 					//return ((IBlockAccessFake) realWorld).fakeState;
 				return realWorld.getBlockState(pos);
