@@ -582,7 +582,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						double moveY = cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale;
 						double moveZ = cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale;
 						
-						entity.move(MoverType.SELF, moveX, moveY, moveZ);
+						entity.move(MoverType.PISTON, moveX, moveY, moveZ);
 						
 						if(moveX != 0 || moveZ != 0)
 							collidedHorizontally = true;
