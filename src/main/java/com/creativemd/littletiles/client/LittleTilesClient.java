@@ -103,8 +103,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTile);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
@@ -128,7 +128,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
-				
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
 
 		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);

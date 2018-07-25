@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 
-import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.VertexBuffer;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
@@ -52,21 +52,16 @@ public class BlockLayerRenderBuffer {
 	private VertexBuffer cutout;
 	private VertexBuffer translucent;
 	
-	private BufferBuilder solid;
-	private BufferBuilder cutout_mipped;
-	private BufferBuilder cutout;
-	private BufferBuilder translucent;
-	
-	public BufferBuilder createVertexBuffer(List<? extends RenderCubeObject> cubes)
+	public VertexBuffer createVertexBuffer(List<? extends RenderCubeObject> cubes)
 	{
 		int size = 1;
 		for (RenderCubeObject cube : cubes) {
 			size += cube.getQuads();
 		}
-		return new BufferBuilder(bufferSizePerQuad * size);
+		return new VertexBuffer(bufferSizePerQuad * size);
 	}
 	
-	public BufferBuilder getBufferByLayer(BlockRenderLayer layer)
+	public VertexBuffer getBufferByLayer(BlockRenderLayer layer)
 	{
 		switch(layer)
 		{

@@ -11,14 +11,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
@@ -26,53 +21,35 @@ import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.mods.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-
-@Interface(iface="elucent.albedo.lighting.ILightProvider", modid="albedo")
-public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider {
+public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE {
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList()
 	{
@@ -1083,38 +1060,5 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				
 		}
 		return highest != null ? highest.getBlockState() : null;
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	@Method(modid = "albedo")
-	public Light provideLight() {
-		if(ColoredLightsManager.isInstalled())
-		{
-			AxisAlignedBB box = null;
-			int color = -1;
-			for (LittleTile tile : tiles) {
-				if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == ColoredLightsManager.getInvertedColorsBlock())
-				{
-					int tileColor = ColoredLightsManager.getColorFromBlock(((LittleTileBlock) tile).getBlockState());
-					if(tile instanceof LittleTileBlockColored)
-						tileColor = ColorUtils.blend(tileColor, ((LittleTileBlockColored) tile).color);
-					if(box == null)
-					{
-						box = tile.getCompleteBox().getBox(context, pos);
-						color = tileColor;
-					}
-					else
-					{
-						box = box.union(tile.getCompleteBox().getBox(context, pos));
-						color = ColorUtils.blend(color, tileColor);
-					}
-				}	
-			}
-			
-			if(box != null)
-				return new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build();
-		}
-		return null;
 	}
 }

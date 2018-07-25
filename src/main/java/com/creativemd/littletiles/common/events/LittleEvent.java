@@ -36,7 +36,6 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -462,7 +461,7 @@ public class LittleEvent {
 			
 			OrientatedBoundingBox newAlignedBox = animation.origin.getOrientatedBox(box);			
 			for (OrientatedBoundingBox bb : animation.worldCollisionBoxes) {
-				if(bb.intersects(newAlignedBox))
+				if(bb.intersectsWith(newAlignedBox))
 					event.getCollisionBoxesList().add(bb);
 			}
 		}

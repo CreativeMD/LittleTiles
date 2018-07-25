@@ -160,9 +160,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 				//GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
 				GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 				
-				GL11.glRotated(rotation.x, 1, 0, 0);
-				GL11.glRotated(rotation.y, 0, 1, 0);
-				GL11.glRotated(rotation.z, 0, 0, 1);
+				GL11.glRotated(rotation.xCoord, 1, 0, 0);
+				GL11.glRotated(rotation.yCoord, 0, 1, 0);
+				GL11.glRotated(rotation.zCoord, 0, 0, 1);
 				
 				GlStateManager.translate(posX, posY, posZ);
 				
@@ -253,9 +253,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	                //GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
 	                GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 	                
-	        		GL11.glRotated(rotation.x, 1, 0, 0);
-	        		GL11.glRotated(rotation.y, 0, 1, 0);
-	        		GL11.glRotated(rotation.z, 0, 0, 1);
+	        		GL11.glRotated(rotation.xCoord, 1, 0, 0);
+	        		GL11.glRotated(rotation.yCoord, 0, 1, 0);
+	        		GL11.glRotated(rotation.zCoord, 0, 0, 1);
 	        		
 	        		GlStateManager.translate(- ((double)blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), - ((double)blockpos.getY() -  TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), - ((double)blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 	        		
@@ -304,9 +304,9 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			//GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
 			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 	        
-			GL11.glRotated(rotation.x, 1, 0, 0);
-			GL11.glRotated(rotation.y, 0, 1, 0);
-			GL11.glRotated(rotation.z, 0, 0, 1);
+			GL11.glRotated(rotation.xCoord, 1, 0, 0);
+			GL11.glRotated(rotation.yCoord, 0, 1, 0);
+			GL11.glRotated(rotation.zCoord, 0, 0, 1);
 			
 			GlStateManager.translate(entity.origin.offX(), entity.origin.offY(), entity.origin.offZ());
 			
@@ -319,7 +319,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			 
             for (OrientatedBoundingBox bb : entity.worldCollisionBoxes) {
             	GlStateManager.pushMatrix();
-            	boolean intersect = bb.intersects(entityBB);
+            	boolean intersect = bb.intersectsWith(entityBB);
             	RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z,
             			bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ- entity.posZ + z, 1.0F, intersect ? 0.0F : 1.0F, intersect ? 0.0F : 1.0F, 1.0F);
             	GlStateManager.popMatrix();

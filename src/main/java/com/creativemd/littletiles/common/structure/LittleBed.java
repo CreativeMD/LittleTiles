@@ -211,7 +211,7 @@ public class LittleBed extends LittleStructure{
 
             double d0 = 8.0D;
             double d1 = 5.0D;
-            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)highest.x - 8.0D, (double)highest.y - 5.0D, (double)highest.z - 8.0D, (double)highest.x + 8.0D, (double)highest.y + 5.0D, (double)highest.z + 8.0D));
+            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)highest.xCoord - 8.0D, (double)highest.yCoord - 5.0D, (double)highest.zCoord - 8.0D, (double)highest.xCoord + 8.0D, (double)highest.yCoord + 5.0D, (double)highest.zCoord + 8.0D));
 
             if (!list.isEmpty())
             {
@@ -244,7 +244,7 @@ public class LittleBed extends LittleStructure{
         
         player.renderOffsetX = -1.8F * (float)direction.getFrontOffsetX();
         player.renderOffsetZ = -1.8F * (float)direction.getFrontOffsetZ();
-        player.setPosition((double)((float)highest.x - 0.5F + f1), (double)((float)highest.y), (double)((float)highest.z - 0.5F + f));
+        player.setPosition((double)((float)highest.xCoord - 0.5F + f1), (double)((float)highest.yCoord), (double)((float)highest.zCoord - 0.5F + f));
         
         try {
         	sleeping.setBoolean(player, true);

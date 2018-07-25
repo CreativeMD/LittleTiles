@@ -337,7 +337,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						
 						checking_all_boxes:
 						for (int i = 0; i < surroundingBoxes.size(); i++) {
-							if(surroundingBoxes.get(i).intersects(entityBox))
+							if(surroundingBoxes.get(i).intersectsWith(entityBox))
 							{
 								//Check for earliest hit
 								OrientatedBoundingBox box = worldCollisionBoxes.get(i);
@@ -459,7 +459,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						}
 						
 						for (OrientatedBoundingBox box : worldCollisionBoxes) {
-							if((!cached || box != cache.pushBox) && box.intersects(fakeBox))
+							if((!cached || box != cache.pushBox) && box.intersectsWith(fakeBox))
 							{
 								if(!box.cache.isCached())
 									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
@@ -572,8 +572,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							scale = intersecting.get(j).getPushOutScale(scale, fakeBox, cache.entityBox, pushVec, pushInv, xPlane, yPlane, zPlane);
 						}
 						
-						boolean collidedHorizontally = entity.collidedHorizontally;
-						boolean collidedVertically = entity.collidedVertically;
+						boolean collidedHorizontally = entity.isCollidedHorizontally;
+						boolean collidedVertically = entity.isCollidedVertically;
 						boolean onGround = entity.onGround;
 						
 						AxisAlignedBB originalBox = entity.getEntityBoundingBox();
@@ -592,10 +592,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							onGround = true;
 						}
 						
-						entity.collidedHorizontally = collidedHorizontally;
-						entity.collidedVertically = collidedVertically;
+						entity.isCollidedHorizontally = collidedHorizontally;
+						entity.isCollidedVertically = collidedVertically;
 						entity.onGround = onGround;
-						entity.collided = collidedHorizontally || collidedVertically;						
+						entity.isCollided = collidedHorizontally || collidedVertically;						
 						
 						
 					}

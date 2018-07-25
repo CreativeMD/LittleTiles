@@ -276,7 +276,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		Vec3d corner = getCorner(slice.start);
-		return new Ray2d(one, two, new Vector3d(corner.x, corner.y, corner.z), getSize(one) * slice.getDirectionScale(one), getSize(two) * slice.getDirectionScale(two));
+		return new Ray2d(one, two, new Vector3d(corner.xCoord, corner.yCoord, corner.zCoord), getSize(one) * slice.getDirectionScale(one), getSize(two) * slice.getDirectionScale(two));
 	}
     
     /**

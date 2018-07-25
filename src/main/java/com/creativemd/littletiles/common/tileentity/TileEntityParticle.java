@@ -138,7 +138,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");
 		
 		try {
-			Vector3d pos = new Vector3d(getPos().getX()+offset.x, getPos().getY()+offset.y, getPos().getZ()+offset.z);
+			Vector3d pos = new Vector3d(getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord);
 			if(world instanceof IFakeWorld)
 				((IFakeWorld) world).getOrigin().transformPointToWorld(pos);
 			

@@ -233,8 +233,8 @@ public class LittleTiles {
 		GameRegistry.register(transparentColoredBlock);
 		GameRegistry.register(new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()));
 		
-		GameRegistry.register(blockTile);
-		GameRegistry.register(new ItemBlockTiles(blockTile, blockTile.getRegistryName()).setRegistryName(blockTile.getRegistryName()));
+		GameRegistry.register(blockTileTicking);
+		GameRegistry.register(new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()));
 		
 		GameRegistry.register(blockTileNoTicking);
 		GameRegistry.register(new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()));
@@ -467,7 +467,11 @@ public class LittleTiles {
 				{
 				"XAA", "ALA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
 				});
-		
+
+		GameRegistry.addRecipe(new ItemStack(grabber),  new Object[]
+				{
+					"LLL", "WWW", "LLL", 'W', new ItemStack(Blocks.WOOL, 1, 11), 'L', new ItemStack(Items.DYE, 1, 4)
+				});
 		
 		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 0),  new Object[]
 				{
@@ -550,6 +554,8 @@ public class LittleTiles {
 		
 		//Water block
 		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.water.ordinal()), Items.WATER_BUCKET);
+		
+		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.white_water.ordinal()), new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.water.ordinal()), Items.MILK_BUCKET);
 		
 		GameRegistry.addShapelessRecipe(new ItemStack(coloredBlock, 1, BlockLTColored.EnumType.lava.ordinal()), Items.LAVA_BUCKET);
 		

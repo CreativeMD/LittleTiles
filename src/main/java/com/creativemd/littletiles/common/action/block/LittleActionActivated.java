@@ -49,7 +49,7 @@ public class LittleActionActivated extends LittleActionInteract {
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
 			RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		if(tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.x, (float)moving.hitVec.y, (float)moving.hitVec.z, this))
+		if(tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord, this))
 		{
 			BlockTile.cancelNext = true;
 			return true;
