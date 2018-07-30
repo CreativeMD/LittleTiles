@@ -208,16 +208,22 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	}
 	
 	@Override
+	protected BlockPos getPreviewOffset() {
+		return previewPos;
+	}
+	
+	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
-		super.readEntityFromNBT(compound);
-		duration = compound.getInteger("duration");
-		setProgress(compound.getInteger("progress"));
 		
 		int[] array = compound.getIntArray("previewPos");
 		if(array.length == 3)
 			previewPos = new BlockPos(array[0], array[1], array[2]);
 		else
 			previewPos = baseOffset;
+		
+		super.readEntityFromNBT(compound);
+		duration = compound.getInteger("duration");
+		setProgress(compound.getInteger("progress"));
 		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
 		setTransformationStartOffset();
