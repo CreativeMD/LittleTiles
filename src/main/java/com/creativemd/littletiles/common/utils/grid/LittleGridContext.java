@@ -113,7 +113,7 @@ public class LittleGridContext {
 		maxPos = gridSize;
 		maxTilesPerBlock = gridSize*gridSize*gridSize;
 		minimumTileSize = 1D/maxTilesPerBlock;
-		isDefault = overallDefault == gridSize;
+		isDefault = defaultSize == gridSize;
 		
 		minSizes = new int[size];
 		minSizes[0] = 1;
