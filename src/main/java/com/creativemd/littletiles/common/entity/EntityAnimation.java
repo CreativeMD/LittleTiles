@@ -467,6 +467,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 								boolean add = !cached;
 								EnumFacing facing = CollidingPlane.getDirection(box.cache.planes, box.cache.center, center);
 								
+								if(facing == null)
+									continue;
+								
 								if(cached)
 								{
 									if(!ignoreOne && facing.getAxis() == one)
@@ -902,6 +905,11 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	}
 	
 	//================Saving & Loading================
+	
+	protected BlockPos getPreviewOffset()
+	{
+		return baseOffset;
+	}
 
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
@@ -927,7 +935,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 		
 		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(baseOffset, absoluteAxis.getContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(getPreviewOffset(), absoluteAxis.getContext());
 		for (LittleTile tile : tiles) {
 			previews.addTile(tile);
 		}
