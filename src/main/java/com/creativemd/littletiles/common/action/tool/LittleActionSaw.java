@@ -129,20 +129,24 @@ public class LittleActionSaw extends LittleActionInteract {
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
 				BlockIngredient ingredient = preview.getBlockIngredient(te.getContext());
-				ingredient.value = amount;
-				ingredients.addIngredient(ingredient);
-				
-				ColorUnit unit = null;
-				if(preview.hasColor())
+				if(ingredient != null)
 				{
-					unit = ColorUnit.getColors(preview.getColor());
-					unit.scaleLoose(amount);
-				}
+					ingredient.value = amount;
+					ingredients.addIngredient(ingredient);
+					
+					ColorUnit unit = null;
+					if(preview.hasColor())
+					{
+						unit = ColorUnit.getColors(preview.getColor());
+						unit.scaleLoose(amount);
+					}
+					
+					if(secondMode)
+						addIngredients(player, ingredients, unit);
+					else
+						drainIngredients(player, ingredients, unit);
 				
-				if(secondMode)
-					addIngredients(player, ingredients, unit);
-				else
-					drainIngredients(player, ingredients, unit);
+				}
 				
 				if(outside)
 				{
@@ -243,20 +247,23 @@ public class LittleActionSaw extends LittleActionInteract {
 				BlockIngredients ingredients = new BlockIngredients();
 				LittleTilePreview preview = tile.getPreviewTile();
 				BlockIngredient ingredient = preview.getBlockIngredient(tile.getContext());
-				ingredient.value = amount;
-				ingredients.addIngredient(ingredient);
-				
-				ColorUnit unit = null;
-				if(preview.hasColor())
+				if(ingredient != null)
 				{
-					unit = ColorUnit.getColors(preview.getColor());
-					unit.scaleLoose(amount);
+					ingredient.value = amount;
+					ingredients.addIngredient(ingredient);
+					
+					ColorUnit unit = null;
+					if(preview.hasColor())
+					{
+						unit = ColorUnit.getColors(preview.getColor());
+						unit.scaleLoose(amount);
+					}
+					
+					if(oldBox.getVolume() < tile.box.getVolume())
+						addIngredients(player, ingredients, unit);
+					else
+						drainIngredients(player, ingredients, unit);
 				}
-				
-				if(oldBox.getVolume() < tile.box.getVolume())
-					addIngredients(player, ingredients, unit);
-				else
-					drainIngredients(player, ingredients, unit);
 				
 				replacedBox = tile.box.copy();
 				//replacedBox.addOffset(tile.te.getPos());

@@ -490,7 +490,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					controls.add(label);
 					
 					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
-					selector.setSelectedForce(preview.getBlockIngredient(context).getItemStack());
+					selector.setSelectedForce(preview.getBlockStack());
 					controls.add(selector);
 					
 					updateLabel();

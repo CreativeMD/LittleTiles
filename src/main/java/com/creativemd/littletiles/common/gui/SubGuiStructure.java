@@ -30,7 +30,7 @@ public class SubGuiStructure extends SubGui{
 	public void createControls() {
 		ArrayList<String> lines = new ArrayList<>();
 		lines.add("none");
-		lines.addAll(LittleStructure.getStructureNames());
+		lines.addAll(LittleStructure.getStructureTypeNames());
 		controls.add(new GuiLabel("type:", 2, 7));
 		GuiComboBox comboBox = new GuiComboBox("types", 32, 5, 70, lines);
 		LittleStructure structure = ItemMultiTiles.getLTStructure(stack);
@@ -49,7 +49,7 @@ public class SubGuiStructure extends SubGui{
 			public void onClicked(int x, int y, int button){
 				String id = ((GuiComboBox) get("types")).caption;
 				LittleStructure parser = null;
-				LittleStructureEntry entry = LittleStructure.getEntryByID(id); 
+				LittleStructureEntry entry = LittleStructure.getStructureEntryByID(id); 
 				if(entry != null)
 					parser = entry.parser;
 				if(parser != null)
@@ -91,7 +91,7 @@ public class SubGuiStructure extends SubGui{
 		if(saved != null && !saved.getIDOfStructure().equals(id))
 			saved = null;
 		LittleStructure parser = null;
-		LittleStructureEntry entry = LittleStructure.getEntryByID(id); 
+		LittleStructureEntry entry = LittleStructure.getStructureEntryByID(id); 
 		if(entry != null)
 			parser = entry.parser;
 		if(parser != null)

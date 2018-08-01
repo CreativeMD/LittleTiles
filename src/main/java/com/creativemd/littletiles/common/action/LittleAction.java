@@ -709,7 +709,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static void dropPreviews(EntityPlayer player, LittlePreviews previews)
 	{
 		for (LittleTilePreview preview : previews) {
-			WorldUtils.dropItem(player, preview.getBlockIngredient(previews.context).getTileItemStack());
+			if(preview.hasBlockIngredient())
+				WorldUtils.dropItem(player, preview.getBlockIngredient(previews.context).getTileItemStack());
 		}
 	}
 	
@@ -847,6 +848,27 @@ public abstract class LittleAction extends CreativeCorePacket {
 				bags.add(stack);
 		}
 		return bags;
+	}
+	
+	public static boolean canDrainItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
+	{
+		for (ItemStack stack : player.inventory.mainInventory) {
+			if(ItemStack.areItemStacksEqual(stack, toDrain))
+				return true;
+		}
+		throw new NotEnoughIngredientsException.NotEnoughStackException(toDrain);
+	}
+	
+	public static void drainItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
+	{
+		for (ItemStack stack : player.inventory.mainInventory) {
+			if(ItemStack.areItemStacksEqual(stack, toDrain))
+			{
+				stack.shrink(1);
+				return ;
+			}
+		}
+		throw new NotEnoughIngredientsException.NotEnoughStackException(toDrain);
 	}
 	
 	@SideOnly(Side.CLIENT)

@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -364,11 +365,6 @@ public class LittleTileBlock extends LittleTile{
 		if(hasSpecialBlockHandler())
 			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
-	}
-
-	@Override
-	public BlockIngredient getIngredient() {
-		return new BlockIngredient(block, meta, getPercentVolume());
 	}
 	
 	@Override

@@ -481,6 +481,8 @@ public abstract class LittleTile {
 			nbt.setBoolean("invisible", invisible);
 		if(glowing)
 			nbt.setBoolean("glowing", glowing);
+		if(getStructureAttribute() == LittleStructureAttribute.NO_DROP)
+			nbt.setBoolean("nodrop", true);
 	}
 	
 	public void saveTileCore(NBTTagCompound nbt)
@@ -653,8 +655,6 @@ public abstract class LittleTile {
 	}
 	
 	public abstract ItemStack getDrop();
-	
-	public abstract BlockIngredient getIngredient();
 	
 	public LittleTilePreview getPreviewTile()
 	{

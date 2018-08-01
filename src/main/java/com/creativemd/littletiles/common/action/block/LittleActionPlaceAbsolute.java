@@ -10,6 +10,8 @@ import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative.LittlePlaceResult;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -24,6 +26,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -94,7 +97,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		
-		if(canDrainPreviews(player, previews))
+		if(canDrainIngredientsBeforePlacing(player))
 		{
 			ArrayList<PlacePreviewTile> placePreviews = new ArrayList<>();
 			for (LittleTilePreview preview : previews) {
@@ -119,7 +122,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			{
 				boxes = placedTiles.placedBoxes;
 				
-				drainPreviews(player, placedTiles.placedPreviews);
+				drainIngredientsAfterPlacing(player, placedTiles);
 				
 				if(!player.world.isRemote)
 				{
@@ -147,6 +150,16 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			return placedTiles != null;
 		}
 		return false;
+	}
+	
+	protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException
+	{
+		return canDrainPreviews(player, previews);
+	}
+	
+	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException
+	{
+		drainPreviews(player, placedTiles.placedPreviews);
 	}
 
 	@Override
@@ -177,6 +190,31 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		}
 		
 		checkMode();
+	}
+	
+	public static class LittleActionPlaceAbsolutePremade extends LittleActionPlaceAbsolute {
+		
+		public LittleActionPlaceAbsolutePremade(LittleAbsolutePreviews previews, LittleStructure structure, PlacementMode mode, boolean toVanilla) {
+			super(previews, structure, mode, toVanilla);
+		}
+		
+		public LittleActionPlaceAbsolutePremade() {
+			super();
+		}
+		
+		@Override
+		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException
+		{
+			drainItemStack(player, LittleStructurePremade.getStructurePremadeEntry(structure.structureID).stack);
+		}
+		
+		@Override
+		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException
+		{
+			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(structure.structureID);
+			return canDrainItemStack(player, entry.stack) && entry.arePreviewsEqual(previews);
+		}
+		
 	}
 
 }

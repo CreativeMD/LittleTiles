@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.LittleTiles;
@@ -119,7 +121,7 @@ public class LittleTilePreview {
 	
 	public boolean canBeConvertedToBlockEntry()
 	{
-		return handler.canBeConvertedToBlockEntry(this);
+		return handler.canBeConvertedToBlockEntry(this) && hasBlockIngredient();
 	}
 	
 	public String getPreviewBlockName()
@@ -174,9 +176,27 @@ public class LittleTilePreview {
 		return tileData;
 	}
 	
+	public boolean hasBlockIngredient()
+	{
+		return !tileData.getBoolean("nodrop");
+	}
+	
+	@Nullable
 	public BlockIngredient getBlockIngredient(LittleGridContext context)
 	{
-		return handler.getBlockIngredient(context, this);
+		if(hasBlockIngredient())
+			return handler.getBlockIngredient(context, this);
+		return null;
+	}
+	
+	/**
+	 * 
+	 * @param context
+	 * @return An ordinary itemstack of the block, not taking care of actual preview size (it's always a full cube).
+	 */
+	public ItemStack getBlockStack()
+	{
+		return handler.getBlockStack(this);
 	}
 	
 	public double getPercentVolume(LittleGridContext context)

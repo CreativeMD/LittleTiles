@@ -118,6 +118,8 @@ public class BlockIngredient {
 		
 		public void addIngredient(BlockIngredient ingredient)
 		{
+			if(ingredient == null)
+				return ;
 			int indexOf = content.indexOf(ingredient);
 			if(indexOf != -1)
 			{

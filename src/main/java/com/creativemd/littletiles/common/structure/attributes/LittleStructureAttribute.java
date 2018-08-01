@@ -4,7 +4,8 @@ public enum LittleStructureAttribute {
 	
 	NONE,
 	LADDER,
-	COLLISION;
+	COLLISION,
+	NO_DROP;
 	
 	public static LittleStructureAttribute get(int index)
 	{
