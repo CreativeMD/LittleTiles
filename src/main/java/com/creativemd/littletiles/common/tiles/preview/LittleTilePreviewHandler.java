@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -84,7 +85,7 @@ public abstract class LittleTilePreviewHandler {
 
 		@Override
 		public BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
-			return new BlockIngredient(preview.getPreviewBlock(), preview.getPreviewBlockMeta(), preview.getPercentVolume(context));
+			return new BlockIngredient(getPreviewBlock(preview), getPreviewBlockMeta(preview), preview.getPercentVolume(context));
 		}
 
 		@Override
@@ -100,6 +101,11 @@ public abstract class LittleTilePreviewHandler {
 		@Override
 		public boolean canBeNBTGrouped() {
 			return true;
+		}
+
+		@Override
+		public ItemStack getBlockStack(LittleTilePreview preview) {
+			return new ItemStack(getPreviewBlock(preview), 1, getPreviewBlockMeta(preview));
 		}
 
 		
@@ -123,6 +129,8 @@ public abstract class LittleTilePreviewHandler {
 	public abstract RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview);
 	
 	public abstract BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview);
+	
+	public abstract ItemStack getBlockStack(LittleTilePreview preview);
 	
 	public abstract void flipPreview(Axis axis, LittleTilePreview previewn, LittleTileVec doubledCenter);
 	

@@ -133,6 +133,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	public static class StructurePreview {
 		
 		public LittleAbsolutePreviews previews;
+		public boolean requiresItemStack;
 		public NBTTagCompound structureNBT;
 		public LittleStructure structure;
 		
@@ -144,6 +145,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				previews.addTiles(entry.getValue());
 			}
 			previews.convertToSmallest();
+			requiresItemStack = structure.canOnlyBePlacedByItemStack();
 			this.structureNBT = new NBTTagCompound();
 			structure.writeToNBTPreview(structureNBT, previews.pos);
 			this.structure = structure;
@@ -151,6 +153,8 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		public LittleAction getPlaceAction()
 		{
+			if(requiresItemStack)
+				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, LittleStructure.createAndLoadStructure(structureNBT, null), PlacementMode.all, false);
 			return new LittleActionPlaceAbsolute(previews, LittleStructure.createAndLoadStructure(structureNBT, null), PlacementMode.all, false);
 		}
 		

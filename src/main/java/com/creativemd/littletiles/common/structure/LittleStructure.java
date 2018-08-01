@@ -64,7 +64,7 @@ public abstract class LittleStructure {
 	private static HashMap<String, LittleStructureEntry> structuresID = new LinkedHashMap<String, LittleStructureEntry>();
 	private static HashMap<Class<? extends LittleStructure>, LittleStructureEntry> structuresClass = new LinkedHashMap<Class<? extends LittleStructure>, LittleStructureEntry>();
 	
-	public static ArrayList<String> getStructureNames()
+	public static List<String> getStructureTypeNames()
 	{
 		ArrayList<String> result = new ArrayList<>();
 		for (String id : structuresID.keySet()) {
@@ -73,10 +73,10 @@ public abstract class LittleStructure {
 		return result;
 	}
 	
-	public static void registerLittleStructure(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute)
+	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute)
 	{
 		LittleStructureEntry entry = new LittleStructureEntry(id, classStructure, null, attribute);
-		registerLittleStructure(id, entry);
+		registerStructureType(id, entry);
 		LittleStructure structure = null;
 		try {
 			entry.parser = classStructure.getConstructor().newInstance();
@@ -85,12 +85,12 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	public static void registerLittleStructure(String id, LittleStructureEntry entry)
+	private static void registerStructureType(String id, LittleStructureEntry entry)
 	{
 		if(structuresID.containsKey(id))
-			System.out.println("ID is already taken! id=" + id);
+			throw new RuntimeException("ID is already taken! id=" + id);
 		else if(structuresID.containsValue(entry))
-			System.out.println("Already registered class=" + entry);
+			throw new RuntimeException("Already registered class=" + entry);
 		else{
 			structuresID.put(id, entry);
 			structuresClass.put(entry.structureClass, entry);
@@ -113,29 +113,26 @@ public abstract class LittleStructure {
 		return null;
 	}
 	
-	public static LittleStructureEntry getEntryByID(String id)
+	public static LittleStructureEntry getStructureEntryByID(String id)
 	{
 		return structuresID.get(id);
 	}
 	
-	public static LittleStructureEntry getEntryByClass(Class<? extends LittleStructure> classStructure)
+	public static LittleStructureEntry getStructureEntryByClass(Class<? extends LittleStructure> classStructure)
 	{
-		LittleStructureEntry entry = structuresClass.get(classStructure);
-		if(entry != null)
-			return entry;
-		return null;
+		return structuresClass.get(classStructure);
 	}
 	
 	public static void initStructures()
 	{
-		registerLittleStructure("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("chair", LittleChair.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("door", LittleDoor.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("ladder", LittleLadder.class, LittleStructureAttribute.LADDER);
-		registerLittleStructure("bed", LittleBed.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("storage", LittleStorage.class, LittleStructureAttribute.NONE);
-		registerLittleStructure("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION);
+		registerStructureType("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE);
+		registerStructureType("chair", LittleChair.class, LittleStructureAttribute.NONE);
+		registerStructureType("door", LittleDoor.class, LittleStructureAttribute.NONE);
+		registerStructureType("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE);
+		registerStructureType("ladder", LittleLadder.class, LittleStructureAttribute.LADDER);
+		registerStructureType("bed", LittleBed.class, LittleStructureAttribute.NONE);
+		registerStructureType("storage", LittleStorage.class, LittleStructureAttribute.NONE);
+		registerStructureType("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION);
 	}
 	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile)
@@ -143,7 +140,7 @@ public abstract class LittleStructure {
 		if(nbt == null)
 			return null;
 		String id = nbt.getString("id");
-		LittleStructureEntry entry = getEntryByID(id);
+		LittleStructureEntry entry = getStructureEntryByID(id);
 		if(entry != null)
 		{
 			Class<? extends LittleStructure> classStructure = entry.structureClass;
@@ -164,11 +161,13 @@ public abstract class LittleStructure {
 	}
 	
 	public final LittleStructureAttribute attribute;
-	
+	public final String structureID;
 	
 	public LittleStructure()
 	{
-		this.attribute = getEntryByClass(this.getClass()).attribute;
+		LittleStructureEntry entry = getStructureEntryByClass(this.getClass());
+		this.attribute = entry.attribute;
+		this.structureID = entry.id;
 	}
 	
 	/**
@@ -1000,6 +999,20 @@ public abstract class LittleStructure {
 		mainTile = null;
 		tiles = new HashMapList<>();
 		tilesToLoad = null;
+	}
+	
+	public boolean canOnlyBePlacedByItemStack()
+	{
+		return false;
+	}
+	
+	/**
+	 * Only important for structures which require to be placed by the given itemstack
+	 * @return
+	 */
+	public String getStructureDropIdentifier()
+	{
+		return null;
 	}
 	
 }

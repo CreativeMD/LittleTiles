@@ -185,4 +185,16 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	{
 		previews.add(preview);
 	}
+	
+	public LittleVolumes getVolumes()
+	{
+		LittleVolumes volumes = new LittleVolumes(context);
+		volumes.addPreviews(this);
+		return volumes;
+	}
+	
+	public boolean isVolumeEqual(LittlePreviews previews)
+	{
+		return getVolumes().equals(previews.getVolumes());
+	}
 }
