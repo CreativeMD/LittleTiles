@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
@@ -126,7 +127,7 @@ public class LittleGridContext {
 	
 	public void set(NBTTagCompound nbt)
 	{
-		if(!isDefault)
+		if(!isDefault || LittleTilesConfig.core.forceToSaveDefaultSize)
     		nbt.setInteger("grid", size);
 		else
 			nbt.removeTag("grid");

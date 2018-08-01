@@ -38,12 +38,6 @@ public class LittleTilesConfig {
 	
 	private static void loadProperties(String category, Class<?> clazz, List<String> properties)
 	{
-		/*for(Class<?> subClazz : clazz.getClasses())
-		{
-			Config config = subClazz.getAnnotation(Config.class);
-			if(config != null)
-				loadProperties(category + (category.isEmpty() ? "" : ".") + config.category(), subClazz, properties);
-		}*/
 		for(Field field : clazz.getFields())
 		{
 			Config.Name config = field.getAnnotation(Config.Name.class);
@@ -99,6 +93,11 @@ public class LittleTilesConfig {
 		@Config.Comment("minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).")
 		@Config.RangeInt(min = 2, max = Integer.MAX_VALUE)
 		public int exponent = 2;
+		
+		@Config.Name("forceToSaveDefaultSize")
+		@Config.RequiresMcRestart
+		@Config.Comment("Default grid size will be saved as well")
+		public boolean forceToSaveDefaultSize = false;
 	}
 	
 	@LittleConfig
