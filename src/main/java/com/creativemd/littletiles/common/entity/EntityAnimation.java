@@ -318,7 +318,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 					
 					// PHASE TWO
 					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, origin);
-					Double t = null;
+					
 					
 					PushCache[] caches = new PushCache[entities.size()];
 					
@@ -333,6 +333,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						
 						origin.transformPointToFakeWorld(center);
 						
+						Double t = null;
 						OrientatedBoundingBox pushingBox = null;
 						
 						checking_all_boxes:
