@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.client.render;
 
+import java.util.Iterator;
 import java.util.List;
 
+import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 
 import net.minecraft.util.BlockRenderLayer;
@@ -62,6 +64,20 @@ public class RenderCubeLayerCache {
 		cutout_mipped = null;
 		cutout = null;
 		translucent = null;
+	}
+
+	public void sortCache() {
+		if(!OptifineHelper.isActive())
+			return ;
+		
+		for (Iterator iterator = solid.iterator(); iterator.hasNext();) {
+			LittleRenderingCube littleRenderingCube = (LittleRenderingCube) iterator.next();
+			if(littleRenderingCube.isEmissive)
+			{
+				cutout_mipped.add(littleRenderingCube);
+				iterator.remove();
+			}
+		}
 	}
 	
 }
