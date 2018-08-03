@@ -40,6 +40,13 @@ public class LittleTileBlockColored extends LittleTileBlock{
 	}
 	
 	@Override
+	public void updateTranslucent() {
+		super.updateTranslucent();
+		if(ColorUtils.isTransparent(color))
+			translucent = true;
+	}
+	
+	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes();
 		int color = this.color;
@@ -130,10 +137,12 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		if(tile instanceof LittleTileBlockColored)
 		{
 			((LittleTileBlockColored) tile).color = color;
+			tile.updateTranslucent();
 		}else{
 			LittleTileBlock newTile = new LittleTileBlockColored();
 			tile.assignTo(newTile);
 			((LittleTileBlockColored) newTile).color = color;
+			newTile.updateTranslucent();
 			return newTile;
 		}
 		return null;
