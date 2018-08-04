@@ -453,7 +453,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		public void addPlacedTile(LittleTile tile)
 		{
-			if(lastPos == null || lastPos.equals(tile.te.getPos()))
+			if(lastPos == null || !lastPos.equals(tile.te.getPos()))
 			{
 				lastPos = tile.te.getPos();
 				tileEntities.add(tile.te);

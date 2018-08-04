@@ -10,8 +10,8 @@ import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative.LittlePlaceResult;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructurePremade;
-import com.creativemd.littletiles.common.structure.LittleStructurePremade.LittleStructurePremadeEntry;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -205,14 +205,14 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		@Override
 		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException
 		{
-			drainItemStack(player, LittleStructurePremade.getStructurePremadeEntry(structure.structureID).stack);
+			drainPremadeItemStack(player, LittleStructurePremade.getStructurePremadeEntry(structure.structureID).stack);
 		}
 		
 		@Override
 		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException
 		{
 			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(structure.structureID);
-			return canDrainItemStack(player, entry.stack) && entry.arePreviewsEqual(previews);
+			return canDrainPremadeItemStack(player, entry.stack) && entry.arePreviewsEqual(previews);
 		}
 		
 	}
