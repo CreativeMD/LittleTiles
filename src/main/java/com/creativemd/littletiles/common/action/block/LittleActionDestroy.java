@@ -153,9 +153,10 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		public LittleAction getPlaceAction()
 		{
+			LittleStructure structure = LittleStructure.createAndLoadStructure(structureNBT, null);
 			if(requiresItemStack)
-				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, LittleStructure.createAndLoadStructure(structureNBT, null), PlacementMode.all, false);
-			return new LittleActionPlaceAbsolute(previews, LittleStructure.createAndLoadStructure(structureNBT, null), PlacementMode.all, false);
+				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, structure, PlacementMode.all, false);
+			return new LittleActionPlaceAbsolute(previews, structure, PlacementMode.all, false);
 		}
 		
 		@Override

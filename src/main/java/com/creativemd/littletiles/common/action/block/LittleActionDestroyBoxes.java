@@ -129,16 +129,19 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				
 				if(!simulate)
 				{
-					if(tile.isStructureBlock && !containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded())
+					if(tile.isStructureBlock)
 					{
-						destroyedStructures.add(new StructurePreview(tile.structure));
-						ItemStack drop = tile.structure.getStructureDrop();
-						if(needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
-							WorldUtils.dropItem(player.world, drop, tile.te.getPos());
-						
-						tile.destroy();
-						
-						//tile.structure.removeWorldProperties();
+						if(!containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded())
+						{
+							destroyedStructures.add(new StructurePreview(tile.structure));
+							ItemStack drop = tile.structure.getStructureDrop();
+							if(needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
+								WorldUtils.dropItem(player.world, drop, tile.te.getPos());
+							
+							tile.destroy();
+							
+							//tile.structure.removeWorldProperties();
+						}
 					}else{
 						previews.addTile(tile);
 						tile.destroy();
