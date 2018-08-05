@@ -49,7 +49,7 @@ public abstract class SubGuiModeSelector extends SubGuiConfigure {
 	public void createControls() {
 		names = new ArrayList<>(PlacementMode.getModeNames());
 		GuiComboBox box = new GuiComboBox("mode", 0, 0, 120, new ArrayList<>(PlacementMode.getLocalizedModeNames()));
-		box.select(I18n.translateToLocal(ItemMultiTiles.currentMode.name));
+		box.select(I18n.translateToLocal(mode.name));
 		controls.add(box);
 		controls.add(new GuiTextBox("text", "", 0, 22, 120));
 		GuiComboBox contextBox = new GuiComboBox("grid", 128, 0, 15, LittleGridContext.getNames());
