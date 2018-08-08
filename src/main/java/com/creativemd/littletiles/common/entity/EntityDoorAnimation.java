@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.utils.transformation.DoorTransformation
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
@@ -36,14 +37,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
-	private static final DataParameter<Integer> ENTITY_PROGRESS = EntityDataManager.<Integer>createKey(EntityDoorAnimation.class, DataSerializers.VARINT);
+	private static final DataParameter<Float> ENTITY_PROGRESS = EntityDataManager.<Float>createKey(EntityDoorAnimation.class, DataSerializers.FLOAT);
 	
 	public EntityPlayer activator;
 	
-	private int progress;
-	
+	protected long started;
+	private float progress;
 	public int duration;
-	
 	public boolean approved = true;
 	
 	public DoorTransformation transformation;
@@ -90,12 +90,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	public void createClient()
-	{
-		super.createClient();
-	}
-	
 	public void copyExtra(EntityDoorAnimation animation)
 	{
 		animation.progress = progress;
@@ -106,35 +100,39 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		animation.additionalAxis = additionalAxis.copy();
 	}
 	
-	private int lastSendProgress = -1;
+	private float lastSendProgress = -1;
 	
-	public void setProgress(int progress)
+	public void setProgress(float progress)
 	{
-		this.progress = progress;
-		if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress == duration))
+		if(progress > duration)
+			this.progress = duration;
+		else
+			this.progress = progress;
+		
+		/*if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress >= duration))
 		{
 			dataManager.set(ENTITY_PROGRESS, progress);
 			lastSendProgress = progress;
-		}		
+		}*/		
 	}
 	
-	public int getProgress()
+	public float getProgress()
 	{
 		return progress;
 	}
 
 	@Override
 	protected void entityInit() {
-		this.dataManager.register(ENTITY_PROGRESS, 0);
+		this.dataManager.register(ENTITY_PROGRESS, 0F);
+		
+		started = System.currentTimeMillis() - (long) (progress * 50);
 	}
 	
 	@Override
     public void notifyDataManagerChange(DataParameter<?> key)
     {
-        if (world.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
-        {
-        	this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
-        }
+        //if (world.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
+        	//this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
     }
 	
 	@Override
@@ -164,7 +162,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 			{
 				unloadRenderCache();
 				isDead = true;
-			}else
+			}
+			else
 				isDead = false;
 		}else{
 			if(progress >= duration)
@@ -202,8 +201,9 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				
 				isDead = true;
 				//setDead();
-			}else
-				setProgress(progress + 1);
+			} else {
+				setProgress(((System.currentTimeMillis() - started) / 50F));
+			}
 		}
 	}
 	
@@ -223,7 +223,12 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		
 		super.readEntityFromNBT(compound);
 		duration = compound.getInteger("duration");
-		setProgress(compound.getInteger("progress"));
+		if(compound.getTag("progress") instanceof NBTTagInt)
+			setProgress(compound.getInteger("progress"));
+		else
+			setProgress(compound.getFloat("progress"));
+		
+		started = System.currentTimeMillis() - (long) (progress * 50);
 		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
 		setTransformationStartOffset();
@@ -235,7 +240,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super.writeEntityToNBT(compound);
 		
 		compound.setInteger("duration", duration);
-		compound.setInteger("progress", progress);
+		compound.setFloat("progress", progress);
 		
 		compound.setIntArray("previewPos", new int[] {previewPos.getX(), previewPos.getY(), previewPos.getZ()});
 		

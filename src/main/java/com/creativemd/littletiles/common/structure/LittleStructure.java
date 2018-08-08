@@ -21,6 +21,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
@@ -64,13 +65,11 @@ public abstract class LittleStructure {
 	private static HashMap<String, LittleStructureEntry> structuresID = new LinkedHashMap<String, LittleStructureEntry>();
 	private static HashMap<Class<? extends LittleStructure>, LittleStructureEntry> structuresClass = new LinkedHashMap<Class<? extends LittleStructure>, LittleStructureEntry>();
 	
+	private static List<String> cachedNames = new ArrayList<>();
+	
 	public static List<String> getStructureTypeNames()
 	{
-		ArrayList<String> result = new ArrayList<>();
-		for (String id : structuresID.keySet()) {
-			result.add(id);
-		}
-		return result;
+		return new ArrayList<>(cachedNames);
 	}
 	
 	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute)
@@ -83,6 +82,9 @@ public abstract class LittleStructure {
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to register structure '" + id + "'. Missing empty constructor constructor!", e);
 		}
+		
+		if(attribute != LittleStructureAttribute.PREMADE)
+			cachedNames.add(id);
 	}
 	
 	private static void registerStructureType(String id, LittleStructureEntry entry)
@@ -133,6 +135,8 @@ public abstract class LittleStructure {
 		registerStructureType("bed", LittleBed.class, LittleStructureAttribute.NONE);
 		registerStructureType("storage", LittleStorage.class, LittleStructureAttribute.NONE);
 		registerStructureType("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION);
+		
+		LittleStructurePremade.initPremadeStructures();
 	}
 	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile)
@@ -376,6 +380,16 @@ public abstract class LittleStructure {
 	}
 	
 	public HashMap<BlockPos, Integer> tilesToLoad = null;
+	
+	public void loadStructure(LittleTile mainTile)
+	{
+		this.mainTile = mainTile;
+		this.mainTile.isMainBlock = true;
+		this.mainTile.coord = null;
+		
+		if(!containsTile(mainTile))
+			addTile(mainTile);
+	}
 	
 	public void loadFromNBT(NBTTagCompound nbt)
 	{

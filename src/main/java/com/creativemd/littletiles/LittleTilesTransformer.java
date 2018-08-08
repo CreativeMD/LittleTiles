@@ -207,7 +207,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				LabelNode label = (LabelNode) m.instructions.getFirst();
 				m.instructions.insertBefore(label, new LabelNode());
 				m.instructions.insertBefore(label, new VarInsnNode(Opcodes.ALOAD, 1));
-				m.instructions.insertBefore(label, new TypeInsnNode(Opcodes.INSTANCEOF, "com/creativemd/creativecore/common/collision/CreativeAxisAlignedBB"));
+				m.instructions.insertBefore(label, new TypeInsnNode(Opcodes.INSTANCEOF, "com/creativemd/creativecore/common/utils/math/box/CreativeAxisAlignedBB"));
 				m.instructions.insertBefore(label, new JumpInsnNode(Opcodes.IFEQ, label));
 				m.instructions.insertBefore(label, new LabelNode());
 				m.instructions.insertBefore(label, new VarInsnNode(Opcodes.ALOAD, 1));
@@ -432,6 +432,22 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.IRETURN));
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.multiplayer.WorldClient") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "addEntityToWorld", "(ILnet/minecraft/entity/Entity;)V");
+				
+				LabelNode first = (LabelNode) m.instructions.getFirst();
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 1));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 2));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "cancelEntitySpawn", "(Lnet/minecraft/client/multiplayer/WorldClient;ILnet/minecraft/entity/Entity;)Z", false));
+				m.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, first));
+				m.instructions.insertBefore(first, new LabelNode());
+				m.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 			}
 		});
 		/*addTransformer(new Transformer("net.minecraft.util.ITickable") {

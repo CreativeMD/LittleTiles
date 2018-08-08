@@ -8,8 +8,8 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.container.SubContainerWrench;
-import com.creativemd.littletiles.common.gui.SubGuiWrench;
+import com.creativemd.littletiles.common.container.SubContainerWorkbench;
+import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;
@@ -78,12 +78,12 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiWrench();
+		return new SubGuiWorkbench();
 	}
 
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerWrench(player);
+		return new SubContainerWorkbench(player);
 	}
 
 }

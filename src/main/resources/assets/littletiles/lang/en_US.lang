@@ -61,6 +61,7 @@ exception.ingredient.space.volume=Not enough space for material
 exception.ingredient.space.color=Not enough space for color
 exception.ingredient.stack=Missing 
 exception.permission.edit=You are not allowed to edit more than %s blocks
+exception.permission.place.color=You are not allowed to place something with alpha below %s
 exception.permission.place=You are not allowed to place more than %s blocks
 
 color.unit.black=black
@@ -89,3 +90,5 @@ markmode.gui.switchpos=Switch Position
 
 commands.open.usage=Opens all doors at the given coordinate
 commands.open.notloaded=Structure is not loaded
+
+item.LTPremade.workbench.name=Little Workbench

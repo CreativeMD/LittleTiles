@@ -75,6 +75,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				//animation.createClient();
 				animation.updateBoundingBox();
 				animation.approved = true;
+				//animation.setPosition(animation.getAxisPos().getX(), animation.getAxisPos().getY(), animation.getAxisPos().getZ());
 			}else{
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
 				animation.approved = animation.transformation.equals(transformation);

@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.tiles.vec.advanced;
 import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.common.tiles.vec.LittleUtils;

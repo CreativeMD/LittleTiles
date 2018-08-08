@@ -24,8 +24,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ILittleTile {
 	
-	
-	
 	public boolean hasLittlePreview(ItemStack stack);
 	
 	public LittlePreviews getLittlePreview(ItemStack stack);
@@ -128,5 +126,10 @@ public interface ILittleTile {
 	public default MarkMode onMark(EntityPlayer player, ItemStack stack)
 	{
 		return new MarkMode();
+	}
+	
+	public default boolean snapToGridByDefault()
+	{
+		return false;
 	}
 }

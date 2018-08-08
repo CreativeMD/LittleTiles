@@ -10,9 +10,9 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
-import com.creativemd.creativecore.common.collision.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
+import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;

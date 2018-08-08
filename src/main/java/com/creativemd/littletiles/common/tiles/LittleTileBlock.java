@@ -105,8 +105,8 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private boolean translucent;
-	private IBlockState state = null;
+	protected boolean translucent;
+	protected IBlockState state = null;
 	
 	public IBlockState getBlockState()
 	{

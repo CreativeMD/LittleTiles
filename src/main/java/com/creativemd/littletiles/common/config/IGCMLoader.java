@@ -4,6 +4,7 @@ import com.creativemd.igcm.api.ConfigBranch;
 import com.creativemd.igcm.api.ConfigTab;
 import com.creativemd.igcm.api.segments.BooleanSegment;
 import com.creativemd.igcm.api.segments.IntegerSegment;
+import com.creativemd.igcm.api.segments.IntegerSliderSegment;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.init.Blocks;
@@ -34,7 +35,7 @@ public class IGCMLoader {
 			
 			@Override
 			public void onRecieveFrom(Side side) {
-				
+				SpecialServerConfig.allowFlowingWater = (Boolean) getValue("allowFlowingWater");
 			}
 			
 			@Override
@@ -64,6 +65,7 @@ public class IGCMLoader {
 						SpecialServerConfig.maxEditBlocks = (Integer) getValue("maxEditBlocks");
 						SpecialServerConfig.limitPlaceBlocksSurvival = (Boolean) getValue("limitPlaceBlocksSurvival");
 						SpecialServerConfig.maxPlaceBlocks = (Integer) getValue("maxPlaceBlocks");
+						SpecialServerConfig.minimumTransparency = (Integer) getValue("minimumTransparency");
 					}
 					
 					@Override
@@ -74,8 +76,11 @@ public class IGCMLoader {
 						registerElement("maxEditBlocks", new IntegerSegment("Max Edit/Remove Range", 10, 1, Integer.MAX_VALUE).setToolTip("Only affects the range if edit/remove limitation is enabled."));
 						registerElement("limitPlaceBlocksSurvival", new BooleanSegment("Limit Place Range", false).setToolTip("If the amount a player can place at once should be limited in survival."));
 						registerElement("maxPlaceBlocks", new IntegerSegment("Max Place Range", 10, 1, Integer.MAX_VALUE).setToolTip("Only affects the range if place limitation is enabled."));
+						registerElement("minimumTransparency", new IntegerSliderSegment("Minimum Transparency in survival", 255, 0, 255).setToolTip("Transparency will be enabled if the minimum is smaller than 255."));
 					}
 				});
+				
+				registerElement("allowFlowingWater", new BooleanSegment("Allow Flowing Water", true).setToolTip("If disabled the bucket cannot be used to change the water flow."));
 			}
 		});
 	}

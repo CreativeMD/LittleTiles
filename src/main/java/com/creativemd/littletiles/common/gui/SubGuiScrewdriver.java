@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -71,7 +72,7 @@ public class SubGuiScrewdriver extends SubGui {
 		Color color = new Color(255, 255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
 		
-		controls.add(new GuiColorPicker("picker", 5, 160, color, getPlayer().isCreative()));
+		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
 		
 		controls.add(new GuiButton("undo", "undo", 150, 135, 40){
 					

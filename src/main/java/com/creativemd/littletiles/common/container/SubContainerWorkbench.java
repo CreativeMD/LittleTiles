@@ -22,11 +22,11 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubContainerWrench extends SubContainer{
+public class SubContainerWorkbench extends SubContainer{
 	
 	public InventoryBasic basic = new InventoryBasic("default", false, 2);
 	
-	public SubContainerWrench(EntityPlayer player) {
+	public SubContainerWorkbench(EntityPlayer player) {
 		super(player);
 	}
 
