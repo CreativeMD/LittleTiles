@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
@@ -330,6 +331,10 @@ public class LittleActionPlaceRelative extends LittleAction {
 		{
 			if(SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
 				throw new SpecialServerConfig.NotAllowedToPlaceException();
+			
+			if(SpecialServerConfig.isTransparenceyRestricted(player))
+				for (PlacePreviewTile placePreview : previews)
+					isAllowedToPlacePreview(player, placePreview.preview);
 		}
 		
 		return placeTiles(world, player, context, getSplittedTiles(context, previews, pos), structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);

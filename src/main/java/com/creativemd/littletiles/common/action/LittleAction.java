@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -19,8 +20,11 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -320,6 +324,14 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		
 		return !player.getServer().isBlockProtected(player.world, pos, player);
+	}
+	
+	public static boolean isAllowedToPlacePreview(EntityPlayer player, LittleTilePreview preview) throws LittleActionException
+	{
+		if(preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparencty(player))
+			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
+		
+		return true;
 	}
 	
 	public static boolean isTileStillInPlace(LittleTile tile)
@@ -850,19 +862,27 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return bags;
 	}
 	
-	public static boolean canDrainItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
+	public static boolean canDrainPremadeItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
 	{
+		if(!needIngredients(player))
+			return true;
+		
+		String id = ItemPremadeStructure.getPremadeID(toDrain);
 		for (ItemStack stack : player.inventory.mainInventory) {
-			if(ItemStack.areItemStacksEqual(stack, toDrain))
+			if(stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeID(stack).equals(id))
 				return true;
 		}
 		throw new NotEnoughIngredientsException.NotEnoughStackException(toDrain);
 	}
 	
-	public static void drainItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
+	public static void drainPremadeItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException
 	{
+		if(!needIngredients(player))
+			return ;
+		
+		String id = ItemPremadeStructure.getPremadeID(toDrain);
 		for (ItemStack stack : player.inventory.mainInventory) {
-			if(ItemStack.areItemStacksEqual(stack, toDrain))
+			if(stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeID(stack).equals(id))
 			{
 				stack.shrink(1);
 				return ;

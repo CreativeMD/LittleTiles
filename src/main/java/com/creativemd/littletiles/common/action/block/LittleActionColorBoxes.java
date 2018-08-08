@@ -5,10 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -206,6 +208,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
+		if(ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparencty(player))
+			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
+		
 		TileEntity tileEntity = loadTe(player, world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)

@@ -46,6 +46,7 @@ import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
+import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleEvent;
@@ -55,6 +56,7 @@ import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvanced;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
+import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
@@ -65,6 +67,7 @@ import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemLittleScrewdriver;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
+import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
@@ -165,6 +168,7 @@ public class LittleTiles {
 	public static Item rubberMallet;
 	public static Item utilityKnife;
 	public static Item grabber;
+	public static Item premade;
 	
 	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames)
 	{
@@ -208,6 +212,7 @@ public class LittleTiles {
 		rubberMallet = new ItemRubberMallet().setUnlocalizedName("LTRubberMallet").setRegistryName("rubberMallet");
 		utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
+		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
 	}
 	
 	@SubscribeEvent
@@ -217,7 +222,7 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber,
+		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade,
 				new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()),
 				new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
 				new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()),
@@ -374,6 +379,21 @@ public class LittleTiles {
 			}
 		});
 		
+		GuiHandler.registerGuiHandler("workbench", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubGuiWorkbench();
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerWorkbench(player);
+			}
+		});
+		
+
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");

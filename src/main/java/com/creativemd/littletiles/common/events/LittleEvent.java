@@ -36,6 +36,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -51,6 +52,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.IntHashMap;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -285,7 +287,7 @@ public class LittleEvent {
 			{
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
 				PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
-				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player), PreviewRenderer.isFixed(player), mode).execute();
+				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
 				
 				PreviewRenderer.marked = null;
 	        }
@@ -601,5 +603,28 @@ public class LittleEvent {
 				}
 			}
 		}		
+	}
+	
+	private static Field entitiesById = ReflectionHelper.findField(World.class, "entitiesById", "field_175729_l");
+	
+	@SideOnly(Side.CLIENT)
+	public static boolean cancelEntitySpawn(WorldClient world, int entityID, Entity entity)
+	{
+		if(entity instanceof EntityAnimation)
+		{
+			if(((EntityAnimation) entity).spawnedInWorld)
+			{
+				 entity.setEntityId(entityID);
+				 try {
+					((IntHashMap<Entity>) entitiesById.get(world)).addKey(entityID, entity);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				return true;
+			}
+			((EntityAnimation) entity).spawnedInWorld = true;
+			return false;
+		}
+		return false;
 	}
 }

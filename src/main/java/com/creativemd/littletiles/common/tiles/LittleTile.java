@@ -481,7 +481,7 @@ public abstract class LittleTile {
 			nbt.setBoolean("invisible", invisible);
 		if(glowing)
 			nbt.setBoolean("glowing", glowing);
-		if(getStructureAttribute() == LittleStructureAttribute.NO_DROP)
+		if(getStructureAttribute() == LittleStructureAttribute.PREMADE)
 			nbt.setBoolean("nodrop", true);
 	}
 	
@@ -539,7 +539,7 @@ public abstract class LittleTile {
 				if(structure == null)
 					structure = LittleStructure.createAndLoadStructure(nbt, this);
 				else{
-					structure.setMainTile(this);
+					structure.loadStructure(this);
 					for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
 						LittleTile tile = iterator.next();
 						if(tile != this && tile.isLoaded())

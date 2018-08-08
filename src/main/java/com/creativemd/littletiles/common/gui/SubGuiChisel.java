@@ -13,6 +13,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
@@ -48,7 +49,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 	public void createControls() {
 		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
 		Color color = ColorUtils.IntToRGBA(preview.getColor());
-		controls.add(new GuiColorPicker("picker", 2, 2, color, getPlayer().isCreative()));
+		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
 		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 45, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
 		
 		selector.setSelectedForce(preview.getBlockStack());

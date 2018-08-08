@@ -30,6 +30,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.gui.SubGuiGrabber;
@@ -481,7 +482,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.sizeZ, 1, context.size));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
-					controls.add(new GuiColorPicker("picker", 0, 70, color, player.isCreative()));
+					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
 					
 					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
 					label.name = "avatar";

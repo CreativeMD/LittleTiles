@@ -10,7 +10,7 @@ import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
-import com.creativemd.littletiles.common.container.SubContainerWrench;
+import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
@@ -23,7 +23,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubGuiWrench extends SubGui {
+public class SubGuiWorkbench extends SubGui {
 
 	@Override
 	public void createControls() {
@@ -31,8 +31,8 @@ public class SubGuiWrench extends SubGui {
 
 			@Override
 			public void onClicked(int x, int y, int button) {
-				ItemStack stack1 = ((SubContainerWrench)container).basic.getStackInSlot(0);
-				ItemStack stack2 = ((SubContainerWrench)container).basic.getStackInSlot(1);
+				ItemStack stack1 = ((SubContainerWorkbench)container).basic.getStackInSlot(0);
+				ItemStack stack2 = ((SubContainerWorkbench)container).basic.getStackInSlot(1);
 				
 				GuiItemListBox listBox = (GuiItemListBox) get("missing");
 				GuiLabel label = (GuiLabel) get("label");

@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -78,6 +79,9 @@ public class LittleActionReplace extends LittleActionInteract {
 		
 		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 		boxes = new LittleBoxes(pos, te.getContext());
+		
+		if(SpecialServerConfig.isTransparenceyRestricted(player))
+			isAllowedToPlacePreview(player, toReplace);
 		
 		if(BlockTile.selectEntireBlock(player, secondMode))
 		{

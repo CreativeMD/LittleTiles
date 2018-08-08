@@ -319,7 +319,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 					// PHASE TWO
 					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, origin);
 					
-					
 					PushCache[] caches = new PushCache[entities.size()];
 					
 					for (int j = 0; j < entities.size(); j++) {
@@ -669,6 +668,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		waitingForRender.remove(te);
 	}
 	
+	@SideOnly(Side.CLIENT)
 	public void unloadRenderCache()
 	{
 		if(renderChunks == null)
@@ -677,6 +677,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			chunk.unload();
 		}
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public boolean spawnedInWorld;
 	
 	//================Constructors================
 
@@ -811,6 +814,29 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
     {
         
     }
+	
+	@Override	
+	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch)
+    {
+		
+    }
+	
+	@Override
+	public void setPositionAndUpdate(double x, double y, double z)
+    {
+		
+    }
+	
+	@Override
+	public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
+    {
+		
+    }
+	
+	public void setInitialPosition(double x, double y, double z)
+	{
+		setPosition(x, y, z);
+	}
 	
 	@Override
 	public void setPosition(double x, double y, double z)

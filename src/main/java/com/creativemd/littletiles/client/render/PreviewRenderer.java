@@ -68,13 +68,17 @@ public class PreviewRenderer {
 	
 	public static MarkMode marked = null;
 	
-	public static boolean isCentered(EntityPlayer player)
+	public static boolean isCentered(EntityPlayer player, ILittleTile iTile)
 	{
+		if(iTile.snapToGridByDefault())
+			return LittleAction.isUsingSecondMode(player) && marked == null;
 		return LittleTilesConfig.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
 	}
 	
-	public static boolean isFixed(EntityPlayer player)
+	public static boolean isFixed(EntityPlayer player, ILittleTile iTile)
 	{
+		if(iTile.snapToGridByDefault())
+			return !LittleAction.isUsingSecondMode(player) && marked == null;
 		return LittleTilesConfig.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
 	}
 	
@@ -138,7 +142,7 @@ public class PreviewRenderer {
 		            
 		            
 		            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-		            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+		            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
 		            
 		            if(result != null)
 		            {
@@ -291,7 +295,7 @@ public class PreviewRenderer {
 				
 	            boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
 	            
-	            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player), isFixed(player), allowLowResolution, marked != null, mode);
+	            PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
 	            
 	            if(result != null)
 	            {

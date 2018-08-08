@@ -175,11 +175,13 @@ public class LittleTilesClient extends LittleTilesServer{
 					animation.setUniqueId(uuid);
 					//PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), true));
 				}else{
-					mc.world.removeEntity(animation);
+					animation.spawnedInWorld = true;
+					animation.approved = true;
+					/*mc.world.removeEntity(animation);
 					animation = animation.copy();
 					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), false));
 					animation.isDead = true;
-					mc.world.loadedEntityList.remove(animation);
+					mc.world.loadedEntityList.remove(animation);*/
 					//mc.world.removeEntity(animation);
 					//animation.isDead = false;
 				}
@@ -192,7 +194,7 @@ public class LittleTilesClient extends LittleTilesServer{
 					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
 					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
 					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
-					animation.setLocationAndAngles(rawX, rawY, rawZ, scaledYaw, scaledPitch);
+					animation.setInitialPosition(rawX, rawY, rawZ);
 				}
 
 				return animation;
@@ -205,6 +207,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.chisel);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.multiTiles);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.grabber);
+		CreativeCoreClient.registerItemColorHandler(LittleTiles.premade);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
 		
@@ -241,6 +244,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemRenderer(LittleTiles.rubberMallet);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.premade);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		
@@ -259,6 +263,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);	
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 0, new ModelResourceLocation(LittleTiles.modid + ":grabber", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.premade);
 	}
 	
 }
