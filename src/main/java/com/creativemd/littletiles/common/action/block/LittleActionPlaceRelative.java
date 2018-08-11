@@ -188,7 +188,9 @@ public class LittleActionPlaceRelative extends LittleAction {
 		{
 			boxes = placedTiles.placedBoxes;
 			
-			drainPreviews(player, placedTiles.placedPreviews);
+			if(!iTile.containsIngredients(stack))
+				drainPreviews(player, placedTiles.placedPreviews);
+			
 			if(!world.isRemote)
 			{
 				addTilesToInventoryOrDrop(player, unplaceableTiles);
