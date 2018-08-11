@@ -13,6 +13,7 @@ import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
@@ -467,7 +468,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 								boolean add = !cached;
 								EnumFacing facing = CollidingPlane.getDirection(box.cache.planes, box.cache.center, center);
 								
-								if(facing == null)
+								if(facing == null || (!table.hasOneRotation && RotationUtils.get(facing.getAxis(), translation) == 0))
 									continue;
 								
 								if(cached)
