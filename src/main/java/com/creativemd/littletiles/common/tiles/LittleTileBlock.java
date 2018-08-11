@@ -338,14 +338,6 @@ public class LittleTileBlock extends LittleTile{
 	}
 	
 	@Override
-	public List<LittleTileBox> getCollisionBoxes()
-	{
-		if(hasSpecialBlockHandler())
-			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
-		return super.getCollisionBoxes();
-	}
-	
-	@Override
 	public boolean isMaterial(Material material)
 	{
 		if(hasSpecialBlockHandler())

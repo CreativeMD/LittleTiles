@@ -221,7 +221,7 @@ public class RenderingThread extends Thread {
 								BlockRenderLayer layer = BlockRenderLayer.values()[i];
 
 								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
-								VertexBuilder buffer = null;
+								VertexBuffer buffer = null;
 								if (cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes);
 
@@ -351,7 +351,7 @@ public class RenderingThread extends Thread {
 
 	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 
-	private synchronized void renderQuad(VertexBuilder buffer, BakedQuad quad) {
+	private synchronized void renderQuad(VertexBuffer buffer, BakedQuad quad) {
 		if (quad.hasTintIndex()) {
 			consumer.setQuadTint(quad.getTintIndex());
 		}

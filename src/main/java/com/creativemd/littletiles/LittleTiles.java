@@ -215,8 +215,6 @@ public class LittleTiles {
 		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
 	}
 	
-	}
-	
 	@EventHandler
     public void Init(FMLInitializationEvent event)
     {
