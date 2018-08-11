@@ -328,6 +328,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static boolean isAllowedToPlacePreview(EntityPlayer player, LittleTilePreview preview) throws LittleActionException
 	{
+		if(preview == null)
+			return true;
+		
 		if(preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparencty(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
 		
