@@ -137,12 +137,14 @@ public class LittleTileBlockColored extends LittleTileBlock{
 		if(tile instanceof LittleTileBlockColored)
 		{
 			((LittleTileBlockColored) tile).color = color;
-			tile.updateTranslucent();
+			if(tile.te.getWorld().isRemote)
+				tile.updateTranslucent();
 		}else{
 			LittleTileBlock newTile = new LittleTileBlockColored();
 			tile.assignTo(newTile);
 			((LittleTileBlockColored) newTile).color = color;
-			newTile.updateTranslucent();
+			if(tile.te.getWorld().isRemote)
+				newTile.updateTranslucent();
 			return newTile;
 		}
 		return null;

@@ -74,7 +74,7 @@ public class RenderingThread extends Thread {
 					count.getAndIncrement();
 				}
 			}
-			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking()), te.getPos(), requiresUpdate));
+			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking(), te.isRendered()), te.getPos(), requiresUpdate));
 		}
 	}
 

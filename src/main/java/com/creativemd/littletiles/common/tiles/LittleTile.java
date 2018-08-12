@@ -548,6 +548,7 @@ public abstract class LittleTile {
 					structure.loadFromNBT(nbt);
 				}
 			}else{
+				isMainBlock = false;
 				structure = null;
 				
 				if(nbt.hasKey("coX"))

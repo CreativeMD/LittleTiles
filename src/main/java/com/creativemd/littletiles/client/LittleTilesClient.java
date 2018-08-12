@@ -27,7 +27,9 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
@@ -105,7 +107,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
-		
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTickingRendered);
+
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
 		
@@ -130,7 +134,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
-
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
+		
 		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTicking.class, renderer);

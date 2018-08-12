@@ -497,17 +497,17 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 									}
 								}
 								
-								double intersectingVolume = box.getIntersectionVolume(fakeBox);
-								
-								if(intersectingVolume > maxVolume)
-								{
-									cache.pushBox = box;
-									maxVolume = intersectingVolume;
-									cache.facing = facing;
-								}
-								
 								if(add)
 								{
+									double intersectingVolume = box.getIntersectionVolume(fakeBox);
+									
+									if(intersectingVolume > maxVolume)
+									{
+										cache.pushBox = box;
+										maxVolume = intersectingVolume;
+										cache.facing = facing;
+									}
+								
 									intersecting.add(box);
 									intersectingFacing.add(facing);
 								}
@@ -958,7 +958,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 					this.structure = (LittleDoorBase) tile.structure;
 				tiles.add(tile);
 			}
-			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking()));
+			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking(), te.isRendered()));
 			fakeWorld.setTileEntity(te.getPos(), te);
 		}
 		
