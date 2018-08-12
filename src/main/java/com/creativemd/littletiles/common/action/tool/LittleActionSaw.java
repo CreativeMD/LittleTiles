@@ -91,6 +91,9 @@ public class LittleActionSaw extends LittleActionInteract {
 					BlockPos newPos = te.getPos().offset(facing);
 					
 					box = box.createOutsideBlockBox(te.getContext(), facing);
+					if(box == null)
+						return false;
+					
 					LittleGridContext context = LittleGridContext.get(box.getSmallestContext(te.getContext()));
 					te = loadTe(player, world, newPos, false);
 					
