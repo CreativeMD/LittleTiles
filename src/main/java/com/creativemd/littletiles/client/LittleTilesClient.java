@@ -27,7 +27,9 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
@@ -210,6 +212,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.premade);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
+		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
 		
 		LittleParticleType.initClient();
 	}
@@ -218,11 +222,13 @@ public class LittleTilesClient extends LittleTilesServer{
 	public void loadSide()
 	{
 		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTicking.class, renderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesRendered.class, renderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTickingRendered.class, renderer);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTickingRendered);
+		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);

@@ -32,7 +32,9 @@ import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -132,26 +134,37 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
 
 	public final boolean ticking;
+	public final boolean rendered;
 	
-	public BlockTile(Material material, boolean ticking) {
+	public BlockTile(Material material, boolean ticking, boolean rendered) {
 		super(material);
 		this.ticking = ticking;
+		this.rendered = rendered;
 		setCreativeTab(LittleTiles.littleTab);
 		setResistance(3.0F);
 		setSoundType(SILENT);
 	}
 	
-	public static IBlockState getState(boolean ticking)
+	public static IBlockState getState(boolean ticking, boolean rendered)
 	{
-		return ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState();
+		return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered.getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
 	}
 	
 	public static IBlockState getState(List<LittleTile> tiles)
 	{
+		boolean ticking = false;
+		boolean rendered = false;
 		for (LittleTile tile : tiles)
+		{
 			if (tile.shouldTick())
-				return getState(true);
-		return getState(false);
+				ticking = true;
+			if(tile.needCustomRendering())
+				rendered = true;
+			
+			if(ticking && rendered)
+				break;
+		}
+		return getState(ticking, rendered);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -866,6 +879,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
     
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
+		if(rendered)
+			if(ticking)
+				return new TileEntityLittleTilesTickingRendered();
+			else
+				return new TileEntityLittleTilesRendered();
+		
 		if(ticking)
 			return new TileEntityLittleTilesTicking();
 		return new TileEntityLittleTiles();

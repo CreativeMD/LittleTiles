@@ -329,19 +329,37 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		Minecraft.getMinecraft().addScheduledTask(run);
 	}
 	
+	protected boolean hasRendered()
+	{
+		for (LittleTile tile : tiles) {
+			if(tile.needCustomRendering())
+				return true;
+		}
+		return false;
+	}
+	
 	protected void customTilesUpdate()
 	{
-		if(updateTiles.isEmpty() == isTicking() && !world.isRemote)
+		if(world.isRemote)
+			return ;
+		boolean rendered = hasRendered();
+		if(updateTiles.isEmpty() == isTicking() || rendered != isRendered())
 		{
 			TileEntityLittleTiles newTe;
-			if(updateTiles.isEmpty())
-				newTe = new TileEntityLittleTiles();
+			if(rendered)
+				if(updateTiles.isEmpty())
+					newTe = new TileEntityLittleTilesRendered();
+				else
+					newTe = new TileEntityLittleTilesTickingRendered();
 			else
-				newTe = new TileEntityLittleTilesTicking();
+				if(updateTiles.isEmpty())
+					newTe = new TileEntityLittleTiles();
+				else
+					newTe = new TileEntityLittleTilesTicking();
 			
 			newTe.assign(this);
 			
-			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty()), 2);
+			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty(), rendered), 2);
 			world.setTileEntity(pos, newTe);
 		}
 	}
@@ -913,6 +931,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
     }
 	
 	public boolean isTicking()
+	{
+		return false;
+	}
+	
+	public boolean isRendered()
 	{
 		return false;
 	}

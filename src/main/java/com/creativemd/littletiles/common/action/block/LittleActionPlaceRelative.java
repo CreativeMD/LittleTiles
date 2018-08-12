@@ -265,7 +265,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 					if(!(world.getBlockState(coord).getBlock() instanceof BlockTile) && world.getBlockState(coord).getMaterial().isReplaceable())
 					{
 						requiresCollisionTest = false;
-						world.setBlockState(coord, BlockTile.getState(false));
+						world.setBlockState(coord, BlockTile.getState(false, false));
 					}
 					
 					TileEntityLittleTiles te = loadTe(player, world, coord, mode.shouldConvertBlock());
