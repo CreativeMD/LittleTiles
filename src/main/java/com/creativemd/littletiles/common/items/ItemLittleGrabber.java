@@ -474,7 +474,15 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				@Override
 				public void createControls() {
 					super.createControls();
+					LittleGridContext oldContext = LittleGridContext.get(stack.getTagCompound());
 					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+					preview.convertTo(oldContext, context);
+					if(preview.box.minX == preview.box.maxX)
+						preview.box.maxX++;
+					if(preview.box.minY == preview.box.maxY)
+						preview.box.maxY++;
+					if(preview.box.minZ == preview.box.maxZ)
+						preview.box.maxZ++;
 					size = preview.box.getSize();
 					
 					controls.add(new GuiSteppedSlider("sizeX", 25, 20, 50, 10, size.sizeX, 1, context.size));
@@ -573,12 +581,6 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					context.set(stack.getTagCompound());
 				}
 			};
-		}
-		
-		@Override
-		public LittleGridContext getContext(ItemStack stack)
-		{
-			return ItemMultiTiles.currentContext;
 		}
 		
 		@Override
