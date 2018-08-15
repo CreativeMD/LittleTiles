@@ -104,6 +104,8 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	public static void initPremadeStructures()
 	{
 		registerPremadeStructureType("workbench", LittleWorkbench.class);
+		registerPremadeStructureType("importer", LittleImporter.class);
+		registerPremadeStructureType("exporter", LittleExporter.class);
 	}
 	
 	public static class LittleStructurePremadeEntry {
