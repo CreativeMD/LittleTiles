@@ -387,7 +387,7 @@ public abstract class LittleStructure {
 		this.mainTile.isMainBlock = true;
 		this.mainTile.coord = null;
 		
-		if(!containsTile(mainTile))
+		if(tiles != null && !containsTile(mainTile))
 			addTile(mainTile);
 	}
 	
