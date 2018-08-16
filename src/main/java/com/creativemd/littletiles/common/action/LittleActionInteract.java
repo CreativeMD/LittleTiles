@@ -32,9 +32,9 @@ public abstract class LittleActionInteract extends LittleAction {
 	public LittleActionInteract(BlockPos blockPos, EntityPlayer player) {
 		super();
 		this.blockPos = blockPos;
-		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
+		this.pos = player.getPositionEyes(1.0F);
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
+		Vec3d look = player.getLook(1.0F);
 		this.look = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		this.secondMode = isUsingSecondMode(player);
 	}

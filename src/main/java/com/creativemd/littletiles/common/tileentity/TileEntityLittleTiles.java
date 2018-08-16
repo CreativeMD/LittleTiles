@@ -869,13 +869,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return hit;
     }
 	
-	public LittleTile getFocusedTile(EntityPlayer player)
+	public LittleTile getFocusedTile(EntityPlayer player, float partialTickTime)
 	{
 		if(!isClientSide())
 			return null;
-		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
+		Vec3d pos = player.getPositionEyes(partialTickTime);
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
+		Vec3d look = player.getLook(partialTickTime);
 		Vec3d vec32 = pos.addVector(look.xCoord * d0, look.yCoord * d0, look.zCoord * d0);
 		return getFocusedTile(pos, vec32);
 	}
