@@ -13,6 +13,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
@@ -120,9 +121,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	
 	public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player)
 	{
+		return loadTeAndTile(world, pos, player, TickUtils.getPartialTickTime());
+	}
+	
+	public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player, float partialTickTime)
+	{
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if(te != null)
-			return new TEResult(te, te.getFocusedTile(player));
+			return new TEResult(te, te.getFocusedTile(player, partialTickTime));
 		return new TEResult(null, null);
 	}
 	
@@ -526,9 +532,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@SideOnly(Side.CLIENT)
 	public boolean removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
 	{
-		TEResult result = loadTeAndTile(world, pos, player);
+		TEResult result = loadTeAndTile(world, pos, player, 1.0F);
 		if(result.isComplete())
 			return new LittleActionDestroy(pos, player).execute();
+		System.out.println("Somehow missed all tiles");
 		return false;
     }
     
