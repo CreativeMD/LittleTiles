@@ -49,9 +49,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
+import net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent;
+import net.minecraftforge.event.world.BlockEvent.PlaceEvent;
 
 public class LittleActionPlaceRelative extends LittleAction {
 	
@@ -109,8 +115,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		if(!isAllowedToInteract(player, position.pos, true, EnumFacing.EAST))
 		{
-			IBlockState state = player.world.getBlockState(position.pos);
-			player.world.notifyBlockUpdate(position.pos, state, state, 3);
+			sendBlockResetToClient((EntityPlayerMP) player, position.pos, null);
 			return false;
 		}
 		
@@ -339,7 +344,25 @@ public class LittleActionPlaceRelative extends LittleAction {
 					isAllowedToPlacePreview(player, placePreview.preview);
 		}
 		
-		return placeTiles(world, player, context, getSplittedTiles(context, previews, pos), structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
+		HashMap<BlockPos, PlacePreviews> splitted = getSplittedTiles(context, previews, pos);
+		
+		if(player != null && !world.isRemote)
+		{
+			List<BlockSnapshot> snaps = new ArrayList<>();
+			for (BlockPos snapPos : splitted.keySet()) {
+				snaps.add(new BlockSnapshot(world, snapPos, BlockTile.getState(false, false)));
+			}
+			MultiPlaceEvent event = new MultiPlaceEvent(snaps, world.getBlockState(facing == null ? pos : pos.offset(facing)), player, EnumHand.MAIN_HAND);
+			MinecraftForge.EVENT_BUS.post(event);
+			if(event.isCanceled())
+			{
+				for (BlockPos snapPos : splitted.keySet())
+					sendBlockResetToClient((EntityPlayerMP) player, pos, null);
+				return null;
+			}
+		}
+		
+		return placeTiles(world, player, context, splitted, structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
 	}
 	
 	public static double getVolume(LittleGridContext context, List<PlacePreviewTile> tiles)
@@ -371,8 +394,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		for (BlockPos pos : splitted.keySet()) {
 			if(!isAllowedToInteract(player, pos, true, EnumFacing.EAST))
 			{
-				IBlockState state = player.world.getBlockState(pos);
-				player.world.notifyBlockUpdate(pos, state, state, 3);
+				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
 				return false;
 			}
 		}

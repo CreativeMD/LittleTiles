@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -74,7 +75,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			
 			if(!isAllowedToInteract(player, blockPos, isRightClick(), EnumFacing.EAST))
 			{
-				te.updateBlock();
+				sendBlockResetToClient((EntityPlayerMP) player, blockPos, te);
 				return false;
 			}
 			

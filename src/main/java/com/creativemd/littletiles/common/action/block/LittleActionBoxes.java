@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -63,7 +64,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 			IBlockState state = world.getBlockState(pos);
 			if(!isAllowedToInteract(player, pos, false, EnumFacing.EAST))
 			{
-				world.notifyBlockUpdate(pos, state, state, 3);
+				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
 				continue ;
 			}
 			

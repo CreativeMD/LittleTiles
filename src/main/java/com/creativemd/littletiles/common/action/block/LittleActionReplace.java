@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
@@ -33,6 +34,8 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 
 public class LittleActionReplace extends LittleActionInteract {
@@ -76,6 +79,17 @@ public class LittleActionReplace extends LittleActionInteract {
 		
 		if(tile.isStructureBlock)
 			return false;
+		
+		if(!world.isRemote)
+		{
+			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
+			MinecraftForge.EVENT_BUS.post(event);
+			if(event.isCanceled())
+			{
+				sendBlockResetToClient((EntityPlayerMP) player, pos, te);
+				return false;
+			}
+		}
 		
 		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 		boxes = new LittleBoxes(pos, te.getContext());
