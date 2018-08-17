@@ -25,12 +25,15 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroy extends LittleActionInteract {
 	
@@ -61,6 +64,17 @@ public class LittleActionDestroy extends LittleActionInteract {
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
 			RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException{
+		
+		if(!world.isRemote)
+		{
+			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
+			MinecraftForge.EVENT_BUS.post(event);
+			if(event.isCanceled())
+			{
+				sendBlockResetToClient((EntityPlayerMP) player, pos, te);
+				return false;
+			}
+		}
 		
 		if(tile.isStructureBlock)
 		{

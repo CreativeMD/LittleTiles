@@ -940,6 +940,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return false;
 	}
 	
+	public IBlockState getBlockTileState()
+	{
+		return BlockTile.getState(this);
+	}
+	
 	public void combineTiles(LittleStructure structure) {
 		BasicCombiner.combineTiles(tiles, structure);
 		updateTiles();

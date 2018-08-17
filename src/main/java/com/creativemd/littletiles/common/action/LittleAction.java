@@ -53,8 +53,11 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -64,6 +67,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -297,6 +301,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	private static Method WorldEditEvent = loadWorldEditEvent();
 	private static Object worldEditInstance = null;
+	
+	public static void sendBlockResetToClient(EntityPlayerMP player, BlockPos pos, TileEntityLittleTiles te)
+	{
+		player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+		if(te != null)
+			player.connection.sendPacket(te.getUpdatePacket());
+	}
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing)
 	{

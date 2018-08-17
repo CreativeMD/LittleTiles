@@ -160,7 +160,7 @@ public class LittleBlockPacket extends CreativeCorePacket{
 			
 			if(!LittleAction.isAllowedToInteract(player, blockPos, action.rightClick, EnumFacing.EAST))
 			{
-				te.updateBlock();
+				LittleAction.sendBlockResetToClient((EntityPlayerMP) player, blockPos, te);
 				return ;
 			}
 			

@@ -26,9 +26,12 @@ import com.creativemd.littletiles.common.utils.selection.TileSelector;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionColorBoxes extends LittleActionBoxes {
 	
@@ -214,7 +217,18 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		TileEntity tileEntity = loadTe(player, world, pos, true);
 		
 		if(tileEntity instanceof TileEntityLittleTiles)
-		{			
+		{
+			if(!world.isRemote)
+			{
+				BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
+				MinecraftForge.EVENT_BUS.post(event);
+				if(event.isCanceled())
+				{
+					sendBlockResetToClient((EntityPlayerMP) player, pos, (TileEntityLittleTiles) tileEntity);
+					return ;
+				}
+			}
+			
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			
 			te.ensureMinContext(context);
