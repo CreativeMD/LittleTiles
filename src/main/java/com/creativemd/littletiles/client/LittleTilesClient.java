@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
@@ -128,6 +129,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		
 		MinecraftForge.EVENT_BUS.register(new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
+		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.client = new LittleDoorHandler(Side.CLIENT));
 		//MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		
 		up = new KeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
@@ -170,6 +172,7 @@ public class LittleTilesClient extends LittleTilesServer{
 					}
 				}
 				
+				boolean alreadyExisted = animation != null;
 				if(animation == null)
 				{
 					animation = new EntityDoorAnimation(mc.world);
@@ -196,7 +199,8 @@ public class LittleTilesClient extends LittleTilesServer{
 					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
 					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
 					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
-					animation.setInitialPosition(rawX, rawY, rawZ);
+					if(!alreadyExisted)
+						animation.setInitialPosition(rawX, rawY, rawZ);
 				}
 
 				return animation;
