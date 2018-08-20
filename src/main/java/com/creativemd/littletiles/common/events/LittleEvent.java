@@ -453,66 +453,6 @@ public class LittleEvent {
 		}
 	}
 	
-	@SubscribeEvent
-	public void worldCollision(GetCollisionBoxesEvent event)
-	{
-		AxisAlignedBB box = event.getAabb();
-		for (EntityAnimation<?> animation : event.getWorld().getEntitiesWithinAABB(EntityAnimation.class, box)) {
-			if(animation.noCollision)
-				continue;
-			
-			OrientatedBoundingBox newAlignedBox = animation.origin.getOrientatedBox(box);			
-			for (OrientatedBoundingBox bb : animation.worldCollisionBoxes) {
-				if(bb.intersects(newAlignedBox))
-					event.getCollisionBoxesList().add(bb);
-			}
-		}
-	}
-	
-	//public static Field tickstatechanged = ReflectionHelper.findField(World.class, "tickstatechanged");
-	//public static Method shouldUpdate = ReflectionHelper.findMethod(ITickable.class, "shouldUpdate", "shouldUpdate");
-	
-	/*public static void markTEAsUpdated(TileEntityLittleTiles te)
-	{
-		try {
-			List<TileEntity> changed = (List<TileEntity>) tickstatechanged.get(te.getWorld());
-			if(changed == null)
-			{
-				changed = new ArrayList<>();
-				tickstatechanged.set(te.getWorld(), changed);
-			}
-			changed.add(te);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static void processStateUpdates(World world)
-	{
-		try {
-			if(world.isRemote)
-			{
-				List<TileEntity> changed = (List<TileEntity>) tickstatechanged.get(world);
-				if(changed == null)
-				{
-					changed = new ArrayList<>();
-					tickstatechanged.set(world, changed);
-				}
-				if(changed.isEmpty())
-					return ;
-				for (TileEntity te : changed) {
-					if(te instanceof TileEntityLittleTiles && !((TileEntityLittleTiles) te).getUpdateTiles().isEmpty())
-						world.tickableTileEntities.add(te);
-					else
-						world.tickableTileEntities.remove(te);
-				}
-				changed.clear();
-			}
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}*/
-	
 	@SideOnly(Side.CLIENT)
 	public static int transparencySortingIndex;
 	
@@ -612,6 +552,8 @@ public class LittleEvent {
 	{
 		if(entity instanceof EntityAnimation)
 		{
+			((EntityAnimation) entity).addDoor();
+			
 			if(((EntityAnimation) entity).spawnedInWorld)
 			{
 				 entity.setEntityId(entityID);

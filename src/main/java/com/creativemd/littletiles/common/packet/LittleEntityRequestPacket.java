@@ -79,9 +79,12 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			}else{
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
 				animation.approved = animation.transformation.equals(transformation);
+				//if(animation.approved)
+					//animation.started = System.currentTimeMillis();
 			}
 			
-		}
+		}else
+			System.out.println("Something went wrong!");
 	}
 
 	@Override

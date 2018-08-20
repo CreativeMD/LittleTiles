@@ -3,6 +3,7 @@ package com.creativemd.littletiles;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
@@ -49,6 +50,7 @@ import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
@@ -429,6 +431,7 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("rep", LittleActionReplace.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
+		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.server = new LittleDoorHandler(Side.SERVER));
 		//MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 		LittleStructure.initStructures();
