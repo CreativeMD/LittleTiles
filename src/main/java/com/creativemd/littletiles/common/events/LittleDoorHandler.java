@@ -10,9 +10,14 @@ import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.EntityViewRenderEvent;
+import net.minecraftforge.event.entity.EntityEvent;
+import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -91,8 +96,24 @@ public class LittleDoorHandler {
 	}
 	
 	@SubscribeEvent
+	public void chunkUnload(ChunkEvent.Unload event)
+	{
+		for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists())
+		{
+			for (Entity entity : map) {
+				if(entity instanceof EntityAnimation && ((EntityAnimation) entity).addedDoor)
+				{
+					((EntityAnimation) entity).addedDoor = false;
+					openDoors.remove(entity);
+				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event)
 	{
+		
 		if(event.getWorld().isRemote != side.isClient())
 			return ;
 		
