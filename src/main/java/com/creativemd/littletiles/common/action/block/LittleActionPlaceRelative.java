@@ -315,6 +315,8 @@ public class LittleActionPlaceRelative extends LittleAction {
 			
 			if(structure != null)
 			{
+				if(structure.getMainTile() == null)
+					throw new LittleActionException("Missing maintile of structure. Placed " + placed.placedPreviews.size() + " tile(s).");
 				structure.setMainTile(structure.getMainTile());
 				for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
 					LittleTile tile = iterator.next();
