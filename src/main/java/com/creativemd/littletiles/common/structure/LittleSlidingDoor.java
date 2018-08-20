@@ -129,7 +129,12 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid)
 	{
+		LittleTileVec offset = new LittleTileVec(moveDirection);
+		offset.scale(moveDistance);
 		placedAxis = new LittleTilePos(pos, moveContext);
+		/*placedAxis.contextVec.vec.add(offset);
+		placedAxis.removeInternalBlockOffset();
+		pos = placedAxis.pos;*/
 		
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, moveContext);
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
@@ -139,8 +144,6 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
 		
-		LittleTileVec offset = new LittleTileVec(moveDirection);
-		offset.scale(moveDistance);
 		if(moveContext != previews.context)
 			offset.convertTo(moveContext, previews.context);
 		

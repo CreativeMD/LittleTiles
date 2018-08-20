@@ -450,6 +450,50 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
 			}
 		});
+		addTransformer(new Transformer("net.minecraft.entity.player.EntityPlayerMP") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "wasPushedByDoor", "I", null, false));
+				
+				MethodNode m = findMethod(node, "onUpdate", "()V");
+				LabelNode first = (LabelNode) m.instructions.getFirst();
+				m.instructions.insertBefore(first, new LabelNode());
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/player/EntityPlayerMP", "wasPushedByDoor", "I"));
+				m.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFLE, first));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new InsnNode(Opcodes.DUP));
+				m.instructions.insertBefore(first, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/entity/player/EntityPlayerMP", "wasPushedByDoor", "I"));
+				m.instructions.insertBefore(first, new InsnNode(Opcodes.ICONST_1));
+				m.instructions.insertBefore(first, new InsnNode(Opcodes.ISUB));
+				m.instructions.insertBefore(first, new FieldInsnNode(Opcodes.PUTFIELD, "net/minecraft/entity/player/EntityPlayerMP", "wasPushedByDoor", "I"));
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.network.NetHandlerPlayServer") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "processPlayer", "(Lnet/minecraft/network/play/client/CPacketPlayer;)V");
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if(insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEINTERFACE && ((MethodInsnNode) insn).name.equals("isEmpty") && ((MethodInsnNode) insn).owner.equals("java/util/List"))
+					{
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, patchClassName("net/minecraft/network/NetHandlerPlayServer"), patchFieldName("player"), patchDESC("Lnet/minecraft/entity/player/EntityPlayerMP;")));
+						
+						MethodInsnNode mInsn = (MethodInsnNode) insn;
+						mInsn.setOpcode(Opcodes.INVOKESTATIC);
+						mInsn.owner = "com/creativemd/littletiles/common/events/LittleDoorHandler";
+						mInsn.name = "checkIfEmpty";
+						mInsn.desc = patchDESC("(Ljava/util/List;Lnet/minecraft/entity/player/EntityPlayerMP;)Z");
+						mInsn.itf = false;
+					}
+				}
+			}
+		});
 		/*addTransformer(new Transformer("net.minecraft.util.ITickable") {
 			
 			@Override

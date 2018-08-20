@@ -40,25 +40,26 @@ public class SlidingDoorTransformation extends DoorTransformation {
 
 	@Override
 	public void performTransformation(EntityDoorAnimation animation, double progress) {
+		double pushDistance = distance*context.gridMCLength*(1-progress);
 		switch(direction)
 		{
 		case EAST:
-			animation.moveXTo(animation.getAxisPos().getX() - (distance*context.gridMCLength*(1-progress)));
+			animation.moveXTo(animation.getAxisPos().getX() - pushDistance);
 			break;
 		case WEST:
-			animation.moveXTo(animation.getAxisPos().getX() + (distance*context.gridMCLength*(1-progress)));
+			animation.moveXTo(animation.getAxisPos().getX() + pushDistance);
 			break;
 		case UP:
-			animation.moveYTo(animation.getAxisPos().getY() - (distance*context.gridMCLength*(1-progress)));
+			animation.moveYTo(animation.getAxisPos().getY() - pushDistance);
 			break;
 		case DOWN:
-			animation.moveYTo(animation.getAxisPos().getY() + (distance*context.gridMCLength*(1-progress)));
+			animation.moveYTo(animation.getAxisPos().getY() + pushDistance);
 			break;
 		case SOUTH:
-			animation.moveZTo(animation.getAxisPos().getZ() - (distance*context.gridMCLength*(1-progress)));
+			animation.moveZTo(animation.getAxisPos().getZ() - pushDistance);
 			break;
 		case NORTH:
-			animation.moveZTo(animation.getAxisPos().getZ() + (distance*context.gridMCLength*(1-progress)));
+			animation.moveZTo(animation.getAxisPos().getZ() + pushDistance);
 			break;
 		default:
 			break;
