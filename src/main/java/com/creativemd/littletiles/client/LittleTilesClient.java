@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
@@ -45,11 +46,13 @@ import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.settings.KeyModifier;
@@ -94,7 +97,14 @@ public class LittleTilesClient extends LittleTilesServer{
 
 			@Override
 			public Render<? super EntityDoorAnimation> createRenderFor(RenderManager manager) {
-				return new RenderAnimation(manager);
+				return new Render<EntityAnimation>(manager) {
+
+					@Override
+					protected ResourceLocation getEntityTexture(EntityAnimation entity) {
+						return TextureMap.LOCATION_BLOCKS_TEXTURE;
+					}
+					
+				};
 			}
 		});
 	}

@@ -71,6 +71,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		{
 			for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
+				
 				if(!te.rendering.get())
 				{
 					if(te.getBuffer() == null)
