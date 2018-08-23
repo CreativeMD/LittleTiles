@@ -92,3 +92,5 @@ commands.open.usage=Opens all doors at the given coordinate
 commands.open.notloaded=Structure is not loaded
 
 item.LTPremade.workbench.name=Little Workbench
+item.LTPremade.importer.name=Little Importer
+item.LTPremade.exporter.name=Little Exporter
