@@ -1,0 +1,35 @@
+{
+  "result": {
+    "item": "littletiles:premade",
+    "data": 0,
+    "structure": "importer"
+  },
+  "pattern": [
+    "PXP",
+    "ILI",
+    "IRI"
+  ],
+  "type": "littletiles:crafting_shaped_premade",
+  "key": {
+    "P": {
+      "item": "minecraft:planks",
+      "data": 0
+    },
+    "X": {
+      "item": "minecraft:glass",
+      "data": 0
+    },
+    "I": {
+      "item": "minecraft:iron_ingot",
+      "data": 0
+    },
+    "R": {
+      "item": "minecraft:redstone",
+      "data": 0
+    },
+    "L": {
+      "item": "littletiles:recipe",
+      "data": 0
+    }
+  }
+}
