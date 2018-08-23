@@ -1,10 +1,8 @@
 package com.creativemd.littletiles;
 
 import java.util.List;
-import java.util.Map;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
@@ -36,7 +34,6 @@ import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
-import com.creativemd.littletiles.common.blocks.ItemBlockFlowingWater;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
@@ -104,8 +101,6 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.server.LittleTilesServer;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -115,22 +110,13 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IIngredientFactory;
-import net.minecraftforge.common.crafting.IRecipeFactory;
-import net.minecraftforge.common.crafting.JsonContext;
-import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -140,7 +126,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.registry.EntityRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -613,6 +598,21 @@ public class LittleTiles {
 		GameRegistry.addRecipe(new ItemStack(storageBlock, 1),  new Object[]
 				{
 				"C", 'C', Blocks.CHEST
+				});
+		
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"),  new Object[]
+				{
+				"PPP", "PWP", "PPP", 'P', Blocks.PLANKS, 'W', LittleTiles.wrench
+				});
+		
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"),  new Object[]
+				{
+				"PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.IRON_BARS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE
+				});
+		
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("importer"),  new Object[]
+				{
+				"PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.GLASS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE
 				});
 		
 		//Entity

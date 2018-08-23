@@ -64,7 +64,7 @@ public class LittleDoorHandler {
 	{
 		List<EntityAnimation> doors = new ArrayList<>();
 		for (EntityAnimation door : openDoors) {
-			if(door.world == world && door.getEntityBoundingBox().intersects(bb))
+			if(door.world == world && door.getEntityBoundingBox().intersectsWith(bb))
 				doors.add(door);
 		}
 		return doors;
@@ -131,7 +131,7 @@ public class LittleDoorHandler {
 		        double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * (double)partialTicks;
 		        double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * (double)partialTicks;
 		        float f = door.prevRotationYaw + (door.rotationYaw - door.prevRotationYaw) * partialTicks;
-		        int i = door.getBrightnessForRender();
+		        int i = door.getBrightnessForRender(partialTicks);
 
 		        if (door.isBurning())
 		        {
@@ -225,7 +225,7 @@ public class LittleDoorHandler {
 			
 			OrientatedBoundingBox newAlignedBox = animation.origin.getOrientatedBox(box);			
 			for (OrientatedBoundingBox bb : animation.worldCollisionBoxes) {
-				if(bb.intersects(newAlignedBox))
+				if(bb.intersectsWith(newAlignedBox))
 					event.getCollisionBoxesList().add(bb);
 			}
 		}
