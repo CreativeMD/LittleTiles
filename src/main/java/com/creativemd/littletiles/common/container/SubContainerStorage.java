@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.common.container;
 
+import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.slots.SlotStackLimit;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerStorage extends SubContainer {
@@ -72,10 +74,22 @@ public class SubContainerStorage extends SubContainer {
 			addPlayerSlotsToContainer(player, size.playerOffsetX, size.playerOffsetY);
 		}
 	}
+	
+	@Override
+	public void writeOpeningNBT(NBTTagCompound nbt)
+	{
+		nbt.setTag("inventory", InventoryUtils.saveInventoryBasic(storage.inventory));
+	}
 
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		
+		if(nbt.hasKey("inventory"))
+		{
+			ItemStack[] stacks = InventoryUtils.loadInventory(nbt.getCompoundTag("inventory"));
+			for (int i = 0; i < stacks.length; i++) {
+				storage.inventory.setInventorySlotContents(i, stacks[i]);
+			}
+		}
 	}
 
 }
