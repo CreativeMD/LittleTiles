@@ -366,6 +366,13 @@ public class LittleTilePreview {
 		return new LittleTileSize(1, 1, 1);
 	}
 	
+	public static LittleTileVec getOffset(ItemStack stack)
+	{
+		if(stack.hasTagCompound() && stack.getTagCompound().hasKey("min"))
+			return new LittleTileVec("min", stack.getTagCompound());
+		return null;
+	}
+	
 	public static void savePreviewTiles(LittlePreviews previews, ItemStack stack)
 	{
 		if(previews instanceof LittleAbsolutePreviews)
@@ -395,6 +402,7 @@ public class LittleTilePreview {
 		}
 		
 		new LittleTileSize(maxX-minX, maxY-minY, maxZ-minZ).writeToNBT("size", stack.getTagCompound());
+		new LittleTileVec(minX, minY, minZ).writeToNBT("min", stack.getTagCompound());
 		
 		if(previews.size() >= lowResolutionMode)
 		{

@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -131,5 +132,25 @@ public interface ILittleTile {
 	public default boolean snapToGridByDefault()
 	{
 		return false;
+	}
+	
+	/**
+	 * needs to be implemented by any ILittleTile which supports low resolution and only uses full blocks
+	 * @param stack
+	 * @return
+	 */
+	public default LittleTileSize getCachedSize(ItemStack stack)
+	{
+		return null;
+	}
+	
+	/**
+	 * needs to be implemented by any ILittleTile which supports low resolution and only uses full blocks
+	 * @param stack
+	 * @return
+	 */
+	public default LittleTileVec getCachedOffset(ItemStack stack)
+	{
+		return null;
 	}
 }
