@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "littletiles:ltcoloredblock",
+    "data": 14,
+    "count": 1
+  },
+  "ingredients": [
+    {
+      "item": "minecraft:milk_bucket"
+    },
+    {
+      "item": "littletiles:ltcoloredblock",
+	  "data": 12
+    }
+  ],
+  "type": "minecraft:crafting_shapeless"
+}
