@@ -27,6 +27,7 @@ tile.LTColoredBlock.clay.name=Colored Block Clay
 tile.LTColoredBlock.light_clean.name=Colored Block Lighting Clean
 tile.LTColoredBlock.plank.name=Colored Wooden Plank
 tile.LTColoredBlock.lava.name=Lava Block
+tile.LTColoredBlock.white_lava.name=White Lava Block
 
 tile.LTTransparentColoredBlock.clean.name=Colored Block Clean
 tile.LTTransparentColoredBlock.thick.name=Colored Block Thick
