@@ -154,8 +154,11 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public static LittleTileVec getInternalOffset(LittlePreviews tiles)
+	public static LittleTileVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles)
 	{
+		LittleTileVec offset = iTile.getCachedOffset(stack);
+		if(offset != null)
+			return offset;
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -173,8 +176,11 @@ public class PlacementHelper {
 		return new LittleTileVec(minX, minY, minZ);
 	}
 	
-	public static LittleTileSize getSize(LittlePreviews tiles)
+	public static LittleTileSize getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution)
 	{
+		LittleTileSize cached = iTile.getCachedSize(stack);
+		if(cached != null)
+			return cached;
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -327,7 +333,7 @@ public class PlacementHelper {
 			result.context = context;
 			result.previews = tiles;
 			
-			result.size = getSize(tiles);
+			result.size = getSize(iTile, stack, tiles, allowLowResolution);
 			
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
@@ -393,7 +399,7 @@ public class PlacementHelper {
 			}
 			
 			LittleTilePos offset = new LittleTilePos(position.pos, context, result.box.getMinVec());
-			LittleTileVec internalOffset = getInternalOffset(tiles);
+			LittleTileVec internalOffset = getInternalOffset(iTile, stack, tiles);
 			internalOffset.invert();
 			offset.contextVec.vec.add(internalOffset);
 			

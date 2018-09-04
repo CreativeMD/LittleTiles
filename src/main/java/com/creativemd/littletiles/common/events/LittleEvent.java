@@ -31,6 +31,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.material.Material;
@@ -281,12 +282,12 @@ public class LittleEvent {
 	@SideOnly(Side.CLIENT)
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
 	{
-		if(iTile.onRightClick(player, stack, getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver), Minecraft.getMinecraft().objectMouseOver))
+		PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
+		if(iTile.onRightClick(player, stack,	position.copy(), Minecraft.getMinecraft().objectMouseOver))
 		{
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
 			{
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
-				PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
 				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
 				
 				PreviewRenderer.marked = null;

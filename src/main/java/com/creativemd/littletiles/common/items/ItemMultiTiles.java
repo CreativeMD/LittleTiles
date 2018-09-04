@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.google.common.collect.Lists;
@@ -177,4 +178,18 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public LittleGridContext getPositionContext(ItemStack stack) {
 		return currentContext;
 	}
+	
+	@Override
+	public LittleTileSize getCachedSize(ItemStack stack) {
+		if(stack.getTagCompound().hasKey("size"))
+			return LittleTilePreview.getSize(stack);
+		return null;
+	}
+	
+	@Override
+	public LittleTileVec getCachedOffset(ItemStack stack) {
+		return LittleTilePreview.getOffset(stack);
+	}
+	
+	
 }

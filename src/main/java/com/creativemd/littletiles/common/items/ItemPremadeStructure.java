@@ -13,6 +13,8 @@ import com.creativemd.littletiles.common.structure.premade.LittleStructurePremad
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -109,6 +111,18 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	@Override
 	public boolean snapToGridByDefault() {
 		return true;
+	}
+	
+	@Override
+	public LittleTileSize getCachedSize(ItemStack stack) {
+		if(stack.getTagCompound().hasKey("size"))
+			return LittleTilePreview.getSize(stack);
+		return null;
+	}
+	
+	@Override
+	public LittleTileVec getCachedOffset(ItemStack stack) {
+		return LittleTilePreview.getOffset(stack);
 	}
 	
 	public static String getPremadeID(ItemStack stack)
