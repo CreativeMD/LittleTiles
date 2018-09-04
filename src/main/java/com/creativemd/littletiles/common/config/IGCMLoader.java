@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.config;
 import com.creativemd.igcm.api.ConfigBranch;
 import com.creativemd.igcm.api.ConfigTab;
 import com.creativemd.igcm.api.segments.BooleanSegment;
+import com.creativemd.igcm.api.segments.FloatSegment;
 import com.creativemd.igcm.api.segments.IntegerSegment;
 import com.creativemd.igcm.api.segments.IntegerSliderSegment;
 import com.creativemd.littletiles.LittleTiles;
@@ -36,6 +37,7 @@ public class IGCMLoader {
 			@Override
 			public void onRecieveFrom(Side side) {
 				SpecialServerConfig.allowFlowingWater = (Boolean) getValue("allowFlowingWater");
+				SpecialServerConfig.allowFlowingLava = (Boolean) getValue("allowFlowingLava");
 			}
 			
 			@Override
@@ -66,6 +68,7 @@ public class IGCMLoader {
 						SpecialServerConfig.limitPlaceBlocksSurvival = (Boolean) getValue("limitPlaceBlocksSurvival");
 						SpecialServerConfig.maxPlaceBlocks = (Integer) getValue("maxPlaceBlocks");
 						SpecialServerConfig.minimumTransparency = (Integer) getValue("minimumTransparency");
+						SpecialServerConfig.storagePerPixel = (Float) getValue("storagePerPixel");
 					}
 					
 					@Override
@@ -77,10 +80,12 @@ public class IGCMLoader {
 						registerElement("limitPlaceBlocksSurvival", new BooleanSegment("Limit Place Range", false).setToolTip("If the amount a player can place at once should be limited in survival."));
 						registerElement("maxPlaceBlocks", new IntegerSegment("Max Place Range", 10, 1, Integer.MAX_VALUE).setToolTip("Only affects the range if place limitation is enabled."));
 						registerElement("minimumTransparency", new IntegerSliderSegment("Minimum Transparency in survival", 255, 0, 255).setToolTip("Transparency will be enabled if the minimum is smaller than 255."));
+						registerElement("storagePerPixel", new FloatSegment("Storage per Pixel", 1F, 0F, Float.MAX_VALUE).setToolTip("Each pixel in default grid makes space for one itemstack (stacksize of one).", "64 pixel add up to one slot"));
 					}
 				});
 				
 				registerElement("allowFlowingWater", new BooleanSegment("Allow Flowing Water", true).setToolTip("If disabled the bucket cannot be used to change the water flow."));
+				registerElement("allowFlowingLava", new BooleanSegment("Allow Flowing Lava", true).setToolTip("If disabled the bucket cannot be used to change the lava flow."));
 			}
 		});
 	}

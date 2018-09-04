@@ -251,6 +251,9 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.flowingWater);
+		CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingWater);
+		CreativeCoreClient.registerBlockItem(LittleTiles.flowingLava);
+		CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingLava);
 		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.hammer);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.recipe);

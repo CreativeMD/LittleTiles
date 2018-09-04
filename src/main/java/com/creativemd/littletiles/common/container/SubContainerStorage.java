@@ -90,6 +90,13 @@ public class SubContainerStorage extends SubContainer {
 				storage.inventory.setInventorySlotContents(i, stacks[i]);
 			}
 		}
+		if(nbt.getBoolean("sort"))
+		{
+			InventoryUtils.sortInventory(storage.inventory, false);
+			NBTTagCompound packet = new NBTTagCompound();
+			packet.setTag("inventory", InventoryUtils.saveInventoryBasic(storage.inventory));
+			sendNBTUpdate(packet);
+		}
 	}
 
 }

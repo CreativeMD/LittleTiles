@@ -21,6 +21,10 @@ public class SpecialServerConfig {
 	public static int minimumTransparency = 255;
 	
 	public static boolean allowFlowingWater = true;
+	public static boolean allowFlowingLava = true;
+	
+	/**tile-size: 1x1x1 of default grid**/
+	public static float storagePerPixel = 1;
 	
 	public static boolean isEditLimited(EntityPlayer player)
 	{

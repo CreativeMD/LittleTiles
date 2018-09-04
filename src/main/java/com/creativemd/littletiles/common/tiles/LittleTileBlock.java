@@ -45,7 +45,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTileBlock extends LittleTile{
+public class LittleTileBlock extends LittleTile {
 	
 	private Block block;
 	private int meta;
@@ -384,6 +384,24 @@ public class LittleTileBlock extends LittleTile{
 		}
 		return super.getPreviewTile();
 	}
+	
+	@Override
+	public boolean shouldCheckForCollision()
+	{
+		if(super.shouldCheckForCollision())
+			return true;
+		if(hasSpecialBlockHandler())
+			return handler.shouldCheckForCollision(this);
+		return false;
+	}
+	
+	@Override
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
+    {
+		super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+		if(hasSpecialBlockHandler())
+			handler.onEntityCollidedWithBlock(worldIn, this, pos, state, entityIn);
+    }
 	
 	public static class MissingBlockHandler implements ISpecialBlockHandler {
 		

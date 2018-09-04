@@ -1,0 +1,27 @@
+{
+    "variants": {
+        "direction=east": {
+            "model": "littletiles:flowinglava",
+            "y": 270
+        },
+        "direction=west": {
+            "model": "littletiles:flowinglava",
+            "y": 90
+        },
+        "direction=north": {
+            "model": "littletiles:flowinglava",
+            "y": 180
+        },
+        "direction=south": {
+            "model": "littletiles:flowinglava"
+        },
+        "direction=up": {
+            "model": "littletiles:flowinglava",
+            "x": 90
+        },
+        "direction=down": {
+            "model": "littletiles:flowinglava",
+            "x": 270
+        }
+    }
+}

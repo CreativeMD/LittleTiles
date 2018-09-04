@@ -3,11 +3,13 @@ package com.creativemd.littletiles.common.gui;
 import com.creativemd.creativecore.gui.ContainerControl;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.container.SlotControl;
+import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.common.container.SubContainerStorage.StorageSize;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiStorage extends SubGui{
 	
@@ -48,7 +50,23 @@ public class SubGuiStorage extends SubGui{
 
 	@Override
 	public void createControls() {
-		
+		int x = this.size.playerOffsetX + 170;
+		int y = this.size.playerOffsetY;
+		if(size == StorageSize.SMALL)
+		{
+			x = size.playerOffsetX;
+			y = size.playerOffsetY - 23;
+			
+		}
+		controls.add(new GuiButton("sort", x, y) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("sort", true);
+				sendPacketToServer(nbt);
+			}
+		});
 	}
 
 }
