@@ -1,0 +1,6 @@
+{
+    "parent": "block/cube_all",
+    "textures": {
+        "all": "littletiles:blocks/white_lava_still"
+    }
+}

@@ -6,6 +6,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -77,5 +78,15 @@ public interface ISpecialBlockHandler {
 	{
 		return false;
 	}
+	
+	public default boolean shouldCheckForCollision(LittleTileBlock tile)
+	{
+		return false;
+	}
+	
+    public default void onEntityCollidedWithBlock(World worldIn, LittleTileBlock tile, BlockPos pos, IBlockState state, Entity entityIn)
+    {
+		
+    }
 	
 }

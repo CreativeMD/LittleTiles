@@ -13,6 +13,7 @@
         "variant=clay": { "model": "littletiles:colored_block_clay" },
         "variant=light_clean": { "model": "littletiles:colored_block_clean" },
         "variant=lava": { "model": "littletiles:colored_block_lava" },
-        "variant=plank": { "model": "littletiles:colored_block_plank" }
+        "variant=plank": { "model": "littletiles:colored_block_plank" },
+        "variant=white_lava": { "model": "littletiles:colored_block_white_lava" }
     }
 }

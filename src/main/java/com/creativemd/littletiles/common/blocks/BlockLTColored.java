@@ -17,12 +17,17 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import scala.tools.nsc.transform.patmat.ScalaLogic.TreesAndTypesDomain.Var;
@@ -102,8 +107,26 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		broken_brick_big,
 		clay,
 		light_clean,
-		lava,
-		plank;
+		lava
+		{
+			@Override
+			public boolean isLava() {
+				return true;
+			}
+		},
+		plank,
+		white_lava
+		{
+			@Override
+			public boolean isLava() {
+				return true;
+			}
+		};
+		
+		public boolean isLava()
+		{
+			return false;
+		}
 		
 		public static EnumType byMetadata(int meta)
 		{
@@ -123,16 +146,55 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
-		if(tile.getBlockState().getValue(VARIANT) == EnumType.lava)
+		if(tile.getBlockState().getValue(VARIANT).isLava())
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
 	
 	@Override
 	public boolean isMaterial(LittleTileBlock tile, Material material) {
-		if(tile.getBlockState().getValue(VARIANT) == EnumType.lava)
+		if(tile.getBlockState().getValue(VARIANT).isLava())
 			return material == Material.LAVA;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
+	}
+	
+	@Override
+	public boolean isLiquid(LittleTileBlock tile)
+	{
+		if(tile.getBlockState().getValue(VARIANT).isLava())
+			return true;
+		return ISpecialBlockHandler.super.isLiquid(tile);
+	}
+	
+	@Override
+	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+		return !tile.getBlockState().getValue(VARIANT).isLava();
+	}
+	
+	@Override
+	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state,
+			EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY,
+			float hitZ) {
+		if(state.getValue(VARIANT).isLava() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket)
+		{
+			if(state.getValue(VARIANT) == EnumType.lava)
+				tile.setBlock(LittleTiles.flowingLava, 0);
+			else
+				tile.setBlock(LittleTiles.whiteFlowingLava, 0);
+			tile.te.updateTiles();
+			return true;
+		}
+		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX,
+				hitY, hitZ);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
+	{
+		if(EnumType.values()[thisTile.getMeta()].isLava())
+			return tile.getBlock() == LittleTiles.flowingLava;			
+		return false;
 	}
 
 }

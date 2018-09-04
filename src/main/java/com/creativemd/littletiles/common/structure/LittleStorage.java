@@ -12,6 +12,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.SubGuiStructure;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemRecipe;
@@ -34,8 +35,6 @@ import net.minecraft.world.World;
 
 public class LittleStorage extends LittleStructure  {
 	
-	/**tile-size: 1x1x1 of default grid**/
-	public static int storagePerPixel = 1;
 	public static int maxSlotStackSize = 64;
 	
 	public int inventorySize = 0;
@@ -94,7 +93,7 @@ public class LittleStorage extends LittleStructure  {
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
 		for (int i = 0; i < previews.size(); i++) {
 			if(previews.get(i).getPreviewBlockName().equals(name))
-				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * storagePerPixel;
+				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * SpecialServerConfig.storagePerPixel;
 		}
 		return (int) size;
 	}
