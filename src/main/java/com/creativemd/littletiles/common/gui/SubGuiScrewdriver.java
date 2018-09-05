@@ -56,7 +56,7 @@ public class SubGuiScrewdriver extends SubGui {
 			stack.setTagCompound(new NBTTagCompound());
 		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
-		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer())));
+		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
 		
@@ -64,7 +64,7 @@ public class SubGuiScrewdriver extends SubGui {
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
-		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer())));
+		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
 		
