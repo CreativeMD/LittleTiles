@@ -64,7 +64,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector));
 		
-		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()));
+		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), true);
 		if(selector instanceof BlockSelector)
 		{
 			IBlockState state = ((BlockSelector) selector).getState();

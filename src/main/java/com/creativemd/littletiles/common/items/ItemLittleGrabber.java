@@ -498,7 +498,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					label.avatarSize = 32;
 					controls.add(label);
 					
-					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()));
+					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
 					selector.setSelectedForce(preview.getBlockStack());
 					controls.add(selector);
 					
