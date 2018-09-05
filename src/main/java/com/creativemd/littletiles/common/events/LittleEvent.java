@@ -203,7 +203,7 @@ public class LittleEvent {
     			        Tessellator tessellator = Tessellator.getInstance();
     			        BufferBuilder bufferbuilder = tessellator.getBuffer();
     			        float f = mc.player.getBrightness();
-    			        GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 5F);
+    			        GlStateManager.color(f * (float) color.x, f * (float) color.y, f * (float) color.z, 0.5F);
     			        GlStateManager.enableBlend();
     			        //GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     			        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
