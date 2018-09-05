@@ -202,8 +202,8 @@ public class LittleEvent {
     					mc.getTextureManager().bindTexture(new ResourceLocation("textures/misc/underwater.png"));
     			        Tessellator tessellator = Tessellator.getInstance();
     			        VertexBuffer bufferbuilder = tessellator.getBuffer();
-    			        float f = mc.player.getBrightness(1.0F);
-    			        GlStateManager.color(f * (float) color.xCoord, f * (float) color.yCoord, f * (float) color.zCoord, 5F);
+    			        float f = mc.player.getBrightness();
+    			        GlStateManager.color(f * (float) color.xCoord, f * (float) color.yCoord, f * (float) color.zCoord, 0.5F);
     			        GlStateManager.enableBlend();
     			        //GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
     			        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
