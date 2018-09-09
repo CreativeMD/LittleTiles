@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -13,7 +14,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -106,32 +107,39 @@ public class LittleStorage extends LittleStructure  {
 		return true;
 	}
 	
-	@Override
-	public void createControls(SubGui gui, LittleStructure structure) {
-		gui.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(((SubGuiStructure) gui).stack)), 5, 30));
-		boolean invisible = false;
-		if(structure instanceof LittleStorage)
-			invisible = ((LittleStorage) structure).invisibleStorageTiles;
-		gui.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 45, invisible));
-	}
+	public static class LittleStorageParser extends LittleStructureParser<LittleStorage> {
 
-	@Override
-	public LittleStructure parseStructure(SubGui gui) {
-		
-		LittleStorage storage = new LittleStorage();
-		storage.invisibleStorageTiles = ((GuiCheckBox) gui.get("invisible")).value;
-		LittlePreviews previews = LittleTilePreview.getPreview(((SubGuiStructure) gui).stack);
-		for (int i = 0; i < previews.size(); i++) {
-			if(previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
-				previews.get(i).setInvisibile(storage.invisibleStorageTiles);
+		public LittleStorageParser(String id, GuiParent parent) {
+			super(id, parent);
 		}
-		LittleTilePreview.savePreviewTiles(previews, ((SubGuiStructure) gui).stack);
-		storage.inventorySize = getSizeOfInventory(previews);
-		storage.stackSizeLimit = maxSlotStackSize;
-		storage.updateNumberOfSlots();
-		storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);
 		
-		return storage;
+		@Override
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(stack)), 5, 30));
+			boolean invisible = false;
+			if(structure instanceof LittleStorage)
+				invisible = ((LittleStorage) structure).invisibleStorageTiles;
+			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 45, invisible));
+		}
+
+		@Override
+		public LittleStorage parseStructure(ItemStack stack) {
+			
+			LittleStorage storage = new LittleStorage();
+			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
+			LittlePreviews previews = LittleTilePreview.getPreview(stack);
+			for (int i = 0; i < previews.size(); i++) {
+				if(previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
+					previews.get(i).setInvisibile(storage.invisibleStorageTiles);
+			}
+			LittleTilePreview.savePreviewTiles(previews, stack);
+			storage.inventorySize = getSizeOfInventory(previews);
+			storage.stackSizeLimit = maxSlotStackSize;
+			storage.updateNumberOfSlots();
+			storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);
+			
+			return storage;
+		}
 	}
 
 }

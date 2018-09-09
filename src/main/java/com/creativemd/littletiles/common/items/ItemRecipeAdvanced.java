@@ -1,94 +1,202 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 
+import javax.annotation.Nullable;
+
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
+import com.creativemd.littletiles.common.utils.shape.DragShape;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemRecipeAdvanced extends ItemRecipe {
-	
-	public ItemRecipeAdvanced(){
-		
+public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
+
+	public ItemRecipeAdvanced() {
+		setCreativeTab(LittleTiles.littleTab);
+		hasSubtypes = true;
+	}
+
+	@Override
+	public boolean hasLittlePreview(ItemStack stack) {
+		return stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0;
+	}
+
+	@Override
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
+		LittleTilePreview.savePreviewTiles(previews, stack);
+	}
+
+	@Override
+	public LittlePreviews getLittlePreview(ItemStack stack) {
+		return LittleTilePreview.getPreview(stack);
+	}
+
+	@Override
+	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
+		return LittleTilePreview.getPreview(stack, allowLowResolution);
+	}
+
+	@Override
+	public void onClickAir(EntityPlayer player, ItemStack stack) {
+		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
+	}
+
+	@Override
+	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
+		return true;
+	}
+
+	@Override
+	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+		return 0F;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+
+	}
+
+	@Override
+	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+		return false;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0)
+			return LittleTilePreview.getCubes(stack);
+		return new ArrayList<RenderCubeObject>();
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
+		Minecraft mc = Minecraft.getMinecraft();
+		GlStateManager.pushMatrix();
+
+		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound()
+				|| !stack.getTagCompound().hasKey("tiles")) {
+			if (cameraTransformType == TransformType.GUI)
+				GlStateManager.disableDepth();
+			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager()
+					.getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
+			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
+
+			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+
+			if (cameraTransformType == TransformType.GUI)
+				GlStateManager.enableDepth();
+		}
+		GlStateManager.popMatrix();
+
+		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0) {
+			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
+			double scaler = 1 / Math.max(1, Math.max(1,
+					Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
+			GlStateManager.scale(scaler, scaler, scaler);
+		}
+
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads,
+			IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+		ItemModelCache.cacheModel(stack, facing, cachedQuads);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te,
+			ItemStack stack, boolean threaded) {
+		return ItemModelCache.getCache(stack, facing);
+	}
+
+	@Override
+	public LittleStructure getLittleStructure(ItemStack stack) {
+		return null;
+	}
+
+	@Override
+	public boolean containsIngredients(ItemStack stack) {
+		return false;
 	}
 	
 	@Override
-	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second)
-	{
-		if(stack.getTagCompound().hasKey("scale"))
-		{
-			super.saveRecipe(world, player, stack, second);
-			stack.getTagCompound().removeTag("scale");			
-		}else{
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setInteger("posX", second.getX());
-			nbt.setInteger("posY", second.getY());
-			nbt.setInteger("posZ", second.getZ());
-			GuiHandler.openGui("recipeadvanced", nbt, player);
-		}
+	@SideOnly(Side.CLIENT)
+	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+		if(hasLittlePreview(stack))
+			return true;
+		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
+		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));
+		return false;
 	}
-	
-	@Override
-	public LittlePreviews saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ)
-	{
-		int scale = stack.getTagCompound().getInteger("scale");
-		
-		LittleGridContext context = LittleGridContext.get(scale);
-		
-		LittlePreviews previews = new LittlePreviews(context);
-		HashMapList<BlockPos, LittleTile> tiles = new HashMapList<>();
-		
-		MutableBlockPos newPos = new MutableBlockPos();
-		
-		for (int posX = minX; posX <= maxX; posX++) {
-			for (int posY = minY; posY <= maxY; posY++) {
-				for (int posZ = minZ; posZ <= maxZ; posZ++) {
-					newPos.setPos(posX, posY, posZ);
-					IBlockState state = world.getBlockState(newPos);
-					if(LittleAction.isBlockValid(state.getBlock()))
-					{
-						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-						LittleTileVec offset = new LittleTileVec((posX-minX), (posY-minY), (posZ-minZ));
-						tile.box.addOffset(offset);
-						tiles.add(offset.getBlockPos(context), tile);
-						
-					}
-				}
-			}
-		}
-		
-		for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			BasicCombiner.combineTiles(entry.getValue());
-			for (LittleTile tile : entry.getValue()) {
-				previews.addPreview(null, tile.getPreviewTile(), context);
-			}
-		}
-		
-		return previews;
+
+	public static SelectionMode getSelectionMode(ItemStack stack) {
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+
+		return SelectionMode.getOrDefault(stack.getTagCompound().getString("selmode"));
 	}
-	
-	@Override
-	public ModelResourceLocation getBackgroundLocation()
-	{
-		return new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory");
+
+	public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+
+		stack.getTagCompound().setString("selmode", mode.name);
 	}
 }

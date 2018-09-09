@@ -32,7 +32,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -131,7 +131,7 @@ public class PreviewRenderer {
 	            
 	            PlacementMode mode = iTile.getPlacementMode(stack);
 	            
-	            if(mode.mode == SelectionMode.PREVIEWS)
+	            if(mode.mode == PreviewMode.PREVIEWS)
 	            {
 					GL11.glEnable(GL11.GL_BLEND);
 		            OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -286,7 +286,7 @@ public class PreviewRenderer {
 			
 			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 			PlacementMode mode = iTile.getPlacementMode(stack);
-			if(mode.mode == SelectionMode.LINES)
+			if(mode.mode == PreviewMode.LINES)
 			{
 				BlockPos pos = event.getTarget().getBlockPos();
 				IBlockState state = world.getBlockState(pos);

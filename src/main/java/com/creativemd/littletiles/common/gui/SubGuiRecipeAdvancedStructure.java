@@ -7,27 +7,41 @@ import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructureParser;
 import com.creativemd.littletiles.common.structure.LittleStructure.LittleStructureEntry;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 
-public class SubGuiStructure extends SubGui{
+public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 	
-	public ItemStack stack;
 	public LittleStructure structure;
+	public LittleStructureParser parser;
 	
-	public SubGuiStructure(ItemStack stack) {
-		super();
-		this.stack = stack;
+	public SubGuiRecipeAdvancedStructure(ItemStack stack) {
+		super(200, 200, stack);
+	}
+
+	@Override
+	public void saveConfiguration() {
+		
 	}
 
 	@Override
 	public void createControls() {
+		controls.add(new GuiButton("clear", translate("selection.clear"), 10, 176, 100) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				openYesNoDialog(translate("selection.dialog.clear"));
+			}
+		});
+		
 		ArrayList<String> lines = new ArrayList<>();
 		lines.add("none");
 		lines.addAll(LittleStructure.getStructureTypeNames());
@@ -44,17 +58,12 @@ public class SubGuiStructure extends SubGui{
 				comboBox.caption = structure.getIDOfStructure();
 		}
 		controls.add(comboBox);
-		controls.add(new GuiButton("save", 115, 140, 50){
+		controls.add(new GuiButton("save", 140, 176, 50){
 			@Override
 			public void onClicked(int x, int y, int button){
-				String id = ((GuiComboBox) get("types")).caption;
-				LittleStructure parser = null;
-				LittleStructureEntry entry = LittleStructure.getStructureEntryByID(id); 
-				if(entry != null)
-					parser = entry.parser;
-				if(parser != null)
+				if(SubGuiRecipeAdvancedStructure.this.parser != null)
 				{
-					LittleStructure structure = parser.parseStructure((SubGui)getParent());
+					LittleStructure structure = SubGuiRecipeAdvancedStructure.this.parser.parseStructure(stack);
 					if(structure != null)
 					{
 						
@@ -77,30 +86,29 @@ public class SubGuiStructure extends SubGui{
 		onChanged();
 	}
 	
-	public Object lastListener = null;
-	
 	public void onChanged()
 	{
-		removeControls("type:", "types", "save");
+		removeControls("type:", "types", "save", "clear");
 		String id = ((GuiComboBox) get("types")).caption;
 		
-		if(lastListener != null)
-			removeListener(lastListener);
+		if(parser != null)
+			removeListener(parser);
 		
 		LittleStructure saved = this.structure;
 		if(saved != null && !saved.getIDOfStructure().equals(id))
 			saved = null;
-		LittleStructure parser = null;
 		LittleStructureEntry entry = LittleStructure.getStructureEntryByID(id); 
 		if(entry != null)
-			parser = entry.parser;
-		if(parser != null)
 		{
-			parser.createControls(this, saved);
-			this.refreshControls();
-			addListener(parser);
-			lastListener = parser;
-		}
+			parser = entry.createParser(this);
+			if(parser != null)
+			{
+				parser.createControls(stack, saved);
+				this.refreshControls();
+				addListener(parser);
+			}
+		}else
+			parser = null;
 	}
 
 	@CustomEventSubscribe
@@ -108,5 +116,20 @@ public class SubGuiStructure extends SubGui{
 	{
 		if(event.source.is("types"))
 			onChanged();
+	}
+	
+	@Override
+	public void onDialogClosed(String text, String[] buttons, String clicked) {
+		if(clicked.equalsIgnoreCase("yes"))
+		{
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("clear_content", true);
+			sendPacketToServer(nbt);
+		}
+	}
+	
+	@Override
+	public void receiveContainerPacket(NBTTagCompound nbt) {
+		stack.setTagCompound(nbt);
 	}
 }

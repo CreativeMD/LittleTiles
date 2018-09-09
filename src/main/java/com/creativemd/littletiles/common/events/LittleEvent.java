@@ -265,7 +265,7 @@ public class LittleEvent {
 		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
-		if(iTile != null )
+		if(iTile != null)
 		{
 			if(event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
 				onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
@@ -283,7 +283,7 @@ public class LittleEvent {
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing)
 	{
 		PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
-		if(iTile.onRightClick(player, stack,	position.copy(), Minecraft.getMinecraft().objectMouseOver))
+		if(iTile.onRightClick(player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver))
 		{
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack))
 			{
@@ -479,6 +479,8 @@ public class LittleEvent {
 				}
 				
 				Entity entityIn = mc.getRenderViewEntity();
+				if(entityIn == null)
+					return ;
 				try {
 					double d0 = entityIn.posX - prevRenderSortX.getDouble(mc.renderGlobal);
 		            double d1 = entityIn.posY - prevRenderSortY.getDouble(mc.renderGlobal);

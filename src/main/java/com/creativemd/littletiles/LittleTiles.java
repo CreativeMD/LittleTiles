@@ -60,7 +60,8 @@ import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvanced;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
@@ -86,6 +87,7 @@ import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
+import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
@@ -379,7 +381,10 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubGuiRecipeAdvanced(player.getHeldItemMainhand());
+				ItemStack stack = player.getHeldItemMainhand();
+				if(!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
+					return new SubGuiRecipeAdvancedSelection(stack);
+				return new SubGuiRecipeAdvancedStructure(stack);
 			}
 			
 			@Override
@@ -441,6 +446,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
+		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "Selection");
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		

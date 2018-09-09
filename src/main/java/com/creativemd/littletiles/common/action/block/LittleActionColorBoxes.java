@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.selection.TileSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;

@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.common.structure;
 
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleFixedStructure extends LittleStructure{
@@ -15,15 +17,22 @@ public class LittleFixedStructure extends LittleStructure{
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		
 	}
+	
+	public static class LittleFixedStructureParser extends LittleStructureParser<LittleFixedStructure> {
+		
+		public LittleFixedStructureParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
 
-	@Override
-	public void createControls(SubGui gui, LittleStructure structure) {
+		@Override
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			
+		}
+
+		@Override
+		public LittleFixedStructure parseStructure(ItemStack stack) {
+			return new LittleFixedStructure();
+		}
 		
 	}
-
-	@Override
-	public LittleStructure parseStructure(SubGui gui) {
-		return new LittleFixedStructure();
-	}
-
 }

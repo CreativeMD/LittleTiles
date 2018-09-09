@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.selection;
+package com.creativemd.littletiles.common.utils.selection.selector;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;

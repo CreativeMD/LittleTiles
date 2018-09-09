@@ -83,7 +83,6 @@ public class LittleGridContext {
 	     return LittleGridContext.get(overallDefault);
 	}
 	
-	
 	public static LittleGridContext getMin()
 	{
 		return context[0];
@@ -92,6 +91,25 @@ public class LittleGridContext {
 	public static LittleGridContext getMax()
 	{
 		return context[context.length-1];
+	}
+	
+	public static LittleGridContext min(LittleGridContext context, LittleGridContext context2)
+	{
+		if(context.size <= context2.size)
+			return context;
+		return context2;
+	}
+	
+	public static LittleGridContext max(LittleGridContext context, LittleGridContext context2)
+	{
+		if(context.size >= context2.size)
+			return context;
+		return context2;
+	}
+	
+	public static void remove(NBTTagCompound nbt)
+	{
+		nbt.removeTag("grid");
 	}
 	
 	public final int size;
@@ -207,5 +225,5 @@ public class LittleGridContext {
 	@Override
 	public String toString() {
 		return "" + size;
-	}
+	}	
 }

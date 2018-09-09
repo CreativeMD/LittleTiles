@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.structure;
 
-import static org.lwjgl.opengl.GL11.glRotatef;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -12,6 +10,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
@@ -19,11 +18,12 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
+import com.creativemd.littletiles.common.structure.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
@@ -86,50 +86,6 @@ public class LittleBed extends LittleStructure{
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("direction", direction.getHorizontalIndex());
-	}
-	
-	@SideOnly(Side.CLIENT)
-	@CustomEventSubscribe
-	public void buttonClicked(GuiControlClickEvent event)
-	{		
-		if(event.source.parent instanceof SubGuiStructure)
-		{
-			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) event.source.parent.get("relativeDirection");
-			
-			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) event.source.parent.get("direction")).getState());
-			
-			LittleSlidingDoor.updateDirection(viewer, direction.getOpposite(), relativeDirection);
-		}
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
-		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
-		tile.viewDirection = EnumFacing.UP;
-		gui.addControl(tile);
-		
-		LittleTileSize size = LittleTilePreview.getSize(((SubGuiStructure) gui).stack);
-		int index = EnumFacing.EAST.getHorizontalIndex();
-		if(size.sizeX < size.sizeZ)
-			index = EnumFacing.SOUTH.getHorizontalIndex();
-		if(structure instanceof LittleBed)
-			index = ((LittleBed) structure).direction.getHorizontalIndex();
-		gui.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getHorizontalFacingNames()));
-		
-		GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
-		gui.addControl(relativeDirection);
-		LittleSlidingDoor.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleStructure parseStructure(SubGui gui) {
-		EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) gui.get("direction")).getState());
-		LittleBed bed = new LittleBed();
-		bed.direction = direction;
-		return bed;
 	}
 	
 	@Override
@@ -367,6 +323,55 @@ public class LittleBed extends LittleStructure{
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) 
 	{
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
+	}
+	
+	public static class LittleBedParser extends LittleStructureParser<LittleBed> {
+
+		public LittleBedParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
+		
+		@SideOnly(Side.CLIENT)
+		@CustomEventSubscribe
+		public void buttonClicked(GuiControlClickEvent event)
+		{		
+			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
+			
+			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
+			
+			LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
+		}
+
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			tile.viewDirection = EnumFacing.UP;
+			parent.addControl(tile);
+			
+			LittleTileSize size = LittleTilePreview.getSize(stack);
+			int index = EnumFacing.EAST.getHorizontalIndex();
+			if(size.sizeX < size.sizeZ)
+				index = EnumFacing.SOUTH.getHorizontalIndex();
+			if(structure instanceof LittleBed)
+				index = ((LittleBed) structure).direction.getHorizontalIndex();
+			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getHorizontalFacingNames()));
+			
+			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
+			parent.addControl(relativeDirection);
+			LittleSlidingDoorParser.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
+		}
+
+		@Override
+		@SideOnly(Side.CLIENT)
+		public LittleBed parseStructure(ItemStack stack) {
+			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
+			LittleBed bed = new LittleBed();
+			bed.direction = direction;
+			return bed;
+		}
+		
 	}
 
 }

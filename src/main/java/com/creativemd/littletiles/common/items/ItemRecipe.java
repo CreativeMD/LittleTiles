@@ -15,7 +15,7 @@ import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.container.SubContainerStructure;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -89,6 +89,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 							LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
 							preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
 						}
+						continue;
 					}
 					LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
 					if(specialPreviews != null)
@@ -178,7 +179,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiStructure(stack);
+		return new SubGuiRecipe(stack);
 	}
 
 	@Override

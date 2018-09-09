@@ -16,10 +16,19 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.structure.LittleBed.LittleBedParser;
+import com.creativemd.littletiles.common.structure.LittleChair.LittleChairParser;
+import com.creativemd.littletiles.common.structure.LittleDoor.LittleDoorParser;
+import com.creativemd.littletiles.common.structure.LittleFixedStructure.LittleFixedStructureParser;
+import com.creativemd.littletiles.common.structure.LittleLadder.LittleLadderParser;
+import com.creativemd.littletiles.common.structure.LittleNoClipStructure.LittleNoClipStructureParser;
+import com.creativemd.littletiles.common.structure.LittleSlidingDoor.LittleSlidingDoorParser;
+import com.creativemd.littletiles.common.structure.LittleStorage.LittleStorageParser;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -72,17 +81,10 @@ public abstract class LittleStructure {
 		return new ArrayList<>(cachedNames);
 	}
 	
-	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute)
+	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureParser> parser)
 	{
-		LittleStructureEntry entry = new LittleStructureEntry(id, classStructure, null, attribute);
-		registerStructureType(id, entry);
-		LittleStructure structure = null;
-		try {
-			entry.parser = classStructure.getConstructor().newInstance();
-		} catch (Exception e) {
-			throw new RuntimeException("Failed to register structure '" + id + "'. Missing empty constructor constructor!", e);
-		}
-		
+		LittleStructureEntry entry = new LittleStructureEntry(id, classStructure, parser, attribute);
+		registerStructureType(id, entry);		
 		if(attribute != LittleStructureAttribute.PREMADE)
 			cachedNames.add(id);
 	}
@@ -127,14 +129,14 @@ public abstract class LittleStructure {
 	
 	public static void initStructures()
 	{
-		registerStructureType("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE);
-		registerStructureType("chair", LittleChair.class, LittleStructureAttribute.NONE);
-		registerStructureType("door", LittleDoor.class, LittleStructureAttribute.NONE);
-		registerStructureType("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE);
-		registerStructureType("ladder", LittleLadder.class, LittleStructureAttribute.LADDER);
-		registerStructureType("bed", LittleBed.class, LittleStructureAttribute.NONE);
-		registerStructureType("storage", LittleStorage.class, LittleStructureAttribute.NONE);
-		registerStructureType("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION);
+		registerStructureType("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
+		registerStructureType("chair", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
+		registerStructureType("door", LittleDoor.class, LittleStructureAttribute.NONE, LittleDoorParser.class);
+		registerStructureType("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE, LittleSlidingDoorParser.class);
+		registerStructureType("ladder", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class);
+		registerStructureType("bed", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class);
+		registerStructureType("storage", LittleStorage.class, LittleStructureAttribute.NONE, LittleStorageParser.class);
+		registerStructureType("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION, LittleNoClipStructureParser.class);
 		
 		LittleStructurePremade.initPremadeStructures();
 	}
@@ -707,14 +709,6 @@ public abstract class LittleStructure {
 	
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter){}
 	
-	//====================GUI STUFF====================
-	@SideOnly(Side.CLIENT)
-	public abstract void createControls(SubGui gui, LittleStructure structure);
-	
-	@SideOnly(Side.CLIENT)
-	public abstract LittleStructure parseStructure(SubGui gui);
-	
-	
 	//====================Helpers====================
 	
 	public Vec3d getHighestCenterVec()
@@ -964,10 +958,10 @@ public abstract class LittleStructure {
 		
 		public final String id;
 		public final Class<? extends LittleStructure> structureClass;
-		public LittleStructure parser;
+		public Class<? extends LittleStructureParser> parser;
 		public final LittleStructureAttribute attribute;
 		
-		public LittleStructureEntry(String id, Class<? extends LittleStructure> structureClass, LittleStructure parser, LittleStructureAttribute attribute)
+		public LittleStructureEntry(String id, Class<? extends LittleStructure> structureClass, Class<? extends LittleStructureParser> parser, LittleStructureAttribute attribute)
 		{
 			this.id = id;
 			this.structureClass = structureClass;
@@ -985,6 +979,15 @@ public abstract class LittleStructure {
 		public String toString()
 		{
 			return structureClass.toString();
+		}
+		
+		public LittleStructureParser createParser(GuiParent parent)
+		{
+			try {
+				return parser.getConstructor(String.class, GuiParent.class).newInstance(id, parent);
+			} catch(Exception e) {
+				throw new RuntimeException(e);
+			}
 		}
 	}
 	

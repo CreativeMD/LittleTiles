@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -39,7 +40,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	
 	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure)
 	{
-		registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE);
+		registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE, null);
 		try {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
 			NBTTagCompound structureNBT = new NBTTagCompound();
@@ -87,18 +88,6 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	public boolean canOnlyBePlacedByItemStack()
 	{
 		return true;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
-		
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleStructure parseStructure(SubGui gui) {
-		return null;
 	}
 	
 	public static void initPremadeStructures()

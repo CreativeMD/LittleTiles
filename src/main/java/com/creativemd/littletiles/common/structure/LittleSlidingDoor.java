@@ -14,6 +14,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.GuiControl;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -23,7 +24,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -228,139 +229,6 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	{
 		return moveContext;
 	}
-	
-	@SideOnly(Side.CLIENT)
-	@CustomEventSubscribe
-	public void buttonClicked(GuiControlClickEvent event)
-	{
-		if(event.source.is("direction"))
-		{
-			SubGuiStructure gui = ((SubGuiStructure) event.source.parent);
-			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
-			/*GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
-			
-			LittleTileSize size = LittleTilePreview.getSize(gui.stack);
-			
-			slider.minValue = 1;
-			slider.maxValue = size.getSizeOfAxis(direction.getAxis())+1;
-			if(gui.structure instanceof LittleSlidingDoor && ((LittleSlidingDoor) gui.structure).moveDirection == direction)
-				slider.value = ((LittleSlidingDoor) gui.structure).moveDistance;
-			else
-				slider.value = slider.maxValue-1;*/
-		}
-		
-		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-		if(event.source.is("change view"))
-		{
-			switch (viewer.axisDirection) {
-			case X:
-				viewer.axisDirection = EnumFacing.Axis.Y;
-				break;
-			case Y:
-				viewer.axisDirection = EnumFacing.Axis.Z;
-				break;
-			case Z:
-				viewer.axisDirection = EnumFacing.Axis.X;
-				break;
-			default:
-				break;
-			}
-			viewer.updateViewDirection();
-			
-			viewer.updateNormalAxis();
-		}else if(event.source.is("reset view"))
-		{
-			viewer.offsetX = 0;
-			viewer.offsetY = 0;
-			viewer.scale = 5;
-		}else if(event.source.is("flip view"))
-		{
-			viewer.viewDirection = viewer.viewDirection.getOpposite();
-			viewer.baked = null;
-		}
-		
-		if(event.source.parent instanceof SubGuiStructure)
-		{
-			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) event.source.parent.get("relativeDirection");
-			
-			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source.parent.get("direction")).getState());
-			
-			updateDirection(viewer, direction, relativeDirection);
-		}
-	}
-	
-	public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection)
-	{
-		EnumFacing newDirection = EnumFacing.EAST;
-		
-		if(viewer.getXFacing().getAxis() == direction.getAxis())
-			if(viewer.getXFacing().getAxisDirection() == direction.getAxisDirection())
-				newDirection = EnumFacing.EAST;
-			else
-				newDirection = EnumFacing.WEST;
-		else if(viewer.getYFacing().getAxis() == direction.getAxis())
-			if(viewer.getYFacing().getAxisDirection() == direction.getAxisDirection())
-				newDirection = EnumFacing.DOWN;
-			else
-				newDirection = EnumFacing.UP;
-		else if(viewer.getZFacing().getAxis() == direction.getAxis())
-			if(viewer.getZFacing().getAxisDirection() == direction.getAxisDirection())
-				newDirection = EnumFacing.SOUTH;
-			else
-				newDirection = EnumFacing.NORTH;
-		relativeDirection.setDirection(newDirection);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
-		super.createControls(gui, structure);
-		LittleSlidingDoor door = null;
-		if(structure instanceof LittleSlidingDoor)
-			door = (LittleSlidingDoor) structure;
-		
-		LittleTileSize size = LittleTilePreview.getSize(((SubGuiStructure) gui).stack);
-		
-		int index = EnumFacing.UP.ordinal();
-		if(door != null)
-			index = door.moveDirection.ordinal();
-		gui.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getFacingNames()));
-		
-		GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
-		gui.addControl(relativeDirection);
-		int distance = size.getSizeOfAxis(EnumFacing.getFront(index).getAxis());
-		if(door != null)
-			distance = door.moveDistance;
-		gui.addControl(new GuiTextfield("distance", "" + distance, 110, 51, 60, 14).setNumbersOnly());
-		//gui.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance, 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
-		
-		gui.addControl(new GuiIDButton("reset view", 110, 75, 0));
-		gui.addControl(new GuiIDButton("change view", 110, 95, 1));
-		gui.addControl(new GuiIDButton("flip view", 110, 115, 1));
-		
-		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
-		tile.visibleAxis = false;
-		tile.updateViewDirection();
-		gui.addControl(tile);
-		
-		updateDirection(tile, EnumFacing.getFront(index), relativeDirection);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleDoorBase parseStructure(SubGui gui, int duration) {
-		EnumFacing direction = EnumFacing.getFront(((GuiStateButton) gui.get("direction")).getState());
-		
-		//GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
-		GuiTextfield distance = (GuiTextfield) gui.get("distance");
-		
-		LittleSlidingDoor door = new LittleSlidingDoor();
-		door.duration = duration;
-		door.moveDirection = direction;
-		door.moveDistance = (int) Integer.parseInt(distance.text);
-		door.moveContext = ((GuiTileViewer) gui.get("tileviewer")).context;
-		return door;
-	}
 
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
@@ -371,6 +239,142 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.moveContext = moveContext;
 		structure.duration = this.duration;
 		return structure;
+	}
+	
+	public static class LittleSlidingDoorParser extends LittleDoorBaseParser<LittleSlidingDoor> {
+
+		public LittleSlidingDoorParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
+		
+		@SideOnly(Side.CLIENT)
+		@CustomEventSubscribe
+		public void buttonClicked(GuiControlClickEvent event)
+		{
+			if(event.source.is("direction"))
+			{
+				EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
+				/*GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+				
+				LittleTileSize size = LittleTilePreview.getSize(gui.stack);
+				
+				slider.minValue = 1;
+				slider.maxValue = size.getSizeOfAxis(direction.getAxis())+1;
+				if(gui.structure instanceof LittleSlidingDoor && ((LittleSlidingDoor) gui.structure).moveDirection == direction)
+					slider.value = ((LittleSlidingDoor) gui.structure).moveDistance;
+				else
+					slider.value = slider.maxValue-1;*/
+			}
+			
+			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+			if(event.source.is("change view"))
+			{
+				switch (viewer.axisDirection) {
+				case X:
+					viewer.axisDirection = EnumFacing.Axis.Y;
+					break;
+				case Y:
+					viewer.axisDirection = EnumFacing.Axis.Z;
+					break;
+				case Z:
+					viewer.axisDirection = EnumFacing.Axis.X;
+					break;
+				default:
+					break;
+				}
+				viewer.updateViewDirection();
+				
+				viewer.updateNormalAxis();
+			}else if(event.source.is("reset view"))
+			{
+				viewer.offsetX = 0;
+				viewer.offsetY = 0;
+				viewer.scale = 5;
+			}else if(event.source.is("flip view"))
+			{
+				viewer.viewDirection = viewer.viewDirection.getOpposite();
+				viewer.baked = null;
+			}
+			
+			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
+			
+			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+			
+			updateDirection(viewer, direction, relativeDirection);
+		}
+		
+		public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection)
+		{
+			EnumFacing newDirection = EnumFacing.EAST;
+			
+			if(viewer.getXFacing().getAxis() == direction.getAxis())
+				if(viewer.getXFacing().getAxisDirection() == direction.getAxisDirection())
+					newDirection = EnumFacing.EAST;
+				else
+					newDirection = EnumFacing.WEST;
+			else if(viewer.getYFacing().getAxis() == direction.getAxis())
+				if(viewer.getYFacing().getAxisDirection() == direction.getAxisDirection())
+					newDirection = EnumFacing.DOWN;
+				else
+					newDirection = EnumFacing.UP;
+			else if(viewer.getZFacing().getAxis() == direction.getAxis())
+				if(viewer.getZFacing().getAxisDirection() == direction.getAxisDirection())
+					newDirection = EnumFacing.SOUTH;
+				else
+					newDirection = EnumFacing.NORTH;
+			relativeDirection.setDirection(newDirection);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			super.createControls(stack, structure);
+			LittleSlidingDoor door = null;
+			if(structure instanceof LittleSlidingDoor)
+				door = (LittleSlidingDoor) structure;
+			
+			LittleTileSize size = LittleTilePreview.getSize(stack);
+			
+			int index = EnumFacing.UP.ordinal();
+			if(door != null)
+				index = door.moveDirection.ordinal();
+			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getFacingNames()));
+			
+			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
+			parent.addControl(relativeDirection);
+			int distance = size.getSizeOfAxis(EnumFacing.getFront(index).getAxis());
+			if(door != null)
+				distance = door.moveDistance;
+			parent.addControl(new GuiTextfield("distance", "" + distance, 110, 51, 60, 14).setNumbersOnly());
+			//parent.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance, 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
+			
+			parent.addControl(new GuiIDButton("reset view", 110, 75, 0));
+			parent.addControl(new GuiIDButton("change view", 110, 95, 1));
+			parent.addControl(new GuiIDButton("flip view", 110, 115, 1));
+			
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			tile.visibleAxis = false;
+			tile.updateViewDirection();
+			parent.addControl(tile);
+			
+			updateDirection(tile, EnumFacing.getFront(index), relativeDirection);
+		}
+
+		@Override
+		@SideOnly(Side.CLIENT)
+		public LittleSlidingDoor parseStructure(int duration) {
+			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+			
+			//GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+			GuiTextfield distance = (GuiTextfield) parent.get("distance");
+			
+			LittleSlidingDoor door = new LittleSlidingDoor();
+			door.duration = duration;
+			door.moveDirection = direction;
+			door.moveDistance = (int) Integer.parseInt(distance.text);
+			door.moveContext = ((GuiTileViewer) parent.get("tileviewer")).context;
+			return door;
+		}
 	}
 
 }
