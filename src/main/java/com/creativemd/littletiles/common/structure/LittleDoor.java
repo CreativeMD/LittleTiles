@@ -18,6 +18,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
@@ -28,7 +29,7 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
@@ -95,68 +96,6 @@ public class LittleDoor extends LittleDoorBase{
 		nbt.setInteger("axis", axis.ordinal());
 		nbt.setInteger("ndirection", normalDirection.getIndex());
 	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
-		super.createControls(gui, structure);
-		LittleDoor door = null;
-		if(structure instanceof LittleDoor)
-			door = (LittleDoor) structure;
-		GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, ((SubGuiStructure) gui).stack);
-		
-		boolean even = false;
-		if(door != null)
-		{
-			tile.axisDirection = door.axis;
-			/*tile.axisX = door.axisPoint.x;
-			tile.axisY = door.axisPoint.y;
-			tile.axisZ = door.axisPoint.z;*/
-			tile.axisX = door.doubledRelativeAxis.vec.x * 2;
-			tile.axisY = door.doubledRelativeAxis.vec.y * 2;
-			tile.axisZ = door.doubledRelativeAxis.vec.z * 2;
-			tile.normalAxis = door.normalDirection.getAxis();
-			even = door.doubledRelativeAxis.isEven();
-			tile.setEven(even);
-		}else{
-			tile.setEven(false);
-		}
-		tile.visibleAxis = true;
-		tile.updateViewDirection();
-		gui.controls.add(tile);
-		gui.controls.add(new GuiIDButton("reset view", 109, 25, 0));
-		//gui.controls.add(new GuiButton("y", 170, 50, 20));
-		gui.controls.add(new GuiIDButton("flip view", 109, 45, 1));
-		
-		gui.controls.add(new GuiIDButton("swap axis", 109, 5, 2));
-		gui.controls.add(new GuiIDButton("swap normal", 109, 65, 3));
-		//gui.controls.add(new GuiButton("-->", 150, 50, 20));
-		
-		
-		//gui.controls.add(new GuiButton("<-Z", 130, 70, 20));
-		gui.controls.add(new GuiButton("up", "<-", 125, 86, 14){
-			@Override
-			public void onClicked(int x, int y, int button)
-			{
-				
-			}
-			
-		}.setRotation(90));
-		gui.controls.add(new GuiIDButton("->", 146, 107, 4));
-		gui.controls.add(new GuiIDButton("<-", 107, 107, 5));
-		gui.controls.add(new GuiButton("down", "<-", 125, 107, 14){
-			@Override
-			public void onClicked(int x, int y, int button)
-			{
-				
-			}
-			
-		}.setRotation(-90));
-		
-		gui.controls.add(new GuiCheckBox("even", 107, 124, even));
-		//gui.controls.add(new GuiButton("->", 190, 90, 20));
-		//gui.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20, "NORTH", "SOUTH", "WEST", "EAST"));
-	}
 	
 	public EnumFacing normalDirection;
 	public EnumFacing.Axis axis;
@@ -191,80 +130,6 @@ public class LittleDoor extends LittleDoorBase{
 			doubledRelativeAxis.add(lastMainTileVec.getRelative(absolute));
 		lastMainTileVec = absolute;
 		super.setMainTile(tile);
-	}
-	
-	@CustomEventSubscribe
-	@SideOnly(Side.CLIENT)
-	public void onButtonClicked(GuiControlClickEvent event)
-	{
-		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-		if(event.source.is("swap axis"))
-		{
-			switch (viewer.axisDirection) {
-			case X:
-				axis = EnumFacing.Axis.Y;
-				break;
-			case Y:
-				axis = EnumFacing.Axis.Z;
-				break;
-			case Z:
-				axis = EnumFacing.Axis.X;
-				break;
-			default:
-				break;
-			}
-			viewer.axisDirection = axis;
-			viewer.updateViewDirection();
-			
-			viewer.updateNormalAxis();
-			//viewer.axisDirection
-		}else if(event.source.is("reset view"))
-		{
-			viewer.offsetX = 0;
-			viewer.offsetY = 0;
-			viewer.scale = 5;
-			//viewer.viewDirection = ForgeDirection.EAST;
-			//((GuiStateButton) event.source.parent.getControl("direction")).setState(3);
-		}else if(event.source.is("flip view"))
-		{
-			viewer.viewDirection = viewer.viewDirection.getOpposite();
-			viewer.baked = null;
-			//viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton) event.source).getState()+2);
-		}else if(event.source instanceof GuiButton){
-			int amount = GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2;
-			if(event.source.is("<-"))
-			{
-				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ += amount;
-				else
-					viewer.axisX -= amount;
-			}
-			if(event.source.is("->"))
-			{
-				if(viewer.axisDirection == Axis.X)
-					viewer.axisZ -= amount;
-				else
-					viewer.axisX += amount;
-			}
-			if(event.source.is("up"))
-			{
-				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ -= amount;
-				else
-					viewer.axisY += amount;
-			}
-			if(event.source.is("down"))
-			{
-				if(viewer.axisDirection == Axis.Y)
-					viewer.axisZ += amount;
-				else
-					viewer.axisY -= amount;
-			}else if(event.source.is("swap normal")){
-				viewer.changeNormalAxis();
-			}
-		}else if(event.source.is("even")){
-			viewer.setEven(((GuiCheckBox) event.source).value);
-		}
 	}
 	
 	@Override
@@ -581,18 +446,6 @@ public class LittleDoor extends LittleDoorBase{
 		super.writeToNBTPreview(nbt, newCenter);
 		doubledRelativeAxis = axisPointBackup;
 	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleDoorBase parseStructure(SubGui gui, int duration) {
-		LittleDoor door = new LittleDoor();
-		GuiTileViewer viewer = (GuiTileViewer) gui.get("tileviewer");
-		door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
-		door.axis = viewer.axisDirection;
-		door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
-		door.duration = duration;
-		return door; 
-	}
 
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
@@ -792,6 +645,162 @@ public class LittleDoor extends LittleDoorBase{
 		}
 
 	}
+	
+	public static class LittleDoorParser extends LittleDoorBaseParser<LittleDoor> {
 
+		public LittleDoorParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public LittleDoor parseStructure(int duration) {
+			LittleDoor door = new LittleDoor();
+			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
+			door.axis = viewer.axisDirection;
+			door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
+			door.duration = duration;
+			return door; 
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			super.createControls(stack, structure);
+			LittleDoor door = null;
+			if(structure instanceof LittleDoor)
+				door = (LittleDoor) structure;
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			
+			boolean even = false;
+			if(door != null)
+			{
+				tile.axisDirection = door.axis;
+				/*tile.axisX = door.axisPoint.x;
+				tile.axisY = door.axisPoint.y;
+				tile.axisZ = door.axisPoint.z;*/
+				tile.axisX = door.doubledRelativeAxis.vec.x * 2;
+				tile.axisY = door.doubledRelativeAxis.vec.y * 2;
+				tile.axisZ = door.doubledRelativeAxis.vec.z * 2;
+				tile.normalAxis = door.normalDirection.getAxis();
+				even = door.doubledRelativeAxis.isEven();
+				tile.setEven(even);
+			}else{
+				tile.setEven(false);
+			}
+			tile.visibleAxis = true;
+			tile.updateViewDirection();
+			parent.controls.add(tile);
+			parent.controls.add(new GuiIDButton("reset view", 109, 25, 0));
+			//parent.controls.add(new GuiButton("y", 170, 50, 20));
+			parent.controls.add(new GuiIDButton("flip view", 109, 45, 1));
+			
+			parent.controls.add(new GuiIDButton("swap axis", 109, 5, 2));
+			parent.controls.add(new GuiIDButton("swap normal", 109, 65, 3));
+			//parent.controls.add(new GuiButton("-->", 150, 50, 20));
+			
+			
+			//parent.controls.add(new GuiButton("<-Z", 130, 70, 20));
+			parent.controls.add(new GuiButton("up", "<-", 125, 86, 14){
+				@Override
+				public void onClicked(int x, int y, int button)
+				{
+					
+				}
+				
+			}.setRotation(90));
+			parent.controls.add(new GuiIDButton("->", 146, 107, 4));
+			parent.controls.add(new GuiIDButton("<-", 107, 107, 5));
+			parent.controls.add(new GuiButton("down", "<-", 125, 107, 14){
+				@Override
+				public void onClicked(int x, int y, int button)
+				{
+					
+				}
+				
+			}.setRotation(-90));
+			
+			parent.controls.add(new GuiCheckBox("even", 107, 124, even));
+			//parent.controls.add(new GuiButton("->", 190, 90, 20));
+			//parent.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20, "NORTH", "SOUTH", "WEST", "EAST"));
+		}
+
+		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
+		public void onButtonClicked(GuiControlClickEvent event)
+		{
+			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
+			if(event.source.is("swap axis"))
+			{
+				Axis axis = null;
+				switch (viewer.axisDirection) {
+				case X:
+					axis = EnumFacing.Axis.Y;
+					break;
+				case Y:
+					axis = EnumFacing.Axis.Z;
+					break;
+				case Z:
+					axis = EnumFacing.Axis.X;
+					break;
+				default:
+					break;
+				}
+				viewer.axisDirection = axis;
+				viewer.updateViewDirection();
+				
+				viewer.updateNormalAxis();
+				//viewer.axisDirection
+			}else if(event.source.is("reset view"))
+			{
+				viewer.offsetX = 0;
+				viewer.offsetY = 0;
+				viewer.scale = 5;
+				//viewer.viewDirection = ForgeDirection.EAST;
+				//((GuiStateButton) event.source.parent.getControl("direction")).setState(3);
+			}else if(event.source.is("flip view"))
+			{
+				viewer.viewDirection = viewer.viewDirection.getOpposite();
+				viewer.baked = null;
+				//viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton) event.source).getState()+2);
+			}else if(event.source instanceof GuiButton){
+				int amount = GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2;
+				if(event.source.is("<-"))
+				{
+					if(viewer.axisDirection == Axis.X)
+						viewer.axisZ += amount;
+					else
+						viewer.axisX -= amount;
+				}
+				if(event.source.is("->"))
+				{
+					if(viewer.axisDirection == Axis.X)
+						viewer.axisZ -= amount;
+					else
+						viewer.axisX += amount;
+				}
+				if(event.source.is("up"))
+				{
+					if(viewer.axisDirection == Axis.Y)
+						viewer.axisZ -= amount;
+					else
+						viewer.axisY += amount;
+				}
+				if(event.source.is("down"))
+				{
+					if(viewer.axisDirection == Axis.Y)
+						viewer.axisZ += amount;
+					else
+						viewer.axisY -= amount;
+				}else if(event.source.is("swap normal")){
+					viewer.changeNormalAxis();
+				}
+			}else if(event.source.is("even")){
+				viewer.setEven(((GuiCheckBox) event.source).value);
+			}
+		}
+		
+	}
 	
 }

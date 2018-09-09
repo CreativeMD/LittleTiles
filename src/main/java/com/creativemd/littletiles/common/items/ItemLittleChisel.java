@@ -43,7 +43,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
 
 import net.minecraft.block.Block;
@@ -333,7 +333,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		position = position.copy();
 		
 		EnumFacing facing = result.sideHit;
-		if(mode.mode == SelectionMode.LINES)
+		if(mode.mode == PreviewMode.LINES)
 			facing = facing.getOpposite();
 		if(facing.getAxisDirection() == AxisDirection.NEGATIVE)
 			position.contextVec.vec.add(facing);

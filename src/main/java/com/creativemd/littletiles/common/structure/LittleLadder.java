@@ -2,12 +2,14 @@ package com.creativemd.littletiles.common.structure;
 
 import javax.annotation.Nonnull;
 
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -25,16 +27,6 @@ public class LittleLadder extends LittleStructure {
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		
-	}
-
-	@Override
-	public void createControls(SubGui gui, LittleStructure structure) {
-		
-	}
-
-	@Override
-	public LittleStructure parseStructure(SubGui gui) {
-		return new LittleLadder();
 	}
 	
 	public static boolean isLivingOnLadder(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityLivingBase entity)
@@ -88,4 +80,21 @@ public class LittleLadder extends LittleStructure {
             return false;
         }
     }
+	
+	public static class LittleLadderParser extends LittleStructureParser<LittleLadder> {
+
+		public LittleLadderParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
+		
+		@Override
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			
+		}
+
+		@Override
+		public LittleLadder parseStructure(ItemStack stack) {
+			return new LittleLadder();
+		}
+	}
 }

@@ -9,14 +9,14 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeNormal extends PlacementMode {
 
-	public PlaceModeNormal(String name, SelectionMode mode) {
+	public PlaceModeNormal(String name, PreviewMode mode) {
 		super(name, mode);
 	}
 

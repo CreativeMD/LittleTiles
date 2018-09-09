@@ -12,6 +12,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
@@ -20,7 +21,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.gui.SubGuiStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -35,6 +36,7 @@ import com.creativemd.littletiles.common.utils.transformation.DoorTransformation
 import com.creativemd.littletiles.common.utils.transformation.OrdinaryDoorTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -67,21 +69,6 @@ public abstract class LittleDoorBase extends LittleStructure {
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("duration", duration);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
-		
-		gui.controls.add(new GuiLabel("Duration:", 0, 141));
-		gui.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleStructure parseStructure(SubGui gui) {
-		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("duration_s");
-		return parseStructure(gui, (int) slider.value);
 	}
 	
 	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, PlacePreviews previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional)
@@ -128,14 +115,35 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public abstract LittleTileVec getAdditionalAxisVec();
 	
-	@SideOnly(Side.CLIENT)
-	public abstract LittleDoorBase parseStructure(SubGui gui, int duration);
-	
 	public abstract LittleDoorBase copyToPlaceDoor();
 	
 	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews)
 	{
 		return new ArrayList<>();
 	}
+	
+	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureParser<T> {
 
+		public LittleDoorBaseParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			
+			parent.controls.add(new GuiLabel("Duration:", 0, 141));
+			parent.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public T parseStructure(ItemStack stack) {
+			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
+			return parseStructure((int) slider.value);
+		}
+		
+		@SideOnly(Side.CLIENT)
+		public abstract T parseStructure(int duration);
+	}
 }

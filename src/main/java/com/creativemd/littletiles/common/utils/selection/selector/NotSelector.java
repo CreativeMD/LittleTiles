@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.selection;
+package com.creativemd.littletiles.common.utils.selection.selector;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
 

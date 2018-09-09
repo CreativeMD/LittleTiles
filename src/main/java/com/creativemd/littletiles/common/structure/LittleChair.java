@@ -6,6 +6,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -57,17 +58,23 @@ public class LittleChair extends LittleStructure{
 		}
 		return true;
 	}
+	
+	public static class LittleChairParser extends LittleStructureParser<LittleChair> {
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void createControls(SubGui gui, LittleStructure structure) {
+		public LittleChairParser(String id, GuiParent parent) {
+			super(id, parent);
+		}
 		
-	}
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void createControls(ItemStack stack, LittleStructure structure) {
+			
+		}
 
-	@Override
-	@SideOnly(Side.CLIENT)
-	public LittleStructure parseStructure(SubGui gui) {
-		return new LittleChair();
+		@Override
+		@SideOnly(Side.CLIENT)
+		public LittleChair parseStructure(ItemStack stack) {
+			return new LittleChair();
+		}
 	}
-
 }

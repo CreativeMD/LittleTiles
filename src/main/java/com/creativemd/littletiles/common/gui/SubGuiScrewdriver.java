@@ -28,10 +28,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.selection.AnySelector;
-import com.creativemd.littletiles.common.utils.selection.BlockSelector;
-import com.creativemd.littletiles.common.utils.selection.StateSelector;
-import com.creativemd.littletiles.common.utils.selection.TileSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.AnySelector;
+import com.creativemd.littletiles.common.utils.selection.selector.BlockSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.StateSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;

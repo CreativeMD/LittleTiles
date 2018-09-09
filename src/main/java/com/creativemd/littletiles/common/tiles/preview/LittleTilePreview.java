@@ -373,6 +373,19 @@ public class LittleTilePreview {
 		return null;
 	}
 	
+	public static void removePreviewTiles(ItemStack stack)
+	{
+		if(!stack.hasTagCompound())
+			return ;
+		NBTTagCompound nbt = stack.getTagCompound();
+		LittleGridContext.remove(nbt);
+		nbt.removeTag("size");
+		nbt.removeTag("min");
+		nbt.removeTag("pos");
+		nbt.removeTag("tiles");
+		nbt.removeTag("count");
+	}
+	
 	public static void savePreviewTiles(LittlePreviews previews, ItemStack stack)
 	{
 		if(previews instanceof LittleAbsolutePreviews)

@@ -10,13 +10,13 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeFill extends PlacementMode {
 	
-	public PlaceModeFill(String name, SelectionMode mode) {
+	public PlaceModeFill(String name, PreviewMode mode) {
 		super(name, mode);
 	}
 	

@@ -17,7 +17,7 @@ import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.SelectionMode;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,19 +33,19 @@ public abstract class PlacementMode {
 	private static LinkedHashMap<String, PlacementMode> modes = new LinkedHashMap<>();
 	
 	/**Tries to place all tiles, fails if the main blockpos (the player aimed at) cannot be placed entirely.**/
-	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", SelectionMode.PREVIEWS);
+	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS);
 	
 	/**Tries to fill in the tiles where it is possible.**/
-	public static PlacementMode fill = new PlaceModeFill("placement.mode.fill", SelectionMode.PREVIEWS);
+	public static PlacementMode fill = new PlaceModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
 	
 	/**Used for placing structures, should fail if it cannot place all tiles.**/
-	public static PlacementMode all = new PlaceModeAll("placement.mode.all", SelectionMode.PREVIEWS);
+	public static PlacementMode all = new PlaceModeAll("placement.mode.all", PreviewMode.PREVIEWS);
 	
 	/**Places all tiles no matter what is in the way.**/
-	public static PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", SelectionMode.PREVIEWS);
+	public static PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
 	
 	/**Similar to overwrite only that replace will not place any tiles in the air.**/
-	public static PlacementMode replace = new PlaceModeReplace("placement.mode.replace", SelectionMode.LINES);
+	public static PlacementMode replace = new PlaceModeReplace("placement.mode.replace", PreviewMode.LINES);
 	
 	public static PlacementMode getDefault()
 	{
@@ -86,9 +86,9 @@ public abstract class PlacementMode {
 	
 	public final String name;
 	
-	public final SelectionMode mode;
+	public final PreviewMode mode;
 	
-	public PlacementMode(String name, SelectionMode mode) {
+	public PlacementMode(String name, PreviewMode mode) {
 		this.name = name;
 		this.mode = mode;
 		this.modes.put(name, this);
@@ -119,7 +119,7 @@ public abstract class PlacementMode {
 		return false;
 	}
 	
-	public static enum SelectionMode {
+	public static enum PreviewMode {
 		LINES,
 		PREVIEWS;
 	}

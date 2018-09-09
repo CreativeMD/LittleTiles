@@ -41,7 +41,7 @@ import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionT
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.selection.TileSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;

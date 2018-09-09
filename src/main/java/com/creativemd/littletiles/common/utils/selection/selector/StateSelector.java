@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.utils.selection;
+package com.creativemd.littletiles.common.utils.selection.selector;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -8,38 +8,41 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class BlockSelector extends TileSelector {
+public class StateSelector extends BlockSelector {
 	
-	public Block block;
+	public int meta;
 	
-	public BlockSelector(Block block) {
-		this.block = block;
+	public StateSelector(IBlockState state) {
+		super(state.getBlock());
+		this.meta = block.getMetaFromState(state);
 	}
 	
-	public BlockSelector() {
+	public StateSelector() {
 		
 	}
 
 	@Override
 	protected void saveNBT(NBTTagCompound nbt) {
-		nbt.setString("block", block.getRegistryName().toString());
+		super.saveNBT(nbt);
+		nbt.setInteger("meta", meta);
 	}
 
 	@Override
 	protected void loadNBT(NBTTagCompound nbt) {
-		block = Block.REGISTRY.getObject(new ResourceLocation(nbt.getString("block")));
+		meta = nbt.getInteger("meta");
 	}
 
 	@Override
 	public boolean is(LittleTile tile) {
-		if(tile instanceof LittleTileBlock)
-			return ((LittleTileBlock) tile).getBlock() == block;
+		if(super.is(tile))
+			return ((LittleTileBlock) tile).getMeta() == meta;
 		return false;
 	}
 	
+	@Override
 	public IBlockState getState()
 	{
-		return block.getDefaultState();
+		return block.getStateFromMeta(meta);
 	}
-
+	
 }

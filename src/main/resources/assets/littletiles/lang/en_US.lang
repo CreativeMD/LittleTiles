@@ -10,7 +10,7 @@ item.LTRubberMallet.name=Little Rubber Mallet
 item.LTColorTube.name=Little Paint Brush
 item.LTUtilityKnife.name=Little Utility Knife
 item.LTGrabber.name=Little Glove
-item.LTRecipeAdvanced.name=Miniature Recipe
+item.LTRecipeAdvanced.name=Advanced Recipe
 
 tile.LTParticleBlock.name=Little Particle Block
 tile.LTColoredBlock.clean.name=Colored Block Clean
@@ -95,3 +95,14 @@ commands.open.notloaded=Structure is not loaded
 item.LTPremade.workbench.name=Little Workbench
 item.LTPremade.importer.name=Little Importer
 item.LTPremade.exporter.name=Little Exporter
+
+selection.clear=Clear selection
+selection.dialog.clear=Do you really want to clear all content?
+selection.include.vanilla=Regular Blocks
+selection.include.cb=C&B Blocks
+selection.include.lt=LittleTiles Blocks
+selection.include.structure=Remember Structures
+selection.mode.area.pos.first=First position selected [%s,%s,%s]
+selection.mode.area.pos.second=Second position selected [%s,%s,%s]
+selection.save=Save
+mode.selection.area=Area
