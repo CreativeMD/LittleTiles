@@ -169,11 +169,20 @@ public abstract class LittleStructure {
 	public final LittleStructureAttribute attribute;
 	public final String structureID;
 	
+	public String name;
+	
 	public LittleStructure()
 	{
 		LittleStructureEntry entry = getStructureEntryByClass(this.getClass());
 		this.attribute = entry.attribute;
 		this.structureID = entry.id;
+	}
+	
+	public void placedStructure(ItemStack stack)
+	{
+		NBTTagCompound nbt;
+		if(stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
+			name = nbt.getString("Name");
 	}
 	
 	/**
@@ -395,15 +404,6 @@ public abstract class LittleStructure {
 	
 	public void loadFromNBT(NBTTagCompound nbt)
 	{
-		/*if(nbt.hasKey("stack"))
-		{
-			dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
-			if(dropStack == null)
-			{
-				nbt.getCompoundTag("stack").setString("id", LittleTiles.multiTiles.getRegistryName().toString());
-				dropStack = ItemStack.loadItemStackFromNBT(nbt.getCompoundTag("stack"));
-			}
-		}*/
 		if(tiles != null)
 			tiles.clear();
 		
@@ -446,7 +446,10 @@ public abstract class LittleStructure {
 			}
 		}
 		
-		
+		if(nbt.hasKey("name"))
+			name = nbt.getString("name");
+		else
+			name = null;
 		
 		loadFromNBTExtra(nbt);
 	}
@@ -457,19 +460,15 @@ public abstract class LittleStructure {
 	{
 		nbt.setString("id", getIDOfStructure());
 		writeToNBTExtra(nbt);
-		//writeToNBT(nbt);
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt)
-	{
-		/*if(dropStack != null)
-		{
-			NBTTagCompound nbtStack = new NBTTagCompound();
-			dropStack.writeToNBT(nbtStack);
-			nbt.setTag("stack", nbtStack);
-		}*/
-		
+	{		
 		nbt.setString("id", getIDOfStructure());
+		if(name != null)
+			nbt.setString("name", name);
+		else
+			nbt.removeTag("name");
 		
 		//SaveTiles
 		HashMap<BlockPos, Integer> positions = new HashMap<>();
@@ -495,32 +494,6 @@ public abstract class LittleStructure {
 			}
 			nbt.setTag("tiles", list);
 		}
-		
-		/*if(tiles != null)
-		{
-			nbt.setInteger("count", tiles.size());
-			for (int i = 0; i < tiles.size(); i++) {
-				if(tiles.get(i).isStructureBlock)
-				{
-					tiles.get(i).updateCorner();
-					new LittleTileCoord(mainTile.te, tiles.get(i).te.getPos(), tiles.get(i).cornerVec.copy()).writeToNBT("i" + i, nbt);
-					//new LittleTilePosition().writeToNBT("i" + i, nbt);
-				}
-				//tiles.get(i).pos.writeToNBT("i" + i, nbt);
-			}
-		}
-		
-		if(tilesToLoad != null)
-		{
-			int start = nbt.getInteger("count");
-			nbt.setInteger("count", start + tilesToLoad.size());
-			for (int i = 0; i < tilesToLoad.size(); i++) {
-				tilesToLoad.get(i).writeToNBT("i" + (i + start), nbt);
-			}
-		}*/
-		
-		//if(mainTile == null)
-			//System.out.println("Couldn't save tiles!!!" + mainTile.te.getCoord());
 		
 		writeToNBTExtra(nbt);
 	}
@@ -683,6 +656,13 @@ public abstract class LittleStructure {
 			
 			this.writeToNBTPreview(structureNBT, pos);
 			stack.getTagCompound().setTag("structure", structureNBT);
+			
+			if(name != null)
+			{
+				NBTTagCompound display = new NBTTagCompound();
+				display.setString("Name", name);
+				stack.getTagCompound().setTag("display", display);
+			}
 			return stack;
 		}
 		return ItemStack.EMPTY;

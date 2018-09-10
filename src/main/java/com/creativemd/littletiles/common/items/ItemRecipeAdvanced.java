@@ -168,7 +168,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
-		return null;
+		return ItemMultiTiles.getLTStructure(stack);
 	}
 
 	@Override

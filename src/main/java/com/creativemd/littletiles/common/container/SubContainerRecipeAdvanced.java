@@ -38,6 +38,10 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		}
+		if(nbt.getBoolean("set_structure"))
+		{
+			stack.setTagCompound(nbt.getCompoundTag("stack"));
+		}
 	}
 
 }

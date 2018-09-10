@@ -79,7 +79,10 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 				}else
 					stack.getTagCompound().removeTag("structure");
 				
-				sendPacketToServer(stack.getTagCompound());
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("set_structure", true);
+				nbt.setTag("stack", stack.getTagCompound());
+				sendPacketToServer(nbt);
 				closeGui();
 			}
 		});

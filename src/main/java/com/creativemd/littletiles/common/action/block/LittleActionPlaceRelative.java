@@ -323,6 +323,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 					tile.isAllowedToSearchForStructure = true;
 				}
 				structure.combineTiles();
+				structure.placedStructure(stack);
 			}
 			
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {
