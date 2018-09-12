@@ -32,43 +32,24 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemLittleWrench extends Item implements IGuiCreator{
-	
-	public ItemLittleWrench()
-	{
+public class ItemLittleWrench extends Item {
+
+	public ItemLittleWrench() {
 		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
-	{
-		tooltip.add("used to create structures");
-		tooltip.add("from recipes and");
-		tooltip.add("create recipes from structures");
-		tooltip.add("rightclick on a block");
-		tooltip.add("will combine tiles");
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+
 	}
-	
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
-    {
-		if(hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand)); 
-		if(!world.isRemote)
-			GuiHandler.openGuiItem(player, world);
-        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-    }
-	
-	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);
-		if(tileEntity instanceof TileEntityLittleTiles)
-		{
-			if(!world.isRemote)
-			{
+		if (tileEntity instanceof TileEntityLittleTiles) {
+			if (!world.isRemote) {
 				player.sendStatusMessage(new TextComponentString("grid:" + ((TileEntityLittleTiles) tileEntity).getContext()), true);
 				((TileEntityLittleTiles) tileEntity).combineTiles();
 				((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
@@ -76,17 +57,5 @@ public class ItemLittleWrench extends Item implements IGuiCreator{
 			return EnumActionResult.SUCCESS;
 		}
 		return EnumActionResult.PASS;
-    }
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiWorkbench();
 	}
-
-	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerWorkbench(player);
-	}
-
 }
