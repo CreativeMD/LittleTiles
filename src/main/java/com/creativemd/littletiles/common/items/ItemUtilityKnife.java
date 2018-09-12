@@ -8,18 +8,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
 public class ItemUtilityKnife extends Item {
-	
-	public ItemUtilityKnife()
-	{
+
+	public ItemUtilityKnife() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-	
+
 	@Override
-	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items)
-	{
-		
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
+
 	}
-	
+
 }

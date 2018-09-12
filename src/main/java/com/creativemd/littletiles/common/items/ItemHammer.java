@@ -4,9 +4,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
@@ -17,34 +15,26 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.container.SubContainerHammer;
-import com.creativemd.littletiles.common.gui.SubGuiGrabber;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -52,40 +42,37 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreator {
-	
+
 	public static TileSelector currentFilter = null;
-	
-	public ItemHammer()
-	{
+
+	public ItemHammer() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn)
-	{
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		tooltip.add("can be used to chisel blocks");
 		SelectShape shape = getShape(stack);
 		tooltip.add("mode: " + shape.key);
 		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
 	}
-	
+
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
-    {
-		if(hand == EnumHand.OFF_HAND)
-			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand)); 
-		if(!world.isRemote)
+	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
+		if (hand == EnumHand.OFF_HAND)
+			return new ActionResult(EnumActionResult.PASS, player.getHeldItem(hand));
+		if (!world.isRemote)
 			GuiHandler.openGuiItem(player, world);
-        return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
-    }
-	
+		return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
+	}
+
 	@Override
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
-		
+
 		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
 	}
 
@@ -93,37 +80,34 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
-		if(shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
-			if(currentFilter != null)
+		if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
+			if (currentFilter != null)
 				new LittleActionDestroyBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), currentFilter).execute();
 			else
 				new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
 	}
-	
+
 	@Override
-	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player)
-    {
-        return false;
-    }
-	
+	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
+		return false;
+	}
+
 	@Override
-	public float getDestroySpeed(ItemStack stack, IBlockState state)
-    {
-        return 0F;
-    }
-	
+	public float getDestroySpeed(ItemStack stack, IBlockState state) {
+		return 0F;
+	}
+
 	@Override
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
 		getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
 	}
-	
+
 	@Override
-	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result,
-			LittleTilePos absoluteHit) {
+	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit) {
 		return LittleAction.isBlockValid(state.getBlock()) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
@@ -131,30 +115,29 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	}
 
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos,
-			IBlockState state) {
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerHammer(player, stack);
 	}
-	
+
 	@Override
 	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
 		SelectShape shape = getShape(stack);
-		if(shape != null)
+		if (shape != null)
 			shape.rotate(rotation, stack.getTagCompound());
 	}
 
 	@Override
 	public void flipLittlePreview(ItemStack stack, Axis axis) {
 		SelectShape shape = getShape(stack);
-		if(shape != null)
+		if (shape != null)
 			shape.flip(axis, stack.getTagCompound());
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
-			
+
 			@Override
 			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
 				ItemMultiTiles.currentContext = context;
@@ -162,12 +145,11 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 			}
 		};
 	}
-	
-	public static SelectShape getShape(ItemStack stack)
-	{
-		if(!stack.hasTagCompound())
+
+	public static SelectShape getShape(ItemStack stack) {
+		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-		
+
 		return SelectShape.getShape(stack.getTagCompound().getString("shape"));
 	}
 

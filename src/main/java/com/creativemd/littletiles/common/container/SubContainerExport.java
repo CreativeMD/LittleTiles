@@ -9,7 +9,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerExport extends SubContainer {
-	
+
 	public final InventoryBasic slot = new InventoryBasic("slot", false, 1);
 
 	public SubContainerExport(EntityPlayer player) {
@@ -24,12 +24,11 @@ public class SubContainerExport extends SubContainer {
 
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		
+
 	}
-	
+
 	@Override
-	public void onClosed()
-	{
+	public void onClosed() {
 		super.onClosed();
 		WorldUtils.dropItem(getPlayer(), slot.getStackInSlot(0));
 	}

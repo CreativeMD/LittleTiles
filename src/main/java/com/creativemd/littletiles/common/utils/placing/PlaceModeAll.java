@@ -4,15 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeAll extends PlaceModeNormal {
-	
+
 	public PlaceModeAll(String name, PreviewMode mode) {
 		super(name, mode);
 	}
@@ -21,10 +19,10 @@ public class PlaceModeAll extends PlaceModeNormal {
 	public boolean canPlaceStructures() {
 		return true;
 	}
-	
+
 	@Override
 	public PlacementMode place() {
-		if(GuiScreen.isCtrlKeyDown())
+		if (GuiScreen.isCtrlKeyDown())
 			return PlacementMode.overwrite;
 		return super.place();
 	}

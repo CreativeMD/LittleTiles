@@ -6,21 +6,21 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class LittleActionCombined extends LittleAction {
-	
+
 	public LittleAction[] actions;
-	
+
 	public LittleActionCombined(LittleAction... actions) {
 		this.actions = actions;
 	}
-	
+
 	public LittleActionCombined() {
-		
+
 	}
 
 	@Override
 	public boolean canBeReverted() {
 		for (int i = 0; i < actions.length; i++) {
-			if(!actions[i].canBeReverted())
+			if (!actions[i].canBeReverted())
 				return false;
 		}
 		return true;
@@ -37,11 +37,11 @@ public class LittleActionCombined extends LittleAction {
 
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if(actions.length == 0)
+		if (actions.length == 0)
 			return true;
 		boolean success = false;
 		for (int i = 0; i < actions.length; i++) {
-			if(actions[i].action(player))
+			if (actions[i].action(player))
 				success = true;
 		}
 		return success;
@@ -50,7 +50,7 @@ public class LittleActionCombined extends LittleAction {
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		buf.writeInt(actions.length);
-		
+
 		for (int i = 0; i < actions.length; i++) {
 			writeString(buf, CreativeCorePacket.getIDByClass(actions[i]));
 			actions[i].writeBytes(buf);
@@ -61,7 +61,7 @@ public class LittleActionCombined extends LittleAction {
 	public void readBytes(ByteBuf buf) {
 		actions = new LittleAction[buf.readInt()];
 		for (int i = 0; i < actions.length; i++) {
-			
+
 			String id = readString(buf);
 			Class PacketClass = CreativeCorePacket.getClassByID(id);
 			LittleAction packet = null;
@@ -70,7 +70,7 @@ public class LittleActionCombined extends LittleAction {
 			} catch (Exception e) {
 				System.out.println("Invalid packet id=" + id);
 			}
-			
+
 			packet.readBytes(buf);
 			actions[i] = packet;
 		}

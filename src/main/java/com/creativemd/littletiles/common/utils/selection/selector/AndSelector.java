@@ -6,15 +6,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class AndSelector extends TileSelector {
-	
+
 	public TileSelector[] selectors;
-	
+
 	public AndSelector(TileSelector... selectors) {
 		this.selectors = selectors;
 	}
-	
+
 	public AndSelector() {
-		
+
 	}
 
 	@Override
@@ -38,7 +38,7 @@ public class AndSelector extends TileSelector {
 	@Override
 	public boolean is(LittleTile tile) {
 		for (int i = 0; i < selectors.length; i++) {
-			if(!selectors[i].is(tile))
+			if (!selectors[i].is(tile))
 				return false;
 		}
 		return true;

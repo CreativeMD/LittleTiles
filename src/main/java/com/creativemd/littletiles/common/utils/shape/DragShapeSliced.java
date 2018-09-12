@@ -7,7 +7,6 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
@@ -32,7 +31,7 @@ public class DragShapeSliced extends DragShape {
 
 	@Override
 	public void addExtraInformation(NBTTagCompound nbt, List<String> list) {
-		
+
 	}
 
 	@Override
@@ -42,7 +41,7 @@ public class DragShapeSliced extends DragShape {
 
 	@Override
 	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
-		
+
 	}
 
 	@Override

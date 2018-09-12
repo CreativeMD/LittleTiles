@@ -8,26 +8,22 @@ import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsExcept
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 public class LittleActionGlowstone extends LittleActionInteract {
-	
+
 	public LittleActionGlowstone(BlockPos blockPos, EntityPlayer player) {
 		super(blockPos, player);
 	}
-	
+
 	public LittleActionGlowstone() {
 		super();
 	}
@@ -36,34 +32,31 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	protected boolean isRightClick() {
 		return true;
 	}
-	
+
 	public LittleTile changedTile;
-	
+
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack,
-			EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		if(stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking())
-		{
-			if(needIngredients(player))
-			{
-				if(tile.glowing){
-					if(!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
+	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+		if (stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking()) {
+			if (needIngredients(player)) {
+				if (tile.glowing) {
+					if (!player.inventory.addItemStackToInventory(new ItemStack(Items.GLOWSTONE_DUST)))
 						player.dropItem(new ItemStack(Items.GLOWSTONE_DUST), true);
-				}else
+				} else
 					stack.shrink(1);
 			}
-			
-			if(tile.glowing)
+
+			if (tile.glowing)
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
 			else
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
-			
+
 			tile.glowing = !tile.glowing;
 			te.updateBlock();
 			te.updateLighting();
-			
+
 			this.changedTile = tile;
-			
+
 			return true;
 		}
 		return false;
@@ -76,23 +69,22 @@ public class LittleActionGlowstone extends LittleActionInteract {
 
 	@Override
 	public LittleAction revert() throws LittleActionException {
-		if(isTileStillInPlace(changedTile))
+		if (isTileStillInPlace(changedTile))
 			return new LittleActionGlowstoneRevert(changedTile);
 		throw new LittleActionException.TileNotThereException();
 	}
-	
-	public static class LittleActionGlowstoneRevert extends LittleAction
-	{
+
+	public static class LittleActionGlowstoneRevert extends LittleAction {
 		public LittleTileIdentifierAbsolute coord;
-		
+
 		public LittleTile changedTile;
-		
+
 		public LittleActionGlowstoneRevert(LittleTile tile) {
 			this.coord = new LittleTileIdentifierAbsolute(tile);
 		}
-		
+
 		public LittleActionGlowstoneRevert() {
-			
+
 		}
 
 		@Override
@@ -102,34 +94,33 @@ public class LittleActionGlowstone extends LittleActionInteract {
 
 		@Override
 		public LittleAction revert() throws LittleActionException {
-			if(isTileStillInPlace(changedTile))
+			if (isTileStillInPlace(changedTile))
 				return new LittleActionGlowstoneRevert(changedTile);
 			throw new LittleActionException.TileNotThereException();
 		}
 
 		@Override
 		protected boolean action(EntityPlayer player) throws LittleActionException {
-			
+
 			LittleTile tile = getTile(player.world, coord);
-			
-			if(needIngredients(player))
-			{
+
+			if (needIngredients(player)) {
 				ItemStack stack = new ItemStack(Items.GLOWSTONE_DUST);
-				if(!InventoryUtils.consumeItemStack(player.inventory, stack))
+				if (!InventoryUtils.consumeItemStack(player.inventory, stack))
 					throw new NotEnoughIngredientsException.NotEnoughStackException(stack);
 			}
-			
-			if(tile.glowing)
+
+			if (tile.glowing)
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_REMOVE_ITEM, 1.0F, 1.0F);
 			else
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
-			
+
 			tile.glowing = !tile.glowing;
 			tile.te.updateBlock();
 			tile.te.updateLighting();
-			
+
 			this.changedTile = tile;
-			
+
 			return false;
 		}
 
@@ -142,7 +133,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		public void readBytes(ByteBuf buf) {
 			coord = readAbsoluteCoord(buf);
 		}
-		
+
 	}
-	
+
 }

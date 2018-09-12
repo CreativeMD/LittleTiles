@@ -7,18 +7,15 @@ import com.creativemd.creativecore.transformer.TransformerNames;
 
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin;
 import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.DependsOn;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.MCVersion;
-import net.minecraftforge.fml.relauncher.IFMLLoadingPlugin.SortingIndex;
 
-@DependsOn(value = {"creativecore"})
+@DependsOn(value = { "creativecore" })
 public class LittlePatchingLoader implements IFMLLoadingPlugin {
-	
+
 	public static File location;
 
-	
 	@Override
 	public String[] getASMTransformerClass() {
-		return new String[]{LittleTilesTransformer.class.getName()};
+		return new String[] { LittleTilesTransformer.class.getName() };
 	}
 
 	@Override

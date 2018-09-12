@@ -12,17 +12,12 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -36,27 +31,25 @@ public class AreaSelectionMode extends SelectionMode {
 	@Override
 	public SelectionResult generateResult(World world, ItemStack stack) {
 		BlockPos pos = null;
-		if(stack.getTagCompound().hasKey("pos1"))
-		{
+		if (stack.getTagCompound().hasKey("pos1")) {
 			int[] array = stack.getTagCompound().getIntArray("pos1");
 			pos = new BlockPos(array[0], array[1], array[2]);
 		}
-		
+
 		BlockPos pos2 = null;
-		if(stack.getTagCompound().hasKey("pos2"))
-		{
+		if (stack.getTagCompound().hasKey("pos2")) {
 			int[] array = stack.getTagCompound().getIntArray("pos2");
 			pos2 = new BlockPos(array[0], array[1], array[2]);
 		}
-		
-		if(pos == null && pos2 == null)
+
+		if (pos == null && pos2 == null)
 			return null;
-		
-		if(pos == null)
+
+		if (pos == null)
 			pos = pos2;
-		else if(pos2 == null)
+		else if (pos2 == null)
 			pos2 = pos;
-		
+
 		SelectionResult result = new SelectionResult(world);
 		result.addBlocks(pos, pos2);
 		return result;
@@ -66,11 +59,11 @@ public class AreaSelectionMode extends SelectionMode {
 	public void onRightClick(EntityPlayer player, ItemStack stack, BlockPos pos) {
 		if (player.isSneaking()) {
 			stack.getTagCompound().setIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-			if(!player.world.isRemote)
+			if (!player.world.isRemote)
 				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
 		} else {
 			stack.getTagCompound().setIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-			if(!player.world.isRemote)
+			if (!player.world.isRemote)
 				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
 		}
 	}
@@ -83,86 +76,77 @@ public class AreaSelectionMode extends SelectionMode {
 
 	@Override
 	public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT) {
-		
+
 		BlockPos pos = null;
-		if(stack.getTagCompound().hasKey("pos1"))
-		{
+		if (stack.getTagCompound().hasKey("pos1")) {
 			int[] array = stack.getTagCompound().getIntArray("pos1");
 			pos = new BlockPos(array[0], array[1], array[2]);
 		}
-		
+
 		BlockPos pos2 = null;
-		if(stack.getTagCompound().hasKey("pos2"))
-		{
+		if (stack.getTagCompound().hasKey("pos2")) {
 			int[] array = stack.getTagCompound().getIntArray("pos2");
 			pos2 = new BlockPos(array[0], array[1], array[2]);
 		}
-		
-		if(pos == null && pos2 == null)
+
+		if (pos == null && pos2 == null)
 			return null;
-		
-		if(pos == null)
+
+		if (pos == null)
 			pos = pos2;
-		else if(pos2 == null)
+		else if (pos2 == null)
 			pos2 = pos;
-		
+
 		int minX = Math.min(pos.getX(), pos2.getX());
 		int minY = Math.min(pos.getY(), pos2.getY());
 		int minZ = Math.min(pos.getZ(), pos2.getZ());
 		int maxX = Math.max(pos.getX(), pos2.getX());
 		int maxY = Math.max(pos.getY(), pos2.getY());
 		int maxZ = Math.max(pos.getZ(), pos2.getZ());
-		
+
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.getMin());
-		
+
 		boolean includeTE = includeCB || includeLT;
-		
+
 		MutableBlockPos newPos = new MutableBlockPos();
-		
+
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
 					newPos.setPos(posX, posY, posZ);
-					if(includeTE)
-					{
+					if (includeTE) {
 						TileEntity tileEntity = world.getTileEntity(newPos);
-						
-						if(includeLT)
-						{
-							if(tileEntity instanceof TileEntityLittleTiles)
-							{
+
+						if (includeLT) {
+							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 									LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
-									preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
+									preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 								}
 								continue;
 							}
 						}
-						
-						if(includeCB)
-						{
+
+						if (includeCB) {
 							LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
-							if(specialPreviews != null)
-							{
+							if (specialPreviews != null) {
 								for (int i = 0; i < specialPreviews.size(); i++) {
 									LittleTilePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-									preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
+									preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 								}
 								continue;
 							}
 						}
 					}
-					
-					if(includeVanilla)
-					{
+
+					if (includeVanilla) {
 						IBlockState state = world.getBlockState(newPos);
-						if(LittleAction.isBlockValid(state.getBlock()))
-						{
+						if (LittleAction.isBlockValid(state.getBlock())) {
 							LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 							tile.box = new LittleTileBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
 							LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());
-							preview.box.addOffset(new LittleTileVec((posX-minX)*previews.context.size, (posY-minY)*previews.context.size, (posZ-minZ)*previews.context.size));
+							preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 					}
 				}

@@ -162,27 +162,21 @@ public class RenderingThread extends Thread {
 						for (int j = 0; j < cubes.size(); j++) {
 							RenderCubeObject cube = cubes.get(j);
 							if (cube.doesNeedQuadUpdate) {
-								if (ArrayUtils.contains(fakeWorldMods,
-										cube.block.getRegistryName().getResourceDomain())) {
+								if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
 									fakeAccess.set(mc.world, pos, cube.getBlockState());
 									world = fakeAccess;
 								} else
 									world = mc.world;
 
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
-								IBakedModel blockModel = OptifineHelper.getRenderModel(
-										mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState,
-										pos);
+								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
 								modelState = cube.getModelState(modelState, world, pos);
 								BlockPos offset = cube.getOffset();
 								for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 									EnumFacing facing = EnumFacing.VALUES[h];
 									if (cube.shouldSideBeRendered(facing)) {
 										if (cube.getQuad(facing) == null)
-											cube.setQuad(facing,
-													CreativeBakedModel.getBakedQuad(world, cube, pos, offset,
-															modelState, blockModel, layer, facing,
-															MathHelper.getPositionRandom(pos), false));
+											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
 									} else
 										cube.setQuad(facing, null);
 								}
@@ -190,7 +184,7 @@ public class RenderingThread extends Thread {
 							}
 						}
 					}
-					
+
 					cubeCache.sortCache();
 
 					world = mc.world;
@@ -227,8 +221,7 @@ public class RenderingThread extends Thread {
 									consumer.layer = layer;
 
 									buffer.begin(7, DefaultVertexFormats.BLOCK);
-									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions()
-											&& data.requiresUpdate) {
+									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && data.requiresUpdate) {
 										int bits = 8;
 										int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
 										int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
@@ -361,7 +354,7 @@ public class RenderingThread extends Thread {
 		int countFrom = formatFrom.getElementCount();
 		int countTo = formatTo.getElementCount();
 		int[] eMap = LightUtil.mapFormats(formatFrom, formatTo); // getFormatMaps().getUnchecked(Pair.of(formatFrom,
-																	// formatTo));
+		                                                         // formatTo));
 		for (int v = 0; v < 4; v++) {
 			for (int e = 0; e < countFrom; e++) {
 				if (eMap[e] != countTo) {

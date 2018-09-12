@@ -7,9 +7,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerConfigure extends SubContainer {
-	
+
 	public ItemStack stack;
-	
+
 	public SubContainerConfigure(EntityPlayer player, ItemStack stack) {
 		super(player);
 		this.stack = stack;
@@ -17,7 +17,7 @@ public class SubContainerConfigure extends SubContainer {
 
 	@Override
 	public void createControls() {
-		
+
 	}
 
 	@Override

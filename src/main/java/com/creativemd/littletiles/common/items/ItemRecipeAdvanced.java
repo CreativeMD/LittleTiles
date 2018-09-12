@@ -2,58 +2,43 @@ package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
-import com.creativemd.littletiles.common.utils.shape.DragShape;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.fml.relauncher.Side;
@@ -127,12 +112,10 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 
-		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound()
-				|| !stack.getTagCompound().hasKey("tiles")) {
+		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
-			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager()
-					.getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
+			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
@@ -145,8 +128,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0) {
 			LittleTileSize size = LittleTilePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-			double scaler = 1 / Math.max(1, Math.max(1,
-					Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
+			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 
@@ -154,15 +136,13 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads,
-			IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te,
-			ItemStack stack, boolean threaded) {
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		return ItemModelCache.getCache(stack, facing);
 	}
 
@@ -175,11 +155,11 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	public boolean containsIngredients(ItemStack stack) {
 		return false;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-		if(hasLittlePreview(stack))
+		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
 		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));

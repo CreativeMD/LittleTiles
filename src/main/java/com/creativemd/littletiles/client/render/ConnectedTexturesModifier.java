@@ -15,13 +15,12 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class ConnectedTexturesModifier {
-	
+
 	private static Class connectedProperties;
 	private static Method match;
 	private static Method matchMeta;
-	
-	static
-	{
+
+	static {
 		try {
 			connectedProperties = Class.forName("net.optifine.ConnectedProperties");
 			match = ReflectionHelper.findMethod(connectedProperties, "matchesBlockId", "matchesBlockId", int.class);
@@ -29,17 +28,15 @@ public class ConnectedTexturesModifier {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
-	
-	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos)
-	{
+
+	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos) {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-			if(te != null)
-			{
+			if (te != null) {
 				for (LittleTile tile : te.getTiles()) {
-					if(tile instanceof LittleTileBlock && (Boolean) match.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState())))
+					if (tile instanceof LittleTileBlock && (Boolean) match.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState())))
 						return true;
 				}
 				return false;
@@ -50,15 +47,13 @@ public class ConnectedTexturesModifier {
 		}
 		return false;
 	}
-	
-	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, int metadata)
-	{
+
+	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, int metadata) {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-			if(te != null)
-			{
+			if (te != null) {
 				for (LittleTile tile : te.getTiles()) {
-					if(tile instanceof LittleTileBlock && (Boolean) matchMeta.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState()), metadata))
+					if (tile instanceof LittleTileBlock && (Boolean) matchMeta.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState()), metadata))
 						return true;
 				}
 				return false;
@@ -69,24 +64,21 @@ public class ConnectedTexturesModifier {
 		}
 		return false;
 	}
-	
-	public static boolean isNeighbour(IBlockAccess world, IBlockState state, BlockPos pos)
-	{
+
+	public static boolean isNeighbour(IBlockAccess world, IBlockState state, BlockPos pos) {
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-		if(te != null)
-		{
+		if (te != null) {
 			Block block = state.getBlock();
 			int meta = block.getMetaFromState(state);
 			for (LittleTile tile : te.getTiles()) {
-				if(tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == block && ((LittleTileBlock) tile).getMeta() == meta)
+				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == block && ((LittleTileBlock) tile).getMeta() == meta)
 					return true;
 			}
 		}
 		return false;
 	}
-	
-	public static boolean isFullCube(IBlockState state)
-	{
+
+	public static boolean isFullCube(IBlockState state) {
 		return state.getBlock() instanceof BlockTile;
 	}
 }

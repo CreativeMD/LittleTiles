@@ -1,32 +1,22 @@
 package com.creativemd.littletiles.common.utils.selection.mode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 public abstract class SelectionMode {
@@ -60,10 +50,11 @@ public abstract class SelectionMode {
 	public abstract void onRightClick(EntityPlayer player, ItemStack stack, BlockPos pos);
 
 	public abstract void clearSelection(ItemStack stack);
-	
+
 	public abstract LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT);
-	
-	public void saveSelection(ItemStack stack) {}
+
+	public void saveSelection(ItemStack stack) {
+	}
 
 	public static class SelectionResult {
 
@@ -75,29 +66,27 @@ public abstract class SelectionMode {
 
 		private void addBlockDirectly(BlockPos pos) {
 			TileEntity te = world.getTileEntity(pos);
-			if(te instanceof TileEntityLittleTiles)
-			{
+			if (te instanceof TileEntityLittleTiles) {
 				ltBlocks++;
 				ltTiles += ((TileEntityLittleTiles) te).getTiles().size();
-				if(minLtContext == null)
+				if (minLtContext == null)
 					minLtContext = ((TileEntityLittleTiles) te).getContext();
 				else
 					minLtContext = LittleGridContext.max(minLtContext, ((TileEntityLittleTiles) te).getContext());
 			}
-			
+
 			LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(te);
-			if(specialPreviews != null)
-			{
+			if (specialPreviews != null) {
 				cbBlocks++;
 				cbTiles += specialPreviews.size();
-				if(minCBContext == null)
+				if (minCBContext == null)
 					minCBContext = specialPreviews.context;
 				else
 					minCBContext = LittleGridContext.max(minCBContext, specialPreviews.context);
 			}
-			
+
 			IBlockState state = world.getBlockState(pos);
-			if(LittleAction.isBlockValid(state.getBlock()))
+			if (LittleAction.isBlockValid(state.getBlock()))
 				blocks++;
 		}
 
@@ -141,9 +130,9 @@ public abstract class SelectionMode {
 		public Vec3i getSize() {
 			return new Vec3i(max.getX() - min.getX(), max.getY() - min.getY(), max.getZ() - min.getZ());
 		}
-		
+
 		public int blocks;
-		
+
 		public int ltBlocks = 0;
 		public int ltTiles = 0;
 		public LittleGridContext minLtContext = null;

@@ -6,15 +6,11 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -46,111 +42,95 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileBlock extends LittleTile {
-	
+
 	private Block block;
 	private int meta;
-	
+
 	private ISpecialBlockHandler handler;
-	
-	private void updateSpecialHandler()
-	{
-		if(!(block instanceof BlockAir))
+
+	private void updateSpecialHandler() {
+		if (!(block instanceof BlockAir))
 			handler = SpecialBlockHandler.getSpecialBlockHandler(block, meta);
 		updateBlockState();
 	}
-	
-	public boolean hasSpecialBlockHandler()
-	{
+
+	public boolean hasSpecialBlockHandler() {
 		return handler != null;
 	}
-	
-	protected void setBlock(String defaultName, Block block, int meta)
-	{
-		if(block == null || block instanceof BlockAir)
-		{
+
+	protected void setBlock(String defaultName, Block block, int meta) {
+		if (block == null || block instanceof BlockAir) {
 			this.block = Blocks.AIR;
 			this.meta = meta;
 			this.handler = new MissingBlockHandler(defaultName);
-		}else
+		} else
 			setBlock(block, meta);
 	}
-	
-	public void setBlock(Block block, int meta)
-	{
+
+	public void setBlock(Block block, int meta) {
 		this.block = block;
 		this.meta = meta;
 		updateSpecialHandler();
 	}
-	
-	public void setMeta(int meta)
-	{
+
+	public void setMeta(int meta) {
 		this.meta = meta;
 		updateSpecialHandler();
 	}
-	
-	public void setBlock(Block block)
-	{
+
+	public void setBlock(Block block) {
 		this.block = block;
 		updateSpecialHandler();
 	}
-	
-	public Block getBlock()
-	{
+
+	public Block getBlock() {
 		return this.block;
 	}
-	
-	public int getMeta()
-	{
+
+	public int getMeta() {
 		return this.meta;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	protected boolean translucent;
 	protected IBlockState state = null;
-	
-	public IBlockState getBlockState()
-	{
-		if(state == null)
+
+	public IBlockState getBlockState() {
+		if (state == null)
 			updateBlockState();
 		return state;
 	}
-	
-	public void updateBlockState()
-	{
+
+	public void updateBlockState() {
 		state = block.getStateFromMeta(meta);
-		if(state == null)
+		if (state == null)
 			state = block.getDefaultState();
 	}
-	
-	public LittleTileBlock(Block block, int meta)
-	{
+
+	public LittleTileBlock(Block block, int meta) {
 		super();
 		setBlock(block, meta);
-		if(FMLCommonHandler.instance().getSide().isClient())
+		if (FMLCommonHandler.instance().getSide().isClient())
 			updateClient();
 	}
-	
-	public LittleTileBlock(Block block)
-	{
+
+	public LittleTileBlock(Block block) {
 		this(block, 0);
 	}
-	
-	public LittleTileBlock()
-	{
+
+	public LittleTileBlock() {
 		super();
 	}
-	
-	public void updateClient()
-	{
+
+	public void updateClient() {
 		updateTranslucent();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
-	public void updateTranslucent()
-	{
+	public void updateTranslucent() {
 		translucent = block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT);
 	}
-	
+
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		super.saveTileExtra(nbt);
@@ -162,76 +142,73 @@ public class LittleTileBlock extends LittleTile {
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
 		setBlock(nbt.getString("block"), Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
-		if(te.isClientSide())
+		if (te.isClientSide())
 			updateClient();
 	}
-	
+
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
-		if(tile instanceof LittleTileBlock)
-		{
+		if (tile instanceof LittleTileBlock) {
 			LittleTileBlock thisTile = (LittleTileBlock) tile;
 			thisTile.handler = this.handler;
 			thisTile.block = this.block;
 			thisTile.meta = this.meta;
-			//thisTile.setBlock(block, meta);
-			if(FMLCommonHandler.instance().getEffectiveSide().isClient())
+			// thisTile.setBlock(block, meta);
+			if (FMLCommonHandler.instance().getEffectiveSide().isClient())
 				thisTile.translucent = translucent;
 		}
 	}
-	
+
 	@Override
-	public boolean isIdenticalToNBT(NBTTagCompound nbt)
-	{
+	public boolean isIdenticalToNBT(NBTTagCompound nbt) {
 		return super.isIdenticalToNBT(nbt) && Block.REGISTRY.getNameForObject(block).toString().equals(nbt.getString("block")) && meta == nbt.getInteger("meta");
 	}
 
 	@Override
 	public ItemStack getDrop() {
-		/*ItemStack stack = new ItemStack(LittleTiles.blockTile);
-		stack.setTagCompound(new NBTTagCompound());
-		stack.getTagCompound().setString("tID", getID());
-		saveTileExtra(stack.getTagCompound());
-		box.getSize().writeToNBT("size", stack.getTagCompound());
-		return stack;*/
+		/*
+		 * ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		 * stack.setTagCompound(new NBTTagCompound());
+		 * stack.getTagCompound().setString("tID", getID());
+		 * saveTileExtra(stack.getTagCompound()); box.getSize().writeToNBT("size",
+		 * stack.getTagCompound()); return stack;
+		 */
 		return ItemBlockTiles.getStackFromPreview(getContext(), getPreviewTile());
 	}
 
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
-		if(block != Blocks.BARRIER)
+		if (block != Blocks.BARRIER)
 			cubes.add(box.getRenderingCube(getContext(), block, meta));
 		return cubes;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer)
-	{
-		if(FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
-			return layer == BlockRenderLayer.CUTOUT_MIPPED; //Should fix an Optifine bug
-		
-		try{
+	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer) {
+		if (FMLClientHandler.instance().hasOptifine() && block.canRenderInLayer(state, BlockRenderLayer.CUTOUT))
+			return layer == BlockRenderLayer.CUTOUT_MIPPED; // Should fix an Optifine bug
+
+		try {
 			return block.canRenderInLayer(getBlockState(), layer);
-		}catch(Exception e){
-			try{
+		} catch (Exception e) {
+			try {
 				return block.getBlockLayer() == layer;
-			}catch(Exception e2){
+			} catch (Exception e2) {
 				return layer == BlockRenderLayer.SOLID;
 			}
 		}
 	}
-	
+
 	@Override
-	public void onPlaced(EntityPlayer player, ItemStack stack, EnumFacing facing)
-	{
+	public void onPlaced(EntityPlayer player, ItemStack stack, EnumFacing facing) {
 		super.onPlaced(player, stack, facing);
-		try{
+		try {
 			block.onBlockPlacedBy(te.getWorld(), te.getPos(), getBlockState(), player, stack);
-		}catch(Exception e){
-			
+		} catch (Exception e) {
+
 		}
 	}
 
@@ -239,66 +216,61 @@ public class LittleTileBlock extends LittleTile {
 	public SoundType getSound() {
 		return block.getSoundType();
 	}
-	
+
 	@Override
-	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
-	{
-		if(hasSpecialBlockHandler())
+	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
+		if (hasSpecialBlockHandler())
 			handler.randomDisplayTick(this, stateIn, worldIn, pos, rand);
 		else
 			block.randomDisplayTick(getBlockState(), worldIn, pos, rand);
-		
-		if(block == Blocks.BARRIER)
+
+		if (block == Blocks.BARRIER)
 			spawnBarrierParticles(pos);
 	}
-	
+
 	@SideOnly(Side.CLIENT)
-	private void spawnBarrierParticles(BlockPos pos)
-	{
+	private void spawnBarrierParticles(BlockPos pos) {
 		Minecraft mc = Minecraft.getMinecraft();
 		ItemStack itemstack = mc.player.getHeldItemMainhand();
-		if(mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER))
-			mc.world.spawnParticle(EnumParticleTypes.BARRIER, (double)((float)pos.getX() + 0.5F), (double)((float)pos.getY() + 0.5F), (double)((float)pos.getZ() + 0.5F), 0.0D, 0.0D, 0.0D, new int[0]);
+		if (mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER))
+			mc.world.spawnParticle(EnumParticleTypes.BARRIER, (double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F), (double) ((float) pos.getZ() + 0.5F), 0.0D, 0.0D, 0.0D, new int[0]);
 	}
-	
+
 	@Override
-	public void onTileExplodes(Explosion explosion)
-	{
-		if(hasSpecialBlockHandler())
+	public void onTileExplodes(Explosion explosion) {
+		if (hasSpecialBlockHandler())
 			handler.onTileExplodes(this, explosion);
 	}
-	
+
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if(super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action))
+		if (super.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action))
 			return true;
-		if(hasSpecialBlockHandler())
+		if (hasSpecialBlockHandler())
 			return handler.onBlockActivated(this, worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 		return block.onBlockActivated(worldIn, pos, getBlockState(), playerIn, hand, side, hitX, hitY, hitZ);
 	}
-	
+
 	@Override
-	public boolean canBeConvertedToVanilla()
-	{
-		if(hasSpecialBlockHandler())
+	public boolean canBeConvertedToVanilla() {
+		if (hasSpecialBlockHandler())
 			return handler.canBeConvertedToVanilla(this);
 		return true;
 	}
-	
+
 	@Override
-	public void place()
-	{
+	public void place() {
 		super.place();
 		block.onBlockAdded(te.getWorld(), te.getPos(), getBlockState());
 	}
-	
+
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
-		if(glowing)
+		if (glowing)
 			return super.getLightValue(state, world, pos);
 		return block.getLightValue(getBlockState());
 	}
-	
+
 	@Override
 	public float getEnchantPowerBonus(World world, BlockPos pos) {
 		return (float) block.getEnchantPowerBonus(world, pos);
@@ -306,13 +278,12 @@ public class LittleTileBlock extends LittleTile {
 
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
-		if(super.canBeCombined(tile) && tile instanceof LittleTileBlock)
-		{
+		if (super.canBeCombined(tile) && tile instanceof LittleTileBlock) {
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
 		}
 		return false;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
@@ -322,11 +293,11 @@ public class LittleTileBlock extends LittleTile {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
-		if(super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
+		if (super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
 			return (block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER) || (hasSpecialBlockHandler() && handler.canBeRenderCombined(this, (LittleTileBlock) tile));
 		return false;
 	}
-	
+
 	@Override
 	protected boolean canSawResize(EnumFacing facing, EntityPlayer player) {
 		return true;
@@ -336,79 +307,71 @@ public class LittleTileBlock extends LittleTile {
 	public float getExplosionResistance() {
 		return block.getExplosionResistance(null);
 	}
-	
+
 	@Override
-	public float getSlipperiness(Entity entity)
-	{
+	public float getSlipperiness(Entity entity) {
 		return block.getSlipperiness(getBlockState(), te.getWorld(), te.getPos(), entity);
 	}
-	
+
 	@Override
-	public boolean isMaterial(Material material)
-	{
-		if(hasSpecialBlockHandler())
+	public boolean isMaterial(Material material) {
+		if (hasSpecialBlockHandler())
 			return handler.isMaterial(this, material);
 		return material == block.getMaterial(state);
 	}
-	
+
 	@Override
-	public boolean isLiquid()
-	{
-		if(hasSpecialBlockHandler())
+	public boolean isLiquid() {
+		if (hasSpecialBlockHandler())
 			return handler.isLiquid(this);
 		return getBlockState().getMaterial().isLiquid();
 	}
-	
+
 	@Override
-	public List<LittleTileBox> getCollisionBoxes()
-	{
-		if(hasSpecialBlockHandler())
+	public List<LittleTileBox> getCollisionBoxes() {
+		if (hasSpecialBlockHandler())
 			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
 	}
-	
+
 	@Override
 	public Vec3d modifyAcceleration(World worldIn, BlockPos pos, Entity entityIn, Vec3d motion) {
-		if(hasSpecialBlockHandler())
+		if (hasSpecialBlockHandler())
 			return handler.modifyAcceleration(this, entityIn, motion);
 		return super.modifyAcceleration(worldIn, pos, entityIn, motion);
 	}
-	
+
 	@Override
 	public LittleTilePreview getPreviewTile() {
-		if(hasSpecialBlockHandler())
-		{
+		if (hasSpecialBlockHandler()) {
 			LittleTilePreview preview = handler.getPreview(this);
-			if(preview != null)
+			if (preview != null)
 				return preview;
 		}
 		return super.getPreviewTile();
 	}
-	
+
 	@Override
-	public boolean shouldCheckForCollision()
-	{
-		if(super.shouldCheckForCollision())
+	public boolean shouldCheckForCollision() {
+		if (super.shouldCheckForCollision())
 			return true;
-		if(hasSpecialBlockHandler())
+		if (hasSpecialBlockHandler())
 			return handler.shouldCheckForCollision(this);
 		return false;
 	}
-	
+
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
-    {
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		super.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
-		if(hasSpecialBlockHandler())
+		if (hasSpecialBlockHandler())
 			handler.onEntityCollidedWithBlock(worldIn, this, pos, state, entityIn);
-    }
-	
+	}
+
 	public static class MissingBlockHandler implements ISpecialBlockHandler {
-		
+
 		public final String blockname;
-		
-		public MissingBlockHandler(String blockname)
-		{
+
+		public MissingBlockHandler(String blockname) {
 			this.blockname = blockname;
 		}
 	}

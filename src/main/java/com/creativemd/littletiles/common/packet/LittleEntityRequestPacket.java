@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
 import com.google.common.base.Predicate;
@@ -17,15 +16,15 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleEntityRequestPacket extends CreativeCorePacket {
-	
+
 	public LittleEntityRequestPacket() {
-		
+
 	}
-	
+
 	public UUID uuid;
 	public NBTTagCompound nbt;
 	public boolean completeData;
-	
+
 	public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt, boolean completeData) {
 		this.uuid = uuid;
 		this.nbt = nbt;
@@ -55,35 +54,33 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			public boolean apply(EntityDoorAnimation input) {
 				return true;
 			}
-			
-		}).iterator(); iterator.hasNext();) {
+
+		}).iterator();iterator.hasNext();) {
 			Entity entity = iterator.next();
-			if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
-			{
+			if (entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid)) {
 				animation = (EntityDoorAnimation) entity;
 				break;
 			}
 		}
-		
-		if(animation != null)
-		{
-			if(nbt.getBoolean("failed"))
-			{
+
+		if (animation != null) {
+			if (nbt.getBoolean("failed")) {
 				animation.setDead();
-			}else if(completeData){
+			} else if (completeData) {
 				animation.readFromNBT(nbt);
-				//animation.createClient();
+				// animation.createClient();
 				animation.updateBoundingBox();
 				animation.approved = true;
-				//animation.setPosition(animation.getAxisPos().getX(), animation.getAxisPos().getY(), animation.getAxisPos().getZ());
-			}else{
+				// animation.setPosition(animation.getAxisPos().getX(),
+				// animation.getAxisPos().getY(), animation.getAxisPos().getZ());
+			} else {
 				DoorTransformation transformation = DoorTransformation.loadFromNBT(nbt);
 				animation.approved = animation.transformation.equals(transformation);
-				//if(animation.approved)
-					//animation.started = System.currentTimeMillis();
+				// if(animation.approved)
+				// animation.started = System.currentTimeMillis();
 			}
-			
-		}else
+
+		} else
 			System.out.println("Something went wrong!");
 	}
 
@@ -96,30 +93,26 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			public boolean apply(EntityDoorAnimation input) {
 				return true;
 			}
-			
-		}).iterator(); iterator.hasNext();) {
+
+		}).iterator();iterator.hasNext();) {
 			Entity entity = iterator.next();
-			if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
-			{
+			if (entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid)) {
 				animation = (EntityDoorAnimation) entity;
 				break;
 			}
 		}
-		
-		if(animation != null)
-		{
-			if(completeData)
+
+		if (animation != null) {
+			if (completeData)
 				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, animation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
-			else{
-				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid,  animation.transformation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
+			else {
+				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, animation.transformation.writeToNBT(new NBTTagCompound()), completeData), (EntityPlayerMP) player);
 			}
-		}else{
+		} else {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setBoolean("failed", true);
 			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(uuid, nbt, false), (EntityPlayerMP) player);
 		}
 	}
 
-	
-	
 }

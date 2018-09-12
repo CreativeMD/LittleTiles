@@ -7,45 +7,36 @@ import net.minecraft.world.IBlockAccess;
 
 public class SVertexBuilder {
 
-	public static void beginAddVertexData(BufferBuilder buffer, int[] vertexData)
-	{
-		
+	public static void beginAddVertexData(BufferBuilder buffer, int[] vertexData) {
+
 	}
 
-	public static void endAddVertexData(BufferBuilder buffer)
-	{
-		
+	public static void endAddVertexData(BufferBuilder buffer) {
+
 	}
 
-	public static void endAddVertex(BufferBuilder buffer)
-	{
-		
+	public static void endAddVertex(BufferBuilder buffer) {
+
 	}
 
-	public static void beginAddVertex(BufferBuilder buffer)
-	{
-		
+	public static void beginAddVertex(BufferBuilder buffer) {
+
 	}
 
-	public static void endSetVertexFormat(BufferBuilder buffer)
-	{
-		
-	}
-	
-	public static void pushEntity(IBlockState blockState, BlockPos blockPos, IBlockAccess blockAccess, BufferBuilder buffer)
-    {
-        
-    }
+	public static void endSetVertexFormat(BufferBuilder buffer) {
 
-    public static void popEntity(BufferBuilder buffer)
-    {
-        
-    }
-    
-    public static void calcNormalChunkLayer(BufferBuilder buffer)
-    {
-    	
-    }
-	
-	
+	}
+
+	public static void pushEntity(IBlockState blockState, BlockPos blockPos, IBlockAccess blockAccess, BufferBuilder buffer) {
+
+	}
+
+	public static void popEntity(BufferBuilder buffer) {
+
+	}
+
+	public static void calcNormalChunkLayer(BufferBuilder buffer) {
+
+	}
+
 }

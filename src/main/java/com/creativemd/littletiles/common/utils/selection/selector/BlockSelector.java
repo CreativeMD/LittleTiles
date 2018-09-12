@@ -9,15 +9,15 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
 public class BlockSelector extends TileSelector {
-	
+
 	public Block block;
-	
+
 	public BlockSelector(Block block) {
 		this.block = block;
 	}
-	
+
 	public BlockSelector() {
-		
+
 	}
 
 	@Override
@@ -32,13 +32,12 @@ public class BlockSelector extends TileSelector {
 
 	@Override
 	public boolean is(LittleTile tile) {
-		if(tile instanceof LittleTileBlock)
+		if (tile instanceof LittleTileBlock)
 			return ((LittleTileBlock) tile).getBlock() == block;
 		return false;
 	}
-	
-	public IBlockState getState()
-	{
+
+	public IBlockState getState() {
 		return block.getDefaultState();
 	}
 

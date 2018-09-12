@@ -10,9 +10,7 @@ public class BlockFlatColored extends Block {
 		super(materialIn);
 	}
 
-	public int colorFromState(
-			final IBlockState state )
-	{
+	public int colorFromState(final IBlockState state) {
 		return 0;
 	}
 }

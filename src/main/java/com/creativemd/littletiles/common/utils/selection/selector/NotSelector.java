@@ -5,17 +5,17 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class NotSelector extends TileSelector {
-	
+
 	public TileSelector selector;
-	
+
 	public NotSelector(TileSelector selector) {
 		this.selector = selector;
 	}
 
 	public NotSelector() {
-		
+
 	}
-	
+
 	@Override
 	protected void saveNBT(NBTTagCompound nbt) {
 		selector.saveNBT(nbt);

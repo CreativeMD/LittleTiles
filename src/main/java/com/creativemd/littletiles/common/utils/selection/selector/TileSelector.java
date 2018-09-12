@@ -6,49 +6,41 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
-import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 
 public abstract class TileSelector {
-	
+
 	private static HashMap<String, Class<? extends TileSelector>> selectorTypes = new HashMap<>();
-	
-	public static void registerType(String id, Class<? extends TileSelector> type)
-	{
+
+	public static void registerType(String id, Class<? extends TileSelector> type) {
 		selectorTypes.put(id, type);
 	}
-	
-	public static String getTypeID(Class<? extends TileSelector> type)
-	{
+
+	public static String getTypeID(Class<? extends TileSelector> type) {
 		for (Entry<String, Class<? extends TileSelector>> entry : selectorTypes.entrySet()) {
-			if(type == entry.getValue())
+			if (type == entry.getValue())
 				return entry.getKey();
 		}
 		return null;
 	}
-	
-	public static Class<? extends TileSelector> getType(String id)
-	{
+
+	public static Class<? extends TileSelector> getType(String id) {
 		return selectorTypes.get(id);
 	}
-	
-	public static TileSelector loadSelector(String id, NBTTagCompound nbt)
-	{
+
+	public static TileSelector loadSelector(String id, NBTTagCompound nbt) {
 		Class<? extends TileSelector> type = getType(id);
-		if(type != null)
-		{
+		if (type != null) {
 			try {
 				TileSelector selector = type.getConstructor().newInstance();
 				selector.loadNBT(nbt);
@@ -56,16 +48,14 @@ public abstract class TileSelector {
 			} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new RuntimeException("Selector type " + nbt.getString("type") + " is missing an empty constructor!");
 			}
-		}else
+		} else
 			System.out.println("Selector " + nbt.getString("type") + " could not be found!");
 		return null;
 	}
-	
-	public static TileSelector loadSelector(NBTTagCompound nbt)
-	{
+
+	public static TileSelector loadSelector(NBTTagCompound nbt) {
 		Class<? extends TileSelector> type = getType(nbt.getString("type"));
-		if(type != null)
-		{
+		if (type != null) {
 			try {
 				TileSelector selector = type.getConstructor().newInstance();
 				selector.loadNBT(nbt);
@@ -73,14 +63,13 @@ public abstract class TileSelector {
 			} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				throw new RuntimeException("Selector type " + nbt.getString("type") + " is missing an empty constructor!");
 			}
-		}else
+		} else
 			System.out.println("Selector " + nbt.getString("type") + " could not be found!");
 		return null;
 	}
-	
-	static
-	{
-		//Init Selectors
+
+	static {
+		// Init Selectors
 		registerType("any", AnySelector.class);
 		registerType("and", AndSelector.class);
 		registerType("or", OrSelector.class);
@@ -89,67 +78,65 @@ public abstract class TileSelector {
 		registerType("state", StateSelector.class);
 		registerType("color", ColorSelector.class);
 	}
-	
+
 	public TileSelector() {
-		
+
 	}
-	
-	public NBTTagCompound writeNBT(NBTTagCompound nbt)
-	{
+
+	public NBTTagCompound writeNBT(NBTTagCompound nbt) {
 		saveNBT(nbt);
 		nbt.setString("type", getTypeID(this.getClass()));
 		return nbt;
 	}
-	
+
 	protected abstract void saveNBT(NBTTagCompound nbt);
+
 	protected abstract void loadNBT(NBTTagCompound nbt);
-	
+
 	public abstract boolean is(LittleTile tile);
-	
-	public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector)
-	{
+
+	public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
 		LittleBoxes boxes = new LittleBoxes(pos, LittleGridContext.getMin());
-		
+
 		int minX = Math.min(pos.getX(), pos2.getX());
 		int maxX = Math.max(pos.getX(), pos2.getX());
 		int minY = Math.min(pos.getY(), pos2.getY());
 		int maxY = Math.max(pos.getY(), pos2.getY());
 		int minZ = Math.min(pos.getZ(), pos2.getZ());
 		int maxZ = Math.max(pos.getZ(), pos2.getZ());
-		
+
 		MutableBlockPos position = new MutableBlockPos();
-		
+
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
-					
+
 					position.setPos(posX, posY, posZ);
-					
+
 					TileEntityLittleTiles te = BlockTile.loadTe(world, position);
-					
-					if(te == null)
+
+					if (te == null)
 						continue;
-					
+
 					for (LittleTile tile : te.getTiles()) {
-						if(selector.is(tile))
+						if (selector.is(tile))
 							boxes.addBox(tile);
 					}
 				}
 			}
 		}
-		
+
 		return boxes;
 	}
-	
-	public static List<LittleTileBox> getBoxes(World world, BlockPos pos, TileSelector selector)
-	{
+
+	public static List<LittleTileBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
 		List<LittleTileBox> boxes = new ArrayList<>();
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 		for (LittleTile tile : te.getTiles()) {
-			if(selector.is(tile))
+			if (selector.is(tile))
 				boxes.add(tile.box);
 		}
 		return boxes;
 	}
-	
+
 }

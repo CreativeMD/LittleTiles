@@ -8,12 +8,12 @@ public class AnySelector extends TileSelector {
 
 	@Override
 	protected void saveNBT(NBTTagCompound nbt) {
-		
+
 	}
 
 	@Override
 	protected void loadNBT(NBTTagCompound nbt) {
-		
+
 	}
 
 	@Override

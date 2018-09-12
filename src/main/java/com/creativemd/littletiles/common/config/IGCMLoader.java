@@ -14,51 +14,50 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 
 public class IGCMLoader {
-	
-	public static void initIGCM()
-	{
+
+	public static void initIGCM() {
 		ConfigTab.root.registerElement("littletiles", new ConfigBranch("LittleTiles", new ItemStack(LittleTiles.hammer)) {
-			
+
 			@Override
 			public void saveExtra(NBTTagCompound nbt) {
-				
+
 			}
-			
+
 			@Override
 			public void loadExtra(NBTTagCompound nbt) {
-				
+
 			}
-			
+
 			@Override
 			public boolean requiresSynchronization() {
 				return true;
 			}
-			
+
 			@Override
 			public void onRecieveFrom(Side side) {
 				SpecialServerConfig.allowFlowingWater = (Boolean) getValue("allowFlowingWater");
 				SpecialServerConfig.allowFlowingLava = (Boolean) getValue("allowFlowingLava");
 			}
-			
+
 			@Override
 			public void createChildren() {
 				registerElement("survival", new ConfigBranch("Survival", new ItemStack(Blocks.BARRIER)) {
-					
+
 					@Override
 					public void saveExtra(NBTTagCompound nbt) {
-						
+
 					}
-					
+
 					@Override
 					public void loadExtra(NBTTagCompound nbt) {
-						
+
 					}
-					
+
 					@Override
 					public boolean requiresSynchronization() {
 						return true;
 					}
-					
+
 					@Override
 					public void onRecieveFrom(Side side) {
 						SpecialServerConfig.strictMining = (Boolean) getValue("strictMining");
@@ -70,7 +69,7 @@ public class IGCMLoader {
 						SpecialServerConfig.minimumTransparency = (Integer) getValue("minimumTransparency");
 						SpecialServerConfig.storagePerPixel = (Float) getValue("storagePerPixel");
 					}
-					
+
 					@Override
 					public void createChildren() {
 						registerElement("strictMining", new BooleanSegment("Strict Mininig in Survival", false).setToolTip("If you can edit a vanilla block in survival directly (hammer/ paint brush)."));
@@ -83,11 +82,11 @@ public class IGCMLoader {
 						registerElement("storagePerPixel", new FloatSegment("Storage per Pixel", 1F, 0F, Float.MAX_VALUE).setToolTip("Each pixel in default grid makes space for one itemstack (stacksize of one).", "64 pixel add up to one slot"));
 					}
 				});
-				
+
 				registerElement("allowFlowingWater", new BooleanSegment("Allow Flowing Water", true).setToolTip("If disabled the bucket cannot be used to change the water flow."));
 				registerElement("allowFlowingLava", new BooleanSegment("Allow Flowing Lava", true).setToolTip("If disabled the bucket cannot be used to change the lava flow."));
 			}
 		});
 	}
-	
+
 }

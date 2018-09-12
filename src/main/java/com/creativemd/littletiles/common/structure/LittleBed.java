@@ -11,36 +11,24 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
-import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBed;
-import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
@@ -50,31 +38,27 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Biomes;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.SPacketUseBed;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraft.world.biome.Biome;
-import net.minecraftforge.common.BiomeManager.BiomeType;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleBed extends LittleStructure{
-	
+public class LittleBed extends LittleStructure {
+
 	public EntityLivingBase sleepingPlayer = null;
 	@SideOnly(Side.CLIENT)
 	public Vec3d playerPostion;
 	public EnumFacing direction;
-	
+
 	@SideOnly(Side.CLIENT)
 	public boolean hasBeenActivated;
 
@@ -87,259 +71,228 @@ public class LittleBed extends LittleStructure{
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("direction", direction.getHorizontalIndex());
 	}
-	
+
 	@Override
-	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
-	{
+	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player) {
 		return true;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
-    public static float getBedOrientationInDegrees(EntityPlayer player)
-    {		
+	public static float getBedOrientationInDegrees(EntityPlayer player) {
 		try {
 			LittleStructure bed = (LittleStructure) littleBed.get(player);
-			if(bed instanceof LittleBed)
-				switch (((LittleBed) bed).direction)
-	            {
-	                case SOUTH:
-	                    return 90.0F;
-	                case WEST:
-	                    return 0.0F;
-	                case NORTH:
-	                    return 270.0F;
-	                case EAST:
-	                    return 180.0F;
-                    default:
-                    	return 0;
-	            }
-			
+			if (bed instanceof LittleBed)
+				switch (((LittleBed) bed).direction) {
+				case SOUTH:
+					return 90.0F;
+				case WEST:
+					return 0.0F;
+				case NORTH:
+					return 270.0F;
+				case EAST:
+					return 180.0F;
+				default:
+					return 0;
+				}
+
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
-        IBlockState state = player.bedLocation == null ? null : player.world.getBlockState(player.bedLocation);
-        if (state != null && state.getBlock().isBed(state, player.world, player.bedLocation, player))
-        {
-            EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.world, player.bedLocation);
 
-            switch (enumfacing)
-            {
-                case SOUTH:
-                    return 90.0F;
-                case WEST:
-                    return 0.0F;
-                case NORTH:
-                    return 270.0F;
-                case EAST:
-                    return 180.0F;
-            }
-        }
+		IBlockState state = player.bedLocation == null ? null : player.world.getBlockState(player.bedLocation);
+		if (state != null && state.getBlock().isBed(state, player.world, player.bedLocation, player)) {
+			EnumFacing enumfacing = state.getBlock().getBedDirection(state, player.world, player.bedLocation);
 
-        return 0.0F;
-    }
-	
+			switch (enumfacing) {
+			case SOUTH:
+				return 90.0F;
+			case WEST:
+				return 0.0F;
+			case NORTH:
+				return 270.0F;
+			case EAST:
+				return 180.0F;
+			}
+		}
+
+		return 0.0F;
+	}
+
 	public static Method setSize = ReflectionHelper.findMethod(Entity.class, "setSize", "func_70105_a", float.class, float.class);
-	
+
 	public static Field sleeping = ReflectionHelper.findField(EntityPlayer.class, "sleeping", "field_71083_bS");
 	public static Field sleepTimer = ReflectionHelper.findField(EntityPlayer.class, "sleepTimer", "field_71076_b");
-	
+
 	public static Field littleBed = ReflectionHelper.findField(EntityPlayer.class, "littleBed");;
-	
-	public SleepResult trySleep(EntityPlayer player, Vec3d highest)
-	{
-        if (!player.world.isRemote)
-        {
-            if (player.isPlayerSleeping() || !player.isEntityAlive())
-            {
-                return EntityPlayer.SleepResult.OTHER_PROBLEM;
-            }
 
-            if (!player.world.provider.isSurfaceWorld())
-            {
-                return EntityPlayer.SleepResult.NOT_POSSIBLE_HERE;
-            }
+	public SleepResult trySleep(EntityPlayer player, Vec3d highest) {
+		if (!player.world.isRemote) {
+			if (player.isPlayerSleeping() || !player.isEntityAlive()) {
+				return EntityPlayer.SleepResult.OTHER_PROBLEM;
+			}
 
-            if (player.world.isDaytime())
-            {
-                return EntityPlayer.SleepResult.NOT_POSSIBLE_NOW;
-            }
+			if (!player.world.provider.isSurfaceWorld()) {
+				return EntityPlayer.SleepResult.NOT_POSSIBLE_HERE;
+			}
 
-            double d0 = 8.0D;
-            double d1 = 5.0D;
-            List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double)highest.x - 8.0D, (double)highest.y - 5.0D, (double)highest.z - 8.0D, (double)highest.x + 8.0D, (double)highest.y + 5.0D, (double)highest.z + 8.0D));
+			if (player.world.isDaytime()) {
+				return EntityPlayer.SleepResult.NOT_POSSIBLE_NOW;
+			}
 
-            if (!list.isEmpty())
-            {
-                return EntityPlayer.SleepResult.NOT_SAFE;
-            }
-        }
+			double d0 = 8.0D;
+			double d1 = 5.0D;
+			List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double) highest.x - 8.0D, (double) highest.y - 5.0D, (double) highest.z - 8.0D, (double) highest.x + 8.0D, (double) highest.y + 5.0D, (double) highest.z + 8.0D));
 
-        if (player.isRiding())
-        {
-            player.dismountRidingEntity();
-        }
-        if(player.world.isRemote)
-        	playerPostion = highest;
-        sleepingPlayer = player;
-        
-        try {
+			if (!list.isEmpty()) {
+				return EntityPlayer.SleepResult.NOT_SAFE;
+			}
+		}
+
+		if (player.isRiding()) {
+			player.dismountRidingEntity();
+		}
+		if (player.world.isRemote)
+			playerPostion = highest;
+		sleepingPlayer = player;
+
+		try {
 			LittleBed.littleBed.set(player, this);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-        
-        try {
+
+		try {
 			setSize.invoke(player, 0.2F, 0.2F);
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
-        
-        float f1 = 0.5F + (float)direction.getFrontOffsetX() * 0.8F;
-        float f = 0.5F + (float)direction.getFrontOffsetZ() * 0.8F;
-        
-        player.renderOffsetX = -1.8F * (float)direction.getFrontOffsetX();
-        player.renderOffsetZ = -1.8F * (float)direction.getFrontOffsetZ();
-        player.setPosition((double)((float)highest.x - 0.5F + f1), (double)((float)highest.y), (double)((float)highest.z - 0.5F + f));
-        
-        try {
-        	sleeping.setBoolean(player, true);
+
+		float f1 = 0.5F + (float) direction.getFrontOffsetX() * 0.8F;
+		float f = 0.5F + (float) direction.getFrontOffsetZ() * 0.8F;
+
+		player.renderOffsetX = -1.8F * (float) direction.getFrontOffsetX();
+		player.renderOffsetZ = -1.8F * (float) direction.getFrontOffsetZ();
+		player.setPosition((double) ((float) highest.x - 0.5F + f1), (double) ((float) highest.y), (double) ((float) highest.z - 0.5F + f));
+
+		try {
+			sleeping.setBoolean(player, true);
 			sleepTimer.setInt(player, 0);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-        
-        player.bedLocation = getMainTile().te.getPos();
-        player.motionX = 0.0D;
-        player.motionY = 0.0D;
-        player.motionZ = 0.0D;
 
-        if (!player.world.isRemote)
-        {
-            player.world.updateAllPlayersSleepingFlag();
-        }
-        return EntityPlayer.SleepResult.OK;
+		player.bedLocation = getMainTile().te.getPos();
+		player.motionX = 0.0D;
+		player.motionY = 0.0D;
+		player.motionZ = 0.0D;
+
+		if (!player.world.isRemote) {
+			player.world.updateAllPlayersSleepingFlag();
+		}
+		return EntityPlayer.SleepResult.OK;
 	}
-	
+
 	@Override
-	public void onLittleTileDestroy()
-	{
+	public void onLittleTileDestroy() {
 		super.onLittleTileDestroy();
-		if(sleepingPlayer != null)
-		{
+		if (sleepingPlayer != null) {
 			try {
-	        	littleBed.set(sleepingPlayer, null);
+				littleBed.set(sleepingPlayer, null);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
-	public static void setBedDirection(Entity player)
-	{
-		if(player instanceof EntityPlayer)
-		{
+	public static void setBedDirection(Entity player) {
+		if (player instanceof EntityPlayer) {
 			try {
 				LittleStructure bed = (LittleStructure) littleBed.get(player);
-				if(bed instanceof LittleBed)
-				{
+				if (bed instanceof LittleBed) {
 					int i = ((LittleBed) bed).direction.getHorizontalIndex();
-					
+
 					GlStateManager.rotate(i * 90, 0.0F, 1.0F, 0.0F);
-					
-					if(player == Minecraft.getMinecraft().player)
-					{
+
+					if (player == Minecraft.getMinecraft().player) {
 						double height = 0.2;
 						double forward = 0;
-						
+
 						GlStateManager.translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
 					}
-					//GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() - player.posY, 0);
-					
-					//Minecraft.getMinecraft().getRenderManager().playerViewY = (float)(((LittleBed) bed).direction.getHorizontalAngle() * 90 + 180);
-					//Minecraft.getMinecraft().getRenderManager().playerViewX = 0.0F;
-					
+					// GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() -
+					// player.posY, 0);
+
+					// Minecraft.getMinecraft().getRenderManager().playerViewY =
+					// (float)(((LittleBed) bed).direction.getHorizontalAngle() * 90 + 180);
+					// Minecraft.getMinecraft().getRenderManager().playerViewX = 0.0F;
+
 				}
-			}catch(IllegalArgumentException | IllegalAccessException e){
+			} catch (IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
 		}
 	}
-	
+
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action)
-	{
-		if(!hasLoaded())
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+		if (!hasLoaded())
 			return false;
-		if(world.isRemote)
-		{
+		if (world.isRemote) {
 			hasBeenActivated = true;
 			return true;
 		}
-        if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL)
-        {
-        	Vec3d vec = getHighestCenterVec();
-        	if(this.sleepingPlayer != null)
-        	{
-        		player.sendStatusMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]), true);
-        		return true;
-        	}
-        	
-            SleepResult enumstatus = trySleep(player, vec);
-            if (enumstatus == SleepResult.OK)
-            {
-            	player.addStat(StatList.SLEEP_IN_BED);
-            	PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
-            	PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
-                return true;
-            }
-            else
-            {
-                if (enumstatus == SleepResult.NOT_POSSIBLE_NOW)
-                {
-                    player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep"), true);
-                }
-                else if (enumstatus == SleepResult.NOT_SAFE)
-                {
-                	player.sendStatusMessage(new TextComponentTranslation("tile.bed.notSafe"), true);
-                }
-                
-                return true;
-            }
-        }
-        return true;
+		if (world.provider.canRespawnHere() && world.getBiome(pos) != Biomes.HELL) {
+			Vec3d vec = getHighestCenterVec();
+			if (this.sleepingPlayer != null) {
+				player.sendStatusMessage(new TextComponentTranslation("tile.bed.occupied", new Object[0]), true);
+				return true;
+			}
+
+			SleepResult enumstatus = trySleep(player, vec);
+			if (enumstatus == SleepResult.OK) {
+				player.addStat(StatList.SLEEP_IN_BED);
+				PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
+				return true;
+			} else {
+				if (enumstatus == SleepResult.NOT_POSSIBLE_NOW) {
+					player.sendStatusMessage(new TextComponentTranslation("tile.bed.noSleep"), true);
+				} else if (enumstatus == SleepResult.NOT_SAFE) {
+					player.sendStatusMessage(new TextComponentTranslation("tile.bed.notSafe"), true);
+				}
+
+				return true;
+			}
+		}
+		return true;
 	}
-	
+
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter)
-	{
-		if(axis == this.direction.getAxis())
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		if (axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
 	}
-	
-	
+
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) 
-	{
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}
-	
+
 	public static class LittleBedParser extends LittleStructureParser<LittleBed> {
 
 		public LittleBedParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-		
+
 		@SideOnly(Side.CLIENT)
 		@CustomEventSubscribe
-		public void buttonClicked(GuiControlClickEvent event)
-		{		
+		public void buttonClicked(GuiControlClickEvent event) {
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
-			
+
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-			
+
 			LittleSlidingDoorParser.updateDirection(viewer, direction.getOpposite(), relativeDirection);
 		}
 
@@ -349,15 +302,15 @@ public class LittleBed extends LittleStructure{
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
 			tile.viewDirection = EnumFacing.UP;
 			parent.addControl(tile);
-			
+
 			LittleTileSize size = LittleTilePreview.getSize(stack);
 			int index = EnumFacing.EAST.getHorizontalIndex();
-			if(size.sizeX < size.sizeZ)
+			if (size.sizeX < size.sizeZ)
 				index = EnumFacing.SOUTH.getHorizontalIndex();
-			if(structure instanceof LittleBed)
+			if (structure instanceof LittleBed)
 				index = ((LittleBed) structure).direction.getHorizontalIndex();
 			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getHorizontalFacingNames()));
-			
+
 			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
 			parent.addControl(relativeDirection);
 			LittleSlidingDoorParser.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
@@ -371,7 +324,7 @@ public class LittleBed extends LittleStructure{
 			bed.direction = direction;
 			return bed;
 		}
-		
+
 	}
 
 }

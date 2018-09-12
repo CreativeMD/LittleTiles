@@ -8,7 +8,6 @@ import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.items.ItemHammer;
-import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -17,30 +16,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiHammer extends SubGui {
-	
-public ItemStack stack;
-	
+
+	public ItemStack stack;
+
 	public SubGuiHammer(ItemStack stack) {
 		super(140, 150);
 		this.stack = stack;
 	}
-	
-	public LittleGridContext getContext()
-	{
+
+	public LittleGridContext getContext() {
 		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
 	}
-	
+
 	@Override
 	public void onClosed() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = SelectShape.getShape(box.caption);
-		
+
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("shape", shape.key);
 		shape.saveCustomSettings(scroll, nbt, getContext());
 		sendPacketToServer(nbt);
-		
+
 		super.onClosed();
 	}
 
@@ -53,23 +51,21 @@ public ItemStack stack;
 		controls.add(scroll);
 		onChange();
 	}
-	
+
 	@CustomEventSubscribe
-	public void onComboBoxChange(GuiControlChangedEvent event)
-	{
-		if(event.source.is("shape"))
+	public void onComboBoxChange(GuiControlChangedEvent event) {
+		if (event.source.is("shape"))
 			onChange();
 	}
-	
-	public void onChange()
-	{
+
+	public void onChange() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-		
+
 		SelectShape shape = SelectShape.getShape(box.caption);
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
 	}
-	
+
 }

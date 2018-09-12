@@ -12,40 +12,38 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 	public NotEnoughIngredientsException(String msg) {
 		super(msg);
 	}
-	
+
 	public static class NotEnoughColorException extends NotEnoughIngredientsException {
-		
+
 		public ColorUnit missing;
-		
+
 		public NotEnoughColorException(ColorUnit missing) {
 			super("exception.ingredient.color");
 			this.missing = missing;
 		}
-		
+
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			return super.getLocalizedMessage() + " " + missing.getDescription();
 		}
-		
+
 	}
-	
+
 	public static class NotEnoughVolumeExcepion extends NotEnoughIngredientsException {
-		
+
 		public BlockIngredients ingredients;
-		
+
 		public NotEnoughVolumeExcepion(BlockIngredients ingredients) {
 			super("exception.ingredient.volume");
 			this.ingredients = ingredients;
 		}
-		
+
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			String message = super.getLocalizedMessage() + " (";
 			boolean first = true;
 			for (BlockIngredient ingredient : ingredients.getIngredients()) {
-				if(!first)
+				if (!first)
 					message += ", ";
 				else
 					first = false;
@@ -53,37 +51,36 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 			}
 			return message + ")";
 		}
-		
+
 	}
-	
+
 	public static class NotEnoughVolumeSpaceException extends NotEnoughIngredientsException {
-		
+
 		public NotEnoughVolumeSpaceException() {
 			super("exception.ingredient.space.volume");
 		}
 	}
-	
+
 	public static class NotEnoughColorSpaceException extends NotEnoughIngredientsException {
-		
+
 		public NotEnoughColorSpaceException() {
 			super("exception.ingredient.space.color");
 		}
 	}
-	
+
 	public static class NotEnoughStackException extends NotEnoughIngredientsException {
-		
+
 		public ItemStack stack;
-		
+
 		public NotEnoughStackException(ItemStack stack) {
 			super("exception.ingredient.stack");
 			this.stack = stack;
 		}
-		
+
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			return super.getLocalizedMessage() + " " + stack.getDisplayName();
 		}
-		
+
 	}
 }

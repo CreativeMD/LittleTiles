@@ -7,21 +7,15 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.common.utils.math.box.ColoredCube;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.jcraft.jorbis.Block;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -30,51 +24,45 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class PlacePreviewTile {
-	
+
 	public static final Vec3d white = new Vec3d(1, 1, 1);
 
 	public LittleTileBox box;
 	public LittleTilePreview preview;
-	
-	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview)
-	{
+
+	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview) {
 		this.box = box;
 		this.preview = preview;
 	}
-	
-	/**NEEDS TO BE OVERRIDEN! ALWAYS!**/
-	public PlacePreviewTile copy()
-	{
+
+	/** NEEDS TO BE OVERRIDEN! ALWAYS! **/
+	public PlacePreviewTile copy() {
 		return new PlacePreviewTile(box.copy(), preview.copy());
 	}
-	
-	/**If false it will be placed after all regular tiles have been placed**/
-	public boolean needsCollisionTest()
-	{
+
+	/** If false it will be placed after all regular tiles have been placed **/
+	public boolean needsCollisionTest() {
 		return true;
 	}
-	
-	public List<LittleRenderingCube> getPreviews(LittleGridContext context)
-	{
+
+	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
 		ArrayList<LittleRenderingCube> previews = new ArrayList<>();
 		previews.add(box.getRenderingCube(context, null, 0));
 		return previews;
 	}
-	
-	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles te, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest)
-	{
+
+	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles te, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest) {
 		LittleTile LT = preview.getLittleTile(te);
-		
-		if(LT == null)
+
+		if (LT == null)
 			return Collections.EMPTY_LIST;
-		
+
 		LT.box = box.copy();
-		
+
 		List<LittleTile> tiles = mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
-		
+
 		for (LittleTile tile : tiles) {
-			if(structure != null)
-			{
+			if (structure != null) {
 				tile.isStructureBlock = true;
 				tile.structure = structure;
 				structure.addTile(tile);
@@ -82,15 +70,14 @@ public class PlacePreviewTile {
 			tile.place();
 			tile.onPlaced(player, stack, facing);
 		}
-		
+
 		return tiles;
 	}
-	
-	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos)
-	{		
-		if(preview != null && !preview.canSplit && box.needsMultipleBlocks(context))
+
+	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos) {
+		if (preview != null && !preview.canSplit && box.needsMultipleBlocks(context))
 			return false;
-		
+
 		HashMapList<BlockPos, LittleTileBox> boxes = new HashMapList<>();
 		this.box.split(context, pos, boxes);
 		for (Entry<BlockPos, ArrayList<LittleTileBox>> entry : boxes.entrySet()) {
@@ -100,18 +87,16 @@ public class PlacePreviewTile {
 				tiles.add(entry.getKey(), tile);
 			}
 		}
-		
+
 		return true;
 	}
 
-	public void convertTo(LittleGridContext context, LittleGridContext to)
-	{
-		box.convertTo(context, to);	
+	public void convertTo(LittleGridContext context, LittleGridContext to) {
+		box.convertTo(context, to);
 	}
 
-	public int getSmallestContext(LittleGridContext context)
-	{
+	public int getSmallestContext(LittleGridContext context) {
 		return box.getSmallestContext(context);
 	}
-	
+
 }

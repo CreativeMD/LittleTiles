@@ -12,16 +12,14 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderCubeLayerCache {
-	
+
 	private List<LittleRenderingCube> solid;
 	private List<LittleRenderingCube> cutout_mipped;
 	private List<LittleRenderingCube> cutout;
 	private List<LittleRenderingCube> translucent;
-	
-	public List<LittleRenderingCube> getCubesByLayer(BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
+
+	public List<LittleRenderingCube> getCubesByLayer(BlockRenderLayer layer) {
+		switch (layer) {
 		case SOLID:
 			return solid;
 		case CUTOUT_MIPPED:
@@ -33,11 +31,9 @@ public class RenderCubeLayerCache {
 		}
 		return null;
 	}
-	
-	public void setCubesByLayer(List<LittleRenderingCube> cubes, BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
+
+	public void setCubesByLayer(List<LittleRenderingCube> cubes, BlockRenderLayer layer) {
+		switch (layer) {
 		case SOLID:
 			solid = cubes;
 			break;
@@ -52,14 +48,12 @@ public class RenderCubeLayerCache {
 			break;
 		}
 	}
-	
-	public boolean doesNeedUpdate()
-	{
+
+	public boolean doesNeedUpdate() {
 		return solid == null || cutout_mipped == null || cutout == null || translucent == null;
 	}
-	
-	public void clearCache()
-	{
+
+	public void clearCache() {
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;
@@ -67,17 +61,16 @@ public class RenderCubeLayerCache {
 	}
 
 	public void sortCache() {
-		if(!OptifineHelper.isActive())
-			return ;
-		
+		if (!OptifineHelper.isActive())
+			return;
+
 		for (Iterator iterator = solid.iterator(); iterator.hasNext();) {
 			LittleRenderingCube littleRenderingCube = (LittleRenderingCube) iterator.next();
-			if(littleRenderingCube.isEmissive)
-			{
+			if (littleRenderingCube.isEmissive) {
 				cutout_mipped.add(littleRenderingCube);
 				iterator.remove();
 			}
 		}
 	}
-	
+
 }

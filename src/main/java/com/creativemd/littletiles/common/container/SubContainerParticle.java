@@ -7,7 +7,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerParticle extends SubContainer {
-	
+
 	public TileEntityParticle particle;
 
 	public SubContainerParticle(EntityPlayer player, TileEntityParticle particle) {
@@ -17,7 +17,7 @@ public class SubContainerParticle extends SubContainer {
 
 	@Override
 	public void createControls() {
-		
+
 	}
 
 	@Override
