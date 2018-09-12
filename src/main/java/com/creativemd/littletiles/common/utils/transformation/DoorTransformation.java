@@ -10,15 +10,15 @@ import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class DoorTransformation {
-
+	
 	private static HashMap<String, Class<? extends DoorTransformation>> transformationTypes = new HashMap<>();
-
+	
 	public static void registerTransformationType(String id, Class<? extends DoorTransformation> classType) {
 		if (transformationTypes.containsKey(id))
 			throw new IllegalArgumentException("id '" + id + "' is already taken");
 		transformationTypes.put(id, classType);
 	}
-
+	
 	public static String getIDFromClass(Class<? extends DoorTransformation> classType) {
 		for (Iterator<Entry<String, Class<? extends DoorTransformation>>> iterator = transformationTypes.entrySet().iterator(); iterator.hasNext();) {
 			Entry<String, Class<? extends DoorTransformation>> type = iterator.next();
@@ -27,14 +27,14 @@ public abstract class DoorTransformation {
 		}
 		return "";
 	}
-
+	
 	static {
 		registerTransformationType("ordinary", OrdinaryDoorTransformation.class);
 		registerTransformationType("sliding", SlidingDoorTransformation.class);
 	}
-
+	
 	public static DoorTransformation loadFromNBT(NBTTagCompound nbt) {
-
+		
 		Class<? extends DoorTransformation> type = transformationTypes.get(nbt.getString("id"));
 		if (type != null) {
 			try {
@@ -47,19 +47,19 @@ public abstract class DoorTransformation {
 		} else
 			throw new IllegalArgumentException("id '" + nbt.getString("id") + "' could not be loaded.");
 	}
-
+	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		writeToNBTExtra(nbt);
 		nbt.setString("id", getIDFromClass(this.getClass()));
 		return nbt;
 	}
-
+	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
-
+	
 	protected abstract void readFromNBT(NBTTagCompound nbt);
-
+	
 	public abstract void performTransformation(EntityDoorAnimation animation, double progress);
-
+	
 	public abstract boolean equals(Object object);
-
+	
 }

@@ -15,11 +15,11 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class ConnectedTexturesModifier {
-
+	
 	private static Class connectedProperties;
 	private static Method match;
 	private static Method matchMeta;
-
+	
 	static {
 		try {
 			connectedProperties = Class.forName("net.optifine.ConnectedProperties");
@@ -28,9 +28,9 @@ public class ConnectedTexturesModifier {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
 	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos) {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
@@ -47,7 +47,7 @@ public class ConnectedTexturesModifier {
 		}
 		return false;
 	}
-
+	
 	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, int metadata) {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
@@ -64,7 +64,7 @@ public class ConnectedTexturesModifier {
 		}
 		return false;
 	}
-
+	
 	public static boolean isNeighbour(IBlockAccess world, IBlockState state, BlockPos pos) {
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 		if (te != null) {
@@ -77,7 +77,7 @@ public class ConnectedTexturesModifier {
 		}
 		return false;
 	}
-
+	
 	public static boolean isFullCube(IBlockState state) {
 		return state.getBlock() instanceof BlockTile;
 	}

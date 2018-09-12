@@ -43,15 +43,15 @@ import net.optifine.shaders.SVertexBuilder;
 
 @SideOnly(Side.CLIENT)
 public class RenderingThread extends Thread {
-
+	
 	private static final String[] fakeWorldMods = new String[] { "chisel" };
-
+	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
 	public static ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
 	public static Minecraft mc = Minecraft.getMinecraft();
-
+	
 	public static int nearbyRenderDistance = 32 * 32;
-
+	
 	public static void addCoordToUpdate(TileEntityLittleTiles te, double distanceSq, boolean requiresUpdate) {
 		RenderingThread renderer = getNextThread();
 		if (!te.rendering.get()) {
@@ -74,7 +74,7 @@ public class RenderingThread extends Thread {
 			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking(), te.isRendered()), te.getPos(), requiresUpdate));
 		}
 	}
-
+	
 	public static void addCoordToUpdate(TileEntityLittleTiles te) // , IBlockState state)
 	{
 		try {
@@ -83,17 +83,17 @@ public class RenderingThread extends Thread {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 	}
-
+	
 	public static List<RenderingThread> threads;
-
+	
 	static {
 		initThreads(LittleTilesConfig.rendering.renderingThreadCount);
 	}
-
+	
 	private static int threadIndex;
-
+	
 	public static synchronized RenderingThread getNextThread() {
 		synchronized (threads) {
 			RenderingThread thread = threads.get(threadIndex);
@@ -103,7 +103,7 @@ public class RenderingThread extends Thread {
 			return thread;
 		}
 	}
-
+	
 	public static void initThreads(int count) {
 		if (count <= 0)
 			throw new IllegalArgumentException("count has to be at least equal or greater than one");
@@ -111,7 +111,7 @@ public class RenderingThread extends Thread {
 			for (RenderingThread thread : threads) {
 				thread.active = false;
 			}
-
+			
 			for (RenderingThread thread : threads) {
 				int i = 0;
 				while (thread.isAlive() && i < 10000) {
@@ -132,32 +132,32 @@ public class RenderingThread extends Thread {
 			threads.add(new RenderingThread());
 		}
 	}
-
+	
 	public RenderingThread() {
 		start();
 	}
-
+	
 	private final IBlockAccessFake fakeAccess = new IBlockAccessFake();
 	public boolean active = true;
-
+	
 	@Override
 	public void run() {
 		while (active) {
 			IBlockAccess world = mc.world;
-
+			
 			if (world != null && !updateCoords.isEmpty()) {
 				RenderingData data = updateCoords.poll();
-
+				
 				try {
 					BlockPos pos = data.pos;
 					RenderCubeLayerCache cubeCache = data.te.getCubeCache();
-
+					
 					if (data.te.getWorld() == null || !data.te.hasLoaded())
 						throw new RenderingException("Tileentity is not loaded yet");
-
+					
 					for (BlockRenderLayer layer : BlockRenderLayer.values()) {
 						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
-
+						
 						List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 						for (int j = 0; j < cubes.size(); j++) {
 							RenderCubeObject cube = cubes.get(j);
@@ -167,7 +167,7 @@ public class RenderingThread extends Thread {
 									world = fakeAccess;
 								} else
 									world = mc.world;
-
+								
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
 								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
 								modelState = cube.getModelState(modelState, world, pos);
@@ -184,52 +184,52 @@ public class RenderingThread extends Thread {
 							}
 						}
 					}
-
+					
 					cubeCache.sortCache();
-
+					
 					world = mc.world;
-
+					
 					BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
 					if (!layerBuffer.isDrawing()) {
 						data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex.get();
 						try {
 							layerBuffer.setDrawing();
-
+							
 							if (!consumer.format.equals(DefaultVertexFormats.BLOCK))
 								consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
-
+							
 							World renderWorld = data.te.getWorld();
 							if (renderWorld instanceof WorldFake && !((WorldFake) renderWorld).shouldRender)
 								renderWorld = ((WorldFake) renderWorld).parentWorld;
-
+							
 							consumer.setWorld(renderWorld);
 							consumer.setBlockPos(pos);
 							consumer.setState(data.state);
 							consumer.getBlockInfo().updateLightMatrix();
-
+							
 							// Render vertex buffer
 							for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 								BlockRenderLayer layer = BlockRenderLayer.values()[i];
-
+								
 								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 								BufferBuilder buffer = null;
 								if (cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes);
-
+								
 								if (buffer != null) {
 									consumer.buffer = buffer;
 									consumer.layer = layer;
-
+									
 									buffer.begin(7, DefaultVertexFormats.BLOCK);
 									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && data.requiresUpdate) {
 										int bits = 8;
 										int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
 										int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
 										int dz = data.te.lastRenderedChunk.getPosition().getZ() >> bits << bits;
-
+										
 										dx = OptifineHelper.getRenderChunkRegionX(data.te.lastRenderedChunk);
 										dz = OptifineHelper.getRenderChunkRegionZ(data.te.lastRenderedChunk);
-
+										
 										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
 										int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
 										int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
@@ -247,21 +247,21 @@ public class RenderingThread extends Thread {
 										int offsetZ = pos.getZ() - (chunkZ * 16);
 										buffer.setTranslation(offsetX, offsetY, offsetZ);
 									}
-
+									
 									for (int j = 0; j < cubes.size(); j++) {
 										RenderCubeObject cube = cubes.get(j);
 										consumer.cube = cube;
 										IBlockState state = cube.getBlockState();
-
+										
 										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
 											if (state.getBlock() instanceof IFakeRenderingBlock)
 												state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
 											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
 										}
-
+										
 										consumer.setState(state);
 										consumer.getBlockInfo().updateShift();
-
+										
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 											List<BakedQuad> quads = cube.getQuad(EnumFacing.VALUES[h]);
 											if (quads != null && !quads.isEmpty()) {
@@ -271,29 +271,29 @@ public class RenderingThread extends Thread {
 													renderQuad(buffer, quad);
 												}
 											}
-
+											
 										}
-
+										
 										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 											SVertexBuilder.popEntity(buffer);
 									}
-
+									
 									consumer.quad = null;
 									consumer.cube = null;
-
+									
 									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 										SVertexBuilder.calcNormalChunkLayer(buffer);
-
+									
 									buffer.finishDrawing();
 									consumer.buffer = null;
-
+									
 									layerBuffer.setBufferByLayer(buffer, layer);
 								}
 							}
-
+							
 							layerBuffer.setFinishedDrawing();
 							setRendered(data, layerBuffer);
-
+							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
 						} catch (Exception e) {
@@ -328,7 +328,7 @@ public class RenderingThread extends Thread {
 			}
 		}
 	}
-
+	
 	/*
 	 * private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]>
 	 * formatMaps;
@@ -338,9 +338,9 @@ public class RenderingThread extends Thread {
 	 * ReflectionHelper.getPrivateValue(LightUtil.class, null, "formatMaps"); return
 	 * formatMaps; }
 	 */
-
+	
 	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
-
+	
 	private synchronized void renderQuad(BufferBuilder buffer, BakedQuad quad) {
 		if (quad.hasTintIndex()) {
 			consumer.setQuadTint(quad.getTintIndex());
@@ -359,7 +359,7 @@ public class RenderingThread extends Thread {
 			for (int e = 0; e < countFrom; e++) {
 				if (eMap[e] != countTo) {
 					LightUtil.unpack(quad.getVertexData(), data, quad.getFormat(), v, eMap[e]);
-
+					
 					consumer.put(e, data);
 				} else {
 					consumer.put(e);
@@ -367,11 +367,11 @@ public class RenderingThread extends Thread {
 			}
 		}
 	}
-
+	
 	public synchronized void setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
 		TileEntityLittleTiles te = data.te;
 		te.rendering.set(false);
-
+		
 		if (data.requiresUpdate) {
 			RenderChunk chunk = te.lastRenderedChunk;
 			if (chunk == null) {
@@ -379,7 +379,7 @@ public class RenderingThread extends Thread {
 				te.setBuffer(buffer);
 				return;
 			}
-
+			
 			synchronized (chunks) {
 				boolean finished = true;
 				for (RenderingThread thread : threads) {
@@ -393,17 +393,17 @@ public class RenderingThread extends Thread {
 				// if(distanceRenderer.updateCoords.size() == 0 &&
 				// nearbyRenderer.updateCoords.size() == 0)
 				// chunks.clear();
-
+				
 				AtomicInteger count = chunks.get(chunk);
 				if (count != null)
 					count.getAndDecrement();
-
+				
 				// System.out.println("finished " + count);
-
+				
 				boolean uploadDirectly = te.getBuffer() == null;
 				uploadDirectly = false;
 				te.setBuffer(buffer);
-
+				
 				if (count == null || count.intValue() <= 0) {
 					// System.out.println("updating chunk " + chunk.boundingBox);
 					chunks.remove(chunk);
@@ -413,22 +413,22 @@ public class RenderingThread extends Thread {
 		} else
 			te.setBuffer(buffer);
 	}
-
+	
 	public static class RenderingException extends Exception {
-
+		
 		public RenderingException(String arg0) {
 			super(arg0);
 		}
 	}
-
+	
 	private static class RenderingData {
-
+		
 		public TileEntityLittleTiles te;
 		public IBlockState state;
 		public BlockPos pos;
-
+		
 		public boolean requiresUpdate;
-
+		
 		public RenderingData(TileEntityLittleTiles te, IBlockState state, BlockPos pos, boolean requiresUpdate) {
 			this.te = te;
 			this.state = state;

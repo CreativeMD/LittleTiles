@@ -16,25 +16,25 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ISpecialBlockSelector {
-
+	
 	public LittleGridContext getContext(ItemStack stack);
-
+	
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player);
-
+	
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit);
-
+	
 	/**
 	 * @return a list of absolute LittleTileBoxes (not relative to the pos)
 	 */
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit);
-
+	
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit);
-
+	
 	public void rotateLittlePreview(ItemStack stack, Rotation rotation);
-
+	
 	public void flipLittlePreview(ItemStack stack, Axis axis);
-
+	
 	@SideOnly(Side.CLIENT)
 	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return null;

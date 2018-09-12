@@ -12,12 +12,12 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 
 public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntityLittleTiles> {
-
+	
 	private WorldVertexBufferUploader uploader = new WorldVertexBufferUploader();
 	private VertexBufferUploader vertexUploader = new VertexBufferUploader();
-
+	
 	public static BlockRenderLayer[] layers = BlockRenderLayer.values();
-
+	
 	@Override
 	public boolean isGlobalRenderer(TileEntityLittleTiles te) {
 		AxisAlignedBB box = te.getRenderBoundingBox();
@@ -29,7 +29,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 			return true;
 		return false;
 	}
-
+	
 	public void renderDebugBoundingBox(AxisAlignedBB axisalignedbb, double x, double y, double z) {
 		GlStateManager.depthMask(false);
 		GlStateManager.disableTexture2D();
@@ -45,7 +45,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 		GlStateManager.disableBlend();
 		GlStateManager.depthMask(true);
 	}
-
+	
 	@Override
 	public void render(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
@@ -61,10 +61,10 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 		// renderDebugBoundingBox(te.getRenderBoundingBox(), x-te.getPos().getX(),
 		// y-te.getPos().getY(), z-te.getPos().getZ());
 		// Render.renderOffsetAABB(te.getRenderBoundingBox(), x*2, y*2, z*2);
-
+		
 		for (LittleTile tile : te.getRenderTiles()) {
 			tile.renderTick(x, y, z, partialTicks);
 		}
-
+		
 	}
 }

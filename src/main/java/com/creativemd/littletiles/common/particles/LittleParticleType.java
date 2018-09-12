@@ -6,7 +6,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public enum LittleParticleType {
-
+	
 	flame(LittleParticleSettingType.MOTION),
 	splash(LittleParticleSettingType.MOTION_WITHOUT_Y),
 	mobSpell(LittleParticleSettingType.COLOR),
@@ -39,7 +39,7 @@ public enum LittleParticleType {
 	reddust(LittleParticleSettingType.COLOR_RED_OFFSET),
 	dripWater(LittleParticleSettingType.MOTION, 0, true),
 	dripLava(LittleParticleSettingType.MOTION, 0, true);
-
+	
 	public static LittleParticleType byName(String name) {
 		for (LittleParticleType type : LittleParticleType.values()) {
 			if (type.name().equalsIgnoreCase(name))
@@ -47,42 +47,42 @@ public enum LittleParticleType {
 		}
 		return LittleParticleType.smoke;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static void initClient() {
 		for (LittleParticleType type : LittleParticleType.values()) {
 			if (!type.isModded)
 				type.particleType = EnumParticleTypes.getByName(type.name());
 		}
-
+		
 		dripWater.factory = new ParticleLittleDrip.WaterFactory();
 		dripLava.factory = new ParticleLittleDrip.LavaFactory();
 	}
-
+	
 	public final LittleParticleSettingType type;
-
+	
 	public final boolean isModded;
 	public final int subID;
 	public final boolean spawnBelow;
-
+	
 	@SideOnly(Side.CLIENT)
 	public IParticleFactory factory;
-
+	
 	@SideOnly(Side.CLIENT)
 	public EnumParticleTypes particleType;
-
+	
 	LittleParticleType(LittleParticleSettingType type) {
 		this.type = type;
 		this.isModded = false;
 		this.subID = -1;
 		this.spawnBelow = false;
 	}
-
+	
 	LittleParticleType(LittleParticleSettingType type, int id, boolean spawnBelow) {
 		this.type = type;
 		this.isModded = true;
 		this.subID = id;
 		this.spawnBelow = spawnBelow;
 	}
-
+	
 }

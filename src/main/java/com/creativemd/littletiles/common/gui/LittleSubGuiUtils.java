@@ -18,9 +18,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
 public class LittleSubGuiUtils {
-
+	
 	public static class LittleBlockSelector extends GuiStackSelectorAll.BlockSelector {
-
+		
 		@Override
 		public boolean allow(ItemStack stack) {
 			if (super.allow(stack)) {
@@ -30,23 +30,23 @@ public class LittleSubGuiUtils {
 			}
 			return false;
 		}
-
+		
 	}
-
+	
 	public static class LittleBlockCollector extends GuiStackSelectorAll.InventoryCollector {
-
+		
 		public LittleBlockCollector(StackSelector selector) {
 			super(selector);
 		}
-
+		
 		@Override
 		public HashMapList<String, ItemStack> collect(EntityPlayer player) {
 			HashMapList<String, ItemStack> stacks = super.collect(player);
-
+			
 			BlockIngredients ingredients = new BlockIngredients();
 			for (ItemStack bag : LittleAction.getBags(player))
 				ingredients.addIngredients(ItemTileContainer.loadInventory(bag));
-
+			
 			List<ItemStack> newStacks = new ArrayList<>();
 			for (BlockIngredient ingredient : ingredients.getIngredients()) {
 				newStacks.add(ingredient.getItemStack());
@@ -54,13 +54,13 @@ public class LittleSubGuiUtils {
 			stacks.add("selector.ingredients", newStacks);
 			return stacks;
 		}
-
+		
 	}
-
+	
 	public static StackCollector getCollector(EntityPlayer player) {
 		if (player.isCreative())
 			return new GuiStackSelectorAll.CreativeCollector(new LittleBlockSelector());
 		return new LittleBlockCollector(new LittleBlockSelector());
 	}
-
+	
 }

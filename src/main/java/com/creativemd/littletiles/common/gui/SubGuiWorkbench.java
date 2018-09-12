@@ -22,27 +22,27 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiWorkbench extends SubGui {
-
+	
 	@Override
 	public void createControls() {
 		controls.add(new GuiButton("Craft", 55, 3, 40) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				ItemStack stack1 = ((SubContainerWorkbench) container).basic.getStackInSlot(0);
 				ItemStack stack2 = ((SubContainerWorkbench) container).basic.getStackInSlot(1);
-
+				
 				GuiItemListBox listBox = (GuiItemListBox) get("missing");
 				GuiLabel label = (GuiLabel) get("label");
 				label.caption = "";
 				listBox.clear();
-
+				
 				if (!stack1.isEmpty()) {
 					if (stack1.getItem() instanceof ItemRecipe) {
 						LittlePreviews previews = LittleTilePreview.getPreview(stack1);
-
+						
 						EntityPlayer player = getPlayer();
-
+						
 						ColorUnit color = new ColorUnit();
 						BlockIngredients ingredients = new BlockIngredients();
 						for (LittleTilePreview preview : previews) {
@@ -63,17 +63,17 @@ public class SubGuiWorkbench extends SubGui {
 							} else
 								label.caption = e.getLocalizedMessage();
 						}
-
+						
 					} else {
 						sendPacketToServer(new NBTTagCompound());
 					}
 				}
-
+				
 			}
-
+			
 		});
 		controls.add(new GuiItemListBox("missing", 5, 25, 160, 50, new ArrayList<ItemStack>(), new ArrayList<String>()));
 		controls.add(new GuiLabel("label", "", 100, 5));
 	}
-
+	
 }

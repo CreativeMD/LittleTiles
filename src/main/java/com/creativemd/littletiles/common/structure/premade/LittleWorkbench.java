@@ -14,22 +14,22 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleWorkbench extends LittleStructurePremade {
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
 			LittleGuiHandler.openGui("workbench", new NBTTagCompound(), playerIn, getMainTile());
 		return true;
 	}
-
+	
 }

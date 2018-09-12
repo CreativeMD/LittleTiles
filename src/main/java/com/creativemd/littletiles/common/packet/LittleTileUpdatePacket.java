@@ -14,31 +14,31 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileUpdatePacket extends CreativeCorePacket {
-
+	
 	public LittleTileIdentifierAbsolute coord;
 	public NBTTagCompound nbt;
-
+	
 	public LittleTileUpdatePacket(LittleTile tile, NBTTagCompound nbt) {
 		this.coord = new LittleTileIdentifierAbsolute(tile);
 		this.nbt = nbt;
 	}
-
+	
 	public LittleTileUpdatePacket() {
-
+		
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		LittleAction.writeAbsoluteCoord(coord, buf);
 		writeNBT(buf, nbt);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		coord = LittleAction.readAbsoluteCoord(buf);
 		nbt = readNBT(buf);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
@@ -51,10 +51,10 @@ public class LittleTileUpdatePacket extends CreativeCorePacket {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
-
+		
 	}
-
+	
 }

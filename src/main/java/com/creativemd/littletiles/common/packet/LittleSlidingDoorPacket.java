@@ -18,17 +18,17 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleSlidingDoorPacket extends CreativeCorePacket {
-
+	
 	public BlockPos blockPos;
 	public Vec3d pos;
 	public Vec3d look;
-
+	
 	public UUID uuid;
-
+	
 	public LittleSlidingDoorPacket() {
-
+		
 	}
-
+	
 	public LittleSlidingDoorPacket(BlockPos blockPos, EntityPlayer player, UUID uuid) {
 		this.blockPos = blockPos;
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
@@ -37,7 +37,7 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.uuid = uuid;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, blockPos);
@@ -45,7 +45,7 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 		writeVec3d(look, buf);
 		writeString(buf, uuid.toString());
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		blockPos = readPos(buf);
@@ -53,13 +53,13 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 		look = readVec3d(buf);
 		uuid = UUID.fromString(readString(buf));
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
-
+		
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		TileEntity tileEntity = player.world.getTileEntity(blockPos);
@@ -72,7 +72,7 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 				// System.out.println("Open Door");
 			} else
 				System.out.println("No door found!");
-
+			
 		} else
 			System.out.println("No tileentity found!");
 	}

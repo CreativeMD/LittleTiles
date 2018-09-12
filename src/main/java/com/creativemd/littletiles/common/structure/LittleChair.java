@@ -20,21 +20,21 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure {
-
+	
 	public LittleChair() {
-
+		
 	}
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!world.isRemote) {
@@ -44,23 +44,23 @@ public class LittleChair extends LittleStructure {
 				player.startRiding(sit);
 				world.spawnEntity(sit);
 			}
-
+			
 		}
 		return true;
 	}
-
+	
 	public static class LittleChairParser extends LittleStructureParser<LittleChair> {
-
+		
 		public LittleChairParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-
+			
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleChair parseStructure(ItemStack stack) {

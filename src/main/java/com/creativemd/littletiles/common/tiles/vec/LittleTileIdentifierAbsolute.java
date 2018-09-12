@@ -10,42 +10,42 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
 public class LittleTileIdentifierAbsolute {
-
+	
 	public BlockPos pos;
 	public LittleGridContext context;
 	public int[] identifier;
-
+	
 	public LittleTileIdentifierAbsolute(LittleTile tile) {
 		this(tile.te, tile.getContext(), tile.getIdentifier());
 	}
-
+	
 	public LittleTileIdentifierAbsolute(TileEntity te, LittleGridContext context, int[] identifier) {
 		this(te.getPos(), context, identifier);
 	}
-
+	
 	public LittleTileIdentifierAbsolute(BlockPos pos, LittleGridContext context, int[] identifier) {
 		this.pos = pos;
 		this.identifier = identifier;
 		this.context = context;
 	}
-
+	
 	public LittleTileIdentifierAbsolute(NBTTagCompound nbt) {
 		int[] array = nbt.getIntArray("pos");
 		if (array.length == 3)
 			pos = new BlockPos(array[0], array[1], array[2]);
 		else
 			throw new InvalidParameterException("No valid coord given " + nbt);
-
+		
 		identifier = nbt.getIntArray("id");
 		context = LittleGridContext.get(nbt);
 	}
-
+	
 	public void writeToNBT(NBTTagCompound nbt) {
 		nbt.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
 		nbt.setIntArray("id", identifier);
 		context.set(nbt);
 	}
-
+	
 	public static int[] convertTo(int[] identifier, LittleGridContext from, LittleGridContext to) {
 		if (from == to)
 			return identifier;

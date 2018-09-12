@@ -34,18 +34,18 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroyBoxes extends LittleActionBoxes {
-
+	
 	public LittleActionDestroyBoxes(LittleBoxes boxes) {
 		super(boxes);
 	}
-
+	
 	public LittleActionDestroyBoxes() {
-
+		
 	}
-
+	
 	public List<StructurePreview> destroyedStructures;
 	public LittleAbsolutePreviews previews;
-
+	
 	private boolean containsStructure(LittleStructure structure) {
 		for (StructurePreview structurePreview : destroyedStructures) {
 			if (structurePreview.structure == structure)
@@ -53,27 +53,27 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		}
 		return false;
 	}
-
+	
 	public boolean shouldSkipTile(LittleTile tile) {
 		return false;
 	}
-
+	
 	public boolean doneSomething;
-
+	
 	public CombinedIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
-
+		
 		if (previews == null)
 			previews = new LittleAbsolutePreviews(te.getPos(), context);
-
+		
 		CombinedIngredients ingredients = new CombinedIngredients();
-
+		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
-
+			
 			if (shouldSkipTile(tile))
 				continue;
-
+			
 			LittleTileBox intersecting = null;
 			boolean intersects = false;
 			for (int j = 0; j < boxes.size(); j++) {
@@ -83,18 +83,18 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					break;
 				}
 			}
-
+			
 			if (!intersects)
 				continue;
-
+			
 			doneSomething = true;
 			if (!tile.isStructureBlock && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();
-
+				
 				List<LittleTileBox> cutout = new ArrayList<>();
 				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-
+				
 				if (newBoxes != null) {
 					if (!simulate) {
 						for (int i = 0; i < newBoxes.size(); i++) {
@@ -102,10 +102,10 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 							newTile.box = newBoxes.get(i);
 							newTile.place();
 						}
-
+						
 						tile.destroy();
 					}
-
+					
 					for (int l = 0; l < cutout.size(); l++) {
 						volume += cutout.get(l).getPercentVolume(context);
 						if (!simulate) {
@@ -115,13 +115,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 						}
 					}
 				}
-
+				
 				if (volume > 0)
 					ingredients.addPreview(preview, volume);
 			} else {
 				if (!tile.isStructureBlock)
 					ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
-
+				
 				if (!simulate) {
 					if (tile.isStructureBlock) {
 						if (!containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded()) {
@@ -129,9 +129,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 							ItemStack drop = tile.structure.getStructureDrop();
 							if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
 								WorldUtils.dropItem(player.world, drop, tile.te.getPos());
-
+							
 							tile.destroy();
-
+							
 							// tile.structure.removeWorldProperties();
 						}
 					} else {
@@ -139,17 +139,17 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 						tile.destroy();
 					}
 				}
-
+				
 			}
 		}
-
+		
 		return ingredients;
 	}
-
+	
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
 		TileEntity tileEntity = loadTe(player, world, pos, true);
-
+		
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			if (!world.isRemote) {
 				BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
@@ -159,37 +159,37 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					return;
 				}
 			}
-
+			
 			((TileEntityLittleTiles) tileEntity).ensureMinContext(context);
-
+			
 			if (context != ((TileEntityLittleTiles) tileEntity).getContext()) {
 				for (LittleTileBox box : boxes) {
 					box.convertTo(context, ((TileEntityLittleTiles) tileEntity).getContext());
 				}
 				context = ((TileEntityLittleTiles) tileEntity).getContext();
 			}
-
+			
 			if (addIngredients(player, action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
 				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
-
+			
 			((TileEntityLittleTiles) tileEntity).combineTiles();
-
+			
 			if (!doneSomething)
 				((TileEntityLittleTiles) tileEntity).convertBlockToVanilla();
 		}
 	}
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		destroyedStructures = new ArrayList<>();
 		return super.action(player);
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		return true;
 	}
-
+	
 	@Override
 	public LittleAction revert() {
 		boolean additionalPreviews = previews != null && previews.size() > 0;
@@ -203,43 +203,43 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		}
 		return new LittleActionCombined(actions);
 	}
-
+	
 	public static class LittleActionDestroyBoxesFiltered extends LittleActionDestroyBoxes {
-
+		
 		public TileSelector selector;
-
+		
 		public LittleActionDestroyBoxesFiltered(LittleBoxes boxes, TileSelector selector) {
 			super(boxes);
 			this.selector = selector;
 		}
-
+		
 		public LittleActionDestroyBoxesFiltered() {
-
+			
 		}
-
+		
 		@Override
 		public void writeBytes(ByteBuf buf) {
 			super.writeBytes(buf);
 			writeSelector(selector, buf);
 		}
-
+		
 		@Override
 		public void readBytes(ByteBuf buf) {
 			super.readBytes(buf);
 			selector = readSelector(buf);
 		}
-
+		
 		@Override
 		public boolean shouldSkipTile(LittleTile tile) {
 			return !selector.is(tile);
 		}
-
+		
 	}
-
+	
 	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut, boolean preventUpdate) {
 		if (preventUpdate)
 			te.preventUpdate = true;
-
+		
 		if (context != te.getContext()) {
 			if (context.size > te.getContext().size)
 				te.convertTo(context);
@@ -248,33 +248,33 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				context = te.getContext();
 			}
 		}
-
+		
 		List<LittleTile> removed = new ArrayList<>();
-
+		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
-
+			
 			if (!tile.intersectsWith(toCut) || tile.isStructureBlock || !tile.canBeSplitted())
 				continue;
-
+			
 			tile.destroy();
-
+			
 			if (!tile.equalsBox(toCut)) {
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();
-
+				
 				List<LittleTileBox> cutout = new ArrayList<>();
 				List<LittleTileBox> boxes = new ArrayList<>();
 				boxes.add(toCut);
 				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-
+				
 				if (newBoxes != null) {
 					for (LittleTileBox box : newBoxes) {
 						LittleTile copy = tile.copy();
 						copy.box = box;
 						copy.place();
 					}
-
+					
 					for (LittleTileBox box : cutout) {
 						LittleTile copy = tile.copy();
 						copy.box = box;
@@ -284,14 +284,14 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			} else
 				removed.add(tile);
 		}
-
+		
 		if (preventUpdate) {
 			te.preventUpdate = false;
 			te.combineTiles();
 		}
 		return removed;
 	}
-
+	
 	public static List<LittleTile> removeBoxes(TileEntityLittleTiles te, LittleGridContext context, List<LittleTileBox> boxes) {
 		te.preventUpdate = true;
 		if (context != te.getContext()) {
@@ -305,10 +305,10 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			}
 		}
 		List<LittleTile> removed = new ArrayList<>();
-
+		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
-
+			
 			LittleTileBox intersecting = null;
 			boolean intersects = false;
 			for (int j = 0; j < boxes.size(); j++) {
@@ -318,29 +318,29 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					break;
 				}
 			}
-
+			
 			if (!intersects)
 				continue;
-
+			
 			if (tile.isStructureBlock || !tile.canBeSplitted())
 				continue;
-
+			
 			tile.destroy();
-
+			
 			if (!tile.equalsBox(intersecting)) {
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();
-
+				
 				List<LittleTileBox> cutout = new ArrayList<>();
 				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-
+				
 				if (newBoxes != null) {
 					for (LittleTileBox box : newBoxes) {
 						LittleTile copy = tile.copy();
 						copy.box = box;
 						copy.place();
 					}
-
+					
 					for (LittleTileBox box : cutout) {
 						LittleTile copy = tile.copy();
 						copy.box = box;
@@ -352,7 +352,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		}
 		te.preventUpdate = false;
 		te.combineTiles();
-
+		
 		return removed;
 	}
 }

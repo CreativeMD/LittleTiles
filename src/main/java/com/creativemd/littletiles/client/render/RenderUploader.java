@@ -38,15 +38,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderUploader {
-
+	
 	private static ConcurrentHashMap<BlockPos, ChunkQueue> chunksToUpdate = new ConcurrentHashMap<>();
-
+	
 	// private static HashMap<RenderChunk, ArrayList<TileEntityLittleTiles>>
 	// directChunkUpdate = new HashMap<>();
-
+	
 	// ViewFrustum
 	private static Field viewFrustumField;
-
+	
 	public static ViewFrustum getViewFrustum() {
 		if (viewFrustumField == null)
 			viewFrustumField = ReflectionHelper.findField(RenderGlobal.class, "viewFrustum", "field_175008_n");
@@ -57,13 +57,13 @@ public class RenderUploader {
 		}
 		return null;
 	}
-
+	
 	// VertexBuffer
 	private static Field vertexCountField = ReflectionHelper.findField(VertexBuffer.class, "count", "field_177364_c");
 	private static Field bufferIdField = ReflectionHelper.findField(VertexBuffer.class, "glBufferId", "field_177365_a");
-
+	
 	private static Minecraft mc = Minecraft.getMinecraft();
-
+	
 	public static void addBlockForUpdate(TileEntityLittleTiles te, BlockPos chunkPos, boolean done) {
 		synchronized (chunksToUpdate) {
 			ChunkQueue queue = chunksToUpdate.get(chunkPos);
@@ -73,15 +73,15 @@ public class RenderUploader {
 				chunksToUpdate.put(chunkPos, queue);
 			} else if (!queue.shouldPushUpdate.get())
 				queue.shouldPushUpdate.set(false);
-
+			
 			synchronized (queue.blocks) {
 				if (!queue.blocks.contains(te))
 					queue.blocks.add(te);
 			}
 		}
-
+		
 	}
-
+	
 	public static void finishChunkUpdate(BlockPos pos) {
 		synchronized (chunksToUpdate) {
 			ChunkQueue queue = chunksToUpdate.get(pos);
@@ -89,13 +89,13 @@ public class RenderUploader {
 				queue.shouldPushUpdate.set(true);
 		}
 	}
-
+	
 	public static void updateRenderData(RenderChunk chunk, Collection<TileEntityLittleTiles> tiles, VertexFormat format) {
 		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 			BlockRenderLayer layer = BlockRenderLayer.values()[i];
 			ArrayList<ByteBuffer> buffers = new ArrayList<>();
 			int bufferSize = 0;
-
+			
 			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
 				net.minecraft.client.renderer.BufferBuilder tempBuffer = te.getBuffer().getBufferByLayer(layer);
@@ -104,25 +104,25 @@ public class RenderUploader {
 					bufferSize += tempBuffer.getByteBuffer().limit();
 				}
 			}
-
+			
 			if (!buffers.isEmpty()) {
 				VertexBuffer layerBuffer = chunk.getVertexBufferByLayer(i);
-
+				
 				int bufferId = -1;
 				try {
 					bufferId = bufferIdField.getInt(layerBuffer);
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
-
+				
 				int vertexCount = 0;
-
+				
 				try {
 					vertexCount = vertexCountField.getInt(layerBuffer);
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
-
+				
 				// Retrieve vanilla buffered data
 				layerBuffer.bindBuffer();
 				ByteBuffer vanillaBuffer = glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, vertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null); // GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER,
@@ -132,7 +132,7 @@ public class RenderUploader {
 				                                                                                                                                             // format.getNextOffset(),
 				                                                                                                                                             // GL30.GL_MAP_READ_BIT,
 				                                                                                                                                             // null);
-
+				
 				ByteBuffer overridenBuffer = null;
 				if (vanillaBuffer != null) {
 					overridenBuffer = ByteBuffer.allocateDirect(vanillaBuffer.limit() + bufferSize);
@@ -142,13 +142,13 @@ public class RenderUploader {
 						overridenBuffer.put(buffers.get(j));
 					}
 				}
-
+				
 				layerBuffer.unbindBuffer();
-
+				
 				if (vanillaBuffer != null) {
 					vanillaBuffer = null;
 					layerBuffer.deleteGlBuffers();
-
+					
 					try {
 						bufferIdField.setInt(layerBuffer, OpenGlHelper.glGenBuffers());
 					} catch (IllegalArgumentException | IllegalAccessException e) {
@@ -160,13 +160,13 @@ public class RenderUploader {
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onRenderTick(RenderTickEvent event) {
 		if (event.phase == Phase.START || event.phase == Phase.END) {
 			World world = mc.world;
 			VertexFormat format = DefaultVertexFormats.BLOCK;
-
+			
 			if (world != null) {
 				/*
 				 * if(!directChunkUpdate.isEmpty()) { for (Entry<RenderChunk,
@@ -196,11 +196,11 @@ public class RenderUploader {
 				chunksToUpdate.clear();
 		}
 	}
-
+	
 	private static Field arbVboField = ReflectionHelper.findField(OpenGlHelper.class, "arbVbo", "field_176090_Y");
-
+	
 	public static ByteBuffer glMapBufferRange(int target, long length, int access, ByteBuffer old_buffer) {
-
+		
 		try {
 			if (arbVboField.getBoolean(null)) {
 				return ARBVertexBufferObject.glMapBufferARB(target, access, length, old_buffer);
@@ -212,20 +212,20 @@ public class RenderUploader {
 		}
 		return null;
 	}
-
+	
 	private static Field countChunksXField = ReflectionHelper.findField(ViewFrustum.class, "countChunksX", "field_178165_d");
 	private static Field countChunksYField = ReflectionHelper.findField(ViewFrustum.class, "countChunksY", "field_178168_c");
 	private static Field countChunksZField = ReflectionHelper.findField(ViewFrustum.class, "countChunksZ", "field_178166_e");
-
+	
 	public static BlockPos getRenderChunkPos(BlockPos pos) {
 		int i = MathHelper.intFloorDiv(pos.getX(), 16);
 		int j = MathHelper.intFloorDiv(pos.getY(), 16);
 		int k = MathHelper.intFloorDiv(pos.getZ(), 16);
 		return new BlockPos(i, j, k);
 	}
-
+	
 	private static Method getRenderChunk = ReflectionHelper.findMethod(ViewFrustum.class, "getRenderChunk", "func_178161_a", BlockPos.class);
-
+	
 	public static RenderChunk getRenderChunk(ViewFrustum frustum, BlockPos pos) {
 		try {
 			return (RenderChunk) getRenderChunk.invoke(frustum, pos);
@@ -234,60 +234,60 @@ public class RenderUploader {
 		}
 		return null;
 	}
-
+	
 	public static RenderChunk getRenderChunkByChunkPosition(ViewFrustum frustum, BlockPos chunkPos) {
 		int i = chunkPos.getX();
 		int j = chunkPos.getY();
 		int k = chunkPos.getZ();
-
+		
 		int countChunksX = 0;
-
+		
 		try {
 			countChunksX = countChunksXField.getInt(frustum);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-
+		
 		int countChunksY = 0;
-
+		
 		try {
 			countChunksY = countChunksYField.getInt(frustum);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-
+		
 		int countChunksZ = 0;
-
+		
 		try {
 			countChunksZ = countChunksZField.getInt(frustum);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-
+		
 		if (j >= 0 && j < countChunksY) {
 			i = i % countChunksX;
-
+			
 			if (i < 0) {
 				i += countChunksX;
 			}
-
+			
 			k = k % countChunksZ;
-
+			
 			if (k < 0) {
 				k += countChunksZ;
 			}
-
+			
 			int l = (k * countChunksY + j) * countChunksX + i;
 			return frustum.renderChunks[l];
 		}
 		return null;
 	}
-
+	
 	public static class ChunkQueue {
-
+		
 		public ConcurrentLinkedQueue<TileEntityLittleTiles> blocks = new ConcurrentLinkedQueue<>();
 		public AtomicBoolean shouldPushUpdate = new AtomicBoolean(false);
-
+		
 	}
-
+	
 }

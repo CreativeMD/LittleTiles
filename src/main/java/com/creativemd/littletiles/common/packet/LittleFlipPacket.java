@@ -15,37 +15,37 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 
 public class LittleFlipPacket extends CreativeCorePacket {
-
+	
 	public LittleFlipPacket() {
-
+		
 	}
-
+	
 	public Axis axis;
-
+	
 	public LittleFlipPacket(Axis axis) {
 		this.axis = axis;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		buf.writeInt(axis.ordinal());
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		axis = Axis.values()[buf.readInt()];
 	}
-
+	
 	@Override
 	public void executeClient(EntityPlayer player) {
 		execute(player);
 	}
-
+	
 	public void execute(EntityPlayer player) {
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 		if (PlacementHelper.getLittleInterface(stack) != null) {
 			ILittleTile itile = PlacementHelper.getLittleInterface(stack);
-
+			
 			if (itile != null) {
 				LittleGridContext context = itile.flipLittlePreview(stack, axis);
 				LittleStructure structure = itile.getLittleStructure(stack);
@@ -57,15 +57,15 @@ public class LittleFlipPacket extends CreativeCorePacket {
 				}
 			}
 		}
-
+		
 		if (stack.getItem() instanceof ISpecialBlockSelector) {
 			((ISpecialBlockSelector) stack.getItem()).flipLittlePreview(stack, axis);
 		}
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		execute(player);
 	}
-
+	
 }

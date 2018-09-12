@@ -37,18 +37,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILittleTile {
-
+	
 	public BlockLTParticle() {
 		super(Material.IRON);
 		setHardness(0.4F);
 		setCreativeTab(LittleTiles.littleTab);
 	}
-
+	
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) {
 		return new TileEntityParticle();
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
@@ -57,7 +57,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILit
 			return new SubGuiParticle((TileEntityParticle) te);
 		return null;
 	}
-
+	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
@@ -65,14 +65,14 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILit
 			return new SubContainerParticle(player, (TileEntityParticle) te);
 		return null;
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (!worldIn.isRemote)
 			GuiHandler.openGui(playerIn, worldIn, pos);
 		return true;
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get());
@@ -82,41 +82,41 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILit
 		previews.addWithoutCheckingPreview(particle.getPreviewTile());
 		return previews;
 	}
-
+	
 	@Override
 	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
 		return LittleGridContext.get();
 	}
-
+	
 	@Override
 	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
 		return LittleGridContext.get();
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return null;
 	}
-
+	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-
+		
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World player, List<String> tooltip, ITooltipFlag advanced) {
 		tooltip.add("Particles will not spawn if you are holding the wrench.");
 	}
-
+	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return true;
 	}
-
+	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return true;
 	}
-
+	
 }

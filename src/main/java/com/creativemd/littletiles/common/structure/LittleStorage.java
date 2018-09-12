@@ -28,24 +28,24 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleStorage extends LittleStructure {
-
+	
 	public static int maxSlotStackSize = 64;
-
+	
 	public int inventorySize = 0;
 	public int stackSizeLimit = 0;
 	public int numberOfSlots = 0;
 	public int lastSlotStackSize = 0;
-
+	
 	public IInventory inventory = null;
-
+	
 	public boolean invisibleStorageTiles = false;
-
+	
 	public void updateNumberOfSlots() {
 		float slots = inventorySize / (float) stackSizeLimit;
 		numberOfSlots = (int) Math.ceil(slots);
 		lastSlotStackSize = (int) ((slots % 1) * stackSizeLimit);
 	}
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		inventorySize = nbt.getInteger("inventorySize");
@@ -54,10 +54,10 @@ public class LittleStorage extends LittleStructure {
 		lastSlotStackSize = nbt.getInteger("lastSlot");
 		if (nbt.hasKey("inventory"))
 			inventory = InventoryUtils.loadInventoryBasic(nbt.getCompoundTag("inventory"));
-
+		
 		invisibleStorageTiles = nbt.getBoolean("invisibleStorage");
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		if (inventory != null) {
@@ -69,7 +69,7 @@ public class LittleStorage extends LittleStructure {
 		}
 		nbt.setBoolean("invisibleStorage", invisibleStorageTiles);
 	}
-
+	
 	@Override
 	public ItemStack getStructureDrop() {
 		ItemStack stack = super.getStructureDrop();
@@ -77,7 +77,7 @@ public class LittleStorage extends LittleStructure {
 			writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
 		return stack;
 	}
-
+	
 	public static int getSizeOfInventory(LittlePreviews previews) {
 		double size = 0;
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
@@ -87,20 +87,20 @@ public class LittleStorage extends LittleStructure {
 		}
 		return (int) size;
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
 			LittleGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, getMainTile());
 		return true;
 	}
-
+	
 	public static class LittleStorageParser extends LittleStructureParser<LittleStorage> {
-
+		
 		public LittleStorageParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-
+		
 		@Override
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(stack)), 5, 30));
@@ -109,10 +109,10 @@ public class LittleStorage extends LittleStructure {
 				invisible = ((LittleStorage) structure).invisibleStorageTiles;
 			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 45, invisible));
 		}
-
+		
 		@Override
 		public LittleStorage parseStructure(ItemStack stack) {
-
+			
 			LittleStorage storage = new LittleStorage();
 			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
 			LittlePreviews previews = LittleTilePreview.getPreview(stack);
@@ -125,9 +125,9 @@ public class LittleStorage extends LittleStructure {
 			storage.stackSizeLimit = maxSlotStackSize;
 			storage.updateNumberOfSlots();
 			storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);
-
+			
 			return storage;
 		}
 	}
-
+	
 }

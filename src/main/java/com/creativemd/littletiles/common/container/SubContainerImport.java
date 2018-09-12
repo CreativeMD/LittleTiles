@@ -12,19 +12,19 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerImport extends SubContainer {
-
+	
 	public final InventoryBasic slot = new InventoryBasic("slot", false, 1);
-
+	
 	public SubContainerImport(EntityPlayer player) {
 		super(player);
 	}
-
+	
 	@Override
 	public void createControls() {
 		addSlotToContainer(new Slot(slot, 0, 10, 10));
 		addPlayerSlotsToContainer(player);
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack = slot.getStackInSlot(0);
@@ -34,11 +34,11 @@ public class SubContainerImport extends SubContainer {
 			slot.setInventorySlotContents(0, newStack);
 		}
 	}
-
+	
 	@Override
 	public void onClosed() {
 		super.onClosed();
 		WorldUtils.dropItem(getPlayer(), slot.getStackInSlot(0));
 	}
-
+	
 }

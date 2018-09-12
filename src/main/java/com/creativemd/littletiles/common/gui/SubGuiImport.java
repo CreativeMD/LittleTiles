@@ -16,15 +16,15 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
 
 public class SubGuiImport extends SubGui {
-
+	
 	public GuiTextfield textfield;
-
+	
 	@Override
 	public void createControls() {
 		textfield = new GuiTextfield("import", "", 10, 30, 150, 14);
 		controls.add(textfield);
 		controls.add(new GuiButton("Paste", 10, 52) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				StringSelection stringSelection = new StringSelection(textfield.text);
@@ -35,13 +35,13 @@ public class SubGuiImport extends SubGui {
 				try {
 					textfield.text = (String) t.getTransferData(DataFlavor.stringFlavor);
 				} catch (Exception e) {
-
+					
 				}
 			}
 		});
-
+		
 		controls.add(new GuiButton("Import", 100, 52) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
@@ -50,14 +50,14 @@ public class SubGuiImport extends SubGui {
 					e.printStackTrace();
 				}
 				// nbt.setString("text", textfield.text);
-
+				
 			}
 		});
 	}
-
+	
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event) {
-
+		
 	}
-
+	
 }

@@ -48,13 +48,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleSlidingDoor extends LittleDoorBase {
-
+	
 	public EnumFacing moveDirection;
 	public int moveDistance;
 	public LittleGridContext moveContext;
-
+	
 	public LittleTilePos placedAxis;
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
@@ -64,7 +64,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		if (nbt.hasKey("placedAxis"))
 			placedAxis = new LittleTilePos("placedAxis", nbt);
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
@@ -74,7 +74,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		if (placedAxis != null)
 			placedAxis.writeToNBT("placedAxis", nbt);
 	}
-
+	
 	@Override
 	public boolean activate(World world, EntityPlayer player, Rotation rotation, BlockPos pos) {
 		if (!isWaitingForApprove) {
@@ -82,7 +82,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
-
+			
 			UUID uuid = UUID.randomUUID();
 			if (world.isRemote)
 				PacketHandler.sendPacketToServer(new LittleSlidingDoorPacket(pos, player, uuid));
@@ -90,7 +90,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		return false;
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (world.isRemote && !isWaitingForApprove) {
@@ -98,7 +98,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
-
+			
 			UUID uuid = UUID.randomUUID();
 			PacketHandler.sendPacketToServer(new LittleSlidingDoorPacket(pos, player, uuid));
 			interactWithDoor(world, pos, player, uuid);
@@ -106,7 +106,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		return true;
 	}
-
+	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid) {
 		LittleTileVec offset = new LittleTileVec(moveDirection);
 		offset.scale(moveDistance);
@@ -115,22 +115,22 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		 * placedAxis.contextVec.vec.add(offset);
 		 * placedAxis.removeInternalBlockOffset(); pos = placedAxis.pos;
 		 */
-
+		
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, moveContext);
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			previews.addTile(tile);
 		}
-
+		
 		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
-
+		
 		if (moveContext != previews.context)
 			offset.convertTo(moveContext, previews.context);
-
+		
 		for (LittleTilePreview preview : previews) {
 			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, offset));
 		}
-
+		
 		LittleSlidingDoor structure = new LittleSlidingDoor();
 		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
 		structure.duration = duration;
@@ -138,7 +138,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.moveDistance = moveDistance;
 		structure.moveContext = moveContext;
 		structure.setTiles(new HashMapList<>());
-
+		
 		LittleTileVec moveVec = new LittleTileVec(moveDirection);
 		moveVec.scale(moveDistance);
 		LittleTilePos absolute = getAbsoluteAxisVec();
@@ -146,62 +146,62 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		absolute.removeInternalBlockOffset();
 		return place(world, structure, player, defaultpreviews, pos, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, absolute, getAdditionalAxisVec());
 	}
-
+	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid) {
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
-
+		
 		for (TileEntityLittleTiles te : tempTiles.keySet()) {
 			tempContext.put(te, te.getContext());
 		}
-
+		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 			entry.getKey().preventUpdate = true;
 			entry.getKey().removeTiles(entry.getValue());
 			entry.getKey().preventUpdate = false;
 		}
-
+		
 		if (tryToPlacePreviews(world, player, pos, uuid)) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 				entry.getKey().updateTiles();
 			}
 			return true;
 		}
-
+		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 			entry.getKey().convertTo(tempContext.get(entry.getKey()));
 			entry.getKey().addTiles(entry.getValue());
 		}
-
+		
 		return false;
 	}
-
+	
 	@Override
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		if (axis == this.moveDirection.getAxis())
 			this.moveDirection = this.moveDirection.getOpposite();
 	}
-
+	
 	@Override
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		moveDirection = RotationUtils.rotateFacing(moveDirection, rotation);
 	}
-
+	
 	@Override
 	public LittleTilePos getAbsoluteAxisVec() {
 		return placedAxis;
 	}
-
+	
 	@Override
 	public LittleTileVec getAdditionalAxisVec() {
 		return LittleTileVec.ZERO;
 	}
-
+	
 	@Override
 	public LittleGridContext getMinContext() {
 		return moveContext;
 	}
-
+	
 	@Override
 	public LittleDoorBase copyToPlaceDoor() {
 		LittleSlidingDoor structure = new LittleSlidingDoor();
@@ -212,13 +212,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		structure.duration = this.duration;
 		return structure;
 	}
-
+	
 	public static class LittleSlidingDoorParser extends LittleDoorBaseParser<LittleSlidingDoor> {
-
+		
 		public LittleSlidingDoorParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-
+		
 		@SideOnly(Side.CLIENT)
 		@CustomEventSubscribe
 		public void buttonClicked(GuiControlClickEvent event) {
@@ -236,7 +236,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				 * else slider.value = slider.maxValue-1;
 				 */
 			}
-
+			
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			if (event.source.is("change view")) {
 				switch (viewer.axisDirection) {
@@ -253,7 +253,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 					break;
 				}
 				viewer.updateViewDirection();
-
+				
 				viewer.updateNormalAxis();
 			} else if (event.source.is("reset view")) {
 				viewer.offsetX = 0;
@@ -263,17 +263,17 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				viewer.viewDirection = viewer.viewDirection.getOpposite();
 				viewer.baked = null;
 			}
-
+			
 			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
-
+			
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
-
+			
 			updateDirection(viewer, direction, relativeDirection);
 		}
-
+		
 		public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection) {
 			EnumFacing newDirection = EnumFacing.EAST;
-
+			
 			if (viewer.getXFacing().getAxis() == direction.getAxis())
 				if (viewer.getXFacing().getAxisDirection() == direction.getAxisDirection())
 					newDirection = EnumFacing.EAST;
@@ -291,7 +291,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 					newDirection = EnumFacing.NORTH;
 			relativeDirection.setDirection(newDirection);
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
@@ -299,14 +299,14 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			LittleSlidingDoor door = null;
 			if (structure instanceof LittleSlidingDoor)
 				door = (LittleSlidingDoor) structure;
-
+			
 			LittleTileSize size = LittleTilePreview.getSize(stack);
-
+			
 			int index = EnumFacing.UP.ordinal();
 			if (door != null)
 				index = door.moveDirection.ordinal();
 			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getFacingNames()));
-
+			
 			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
 			parent.addControl(relativeDirection);
 			int distance = size.getSizeOfAxis(EnumFacing.getFront(index).getAxis());
@@ -315,27 +315,27 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			parent.addControl(new GuiTextfield("distance", "" + distance, 110, 51, 60, 14).setNumbersOnly());
 			// parent.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance,
 			// 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
-
+			
 			parent.addControl(new GuiIDButton("reset view", 110, 75, 0));
 			parent.addControl(new GuiIDButton("change view", 110, 95, 1));
 			parent.addControl(new GuiIDButton("flip view", 110, 115, 1));
-
+			
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
 			tile.visibleAxis = false;
 			tile.updateViewDirection();
 			parent.addControl(tile);
-
+			
 			updateDirection(tile, EnumFacing.getFront(index), relativeDirection);
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleSlidingDoor parseStructure(int duration) {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
-
+			
 			// GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
 			GuiTextfield distance = (GuiTextfield) parent.get("distance");
-
+			
 			LittleSlidingDoor door = new LittleSlidingDoor();
 			door.duration = duration;
 			door.moveDirection = direction;
@@ -344,5 +344,5 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			return door;
 		}
 	}
-
+	
 }

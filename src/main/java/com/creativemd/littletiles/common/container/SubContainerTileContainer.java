@@ -25,22 +25,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerTileContainer extends SubContainerHeldItem {
-
+	
 	public SubContainerTileContainer(EntityPlayer player) {
 		super(player);
 	}
-
+	
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event) {
 		if (event.source instanceof SlotControl) {
 			if (event.source instanceof SlotControlBlockIngredient) {
 				SlotControlBlockIngredient slot = (SlotControlBlockIngredient) event.source;
-
+				
 				if (slot.slot.getStack().isEmpty())
 					slot.ingredient = null;
 				else if (slot.ingredient != null)
 					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleGridContext.get().maxTilesPerBlock;
-
+				
 				List<BlockIngredient> inventory = new ArrayList<>();
 				for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
 					for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
@@ -50,25 +50,25 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 							inventory.add(ingredient);
 					}
 				}
-
+				
 				ItemTileContainer.saveInventory(stack, inventory);
-
+				
 				reloadControls();
 			} else if (event.source.name.startsWith("input")) {
-
+				
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
-
+				
 				CombinedIngredients ingredients = LittleAction.getIngredientsOfStack(input);
-
+				
 				boolean containedColor = false;
-
+				
 				if (ingredients != null) {
 					ColorUnit result = ItemTileContainer.storeColor(stack, ingredients.color, true);
 					if (result != null && result.equals(ingredients.color))
 						return;
-
+					
 					containedColor = !ingredients.color.isEmpty();
-
+					
 					while (!input.isEmpty()) {
 						if (ItemTileContainer.storeBlocks(stack, ingredients.block.copy(), true) != null)
 							break;
@@ -77,9 +77,9 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 						if (ItemTileContainer.storeColor(stack, ingredients.color, false) != null)
 							break;
 					}
-
+					
 					updateSlots();
-
+					
 					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
 				} else if (input.getItem() instanceof ItemDye) {
 					ColorUnit color = ColorUnit.getColors(ItemDye.DYE_COLORS[input.getItemDamage()]);
@@ -92,21 +92,21 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 						if (ItemTileContainer.storeColor(stack, color, false) != null)
 							break;
 					}
-
+					
 					containedColor = true;
-
+					
 				}
-
+				
 				if (containedColor) {
 					reloadControls();
-
+					
 					player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
 				}
 			}
-
+			
 		}
 	}
-
+	
 	public void reloadControls() {
 		controls.clear();
 		createControls();
@@ -115,9 +115,9 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 		nbt.setBoolean("reload", true);
 		sendNBTToGui(nbt);
 	}
-
+	
 	public InventoryBasic bagInventory;
-
+	
 	public void updateSlots() {
 		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
 		for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
@@ -128,10 +128,10 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 			}
 		}
 	}
-
+	
 	@Override
 	public void createControls() {
-
+		
 		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
 		bagInventory = new InventoryBasic("item", false, ItemTileContainer.inventorySize) {
 			@Override
@@ -151,14 +151,14 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 				}, index < inventory.size() ? inventory.get(index) : null));
 			}
 		}
-
+		
 		InventoryBasic input = new InventoryBasic("input", false, 1);
 		addSlotToContainer(new Slot(input, 0, 120, 5));
-
+		
 		addPlayerSlotsToContainer(player);
-
+		
 	}
-
+	
 	@Override
 	public void onClosed() {
 		player.inventory.mainInventory.set(currentIndex, stack);
@@ -166,10 +166,10 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 		if (!stack.isEmpty())
 			WorldUtils.dropItem(player, stack);
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 }

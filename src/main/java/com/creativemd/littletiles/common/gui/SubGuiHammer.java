@@ -16,32 +16,32 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiHammer extends SubGui {
-
+	
 	public ItemStack stack;
-
+	
 	public SubGuiHammer(ItemStack stack) {
 		super(140, 150);
 		this.stack = stack;
 	}
-
+	
 	public LittleGridContext getContext() {
 		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
 	}
-
+	
 	@Override
 	public void onClosed() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = SelectShape.getShape(box.caption);
-
+		
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("shape", shape.key);
 		shape.saveCustomSettings(scroll, nbt, getContext());
 		sendPacketToServer(nbt);
-
+		
 		super.onClosed();
 	}
-
+	
 	@Override
 	public void createControls() {
 		GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(SelectShape.shapes.keySet()));
@@ -51,21 +51,21 @@ public class SubGuiHammer extends SubGui {
 		controls.add(scroll);
 		onChange();
 	}
-
+	
 	@CustomEventSubscribe
 	public void onComboBoxChange(GuiControlChangedEvent event) {
 		if (event.source.is("shape"))
 			onChange();
 	}
-
+	
 	public void onChange() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-
+		
 		SelectShape shape = SelectShape.getShape(box.caption);
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
 	}
-
+	
 }

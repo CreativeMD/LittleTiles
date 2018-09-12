@@ -45,59 +45,59 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRendered {
-
+	
 	public ItemRecipeAdvanced() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 	}
-
+	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0;
 	}
-
+	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		LittleTilePreview.savePreviewTiles(previews, stack);
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		return LittleTilePreview.getPreview(stack);
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
-
+	
 	@Override
 	public void onClickAir(EntityPlayer player, ItemStack stack) {
 		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 	}
-
+	
 	@Override
 	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		return true;
 	}
-
+	
 	@Override
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
 		return 0F;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-
+		
 	}
-
+	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
 		return false;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
@@ -105,57 +105,57 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 			return LittleTilePreview.getCubes(stack);
 		return new ArrayList<RenderCubeObject>();
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
-
+		
 		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
 			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-
+			
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-
+			
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.enableDepth();
 		}
 		GlStateManager.popMatrix();
-
+		
 		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0) {
 			LittleTileSize size = LittleTilePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
 			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
-
+		
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		return ItemModelCache.getCache(stack, facing);
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return ItemMultiTiles.getLTStructure(stack);
 	}
-
+	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return false;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
@@ -165,18 +165,18 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));
 		return false;
 	}
-
+	
 	public static SelectionMode getSelectionMode(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		return SelectionMode.getOrDefault(stack.getTagCompound().getString("selmode"));
 	}
-
+	
 	public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		stack.getTagCompound().setString("selmode", mode.name);
 	}
 }

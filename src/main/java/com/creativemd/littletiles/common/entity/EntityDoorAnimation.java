@@ -30,22 +30,22 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
-
+	
 	// private static final DataParameter<Float> ENTITY_PROGRESS =
 	// EntityDataManager.<Double>createKey(EntityDoorAnimation.class,
 	// DataSerializers.FLOAT);
-
+	
 	public EntityPlayer activator;
-
+	
 	public long started = System.currentTimeMillis();
 	private double progress;
 	public int duration;
 	public boolean approved = true;
-
+	
 	public DoorTransformation transformation;
-
+	
 	public BlockPos previewPos;
-
+	
 	public void setTransformationStartOffset() {
 		preventPush = true;
 		transformation.performTransformation(this, 0);
@@ -57,32 +57,32 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		prevPosZ = posZ;
 		preventPush = false;
 	}
-
+	
 	public EntityDoorAnimation(World worldIn) {
 		super(worldIn);
 	}
-
+	
 	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, BlockPos previewPos) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
-
+		
 		this.activator = activator;
 		this.structure = structure;
-
+		
 		this.transformation = transformation;
 		this.duration = structure.duration;
-
+		
 		this.previewPos = previewPos;
-
+		
 		setTransformationStartOffset();
-
+		
 		prevPosY -= 0.1; // To force an update
 		updateBoundingBox();
 		updateOrigin();
-
+		
 		if (world.isRemote)
 			approved = false;
 	}
-
+	
 	@Override
 	public void copyExtra(EntityDoorAnimation animation) {
 		animation.progress = progress;
@@ -92,37 +92,37 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		animation.lastSendProgress = lastSendProgress;
 		animation.additionalAxis = additionalAxis.copy();
 	}
-
+	
 	private float lastSendProgress = -1;
-
+	
 	public void setProgress(double progress) {
 		if (progress > duration)
 			this.progress = duration;
 		else
 			this.progress = progress;
-
+		
 		/*
 		 * if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress
 		 * > 10 || progress >= duration)) { dataManager.set(ENTITY_PROGRESS, progress);
 		 * lastSendProgress = progress; }
 		 */
 	}
-
+	
 	public double getProgress() {
 		return progress;
 	}
-
+	
 	@Override
 	protected void entityInit() {
 		// this.dataManager.register(ENTITY_PROGRESS, 0F);
 	}
-
+	
 	@Override
 	public void notifyDataManagerChange(DataParameter<?> key) {
 		// if (world.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
 		// this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
 	}
-
+	
 	@Override
 	public void onTick() {
 		if (world.isRemote && isWaitingForRender())
@@ -130,15 +130,15 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		if (transformation != null)
 			transformation.performTransformation(this, progress / (double) duration);
 	}
-
+	
 	@Override
 	public void onPostTick() {
 		if (transformation == null)
 			return;
-
+		
 		if (world.isRemote && isWaitingForRender()) {
 			ticksToWait--;
-
+			
 			if (ticksToWait % 10 == 0) {
 				List<TileEntityLittleTiles> tileEntities = null;
 				for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
@@ -152,7 +152,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 				if (tileEntities != null)
 					waitingForRender.removeAll(tileEntities);
 			}
-
+			
 			if (waitingForRender.size() == 0 || ticksToWait < 0) {
 				unloadRenderCache();
 				isDead = true;
@@ -162,10 +162,10 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 			if (progress >= duration) {
 				// Try to place door, if not drop ItemStack
 				LittleDoorBase structure = this.structure.copyToPlaceDoor();
-
+				
 				if (world.isRemote)
 					structure.isWaitingForApprove = true;
-
+				
 				if (!world.isRemote || approved) {
 					if (LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null) {
 						if (world.isRemote) {
@@ -185,28 +185,28 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 					} else if (!world.isRemote)
 						WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
 				}
-
+				
 				isDead = true;
 			} else {
 				setProgress(((System.currentTimeMillis() - started) / 50D));
 			}
 		}
 	}
-
+	
 	@Override
 	protected BlockPos getPreviewOffset() {
 		return previewPos;
 	}
-
+	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
-
+		
 		int[] array = compound.getIntArray("previewPos");
 		if (array.length == 3)
 			previewPos = new BlockPos(array[0], array[1], array[2]);
 		else
 			previewPos = baseOffset;
-
+		
 		super.readEntityFromNBT(compound);
 		duration = compound.getInteger("duration");
 		NBTBase tag = compound.getTag("progress");
@@ -216,24 +216,24 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 			setProgress(((NBTTagFloat) tag).getFloat());
 		else
 			setProgress(((NBTTagDouble) tag).getDouble());
-
+		
 		transformation = DoorTransformation.loadFromNBT(compound.getCompoundTag("transform"));
 		setTransformationStartOffset();
-
+		
 		started = System.currentTimeMillis() - (long) (progress * 50);
-
+		
 	}
-
+	
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {
 		super.writeEntityToNBT(compound);
-
+		
 		compound.setInteger("duration", duration);
 		compound.setDouble("progress", progress);
-
+		
 		compound.setIntArray("previewPos", new int[] { previewPos.getX(), previewPos.getY(), previewPos.getZ() });
-
+		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
 	}
-
+	
 }

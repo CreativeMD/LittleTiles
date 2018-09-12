@@ -41,15 +41,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
-
+	
 	public static PlacementMode currentMode = PlacementMode.getDefault();
 	public static LittleGridContext currentContext = LittleGridContext.get();
-
+	
 	public ItemMultiTiles() {
 		hasSubtypes = true;
 		setCreativeTab(LittleTiles.littleTab);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
@@ -61,7 +61,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 			tooltip.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
 		}
 	}
-
+	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		/*
@@ -71,47 +71,47 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 		 */
 		return EnumActionResult.PASS;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-
+		
 	}
-
+	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		LittleTilePreview.savePreviewTiles(previews, stack);
 	}
-
+	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return true;
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		return LittleTilePreview.getPreview(stack);
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return getLTStructure(stack);
 	}
-
+	
 	public static LittleStructure getLTStructure(ItemStack stack) {
 		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
-
+	
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return LittleTilePreview.getCubes(stack);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
@@ -122,14 +122,14 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		if (stack != null)
 			ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
@@ -137,48 +137,48 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 			return null;
 		return ItemModelCache.getCache(stack, facing);
 	}
-
+	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
 		if (!currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
 			return PlacementMode.getStructureDefault();
 		return currentMode;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
-
+			
 			@Override
 			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
 				ItemMultiTiles.currentContext = context;
 				ItemMultiTiles.currentMode = mode;
 			}
-
+			
 		};
 	}
-
+	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return true;
 	}
-
+	
 	@Override
 	public LittleGridContext getPositionContext(ItemStack stack) {
 		return currentContext;
 	}
-
+	
 	@Override
 	public LittleTileSize getCachedSize(ItemStack stack) {
 		if (stack.getTagCompound().hasKey("size"))
 			return LittleTilePreview.getSize(stack);
 		return null;
 	}
-
+	
 	@Override
 	public LittleTileVec getCachedOffset(ItemStack stack) {
 		return LittleTilePreview.getOffset(stack);
 	}
-
+	
 }

@@ -12,26 +12,26 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeReplace extends PlacementMode {
-
+	
 	public PlaceModeReplace(String name, PreviewMode mode) {
 		super(name, mode);
 	}
-
+	
 	@Override
 	public boolean shouldConvertBlock() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean checkAll() {
 		return false;
 	}
-
+	
 	@Override
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return null;
 	}
-
+	
 	@Override
 	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
 		if (!requiresCollisionTest)
@@ -46,5 +46,5 @@ public class PlaceModeReplace extends PlacementMode {
 		}
 		return tiles;
 	}
-
+	
 }

@@ -77,22 +77,22 @@ import team.chisel.ctm.api.IFacade;
 
 @Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
 public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {
-
+	
 	public static class TEResult {
-
+		
 		public final TileEntityLittleTiles te;
 		public final LittleTile tile;
-
+		
 		public TEResult(TileEntityLittleTiles te, LittleTile tile) {
 			this.te = te;
 			this.tile = tile;
 		}
-
+		
 		public boolean isComplete() {
 			return te != null && tile != null;
 		}
 	}
-
+	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos) {
 		if (world == null)
 			return null;
@@ -108,27 +108,27 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return (TileEntityLittleTiles) tileEntity;
 		return null;
 	}
-
+	
 	public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player) {
 		return loadTeAndTile(world, pos, player, TickUtils.getPartialTickTime());
 	}
-
+	
 	public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player, float partialTickTime) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
 			return new TEResult(te, te.getFocusedTile(player, partialTickTime));
 		return new TEResult(null, null);
 	}
-
+	
 	public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode) {
 		return secondMode && !(player.getHeldItemMainhand().getItem() instanceof ItemLittleSaw) && !(player.getHeldItemMainhand().getItem() instanceof ItemColorTube);
 	}
-
+	
 	public static final SoundType SILENT = new SoundType(-1.0F, 1.0F, SoundEvents.BLOCK_STONE_BREAK, SoundEvents.BLOCK_STONE_STEP, SoundEvents.BLOCK_STONE_PLACE, SoundEvents.BLOCK_STONE_HIT, SoundEvents.BLOCK_STONE_FALL);
-
+	
 	public final boolean ticking;
 	public final boolean rendered;
-
+	
 	public BlockTile(Material material, boolean ticking, boolean rendered) {
 		super(material);
 		this.ticking = ticking;
@@ -137,15 +137,15 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		setResistance(3.0F);
 		setSoundType(SILENT);
 	}
-
+	
 	public static IBlockState getState(boolean ticking, boolean rendered) {
 		return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered.getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
 	}
-
+	
 	public static IBlockState getState(TileEntityLittleTiles te) {
 		return getState(te.isTicking(), te.isRendered());
 	}
-
+	
 	public static IBlockState getState(List<LittleTile> tiles) {
 		boolean ticking = false;
 		boolean rendered = false;
@@ -154,31 +154,31 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				ticking = true;
 			if (tile.needCustomRendering())
 				rendered = true;
-
+			
 			if (ticking && rendered)
 				break;
 		}
 		return getState(ticking, rendered);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static Minecraft mc;
-
+	
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state) {
 		return EnumBlockRenderType.MODEL;
 	}
-
+	
 	@Override
 	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
 		return state;// new TileEntityState(state, world.getTileEntity(pos));
 	}
-
+	
 	@Override
 	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
 		return true;
 	}
-
+	
 	/**
 	 * Used to determine ambient occlusion and culling when rebuilding chunks for
 	 * render
@@ -187,17 +187,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
-
+	
 	@Override
 	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
-
+	
 	@Override
 	public void setBedOccupied(IBlockAccess world, BlockPos pos, EntityPlayer player, boolean occupied) {
-
+		
 	}
-
+	
 	@Override
 	public boolean isBed(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity player) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -224,18 +224,18 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@Override
 	public EnumFacing getBedDirection(IBlockState state, IBlockAccess world, BlockPos pos) {
 		return EnumFacing.SOUTH;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean hasCustomBreakingProgress(IBlockState state) {
 		return false;
 	}
-
+	
 	@Override
 	public BlockPos getBedSpawnPosition(IBlockState state, IBlockAccess world, BlockPos pos, EntityPlayer player) {
 		int tries = 0;
@@ -243,35 +243,35 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		int i = pos.getX();
 		int j = pos.getY();
 		int k = pos.getZ();
-
+		
 		for (int l = 0; l <= 1; ++l) {
 			int i1 = i - enumfacing.getFrontOffsetX() * l - 1;
 			int j1 = k - enumfacing.getFrontOffsetZ() * l - 1;
 			int k1 = i1 + 2;
 			int l1 = j1 + 2;
-
+			
 			for (int i2 = i1; i2 <= k1; ++i2) {
 				for (int j2 = j1; j2 <= l1; ++j2) {
 					BlockPos blockpos = new BlockPos(i2, j, j2);
-
+					
 					if (hasRoomForPlayer(world, blockpos)) {
 						if (tries <= 0) {
 							return blockpos;
 						}
-
+						
 						--tries;
 					}
 				}
 			}
 		}
-
+		
 		return null;
 	}
-
+	
 	protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos) {
 		return worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
 	}
-
+	
 	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -287,28 +287,28 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 							return true;
 					}
 				}
-
+				
 			}
 		}
 		return false;
 	}
-
+	
 	@Override
 	public float getBlockHardness(IBlockState blockState, World worldIn, BlockPos pos) {
 		return 0.1F;
 	}
-
+	
 	@Override
 	public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos) {
 		return super.getPlayerRelativeBlockHardness(state, player, worldIn, pos);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldSideBeRendered(IBlockState blockState, IBlockAccess blockAccess, BlockPos pos, EnumFacing side) {
 		return true;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos) {
@@ -320,7 +320,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return new AxisAlignedBB(pos);
 	}
-
+	
 	@Override
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
@@ -331,18 +331,18 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				for (int i = 0; i < boxes.size(); i++) {
 					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
 				}
-
+				
 			}
 		}
 	}
-
+	
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && te.getTiles().size() == 0)
 			super.breakBlock(world, pos, state);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
@@ -354,9 +354,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 		}
 	}
-
+	
 	public static boolean cancelNext = false;
-
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		ItemStack heldItem = playerIn.getHeldItem(hand);
@@ -370,7 +370,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
@@ -382,7 +382,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	/*
 	 * public int isProvidingWeakPower(IBlockAccess p_149709_1_, int p_149709_2_,
 	 * int p_149709_3_, int p_149709_4_, int p_149709_5_) { return 0; }
@@ -396,7 +396,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	 * public int getComparatorInputOverride(World p_149736_1_, int p_149736_2_, int
 	 * p_149736_3_, int p_149736_4_, int p_149736_5_) { return 0; }
 	 */
-
+	
 	@Override
 	public float getSlipperiness(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity entity) {
 		float slipperiness = 1;
@@ -417,14 +417,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return slipperiness;
 		return super.getSlipperiness(state, world, pos, entity);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
 	}
-
+	
 	public boolean first = true;
-
+	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		int light = 0;
@@ -443,14 +443,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return light;
 	}
-
+	
 	@Override
 	public BlockFaceShape getBlockFaceShape(IBlockAccess worldIn, IBlockState state, BlockPos pos, EnumFacing face) {
 		if (isSideSolid(state, worldIn, pos, face))
 			return BlockFaceShape.SOLID;
 		return BlockFaceShape.UNDEFINED;
 	}
-
+	
 	@Override
 	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -458,14 +458,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return te.sideCache.get(side);
 		return false;
 	}
-
+	
 	@Override
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 		if (world.isRemote)
 			return removedByPlayerClient(state, world, pos, player, willHarvest);
 		return true;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public boolean removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 		TEResult result = loadTeAndTile(world, pos, player, 1.0F);
@@ -474,7 +474,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		System.out.println("Somehow missed all tiles");
 		return false;
 	}
-
+	
 	@Override
 	public boolean isReplaceable(IBlockAccess world, BlockPos pos) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -482,7 +482,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return te.getTiles().size() == 0;
 		return true;
 	}
-
+	
 	@Override
 	/** Blocks will drop before this method is called */
 	public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
@@ -494,7 +494,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		 */
 		return stacks;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
@@ -512,7 +512,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return ItemStack.EMPTY;
 	}
-
+	
 	@Override
 	public boolean addLandingEffects(IBlockState state, net.minecraft.world.WorldServer world, BlockPos pos, IBlockState iblockstate, EntityLivingBase entity, int numberOfParticles) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -529,13 +529,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					}
 				}
 			}
-
+			
 			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
 				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
 		}
 		return true;
 	}
-
+	
 	@Override
 	public boolean addRunningEffects(IBlockState state, World world, BlockPos pos, Entity entity) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -552,7 +552,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					}
 				}
 			}
-
+			
 			Random random = new Random();
 			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
 				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + ((double) random.nextFloat() - 0.5D) * (double) entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + ((double) random.nextFloat() - 0.5D) * (double) entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()));
@@ -560,7 +560,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager) {
@@ -580,32 +580,32 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (side == EnumFacing.DOWN) {
 				d1 = (double) j + axisalignedbb.minY - 0.10000000149011612D;
 			}
-
+			
 			if (side == EnumFacing.UP) {
 				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
 			}
-
+			
 			if (side == EnumFacing.NORTH) {
 				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
 			}
-
+			
 			if (side == EnumFacing.SOUTH) {
 				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
 			}
-
+			
 			if (side == EnumFacing.WEST) {
 				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
 			}
-
+			
 			if (side == EnumFacing.EAST) {
 				d0 = (double) i + axisalignedbb.maxX + 0.10000000149011612D;
 			}
-
+			
 			manager.addEffect(((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
 		}
 		return true;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean addDestroyEffects(World world, BlockPos pos, net.minecraft.client.particle.ParticleManager manager) {
@@ -616,7 +616,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			IBlockState state = ((LittleTileBlock) result.tile).getBlockState();
 			// manager.addBlockDestroyEffects(pos, state);
 			int i = 4;
-
+			
 			for (int j = 0; j < 1; ++j) {
 				for (int k = 0; k < 1; ++k) {
 					for (int l = 0; l < 1; ++l) {
@@ -635,7 +635,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public SoundType getSoundTypeClient(IBlockState state, World world, BlockPos pos) {
 		TEResult result = loadTeAndTile(world, pos, mc.player);
@@ -643,7 +643,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return result.tile.getSound();
 		return null;
 	}
-
+	
 	@Override
 	public SoundType getSoundType(IBlockState state, World world, BlockPos pos, @Nullable Entity entity) {
 		if (entity == null)
@@ -651,7 +651,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		SoundType sound = null;
 		if (entity instanceof EntityPlayer && world.isRemote)
 			sound = getSoundTypeClient(state, world, pos);
-
+		
 		if (sound == null) {
 			// GET HEIGHEST TILE POSSIBLE
 			TileEntityLittleTiles te = loadTe(world, pos);
@@ -668,17 +668,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						}
 					}
 				}
-
+				
 				if (heighestTile != null)
 					return heighestTile.getSound();
 			}
 		}
-
+		
 		if (sound == null)
 			sound = SoundType.STONE;
 		return sound;
 	}
-
+	
 	/*
 	 * public boolean rotateBlock(World worldObj, int x, int y, int z,
 	 * ForgeDirection axis) { return RotationHelper.rotateVanillaBlock(this,
@@ -689,7 +689,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	 * 
 	 * }
 	 */
-
+	
 	@Override
 	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
 		/*
@@ -700,7 +700,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		 */
 		return false;
 	}
-
+	
 	@Override
 	public float getEnchantPowerBonus(World world, BlockPos pos) {
 		float bonus = 0F;
@@ -713,7 +713,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return bonus;
 	}
-
+	
 	@Override
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
@@ -731,9 +731,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 		}
 	}
-
+	
 	private static boolean loadingTileEntityFromWorld = false;
-
+	
 	@Override
 	public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor) {
 		if (loadingTileEntityFromWorld)
@@ -751,7 +751,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 		}
 	}
-
+	
 	@Override
 	@Nullable
 	public RayTraceResult collisionRayTrace(IBlockState blockState, World worldIn, BlockPos pos, Vec3d start, Vec3d end) {
@@ -763,7 +763,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return null;
 	}
-
+	
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
@@ -777,7 +777,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 		}
 	}
-
+	
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
 		if (rendered)
@@ -785,12 +785,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				return new TileEntityLittleTilesTickingRendered();
 			else
 				return new TileEntityLittleTilesRendered();
-
+			
 		if (ticking)
 			return new TileEntityLittleTilesTicking();
 		return new TileEntityLittleTiles();
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	private static TileEntityLittleTiles checkforTileEntity(World world, EnumFacing facing, BlockPos pos) {
 		TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
@@ -798,14 +798,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return (TileEntityLittleTiles) tileEntity;
 		return null;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	private static boolean checkforNeighbor(World world, EnumFacing facing, BlockPos pos) {
 		BlockPos newPos = pos.offset(facing);
 		IBlockState state = world.getBlockState(newPos);
 		return !state.doesSideBlockRendering(world, newPos, facing.getOpposite());
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileFace face) {
 		if (face == null) {
@@ -817,7 +817,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			shouldRender = checkforNeighbor(tileEntity.getWorld(), facing, tileEntity.getPos());
 			neighbors.put(facing, shouldRender);
 		}
-
+		
 		if (shouldRender == Boolean.TRUE) {
 			TileEntityLittleTiles otherTile = null;
 			if (!neighborsTiles.containsKey(facing)) {
@@ -833,7 +833,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		cube.setSideRender(facing, shouldRender ? EnumSideRender.OUTSIDE_RENDERED : EnumSideRender.OUTSIDE_NOT_RENDERD);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
@@ -842,17 +842,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static List<LittleRenderingCube> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		if (te instanceof TileEntityLittleTiles) {
-
+			
 			HashMap<EnumFacing, Boolean> neighbors = new HashMap<>();
 			HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles = new HashMap<>();
-
+			
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
-
+			
 			RenderCubeLayerCache cache = tileEntity.getCubeCache();
 			List<LittleRenderingCube> cachedCubes = cache.getCubesByLayer(layer);
 			if (cachedCubes != null) {
@@ -867,7 +867,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 								EnumFacing facing = EnumFacing.VALUES[k];
 								if (cube.getSidedRendererType(facing).outside) {
 									LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
-
+									
 									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
 									// face.move(facing);
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
@@ -880,13 +880,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 							}
 						}
 					}
-
+					
 					tileEntity.hasNeighborChanged = false;
 				}
-
+				
 				return cachedCubes;
 			}
-
+			
 			for (Iterator iterator = tileEntity.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				if (tile.shouldBeRenderedInLayer(layer)) {
@@ -897,9 +897,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
 							LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
-
+							
 							cube.customData = tile;
-
+							
 							if (face == null) {
 								cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
 							} else {
@@ -914,20 +914,20 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					cubes.addAll(tileCubes);
 				}
 			}
-
+			
 			cache.setCubesByLayer(cubes, layer);
-
+			
 		} else if (stack != null) {
 			return ItemBlockTiles.getItemRenderingCubes(stack);
 		}
 		return cubes;
 	}
-
+	
 	@Override
 	public boolean canDropFromExplosion(Explosion explosionIn) {
 		return false;
 	}
-
+	
 	@Override
 	public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -941,7 +941,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					LittleTileVec vec = tile.getCenter();
 					Vec3d newVec = new Vec3d(pos);
 					newVec = newVec.add(vec.getVec(te.getContext()));
-
+					
 					int explosionStrength = (int) ((50D / center.distanceTo(newVec)) * size);
 					double random = Math.random() * explosionStrength;
 					if (random > tile.getExplosionResistance()) {
@@ -960,7 +960,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		 * world.setBlockToAir(pos); onBlockDestroyedByExplosion(world, pos, explosion);
 		 */
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
@@ -971,10 +971,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					return tile.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 			}
 		}
-
+		
 		return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 	}
-
+	
 	/*
 	 * protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState
 	 * state) { double d0 = 0.0D; double d1 = 0.0D; double d2 = 0.0D;
@@ -1026,7 +1026,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	 * iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID; }
 	 * }
 	 */
-
+	
 	@Override
 	public Vec3d modifyAcceleration(World world, BlockPos pos, Entity entityIn, Vec3d motion) {
 		AxisAlignedBB boundingBox = entityIn.getEntityBoundingBox();
@@ -1044,13 +1044,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return motion;
 	}
-
+	
 	@Override
 	@Nullable
 	public Boolean isEntityInsideMaterial(IBlockAccess world, BlockPos blockpos, IBlockState iblockstate, Entity entity, double yToTest, Material materialIn, boolean testingHead) {
 		return isAABBInsideMaterial(entity.world, blockpos, entity.getEntityBoundingBox(), materialIn);
 	}
-
+	
 	@Override
 	@Nullable
 	public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn) {
@@ -1063,7 +1063,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@Override
 	public Boolean isAABBInsideLiquid(World world, BlockPos pos, AxisAlignedBB boundingBox) {
 		TileEntityLittleTiles te = loadTe(world, pos);
@@ -1075,13 +1075,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return false;
 	}
-
+	
 	@Override
 	@Method(modid = "ctm")
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side) {
 		return world.getBlockState(pos);
 	}
-
+	
 	@Override
 	@Method(modid = "ctm")
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side, BlockPos connection) {
@@ -1095,5 +1095,5 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		return this.getDefaultState();
 	}
-
+	
 }

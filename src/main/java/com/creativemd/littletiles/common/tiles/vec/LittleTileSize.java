@@ -13,11 +13,11 @@ import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleTileSize {
-
+	
 	public int sizeX;
 	public int sizeY;
 	public int sizeZ;
-
+	
 	public LittleTileSize(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "x") instanceof NBTTagByte)
 			set(nbt.getByte(name + "x"), nbt.getByte(name + "y"), nbt.getByte(name + "z"));
@@ -38,7 +38,7 @@ public class LittleTileSize {
 			}
 		}
 	}
-
+	
 	public LittleTileSize(String data) {
 		String[] coords = data.split("\\.");
 		try {
@@ -47,61 +47,61 @@ public class LittleTileSize {
 			set(0, 0, 0);
 		}
 	}
-
+	
 	public LittleTileSize(int sizeX, int sizeY, int sizeZ) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 	}
-
+	
 	public void set(int sizeX, int sizeY, int sizeZ) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
 	}
-
+	
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof LittleTileSize)
 			return sizeX == ((LittleTileSize) object).sizeX && sizeY == ((LittleTileSize) object).sizeY && sizeZ == ((LittleTileSize) object).sizeZ;
 		return super.equals(object);
 	}
-
+	
 	public int getVolume() {
 		return sizeX * sizeY * sizeZ;
 	}
-
+	
 	/** @return the volume in percent to a size of a normal block */
 	public double getPercentVolume(LittleGridContext context) {
 		return (double) getVolume() / (double) (context.maxTilesPerBlock);
 	}
-
+	
 	public LittleTileVec calculateInvertedCenter() {
 		double x = sizeX / 2D;
 		double y = sizeY / 2D;
 		double z = sizeZ / 2D;
 		return new LittleTileVec((int) Math.ceil(x), (int) Math.ceil(y), (int) Math.ceil(z));
 	}
-
+	
 	public LittleTileVec calculateCenter() {
 		double x = sizeX / 2D;
 		double y = sizeY / 2D;
 		double z = sizeZ / 2D;
 		return new LittleTileVec((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
 	}
-
+	
 	public double getPosX(LittleGridContext context) {
 		return context.toVanillaGrid(sizeX);
 	}
-
+	
 	public double getPosY(LittleGridContext context) {
 		return context.toVanillaGrid(sizeY);
 	}
-
+	
 	public double getPosZ(LittleGridContext context) {
 		return context.toVanillaGrid(sizeZ);
 	}
-
+	
 	public int get(Axis axis) {
 		switch (axis) {
 		case X:
@@ -113,11 +113,11 @@ public class LittleTileSize {
 		}
 		return 0;
 	}
-
+	
 	public LittleTileSize copy() {
 		return new LittleTileSize(sizeX, sizeY, sizeZ);
 	}
-
+	
 	public void rotateSize(Rotation rotation) {
 		int tempX = sizeX;
 		int tempY = sizeY;
@@ -126,23 +126,23 @@ public class LittleTileSize {
 		this.sizeY = rotation.getMatrix().getY(tempX, tempY, tempZ);
 		this.sizeZ = rotation.getMatrix().getZ(tempX, tempY, tempZ);
 	}
-
+	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
 		nbt.setIntArray(name, new int[] { sizeX, sizeY, sizeZ });
 	}
-
+	
 	@Override
 	public String toString() {
 		return sizeX + "." + sizeY + "." + sizeZ;
 	}
-
+	
 	public LittleTileSize max(LittleTileSize size) {
 		this.sizeX = Math.max(this.sizeX, size.sizeX);
 		this.sizeY = Math.max(this.sizeY, size.sizeY);
 		this.sizeZ = Math.max(this.sizeZ, size.sizeZ);
 		return this;
 	}
-
+	
 	public int getSizeOfAxis(Axis axis) {
 		switch (axis) {
 		case X:
@@ -155,5 +155,5 @@ public class LittleTileSize {
 			return 0;
 		}
 	}
-
+	
 }

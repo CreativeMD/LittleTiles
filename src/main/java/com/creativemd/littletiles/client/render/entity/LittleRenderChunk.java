@@ -14,20 +14,20 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 
 public class LittleRenderChunk {
-
+	
 	public final BlockPos pos;
 	protected final VertexBuffer[] vertexBuffers = new VertexBuffer[BlockRenderLayer.values().length];
 	protected BufferBuilder[] tempBuffers = new BufferBuilder[BlockRenderLayer.values().length];
-
+	
 	protected List<BufferBuilder>[] queuedBuffers = new List[BlockRenderLayer.values().length];
 	protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
-
+	
 	public LittleRenderChunk(BlockPos pos) {
 		this.pos = pos;
 	}
-
+	
 	public int transparencySortedIndex = 0;
-
+	
 	public void addRenderData(TileEntityLittleTiles te) {
 		BlockLayerRenderBuffer layers = te.getBuffer();
 		if (layers != null) {
@@ -37,21 +37,21 @@ public class LittleRenderChunk {
 				if (tempBuffer != null) {
 					if (queuedBuffers[i] == null)
 						queuedBuffers[i] = new ArrayList<>();
-
+					
 					queuedBuffers[i].add(tempBuffer);
 				}
 			}
 		}
 	}
-
+	
 	public void resortTransparency(int index, float x, float y, float z) {
 		if (index == transparencySortedIndex)
 			return;
-
+		
 		this.transparencySortedIndex = index;
-
+		
 		int translucentIndex = BlockRenderLayer.TRANSLUCENT.ordinal();
-
+		
 		BufferBuilder builder = tempBuffers[translucentIndex];
 		if (builder != null) {
 			builder.sortVertexData(x, y, z);
@@ -61,7 +61,7 @@ public class LittleRenderChunk {
 			vertexBuffers[translucentIndex].bufferData(tempBuffers[translucentIndex].getByteBuffer());
 		}
 	}
-
+	
 	protected void processQueue() {
 		for (int i = 0; i < queuedBuffers.length; i++) {
 			if (queuedBuffers[i] != null) {
@@ -69,7 +69,7 @@ public class LittleRenderChunk {
 				for (BufferBuilder teBuffer : queuedBuffers[i]) {
 					expand += teBuffer.getVertexCount();
 				}
-
+				
 				BufferBuilder tempBuffer = tempBuffers[i];
 				if (tempBuffer == null) {
 					tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getIntegerSize() * expand * 4);
@@ -79,49 +79,49 @@ public class LittleRenderChunk {
 				} else {
 					BufferBuilderUtils.growBuffer(tempBuffer, tempBuffer.getVertexFormat().getIntegerSize() * expand * 4);
 				}
-
+				
 				for (BufferBuilder teBuffer : queuedBuffers[i]) {
 					BufferBuilderUtils.addBuffer(tempBuffer, teBuffer);
 				}
-
+				
 				queuedBuffers[i] = null;
 				bufferChanged[i] = true;
 			}
 		}
-
+		
 	}
-
+	
 	public void uploadBuffer() {
 		processQueue();
-
+		
 		for (int i = 0; i < bufferChanged.length; i++) {
 			if (bufferChanged[i]) {
 				if (vertexBuffers[i] != null)
 					vertexBuffers[i].deleteGlBuffers();
-
+				
 				vertexBuffers[i] = new VertexBuffer(DefaultVertexFormats.BLOCK);
 				vertexBuffers[i].bufferData(tempBuffers[i].getByteBuffer());
-
+				
 				bufferChanged[i] = false;
 			}
 		}
 	}
-
+	
 	public VertexBuffer getLayerBuffer(BlockRenderLayer layer) {
 		return vertexBuffers[layer.ordinal()];
 	}
-
+	
 	public void markCompleted() {
 		for (int j = 0; j < tempBuffers.length; j++)
 			if (BlockRenderLayer.values()[j] != BlockRenderLayer.TRANSLUCENT)
 				tempBuffers[j] = null;
 	}
-
+	
 	public void unload() {
 		for (int i = 0; i < vertexBuffers.length; i++) {
 			if (vertexBuffers[i] != null)
 				vertexBuffers[i].deleteGlBuffers();
 		}
 	}
-
+	
 }

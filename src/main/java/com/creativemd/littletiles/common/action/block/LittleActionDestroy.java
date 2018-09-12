@@ -30,23 +30,23 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroy extends LittleActionInteract {
-
+	
 	public LittleActionDestroy(BlockPos blockPos, EntityPlayer player) {
 		super(blockPos, player);
 	}
-
+	
 	public LittleActionDestroy() {
-
+		
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		return true;
 	}
-
+	
 	public LittleAbsolutePreviews destroyedTiles;
 	public StructurePreview structurePreview;
-
+	
 	@Override
 	public LittleAction revert() {
 		if (structurePreview != null)
@@ -54,10 +54,10 @@ public class LittleActionDestroy extends LittleActionInteract {
 		destroyedTiles.convertToSmallest();
 		return new LittleActionPlaceAbsolute(destroyedTiles, PlacementMode.normal);
 	}
-
+	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-
+		
 		if (!world.isRemote) {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
@@ -66,7 +66,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				return false;
 			}
 		}
-
+		
 		if (tile.isStructureBlock) {
 			boolean loaded = tile.isLoaded() && tile.structure.hasLoaded();
 			if (loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
@@ -77,16 +77,16 @@ public class LittleActionDestroy extends LittleActionInteract {
 					tile.destroy();
 				} else
 					tile.te.removeTile(tile);
-
+					
 				// if(!world.isRemote)
 				// tile.structure.removeWorldProperties();
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
 		} else {
-
+			
 			destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 			List<LittleTile> tiles = new ArrayList<>();
-
+			
 			if (BlockTile.selectEntireBlock(player, secondMode)) {
 				List<LittleTile> remains = new ArrayList<>();
 				for (LittleTile toDestory : te.getTiles()) {
@@ -97,7 +97,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 					} else
 						remains.add(toDestory);
 				}
-
+				
 				if (player.isCreative())
 					addPreviewToInventory(player, destroyedTiles);
 				else if (!world.isRemote) {
@@ -105,38 +105,38 @@ public class LittleActionDestroy extends LittleActionInteract {
 					LittleTilePreview.saveTiles(world, te.getContext(), tiles, drop);
 					WorldUtils.dropItem(world, drop, pos);
 				}
-
+				
 				tiles.clear();
-
+				
 				te.getTiles().clear();
 				te.getTiles().addAll(remains);
 				te.updateTiles();
 			} else {
 				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
-
+				
 				addPreviewToInventory(player, destroyedTiles);
-
+				
 				tile.destroy();
 			}
 		}
-
+		
 		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
-
+		
 		return true;
 	}
-
+	
 	@Override
 	protected boolean isRightClick() {
 		return false;
 	}
-
+	
 	public static class StructurePreview {
-
+		
 		public LittleAbsolutePreviews previews;
 		public boolean requiresItemStack;
 		public NBTTagCompound structureNBT;
 		public LittleStructure structure;
-
+		
 		public StructurePreview(LittleStructure structure) {
 			if (!structure.hasLoaded())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
@@ -150,19 +150,19 @@ public class LittleActionDestroy extends LittleActionInteract {
 			structure.writeToNBTPreview(structureNBT, previews.pos);
 			this.structure = structure;
 		}
-
+		
 		public LittleAction getPlaceAction() {
 			LittleStructure structure = LittleStructure.createAndLoadStructure(structureNBT, null);
 			if (requiresItemStack)
 				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, structure, PlacementMode.all, false);
 			return new LittleActionPlaceAbsolute(previews, structure, PlacementMode.all, false);
 		}
-
+		
 		@Override
 		public int hashCode() {
 			return structureNBT.hashCode();
 		}
-
+		
 		@Override
 		public boolean equals(Object paramObject) {
 			if (paramObject instanceof StructurePreview)
@@ -172,5 +172,5 @@ public class LittleActionDestroy extends LittleActionInteract {
 			return false;
 		}
 	}
-
+	
 }

@@ -33,9 +33,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleBlockPacket extends CreativeCorePacket {
-
+	
 	public static enum BlockPacketAction {
-
+		
 		COLOR_TUBE(true) {
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
@@ -61,30 +61,30 @@ public class LittleBlockPacket extends CreativeCorePacket {
 				ItemLittleGrabber.getMode(stack).littleBlockAction(world, te, tile, stack, pos, nbt);
 			}
 		};
-
+		
 		public final boolean rightClick;
-
+		
 		private BlockPacketAction(boolean rightClick) {
 			this.rightClick = rightClick;
 		}
-
+		
 		public abstract void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt);
 	}
-
+	
 	public BlockPos blockPos;
 	public Vec3d pos;
 	public Vec3d look;
 	public BlockPacketAction action;
 	public NBTTagCompound nbt;
-
+	
 	public LittleBlockPacket() {
-
+		
 	}
-
+	
 	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action) {
 		this(blockPos, player, action, new NBTTagCompound());
 	}
-
+	
 	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action, NBTTagCompound nbt) {
 		this.blockPos = blockPos;
 		this.action = action;
@@ -94,7 +94,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.nbt = nbt;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, blockPos);
@@ -103,7 +103,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		buf.writeInt(action.ordinal());
 		writeNBT(buf, nbt);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		blockPos = readPos(buf);
@@ -112,13 +112,13 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		action = BlockPacketAction.values()[buf.readInt()];
 		nbt = readNBT(buf);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
-
+		
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		TileEntity tileEntity = player.world.getTileEntity(blockPos);
@@ -126,17 +126,17 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-
+			
 			if (!LittleAction.isAllowedToInteract(player, blockPos, action.rightClick, EnumFacing.EAST)) {
 				LittleAction.sendBlockResetToClient((EntityPlayerMP) player, blockPos, te);
 				return;
 			}
-
+			
 			if (tile != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = te.rayTrace(pos, look);
 				action.action(world, te, tile, stack, player, moving, blockPos, nbt);
-
+				
 				if (!player.world.isRemote) {
 					EntityPlayerMP playerMP = (EntityPlayerMP) player;
 					Slot slot = playerMP.openContainer.getSlotFromInventory(playerMP.inventory, playerMP.inventory.currentItem);
@@ -145,5 +145,5 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			}
 		}
 	}
-
+	
 }

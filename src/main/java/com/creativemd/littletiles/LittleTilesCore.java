@@ -9,12 +9,12 @@ import net.minecraftforge.fml.common.LoadController;
 import net.minecraftforge.fml.common.ModMetadata;
 
 public class LittleTilesCore extends DummyModContainer {
-
+	
 	public static final String modid = "littletilescore";
 	public static final String version = "1.0.0";
-
+	
 	public LittleTilesCore() {
-
+		
 		super(new ModMetadata());
 		ModMetadata meta = getMetadata();
 		meta.modId = modid;
@@ -29,10 +29,10 @@ public class LittleTilesCore extends DummyModContainer {
 		meta.logoFile = "";
 		// CreativeCore.loadMod();
 	}
-
+	
 	@Override
 	public boolean registerBus(EventBus bus, LoadController controller) {
-
+		
 		bus.register(this);
 		// bus.register(CreativeCore.instance);
 		return true;

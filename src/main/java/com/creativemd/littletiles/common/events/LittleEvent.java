@@ -82,7 +82,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleEvent {
-
+	
 	@SubscribeEvent
 	public void trackEntity(StartTracking event) {
 		if (event.getTarget() instanceof EntityDoorAnimation && ((EntityDoorAnimation) event.getTarget()).activator != event.getEntityPlayer()) {
@@ -90,16 +90,16 @@ public class LittleEvent {
 			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), true), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
-
+	
 	public static boolean cancelNext = false;
-
+	
 	public static ItemStack lastSelectedItem = null;
 	public static ISpecialBlockSelector blockSelector = null;
 	public static ILittleTile iLittleTile = null;
-
+	
 	@SideOnly(Side.CLIENT)
 	private boolean leftClicked;
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean onMouseWheelClick(RayTraceResult result, EntityPlayer player, World world) {
 		if (result.typeOfHit == Type.BLOCK) {
@@ -110,18 +110,18 @@ public class LittleEvent {
 		}
 		return false;
 	}
-
+	
 	@SubscribeEvent
 	public void onLeftClickAir(LeftClickEmpty event) {
 		if (event.getWorld().isRemote) {
 			ItemStack stack = event.getItemStack();
 			ILittleTile iLittleTile = PlacementHelper.getLittleInterface(stack);
-
+			
 			if (iLittleTile != null)
 				iLittleTile.onClickAir(event.getEntityPlayer(), stack);
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onLeftClick(LeftClickBlock event) {
 		if (event.getWorld().isRemote) {
@@ -133,15 +133,15 @@ public class LittleEvent {
 						blockSelector.onDeselect(event.getWorld(), lastSelectedItem, event.getEntityPlayer());
 						blockSelector = null;
 					}
-
+					
 					if (iLittleTile != null) {
 						iLittleTile.onDeselect(event.getEntityPlayer(), lastSelectedItem);
 						iLittleTile = null;
 					}
-
+					
 					lastSelectedItem = null;
 				}
-
+				
 				if (stack.getItem() instanceof ISpecialBlockSelector) {
 					if (((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTilePos(ray, ((ISpecialBlockSelector) stack.getItem()).getContext(stack))))
 						;
@@ -149,21 +149,21 @@ public class LittleEvent {
 					blockSelector = (ISpecialBlockSelector) stack.getItem();
 					lastSelectedItem = stack;
 				}
-
+				
 				iLittleTile = PlacementHelper.getLittleInterface(stack);
-
+				
 				if (iLittleTile != null) {
 					if (iLittleTile.onClickBlock(event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray))
 						event.setCanceled(true);
 					lastSelectedItem = stack;
 				}
-
+				
 				leftClicked = true;
 			}
 		} else if (event.getItemStack().getItem() instanceof ISpecialBlockSelector)
 			event.setCanceled(true);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void renderOverlay(RenderBlockOverlayEvent event) {
@@ -204,7 +204,7 @@ public class LittleEvent {
 						bufferbuilder.pos(1.0D, 1.0D, -0.5D).tex((double) (0.0F + f7), (double) (0.0F + f8)).endVertex();
 						bufferbuilder.pos(-1.0D, 1.0D, -0.5D).tex((double) (4.0F + f7), (double) (0.0F + f8)).endVertex();
 						tessellator.draw();
-
+						
 						GlStateManager.popMatrix();
 						GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 						GlStateManager.disableBlend();
@@ -215,14 +215,14 @@ public class LittleEvent {
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void breakSpeed(BreakSpeed event) {
 		ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
 		if (stack.getItem() instanceof ISpecialBlockSelector)
 			event.setNewSpeed(0);
 	}
-
+	
 	@SubscribeEvent
 	public void onInteract(RightClickBlock event) {
 		if (cancelNext) {
@@ -230,7 +230,7 @@ public class LittleEvent {
 			event.setCanceled(true);
 			return;
 		}
-
+		
 		ItemStack stack = event.getEntityPlayer().getHeldItem(EnumHand.MAIN_HAND);
 		if (event.getWorld().isRemote && event.getHand() == EnumHand.MAIN_HAND && stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking()) {
 			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
@@ -239,21 +239,21 @@ public class LittleEvent {
 				event.setCanceled(true);
 			}
 		}
-
+		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-
+		
 		if (iTile != null) {
 			if (event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
 				onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
 			event.setCanceled(true);
 		}
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static PositionResult getPosition(World world, ILittleTile iTile, ItemStack stack, RayTraceResult result) {
 		return PreviewRenderer.marked != null ? PreviewRenderer.marked.position.copy() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack));
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
 		PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
@@ -261,13 +261,13 @@ public class LittleEvent {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack)) {
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
 				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
-
+				
 				PreviewRenderer.marked = null;
 			}
 			iTile.onDeselect(player, stack);
 		}
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void drawHighlight(DrawBlockHighlightEvent event) {
@@ -302,31 +302,31 @@ public class LittleEvent {
 							direction = EnumFacing.DOWN;
 						if (player.rotationPitch < -45)
 							direction = EnumFacing.UP;
-
+						
 						LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
 						packet.executeClient(player);
 						PacketHandler.sendPacketToServer(packet);
 					}
-
+					
 					// Rotate Block
 					while (LittleTilesClient.up.isPressed())
 						processRotateKey(player, Rotation.Z_CLOCKWISE);
-
+					
 					while (LittleTilesClient.down.isPressed())
 						processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE);
-
+					
 					while (LittleTilesClient.right.isPressed())
 						processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE);
-
+					
 					while (LittleTilesClient.left.isPressed())
 						processRotateKey(player, Rotation.Y_CLOCKWISE);
-
+					
 					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) event.getPartialTicks();
 					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) event.getPartialTicks();
 					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) event.getPartialTicks();
 					LittleBoxes boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), result);
 					// box.addOffset(new LittleTileVec(pos));
-
+					
 					GlStateManager.enableBlend();
 					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 					GlStateManager.glLineWidth(4.0F);
@@ -335,28 +335,28 @@ public class LittleEvent {
 					for (int i = 0; i < boxes.size(); i++) {
 						RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).offset(boxes.pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 					}
-
+					
 					if (state.getMaterial() != Material.AIR && world.getWorldBorder().contains(pos)) {
 						GlStateManager.glLineWidth(1.0F);
 						RenderGlobal.drawSelectionBoundingBox(state.getSelectedBoundingBox(world, pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);
 					}
-
+					
 					GlStateManager.depthMask(true);
 					GlStateManager.enableTexture2D();
 					GlStateManager.disableBlend();
-
+					
 					event.setCanceled(true);
 				}
 			}
 		}
 	}
-
+	
 	public void processRotateKey(EntityPlayer player, Rotation rotation) {
 		LittleRotatePacket packet = new LittleRotatePacket(rotation);
 		packet.executeClient(player);
 		PacketHandler.sendPacketToServer(packet);
 	}
-
+	
 	@SubscribeEvent
 	public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
 		try {
@@ -367,7 +367,7 @@ public class LittleEvent {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onPlayerLogout(PlayerLoggedOutEvent event) {
 		try {
@@ -379,7 +379,7 @@ public class LittleEvent {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@SubscribeEvent
 	public void onWakeUp(PlayerWakeUpEvent event) {
 		try {
@@ -391,7 +391,7 @@ public class LittleEvent {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
 	public void onPlayerSleep(PlayerSleepInBedEvent event) {
@@ -410,27 +410,27 @@ public class LittleEvent {
 			}
 		}
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static int transparencySortingIndex;
-
+	
 	private static Field prevRenderSortX;
 	private static Field prevRenderSortY;
 	private static Field prevRenderSortZ;
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onRenderTick(RenderTickEvent event) {
 		if (event.phase == Phase.START) {
 			Minecraft mc = Minecraft.getMinecraft();
-
+			
 			if (mc.player != null && mc.renderGlobal != null) {
 				if (prevRenderSortX == null) {
 					prevRenderSortX = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortX", "field_147596_f");
 					prevRenderSortY = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortY", "field_147597_g");
 					prevRenderSortZ = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortZ", "field_147602_h");
 				}
-
+				
 				Entity entityIn = mc.getRenderViewEntity();
 				if (entityIn == null)
 					return;
@@ -446,36 +446,36 @@ public class LittleEvent {
 			}
 		}
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			Minecraft mc = Minecraft.getMinecraft();
-
+			
 			ItemModelCache.tick();
-
+			
 			if (leftClicked && !mc.gameSettings.keyBindAttack.isKeyDown()) {
 				leftClicked = false;
 			}
-
+			
 			if (mc.player != null) {
 				ItemStack stack = mc.player.getHeldItemMainhand();
-
+				
 				if (lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem()) {
 					if (blockSelector != null) {
 						blockSelector.onDeselect(mc.world, lastSelectedItem, mc.player);
 						blockSelector = null;
 					}
-
+					
 					if (iLittleTile != null) {
 						iLittleTile.onDeselect(mc.player, lastSelectedItem);
 						iLittleTile = null;
 					}
-
+					
 					lastSelectedItem = null;
 				}
-
+				
 				if (LittleTilesClient.configure.isPressed()) {
 					ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 					if (iTile != null) {
@@ -491,14 +491,14 @@ public class LittleEvent {
 			}
 		}
 	}
-
+	
 	private static Field entitiesById = ReflectionHelper.findField(World.class, "entitiesById", "field_175729_l");
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean cancelEntitySpawn(WorldClient world, int entityID, Entity entity) {
 		if (entity instanceof EntityAnimation) {
 			((EntityAnimation) entity).addDoor();
-
+			
 			if (((EntityAnimation) entity).spawnedInWorld) {
 				entity.setEntityId(entityID);
 				try {

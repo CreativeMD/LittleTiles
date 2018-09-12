@@ -18,15 +18,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class BoxFixedHandler extends FixedHandler {
-
+	
 	public ArrayList<LittleTileBox> boxes = new ArrayList<LittleTileBox>();
-
+	
 	public void init(World world, BlockPos pos) {
 		boxes = getBoxes(world, pos);
 	}
-
+	
 	public abstract ArrayList<LittleTileBox> getBoxes(World world, BlockPos pos);
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void handleRendering(LittleGridContext context, Minecraft mc, double x, double y, double z) {
@@ -40,9 +40,9 @@ public abstract class BoxFixedHandler extends FixedHandler {
 			RenderHelper3D.renderBlock(cubeX, cubeY, cubeZ, size.getPosX(context), size.getPosY(context), size.getPosZ(context), 0, 0, 0, 1, 1, 0.5, (Math.sin(System.nanoTime() / 200000000D) + 1.5) * 0.2D);
 			GL11.glPopMatrix();
 		}
-
+		
 	}
-
+	
 	@Override
 	public double getDistance(LittleTilePos suggestedPos) {
 		double distance = 2;
@@ -50,10 +50,10 @@ public abstract class BoxFixedHandler extends FixedHandler {
 			distance = Math.min(distance, boxes.get(i).distanceTo(suggestedPos.contextVec.vec));
 		return 0;
 	}
-
+	
 	@Override
 	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested) {
 		return null;
 	}
-
+	
 }

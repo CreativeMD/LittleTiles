@@ -17,29 +17,29 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
-
+	
 	public LittleStructure structure;
 	public LittleStructureParser parser;
-
+	
 	public SubGuiRecipeAdvancedStructure(ItemStack stack) {
 		super(200, 200, stack);
 	}
-
+	
 	@Override
 	public void saveConfiguration() {
-
+		
 	}
-
+	
 	@Override
 	public void createControls() {
 		controls.add(new GuiButton("clear", translate("selection.clear"), 10, 176, 100) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				openYesNoDialog(translate("selection.dialog.clear"));
 			}
 		});
-
+		
 		ArrayList<String> lines = new ArrayList<>();
 		lines.add("none");
 		lines.addAll(LittleStructure.getStructureTypeNames());
@@ -61,7 +61,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 				if (SubGuiRecipeAdvancedStructure.this.parser != null) {
 					LittleStructure structure = SubGuiRecipeAdvancedStructure.this.parser.parseStructure(stack);
 					if (structure != null) {
-
+						
 						NBTTagCompound structureNBT = new NBTTagCompound();
 						structure.writeToNBT(structureNBT);
 						stack.getTagCompound().setTag("structure", structureNBT);
@@ -70,10 +70,10 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 						// WorldUtils.dropItem(container.player, multiTiles);
 					} else
 						stack.getTagCompound().removeTag("structure");
-
+					
 				} else
 					stack.getTagCompound().removeTag("structure");
-
+				
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("set_structure", true);
 				nbt.setTag("stack", stack.getTagCompound());
@@ -83,14 +83,14 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 		});
 		onChanged();
 	}
-
+	
 	public void onChanged() {
 		removeControls("type:", "types", "save", "clear");
 		String id = ((GuiComboBox) get("types")).caption;
-
+		
 		if (parser != null)
 			removeListener(parser);
-
+		
 		LittleStructure saved = this.structure;
 		if (saved != null && !saved.getIDOfStructure().equals(id))
 			saved = null;
@@ -105,13 +105,13 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 		} else
 			parser = null;
 	}
-
+	
 	@CustomEventSubscribe
 	public void onComboChange(GuiControlChangedEvent event) {
 		if (event.source.is("types"))
 			onChanged();
 	}
-
+	
 	@Override
 	public void onDialogClosed(String text, String[] buttons, String clicked) {
 		if (clicked.equalsIgnoreCase("yes")) {
@@ -120,7 +120,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			sendPacketToServer(nbt);
 		}
 	}
-
+	
 	@Override
 	public void receiveContainerPacket(NBTTagCompound nbt) {
 		stack.setTagCompound(nbt);

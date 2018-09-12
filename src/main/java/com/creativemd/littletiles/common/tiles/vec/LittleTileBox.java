@@ -40,20 +40,20 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileBox {
-
+	
 	public static final int secondMethodVolume = 256;
-
+	
 	// ================Data================
-
+	
 	public int minX;
 	public int minY;
 	public int minZ;
 	public int maxX;
 	public int maxY;
 	public int maxZ;
-
+	
 	// ================Constructors================
-
+	
 	public LittleTileBox(LittleTileVec center, LittleTileSize size) {
 		LittleTileVec offset = size.calculateCenter();
 		minX = (int) (center.x - offset.x);
@@ -63,18 +63,18 @@ public class LittleTileBox {
 		maxY = (int) (minY + size.sizeY);
 		maxZ = (int) (minZ + size.sizeZ);
 	}
-
+	
 	public LittleTileBox(LittleGridContext context, CubeObject cube) {
 		this(context.toGrid(cube.minX), context.toGrid(cube.minY), context.toGrid(cube.minZ), context.toGrid(cube.maxX), context.toGrid(cube.maxY), context.toGrid(cube.maxZ));
 	}
-
+	
 	public LittleTileBox(LittleGridContext context, AxisAlignedBB box) {
 		this(context.toGrid(box.minX), context.toGrid(box.minY), context.toGrid(box.minZ), context.toGrid(box.maxX), context.toGrid(box.maxY), context.toGrid(box.maxZ));
 	}
-
+	
 	public LittleTileBox(LittleTileBox... boxes) {
 		this(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
-
+		
 		for (int i = 0; i < boxes.length; i++) {
 			this.minX = Math.min(boxes[i].minX, this.minX);
 			this.minY = Math.min(boxes[i].minY, this.minY);
@@ -84,61 +84,61 @@ public class LittleTileBox {
 			this.maxZ = Math.max(boxes[i].maxZ, this.maxZ);
 		}
 	}
-
+	
 	public LittleTileBox(LittleTileVec min, LittleTileVec max) {
 		this(min.x, min.y, min.z, max.x, max.y, max.z);
 	}
-
+	
 	public LittleTileBox(LittleTileVec min) {
 		this(min.x, min.y, min.z, min.x + 1, min.y + 1, min.z + 1);
 	}
-
+	
 	public LittleTileBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		set(minX, minY, minZ, maxX, maxY, maxZ);
 	}
-
+	
 	// ================Conversions================
-
+	
 	public void addCollisionBoxes(LittleGridContext context, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, BlockPos offset) {
 		AxisAlignedBB axisalignedbb = getBox(context, offset);
-
+		
 		if (entityBox.intersects(axisalignedbb)) {
 			collidingBoxes.add(axisalignedbb);
 		}
 	}
-
+	
 	public AxisAlignedBB getSelectionBox(LittleGridContext context, BlockPos pos) {
 		return getBox(context, pos);
 	}
-
+	
 	public AxisAlignedBB getBox(LittleGridContext context, BlockPos offset) {
 		return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
 	}
-
+	
 	public AxisAlignedBB getBox(LittleGridContext context) {
 		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
 	}
-
+	
 	public CubeObject getCube(LittleGridContext context) {
 		return new CubeObject((float) context.toVanillaGrid(minX), (float) context.toVanillaGrid(minY), (float) context.toVanillaGrid(minZ), (float) context.toVanillaGrid(maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
 	}
-
+	
 	// ================Save================
-
+	
 	public int[] getArray() {
 		return new int[] { minX, minY, minZ, maxX, maxY, maxZ };
 	}
-
+	
 	public NBTTagIntArray getNBTIntArray() {
 		return new NBTTagIntArray(getArray());
 	}
-
+	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
 		nbt.setIntArray(name, getArray());
 	}
-
+	
 	// ================Size & Volume================
-
+	
 	public int getSmallestContext(LittleGridContext context) {
 		int size = LittleGridContext.minSize;
 		size = Math.max(size, context.getMinGrid(minX));
@@ -149,7 +149,7 @@ public class LittleTileBox {
 		size = Math.max(size, context.getMinGrid(maxZ));
 		return size;
 	}
-
+	
 	public void convertTo(LittleGridContext from, LittleGridContext to) {
 		if (from.size > to.size) {
 			int ratio = from.size / to.size;
@@ -169,28 +169,28 @@ public class LittleTileBox {
 			maxZ *= ratio;
 		}
 	}
-
+	
 	public boolean isCompletelyFilled() {
 		return true;
 	}
-
+	
 	public Vec3d getSizeVec(LittleGridContext context) {
 		return new Vec3d(context.toVanillaGrid(maxX - minX), context.toVanillaGrid(maxY - minY), context.toVanillaGrid(maxZ - minZ));
 	}
-
+	
 	public LittleTileSize getSize() {
 		return new LittleTileSize((int) (maxX - minX), (int) (maxY - minY), (int) (maxZ - minZ));
 	}
-
+	
 	public double getVolume() {
 		return (int) (maxX - minX) * (int) (maxY - minY) * (int) (maxZ - minZ);
 	}
-
+	
 	/** @return the volume in percent to a size of a normal block */
 	public double getPercentVolume(LittleGridContext context) {
 		return (double) getVolume() / (double) (context.maxTilesPerBlock);
 	}
-
+	
 	public int getValueOfFacing(EnumFacing facing) {
 		switch (facing) {
 		case EAST:
@@ -205,35 +205,35 @@ public class LittleTileBox {
 			return maxZ;
 		case NORTH:
 			return minZ;
-
+		
 		}
 		return 0;
 	}
-
+	
 	public LittleTileVec getCorner(BoxCorner corner) {
 		return new LittleTileVec(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
 	}
-
+	
 	public Vec3d getExactCorner(BoxCorner corner) {
 		return new Vec3d(getCornerX(corner), getCornerY(corner), getCornerZ(corner));
 	}
-
+	
 	public int getCornerValue(BoxCorner corner, Axis axis) {
 		return getValueOfFacing(corner.getFacing(axis));
 	}
-
+	
 	public int getCornerX(BoxCorner corner) {
 		return getValueOfFacing(corner.x);
 	}
-
+	
 	public int getCornerY(BoxCorner corner) {
 		return getValueOfFacing(corner.y);
 	}
-
+	
 	public int getCornerZ(BoxCorner corner) {
 		return getValueOfFacing(corner.z);
 	}
-
+	
 	public int getSize(Axis axis) {
 		switch (axis) {
 		case X:
@@ -245,7 +245,7 @@ public class LittleTileBox {
 		}
 		return 0;
 	}
-
+	
 	public void setMin(Axis axis, int value) {
 		switch (axis) {
 		case X:
@@ -259,7 +259,7 @@ public class LittleTileBox {
 			break;
 		}
 	}
-
+	
 	public int getMin(Axis axis) {
 		switch (axis) {
 		case X:
@@ -271,7 +271,7 @@ public class LittleTileBox {
 		}
 		return 0;
 	}
-
+	
 	public void setMax(Axis axis, int value) {
 		switch (axis) {
 		case X:
@@ -285,7 +285,7 @@ public class LittleTileBox {
 			break;
 		}
 	}
-
+	
 	public int getMax(Axis axis) {
 		switch (axis) {
 		case X:
@@ -297,38 +297,38 @@ public class LittleTileBox {
 		}
 		return 0;
 	}
-
+	
 	// ================Block Integration================
-
+	
 	public boolean isValidBox() {
 		return maxX > minX && maxY > minY && maxZ > minZ;
 	}
-
+	
 	public boolean needsMultipleBlocks(LittleGridContext context) {
 		int x = minX / context.size;
 		int y = minY / context.size;
 		int z = minZ / context.size;
-
+		
 		return maxX - x * context.size <= context.maxPos && maxY - y * context.size <= context.maxPos && maxZ - z * context.size <= context.maxPos;
 	}
-
+	
 	public boolean isBoxInsideBlock(LittleGridContext context) {
 		return minX >= context.minPos && maxX <= context.maxPos && minY >= context.minPos && maxY <= context.maxPos && minZ >= context.minPos && maxZ <= context.maxPos;
 	}
-
+	
 	public void split(LittleGridContext context, BlockPos offset, HashMapList<BlockPos, LittleTileBox> boxes) {
 		LittleTileSize size = getSize();
-
+		
 		int minOffX = context.toBlockOffset(minX);
 		int minOffY = context.toBlockOffset(minY);
 		int minOffZ = context.toBlockOffset(minZ);
-
+		
 		int maxOffX = context.toBlockOffset(maxX);
 		int maxOffY = context.toBlockOffset(maxY);
 		int maxOffZ = context.toBlockOffset(maxZ);
-
+		
 		List<LittleTileBox> tempBoxes = new ArrayList<>();
-
+		
 		for (int x = minOffX; x <= maxOffX; x++) {
 			for (int y = minOffY; y <= maxOffY; y++) {
 				for (int z = minOffZ; z <= maxOffZ; z++) {
@@ -338,27 +338,27 @@ public class LittleTileBox {
 					int maxX = Math.min(this.maxX, x * context.size + context.size);
 					int maxY = Math.min(this.maxY, y * context.size + context.size);
 					int maxZ = Math.min(this.maxZ, z * context.size + context.size);
-
+					
 					if (maxX > minX && maxY > minY && maxZ > minZ) {
 						tempBoxes.clear();
-
+						
 						BlockPos pos = new BlockPos(x + offset.getX(), y + offset.getY(), z + offset.getZ());
 						int offsetX = x * context.size;
 						int offsetY = y * context.size;
 						int offsetZ = z * context.size;
-
+						
 						extractBox(minX, minY, minZ, maxX, maxY, maxZ, tempBoxes);
 						for (LittleTileBox box : tempBoxes) {
-
+							
 							box.minX -= offsetX;
 							box.maxX -= offsetX;
-
+							
 							box.minY -= offsetY;
 							box.maxY -= offsetY;
-
+							
 							box.minZ -= offsetZ;
 							box.maxZ -= offsetZ;
-
+							
 							boxes.add(pos, box);
 						}
 					}
@@ -366,11 +366,11 @@ public class LittleTileBox {
 			}
 		}
 	}
-
+	
 	public boolean doesFillEntireBlock(LittleGridContext context) {
 		return minX == 0 && minY == 0 && minZ == 0 && maxX == context.size && maxY == context.size && maxZ == context.size;
 	}
-
+	
 	public LittleTileBox createOutsideBlockBox(LittleGridContext context, EnumFacing facing) {
 		LittleTileBox box = this.copy();
 		switch (facing) {
@@ -401,7 +401,7 @@ public class LittleTileBox {
 		}
 		return box;
 	}
-
+	
 	/*
 	 * public LittleTileBox createInsideBlockBox(EnumFacing facing) { Vec3i vec =
 	 * facing.getDirectionVec(); return new LittleTileBox(minX - vec.getX() *
@@ -410,17 +410,17 @@ public class LittleTileBox {
 	 * maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() *
 	 * LittleTile.gridSize); }
 	 */
-
+	
 	// ================Box to box================
-
+	
 	public LittleTileBox combineBoxes(LittleTileBox box, BasicCombiner combinator) {
 		if (box.getClass() != LittleTileBox.class)
 			return null;
-
+		
 		boolean x = this.minX == box.minX && this.maxX == box.maxX;
 		boolean y = this.minY == box.minY && this.maxY == box.maxY;
 		boolean z = this.minZ == box.minZ && this.maxZ == box.maxZ;
-
+		
 		if (x && y && z) {
 			return this;
 		}
@@ -444,13 +444,13 @@ public class LittleTileBox {
 		}
 		return null;
 	}
-
+	
 	@Nullable
 	public EnumFacing sharedBoxFace(LittleTileBox box) {
 		boolean x = this.minX == box.minX && this.maxX == box.maxX;
 		boolean y = this.minY == box.minY && this.maxY == box.maxY;
 		boolean z = this.minZ == box.minZ && this.maxZ == box.maxZ;
-
+		
 		if (x && y && z) {
 			return null;
 		}
@@ -474,7 +474,7 @@ public class LittleTileBox {
 		}
 		return null;
 	}
-
+	
 	public SplitRangeBoxes split(List<LittleTileBox> boxes) {
 		RangedBitSet x = split(Axis.X, boxes);
 		RangedBitSet y = split(Axis.Y, boxes);
@@ -483,26 +483,26 @@ public class LittleTileBox {
 			return new SplitRangeBoxes(x, y, z);
 		return null;
 	}
-
+	
 	protected RangedBitSet split(Axis axis, List<LittleTileBox> boxes) {
 		int min = getMin(axis);
 		int max = getMax(axis);
 		RangedBitSet set = new RangedBitSet(min, max);
-
+		
 		for (LittleTileBox box : boxes) {
-
+			
 			if (!box.isCompletelyFilled())
 				return null;
-
+			
 			if (box.intersectsWith(this)) {
 				set.add(box.getMin(axis));
 				set.add(box.getMax(axis));
 			}
 		}
-
+		
 		return set;
 	}
-
+	
 	/**
 	 * @param cutout
 	 *            a list of boxes which have been cut out.
@@ -515,7 +515,7 @@ public class LittleTileBox {
 			List<LittleTileBox> tempBoxes = new ArrayList<>();
 			for (SplitRangeBox range : ranges) {
 				extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, tempBoxes);
-
+				
 				boolean cutted = false;
 				outer_loop: for (LittleTileBox box : tempBoxes) {
 					for (LittleTileBox cutBox : boxes) {
@@ -535,14 +535,14 @@ public class LittleTileBox {
 			}
 		} else {
 			boolean[][][] filled = new boolean[getSize(Axis.X)][getSize(Axis.Y)][getSize(Axis.Z)];
-
+			
 			for (LittleTileBox box : boxes) {
 				box.fillInSpace(this, filled);
 			}
-
+			
 			boolean expected = filled[0][0][0];
 			boolean continuous = true;
-
+			
 			loop: for (int x = 0; x < filled.length; x++) {
 				for (int y = 0; y < filled[x].length; y++) {
 					for (int z = 0; z < filled[x][y].length; z++) {
@@ -553,7 +553,7 @@ public class LittleTileBox {
 					}
 				}
 			}
-
+			
 			if (continuous) {
 				if (expected) {
 					cutout.add(this.copy());
@@ -562,7 +562,7 @@ public class LittleTileBox {
 				newBoxes.add(this.copy());
 				return newBoxes;
 			}
-
+			
 			for (int x = 0; x < filled.length; x++) {
 				for (int y = 0; y < filled[x].length; y++) {
 					for (int z = 0; z < filled[x][y].length; z++) {
@@ -577,28 +577,28 @@ public class LittleTileBox {
 				}
 			}
 		}
-
+		
 		BasicCombiner.combineBoxes(newBoxes);
 		BasicCombiner.combineBoxes(cutout);
-
+		
 		return newBoxes;
 	}
-
+	
 	/**
 	 * @return all remaining boxes or null if the box remains as it is
 	 */
 	public List<LittleTileBox> cutOut(LittleTileBox box) {
 		if (intersectsWith(box)) {
 			List<LittleTileBox> boxes = new ArrayList<>();
-
+			
 			if (getVolume() > secondMethodVolume && box.isCompletelyFilled()) {
 				List<LittleTileBox> splitting = new ArrayList<>();
 				splitting.add(box);
-
+				
 				List<LittleTileBox> tempBoxes = new ArrayList<>();
 				for (SplitRangeBox range : split(splitting)) {
 					extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, tempBoxes);
-
+					
 					boolean cutted = false;
 					for (LittleTileBox tempBox : tempBoxes) {
 						if (box.intersectsWith(tempBox)) // This should also work for slices, since it's compressed by
@@ -612,7 +612,7 @@ public class LittleTileBox {
 						boxes.addAll(tempBoxes);
 					tempBoxes.clear();
 				}
-
+				
 				return boxes;
 			} else {
 				LittleTileVec vec = new LittleTileVec(0, 0, 0);
@@ -626,23 +626,23 @@ public class LittleTileBox {
 					}
 				}
 			}
-
+			
 			BasicCombiner.combineBoxes(boxes);
-
+			
 			return boxes;
 		}
-
+		
 		return null;
 	}
-
+	
 	protected boolean intersectsWith(LittleTileBox box) {
 		return box.maxX > this.minX && box.minX < this.maxX && box.maxY > this.minY && box.minY < this.maxY && box.maxZ > this.minZ && box.minZ < this.maxZ;
 	}
-
+	
 	public boolean containsBox(LittleTileBox box) {
 		return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
 	}
-
+	
 	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
 		int minX = Math.max(this.minX, otherBox.minX);
 		int maxX = Math.min(this.maxX, otherBox.maxX);
@@ -671,16 +671,16 @@ public class LittleTileBox {
 			}
 		}
 	}
-
+	
 	// ================Vectors================
-
+	
 	/*
 	 * public void addOffset(Vec3i vec) { minX += vec.getX() * LittleTile.size; minY
 	 * += vec.getY() * LittleTile.size; minZ += vec.getZ() * LittleTile.size; maxX
 	 * += vec.getX() * LittleTile.size; maxY += vec.getY() * LittleTile.size; maxZ
 	 * += vec.getZ() * LittleTile.size; }
 	 */
-
+	
 	public void addOffset(LittleTileVec vec) {
 		minX += vec.x;
 		minY += vec.y;
@@ -689,14 +689,14 @@ public class LittleTileBox {
 		maxY += vec.y;
 		maxZ += vec.z;
 	}
-
+	
 	/*
 	 * public void subOffset(Vec3i vec) { minX -= vec.getX() * LittleTile.size; minY
 	 * -= vec.getY() * LittleTile.size; minZ -= vec.getZ() * LittleTile.size; maxX
 	 * -= vec.getX() * LittleTile.size; maxY -= vec.getY() * LittleTile.size; maxZ
 	 * -= vec.getZ() * LittleTile.size; }
 	 */
-
+	
 	public void subOffset(LittleTileVec vec) {
 		minX -= vec.x;
 		minY -= vec.y;
@@ -705,37 +705,37 @@ public class LittleTileBox {
 		maxY -= vec.y;
 		maxZ -= vec.z;
 	}
-
+	
 	public LittleTileVec getMinVec() {
 		return new LittleTileVec(minX, minY, minZ);
 	}
-
+	
 	public LittleTileVec getMaxVec() {
 		return new LittleTileVec(maxX, maxY, maxZ);
 	}
-
+	
 	public LittleTileVec getNearstedPointTo(LittleTileVec vec) {
 		int x = minX;
 		if (vec.x >= minX || vec.x <= maxX)
 			x = vec.x;
 		if (Math.abs(minX - x) > Math.abs(maxX - x))
 			x = maxX;
-
+		
 		int y = minY;
 		if (vec.y >= minY || vec.y <= maxY)
 			y = vec.y;
 		if (Math.abs(minY - y) > Math.abs(maxY - y))
 			y = maxY;
-
+		
 		int z = minZ;
 		if (vec.z >= minZ || vec.z <= maxZ)
 			z = vec.z;
 		if (Math.abs(minZ - z) > Math.abs(maxZ - z))
 			z = maxZ;
-
+		
 		return new LittleTileVec(x, y, z);
 	}
-
+	
 	public LittleTileVec getNearstedPointTo(LittleTileBox box) {
 		int x = 0;
 		if (minX >= box.minX && minX <= box.maxX)
@@ -746,7 +746,7 @@ public class LittleTileBox {
 			x = maxX;
 		else
 			x = minX;
-
+		
 		int y = 0;
 		if (minY >= box.minY && minY <= box.maxY)
 			y = minY;
@@ -756,7 +756,7 @@ public class LittleTileBox {
 			y = maxY;
 		else
 			y = minY;
-
+		
 		int z = 0;
 		if (minZ >= box.minZ && minZ <= box.maxZ)
 			z = minZ;
@@ -766,32 +766,32 @@ public class LittleTileBox {
 			z = maxZ;
 		else
 			z = minZ;
-
+		
 		return new LittleTileVec(x, y, z);
 	}
-
+	
 	public double distanceTo(LittleTileBox box) {
 		return distanceTo(box.getNearstedPointTo(this));
 	}
-
+	
 	public double distanceTo(LittleTileVec vec) {
 		return this.getNearstedPointTo(vec).distanceTo(vec);
 	}
-
+	
 	public boolean isVecInsideBox(int x, int y, int z) {
 		return x >= minX && x < maxX && y >= minY && y < maxY && z >= minZ && z < maxZ;
 	}
-
+	
 	public boolean isVecInsideBox(LittleTileBox box, LittleTileVec vec) {
 		return isVecInsideBox(vec.x, vec.y, vec.z);
 	}
-
+	
 	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely) {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
 	}
-
+	
 	public boolean intersectsWithAxis(LittleGridContext context, Axis axis, Vec3d vec) {
 		switch (axis) {
 		case X:
@@ -803,37 +803,37 @@ public class LittleTileBox {
 		}
 		return false;
 	}
-
+	
 	public boolean intersectsWithYZ(LittleGridContext context, Vec3d vec) {
 		return vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context.toVanillaGrid(this.maxZ);
 	}
-
+	
 	public boolean intersectsWithXZ(LittleGridContext context, Vec3d vec) {
 		return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.z >= context.toVanillaGrid(this.minZ) && vec.z < context.toVanillaGrid(this.maxZ);
 	}
-
+	
 	public boolean intersectsWithXY(LittleGridContext context, Vec3d vec) {
 		return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY);
 	}
-
+	
 	public LittleTileVec getCenter() {
 		return new LittleTileVec((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
 	}
-
+	
 	@Nullable
 	protected Vec3d collideWithPlane(LittleGridContext context, Axis axis, double value, Vec3d vecA, Vec3d vecB) {
 		Vec3d vec3d = axis != Axis.X ? axis != Axis.Y ? vecA.getIntermediateWithZValue(vecB, value) : vecA.getIntermediateWithYValue(vecB, value) : vecA.getIntermediateWithXValue(vecB, value);
 		return vec3d != null && intersectsWithAxis(context, axis, vec3d) ? vec3d : null;
 	}
-
+	
 	@Nullable
 	public RayTraceResult calculateIntercept(LittleGridContext context, BlockPos pos, Vec3d vecA, Vec3d vecB) {
 		vecA = vecA.subtract(pos.getX(), pos.getY(), pos.getZ());
 		vecB = vecB.subtract(pos.getX(), pos.getY(), pos.getZ());
-
+		
 		Vec3d collision = null;
 		EnumFacing collided = null;
-
+		
 		for (EnumFacing facing : EnumFacing.VALUES) {
 			Vec3d temp = collideWithPlane(context, facing.getAxis(), (double) getValueOfFacing(facing) / context.size, vecA, vecB);
 			if (temp != null && isClosest(vecA, collision, temp)) {
@@ -841,15 +841,15 @@ public class LittleTileBox {
 				collision = temp;
 			}
 		}
-
+		
 		if (collision == null)
 			return null;
-
+		
 		return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
 	}
-
+	
 	// ================Rotation & Flip================
-
+	
 	/**
 	 * 
 	 * @param rotation
@@ -867,7 +867,7 @@ public class LittleTileBox {
 		long tempMaxZ = maxZ * 2 - doubledCenter.z;
 		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
 	}
-
+	
 	/**
 	 * 
 	 * @param axis
@@ -884,48 +884,48 @@ public class LittleTileBox {
 		setMin(axis, Math.min(min, max));
 		setMax(axis, Math.max(min, max));
 	}
-
+	
 	// ================Basic Object Overrides================
-
+	
 	@Override
 	public int hashCode() {
 		return minX + minY + minZ + maxX + maxY + maxZ;
 	}
-
+	
 	@Override
 	public boolean equals(Object object) {
 		if (object instanceof LittleTileBox)
 			return object.getClass() == this.getClass() && minX == ((LittleTileBox) object).minX && minY == ((LittleTileBox) object).minY && minZ == ((LittleTileBox) object).minZ && maxX == ((LittleTileBox) object).maxX && maxY == ((LittleTileBox) object).maxY && maxZ == ((LittleTileBox) object).maxZ;
 		return super.equals(object);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "[" + minX + "," + minY + "," + minZ + " -> " + maxX + "," + maxY + "," + maxZ + "]";
 	}
-
+	
 	// ================Special methods================
-
+	
 	public LittleTileBox extractBox(int x, int y, int z) {
 		return new LittleTileBox(x, y, z, x + 1, y + 1, z + 1);
 	}
-
+	
 	public List<LittleTileBox> extractBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, List<LittleTileBox> boxes) {
 		boxes.add(new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ));
 		return boxes;
 	}
-
+	
 	public LittleTileBox copy() {
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
-
+	
 	public boolean isFaceAtEdge(LittleGridContext context, EnumFacing facing) {
 		if (facing.getAxisDirection() == AxisDirection.POSITIVE)
 			return getMax(facing.getAxis()) == context.size;
 		else
 			return getMin(facing.getAxis()) == context.minPos;
 	}
-
+	
 	public LittleTileBox grow(EnumFacing facing) {
 		Axis axis = facing.getAxis();
 		LittleTileBox result = this.copy();
@@ -935,7 +935,7 @@ public class LittleTileBox {
 			result.setMin(axis, getMin(axis) - 1);
 		return result;
 	}
-
+	
 	public LittleTileBox shrink(EnumFacing facing, boolean toLimit) {
 		Axis axis = facing.getAxis();
 		if (getSize(axis) > 1) {
@@ -948,15 +948,15 @@ public class LittleTileBox {
 		}
 		return null;
 	}
-
+	
 	public void resort() {
 		set(Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
 	}
-
+	
 	public void resort(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		set(Math.min(minX, maxX), Math.min(minY, maxY), Math.min(minZ, maxZ), Math.max(minX, maxX), Math.max(minY, maxY), Math.max(minZ, maxZ));
 	}
-
+	
 	public void set(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		this.minX = minX;
 		this.minY = minY;
@@ -965,37 +965,37 @@ public class LittleTileBox {
 		this.maxY = maxY;
 		this.maxZ = maxZ;
 	}
-
+	
 	// ================Rendering================
-
+	
 	@SideOnly(Side.CLIENT)
 	public LittleRenderingCube getRenderingCube(LittleGridContext context, Block block, int meta) {
 		return getRenderingCube(context, this.getCube(context), block, meta);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public LittleRenderingCube getRenderingCube(LittleGridContext context, CubeObject cube, Block block, int meta) {
 		return new LittleRenderingCube(cube, this, block, meta);
 	}
-
+	
 	// ================Faces================
-
+	
 	@Nullable
 	public LittleTileFace getFace(LittleGridContext context, EnumFacing facing) {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
-
+		
 		return new LittleTileFace(this, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
-
+	
 	public boolean intersectsWith(LittleTileFace face) {
 		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
 	}
-
+	
 	public boolean canFaceBeCombined(LittleTileBox other) {
 		return true;
 	}
-
+	
 	public void fill(LittleTileFace face) {
 		if (intersectsWith(face)) {
 			int minOne = Math.max(getMin(face.one), face.minOne);
@@ -1025,7 +1025,7 @@ public class LittleTileBox {
 			}
 		}
 	}
-
+	
 	public static class LittleTileFace {
 		public LittleGridContext context;
 		public LittleTileBox box;
@@ -1038,13 +1038,13 @@ public class LittleTileBox {
 		public int maxTwo;
 		public int origin;
 		public int oldOrigin;
-
+		
 		public boolean[][] filled;
-
+		
 		public void ensureContext(LittleGridContext context) {
 			if (context == this.context || this.context.size > context.size)
 				return;
-
+			
 			int ratio = context.size / this.context.size;
 			this.minOne *= ratio;
 			this.minTwo *= ratio;
@@ -1057,7 +1057,7 @@ public class LittleTileBox {
 			this.context = context;
 			filled = new boolean[maxOne - minOne][maxTwo - minTwo];
 		}
-
+		
 		public LittleTileFace(LittleTileBox box, LittleGridContext context, EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
 			this.box = box;
 			this.context = context;
@@ -1072,7 +1072,7 @@ public class LittleTileBox {
 			this.oldOrigin = origin;
 			filled = new boolean[maxOne - minOne][maxTwo - minTwo];
 		}
-
+		
 		public boolean isFilled() {
 			int min = oldOrigin;
 			if (face.getAxisDirection() == AxisDirection.POSITIVE)
@@ -1089,34 +1089,34 @@ public class LittleTileBox {
 			}
 			return true;
 		}
-
+		
 		public LittleTileBox getBox() {
 			return box;
 		}
-
+		
 		public boolean isFaceInsideBlock() {
 			return origin > context.minPos && origin < context.maxPos;
 		}
-
+		
 		public void move(EnumFacing facing) {
 			origin = face.getAxisDirection() == AxisDirection.POSITIVE ? context.minPos : context.maxPos;
 		}
 	}
-
+	
 	// ================Identifier================
-
+	
 	public int[] getIdentifier() {
 		return new int[] { minX, minY, minZ };
 	}
-
+	
 	public boolean is(int[] identifier) {
 		if (identifier.length == 3)
 			return identifier[0] == minX && identifier[1] == minY && identifier[2] == minZ;
 		return false;
 	}
-
+	
 	// ================Static Helpers================
-
+	
 	public static LittleTileBox loadBox(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "minX") instanceof NBTTagByte) // very old pre 1.0.0
 		{
@@ -1147,12 +1147,12 @@ public class LittleTileBox {
 			try {
 				return new LittleTileBox(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(coords[5]));
 			} catch (Exception e) {
-
+				
 			}
 		}
 		return new LittleTileBox(0, 0, 0, 0, 0, 0);
 	}
-
+	
 	public static LittleTileBox createBox(int[] array) {
 		switch (array.length) {
 		case 6:
@@ -1165,11 +1165,11 @@ public class LittleTileBox {
 			throw new InvalidParameterException("No valid coords given " + Arrays.toString(array));
 		}
 	}
-
+	
 	public static void combineBoxesBlocks(LittleBoxes boxes) {
 		combineBoxesBlocks(boxes.context, boxes);
 	}
-
+	
 	public static void combineBoxesBlocks(LittleGridContext context, List<LittleTileBox> boxes) {
 		HashMapList<BlockPos, LittleTileBox> chunked = new HashMapList<>();
 		for (int i = 0; i < boxes.size(); i++) {
@@ -1183,11 +1183,11 @@ public class LittleTileBox {
 			boxes.addAll(list);
 		}
 	}
-
+	
 	public static boolean isClosest(Vec3d from, @Nullable Vec3d optional, Vec3d toCheck) {
 		return optional == null || from.squareDistanceTo(toCheck) < from.squareDistanceTo(optional);
 	}
-
+	
 	public static boolean intersectsWith(LittleTileBox box, LittleTileBox box2) {
 		if (box.getClass() == LittleTileBox.class)
 			return box2.intersectsWith(box);

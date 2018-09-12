@@ -14,41 +14,41 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class BlockLayerRenderBuffer {
-
+	
 	private AtomicBoolean isDrawing = new AtomicBoolean(false);
-
+	
 	public synchronized void setDrawing() throws RenderOverlapException {
 		if (isDrawing.get())
 			throw new RenderOverlapException();
 		isDrawing.set(true);
 	}
-
+	
 	public synchronized void setFinishedDrawing() {
 		isDrawing.set(false);
 	}
-
+	
 	public synchronized boolean isDrawing() {
 		return isDrawing.get();
 	}
-
+	
 	public final VertexFormat format;
-
+	
 	public final int bufferSizePerQuad;
-
+	
 	public BlockLayerRenderBuffer() {
 		this(DefaultVertexFormats.BLOCK);
 	}
-
+	
 	public BlockLayerRenderBuffer(VertexFormat format) {
 		this.format = format;
 		bufferSizePerQuad = format.getNextOffset();
 	}
-
+	
 	private BufferBuilder solid;
 	private BufferBuilder cutout_mipped;
 	private BufferBuilder cutout;
 	private BufferBuilder translucent;
-
+	
 	public BufferBuilder createVertexBuffer(List<? extends RenderCubeObject> cubes) {
 		int size = 1;
 		for (RenderCubeObject cube : cubes) {
@@ -56,7 +56,7 @@ public class BlockLayerRenderBuffer {
 		}
 		return new BufferBuilder(bufferSizePerQuad * size);
 	}
-
+	
 	public BufferBuilder getBufferByLayer(BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
@@ -70,7 +70,7 @@ public class BlockLayerRenderBuffer {
 		}
 		return null;
 	}
-
+	
 	public void setBufferByLayer(BufferBuilder buffer, BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
@@ -87,20 +87,20 @@ public class BlockLayerRenderBuffer {
 			break;
 		}
 	}
-
+	
 	public void clear() {
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;
 		translucent = null;
 	}
-
+	
 	public static class RenderOverlapException extends Exception {
-
+		
 		public RenderOverlapException() {
 			super("Buffer is already rendering!");
 		}
-
+		
 	}
-
+	
 }

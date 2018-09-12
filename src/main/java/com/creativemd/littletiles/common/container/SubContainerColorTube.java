@@ -7,22 +7,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerColorTube extends SubContainer {
-
+	
 	public ItemStack stack;
-
+	
 	public SubContainerColorTube(EntityPlayer player, ItemStack stack) {
 		super(player);
 		this.stack = stack;
 	}
-
+	
 	@Override
 	public void createControls() {
-
+		
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		stack.setTagCompound(nbt);
 	}
-
+	
 }

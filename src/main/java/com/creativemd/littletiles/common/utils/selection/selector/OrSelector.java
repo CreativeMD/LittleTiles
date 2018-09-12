@@ -6,17 +6,17 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 
 public class OrSelector extends TileSelector {
-
+	
 	public TileSelector[] selectors;
-
+	
 	public OrSelector(TileSelector... selectors) {
 		this.selectors = selectors;
 	}
-
+	
 	public OrSelector() {
-
+		
 	}
-
+	
 	@Override
 	protected void saveNBT(NBTTagCompound nbt) {
 		NBTTagList list = new NBTTagList();
@@ -25,7 +25,7 @@ public class OrSelector extends TileSelector {
 		}
 		nbt.setTag("list", list);
 	}
-
+	
 	@Override
 	protected void loadNBT(NBTTagCompound nbt) {
 		NBTTagList list = nbt.getTagList("list", 10);
@@ -34,7 +34,7 @@ public class OrSelector extends TileSelector {
 			selectors[i] = TileSelector.loadSelector(list.getCompoundTagAt(i));
 		}
 	}
-
+	
 	@Override
 	public boolean is(LittleTile tile) {
 		for (int i = 0; i < selectors.length; i++) {
@@ -43,5 +43,5 @@ public class OrSelector extends TileSelector {
 		}
 		return false;
 	}
-
+	
 }

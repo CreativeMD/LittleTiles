@@ -19,21 +19,21 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubContainerWorkbench extends SubContainer {
-
+	
 	public InventoryBasic basic = new InventoryBasic("default", false, 2);
-
+	
 	public SubContainerWorkbench(EntityPlayer player) {
 		super(player);
 	}
-
+	
 	@Override
 	public void createControls() {
 		addSlotToContainer(new Slot(basic, 0, 5, 5));
 		addSlotToContainer(new Slot(basic, 1, 35, 5));
-
+		
 		addPlayerSlotsToContainer(player);
 	}
-
+	
 	/*
 	 * public static ArrayList<BlockEntry> getMissing(ArrayList<LittleTilePreview>
 	 * tiles, ArrayList<BlockEntry> entries) { ArrayList<BlockEntry> missing = new
@@ -52,7 +52,7 @@ public class SubContainerWorkbench extends SubContainer {
 	 * missing.indexOf(entry); if(index == -1) missing.add(entry); else
 	 * missing.get(index).value += size; } } return missing; }
 	 */
-
+	
 	@Override
 	public void onClosed() {
 		for (int i = 0; i < basic.getSizeInventory(); i++) {
@@ -60,7 +60,7 @@ public class SubContainerWorkbench extends SubContainer {
 				player.dropItem(basic.getStackInSlot(i), false);
 		}
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack1 = basic.getStackInSlot(0);
@@ -69,7 +69,7 @@ public class SubContainerWorkbench extends SubContainer {
 			if (stack1.getItem() instanceof ItemRecipe) {
 				if (stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x")) {
 					LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
-
+					
 					try {
 						if (LittleAction.drainPreviews(player, tiles)) {
 							ItemStack stack = new ItemStack(LittleTiles.multiTiles);
@@ -97,5 +97,5 @@ public class SubContainerWorkbench extends SubContainer {
 			}
 		}
 	}
-
+	
 }

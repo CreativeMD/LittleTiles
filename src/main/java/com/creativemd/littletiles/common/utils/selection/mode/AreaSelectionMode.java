@@ -23,11 +23,11 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 
 public class AreaSelectionMode extends SelectionMode {
-
+	
 	public AreaSelectionMode() {
 		super("area");
 	}
-
+	
 	@Override
 	public SelectionResult generateResult(World world, ItemStack stack) {
 		BlockPos pos = null;
@@ -35,26 +35,26 @@ public class AreaSelectionMode extends SelectionMode {
 			int[] array = stack.getTagCompound().getIntArray("pos1");
 			pos = new BlockPos(array[0], array[1], array[2]);
 		}
-
+		
 		BlockPos pos2 = null;
 		if (stack.getTagCompound().hasKey("pos2")) {
 			int[] array = stack.getTagCompound().getIntArray("pos2");
 			pos2 = new BlockPos(array[0], array[1], array[2]);
 		}
-
+		
 		if (pos == null && pos2 == null)
 			return null;
-
+		
 		if (pos == null)
 			pos = pos2;
 		else if (pos2 == null)
 			pos2 = pos;
-
+		
 		SelectionResult result = new SelectionResult(world);
 		result.addBlocks(pos, pos2);
 		return result;
 	}
-
+	
 	@Override
 	public void onRightClick(EntityPlayer player, ItemStack stack, BlockPos pos) {
 		if (player.isSneaking()) {
@@ -67,56 +67,56 @@ public class AreaSelectionMode extends SelectionMode {
 				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
 		}
 	}
-
+	
 	@Override
 	public void clearSelection(ItemStack stack) {
 		stack.getTagCompound().removeTag("pos1");
 		stack.getTagCompound().removeTag("pos2");
 	}
-
+	
 	@Override
 	public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT) {
-
+		
 		BlockPos pos = null;
 		if (stack.getTagCompound().hasKey("pos1")) {
 			int[] array = stack.getTagCompound().getIntArray("pos1");
 			pos = new BlockPos(array[0], array[1], array[2]);
 		}
-
+		
 		BlockPos pos2 = null;
 		if (stack.getTagCompound().hasKey("pos2")) {
 			int[] array = stack.getTagCompound().getIntArray("pos2");
 			pos2 = new BlockPos(array[0], array[1], array[2]);
 		}
-
+		
 		if (pos == null && pos2 == null)
 			return null;
-
+		
 		if (pos == null)
 			pos = pos2;
 		else if (pos2 == null)
 			pos2 = pos;
-
+		
 		int minX = Math.min(pos.getX(), pos2.getX());
 		int minY = Math.min(pos.getY(), pos2.getY());
 		int minZ = Math.min(pos.getZ(), pos2.getZ());
 		int maxX = Math.max(pos.getX(), pos2.getX());
 		int maxY = Math.max(pos.getY(), pos2.getY());
 		int maxZ = Math.max(pos.getZ(), pos2.getZ());
-
+		
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.getMin());
-
+		
 		boolean includeTE = includeCB || includeLT;
-
+		
 		MutableBlockPos newPos = new MutableBlockPos();
-
+		
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
 					newPos.setPos(posX, posY, posZ);
 					if (includeTE) {
 						TileEntity tileEntity = world.getTileEntity(newPos);
-
+						
 						if (includeLT) {
 							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
@@ -127,7 +127,7 @@ public class AreaSelectionMode extends SelectionMode {
 								continue;
 							}
 						}
-
+						
 						if (includeCB) {
 							LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
 							if (specialPreviews != null) {
@@ -139,7 +139,7 @@ public class AreaSelectionMode extends SelectionMode {
 							}
 						}
 					}
-
+					
 					if (includeVanilla) {
 						IBlockState state = world.getBlockState(newPos);
 						if (LittleAction.isBlockValid(state.getBlock())) {
@@ -154,5 +154,5 @@ public class AreaSelectionMode extends SelectionMode {
 		}
 		return previews;
 	}
-
+	
 }

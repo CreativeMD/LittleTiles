@@ -13,31 +13,31 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeOverwrite extends PlacementMode {
-
+	
 	public PlaceModeOverwrite(String name, PreviewMode mode) {
 		super(name, mode);
 	}
-
+	
 	@Override
 	public boolean shouldConvertBlock() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean canPlaceStructures() {
 		return true;
 	}
-
+	
 	@Override
 	public boolean checkAll() {
 		return false;
 	}
-
+	
 	@Override
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return new ArrayList<>(splittedTiles.keySet());
 	}
-
+	
 	@Override
 	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
@@ -48,5 +48,5 @@ public class PlaceModeOverwrite extends PlacementMode {
 		tiles.add(tile);
 		return tiles;
 	}
-
+	
 }

@@ -20,18 +20,18 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 
 public abstract class SubGuiGridSelector extends SubGuiConfigure {
-
+	
 	public LittleGridContext context;
 	public TileSelector selector;
-
+	
 	public SubGuiGridSelector(ItemStack stack, LittleGridContext context, TileSelector selector) {
 		super(200, 140, stack);
 		this.context = context;
 		this.selector = selector;
 	}
-
+	
 	public abstract void saveConfiguration(LittleGridContext context, TileSelector selector);
-
+	
 	@Override
 	public void saveConfiguration() {
 		GuiComboBox contextBox = (GuiComboBox) get("grid");
@@ -40,7 +40,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		} catch (NumberFormatException e) {
 			context = LittleGridContext.get();
 		}
-
+		
 		if (((GuiCheckBox) get("any")).value)
 			selector = null;
 		else {
@@ -52,15 +52,15 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		}
 		saveConfiguration(context, selector);
 	}
-
+	
 	@Override
 	public void createControls() {
 		GuiComboBox contextBox = new GuiComboBox("grid", 0, 70, 15, LittleGridContext.getNames());
 		contextBox.select(ItemMultiTiles.currentContext.size + "");
 		controls.add(contextBox);
-
+		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector));
-
+		
 		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), true);
 		if (selector instanceof BlockSelector) {
 			IBlockState state = ((BlockSelector) selector).getState();
@@ -70,7 +70,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, selector instanceof StateSelector));
 	}
-
+	
 	@CustomEventSubscribe
 	public void onChanged(GuiControlChangedEvent event) {
 		if (event.source.is("search")) {
@@ -80,5 +80,5 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 			inv.closeBox();
 		}
 	}
-
+	
 }

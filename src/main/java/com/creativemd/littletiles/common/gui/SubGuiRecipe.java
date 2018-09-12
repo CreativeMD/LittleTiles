@@ -17,16 +17,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiRecipe extends SubGui {
-
+	
 	public ItemStack stack;
 	public LittleStructure structure;
 	public LittleStructureParser parser;
-
+	
 	public SubGuiRecipe(ItemStack stack) {
 		super();
 		this.stack = stack;
 	}
-
+	
 	@Override
 	public void createControls() {
 		ArrayList<String> lines = new ArrayList<>();
@@ -50,7 +50,7 @@ public class SubGuiRecipe extends SubGui {
 				if (SubGuiRecipe.this.parser != null) {
 					LittleStructure structure = SubGuiRecipe.this.parser.parseStructure(stack);
 					if (structure != null) {
-
+						
 						NBTTagCompound structureNBT = new NBTTagCompound();
 						structure.writeToNBT(structureNBT);
 						stack.getTagCompound().setTag("structure", structureNBT);
@@ -59,24 +59,24 @@ public class SubGuiRecipe extends SubGui {
 						// WorldUtils.dropItem(container.player, multiTiles);
 					} else
 						stack.getTagCompound().removeTag("structure");
-
+					
 				} else
 					stack.getTagCompound().removeTag("structure");
-
+				
 				sendPacketToServer(stack.getTagCompound());
 				closeGui();
 			}
 		});
 		onChanged();
 	}
-
+	
 	public void onChanged() {
 		removeControls("type:", "types", "save", "clear");
 		String id = ((GuiComboBox) get("types")).caption;
-
+		
 		if (parser != null)
 			removeListener(parser);
-
+		
 		LittleStructure saved = this.structure;
 		if (saved != null && !saved.getIDOfStructure().equals(id))
 			saved = null;
@@ -91,7 +91,7 @@ public class SubGuiRecipe extends SubGui {
 		} else
 			parser = null;
 	}
-
+	
 	@CustomEventSubscribe
 	public void onComboChange(GuiControlChangedEvent event) {
 		if (event.source.is("types"))

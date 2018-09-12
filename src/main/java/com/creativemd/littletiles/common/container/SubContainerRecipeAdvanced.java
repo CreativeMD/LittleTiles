@@ -12,14 +12,14 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 public class SubContainerRecipeAdvanced extends SubContainerConfigure {
-
+	
 	public BlockPos second;
-
+	
 	public SubContainerRecipeAdvanced(EntityPlayer player, ItemStack stack, BlockPos pos) {
 		super(player, stack);
 		this.second = pos;
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		if (nbt.getBoolean("save_selection")) {
@@ -27,7 +27,7 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 			LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"));
 			((ItemRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
 			mode.clearSelection(stack);
-
+			
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		}
@@ -41,5 +41,5 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 			stack.setTagCompound(nbt.getCompoundTag("stack"));
 		}
 	}
-
+	
 }

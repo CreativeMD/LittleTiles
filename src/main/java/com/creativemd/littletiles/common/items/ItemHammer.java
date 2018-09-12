@@ -42,15 +42,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreator {
-
+	
 	public static TileSelector currentFilter = null;
-
+	
 	public ItemHammer() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
@@ -59,7 +59,7 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 		tooltip.add("mode: " + shape.key);
 		shape.addExtraInformation(worldIn, stack.getTagCompound(), tooltip, getContext(stack));
 	}
-
+	
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		if (hand == EnumHand.OFF_HAND)
@@ -68,14 +68,14 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 			GuiHandler.openGuiItem(player, world);
 		return new ActionResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
 	}
-
+	
 	@Override
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
-
+		
 		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
@@ -87,57 +87,57 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 				new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
 	}
-
+	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
 		return false;
 	}
-
+	
 	@Override
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
 		return 0F;
 	}
-
+	
 	@Override
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player) {
 		getShape(stack).deselect(player, stack.getTagCompound(), getContext(stack));
 	}
-
+	
 	@Override
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit) {
 		return LittleAction.isBlockValid(state.getBlock()) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiHammer(stack);
 	}
-
+	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerHammer(player, stack);
 	}
-
+	
 	@Override
 	public void rotateLittlePreview(ItemStack stack, Rotation rotation) {
 		SelectShape shape = getShape(stack);
 		if (shape != null)
 			shape.rotate(rotation, stack.getTagCompound());
 	}
-
+	
 	@Override
 	public void flipLittlePreview(ItemStack stack, Axis axis) {
 		SelectShape shape = getShape(stack);
 		if (shape != null)
 			shape.flip(axis, stack.getTagCompound());
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
-
+			
 			@Override
 			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
 				ItemMultiTiles.currentContext = context;
@@ -145,14 +145,14 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 			}
 		};
 	}
-
+	
 	public static SelectShape getShape(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		return SelectShape.getShape(stack.getTagCompound().getString("shape"));
 	}
-
+	
 	@Override
 	public LittleGridContext getContext(ItemStack stack) {
 		return ItemMultiTiles.currentContext;

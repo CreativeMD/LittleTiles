@@ -8,16 +8,16 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 
 public class ItemRubberMallet extends Item {
-
+	
 	public ItemRubberMallet() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-
+	
 	@Override
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> items) {
-
+		
 	}
-
+	
 }

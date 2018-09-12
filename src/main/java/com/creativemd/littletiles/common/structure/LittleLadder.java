@@ -17,17 +17,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 
 public class LittleLadder extends LittleStructure {
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-
+		
 	}
-
+	
 	public static boolean isLivingOnLadder(@Nonnull IBlockState state, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EntityLivingBase entity) {
 		boolean isSpectator = (entity instanceof EntityPlayer && ((EntityPlayer) entity).isSpectator());
 		if (isSpectator)
@@ -68,18 +68,18 @@ public class LittleLadder extends LittleStructure {
 			return false;
 		}
 	}
-
+	
 	public static class LittleLadderParser extends LittleStructureParser<LittleLadder> {
-
+		
 		public LittleLadderParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-
+		
 		@Override
 		public void createControls(ItemStack stack, LittleStructure structure) {
-
+			
 		}
-
+		
 		@Override
 		public LittleLadder parseStructure(ItemStack stack) {
 			return new LittleLadder();

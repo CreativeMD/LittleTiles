@@ -22,18 +22,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleWrench extends Item {
-
+	
 	public ItemLittleWrench() {
 		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
-
+		
 	}
-
+	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		TileEntity tileEntity = world.getTileEntity(pos);

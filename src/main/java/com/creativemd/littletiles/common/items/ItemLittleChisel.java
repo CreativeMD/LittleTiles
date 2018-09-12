@@ -75,18 +75,18 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemLittleChisel extends Item implements ICreativeRendered, ILittleTile {
-
+	
 	public ItemLittleChisel() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
 	}
-
+	
 	@Override
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
 		return 0F;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
@@ -94,38 +94,38 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		tooltip.add("shape: " + shape.key);
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
 	}
-
+	
 	public static PositionResult min;
-
+	
 	@SideOnly(Side.CLIENT)
 	public static PositionResult lastMax;
-
+	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
 		return false;
 	}
-
+	
 	public static DragShape getShape(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		return DragShape.getShape(stack.getTagCompound().getString("shape"));
 	}
-
+	
 	public static void setShape(ItemStack stack, DragShape shape) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		stack.getTagCompound().setString("shape", shape.key);
 	}
-
+	
 	public static LittleTilePreview getPreview(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		if (stack.getTagCompound().hasKey("preview"))
 			return LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
-
+		
 		IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
 		LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 		tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
@@ -133,46 +133,46 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		setPreview(stack, preview);
 		return preview;
 	}
-
+	
 	public static void setPreview(ItemStack stack, LittleTilePreview preview) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		NBTTagCompound nbt = new NBTTagCompound();
 		preview.writeToNBT(nbt);
 		stack.getTagCompound().setTag("preview", nbt);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return Collections.emptyList();
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
-
+		
 		IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-
+		
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-
+		
 		if (cameraTransformType == TransformType.GUI) {
 			GlStateManager.scale(0.9, 0.9, 0.9);
-
+			
 			LittleTilePreview preview = getPreview(stack);
 			ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
 			model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 			if (!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-
+			
 			GlStateManager.disableDepth();
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(-0.5F, -0.5F, -0.5F);
-
+			
 			try {
 				if (model.isBuiltInRenderer()) {
 					GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -186,35 +186,35 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 				e.printStackTrace();
 			}
-
+			
 			GlStateManager.popMatrix();
-
+			
 			GlStateManager.enableDepth();
 		}
-
+		
 		GlStateManager.popMatrix();
-
+		
 	}
-
+	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return true;
 	}
-
+	
 	private static LittleTilePos cachedPos;
 	private static LittleBoxes cachedShape;
 	private static boolean cachedLow;
 	private static NBTTagCompound cachedSettings;
-
+	
 	@SideOnly(Side.CLIENT)
 	private static EntityPlayer getPlayer() {
 		return Minecraft.getMinecraft().player;
 	}
-
+	
 	public LittleAbsolutePreviews getLittlePreview(ItemStack stack) {
 		return null;
 	}
-
+	
 	@Override
 	public LittleAbsolutePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
 		PositionResult min = ItemLittleChisel.min;
@@ -223,19 +223,19 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		if (min != null) {
 			if (lastMax == null)
 				lastMax = min.copy();
-
+			
 			min.ensureBothAreEqual(lastMax);
-
+			
 			LittleGridContext context = getPositionContext(stack);
 			if (context.size < min.getContext().size)
 				context = min.getContext();
 			LittleTilePos offset = new LittleTilePos(min.pos, context);
 			if (lastMax == null)
 				lastMax = min.copy();
-
+			
 			LittleBoxes boxes = null;
 			if (cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != allowLowResolution) {
-
+				
 				DragShape shape = getShape(stack);
 				LittleTileBox newBox = new LittleTileBox(new LittleTileBox(min.getRelative(offset).getVec(context)), new LittleTileBox(lastMax.getRelative(offset).getVec(context)));
 				boxes = shape.getBoxes(new LittleBoxes(offset.pos, context), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
@@ -245,78 +245,78 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 				cachedLow = allowLowResolution;
 			} else
 				boxes = cachedShape;
-
+			
 			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.pos, boxes.context);
-
+			
 			LittleTilePreview preview = getPreview(stack);
 			for (int i = 0; i < boxes.size(); i++) {
 				LittleTilePreview newPreview = preview.copy();
 				newPreview.box = boxes.get(i);
 				previews.addWithoutCheckingPreview(newPreview);
 			}
-
+			
 			return previews;
 		}
 		return null;
 	}
-
+	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 	}
-
+	
 	@Override
 	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
 		getShape(stack).rotate(stack.getTagCompound(), rotation);
 		return LittleGridContext.get();
 	}
-
+	
 	@Override
 	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
 		getShape(stack).flip(stack.getTagCompound(), axis);
 		return LittleGridContext.get();
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return null;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public float getPreviewAlphaFactor() {
 		return 0.4F;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		lastMax = getPosition(position, result, currentMode);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean shouldCache() {
 		return false;
 	}
-
+	
 	@Override
 	public void onDeselect(EntityPlayer player, ItemStack stack) {
 		min = null;
 		lastMax = null;
 	}
-
+	
 	protected static PositionResult getPosition(PositionResult position, RayTraceResult result, PlacementMode mode) {
 		position = position.copy();
-
+		
 		EnumFacing facing = result.sideHit;
 		if (mode.mode == PreviewMode.LINES)
 			facing = facing.getOpposite();
 		if (facing.getAxisDirection() == AxisDirection.NEGATIVE)
 			position.contextVec.vec.add(facing);
-
+		
 		return position;
 	}
-
+	
 	@Override
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		if (ItemLittleChisel.min == null) {
@@ -327,7 +327,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			return true;
 		return false;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
@@ -341,32 +341,32 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		}
 		return false;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void onClickAir(EntityPlayer player, ItemStack stack) {
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
 		return true;
 	}
-
+	
 	public static PlacementMode currentMode = PlacementMode.fill;
-
+	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
 		return currentMode;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
-
+			
 			@Override
 			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
 				currentMode = mode;
@@ -374,7 +374,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			}
 		};
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public MarkMode onMark(EntityPlayer player, ItemStack stack) {
@@ -383,9 +383,9 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 				min = lastMax.copy();
 			else
 				return null;
-
+			
 		return new MarkMode() {
-
+			
 			@Override
 			public SubGui getConfigurationGui() {
 				return new SubGuiMarkMode(this) {
@@ -393,12 +393,12 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 					public void createControls() {
 						super.createControls();
 						controls.add(new GuiButton(I18n.translateToLocal("markmode.gui.switchpos"), 10, 20) {
-
+							
 							@Override
 							public void onClicked(int x, int y, int button) {
 								if (lastMax == null)
 									lastMax = min.copy();
-
+								
 								mode.position = min;
 								min = lastMax;
 								lastMax = mode.position;
@@ -409,12 +409,12 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			}
 		};
 	}
-
+	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return false;
 	}
-
+	
 	@Override
 	public LittleGridContext getPositionContext(ItemStack stack) {
 		return ItemMultiTiles.currentContext;

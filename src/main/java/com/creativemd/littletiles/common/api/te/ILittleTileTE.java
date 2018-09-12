@@ -7,7 +7,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.Optional.Method;
 
 public interface ILittleTileTE {
-
+	
 	/**
 	 * Returns a converted version of the TileEntity.
 	 * 
@@ -19,8 +19,8 @@ public interface ILittleTileTE {
 	 */
 	@Method(modid = "chiselsandbits")
 	public Object getVoxelBlob(boolean force) throws Exception;
-
+	
 	@Nullable
 	public IBlockState getState(AxisAlignedBB box, boolean realistic);
-
+	
 }

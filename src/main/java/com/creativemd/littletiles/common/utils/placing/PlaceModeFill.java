@@ -12,21 +12,21 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeFill extends PlacementMode {
-
+	
 	public PlaceModeFill(String name, PreviewMode mode) {
 		super(name, mode);
 	}
-
+	
 	@Override
 	public boolean checkAll() {
 		return false;
 	}
-
+	
 	@Override
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return null;
 	}
-
+	
 	@Override
 	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
@@ -34,22 +34,22 @@ public class PlaceModeFill extends PlacementMode {
 			tiles.add(tile);
 			return tiles;
 		}
-
+		
 		List<LittleTileBox> cutout = new ArrayList<>();
 		List<LittleTileBox> boxes = te.cutOut(tile.box, cutout);
-
+		
 		for (LittleTileBox box : boxes) {
 			LittleTile newTile = tile.copy();
 			newTile.box = box;
 			tiles.add(newTile);
 		}
-
+		
 		for (LittleTileBox box : cutout) {
 			LittleTile newTile = tile.copy();
 			newTile.box = box;
 			unplaceableTiles.add(newTile);
 		}
-
+		
 		return tiles;
 	}
 }

@@ -30,25 +30,25 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class MarkMode {
-
+	
 	public static Minecraft mc = Minecraft.getMinecraft();
-
+	
 	public PositionResult position = null;
-
+	
 	public boolean allowLowResolution = true;
-
+	
 	public MarkMode() {
-
+		
 	}
-
+	
 	public static PositionResult loadPosition(boolean absolute, PositionResult position, PreviewResult preview) {
 		if (!absolute) {
 			position.contextVec.vec = preview.box.getCenter();
 			position.contextVec.context = preview.context;
-
+			
 			LittleTileVec center = preview.size.calculateCenter();
 			LittleTileVec centerInv = preview.size.calculateInvertedCenter();
-
+			
 			switch (position.facing) {
 			case EAST:
 				position.contextVec.vec.x -= center.x;
@@ -71,7 +71,7 @@ public class MarkMode {
 			default:
 				break;
 			}
-
+			
 			if (!preview.singleMode && preview.placedFixed) {
 				position.contextVec.ensureBothAreEqual(preview.offset.contextVec);
 				position.contextVec.vec.sub(preview.offset.contextVec.vec);
@@ -79,15 +79,15 @@ public class MarkMode {
 		}
 		return position;
 	}
-
+	
 	public boolean allowLowResolution() {
 		return allowLowResolution;
 	}
-
+	
 	public SubGui getConfigurationGui() {
 		return new SubGuiMarkMode(this);
 	}
-
+	
 	public boolean processPosition(EntityPlayer player, PositionResult position, PreviewResult preview, boolean absolute) {
 		if (this.position == null) {
 			this.position = loadPosition(absolute, position, preview);
@@ -99,48 +99,48 @@ public class MarkMode {
 		}
 		return true;
 	}
-
+	
 	public void renderWorld(float renderTickTime) {
-
+		
 	}
-
+	
 	public void move(LittleGridContext context, EnumFacing facing) {
 		LittleTileVec vec = new LittleTileVec(facing);
 		vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
 		position.subVec(vec);
 	}
-
+	
 	public void renderBlockHighlight(EntityPlayer player, float renderTickTime) {
 		double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) renderTickTime;
 		double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) renderTickTime;
 		double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) renderTickTime;
-
+		
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-
+		
 		GlStateManager.disableTexture2D();
 		GlStateManager.depthMask(false);
 		AxisAlignedBB box = position.getBox().grow(0.0020000000949949026D).offset(-d0, -d1, -d2);
-
+		
 		GlStateManager.glLineWidth(4.0F);
 		RenderGlobal.drawSelectionBoundingBox(box, 0.0F, 0.0F, 0.0F, 1F);
-
+		
 		GlStateManager.disableDepth();
 		GlStateManager.glLineWidth(1.0F);
 		RenderGlobal.drawSelectionBoundingBox(box, 1F, 0.3F, 0.0F, 1F);
 		GlStateManager.enableDepth();
-
+		
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
 	}
-
+	
 	public void renderOverlay(float renderTickTime) {
 		ScaledResolution scaledresolution = new ScaledResolution(this.mc);
-
+		
 		int l = scaledresolution.getScaledWidth();
 		int i1 = scaledresolution.getScaledHeight();
-
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate((float) (l / 2), (float) (i1 / 2), 0);
 		Entity entity = this.mc.getRenderViewEntity();
@@ -152,25 +152,25 @@ public class MarkMode {
 		{
 			{
 				float direction = pitch % 180;
-
+				
 				if (LittleAction.isUsingSecondMode(mc.player)) {
 					GlStateManager.pushMatrix();
 					GlStateManager.rotate(180, 0, 0, 1);
 					GuiRenderHelper.instance.drawStringWithShadow("up", -15, -50, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 					GlStateManager.popMatrix();
-
+					
 					GlStateManager.pushMatrix();
 					GlStateManager.rotate(180, 1, 0, 0);
 					GuiRenderHelper.instance.drawStringWithShadow("up", 15, -50, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 					GlStateManager.popMatrix();
-
+					
 				} else {
 					if (direction < 45 && direction > -45) {
 						GlStateManager.pushMatrix();
 						GlStateManager.rotate(180, 0, 0, 1);
 						GuiRenderHelper.instance.drawStringWithShadow("up", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 						GlStateManager.popMatrix();
-
+						
 						GlStateManager.pushMatrix();
 						GlStateManager.rotate(180, 1, 0, 0);
 						GuiRenderHelper.instance.drawStringWithShadow("up", 30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
@@ -181,7 +181,7 @@ public class MarkMode {
 						GlStateManager.rotate(90, 1, 0, 0);
 						GuiRenderHelper.instance.drawStringWithShadow("up", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 						GlStateManager.popMatrix();
-
+						
 						GlStateManager.pushMatrix();
 						GlStateManager.rotate(180, 0, 0, 1);
 						GlStateManager.rotate(-90, 1, 0, 0);
@@ -189,17 +189,17 @@ public class MarkMode {
 						GlStateManager.popMatrix();
 					}
 				}
-
+				
 				GlStateManager.pushMatrix();
-
+				
 				GlStateManager.rotate(-90, 0, 1, 0);
-
+				
 				if (direction < 45 && direction > -45) {
 					GlStateManager.pushMatrix();
 					GlStateManager.rotate(180, 0, 0, 1);
 					GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 					GlStateManager.popMatrix();
-
+					
 					GlStateManager.pushMatrix();
 					GlStateManager.rotate(180, 1, 0, 0);
 					GuiRenderHelper.instance.drawStringWithShadow("right", 30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
@@ -210,20 +210,20 @@ public class MarkMode {
 					GlStateManager.rotate(90, 1, 0, 0);
 					GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 					GlStateManager.popMatrix();
-
+					
 					GlStateManager.pushMatrix();
 					GlStateManager.rotate(180, 0, 0, 1);
 					GlStateManager.rotate(-90, 1, 0, 0);
 					GuiRenderHelper.instance.drawStringWithShadow("right", -30, -15, ColorUtils.RGBAToInt(new Color(255, 255, 255, 255)));
 					GlStateManager.popMatrix();
 				}
-
+				
 				GlStateManager.popMatrix();
 			}
 			OpenGlHelper.renderDirections(GuiScreen.isCtrlKeyDown() ? 50 : 30);
-
+			
 		}
 		GlStateManager.popMatrix();
 	}
-
+	
 }

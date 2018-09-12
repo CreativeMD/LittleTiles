@@ -16,9 +16,9 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
 public class ChiselAndBitsConveration {
-
+	
 	public static ConcurrentLinkedQueue<TileEntity> tileentities = new ConcurrentLinkedQueue<>();
-
+	
 	@SubscribeEvent
 	public static void worldTick(WorldTickEvent event) {
 		World world = event.world;
@@ -48,10 +48,10 @@ public class ChiselAndBitsConveration {
 				System.out.println("Converted " + size + " blocks ...");
 		}
 	}
-
+	
 	public static void onAddedTileEntity(TileEntity te) {
 		if (ChiselsAndBitsManager.isInstalled() && ChiselsAndBitsManager.isChiselsAndBitsStructure(te))
 			tileentities.add(te);
 	}
-
+	
 }

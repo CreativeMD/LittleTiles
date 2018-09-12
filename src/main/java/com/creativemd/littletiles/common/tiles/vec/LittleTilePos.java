@@ -11,10 +11,10 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 public class LittleTilePos {
-
+	
 	public BlockPos pos;
 	public LittleTileVecContext contextVec;
-
+	
 	public LittleTilePos(String name, NBTTagCompound nbt) {
 		int[] array = nbt.getIntArray(name);
 		if (array.length == 3) // Loading vec
@@ -29,7 +29,7 @@ public class LittleTilePos {
 		} else
 			throw new InvalidParameterException("No valid coords given " + nbt);
 	}
-
+	
 	public LittleTilePos(RayTraceResult result, LittleGridContext context) {
 		long x = context.toGridAccurate(result.hitVec.x);
 		long y = context.toGridAccurate(result.hitVec.y);
@@ -42,77 +42,77 @@ public class LittleTilePos {
 		// contextVec.vec.setAxis(result.sideHit.getAxis(),
 		// contextVec.vec.getAxis(result.sideHit.getAxis()) + 1);
 	}
-
+	
 	public LittleTilePos(BlockPos pos, LittleGridContext context) {
 		this(pos, new LittleTileVecContext(context, new LittleTileVec(0, 0, 0)));
 	}
-
+	
 	public LittleTilePos(BlockPos pos, LittleGridContext context, LittleTileVec vec) {
 		this(pos, new LittleTileVecContext(context, vec));
 	}
-
+	
 	public LittleTilePos(BlockPos pos, LittleTileVecContext contextVec) {
 		this.pos = pos;
 		this.contextVec = contextVec;
 	}
-
+	
 	public void convertToSmallest() {
 		this.contextVec.convertToSmallest();
 	}
-
+	
 	public void convertTo(LittleGridContext to) {
 		this.contextVec.convertTo(to);
 	}
-
+	
 	public void ensureBothAreEqual(LittleTilePos pos) {
 		this.contextVec.ensureBothAreEqual(pos.contextVec);
 	}
-
+	
 	public LittleTileVecContext getRelative(LittleTilePos pos) {
 		ensureBothAreEqual(pos);
 		LittleTileVecContext newVec = new LittleTileVecContext(getContext(), new LittleTileVec(getContext(), this.pos.subtract(pos.pos)));
 		newVec.vec.add(this.contextVec.vec);
 		newVec.vec.sub(pos.contextVec.vec);
-
+		
 		pos.convertToSmallest();
 		convertToSmallest();
 		return newVec;
 	}
-
+	
 	public void add(LittleTilePos pos) {
 		this.pos = this.pos.add(pos.pos);
 		ensureBothAreEqual(pos);
 		this.contextVec.vec.add(pos.contextVec.vec);
-
+		
 		pos.convertToSmallest();
 		convertToSmallest();
 	}
-
+	
 	public void sub(LittleTilePos pos) {
 		this.pos = this.pos.subtract(pos.pos);
 		ensureBothAreEqual(pos);
 		this.contextVec.vec.sub(pos.contextVec.vec);
-
+		
 		pos.convertToSmallest();
 		convertToSmallest();
 	}
-
+	
 	public void add(Vec3i vec) {
 		pos = pos.add(vec);
 	}
-
+	
 	public void sub(Vec3i vec) {
 		pos = pos.subtract(vec);
 	}
-
+	
 	public void add(LittleTileVecContext vec) {
 		contextVec.add(vec);
 	}
-
+	
 	public void sub(LittleTileVecContext vec) {
 		contextVec.sub(vec);
 	}
-
+	
 	public void removeInternalBlockOffset() {
 		LittleGridContext context = getContext();
 		// Larger
@@ -131,7 +131,7 @@ public class LittleTilePos {
 			contextVec.vec.z -= amount * context.size;
 			pos = pos.add(0, 0, amount);
 		}
-
+		
 		// Smaller
 		if (contextVec.vec.x < 0) {
 			int amount = (int) Math.ceil(Math.abs(contextVec.vec.x / (double) context.size));
@@ -149,40 +149,40 @@ public class LittleTilePos {
 			pos = pos.add(0, 0, -amount);
 		}
 	}
-
+	
 	public LittleTilePos copy() {
 		return new LittleTilePos(pos, contextVec.copy());
 	}
-
+	
 	public double getPosX() {
 		return pos.getX() + contextVec.getPosX();
 	}
-
+	
 	public double getPosY() {
 		return pos.getY() + contextVec.getPosY();
 	}
-
+	
 	public double getPosZ() {
 		return pos.getZ() + contextVec.getPosZ();
 	}
-
+	
 	public Vec3d getVec() {
 		return new Vec3d(getPosX(), getPosY(), getPosZ());
 	}
-
+	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
 		nbt.setIntArray(name, new int[] { pos.getX(), pos.getY(), pos.getZ(), contextVec.context.size, contextVec.vec.x, contextVec.vec.y, contextVec.vec.z });
 	}
-
+	
 	public LittleGridContext getContext() {
 		return contextVec.context;
 	}
-
+	
 	@Override
 	public int hashCode() {
 		return pos.hashCode();
 	}
-
+	
 	@Override
 	public boolean equals(Object paramObject) {
 		if (paramObject instanceof LittleTilePos) {
@@ -191,7 +191,7 @@ public class LittleTilePos {
 		}
 		return super.equals(paramObject);
 	}
-
+	
 	@Override
 	public String toString() {
 		return "[" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + ",grid:" + contextVec.context.size + "," + contextVec.vec.x + "," + contextVec.vec.y + "," + contextVec.vec.z + "]";

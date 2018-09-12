@@ -17,17 +17,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class OverlayRenderer {
-
+	
 	private static Minecraft mc = Minecraft.getMinecraft();
-
+	
 	public static final ResourceLocation ingameTextures = new ResourceLocation(LittleTiles.modid, "textures/gui/ingameselect.png");
-
+	
 	@SubscribeEvent
 	public void OnRender(RenderTickEvent event) {
 		if (event.phase == Phase.END && mc.player != null && mc.inGameHasFocus) {
 			if (PreviewRenderer.marked != null)
 				PreviewRenderer.marked.renderOverlay(event.renderTickTime);
-
+			
 			/*
 			 * if(GuiScreen.isCtrlKeyDown()) { ScaledResolution resolution = new
 			 * ScaledResolution(mc); double width = resolution.getScaledWidth()*1.5; double
@@ -70,36 +70,36 @@ public class OverlayRenderer {
 			 */
 		}
 	}
-
+	
 	public static void drawSlot(String title, int offset, float alpha, float scale) {
 		GlStateManager.pushMatrix();
-
+		
 		boolean selected = offset == 0;
-
+		
 		GlStateManager.translate(offset, 0, 0);
 		GlStateManager.color(1, 1, 1, alpha);
 		int slotSizeInner = 48;
-
+		
 		GlStateManager.pushMatrix();
-
+		
 		GlStateManager.translate(0, -slotSizeInner * 1.25 * scale * (selected ? 1.25 : 1), 0);
-
+		
 		if (selected)
 			GlStateManager.scale(3 * scale, 3 * scale, 0);
 		else
 			GlStateManager.scale(2 * scale, 2 * scale, 0);
 		GuiRenderHelper.instance.drawStringWithShadow(title, 0, 0, ColorUtils.RGBAToInt(new Color(255, 255, 255, (byte) (alpha * 255))));
 		GlStateManager.popMatrix();
-
+		
 		GlStateManager.pushMatrix();
-
+		
 		GlStateManager.scale(2 * scale, 2 * scale, 0);
 		if (selected)
 			GuiRenderHelper.instance.drawTexturedModalRect(ingameTextures, -slotSizeInner / 2, -slotSizeInner / 2, 128, 0, slotSizeInner, slotSizeInner);
 		GuiRenderHelper.instance.drawTexturedModalRect(ingameTextures, -slotSizeInner / 2, -slotSizeInner / 2, 128, 48, slotSizeInner, slotSizeInner);
 		GlStateManager.popMatrix();
-
+		
 		GlStateManager.popMatrix();
 	}
-
+	
 }

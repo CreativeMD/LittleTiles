@@ -21,23 +21,23 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileTE extends LittleTileBlock {
-
+	
 	public LittleTileTE() {
 		super();
 	}
-
+	
 	public LittleTileTE(Block block, int meta, TileEntity tileEntity) {
 		super(block, meta);
 		this.tileEntity = tileEntity;
 		setMeta(meta);
 	}
-
+	
 	public boolean firstSended = false;
-
+	
 	private TileEntity tileEntity;
-
+	
 	private boolean isTileEntityLoaded = false;
-
+	
 	public TileEntity getTileEntity() {
 		if (!isTileEntityLoaded && tileEntity != null) {
 			tileEntity.setWorld(te.getWorld());
@@ -46,13 +46,13 @@ public class LittleTileTE extends LittleTileBlock {
 		}
 		return tileEntity;
 	}
-
+	
 	public void setTileEntity(TileEntity tileEntity) {
 		this.tileEntity = tileEntity;
 	}
-
+	
 	private static Field metadataField = ReflectionHelper.findField(TileEntity.class, "blockMetadata", "field_145847_g");
-
+	
 	protected void setTEMetadata(int meta) {
 		try {
 			metadataField.setInt(tileEntity, meta);
@@ -60,36 +60,36 @@ public class LittleTileTE extends LittleTileBlock {
 			e.printStackTrace();
 		}
 	}
-
+	
 	@Override
 	public void setMeta(int meta) {
 		super.setMeta(meta);
 		if (tileEntity != null)
 			setTEMetadata(meta);
 	}
-
+	
 	@Override
 	public boolean supportsUpdatePacket() {
 		return true;
 	}
-
+	
 	@Override
 	public NBTTagCompound getUpdateNBT() {
 		tileEntity.setWorld(te.getWorld());
 		return ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, getTileEntity().getUpdatePacket(), "nbt", "field_148860_e");
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void receivePacket(NBTTagCompound nbt, NetworkManager net) {
 		tileEntity.onDataPacket(net, new SPacketUpdateTileEntity(tileEntity.getPos(), getMeta(), nbt));
 	}
-
+	
 	@Override
 	public boolean canBeSplitted() {
 		return false;
 	}
-
+	
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
@@ -104,7 +104,7 @@ public class LittleTileTE extends LittleTileBlock {
 			// setInValid();
 		}
 	}
-
+	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		super.saveTileExtra(nbt);
@@ -114,12 +114,12 @@ public class LittleTileTE extends LittleTileBlock {
 			nbt.setTag("tileEntity", tileNBT);
 		}
 	}
-
+	
 	@Override
 	public boolean shouldTick() {
 		return true;
 	}
-
+	
 	@Override
 	public void updateEntity() {
 		if (tileEntity != null) {
@@ -131,7 +131,7 @@ public class LittleTileTE extends LittleTileBlock {
 				((ITickable) tileEntity).update();
 		}
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {
@@ -139,24 +139,24 @@ public class LittleTileTE extends LittleTileBlock {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (te.getDistanceSq(mc.player.posX, mc.player.posY, mc.player.posZ) < getTileEntity().getMaxRenderDistanceSquared()) {
 				RenderHelper.enableStandardItemLighting();
-
+				
 				int i = te.getWorld().getCombinedLight(te.getPos(), 0);
 				int j = i % 65536;
 				int k = i / 65536;
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				BlockPos blockpos = te.getPos();
-
+				
 				renderTileEntity(x, y, z, partialTickTime);
 			}
 		}
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public void renderTileEntity(double x, double y, double z, float partialTickTime) {
-
+		
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public double getMaxRenderDistanceSquared() {
@@ -164,7 +164,7 @@ public class LittleTileTE extends LittleTileBlock {
 			return getTileEntity().getMaxRenderDistanceSquared();
 		return super.getMaxRenderDistanceSquared();
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox() {
@@ -172,7 +172,7 @@ public class LittleTileTE extends LittleTileBlock {
 			return getTileEntity().getRenderBoundingBox().offset(getContext().toVanillaGrid(box.minX), getContext().toVanillaGrid(box.minY), getContext().toVanillaGrid(box.minZ));
 		return super.getRenderBoundingBox();
 	}
-
+	
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
@@ -182,19 +182,19 @@ public class LittleTileTE extends LittleTileBlock {
 			thisTile.isTileEntityLoaded = false;
 		}
 	}
-
+	
 	@Override
 	protected boolean canSawResize(EnumFacing direction, EntityPlayer player) {
 		return false;
 	}
-
+	
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
 		if (super.canBeCombined(tile))
 			return tile instanceof LittleTileTE && getTileEntity() == ((LittleTileTE) tile).getTileEntity();
 		return false;
 	}
-
+	
 	@Override
 	public boolean canBeConvertedToVanilla() {
 		return false;

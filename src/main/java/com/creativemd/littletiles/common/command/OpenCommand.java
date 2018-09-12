@@ -20,30 +20,30 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class OpenCommand extends CommandBase {
-
+	
 	@Override
 	public String getName() {
 		return "lt-open";
 	}
-
+	
 	@Override
 	public int getRequiredPermissionLevel() {
 		return 2;
 	}
-
+	
 	@Override
 	public String getUsage(ICommandSender sender) {
 		return "commands.open.usage";
 	}
-
+	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
 		if (args.length != 3)
 			throw new WrongUsageException("commands.open.usage", new Object[0]);
-
+		
 		BlockPos blockpos = parseBlockPos(sender, args, 0, false);
 		World world = sender.getEntityWorld();
-
+		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		;
 		if (tileEntity instanceof TileEntityLittleTiles) {
@@ -55,18 +55,18 @@ public class OpenCommand extends CommandBase {
 					else
 						notifyCommandListener(sender, this, "commands.open.notloaded");
 			}
-
+			
 			for (LittleDoorBase door : doors) {
 				door.activate(world, null, door.getDefaultRotation(), door.getMainTile().te.getPos());
 			}
 		}
 	}
-
+	
 	@Override
 	public List<String> getTabCompletions(MinecraftServer server, ICommandSender sender, String[] args, @Nullable BlockPos targetPos) {
 		if (args.length > 0 && args.length <= 3)
 			return getTabCompletionCoordinate(args, 0, targetPos);
-
+		
 		return Collections.emptyList();
 	}
 }

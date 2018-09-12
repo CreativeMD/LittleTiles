@@ -15,15 +15,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleGuiHandler extends CustomGuiHandler {
-
+	
 	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile) {
 		new LittleTileIdentifierAbsolute(tile).writeToNBT(nbt);
-
+		
 		GuiHandler.openGui(id, nbt, player);
 	}
-
+	
 	public abstract SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile);
-
+	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 		try {
@@ -33,10 +33,10 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		}
 		return null;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public abstract SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile);
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
@@ -47,5 +47,5 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		}
 		return null;
 	}
-
+	
 }

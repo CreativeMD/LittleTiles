@@ -34,7 +34,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class StructureStringUtils {
-
+	
 	@SideOnly(Side.CLIENT)
 	public static String exportModel(ItemStack stack) {
 		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
@@ -50,30 +50,30 @@ public class StructureStringUtils {
 				previews = tile.getLittlePreview(stack);
 				structure = tile.getLittleStructure(stack);
 			}
-
+			
 			List<String> texturenames = new ArrayList<>();
 			List<? extends RenderCubeObject> cubes = ((ICreativeRendered) stack.getItem()).getRenderingCubes(null, null, stack);
 			JsonArray elements = new JsonArray();
 			for (int i = 0; i < cubes.size(); i++) {
 				RenderCubeObject cube = cubes.get(i);
-
+				
 				JsonObject element = new JsonObject();
 				element.addProperty("name", "littletile_" + i);
-
+				
 				JsonArray positionArray = new JsonArray();
 				positionArray.add(new JsonPrimitive(cube.minX * 16));
 				positionArray.add(new JsonPrimitive(cube.minY * 16));
 				positionArray.add(new JsonPrimitive(cube.minZ * 16));
 				element.add("from", positionArray);
-
+				
 				positionArray = new JsonArray();
 				positionArray.add(new JsonPrimitive(cube.maxX * 16));
 				positionArray.add(new JsonPrimitive(cube.maxY * 16));
 				positionArray.add(new JsonPrimitive(cube.maxZ * 16));
 				element.add("to", positionArray);
-
+				
 				IBakedModel blockModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(cube.getBlockState());
-
+				
 				JsonObject faces = new JsonObject();
 				for (int j = 0; j < EnumFacing.VALUES.length; j++) {
 					EnumFacing facing = EnumFacing.VALUES[j];
@@ -81,37 +81,37 @@ public class StructureStringUtils {
 					if (!quads.isEmpty()) // No support for grass!!!
 					{
 						JsonObject face = new JsonObject();
-
+						
 						BakedQuad quad = quads.get(0);
 						if (!texturenames.contains(quad.getSprite().getIconName()))
 							texturenames.add(quad.getSprite().getIconName());
 						int iconID = texturenames.indexOf(quad.getSprite().getIconName());
 						face.addProperty("texture", "#" + iconID);
 						JsonArray uv = new JsonArray();
-
+						
 						float minX = 16;
 						float maxX = 0;
 						float minY = 16;
 						float maxY = 0;
-
+						
 						for (int k = 0; k < 4; k++) {
 							int index = k * quad.getFormat().getIntegerSize();
-
+							
 							int uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
 							float u = quad.getSprite().getUnInterpolatedU(Float.intBitsToFloat(quad.getVertexData()[uvIndex]));
 							minX = Math.min(minX, u);
 							maxX = Math.max(maxX, u);
-
+							
 							float v = quad.getSprite().getUnInterpolatedV(Float.intBitsToFloat(quad.getVertexData()[uvIndex + 1]));
 							minY = Math.min(minY, v);
 							maxY = Math.max(maxY, v);
 						}
-
+						
 						uv.add(new JsonPrimitive(minX));
 						uv.add(new JsonPrimitive(minY));
 						uv.add(new JsonPrimitive(maxX));
 						uv.add(new JsonPrimitive(maxY));
-
+						
 						face.add("uv", uv);
 						faces.add(facing.getName(), face);
 					}
@@ -120,7 +120,7 @@ public class StructureStringUtils {
 				elements.add(element);
 			}
 			object.add("elements", elements);
-
+			
 			JsonObject textures = new JsonObject();
 			for (int j = 0; j < texturenames.size(); j++) {
 				textures.addProperty("" + j, texturenames.get(j));
@@ -131,7 +131,7 @@ public class StructureStringUtils {
 		}
 		return "";
 	}
-
+	
 	public static String exportStructure(ItemStack stack) {
 		String text = "";
 		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
@@ -146,10 +146,10 @@ public class StructureStringUtils {
 				previews = tile.getLittlePreview(stack);
 				structure = tile.getLittleStructure(stack);
 			}
-
+			
 			previews.context.setOverall(nbt);
 			nbt.setTag("tiles", LittleNBTCompressionTools.writePreviews(previews));
-
+			
 			if (structure != null) {
 				NBTTagCompound nbtStructure = new NBTTagCompound();
 				structure.writeToNBT(nbtStructure);
@@ -159,7 +159,7 @@ public class StructureStringUtils {
 		}
 		return text;
 	}
-
+	
 	public static ItemStack importStructure(String input) {
 		try {
 			return importStructure(JsonToNBT.getTagFromJson(input));
@@ -168,24 +168,24 @@ public class StructureStringUtils {
 		}
 		return ItemStack.EMPTY;
 	}
-
+	
 	public static ItemStack importStructure(NBTTagCompound nbt) {
 		NBTTagCompound itemNBT = new NBTTagCompound();
-
+		
 		ItemStack stack = new ItemStack(LittleTiles.recipe);
-
+		
 		stack.setTagCompound(itemNBT);
-
+		
 		if (nbt.hasKey("structure"))
 			itemNBT.setTag("structure", nbt.getCompoundTag("structure"));
-
+		
 		if (nbt.getTag("tiles") instanceof NBTTagInt) {
 			String[] names = nbt.getString("names").split("\\.");
-
+			
 			int tiles = nbt.getInteger("tiles");
 			for (int i = 0; i < tiles; i++) {
 				String[] entries = nbt.getString("" + i).split("\\.");
-
+				
 				if (entries.length >= 8) {
 					NBTTagCompound tileNBT = new NBTTagCompound();
 					LittleTileBox box = new LittleTileBox(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]), Integer.parseInt(entries[2]), Integer.parseInt(entries[3]), Integer.parseInt(entries[4]), Integer.parseInt(entries[5]));
@@ -196,15 +196,15 @@ public class StructureStringUtils {
 					box.writeToNBT("bBox", tileNBT);
 					tileNBT.setString("tID", "BlockTileBlock");
 					itemNBT.setTag("tile" + i, tileNBT);
-
+					
 				}
 			}
-
+			
 			itemNBT.setInteger("tiles", tiles);
 		} else {
 			LittleTilePreview.savePreviewTiles(LittleNBTCompressionTools.readPreviews(LittleGridContext.getOverall(nbt), nbt.getTagList("tiles", 10)), stack);
 		}
-
+		
 		return stack;
 	}
 }

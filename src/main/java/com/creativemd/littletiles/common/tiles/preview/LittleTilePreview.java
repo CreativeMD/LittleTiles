@@ -35,15 +35,15 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTilePreview {
-
+	
 	// ================Type ID================
-
+	
 	private static HashMap<String, Class<? extends LittleTilePreview>> previewTypes = new HashMap<>();
-
+	
 	public static void registerPreviewType(String id, Class<? extends LittleTilePreview> type) {
 		previewTypes.put(id, type);
 	}
-
+	
 	public String getTypeID() {
 		if (!isCustomPreview())
 			return "";
@@ -52,25 +52,25 @@ public class LittleTilePreview {
 				return type.getKey();
 		return "";
 	}
-
+	
 	public boolean isCustomPreview() {
 		return this.getClass() != LittleTilePreview.class;
 	}
-
+	
 	// ================Data================
-
+	
 	public boolean canSplit = true;
-
+	
 	protected NBTTagCompound tileData;
-
+	
 	public LittleTileBox box;
-
+	
 	public List<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
-
+	
 	public final LittleTilePreviewHandler handler;
-
+	
 	// ================Constructors================
-
+	
 	/** This constructor needs to be implemented in every subclass **/
 	public LittleTilePreview(NBTTagCompound nbt) {
 		if (nbt.hasKey("bBoxminX") || nbt.hasKey("bBox")) {
@@ -80,7 +80,7 @@ public class LittleTilePreview {
 			box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
 		} else
 			box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-
+		
 		if (nbt.hasKey("tile")) // new way
 			tileData = nbt.getCompoundTag("tile");
 		else { // Old way
@@ -88,81 +88,81 @@ public class LittleTilePreview {
 			tileData.removeTag("bBox");
 			tileData.removeTag("size");
 		}
-
+		
 		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
-
+	
 	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData) {
 		this.box = box;
 		this.tileData = tileData;
 		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
-
+	
 	/*
 	 * public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData) {
 	 * this.size = size; this.tileData = tileData; this.handler =
 	 * LittleTile.getPreviewHandler(tileData.getString("tID")); }
 	 */
-
+	
 	// ================Preview================
-
+	
 	public boolean canBeConvertedToBlockEntry() {
 		return handler.canBeConvertedToBlockEntry(this) && hasBlockIngredient();
 	}
-
+	
 	public String getPreviewBlockName() {
 		return handler.getPreviewBlockName(this);
 	}
-
+	
 	public Block getPreviewBlock() {
 		return handler.getPreviewBlock(this);
 	}
-
+	
 	public int getPreviewBlockMeta() {
 		return handler.getPreviewBlockMeta(this);
 	}
-
+	
 	public boolean hasColor() {
 		return handler.hasColor(this);
 	}
-
+	
 	public int getColor() {
 		return handler.getColor(this);
 	}
-
+	
 	public void setColor(int color) {
 		handler.setColor(this, color);
 	}
-
+	
 	/** Rendering inventory **/
 	@SideOnly(Side.CLIENT)
 	public RenderCubeObject getCubeBlock(LittleGridContext context) {
 		return handler.getCubeBlock(context, this);
 	}
-
+	
 	public boolean isInvisible() {
 		return tileData.getBoolean("invisible");
 	}
-
+	
 	public void setInvisibile(boolean invisible) {
 		tileData.setBoolean("invisible", invisible);
 	}
-
+	
 	public NBTTagCompound getTileData() {
 		return tileData;
 	}
-
+	
 	public boolean hasBlockIngredient() {
 		return !tileData.getBoolean("nodrop");
 	}
-
+	
 	@Nullable
 	public BlockIngredient getBlockIngredient(LittleGridContext context) {
 		if (hasBlockIngredient())
 			return handler.getBlockIngredient(context, this);
 		return null;
 	}
-
+	
 	/**
 	 * 
 	 * @param context
@@ -172,30 +172,30 @@ public class LittleTilePreview {
 	public ItemStack getBlockStack() {
 		return handler.getBlockStack(this);
 	}
-
+	
 	public double getPercentVolume(LittleGridContext context) {
 		return box.getPercentVolume(context);
 	}
-
+	
 	public double getVolume() {
 		return box.getVolume();
 	}
-
+	
 	public int getSmallestContext(LittleGridContext context) {
 		return box.getSmallestContext(context);
 	}
-
+	
 	public void convertTo(LittleGridContext from, LittleGridContext to) {
 		box.convertTo(from, to);
 	}
-
+	
 	// ================Copy================
-
+	
 	public LittleTilePreview copy() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
 		LittleTilePreview preview = loadPreviewFromNBT(nbt);
-
+		
 		if (preview == null) {
 			// if(this.box != null)
 			preview = new LittleTilePreview(box.copy(), tileData.copy()); // Maybe causes some crashes.
@@ -207,14 +207,14 @@ public class LittleTilePreview {
 		preview.fixedhandlers = new ArrayList<>(this.fixedhandlers);
 		return preview;
 	}
-
+	
 	// ================Placing================
-
+	
 	/** Used for placing the tile **/
 	public LittleTile getLittleTile(TileEntityLittleTiles te) {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
-
+	
 	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
 		/*
 		 * if(this.box == null) return new PlacePreviewTile(box.copy(), this); else{
@@ -225,23 +225,23 @@ public class LittleTilePreview {
 		return new PlacePreviewTile(newBox, this);
 		// }
 	}
-
+	
 	// ================Rotating/Flipping================
-
+	
 	public void flipPreview(Axis axis, LittleTileVec doubledCenter) {
 		if (box != null)
 			box.flipBox(axis, doubledCenter);
 		handler.flipPreview(axis, this, doubledCenter);
 	}
-
+	
 	public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
 		box.rotateBox(rotation, doubledCenter);
-
+		
 		handler.rotatePreview(rotation, this, doubledCenter);
 	}
-
+	
 	// ================Save & Loading================
-
+	
 	public static LittleTilePreview loadPreviewFromNBT(NBTTagCompound nbt) {
 		if (nbt == null)
 			return null;
@@ -260,20 +260,20 @@ public class LittleTilePreview {
 			return new LittleTilePreview(nbt);
 		return null;
 	}
-
+	
 	public void writeToNBT(NBTTagCompound nbt) {
 		box.writeToNBT("bBox", nbt);
 		nbt.setTag("tile", tileData);
 		if (isCustomPreview() && !getTypeID().equals(""))
 			nbt.setString("type", getTypeID());
 	}
-
+	
 	// ================Grouping================
-
+	
 	public List<NBTTagCompound> extractNBTFromGroup(NBTTagCompound nbt) {
 		List<NBTTagCompound> tags = new ArrayList<>();
 		NBTTagList list = nbt.getTagList("boxes", 11);
-
+		
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound copy = nbt.copy();
 			copy.removeTag("boxes");
@@ -282,11 +282,11 @@ public class LittleTilePreview {
 		}
 		return tags;
 	}
-
+	
 	public boolean canBeNBTGrouped(LittleTilePreview preview) {
 		return handler.canBeNBTGrouped() && this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
 	}
-
+	
 	public NBTTagCompound startNBTGrouping() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		writeToNBT(nbt);
@@ -296,36 +296,36 @@ public class LittleTilePreview {
 		nbt.setTag("boxes", list);
 		return nbt;
 	}
-
+	
 	public void groupNBTTile(NBTTagCompound nbt, LittleTilePreview preview) {
 		NBTTagList list = nbt.getTagList("boxes", 11);
 		list.appendTag(preview.box.getNBTIntArray());
 	}
-
+	
 	// ================Static Helpers================
-
+	
 	public static int lowResolutionMode = 2000;
-
+	
 	public static LittlePreviews getPreview(ItemStack stack) {
 		return getPreview(stack, false);
 	}
-
+	
 	public static LittlePreviews getPreview(ItemStack stack, boolean allowLowResolution) {
 		return LittlePreviews.getPreview(stack, allowLowResolution);
 	}
-
+	
 	public static LittleTileSize getSize(ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
 			return new LittleTileSize("size", stack.getTagCompound());
 		return new LittleTileSize(1, 1, 1);
 	}
-
+	
 	public static LittleTileVec getOffset(ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("min"))
 			return new LittleTileVec("min", stack.getTagCompound());
 		return null;
 	}
-
+	
 	public static void removePreviewTiles(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			return;
@@ -337,23 +337,23 @@ public class LittleTilePreview {
 		nbt.removeTag("tiles");
 		nbt.removeTag("count");
 	}
-
+	
 	public static void savePreviewTiles(LittlePreviews previews, ItemStack stack) {
 		if (previews instanceof LittleAbsolutePreviews)
 			throw new IllegalArgumentException("Absolute positions cannot be saved!");
-
+		
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		previews.context.set(stack.getTagCompound());
-
+		
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
 		int maxX = Integer.MIN_VALUE;
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
-
+		
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			minX = Math.min(minX, preview.box.minX);
@@ -362,18 +362,18 @@ public class LittleTilePreview {
 			maxX = Math.max(maxX, preview.box.maxX);
 			maxY = Math.max(maxY, preview.box.maxY);
 			maxZ = Math.max(maxZ, preview.box.maxZ);
-
+			
 		}
-
+		
 		new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ).writeToNBT("size", stack.getTagCompound());
 		new LittleTileVec(minX, minY, minZ).writeToNBT("min", stack.getTagCompound());
-
+		
 		if (previews.size() >= lowResolutionMode) {
 			NBTTagList list = new NBTTagList();
 			// BlockPos lastPos = null;
-
+			
 			HashSet<BlockPos> positions = new HashSet<>();
-
+			
 			for (int i = 0; i < previews.size(); i++) { // Will not be sorted after rotating
 				BlockPos pos = previews.get(i).box.getMinVec().getBlockPos(previews.context);
 				if (!positions.contains(pos)) {
@@ -384,21 +384,21 @@ public class LittleTilePreview {
 			stack.getTagCompound().setTag("pos", list);
 		} else
 			stack.getTagCompound().removeTag("pos");
-
+		
 		NBTTagList list = LittleNBTCompressionTools.writePreviews(previews);
 		stack.getTagCompound().setTag("tiles", list);
-
+		
 		stack.getTagCompound().setInteger("count", previews.size());
 	}
-
+	
 	public static void saveTiles(World world, LittleGridContext context, List<LittleTile> tiles, ItemStack stack) {
 		stack.setTagCompound(new NBTTagCompound());
-
+		
 		LittlePreviews previews = new LittlePreviews(context);
 		previews.addTiles(tiles);
 		savePreviewTiles(previews, stack);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(LittlePreviews previews) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
@@ -407,7 +407,7 @@ public class LittleTilePreview {
 		}
 		return cubes;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();

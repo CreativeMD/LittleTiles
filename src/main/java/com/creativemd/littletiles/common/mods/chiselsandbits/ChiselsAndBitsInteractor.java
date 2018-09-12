@@ -27,7 +27,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 
 public class ChiselsAndBitsInteractor {
-
+	
 	public static boolean isChiselsAndBitsStructure(ItemStack stack) {
 		Block block = Block.getBlockFromItem(stack.getItem());
 		Map blocks = ChiselsAndBits.getBlocks().getConversions();
@@ -38,7 +38,7 @@ public class ChiselsAndBitsInteractor {
 		}
 		return false;
 	}
-
+	
 	public static List<LittleTile> getTiles(VoxelBlob blob) {
 		List<LittleTile> tiles = new ArrayList<>();
 		for (int x = 0; x < ChiselsAndBitsManager.convertingFrom; x++) {
@@ -58,7 +58,7 @@ public class ChiselsAndBitsInteractor {
 		TileEntityLittleTiles.combineTilesList(tiles);
 		return tiles;
 	}
-
+	
 	public static LittlePreviews getPreviews(VoxelBlob blob) {
 		List<LittleTile> tiles = getTiles(blob);
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
@@ -67,33 +67,33 @@ public class ChiselsAndBitsInteractor {
 		}
 		return previews;
 	}
-
+	
 	public static LittlePreviews getPreviews(ItemStack stack) {
 		if (isChiselsAndBitsStructure(stack))
 			return getPreviews(ModUtil.getBlobFromStack(stack, null));
 		return null;
 	}
-
+	
 	public static LittlePreviews getPreviews(TileEntity te) {
 		if (te instanceof TileEntityBlockChiseled)
 			return getPreviews(((TileEntityBlockChiseled) te).getBlob());
 		return null;
 	}
-
+	
 	public static boolean isChiselsAndBitsStructure(TileEntity te) {
 		return te instanceof TileEntityBlockChiseled;
 	}
-
+	
 	public static List<LittleTile> getTiles(TileEntity te) {
 		if (te instanceof TileEntityBlockChiseled)
 			return getTiles(((TileEntityBlockChiseled) te).getBlob());
 		return null;
 	}
-
+	
 	public static VoxelBlob getVoxelBlob(TileEntityLittleTiles te, boolean force) throws Exception {
 		if (te.getContext().size > ChiselsAndBitsManager.convertingFrom)
 			throw new Exception("Invalid grid size of " + te.getContext() + "!");
-
+		
 		LittleGridContext context = null;
 		try {
 			context = LittleGridContext.get(ChiselsAndBitsManager.convertingFrom);
@@ -102,9 +102,9 @@ public class ChiselsAndBitsInteractor {
 		} catch (Exception e) {
 			throw new Exception("The grid-size 16 is not supported! Base=" + LittleGridContext.minSize + ", Exponent=" + LittleGridContext.exponent + ", Scale=" + LittleGridContext.gridSizes.length);
 		}
-
+		
 		te.convertTo(context);
-
+		
 		VoxelBlob blob = new VoxelBlob();
 		for (LittleTile tile : te.getTiles()) {
 			boolean convert;
@@ -117,11 +117,11 @@ public class ChiselsAndBitsInteractor {
 					continue;
 			} else
 				throw new Exception("Cannot convert " + tile.getClass() + " tile!");
-
+			
 			if (convert) {
 				if (!force && tile.box.getClass() != LittleTileBox.class)
 					throw new Exception("Cannot convert " + tile.box.getClass() + " box!");
-
+				
 				for (int x = tile.box.minX; x < tile.box.maxX; x++)
 					for (int y = tile.box.minY; y < tile.box.maxY; y++)
 						for (int z = tile.box.minZ; z < tile.box.maxZ; z++)
@@ -129,9 +129,9 @@ public class ChiselsAndBitsInteractor {
 								blob.set(x, y, z, Block.getStateId(((LittleTileBlock) tile).getBlockState()));
 			}
 		}
-
+		
 		te.convertToSmallest();
-
+		
 		return blob;
 	}
 }

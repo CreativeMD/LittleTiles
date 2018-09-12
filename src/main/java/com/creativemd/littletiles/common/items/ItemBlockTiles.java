@@ -33,13 +33,13 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeRendered {
-
+	
 	public ItemBlockTiles(Block block, ResourceLocation location) {
 		super(block);
 		setUnlocalizedName(location.getResourcePath());
 		hasSubtypes = true;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack) {
@@ -50,7 +50,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		}
 		return result;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getUnlocalizedName(ItemStack stack) {
@@ -61,25 +61,25 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		}
 		return super.getUnlocalizedName(stack);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-
+		
 	}
-
+	
 	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return true;
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(stack.getTagCompound()));
 		previews.addWithoutCheckingPreview(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;
 	}
-
+	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		if (previews.size() > 0) {
@@ -95,21 +95,21 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		} else
 			stack.setTagCompound(new NBTTagCompound());
 	}
-
+	
 	public static ItemStack getStackFromPreview(LittleGridContext context, LittleTilePreview preview) {
 		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = preview.getTileData().copy();
-
+		
 		// preview.size.writeToNBT("size", nbt);
 		preview.writeToNBT(nbt);
-
+		
 		// if(preview.isCustomPreview() && !preview.getTypeID().equals(""))
 		// nbt.setString("type", preview.getTypeID());
 		context.set(nbt);
 		stack.setTagCompound(nbt);
 		return stack;
 	}
-
+	
 	public static List<LittleRenderingCube> getItemRenderingCubes(ItemStack stack) {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<LittleRenderingCube>();
 		if (stack != null && stack.hasTagCompound()) {
@@ -130,46 +130,46 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		}
 		return cubes;
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return null;
 	}
-
+	
 	@Override
 	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack != null)
 			return getItemRenderingCubes(stack);
 		return new ArrayList<>();
 	}
-
+	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
 		return ItemMultiTiles.currentMode;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
-
+			
 			@Override
 			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
 				ItemMultiTiles.currentContext = context;
 				ItemMultiTiles.currentMode = mode;
 			}
-
+			
 		};
 	}
-
+	
 	@Override
 	public LittleGridContext getPositionContext(ItemStack stack) {
 		return ItemMultiTiles.currentContext;
 	}
-
+	
 	@Override
 	public boolean containsIngredients(ItemStack stack) {
 		return true;
 	}
-
+	
 }

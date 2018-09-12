@@ -12,36 +12,36 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
 public class LittleBedPacket extends CreativeCorePacket {
-
+	
 	public LittleTileIdentifierAbsolute coord;
 	public int playerID;
-
+	
 	public LittleBedPacket() {
-
+		
 	}
-
+	
 	public LittleBedPacket(LittleTileIdentifierAbsolute coord) {
 		this.coord = coord;
 		this.playerID = -1;
 	}
-
+	
 	public LittleBedPacket(LittleTileIdentifierAbsolute coord, EntityPlayer player) {
 		this(coord);
 		this.playerID = player.getEntityId();
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		LittleAction.writeAbsoluteCoord(coord, buf);
 		buf.writeInt(playerID);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		coord = LittleAction.readAbsoluteCoord(buf);
 		playerID = buf.readInt();
 	}
-
+	
 	@Override
 	public void executeClient(EntityPlayer player) {
 		Entity entity = playerID == -1 ? player : player.world.getEntityByID(playerID);
@@ -55,13 +55,13 @@ public class LittleBedPacket extends CreativeCorePacket {
 			} catch (LittleActionException e) {
 				e.printStackTrace();
 			}
-
+			
 		}
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
-
+		
 	}
-
+	
 }

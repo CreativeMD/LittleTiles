@@ -33,36 +33,36 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionColorBoxes extends LittleActionBoxes {
-
+	
 	public int color;
 	public boolean toVanilla;
-
+	
 	public LittleActionColorBoxes(LittleBoxes boxes, int color, boolean toVanilla) {
 		super(boxes);
 		this.color = color;
 		this.toVanilla = toVanilla;
 	}
-
+	
 	public LittleActionColorBoxes() {
-
+		
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		super.writeBytes(buf);
 		buf.writeInt(color);
 		buf.writeBoolean(toVanilla);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		super.readBytes(buf);
 		color = buf.readInt();
 		toVanilla = buf.readBoolean();
 	}
-
+	
 	public HashMapList<Integer, LittleBoxes> revertList;
-
+	
 	public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleTileBox> boxes) {
 		LittleBoxes newBoxes = new LittleBoxes(pos, context);
 		for (LittleTileBox box : boxes) {
@@ -70,23 +70,23 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		}
 		revertList.add(color, newBoxes);
 	}
-
+	
 	public boolean shouldSkipTile(LittleTile tile) {
 		return false;
 	}
-
+	
 	public boolean doneSomething;
-
+	
 	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
 		double colorVolume = 0;
-
+		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
-
+			
 			if (shouldSkipTile(tile))
 				continue;
-
+			
 			LittleTileBox intersecting = null;
 			boolean intersects = false;
 			for (int j = 0; j < boxes.size(); j++) {
@@ -96,15 +96,15 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					break;
 				}
 			}
-
+			
 			if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isStructureBlock && (!tile.isLoaded() || !tile.structure.hasLoaded())))
 				continue;
-
+			
 			if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
 				continue;
-
+			
 			doneSomething = true;
-
+			
 			if (tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
 				if (simulate) {
 					double volume = 0;
@@ -114,24 +114,24 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						colorVolume += box2.getPercentVolume(context);
 						volume += box2.getPercentVolume(context);
 					}
-
+					
 					gained.addColorUnit(ColorUnit.getColors(tile.getPreviewTile(), volume));
-
+					
 				} else {
 					List<LittleTileBox> cutout = new ArrayList<>();
 					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-
+					
 					if (newBoxes != null) {
 						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
-
+						
 						LittleTile tempTile = tile.copy();
 						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
 						if (changedTile == null)
 							changedTile = tempTile;
-
+						
 						if (tile.isStructureBlock)
 							tile.structure.removeTile(tile);
-
+						
 						for (int i = 0; i < newBoxes.size(); i++) {
 							LittleTile newTile = tile.copy();
 							newTile.box = newBoxes.get(i);
@@ -139,7 +139,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 							if (tile.isStructureBlock)
 								tile.structure.addTile(newTile);
 						}
-
+						
 						for (int i = 0; i < cutout.size(); i++) {
 							LittleTile newTile = changedTile.copy();
 							newTile.box = cutout.get(i);
@@ -147,13 +147,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 							if (tile.isStructureBlock)
 								tile.structure.addTile(newTile);
 						}
-
+						
 						if (tile.isMainBlock)
 							tile.structure.selectMainTile();
-
+						
 						if (tile.isStructureBlock)
 							tile.structure.updateStructure();
-
+						
 						tile.isStructureBlock = false;
 						tile.destroy();
 					}
@@ -165,25 +165,25 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				} else {
 					List<LittleTileBox> oldBoxes = new ArrayList<>();
 					oldBoxes.add(tile.box);
-
+					
 					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
-
+					
 					LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
 					if (changedTile != null) {
 						changedTile.place();
-
+						
 						if (tile.isStructureBlock) {
 							changedTile.isStructureBlock = true;
 							changedTile.structure.removeTile(tile);
 							changedTile.structure.addTile(changedTile);
-
+							
 							if (tile.isStructureBlock)
 								tile.structure.updateStructure();
-
+							
 							if (tile.isMainBlock)
 								changedTile.structure.setMainTile(changedTile);
 						}
-
+						
 						tile.isStructureBlock = false;
 						tile.destroy();
 					}
@@ -192,19 +192,19 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		}
 		ColorUnit toDrain = ColorUnit.getColors(color);
 		toDrain.scale(colorVolume);
-
+		
 		gained.drain(toDrain);
-
+		
 		return toDrain;
 	}
-
+	
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
 		if (ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparencty(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
-
+		
 		TileEntity tileEntity = loadTe(player, world, pos, true);
-
+		
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			if (!world.isRemote) {
 				BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
@@ -214,53 +214,53 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					return;
 				}
 			}
-
+			
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-
+			
 			te.ensureMinContext(context);
-
+			
 			if (context != te.getContext()) {
 				for (LittleTileBox box : boxes) {
 					box.convertTo(context, te.getContext());
 				}
 				context = te.getContext();
 			}
-
+			
 			List<BlockIngredient> entries = new ArrayList<>();
-
+			
 			te.preventUpdate = true;
-
+			
 			ColorUnit gained = new ColorUnit();
-
+			
 			ColorUnit toDrain = action(te, boxes, gained, true, context);
-
+			
 			if (addIngredients(player, null, gained, true)) {
 				drainIngredients(player, null, toDrain);
 				addIngredients(player, null, gained);
-
+				
 				action(te, boxes, gained, false, context);
 			}
-
+			
 			te.preventUpdate = false;
-
+			
 			te.combineTiles();
-
+			
 			if (toVanilla || !doneSomething)
 				te.convertBlockToVanilla();
 		}
 	}
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		revertList = new HashMapList<>();
 		return super.action(player);
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		return true;
 	}
-
+	
 	@Override
 	public LittleAction revert() {
 		List<LittleAction> actions = new ArrayList<>();
@@ -272,32 +272,32 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		}
 		return new LittleActionCombined(actions.toArray(new LittleAction[0]));
 	}
-
+	
 	public static class LittleActionColorBoxesFiltered extends LittleActionColorBoxes {
-
+		
 		public TileSelector selector;
-
+		
 		public LittleActionColorBoxesFiltered(LittleBoxes boxes, int color, boolean toVanilla, TileSelector selector) {
 			super(boxes, color, toVanilla);
 			this.selector = selector;
 		}
-
+		
 		public LittleActionColorBoxesFiltered() {
-
+			
 		}
-
+		
 		@Override
 		public void writeBytes(ByteBuf buf) {
 			super.writeBytes(buf);
 			writeSelector(selector, buf);
 		}
-
+		
 		@Override
 		public void readBytes(ByteBuf buf) {
 			super.readBytes(buf);
 			selector = readSelector(buf);
 		}
-
+		
 		@Override
 		public boolean shouldSkipTile(LittleTile tile) {
 			return !selector.is(tile);

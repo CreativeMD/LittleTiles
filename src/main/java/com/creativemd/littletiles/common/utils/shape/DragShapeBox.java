@@ -22,11 +22,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class DragShapeBox extends DragShape {
-
+	
 	public DragShapeBox() {
 		super("box");
 	}
-
+	
 	@Override
 	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
 		LittleTileBox box = new LittleTileBox(min, max);
@@ -47,7 +47,7 @@ public class DragShapeBox extends DragShape {
 			boxes.add(box);
 		return boxes;
 	}
-
+	
 	@Override
 	public void addExtraInformation(NBTTagCompound nbt, List<String> list) {
 		if (nbt.getBoolean("hollow")) {
@@ -56,22 +56,22 @@ public class DragShapeBox extends DragShape {
 		} else
 			list.add("type: solid");
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 		List<GuiControl> controls = new ArrayList<>();
-
+		
 		controls.add(new GuiCheckBox("hollow", 5, 0, nbt.getBoolean("hollow")));
 		controls.add(new GuiSteppedSlider("thickness", 5, 20, 100, 14, nbt.getInteger("thickness"), 1, context.size));
-
+		
 		return controls;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
-
+		
 		GuiCheckBox box = (GuiCheckBox) gui.get("hollow");
 		nbt.setBoolean("hollow", box.value);
 		if (box.value) {
@@ -79,15 +79,15 @@ public class DragShapeBox extends DragShape {
 			nbt.setInteger("thickness", (int) slider.value);
 		}
 	}
-
+	
 	@Override
 	public void rotate(NBTTagCompound nbt, Rotation rotation) {
-
+		
 	}
-
+	
 	@Override
 	public void flip(NBTTagCompound nbt, Axis axis) {
-
+		
 	}
-
+	
 }

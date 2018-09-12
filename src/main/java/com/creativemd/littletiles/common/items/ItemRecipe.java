@@ -52,12 +52,12 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
-
+	
 	public ItemRecipe() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 	}
-
+	
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack stack = player.getHeldItem(hand);
@@ -70,10 +70,10 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		}
 		return new ActionResult(EnumActionResult.PASS, stack);
 	}
-
+	
 	public LittlePreviews saveBlocks(World world, ItemStack stack, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.getMin());
-
+		
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
 				for (int posZ = minZ; posZ <= maxZ; posZ++) {
@@ -99,33 +99,33 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		}
 		return previews;
 	}
-
+	
 	public LittleGridContext getContext(ItemStack stack) {
 		return LittleGridContext.get(stack.getTagCompound());
 	}
-
+	
 	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second) {
 		int firstX = stack.getTagCompound().getInteger("x");
 		int firstY = stack.getTagCompound().getInteger("y");
 		int firstZ = stack.getTagCompound().getInteger("z");
-
+		
 		stack.getTagCompound().removeTag("x");
 		stack.getTagCompound().removeTag("y");
 		stack.getTagCompound().removeTag("z");
-
+		
 		LittleTilePreview.savePreviewTiles(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
 	}
-
+	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		ItemStack stack = player.getHeldItem(hand);
 		if (player.isSneaking()) {
 			if (!world.isRemote)
 				stack.setTagCompound(null);
-
+			
 			return EnumActionResult.SUCCESS;
 		}
-
+		
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("x")) {
 			if (!world.isRemote) {
 				saveRecipe(world, player, stack, pos);
@@ -144,7 +144,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		}
 		return EnumActionResult.PASS;
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
@@ -160,18 +160,18 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 			}
 		}
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubGuiRecipe(stack);
 	}
-
+	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		return new SubContainerStructure(player, stack);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
@@ -179,45 +179,45 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 			return LittleTilePreview.getCubes(stack);
 		return new ArrayList<RenderCubeObject>();
 	}
-
+	
 	public ModelResourceLocation getBackgroundLocation() {
 		return new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory");
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
-
+		
 		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
 			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(getBackgroundLocation());
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
-
+			
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
-
+			
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.enableDepth();
 		}
 		GlStateManager.popMatrix();
-
+		
 		if (stack.hasTagCompound() && !stack.getTagCompound().hasKey("x")) {
 			LittleTileSize size = LittleTilePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
 			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
-
+		
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {

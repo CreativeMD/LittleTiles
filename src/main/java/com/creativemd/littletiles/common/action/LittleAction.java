@@ -68,11 +68,11 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleAction extends CreativeCorePacket {
-
+	
 	private static List<LittleAction> lastActions = new ArrayList<>();
-
+	
 	private static int index = 0;
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean isUsingSecondMode(EntityPlayer player) {
 		if (LittleTilesConfig.building.useALTForEverything)
@@ -81,36 +81,36 @@ public abstract class LittleAction extends CreativeCorePacket {
 			return player.capabilities.isFlying ? GuiScreen.isAltKeyDown() : player.isSneaking();
 		return player.isSneaking();
 	}
-
+	
 	public static void rememberAction(LittleAction action) {
 		if (!action.canBeReverted())
 			return;
-
+		
 		if (index > 0) {
 			if (index < lastActions.size())
 				lastActions = lastActions.subList(index, lastActions.size() - 1);
 			else
 				lastActions = new ArrayList<>();
 		}
-
+		
 		index = 0;
-
+		
 		if (lastActions.size() == LittleTilesConfig.building.maxSavedActions)
 			lastActions.remove(LittleTilesConfig.building.maxSavedActions - 1);
-
+		
 		lastActions.add(0, action);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean undo() throws LittleActionException {
 		if (lastActions.size() > index) {
 			EntityPlayer player = Minecraft.getMinecraft().player;
-
+			
 			LittleAction reverted = lastActions.get(index).revert();
-
+			
 			if (reverted == null)
 				throw new LittleActionException("action.revert.notavailable");
-
+			
 			if (reverted.action(player)) {
 				PacketHandler.sendPacketToServer(reverted);
 				lastActions.set(index, reverted);
@@ -120,64 +120,64 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return false;
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean redo() throws LittleActionException {
 		if (index > 0 && index <= lastActions.size()) {
 			EntityPlayer player = Minecraft.getMinecraft().player;
-
+			
 			index--;
-
+			
 			LittleAction reverted = lastActions.get(index).revert();
-
+			
 			if (reverted == null)
 				throw new LittleActionException("action.revert.notavailable");
-
+			
 			if (reverted.action(player)) {
 				PacketHandler.sendPacketToServer(reverted);
 				lastActions.set(index, reverted);
-
+				
 				return true;
 			}
 		}
 		return false;
 	}
-
+	
 	public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes) {
 		for (int i = 0; i < classTypes.length; i++) {
 			CreativeCorePacket.registerPacket(classTypes[i], "ac" + id + i);
 		}
 	}
-
+	
 	/** Must be implemented by every action **/
 	public LittleAction() {
-
+		
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public abstract boolean canBeReverted();
-
+	
 	/**
 	 * 
 	 * @return null if an revert action is not available
 	 */
 	@SideOnly(Side.CLIENT)
 	public abstract LittleAction revert() throws LittleActionException;
-
+	
 	public boolean sendToServer() {
 		return true;
 	}
-
+	
 	protected abstract boolean action(EntityPlayer player) throws LittleActionException;
-
+	
 	@SideOnly(Side.CLIENT)
 	public boolean execute() {
 		EntityPlayer player = Minecraft.getMinecraft().player;
-
+		
 		try {
 			if (action(player)) {
 				rememberAction(this);
-
+				
 				if (sendToServer())
 					PacketHandler.sendPacketToServer(this);
 				return true;
@@ -186,21 +186,21 @@ public abstract class LittleAction extends CreativeCorePacket {
 			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			return false;
 		}
-
+		
 		return false;
 	}
-
+	
 	@Override
 	public void executeClient(EntityPlayer player) {
 		// Not used yet
-
+		
 		try {
 			action(player);
 		} catch (LittleActionException e) {
 			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 		}
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		try {
@@ -209,7 +209,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 		}
 	}
-
+	
 	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state) {
 		if (player.isCreative())
 			return true;
@@ -219,10 +219,10 @@ public abstract class LittleAction extends CreativeCorePacket {
 			return state.getBlock().getBlockHardness(state, world, pos) > 0;
 		return true;
 	}
-
+	
 	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert) {
 		TileEntity tileEntity = world.getTileEntity(pos);
-
+		
 		if (!(tileEntity instanceof TileEntityLittleTiles)) {
 			List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(tileEntity);
 			LittleGridContext context = tiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
@@ -230,11 +230,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 				IBlockState state = world.getBlockState(pos);
 				if (shouldConvert && isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)) {
 					tiles = new ArrayList<>();
-
+					
 					context = LittleGridContext.get(LittleGridContext.minSize);
-
+					
 					LittleTileBox box = new LittleTileBox(context.minPos, context.minPos, context.minPos, context.maxPos, context.maxPos, context.maxPos);
-
+					
 					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 					tile.box = box;
 					tiles.add(tile);
@@ -244,7 +244,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					tileEntity = (TileEntityLittleTiles) world.getTileEntity(pos);
 				}
 			}
-
+			
 			if (tiles != null && tiles.size() > 0) {
 				world.setBlockState(pos, BlockTile.getState(tiles));
 				tileEntity = world.getTileEntity(pos);
@@ -255,42 +255,42 @@ public abstract class LittleAction extends CreativeCorePacket {
 				}
 			}
 		}
-
+		
 		if (tileEntity instanceof TileEntityLittleTiles)
 			return (TileEntityLittleTiles) tileEntity;
 		return null;
 	}
-
+	
 	private static Method loadWorldEditEvent() {
 		try {
 			Class clazz = Class.forName("com.sk89q.worldedit.forge.ForgeWorldEdit");
 			worldEditInstance = clazz.getField("inst").get(null);
 			return clazz.getMethod("onPlayerInteract", PlayerInteractEvent.class);
 		} catch (Exception e) {
-
+			
 		}
 		return null;
 	}
-
+	
 	private static Method WorldEditEvent = loadWorldEditEvent();
 	private static Object worldEditInstance = null;
-
+	
 	public static void sendBlockResetToClient(EntityPlayerMP player, BlockPos pos, TileEntityLittleTiles te) {
 		player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
 		if (te != null)
 			player.connection.sendPacket(te.getUpdatePacket());
 	}
-
+	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing) {
 		if (player == null)
 			return true;
-
+		
 		if (player.isSpectator() || PlayerUtils.isAdventure(player) || !player.isAllowEdit())
 			return false;
-
+		
 		if (player.world.isRemote)
 			return true;
-
+		
 		if (WorldEditEvent != null) {
 			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
 			try {
@@ -303,24 +303,24 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if (event.isCanceled())
 				return false;
 		}
-
+		
 		return !player.getServer().isBlockProtected(player.world, pos, player);
 	}
-
+	
 	public static boolean isAllowedToPlacePreview(EntityPlayer player, LittleTilePreview preview) throws LittleActionException {
 		if (preview == null)
 			return true;
-
+		
 		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparencty(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
-
+		
 		return true;
 	}
-
+	
 	public static boolean isTileStillInPlace(LittleTile tile) {
 		return tile.te.getTiles().contains(tile);
 	}
-
+	
 	public static LittleTile getTile(World world, LittleTileIdentifierAbsolute coord) throws LittleActionException {
 		TileEntity te = world.getTileEntity(coord.pos);
 		if (te instanceof TileEntityLittleTiles) {
@@ -331,7 +331,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		} else
 			throw new LittleActionException.TileEntityNotFoundException();
 	}
-
+	
 	public static void writeAbsoluteCoord(LittleTileIdentifierAbsolute coord, ByteBuf buf) {
 		writePos(buf, coord.pos);
 		buf.writeInt(coord.identifier.length);
@@ -340,7 +340,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		writeContext(coord.context, buf);
 	}
-
+	
 	public static LittleTileIdentifierAbsolute readAbsoluteCoord(ByteBuf buf) {
 		BlockPos pos = readPos(buf);
 		int[] identifier = new int[buf.readInt()];
@@ -349,18 +349,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return new LittleTileIdentifierAbsolute(pos, readContext(buf), identifier);
 	}
-
+	
 	public static void writePreviews(LittlePreviews previews, ByteBuf buf) {
 		writeContext(previews.context, buf);
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
 		writeNBT(buf, nbt);
 	}
-
+	
 	public static LittlePreviews readPreviews(ByteBuf buf) {
 		return LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), readNBT(buf).getTagList("list", 10));
 	}
-
+	
 	public static void writeAbsolutePreviews(LittleAbsolutePreviews previews, ByteBuf buf) {
 		writePos(buf, previews.pos);
 		writeContext(previews.context, buf);
@@ -368,36 +368,36 @@ public abstract class LittleAction extends CreativeCorePacket {
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
 		writeNBT(buf, nbt);
 	}
-
+	
 	public static LittleAbsolutePreviews readAbsolutePreviews(ByteBuf buf) {
 		return (LittleAbsolutePreviews) LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
 	}
-
+	
 	public static void writePlacementMode(PlacementMode mode, ByteBuf buf) {
 		writeString(buf, mode.name);
 	}
-
+	
 	public static PlacementMode readPlacementMode(ByteBuf buf) {
 		return PlacementMode.getModeOrDefault(readString(buf));
 	}
-
+	
 	public static void writeContext(LittleGridContext context, ByteBuf buf) {
 		buf.writeInt(context.size);
 	}
-
+	
 	public static LittleGridContext readContext(ByteBuf buf) {
 		return LittleGridContext.get(buf.readInt());
 	}
-
+	
 	public static void writeLittleVecContext(LittleTileVecContext vec, ByteBuf buf) {
 		writeContext(vec.context, buf);
 		writeLittleVec(vec.vec, buf);
 	}
-
+	
 	public static LittleTileVecContext readLittleVecContext(ByteBuf buf) {
 		return new LittleTileVecContext(readContext(buf), readLittleVec(buf));
 	}
-
+	
 	public static void writeBoxes(LittleBoxes boxes, ByteBuf buf) {
 		writePos(buf, boxes.pos);
 		writeContext(boxes.context, buf);
@@ -406,7 +406,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			writeLittleBox(box, buf);
 		}
 	}
-
+	
 	public static LittleBoxes readBoxes(ByteBuf buf) {
 		BlockPos pos = readPos(buf);
 		LittleGridContext context = readContext(buf);
@@ -417,34 +417,34 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return boxes;
 	}
-
+	
 	public static void writeLittlePos(LittleTilePos pos, ByteBuf buf) {
 		writePos(buf, pos.pos);
 		writeLittleVecContext(pos.contextVec, buf);
 	}
-
+	
 	public static LittleTilePos readLittlePos(ByteBuf buf) {
 		return new LittleTilePos(readPos(buf), readLittleVecContext(buf));
 	}
-
+	
 	public static void writeLittleVec(LittleTileVec vec, ByteBuf buf) {
 		buf.writeInt(vec.x);
 		buf.writeInt(vec.y);
 		buf.writeInt(vec.z);
 	}
-
+	
 	public static LittleTileVec readLittleVec(ByteBuf buf) {
 		return new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
 	}
-
+	
 	public static void writeSelector(TileSelector selector, ByteBuf buf) {
 		writeNBT(buf, selector.writeNBT(new NBTTagCompound()));
 	}
-
+	
 	public static TileSelector readSelector(ByteBuf buf) {
 		return TileSelector.loadSelector(readNBT(buf));
 	}
-
+	
 	public static void writeLittleBox(LittleTileBox box, ByteBuf buf) {
 		int[] array = box.getArray();
 		buf.writeInt(array.length);
@@ -452,7 +452,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			buf.writeInt(array[i]);
 		}
 	}
-
+	
 	public static LittleTileBox readLittleBox(ByteBuf buf) {
 		// return new LittleTileBox(buf.readInt(), buf.readInt(), buf.readInt(),
 		// buf.readInt(), buf.readInt(), buf.readInt());
@@ -462,11 +462,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return LittleTileBox.createBox(array);
 	}
-
+	
 	public static boolean needIngredients(EntityPlayer player) {
 		return !player.isCreative();
 	}
-
+	
 	public static boolean canDrainPreviews(EntityPlayer player, LittlePreviews previews) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			ColorUnit color = new ColorUnit();
@@ -481,7 +481,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return true;
 	}
-
+	
 	public static boolean drainPreviews(EntityPlayer player, LittlePreviews previews) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			ColorUnit color = new ColorUnit();
@@ -496,22 +496,22 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return true;
 	}
-
+	
 	public static BlockIngredient getIngredientsOfStackSimple(ItemStack stack) {
 		Block block = Block.getBlockFromItem(stack.getItem());
-
+		
 		if (block != null && !(block instanceof BlockAir) && isBlockValid(block))
 			return new BlockIngredient(block, stack.getItemDamage(), 1);
 		return null;
 	}
-
+	
 	/**
 	 * @return does not take care of stackSize
 	 */
 	public static CombinedIngredients getIngredientsOfStack(ItemStack stack) {
 		if (!stack.isEmpty()) {
 			ILittleTile tile = PlacementHelper.getLittleInterface(stack);
-
+			
 			if (tile != null && tile.hasLittlePreview(stack) && tile.containsIngredients(stack)) {
 				LittlePreviews tiles = tile.getLittlePreview(stack);
 				if (tiles != null) {
@@ -526,9 +526,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 					return ingredients;
 				}
 			}
-
+			
 			Block block = Block.getBlockFromItem(stack.getItem());
-
+			
 			if (block != null && !(block instanceof BlockAir)) {
 				if (isBlockValid(block)) {
 					CombinedIngredients ingredients = new CombinedIngredients();
@@ -539,45 +539,45 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return null;
 	}
-
+	
 	public static boolean canDrainIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
 			List<ItemStack> usedBags = new ArrayList<>();
 			BlockIngredients toCheck = ingredients != null ? ingredients.copy() : null; // Temporary
 			ColorUnit color = unit != null ? unit.copy() : null; // Temporary
-
+			
 			if (color != null && color.isEmpty())
 				color = null;
-
+			
 			for (ItemStack stack : bags) {
 				ItemStack used = stack.copy();
-
+				
 				if (toCheck != null)
 					toCheck = ItemTileContainer.drainBlocks(used, toCheck, false);
 				if (color != null)
 					color = ItemTileContainer.drainColor(used, color, false);
-
+				
 				usedBags.add(used);
 			}
-
+			
 			if (color != null)
 				throw new NotEnoughIngredientsException.NotEnoughColorException(color);
-
+			
 			if (toCheck != null) {
 				BlockIngredients additionalIngredients = new BlockIngredients();
 				for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 					BlockIngredient leftOver = toCheck.drainItemStack(player.inventory.getStackInSlot(i).copy());
 					if (leftOver != null)
 						additionalIngredients.addIngredient(leftOver);
-
+					
 					if (toCheck.isEmpty())
 						break;
 				}
-
+				
 				if (!toCheck.isEmpty())
 					throw new NotEnoughIngredientsException.NotEnoughVolumeExcepion(toCheck);
-
+				
 				addIngredients(usedBags, additionalIngredients, null); // Check whether there is space for the
 				                                                       // additional ingredients (drain from ordinary
 				                                                       // itemstacks)
@@ -585,53 +585,53 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return true;
 	}
-
+	
 	public static boolean drainIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
 			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
-
+			
 			{ // Simulation
 				BlockIngredients toCheck = ingredients != null ? ingredients.copy() : null; // Temporary
 				ColorUnit color = unit != null ? unit.copy() : null; // Temporary
-
+				
 				if (color != null && color.isEmpty())
 					color = null;
-
+				
 				for (ItemStack stack : bags) {
 					ItemStack used = stack.copy();
-
+					
 					if (toCheck != null)
 						toCheck = ItemTileContainer.drainBlocks(used, toCheck, false);
 					if (color != null)
 						color = ItemTileContainer.drainColor(used, color, false);
-
+					
 					usedBags.add(used);
 				}
-
+				
 				if (color != null)
 					throw new NotEnoughIngredientsException.NotEnoughColorException(color);
-
+				
 				if (toCheck != null) {
 					BlockIngredients additionalIngredients = new BlockIngredients();
 					for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 						BlockIngredient leftOver = toCheck.drainItemStack(player.inventory.getStackInSlot(i).copy());
 						if (leftOver != null)
 							additionalIngredients.addIngredient(leftOver);
-
+						
 						if (toCheck.isEmpty())
 							break;
 					}
-
+					
 					if (!toCheck.isEmpty())
 						throw new NotEnoughIngredientsException.NotEnoughVolumeExcepion(toCheck);
-
+					
 					addIngredients(usedBags, additionalIngredients, null); // Check whether there is space for the
 					                                                       // additional ingredients (drain from
 					                                                       // ordinary itemstacks)
 				}
 			}
-
+			
 			// enough ingredients and enough space (if it needs to drain additional
 			// itemstacks)
 			for (ItemStack stack : bags) {
@@ -640,32 +640,32 @@ public abstract class LittleAction extends CreativeCorePacket {
 				if (unit != null)
 					unit = ItemTileContainer.drainColor(stack, unit, false);
 			}
-
+			
 			if (ingredients != null) {
 				BlockIngredients additionalIngredients = new BlockIngredients();
 				for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 					BlockIngredient leftOver = ingredients.drainItemStack(player.inventory.getStackInSlot(i));
 					if (leftOver != null)
 						additionalIngredients.addIngredient(leftOver);
-
+					
 					if (ingredients.isEmpty())
 						break;
 				}
-
+				
 				addIngredients(player, additionalIngredients, null);
 			}
-
+			
 		}
 		return true;
 	}
-
+	
 	public static void dropPreviews(EntityPlayer player, LittlePreviews previews) {
 		for (LittleTilePreview preview : previews) {
 			if (preview.hasBlockIngredient())
 				WorldUtils.dropItem(player, preview.getBlockIngredient(previews.context).getTileItemStack());
 		}
 	}
-
+	
 	/**
 	 * Cannot be used for anything else but ingredients calculations
 	 * 
@@ -677,7 +677,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		previews.addTiles(tiles);
 		return previews;
 	}
-
+	
 	public static boolean addTilesToInventoryOrDrop(EntityPlayer player, List<LittleTile> tiles) {
 		if (needIngredients(player) && !tiles.isEmpty()) {
 			LittlePreviews previews = getIngredientsPreviews(tiles);
@@ -689,23 +689,23 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return true;
 	}
-
+	
 	public static boolean addTileToInventory(EntityPlayer player, LittleTile tile) throws NotEnoughIngredientsException {
 		LittlePreviews previews = new LittlePreviews(tile.getContext());
 		previews.addTile(tile);
 		return addPreviewToInventory(player, previews);
 	}
-
+	
 	public static boolean addTilesToInventory(EntityPlayer player, List<LittleTile> tiles) throws NotEnoughIngredientsException {
 		if (tiles.isEmpty())
 			return true;
-
+		
 		if (needIngredients(player))
 			return addPreviewToInventory(player, getIngredientsPreviews(tiles));
-
+		
 		return true;
 	}
-
+	
 	public static boolean addPreviewToInventory(EntityPlayer player, LittlePreviews previews) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			ColorUnit color = new ColorUnit();
@@ -720,18 +720,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return true;
 	}
-
+	
 	public static boolean store(List<ItemStack> bags, BlockIngredients toCheck, ColorUnit color, boolean simulate) throws NotEnoughIngredientsException {
 		for (ItemStack stack : bags) {
 			if (toCheck != null)
 				toCheck = ItemTileContainer.storeBlocks(stack, toCheck, true, simulate);
 			if (color != null)
 				color = ItemTileContainer.storeColor(stack, color, simulate);
-
+			
 			if (toCheck == null && color == null)
 				break;
 		}
-
+		
 		if (color == null && toCheck != null) {
 			for (ItemStack stack : bags) {
 				toCheck = ItemTileContainer.storeBlocks(stack, toCheck, false, simulate);
@@ -739,42 +739,42 @@ public abstract class LittleAction extends CreativeCorePacket {
 					break;
 			}
 		}
-
+		
 		if (color != null && !color.isEmpty())
 			throw new NotEnoughIngredientsException.NotEnoughColorSpaceException();
-
+		
 		if (toCheck != null)
 			throw new NotEnoughIngredientsException.NotEnoughVolumeSpaceException();
-
+		
 		return true;
 	}
-
+	
 	public static boolean addIngredients(EntityPlayer player, CombinedIngredients ingredients) throws NotEnoughIngredientsException {
 		return addIngredients(player, ingredients.block, ingredients.color);
 	}
-
+	
 	public static boolean addIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
 		return addIngredients(player, ingredients, unit, false);
 	}
-
+	
 	public static boolean addIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit, boolean simulate) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
-
+			
 			if (store(bags, ingredients != null ? ingredients.copy() : null, unit != null ? unit.copy() : null, true) && !simulate)
 				store(bags, ingredients, unit, false);
 		}
-
+		
 		return true;
 	}
-
+	
 	public static boolean addIngredients(List<ItemStack> bags, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
 		if (store(bags, ingredients, unit, true))
 			store(bags, ingredients, unit, false);
-
+		
 		return true;
 	}
-
+	
 	public static List<ItemStack> getBags(EntityPlayer player) {
 		List<ItemStack> bags = new ArrayList<>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
@@ -784,11 +784,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		return bags;
 	}
-
+	
 	public static boolean canDrainPremadeItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException {
 		if (!needIngredients(player))
 			return true;
-
+		
 		String id = ItemPremadeStructure.getPremadeID(toDrain);
 		for (ItemStack stack : player.inventory.mainInventory) {
 			if (stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeID(stack).equals(id))
@@ -796,11 +796,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		throw new NotEnoughIngredientsException.NotEnoughStackException(toDrain);
 	}
-
+	
 	public static void drainPremadeItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException {
 		if (!needIngredients(player))
 			return;
-
+		
 		String id = ItemPremadeStructure.getPremadeID(toDrain);
 		for (ItemStack stack : player.inventory.mainInventory) {
 			if (stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeID(stack).equals(id)) {
@@ -810,14 +810,14 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 		throw new NotEnoughIngredientsException.NotEnoughStackException(toDrain);
 	}
-
+	
 	@SideOnly(Side.CLIENT)
 	public static boolean doesBlockSupportedTranslucent(Block block) {
 		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
 	}
-
+	
 	public static boolean isBlockValid(Block block) {
 		return block.isNormalCube(block.getDefaultState()) || block.isFullCube(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
 	}
-
+	
 }

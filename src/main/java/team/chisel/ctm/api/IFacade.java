@@ -14,11 +14,11 @@ import net.minecraft.world.World;
  * textures can still be accomplished.
  */
 public interface IFacade {
-
+	
 	@Nonnull
 	@Deprecated
 	IBlockState getFacade(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nullable EnumFacing side);
-
+	
 	/**
 	 * Gets the blockstate this facade appears as.
 	 *
@@ -37,5 +37,5 @@ public interface IFacade {
 	 */
 	@Nonnull
 	IBlockState getFacade(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nullable EnumFacing side, @Nonnull BlockPos connection);
-
+	
 }

@@ -26,23 +26,23 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 
 public class SubGuiChisel extends SubGuiConfigure {
-
+	
 	public SubGuiChisel(ItemStack stack) {
 		super(140, 150, stack);
 		this.stack = stack;
 	}
-
+	
 	public LittleGridContext getContext() {
 		return ((ILittleTile) stack.getItem()).getPositionContext(stack);
 	}
-
+	
 	@Override
 	public void createControls() {
 		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
 		Color color = ColorUtils.IntToRGBA(preview.getColor());
 		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
 		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 45, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
-
+		
 		selector.setSelectedForce(preview.getBlockStack());
 		controls.add(selector);
 		GuiComboBox box = new GuiComboBox("shape", 0, 66, 134, new ArrayList<>(DragShape.shapes.keySet()));
@@ -52,47 +52,47 @@ public class SubGuiChisel extends SubGuiConfigure {
 		controls.add(scroll);
 		onChange();
 	}
-
+	
 	@CustomEventSubscribe
 	public void onComboBoxChange(GuiControlChangedEvent event) {
 		if (event.source.is("shape"))
 			onChange();
 	}
-
+	
 	public void onChange() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-
+		
 		DragShape shape = DragShape.getShape(box.caption);
 		scroll.controls.clear();
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
 	}
-
+	
 	@Override
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		DragShape shape = DragShape.getShape(box.caption);
-
+		
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
 		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
-
+		
 		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 		ItemStack selected = selector.getSelected();
-
+		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
 			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else
 			preview = ItemLittleChisel.getPreview(stack);
-
+		
 		preview.setColor(ColorUtils.RGBAToInt(picker.color));
-
+		
 		ItemLittleChisel.setPreview(stack, preview);
 		ItemLittleChisel.setShape(stack, shape);
-
+		
 		shape.saveCustomSettings(scroll, stack.getTagCompound(), getContext());
 	}
 }

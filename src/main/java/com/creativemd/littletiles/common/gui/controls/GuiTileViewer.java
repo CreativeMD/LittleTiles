@@ -29,28 +29,28 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3d;
 
 public class GuiTileViewer extends GuiParent {
-
+	
 	public ItemStack stack;
-
+	
 	public float scale = 5;
 	public float offsetX = 0;
 	public float offsetY = 0;
-
+	
 	public EnumFacing viewDirection = EnumFacing.EAST;
-
+	
 	public boolean visibleAxis = false;
-
+	
 	public EnumFacing.Axis normalAxis = null;
 	public EnumFacing.Axis axisDirection = EnumFacing.Axis.Y;
-
+	
 	public int axisX = 1;
 	public int axisY = 1;
 	public int axisZ = 1;
-
+	
 	public LittleGridContext context;
-
+	
 	private boolean even;
-
+	
 	public void setEven(boolean even) {
 		this.even = even;
 		if (even) {
@@ -63,9 +63,9 @@ public class GuiTileViewer extends GuiParent {
 			axisZ = axisZ % 2 == 0 ? axisZ + 1 : axisZ;
 		}
 	}
-
+	
 	public boolean grabbed = false;
-
+	
 	public GuiTileViewer(String name, int x, int y, int width, int height, ItemStack stack) {
 		super(name, x, y, width, height);
 		if (PlacementHelper.isLittleBlock(stack))
@@ -78,7 +78,7 @@ public class GuiTileViewer extends GuiParent {
 		this.marginWidth = 0;
 		updateNormalAxis();
 	}
-
+	
 	public void updateNormalAxis() {
 		List<? extends RenderCubeObject> cubes = ((ICreativeRendered) stack.getItem()).getRenderingCubes(null, null, stack);
 		double minX = Integer.MAX_VALUE;
@@ -87,7 +87,7 @@ public class GuiTileViewer extends GuiParent {
 		double maxX = Integer.MIN_VALUE;
 		double maxY = Integer.MIN_VALUE;
 		double maxZ = Integer.MIN_VALUE;
-
+		
 		for (int i = 0; i < cubes.size(); i++) {
 			CubeObject cube = cubes.get(i);
 			minX = Math.min(minX, cube.minX);
@@ -97,11 +97,11 @@ public class GuiTileViewer extends GuiParent {
 			maxY = Math.max(maxY, cube.maxY);
 			maxZ = Math.max(maxZ, cube.maxZ);
 		}
-
+		
 		double sizeX = maxX - minX;
 		double sizeY = maxY - minZ;
 		double sizeZ = maxZ - minZ;
-
+		
 		switch (axisDirection) {
 		case X:
 			if (sizeY >= sizeZ)
@@ -125,7 +125,7 @@ public class GuiTileViewer extends GuiParent {
 			break;
 		}
 	}
-
+	
 	public void changeNormalAxis() {
 		switch (axisDirection) {
 		case X:
@@ -150,22 +150,22 @@ public class GuiTileViewer extends GuiParent {
 			break;
 		}
 	}
-
+	
 	public List<BakedQuad> baked = null;
-
+	
 	@Override
 	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
-
+		
 		GlStateManager.pushMatrix();
-
+		
 		// Vec3 offset = Vec3.createVectorHelper(p_72443_0_, p_72443_2_, p_72443_4_);
 		GL11.glTranslated(this.width / 2 + offsetX, this.height / 2 + offsetY, 0);
 		GL11.glScaled(4, 4, 4);
 		GL11.glScaled(this.scale, this.scale, this.scale);
 		GL11.glTranslated(-offsetX * 2, -offsetY * 2, 0);
-
+		
 		GlStateManager.pushMatrix();
-
+		
 		if (viewDirection.getAxis() != EnumFacing.Axis.Y)
 			GL11.glRotated(180, 0, 0, 1);
 		EnumFacing facing = viewDirection;
@@ -193,16 +193,16 @@ public class GuiTileViewer extends GuiParent {
 			facing = EnumFacing.WEST;
 			break;
 		}
-
+		
 		if (baked == null) {
 			// ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 			// stack.setTagCompound(this.stack.getTagCompound().copy());
 			CreativeBakedModel.setLastItemStack(stack);
-
+			
 			baked = new ArrayList<>(CreativeBakedModel.getBlockQuads(null, facing, 0, false));
 			CreativeBakedModel.setLastItemStack(null);
 		}
-
+		
 		ArrayList<BakedQuad> quads = new ArrayList<>();
 		if (visibleAxis) {
 			ArrayList<RenderCubeObject> cubes = new ArrayList<>();
@@ -228,26 +228,26 @@ public class GuiTileViewer extends GuiParent {
 				break;
 			}
 			cubes.add(normalCube);
-
+			
 			RenderCubeObject axisCube = new RenderCubeObject(cube, Blocks.WOOL, 5);
 			axisCube.keepVU = true;
 			cubes.add(axisCube);
-
+			
 			CreativeBakedModel.getBlockQuads(cubes, quads, (ICreativeRendered) LittleTiles.multiTiles, facing, null, BlockRenderLayer.SOLID, Blocks.WOOL, null, 0, null, false);
 		}
-
+		
 		helper.renderBakedQuads(baked);
-
+		
 		GlStateManager.disableDepth();
 		helper.renderBakedQuads(quads);
 		GlStateManager.enableDepth();
-
+		
 		GlStateManager.popMatrix();
-
+		
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
 		GlStateManager.popMatrix();
-
+		
 		String xAxis = getXFacing().getAxis().name();
 		if (getXFacing().getAxisDirection() == AxisDirection.POSITIVE)
 			xAxis += " ->";
@@ -258,23 +258,23 @@ public class GuiTileViewer extends GuiParent {
 			yAxis += " ->";
 		else
 			yAxis = "<- " + yAxis;
-
+		
 		/*
 		 * switch(viewDirection){ case EAST: xAxis = "X ->"; yAxis = "<- Y"; break; case
 		 * WEST: xAxis = "<- X"; yAxis = "<- Y"; break; case DOWN: xAxis = "X ->"; yAxis
 		 * = "<- Z"; break; case SOUTH: xAxis = "<- Z"; yAxis = "<- Y"; break; case
 		 * NORTH: xAxis = "Z ->"; yAxis = "<- Y"; break; }
 		 */
-
+		
 		helper.drawStringWithShadow(xAxis, 0, 0, width, 14, ColorUtils.WHITE);
-
+		
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(14, 0, 0);
 		GlStateManager.rotate(90, 0, 0, 1);
 		helper.drawStringWithShadow(yAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		GlStateManager.popMatrix();
 	}
-
+	
 	public EnumFacing getXFacing() {
 		switch (viewDirection) {
 		case EAST:
@@ -292,7 +292,7 @@ public class GuiTileViewer extends GuiParent {
 		}
 		return EnumFacing.EAST;
 	}
-
+	
 	public EnumFacing getYFacing() {
 		switch (viewDirection) {
 		case EAST:
@@ -310,7 +310,7 @@ public class GuiTileViewer extends GuiParent {
 		}
 		return EnumFacing.DOWN;
 	}
-
+	
 	public EnumFacing getZFacing() {
 		switch (viewDirection) {
 		case EAST:
@@ -328,7 +328,7 @@ public class GuiTileViewer extends GuiParent {
 		}
 		return EnumFacing.NORTH;
 	}
-
+	
 	@Override
 	public boolean mouseScrolled(int posX, int posY, int scrolled) {
 		if (scrolled > 0)
@@ -337,16 +337,16 @@ public class GuiTileViewer extends GuiParent {
 			scale /= scrolled * -1.5;
 		return true;
 	}
-
+	
 	@Override
 	public boolean mousePressed(int posX, int posY, int button) {
 		grabbed = true;
 		lastPosition = new Vec3d(posX, posY, 0);
 		return true;
 	}
-
+	
 	public Vec3d lastPosition;
-
+	
 	@Override
 	public void mouseMove(int posX, int posY, int button) {
 		// Vec3d mouse = getParent().getMousePos();
@@ -361,7 +361,7 @@ public class GuiTileViewer extends GuiParent {
 			lastPosition = currentPosition;
 		}
 	}
-
+	
 	@Override
 	public void mouseReleased(int posX, int posY, int button) {
 		if (this.grabbed) {
@@ -369,7 +369,7 @@ public class GuiTileViewer extends GuiParent {
 			grabbed = false;
 		}
 	}
-
+	
 	@Override
 	public boolean onKeyPressed(char character, int key) {
 		if (key == Keyboard.KEY_ADD) {
@@ -397,10 +397,10 @@ public class GuiTileViewer extends GuiParent {
 			offsetX += ammount;
 			return true;
 		}
-
+		
 		return false;
 	}
-
+	
 	public void updateViewDirection() {
 		switch (axisDirection) {
 		case X:

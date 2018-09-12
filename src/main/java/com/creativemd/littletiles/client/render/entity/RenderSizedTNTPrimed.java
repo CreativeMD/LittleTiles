@@ -14,11 +14,11 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.MathHelper;
 
 public class RenderSizedTNTPrimed extends RenderTNTPrimed {
-
+	
 	public RenderSizedTNTPrimed(RenderManager renderManager) {
 		super(renderManager);
 	}
-
+	
 	@Override
 	public void doRender(EntityTNTPrimed entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		LittleTileSize size = ((EntitySizedTNTPrimed) entity).size;
@@ -26,9 +26,9 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 		GlStateManager.pushMatrix();
 		LittleGridContext context = ((EntitySizedTNTPrimed) entity).context;
 		GlStateManager.translate((float) x, (float) y + size.getPosY(context) / 2, (float) z);
-
+		
 		GlStateManager.scale(size.getPosX(context), size.getPosY(context), size.getPosZ(context));
-
+		
 		if ((float) entity.getFuse() - partialTicks + 1.0F < 10.0F) {
 			float f = 1.0F - ((float) entity.getFuse() - partialTicks + 1.0F) / 10.0F;
 			f = MathHelper.clamp(f, 0.0F, 1.0F);
@@ -37,14 +37,14 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 			float f1 = 1.0F + f * 0.3F;
 			GlStateManager.scale(f1, f1, f1);
 		}
-
+		
 		float f2 = (1.0F - ((float) entity.getFuse() - partialTicks + 1.0F) / 100.0F) * 0.8F;
 		this.bindEntityTexture(entity);
 		GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.translate(-0.5F, -0.5F, 0.5F);
 		blockrendererdispatcher.renderBlockBrightness(Blocks.TNT.getDefaultState(), entity.getBrightness());
 		GlStateManager.translate(0.0F, 0.0F, 1.0F);
-
+		
 		if (this.renderOutlines) {
 			GlStateManager.enableColorMaterial();
 			GlStateManager.enableOutlineMode(this.getTeamColor(entity));
@@ -67,11 +67,11 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 			GlStateManager.enableLighting();
 			GlStateManager.enableTexture2D();
 		}
-
+		
 		GlStateManager.popMatrix();
 		if (!this.renderOutlines) {
 			this.renderName(entity, x, y, z);
 		}
 	}
-
+	
 }

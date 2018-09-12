@@ -41,39 +41,39 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 
 public class SubGuiScrewdriver extends SubGui {
-
+	
 	public ItemStack stack;
-
+	
 	public SubGuiScrewdriver(ItemStack stack) {
 		super(200, 205);
 		this.stack = stack;
 	}
-
+	
 	@Override
 	public void createControls() {
 		if (stack.getTagCompound() == null)
 			stack.setTagCompound(new NBTTagCompound());
-
+		
 		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
 		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
-
+		
 		controls.add(new GuiCheckBox("remove", "Remove (cannot be undone)", 5, 57, false));
-
+		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
-
+		
 		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
 		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
-
+		
 		Color color = new Color(255, 255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
-
+		
 		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
-
+		
 		controls.add(new GuiButton("undo", "undo", 150, 135, 40) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
@@ -83,9 +83,9 @@ public class SubGuiScrewdriver extends SubGui {
 				}
 			}
 		});
-
+		
 		controls.add(new GuiButton("redo", "redo", 150, 155, 40) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
@@ -95,9 +95,9 @@ public class SubGuiScrewdriver extends SubGui {
 				}
 			}
 		});
-
+		
 		controls.add(new GuiButton("run", "Do it!", 150, 175, 40) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				LittleAction action = getDesiredAction();
@@ -107,7 +107,7 @@ public class SubGuiScrewdriver extends SubGui {
 			}
 		});
 	}
-
+	
 	@CustomEventSubscribe
 	public void onChanged(GuiControlChangedEvent event) {
 		if (event.source.is("search")) {
@@ -123,11 +123,11 @@ public class SubGuiScrewdriver extends SubGui {
 			inv.closeBox();
 		}
 	}
-
+	
 	public LittleAction getDesiredAction() {
 		BlockPos pos = new BlockPos(stack.getTagCompound().getInteger("x1"), stack.getTagCompound().getInteger("y1"), stack.getTagCompound().getInteger("z1"));
 		BlockPos pos2 = new BlockPos(stack.getTagCompound().getInteger("x2"), stack.getTagCompound().getInteger("y2"), stack.getTagCompound().getInteger("z2"));
-
+		
 		TileSelector selector;
 		if (((GuiCheckBox) get("any")).value)
 			selector = new AnySelector();
@@ -138,21 +138,21 @@ public class SubGuiScrewdriver extends SubGui {
 			boolean meta = ((GuiCheckBox) get("meta")).value;
 			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
 		}
-
+		
 		LittleBoxes boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
-
+		
 		if (boxes.isEmpty())
 			return null;
-
+		
 		boolean remove = ((GuiCheckBox) get("remove")).value;
 		boolean replace = ((GuiCheckBox) get("replace")).value;
 		boolean colorize = ((GuiCheckBox) get("colorize")).value;
-
+		
 		if (remove)
 			return new LittleActionDestroyBoxes(boxes);
 		else {
 			List<LittleAction> actions = new ArrayList<>();
-
+			
 			if (replace) {
 				GuiStackSelectorAll replacement = (GuiStackSelectorAll) get("replacement");
 				ItemStack stackReplace = replacement.getSelected();
@@ -173,20 +173,20 @@ public class SubGuiScrewdriver extends SubGui {
 					actions.add(new LittleActionPlaceAbsolute(previews, null, PlacementMode.all, false));
 				}
 			}
-
+			
 			if (colorize) {
 				GuiColorPicker picker = (GuiColorPicker) get("picker");
 				actions.add(new LittleActionColorBoxes(boxes, ColorUtils.RGBAToInt(picker.color), false));
 			}
-
+			
 			if (!actions.isEmpty())
 				return new LittleActionCombined(actions.toArray(new LittleAction[0]));
 		}
-
+		
 		if (!remove && !replace && !colorize)
 			openButtonDialogDialog("You have to select a task!", "ok");
-
+		
 		return null;
 	}
-
+	
 }

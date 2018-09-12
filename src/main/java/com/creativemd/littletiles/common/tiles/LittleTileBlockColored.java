@@ -16,29 +16,29 @@ import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 
 public class LittleTileBlockColored extends LittleTileBlock {
-
+	
 	public int color;
-
+	
 	public LittleTileBlockColored(Block block, int meta, Vec3i color) {
 		this(block, meta, ColorUtils.RGBToInt(color));
 	}
-
+	
 	public LittleTileBlockColored(Block block, int meta, int color) {
 		super(block, meta);
 		this.color = color;
 	}
-
+	
 	public LittleTileBlockColored() {
 		super();
 	}
-
+	
 	@Override
 	public void updateTranslucent() {
 		super.updateTranslucent();
 		if (ColorUtils.isTransparent(color))
 			translucent = true;
 	}
-
+	
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes();
@@ -48,7 +48,7 @@ public class LittleTileBlockColored extends LittleTileBlock {
 		}
 		return cubes;
 	}
-
+	
 	@Override
 	public void copyExtra(LittleTile tile) {
 		super.copyExtra(tile);
@@ -57,24 +57,24 @@ public class LittleTileBlockColored extends LittleTileBlock {
 			thisTile.color = color;
 		}
 	}
-
+	
 	@Override
 	public void saveTileExtra(NBTTagCompound nbt) {
 		super.saveTileExtra(nbt);
 		nbt.setInteger("color", color);
 	}
-
+	
 	@Override
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
 		color = nbt.getInteger("color");
 	}
-
+	
 	@Override
 	public boolean isIdenticalToNBT(NBTTagCompound nbt) {
 		return super.isIdenticalToNBT(nbt) && color == nbt.getInteger("color");
 	}
-
+	
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
 		if (tile instanceof LittleTileBlockColored && super.canBeCombined(tile)) {
@@ -84,39 +84,39 @@ public class LittleTileBlockColored extends LittleTileBlock {
 		}
 		return false;
 	}
-
+	
 	@Override
 	public boolean canBeRenderCombined(LittleTile tile) {
 		if (tile instanceof LittleTileBlockColored)
 			return super.canBeRenderCombined(tile) && ((LittleTileBlockColored) tile).color == this.color;
 		return false;
 	}
-
+	
 	@Override
 	public boolean canBeConvertedToVanilla() {
 		return false;
 	}
-
+	
 	@Override
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer) {
-
+		
 		if (ColorUtils.isTransparent(color))
 			return layer == BlockRenderLayer.TRANSLUCENT;
 		return super.shouldBeRenderedInLayer(layer);
 	}
-
+	
 	@Override
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
 		Vec3d color = ColorUtils.IntToVec(this.color);
 		return new Vec3d(originalColor.x * color.x, originalColor.y * color.y, originalColor.z * color.z);
 	}
-
+	
 	public static boolean needsToBeRecolored(LittleTileBlock tile, int color) {
 		if (ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
 			return tile.getClass() != LittleTileBlock.class;
 		return tile.getClass() != LittleTileBlockColored.class || ((LittleTileBlockColored) tile).color != color;
 	}
-
+	
 	public static LittleTileBlock setColor(LittleTileBlock tile, int color) {
 		if (ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
 			return removeColor(tile);
@@ -134,7 +134,7 @@ public class LittleTileBlockColored extends LittleTileBlock {
 		}
 		return null;
 	}
-
+	
 	public static LittleTileBlock removeColor(LittleTileBlock tile) {
 		if (tile instanceof LittleTileBlockColored) {
 			LittleTileBlock newTile = new LittleTileBlock();
@@ -143,9 +143,9 @@ public class LittleTileBlockColored extends LittleTileBlock {
 		}
 		return null;
 	}
-
+	
 	public static int getColor(LittleTileBlock tile) {
 		return tile instanceof LittleTileBlockColored ? ((LittleTileBlockColored) tile).color : -1;
 	}
-
+	
 }

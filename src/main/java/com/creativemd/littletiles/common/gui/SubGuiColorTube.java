@@ -21,24 +21,24 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiColorTube extends SubGui {
-
+	
 	public ItemStack stack;
-
+	
 	public SubGuiColorTube(ItemStack stack) {
 		super(140, 173);
 		this.stack = stack;
 	}
-
+	
 	public LittleGridContext getContext() {
 		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
 	}
-
+	
 	@Override
 	public void createControls() {
 		Color color = ColorUtils.IntToRGBA(ItemColorTube.getColor(stack));
 		// color.setAlpha(255);
 		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
-
+		
 		ArrayList<String> shapes = new ArrayList<>(SelectShape.shapes.keySet());
 		shapes.add(0, "tile");
 		GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
@@ -49,13 +49,13 @@ public class SubGuiColorTube extends SubGui {
 		controls.add(scroll);
 		onChange();
 	}
-
+	
 	@Override
 	public void onClosed() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
-
+		
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("shape", shape == null ? "tile" : shape.key);
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
@@ -63,20 +63,20 @@ public class SubGuiColorTube extends SubGui {
 		if (shape != null)
 			shape.saveCustomSettings(scroll, nbt, getContext());
 		sendPacketToServer(nbt);
-
+		
 		super.onClosed();
 	}
-
+	
 	@CustomEventSubscribe
 	public void onComboBoxChange(GuiControlChangedEvent event) {
 		if (event.source.is("shape"))
 			onChange();
 	}
-
+	
 	public void onChange() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
-
+		
 		scroll.controls.clear();
 		SelectShape shape = box.caption.equals("tile") || box.caption.equals("") ? null : SelectShape.getShape(box.caption);
 		if (shape != null) {
@@ -84,5 +84,5 @@ public class SubGuiColorTube extends SubGui {
 			scroll.refreshControls();
 		}
 	}
-
+	
 }

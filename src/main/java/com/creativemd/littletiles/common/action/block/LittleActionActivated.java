@@ -16,34 +16,34 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 
 public class LittleActionActivated extends LittleActionInteract {
-
+	
 	public LittleActionActivated(BlockPos blockPos, EntityPlayer player) {
 		super(blockPos, player);
 	}
-
+	
 	public LittleActionActivated() {
-
+		
 	}
-
+	
 	@Override
 	protected void onTileNotFound() throws LittleActionException {
 		LittleEvent.cancelNext = true;
 		BlockTile.cancelNext = true;
 	}
-
+	
 	@Override
 	protected void onTileEntityNotFound() throws LittleActionException {
 		LittleEvent.cancelNext = true;
 		BlockTile.cancelNext = true;
 	}
-
+	
 	public boolean preventPacket = false;
-
+	
 	@Override
 	public boolean sendToServer() {
 		return !preventPacket;
 	}
-
+	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		if (tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this)) {
@@ -52,7 +52,7 @@ public class LittleActionActivated extends LittleActionInteract {
 		}
 		return false;
 	}
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		boolean result = super.action(player);
@@ -60,20 +60,20 @@ public class LittleActionActivated extends LittleActionInteract {
 			BlockTile.cancelNext = true;
 		return result;
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		return false;
 	}
-
+	
 	@Override
 	public LittleAction revert() {
 		return null;
 	}
-
+	
 	@Override
 	protected boolean isRightClick() {
 		return true;
 	}
-
+	
 }

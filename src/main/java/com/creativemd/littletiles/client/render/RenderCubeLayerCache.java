@@ -12,12 +12,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class RenderCubeLayerCache {
-
+	
 	private List<LittleRenderingCube> solid;
 	private List<LittleRenderingCube> cutout_mipped;
 	private List<LittleRenderingCube> cutout;
 	private List<LittleRenderingCube> translucent;
-
+	
 	public List<LittleRenderingCube> getCubesByLayer(BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
@@ -31,7 +31,7 @@ public class RenderCubeLayerCache {
 		}
 		return null;
 	}
-
+	
 	public void setCubesByLayer(List<LittleRenderingCube> cubes, BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
@@ -48,22 +48,22 @@ public class RenderCubeLayerCache {
 			break;
 		}
 	}
-
+	
 	public boolean doesNeedUpdate() {
 		return solid == null || cutout_mipped == null || cutout == null || translucent == null;
 	}
-
+	
 	public void clearCache() {
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;
 		translucent = null;
 	}
-
+	
 	public void sortCache() {
 		if (!OptifineHelper.isActive())
 			return;
-
+		
 		for (Iterator iterator = solid.iterator(); iterator.hasNext();) {
 			LittleRenderingCube littleRenderingCube = (LittleRenderingCube) iterator.next();
 			if (littleRenderingCube.isEmissive) {
@@ -72,5 +72,5 @@ public class RenderCubeLayerCache {
 			}
 		}
 	}
-
+	
 }

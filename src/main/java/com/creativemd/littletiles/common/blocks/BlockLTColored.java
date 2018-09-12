@@ -29,19 +29,19 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BlockLTColored extends Block implements ISpecialBlockHandler {
-
+	
 	public static final PropertyEnum<BlockLTColored.EnumType> VARIANT = PropertyEnum.<BlockLTColored.EnumType>create("variant", BlockLTColored.EnumType.class);
-
+	
 	public BlockLTColored() {
 		super(Material.ROCK);
 		setCreativeTab(LittleTiles.littleTab);
 		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored.EnumType.clean));
 	}
-
+	
 	// public static final String[] subBlocks = new String[]{"clean", "floor",
 	// "grainybig", "grainy", "grainylow", "brick", "bordered", "brickBig",
 	// "structured", "brokenBrickBig", "clay"};
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
@@ -49,43 +49,43 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 			items.add(new ItemStack(this, 1, i));
 		}
 	}
-
+	
 	@Override
 	public int damageDropped(IBlockState state) {
 		return ((BlockLTColored.EnumType) state.getValue(VARIANT)).getMetadata();
 	}
-
+	
 	@Override
 	public IBlockState getStateFromMeta(int meta) {
 		return this.getDefaultState().withProperty(VARIANT, BlockLTColored.EnumType.byMetadata(meta));
 	}
-
+	
 	@Override
 	public int getMetaFromState(IBlockState state) {
 		return ((BlockLTColored.EnumType) state.getValue(VARIANT)).getMetadata();
 	}
-
+	
 	@Override
 	protected BlockStateContainer createBlockState() {
 		return new BlockStateContainer(this, new IProperty[] { VARIANT });
 	}
-
+	
 	@Override
 	public int getLightValue(IBlockState state) {
 		if (state.getValue(VARIANT) == EnumType.light_clean)
 			return 15;
 		return 0;
 	}
-
+	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		if (state.getValue(VARIANT) == EnumType.light_clean)
 			return 15;
 		return 0;
 	}
-
+	
 	public static enum EnumType implements IStringSerializable {
-
+		
 		clean,
 		floor,
 		grainy_big,
@@ -111,51 +111,51 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 				return true;
 			}
 		};
-
+		
 		public boolean isLava() {
 			return false;
 		}
-
+		
 		public static EnumType byMetadata(int meta) {
 			return values()[meta];
 		}
-
+		
 		public int getMetadata() {
 			return ordinal();
 		}
-
+		
 		@Override
 		public String getName() {
 			return name();
 		}
 	}
-
+	
 	@Override
 	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
 		if (tile.getBlockState().getValue(VARIANT).isLava())
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
-
+	
 	@Override
 	public boolean isMaterial(LittleTileBlock tile, Material material) {
 		if (tile.getBlockState().getValue(VARIANT).isLava())
 			return material == Material.LAVA;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
 	}
-
+	
 	@Override
 	public boolean isLiquid(LittleTileBlock tile) {
 		if (tile.getBlockState().getValue(VARIANT).isLava())
 			return true;
 		return ISpecialBlockHandler.super.isLiquid(tile);
 	}
-
+	
 	@Override
 	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
 		return !tile.getBlockState().getValue(VARIANT).isLava();
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (state.getValue(VARIANT).isLava() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
@@ -168,7 +168,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		}
 		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile) {
@@ -176,5 +176,5 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 			return tile.getBlock() == LittleTiles.flowingLava;
 		return false;
 	}
-
+	
 }

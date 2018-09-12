@@ -19,11 +19,11 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class LittleStructurePremade extends LittleStructure {
-
+	
 	private static HashMap<String, LittleStructurePremadeEntry> structurePreviews = new HashMap<>();
-
+	
 	private static JsonParser parser = new JsonParser();
-
+	
 	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure) {
 		registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE, null);
 		try {
@@ -40,54 +40,54 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			e.printStackTrace();
 			System.out.println("Could not load '" + id + "'! Structure will not be registered");
 		}
-
+		
 	}
-
+	
 	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id) {
 		return structurePreviews.get(id);
 	}
-
+	
 	public static Collection<LittleStructurePremadeEntry> getPremadeStructures() {
 		return structurePreviews.values();
 	}
-
+	
 	public static Set<String> getPremadeStructureIds() {
 		return structurePreviews.keySet();
 	}
-
+	
 	public static ItemStack getPremadeStack(String id) {
 		return structurePreviews.get(id).stack.copy();
 	}
-
+	
 	@Override
 	public ItemStack getStructureDrop() {
 		return getStructurePremadeEntry(structureID).stack.copy();
 	}
-
+	
 	@Override
 	public boolean canOnlyBePlacedByItemStack() {
 		return true;
 	}
-
+	
 	public static void initPremadeStructures() {
 		registerPremadeStructureType("workbench", LittleWorkbench.class);
 		registerPremadeStructureType("importer", LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleExporter.class);
 	}
-
+	
 	public static class LittleStructurePremadeEntry {
-
+		
 		public final LittlePreviews previews;
 		public final ItemStack stack;
-
+		
 		public LittleStructurePremadeEntry(LittlePreviews previews, ItemStack stack) {
 			this.previews = previews;
 			this.stack = stack;
 		}
-
+		
 		public boolean arePreviewsEqual(LittlePreviews previews) {
 			return this.previews.isVolumeEqual(previews);
 		}
 	}
-
+	
 }

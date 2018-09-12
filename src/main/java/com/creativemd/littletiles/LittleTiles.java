@@ -138,37 +138,37 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles", acceptedMinecraftVersions = "", guiFactory = "com.creativemd.littletiles.client.LittleTilesSettings")
 @Mod.EventBusSubscriber
 public class LittleTiles {
-
+	
 	@SidedProxy(clientSide = "com.creativemd.littletiles.client.LittleTilesClient", serverSide = "com.creativemd.littletiles.server.LittleTilesServer")
 	public static LittleTilesServer proxy;
-
+	
 	public static final String modid = "littletiles";
 	public static final String version = "1.5.0";
-
+	
 	public static CreativeTabs littleTab = new CreativeTabs("littletiles") {
-
+		
 		@Override
 		public ItemStack getTabIconItem() {
 			return new ItemStack(hammer);
 		}
 	};
-
+	
 	public static BlockTile blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
 	public static BlockTile blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
 	public static BlockTile blockTileNoTickingRendered = (BlockTile) new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
 	public static BlockTile blockTileTickingRendered = (BlockTile) new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
-
+	
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
-
+	
 	public static Block flowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.water).setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
 	public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.white_water).setRegistryName("LTWhiteFlowingWater").setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
-
+	
 	public static Block flowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.lava).setRegistryName("LTFlowingLava").setUnlocalizedName("LTFlowingLava").setHardness(0.3F);
 	public static Block whiteFlowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.white_lava).setRegistryName("LTWhiteFlowingLava").setUnlocalizedName("LTWhiteFlowingLava").setHardness(0.3F);
-
+	
 	public static Item hammer;
 	public static Item recipe;
 	public static Item recipeAdvanced;
@@ -183,7 +183,7 @@ public class LittleTiles {
 	public static Item utilityKnife;
 	public static Item grabber;
 	public static Item premade;
-
+	
 	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames) {
 		for (ConfigCategory child : category.getChildren())
 			removeMissingProperties(path + (path.isEmpty() ? "" : ".") + category.getName(), child, allowedNames);
@@ -193,11 +193,11 @@ public class LittleTiles {
 				category.remove(propertyName);
 		}
 	}
-
+	
 	@EventHandler
 	public void PreInit(FMLPreInitializationEvent event) {
 		event.getModMetadata().version = version;
-
+		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
 		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."), config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"), config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist."), config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
@@ -206,7 +206,7 @@ public class LittleTiles {
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
 		proxy.loadSidePre();
-
+		
 		hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
 		recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
 		recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
@@ -221,43 +221,43 @@ public class LittleTiles {
 		utilityKnife = new ItemUtilityKnife().setUnlocalizedName("LTUtilityKnife").setRegistryName("utilityKnife");
 		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
-
+		
 		LittleStructure.initStructures();
 	}
-
+	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
 		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava);
 	}
-
+	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
 		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()), new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()), new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()), new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()), new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(blockTileTickingRendered.getRegistryName()), new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()), new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()), new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(flowingLava.getRegistryName()), new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(whiteFlowingLava.getRegistryName()));
-
+		
 		proxy.loadSide();
 	}
-
+	
 	@EventHandler
 	public void Init(FMLInitializationEvent event) {
 		ForgeModContainer.fullBoundingBoxLadders = true;
-
+		
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesRendered.class, "LittleTilesTileEntityRendered");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class, "LittleTilesTileEntityTickingRendered");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
-
+		
 		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
 		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity", LittleTilePreviewHandler.defaultHandler);
 		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored", LittleTilePreviewHandler.defaultHandler);
-
+		
 		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle", LittleTilePreviewHandler.defaultHandler);
-
+		
 		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
 		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
-
+		
 		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
@@ -265,7 +265,7 @@ public class LittleTiles {
 					return new SubGuiStorage((LittleStorage) tile.structure);
 				return null;
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
 				if (tile.isStructureBlock && tile.structure instanceof LittleStorage)
@@ -273,9 +273,9 @@ public class LittleTiles {
 				return null;
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("littleparticle", new LittleGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
@@ -283,7 +283,7 @@ public class LittleTiles {
 					return new SubGuiParticle((TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
 				return null;
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
 				if (tile instanceof LittleTileParticle)
@@ -291,9 +291,9 @@ public class LittleTiles {
 				return null;
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("configure", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
@@ -305,45 +305,45 @@ public class LittleTiles {
 					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(player, stack);
 				return null;
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerConfigure(player, player.getHeldItemMainhand());
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("chisel", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubGuiChisel(player.getHeldItemMainhand());
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerConfigure(player, player.getHeldItemMainhand());
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
 				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
 				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("recipeadvanced", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
@@ -352,55 +352,55 @@ public class LittleTiles {
 					return new SubGuiRecipeAdvancedSelection(stack);
 				return new SubGuiRecipeAdvancedStructure(stack);
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerRecipeAdvanced(player, player.getHeldItemMainhand(), new BlockPos(nbt.getInteger("posX"), nbt.getInteger("posY"), nbt.getInteger("posZ")));
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("lt-import", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubGuiImport();
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerImport(player);
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("lt-export", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubGuiExport();
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerExport(player);
 			}
 		});
-
+		
 		GuiHandler.registerGuiHandler("workbench", new CustomGuiHandler() {
-
+			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubGuiWorkbench();
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerWorkbench(player);
 			}
 		});
-
+		
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
@@ -412,38 +412,38 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
 		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "Selection");
-
+		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
-
+		
 		LittleAction.registerLittleAction("act", LittleActionActivated.class);
 		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
 		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
 		LittleAction.registerLittleAction("des", LittleActionDestroy.class);
 		LittleAction.registerLittleAction("plR", LittleActionPlaceRelative.class);
 		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class, LittleActionPlaceAbsolutePremade.class);
-
+		
 		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
-
+		
 		LittleAction.registerLittleAction("rep", LittleActionReplace.class);
-
+		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
 		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.server = new LittleDoorHandler(Side.SERVER));
 		// MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
-
+		
 		// Entity
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
-
+		
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
-
+		
 		DefaultBlockHandler.initVanillaBlockHandlers();
-
+		
 		proxy.loadSidePost();
-
+		
 		if (Loader.isModLoaded("igcm"))
 			IGCMLoader.initIGCM();
 	}
-
+	
 	@EventHandler
 	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new ExportCommand());

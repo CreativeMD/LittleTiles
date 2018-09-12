@@ -24,13 +24,13 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
 public class SubGuiParticle extends SubGui {
-
+	
 	public TileEntityParticle particle;
-
+	
 	public SubGuiParticle(TileEntityParticle particle) {
 		this.particle = particle;
 	}
-
+	
 	@Override
 	public void createControls() {
 		ArrayList<String> types = new ArrayList<>();// new ArrayList<>(EnumParticleTypes.getParticleNames());
@@ -39,12 +39,12 @@ public class SubGuiParticle extends SubGui {
 		for (int i = 0; i < LittleParticleType.values().length; i++) {
 			types.add(LittleParticleType.values()[i].name());
 		}
-
+		
 		GuiComboBox comboBox = new GuiComboBox("list", 17, 0, 136, types);
 		comboBox.select(particle.particle.name());
 		controls.add(comboBox);
 		controls.add(new GuiButton("<<", 0, 0) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				int index = comboBox.index - 1;
@@ -53,9 +53,9 @@ public class SubGuiParticle extends SubGui {
 				comboBox.select(comboBox.lines.get(index));
 			}
 		});
-
+		
 		controls.add(new GuiButton(">>", 160, 0) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				int index = comboBox.index + 1;
@@ -64,15 +64,15 @@ public class SubGuiParticle extends SubGui {
 				comboBox.select(comboBox.lines.get(index));
 			}
 		});
-
+		
 		controls.add(new GuiLabel("labelSpeed", "Speed (particles/tick:", 0, 82));
 		controls.add(new GuiTextfield("speed", "" + particle.speed, 120, 80, 40, 12).setFloatOnly());
 		controls.add(new GuiCheckBox("randomize", 0, 100, particle.randomize));
-
+		
 		controls.add(new GuiAnalogeSlider("age", 0, 120, 100, 10, particle.ageModifier, 0.1F, 10));
-
+		
 		controls.add(new GuiButton("Save", 145, 145) {
-
+			
 			@Override
 			public void onClicked(int x, int y, int button) {
 				NBTTagCompound nbt = new NBTTagCompound();
@@ -114,22 +114,22 @@ public class SubGuiParticle extends SubGui {
 						break;
 					default:
 						break;
-
+					
 					}
 				}
-
+				
 				nbt.setFloat("speed", Float.parseFloat(((GuiTextfield) get("speed")).text));
-
+				
 				nbt.setBoolean("randomize", ((GuiCheckBox) get("randomize")).value);
-
+				
 				nbt.setFloat("age", ((GuiAnalogeSlider) get("age")).value);
-
+				
 				sendPacketToServer(nbt);
 			}
 		});
 		loadParticleSettings();
 	}
-
+	
 	@CustomEventSubscribe
 	public void onParticleChange(GuiControlChangedEvent event) {
 		if (event.source.is("list")) {
@@ -139,7 +139,7 @@ public class SubGuiParticle extends SubGui {
 			((GuiColorPlate) get("color")).setColor(new Vec3i(((GuiAnalogeSlider) get("colorR")).value * 255, ((GuiAnalogeSlider) get("colorG")).value * 255, ((GuiAnalogeSlider) get("colorB")).value * 255));
 		}
 	}
-
+	
 	public void loadParticleSettings() {
 		LittleParticleType type = LittleParticleType.valueOf(((GuiComboBox) get("list")).caption);
 		if (type != null) {
@@ -170,9 +170,9 @@ public class SubGuiParticle extends SubGui {
 				controls.add(new GuiAnalogeSlider("size", 0, 25, 100, 10, 2 - particle.par1, 0, 2));
 				break;
 			}
-
+			
 		}
 		refreshControls();
 	}
-
+	
 }

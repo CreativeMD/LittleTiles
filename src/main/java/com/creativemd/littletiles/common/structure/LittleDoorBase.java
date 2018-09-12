@@ -34,16 +34,16 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleDoorBase extends LittleStructure {
-
+	
 	public boolean isWaitingForApprove = false;
-
+	
 	public int duration = 50;
-
+	
 	@Override
 	public void onUpdatePacketReceived() {
 		isWaitingForApprove = false;
 	}
-
+	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		if (nbt.hasKey("duration"))
@@ -52,12 +52,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 			duration = 50;
 		isWaitingForApprove = false;
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("duration", duration);
 	}
-
+	
 	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, PlacePreviews previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional) {
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, pos);
 		if (LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, pos), PlacementMode.all)) {
@@ -69,7 +69,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 				if (te instanceof TileEntityLittleTiles)
 					blocks.add((TileEntityLittleTiles) te);
 			}
-
+			
 			if (world.isRemote) {
 				for (TileEntityLittleTiles te : tiles.keySet()) {
 					if (te.waitingAnimation != null) {
@@ -78,52 +78,52 @@ public abstract class LittleDoorBase extends LittleStructure {
 					}
 				}
 			}
-
+			
 			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, structure, blocks, previews, absolute, transformation, uuid, player, additional, pos);
 			world.spawnEntity(animation);
 			return true;
 		}
-
+		
 		return false;
 	}
-
+	
 	public Rotation getDefaultRotation() {
 		return null;
 	}
-
+	
 	public abstract boolean activate(World world, @Nullable EntityPlayer player, Rotation rotation, BlockPos pos);
-
+	
 	public abstract LittleTilePos getAbsoluteAxisVec();
-
+	
 	public abstract LittleTileVec getAdditionalAxisVec();
-
+	
 	public abstract LittleDoorBase copyToPlaceDoor();
-
+	
 	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews) {
 		return new ArrayList<>();
 	}
-
+	
 	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureParser<T> {
-
+		
 		public LittleDoorBaseParser(String id, GuiParent parent) {
 			super(id, parent);
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-
+			
 			parent.controls.add(new GuiLabel("Duration:", 0, 141));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public T parseStructure(ItemStack stack) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
 			return parseStructure((int) slider.value);
 		}
-
+		
 		@SideOnly(Side.CLIENT)
 		public abstract T parseStructure(int duration);
 	}

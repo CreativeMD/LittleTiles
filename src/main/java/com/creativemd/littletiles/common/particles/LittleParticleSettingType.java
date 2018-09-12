@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.particles;
 import net.minecraft.util.math.Vec3d;
 
 public enum LittleParticleSettingType {
-
+	
 	NONE {
 		@Override
 		public Vec3d randomize(float par1, float par2, float par3) {
@@ -52,11 +52,11 @@ public enum LittleParticleSettingType {
 			return new Vec3d(randomizeAnyDirection(par1), par2, par3);
 		}
 	};
-
+	
 	public abstract Vec3d randomize(float par1, float par2, float par3);
-
+	
 	public static double randomizeAnyDirection(double number) {
 		return Math.random() * number * 2 - number;
 	}
-
+	
 }

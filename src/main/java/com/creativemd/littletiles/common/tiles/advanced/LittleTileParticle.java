@@ -24,29 +24,29 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleTileParticle extends LittleTileTE {
-
+	
 	public LittleTileParticle() {
 		super();
 	}
-
+	
 	public LittleTileParticle(Block block, int meta, TileEntity tileEntity) {
 		super(block, meta, tileEntity);
 	}
-
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
 			LittleGuiHandler.openGui("littleparticle", new NBTTagCompound(), player, this);
 		return true;
 	}
-
+	
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
 		if (!LittleTilesConfig.rendering.hideParticleBlock)
 			return super.getInternalRenderingCubes();
 		return new ArrayList<>();
 	}
-
+	
 	@Override
 	public void updateEntity() {
 		((TileEntityParticle) getTileEntity()).tile = this;

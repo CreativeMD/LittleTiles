@@ -24,34 +24,34 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public abstract class LittleActionBoxes extends LittleAction {
-
+	
 	public LittleBoxes boxes;
-
+	
 	public LittleActionBoxes(LittleBoxes boxes) {
 		this.boxes = boxes;
 	}
-
+	
 	public LittleActionBoxes() {
-
+		
 	}
-
+	
 	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException;
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		if (boxes.isEmpty())
 			return false;
-
+		
 		boolean placed = false;
 		World world = player.world;
-
+		
 		if (SpecialServerConfig.isEditLimited(player)) {
 			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > SpecialServerConfig.maxEditBlocks)
 				throw new SpecialServerConfig.NotAllowedToEditException();
 		}
-
+		
 		HashMapList<BlockPos, LittleTileBox> boxesMap = boxes.split();
-
+		
 		for (Iterator<Entry<BlockPos, ArrayList<LittleTileBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
 			Entry<BlockPos, ArrayList<LittleTileBox>> entry = iterator.next();
 			BlockPos pos = entry.getKey();
@@ -60,24 +60,24 @@ public abstract class LittleActionBoxes extends LittleAction {
 				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
 				continue;
 			}
-
+			
 			placed = true;
-
+			
 			action(world, player, pos, state, entry.getValue(), boxes.context);
 		}
-
+		
 		world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
 		return placed;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writeBoxes(boxes, buf);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		boxes = readBoxes(buf);
 	}
-
+	
 }

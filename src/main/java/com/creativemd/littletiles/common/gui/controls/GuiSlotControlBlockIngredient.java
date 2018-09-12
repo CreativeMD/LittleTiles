@@ -13,11 +13,11 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.item.ItemStack;
 
 public class GuiSlotControlBlockIngredient extends GuiSlotControl {
-
+	
 	public GuiSlotControlBlockIngredient(int x, int y, SlotControl slot, BlockIngredient ingredient) {
 		super(x, y, slot);
 	}
-
+	
 	@Override
 	public ItemStack getStackToRender() {
 		ItemStack stack = super.getStackToRender();
@@ -33,7 +33,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 		}
 		return stack;
 	}
-
+	
 	@Override
 	public ArrayList<String> getTooltip() {
 		ArrayList<String> tooltip = super.getTooltip();
@@ -46,5 +46,5 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 		}
 		return tooltip;
 	}
-
+	
 }

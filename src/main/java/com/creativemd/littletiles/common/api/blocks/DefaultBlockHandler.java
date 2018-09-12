@@ -28,10 +28,10 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
 public class DefaultBlockHandler {
-
+	
 	public static void initVanillaBlockHandlers() {
 		SpecialBlockHandler.registerSpecialHandler(BlockTNT.class, new ISpecialBlockHandler() {
-
+			
 			@Override
 			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 				if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE)) {
@@ -40,24 +40,24 @@ public class DefaultBlockHandler {
 					}
 					tile.destroy();
 					// worldIn.setBlockState(pos, Blocks.AIR.getDefaultState(), 11);
-
+					
 					if (heldItem.getItem() == Items.FLINT_AND_STEEL) {
 						heldItem.damageItem(1, playerIn);
 					} else if (!playerIn.capabilities.isCreativeMode) {
 						heldItem.shrink(1);
 						;
 					}
-
+					
 					return true;
 				}
 				return false;
 			}
-
+			
 			@Override
 			public void onTileExplodes(LittleTileBlock tile, Explosion explosion) {
 				explodeTile(tile, explosion.getExplosivePlacedBy(), true);
 			}
-
+			
 			public void explodeTile(LittleTileBlock tile, EntityLivingBase entity, boolean randomFuse) {
 				BlockPos pos = tile.te.getPos();
 				LittleTileSize size = tile.box.getSize();
@@ -68,22 +68,22 @@ public class DefaultBlockHandler {
 				tile.te.getWorld().spawnEntity(entitytntprimed);
 				tile.te.getWorld().playSound((EntityPlayer) null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 			}
-
+			
 		});
-
+		
 		SpecialBlockHandler.registerSpecialHandler(Blocks.CRAFTING_TABLE, new ISpecialBlockHandler() {
-
+			
 			@Override
 			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 				if (worldIn.isRemote) {
 					return true;
 				} else {
 					playerIn.displayGui(new BlockWorkbench.InterfaceCraftingTable(worldIn, pos) {
-
+						
 						@Override
 						public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
 							return new ContainerWorkbench(playerInventory, worldIn, pos) {
-
+								
 								@Override
 								public boolean canInteractWith(EntityPlayer playerIn) {
 									return true;
@@ -95,8 +95,8 @@ public class DefaultBlockHandler {
 					return true;
 				}
 			}
-
+			
 		});
 	}
-
+	
 }
