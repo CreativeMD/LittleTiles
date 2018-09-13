@@ -170,9 +170,8 @@ public class LittleTileBlock extends LittleTile {
 		/* ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		 * stack.setTagCompound(new NBTTagCompound());
 		 * stack.getTagCompound().setString("tID", getID());
-		 * saveTileExtra(stack.getTagCompound());
-		 * box.getSize().writeToNBT("size", stack.getTagCompound());
-		 * return stack; */
+		 * saveTileExtra(stack.getTagCompound()); box.getSize().writeToNBT("size",
+		 * stack.getTagCompound()); return stack; */
 		return ItemBlockTiles.getStackFromPreview(getContext(), getPreviewTile());
 	}
 	

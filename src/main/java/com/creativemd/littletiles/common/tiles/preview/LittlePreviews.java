@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
@@ -174,5 +176,30 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
 	public boolean isVolumeEqual(LittlePreviews previews) {
 		return getVolumes().equals(previews.getVolumes());
+	}
+	
+	public void combinePreviewBlocks() {
+		HashMapList<BlockPos, LittleTilePreview> chunked = new HashMapList<>();
+		for (int i = 0; i < previews.size(); i++) {
+			chunked.add(previews.get(i).box.getMinVec().getBlockPos(context), previews.get(i));
+		}
+		previews.clear();
+		AdvancedCombiner<LittleTilePreview> combiner = new AdvancedCombiner(new ArrayList<>());
+		for (Iterator<ArrayList<LittleTilePreview>> iterator = chunked.values().iterator(); iterator.hasNext();) {
+			ArrayList<LittleTilePreview> list = iterator.next();
+			combiner.setCombinables(list);
+			combiner.combine();
+			previews.addAll(list);
+		}
+	}
+	
+	private void advancedScale(int from, int to) {
+		for (LittleTilePreview preview : previews) {
+			preview.convertTo(from, to);
+		}
+	}
+	
+	public static void advancedScale(LittlePreviews previews, int from, int to) {
+		previews.advancedScale(from, to);
 	}
 }

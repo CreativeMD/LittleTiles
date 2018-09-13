@@ -105,4 +105,5 @@ selection.include.structure=Remember Structures
 selection.mode.area.pos.first=First position selected [%s,%s,%s]
 selection.mode.area.pos.second=Second position selected [%s,%s,%s]
 selection.save=Save
+selection.scale=Scale
 mode.selection.area=Area

@@ -15,6 +15,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.combine.ICombinable;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -34,7 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTilePreview {
+public class LittleTilePreview implements ICombinable {
 	
 	//================Type ID================
 	
@@ -98,12 +99,9 @@ public class LittleTilePreview {
 		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
 	
-	/* public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData)
-	 * {
-	 * this.size = size;
-	 * this.tileData = tileData;
-	 * this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
-	 * } */
+	/* public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData) {
+	 * this.size = size; this.tileData = tileData; this.handler =
+	 * LittleTile.getPreviewHandler(tileData.getString("tID")); } */
 	
 	//================Preview================
 	
@@ -189,8 +187,47 @@ public class LittleTilePreview {
 		box.convertTo(from, to);
 	}
 	
-	//================Copy================
+	public void convertTo(int from, int to) {
+		box.convertTo(from, to);
+	}
 	
+	public boolean canBeCombined(LittleTilePreview preview) {
+		return handler.canBeCombined(this, preview);
+	}
+	
+	@Override
+	public LittleTileBox getBox() {
+		return box;
+	}
+	
+	@Override
+	public void setBox(LittleTileBox box) {
+		this.box = box;
+	}
+	
+	@Override
+	public boolean isChildOfStructure() {
+		return false;
+	}
+	
+	@Override
+	public boolean canCombine(ICombinable combinable) {
+		return canBeCombined((LittleTilePreview) combinable);
+	}
+	
+	@Override
+	public void combine(ICombinable combinable) {
+		
+	}
+	
+	@Override
+	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+		this.box.fillInSpace(otherBox, filled);
+	}
+	
+	// ================Copy================
+	
+	@Override
 	public LittleTilePreview copy() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
@@ -215,9 +252,7 @@ public class LittleTilePreview {
 	}
 	
 	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
-		/* if(this.box == null)
-		 * return new PlacePreviewTile(box.copy(), this);
-		 * else{ */
+		/* if(this.box == null) return new PlacePreviewTile(box.copy(), this); else{ */
 		LittleTileBox newBox = this.box.copy();
 		if (!fixed)
 			newBox.addOffset(offset);

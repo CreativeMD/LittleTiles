@@ -102,6 +102,10 @@ public abstract class LittleTilePreviewHandler {
 			return new ItemStack(getPreviewBlock(preview), 1, getPreviewBlockMeta(preview));
 		}
 		
+		@Override
+		public boolean canBeCombined(LittleTilePreview preview, LittleTilePreview other) {
+			return preview.getTileData().equals(other.getTileData());
+		}
 	}
 	
 	public abstract boolean canBeConvertedToBlockEntry(LittleTilePreview preview);
@@ -130,4 +134,6 @@ public abstract class LittleTilePreviewHandler {
 	public abstract void rotatePreview(Rotation direction, LittleTilePreview preview, LittleTileVec doubledCenter);
 	
 	public abstract boolean canBeNBTGrouped();
+	
+	public abstract boolean canBeCombined(LittleTilePreview preview, LittleTilePreview other);
 }

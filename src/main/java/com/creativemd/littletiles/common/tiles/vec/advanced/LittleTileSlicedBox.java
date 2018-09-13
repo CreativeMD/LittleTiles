@@ -150,6 +150,24 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
+	public void convertTo(int from, int to) {
+		super.convertTo(from, to);
+		if (from > to) {
+			int ratio = from / to;
+			startOne /= ratio;
+			startTwo /= ratio;
+			endOne /= ratio;
+			endTwo /= ratio;
+		} else {
+			int ratio = to / from;
+			startOne *= ratio;
+			startTwo *= ratio;
+			endOne *= ratio;
+			endTwo *= ratio;
+		}
+	}
+	
+	@Override
 	public double getVolume() {
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
