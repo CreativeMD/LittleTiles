@@ -100,7 +100,7 @@ public class ChiselsAndBitsInteractor {
 			if (context == null)
 				throw new Exception();
 		} catch (Exception e) {
-			throw new Exception("The grid-size 16 is not supported! Base=" + LittleGridContext.minSize + ", Exponent=" + LittleGridContext.exponent + ", Scale=" + LittleGridContext.gridSizes.length);
+			throw new Exception("The grid-size 16 is not supported! Base=" + LittleGridContext.minSize + ", Multiplier=" + LittleGridContext.multiplier + ", Scale=" + LittleGridContext.gridSizes.length);
 		}
 		
 		te.convertTo(context);

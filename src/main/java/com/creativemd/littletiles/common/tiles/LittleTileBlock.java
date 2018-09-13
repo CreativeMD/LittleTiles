@@ -167,13 +167,11 @@ public class LittleTileBlock extends LittleTile {
 	
 	@Override
 	public ItemStack getDrop() {
-		/*
-		 * ItemStack stack = new ItemStack(LittleTiles.blockTile);
+		/* ItemStack stack = new ItemStack(LittleTiles.blockTile);
 		 * stack.setTagCompound(new NBTTagCompound());
 		 * stack.getTagCompound().setString("tID", getID());
 		 * saveTileExtra(stack.getTagCompound()); box.getSize().writeToNBT("size",
-		 * stack.getTagCompound()); return stack;
-		 */
+		 * stack.getTagCompound()); return stack; */
 		return ItemBlockTiles.getStackFromPreview(getContext(), getPreviewTile());
 	}
 	

@@ -170,6 +170,26 @@ public class LittleTileBox {
 		}
 	}
 	
+	public void convertTo(int from, int to) {
+		if (from > to) {
+			int ratio = from / to;
+			minX /= ratio;
+			minY /= ratio;
+			minZ /= ratio;
+			maxX /= ratio;
+			maxY /= ratio;
+			maxZ /= ratio;
+		} else {
+			int ratio = to / from;
+			minX *= ratio;
+			minY *= ratio;
+			minZ *= ratio;
+			maxX *= ratio;
+			maxY *= ratio;
+			maxZ *= ratio;
+		}
+	}
+	
 	public boolean isCompletelyFilled() {
 		return true;
 	}
@@ -402,14 +422,12 @@ public class LittleTileBox {
 		return box;
 	}
 	
-	/*
-	 * public LittleTileBox createInsideBlockBox(EnumFacing facing) { Vec3i vec =
+	/* public LittleTileBox createInsideBlockBox(EnumFacing facing) { Vec3i vec =
 	 * facing.getDirectionVec(); return new LittleTileBox(minX - vec.getX() *
 	 * LittleTile.gridSize, minY - vec.getY() * LittleTile.gridSize, minZ -
 	 * vec.getZ() * LittleTile.gridSize, maxX - vec.getX() * LittleTile.gridSize,
 	 * maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() *
-	 * LittleTile.gridSize); }
-	 */
+	 * LittleTile.gridSize); } */
 	
 	// ================Box to box================
 	
@@ -674,12 +692,10 @@ public class LittleTileBox {
 	
 	// ================Vectors================
 	
-	/*
-	 * public void addOffset(Vec3i vec) { minX += vec.getX() * LittleTile.size; minY
+	/* public void addOffset(Vec3i vec) { minX += vec.getX() * LittleTile.size; minY
 	 * += vec.getY() * LittleTile.size; minZ += vec.getZ() * LittleTile.size; maxX
 	 * += vec.getX() * LittleTile.size; maxY += vec.getY() * LittleTile.size; maxZ
-	 * += vec.getZ() * LittleTile.size; }
-	 */
+	 * += vec.getZ() * LittleTile.size; } */
 	
 	public void addOffset(LittleTileVec vec) {
 		minX += vec.x;
@@ -690,12 +706,10 @@ public class LittleTileBox {
 		maxZ += vec.z;
 	}
 	
-	/*
-	 * public void subOffset(Vec3i vec) { minX -= vec.getX() * LittleTile.size; minY
+	/* public void subOffset(Vec3i vec) { minX -= vec.getX() * LittleTile.size; minY
 	 * -= vec.getY() * LittleTile.size; minZ -= vec.getZ() * LittleTile.size; maxX
 	 * -= vec.getX() * LittleTile.size; maxY -= vec.getY() * LittleTile.size; maxZ
-	 * -= vec.getZ() * LittleTile.size; }
-	 */
+	 * -= vec.getZ() * LittleTile.size; } */
 	
 	public void subOffset(LittleTileVec vec) {
 		minX -= vec.x;
@@ -1176,10 +1190,11 @@ public class LittleTileBox {
 			chunked.add(boxes.get(i).getMinVec().getBlockPos(context), boxes.get(i));
 		}
 		boxes.clear();
-		BasicCombiner combiner = new BasicCombiner();
+		BasicCombiner combiner = new BasicCombiner(new ArrayList<>());
 		for (Iterator<ArrayList<LittleTileBox>> iterator = chunked.values().iterator(); iterator.hasNext();) {
 			ArrayList<LittleTileBox> list = iterator.next();
-			combiner.combineBox(list);
+			combiner.set(list);
+			combiner.combine();
 			boxes.addAll(list);
 		}
 	}

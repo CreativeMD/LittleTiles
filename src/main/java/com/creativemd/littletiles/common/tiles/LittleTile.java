@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.combine.ICombinable;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -60,7 +61,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleTile {
+public abstract class LittleTile implements ICombinable {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	private static HashMap<String, Class<? extends LittleTile>> invTileIDs = new HashMap<String, Class<? extends LittleTile>>();
@@ -164,6 +165,16 @@ public abstract class LittleTile {
 	}
 	
 	public LittleTileBox box;
+	
+	@Override
+	public LittleTileBox getBox() {
+		return box;
+	}
+	
+	@Override
+	public void setBox(LittleTileBox box) {
+		this.box = box;
+	}
 	
 	public LittleTileVec getMinVec() {
 		return box.getMinVec();
@@ -306,6 +317,21 @@ public abstract class LittleTile {
 		}
 	}
 	
+	@Override
+	public boolean isChildOfStructure() {
+		return isStructureBlock;
+	}
+	
+	@Override
+	public boolean canCombine(ICombinable combinable) {
+		return canBeSplitted() && ((LittleTile) combinable).canBeSplitted() && this.canBeCombined((LittleTile) combinable) && ((LittleTile) combinable).canBeCombined(this);
+	}
+	
+	@Override
+	public void combine(ICombinable combinable) {
+		this.combineTiles((LittleTile) combinable);
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
 		return !invisible;
@@ -394,10 +420,8 @@ public abstract class LittleTile {
 	public void groupNBTTile(NBTTagCompound nbt, LittleTile tile) {
 		NBTTagList list = nbt.getTagList("boxes", 11);
 		
-		/*
-		 * for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-		 * list.appendTag(tile.boundingBoxes.get(i).getNBTIntArray()); }
-		 */
+		/* for (int i = 0; i < tile.boundingBoxes.size(); i++) {
+		 * list.appendTag(tile.boundingBoxes.get(i).getNBTIntArray()); } */
 		list.appendTag(tile.box.getNBTIntArray());
 	}
 	
