@@ -79,9 +79,9 @@ public class LittleTilesConfig {
 		@Config.RangeInt(min = 1, max = Integer.MAX_VALUE)
 		public int scale = 6;
 		
-		@Config.Name("exponent")
+		@Config.Name("multiplier")
 		@Config.RequiresMcRestart
-		@Config.Comment("minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).")
+		@Config.Comment("minSize ^ (multiplier * scale). ATTENTION! This needs be equal for every client & server. Default is 2 -> (1, 2, 4, 8, 16, 32 etc.).")
 		@Config.RangeInt(min = 2, max = Integer.MAX_VALUE)
 		public int exponent = 2;
 		
