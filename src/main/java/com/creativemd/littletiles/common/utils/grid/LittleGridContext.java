@@ -19,23 +19,24 @@ public class LittleGridContext {
 	
 	public static int[] gridSizes;
 	public static int minSize;
-	public static int exponent;
+	public static int multiplier;
 	public static int defaultSize;
 	private static int defaultSizeIndex;
 	public static LittleGridContext[] context;
 	
-	public static LittleGridContext loadGrid(int min, int defaultGrid, int scale, int exponent) {
-		minSize = min;
-		defaultSize = defaultGrid;
-		gridSizes = new int[scale];
-		context = new LittleGridContext[scale];
+	public static LittleGridContext loadGrid(int min, int defaultGrid, int scale, int multiplier) {
+		LittleGridContext.minSize = min;
+		LittleGridContext.defaultSize = defaultGrid;
+		LittleGridContext.gridSizes = new int[scale];
+		LittleGridContext.context = new LittleGridContext[scale];
+		LittleGridContext.multiplier = multiplier;
 		int size = min;
 		for (int i = 0; i < gridSizes.length; i++) {
-			gridSizes[i] = size;
-			context[i] = new LittleGridContext(size);
-			if (context[i].isDefault)
-				defaultSizeIndex = i;
-			size *= exponent;
+			LittleGridContext.gridSizes[i] = size;
+			LittleGridContext.context[i] = new LittleGridContext(size, i);
+			if (LittleGridContext.context[i].isDefault)
+				LittleGridContext.defaultSizeIndex = i;
+			size *= multiplier;
 		}
 		
 		return get();
@@ -83,11 +84,13 @@ public class LittleGridContext {
 		return context[context.length - 1];
 	}
 	
-	public static LittleGridContext min(LittleGridContext context, LittleGridContext context2) {
-		if (context.size <= context2.size)
-			return context;
-		return context2;
-	}
+	/* There is no use for it, so I rather comment it out before somebody (I'm talking about myself) does something wrong
+	 * 
+	 * public static LittleGridContext min(LittleGridContext context, LittleGridContext context2) {
+	 * if (context.size <= context2.size)
+	 * return context;
+	 * return context2;
+	 * } */
 	
 	public static LittleGridContext max(LittleGridContext context, LittleGridContext context2) {
 		if (context.size >= context2.size)
@@ -106,28 +109,32 @@ public class LittleGridContext {
 	public final int maxTilesPerBlock;
 	public final double minimumTileSize;
 	public final boolean isDefault;
+	public final int index;
 	
 	/** doubled **/
 	public final LittleTileVec rotationCenter;
 	
 	public final int[] minSizes;
 	
-	protected LittleGridContext(int gridSize) {
-		size = gridSize;
-		gridMCLength = 1D / gridSize;
-		minPos = 0;
-		maxPos = gridSize;
-		maxTilesPerBlock = gridSize * gridSize * gridSize;
-		minimumTileSize = 1D / maxTilesPerBlock;
-		isDefault = defaultSize == gridSize;
+	protected LittleGridContext(int gridSize, int index) {
+		this.index = index;
+		this.size = gridSize;
+		this.gridMCLength = 1D / gridSize;
+		this.minPos = 0;
+		this.maxPos = gridSize;
+		this.maxTilesPerBlock = gridSize * gridSize * gridSize;
+		this.minimumTileSize = 1D / this.maxTilesPerBlock;
+		this.isDefault = this.defaultSize == gridSize;
 		
-		minSizes = new int[size];
-		minSizes[0] = 1;
-		for (int i = 1; i < minSizes.length; i++) {
-			minSizes[i] = size / IntMath.gcd(i, size);
+		this.minSizes = new int[this.size];
+		this.minSizes[0] = minSize;
+		for (int i = 1; i < this.minSizes.length; i++) {
+			this.minSizes[i] = this.size / IntMath.gcd(i, this.size);
+			if (this.minSizes[i] < minSize || this.minSizes[i] % minSize != 0)
+				this.minSizes[i] = this.size;
 		}
 		
-		rotationCenter = new LittleTileVec(size, size, size);
+		this.rotationCenter = new LittleTileVec(this.size, this.size, this.size);
 	}
 	
 	public void set(NBTTagCompound nbt) {
