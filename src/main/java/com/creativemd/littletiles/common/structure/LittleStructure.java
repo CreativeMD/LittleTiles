@@ -17,16 +17,26 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.structure.LittleBed.LittleBedParser;
-import com.creativemd.littletiles.common.structure.LittleChair.LittleChairParser;
-import com.creativemd.littletiles.common.structure.LittleDoor.LittleDoorParser;
-import com.creativemd.littletiles.common.structure.LittleFixedStructure.LittleFixedStructureParser;
-import com.creativemd.littletiles.common.structure.LittleLadder.LittleLadderParser;
-import com.creativemd.littletiles.common.structure.LittleNoClipStructure.LittleNoClipStructureParser;
-import com.creativemd.littletiles.common.structure.LittleSlidingDoor.LittleSlidingDoorParser;
-import com.creativemd.littletiles.common.structure.LittleStorage.LittleStorageParser;
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.connection.StructureLink.StructureLinkTile;
+import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.type.LittleBed;
+import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
+import com.creativemd.littletiles.common.structure.type.LittleChair;
+import com.creativemd.littletiles.common.structure.type.LittleChair.LittleChairParser;
+import com.creativemd.littletiles.common.structure.type.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.LittleDoor.LittleDoorParser;
+import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
+import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
+import com.creativemd.littletiles.common.structure.type.LittleLadder;
+import com.creativemd.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
+import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
+import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
+import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor;
+import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
+import com.creativemd.littletiles.common.structure.type.LittleStorage;
+import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
@@ -172,9 +182,8 @@ public abstract class LittleStructure {
 	public void setMainTile(LittleTile tile) {
 		this.mainTile = tile;
 		
-		this.mainTile.isMainBlock = true;
-		this.mainTile.coord = null;
-		this.mainTile.te.updateBlock();
+		this.mainTile.connection = new StructureMainTile(mainTile, this);
+		updateStructure();
 		
 		if (!containsTile(tile))
 			addTile(tile);
@@ -187,16 +196,20 @@ public abstract class LittleStructure {
 				LittleTile stTile = (LittleTile) iterator2.next();
 				
 				if (stTile != mainTile) {
-					stTile.isMainBlock = false;
-					stTile.coord = getMainTileCoord(stTile);
+					stTile.connection = getStructureLink(stTile);
+					stTile.connection.setLoadedStructure(this, attribute);
 				}
 			}
 		}
 		
 	}
 	
-	public LittleTileIdentifierStructure getMainTileCoord(LittleTile tile) {
-		return new LittleTileIdentifierStructure(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
+	public LittleTileIdentifierStructure getMainTileCoord(BlockPos pos) {
+		return new LittleTileIdentifierStructure(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
+	}
+	
+	public StructureLinkTile getStructureLink(LittleTile tile) {
+		return new StructureLinkTile(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute, tile);
 	}
 	
 	public boolean hasMainTile() {
@@ -292,17 +305,6 @@ public abstract class LittleStructure {
 		tiles.add(tile.te, tile);
 	}
 	
-	/* public ArrayList<LittleTile> getTiles()
-	 * {
-	 * if(tiles == null)
-	 * if(!loadTiles())
-	 * {
-	 * ArrayList<LittleTile> tiles = new ArrayList<>();
-	 * return tiles;
-	 * }
-	 * return tiles;
-	 * } */
-	
 	public boolean hasLoaded() {
 		loadTiles();
 		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0);
@@ -310,7 +312,6 @@ public abstract class LittleStructure {
 	
 	public boolean loadTiles() {
 		if (mainTile != null) {
-			//System.out.println("loading Structure");
 			if (tiles == null) {
 				tiles = new HashMapList<>();
 				addTile(mainTile);
@@ -318,8 +319,6 @@ public abstract class LittleStructure {
 			
 			if (tilesToLoad == null)
 				return true;
-			
-			//long time = System.nanoTime();
 			
 			for (Iterator<Entry<BlockPos, Integer>> iterator = tilesToLoad.entrySet().iterator(); iterator.hasNext();) {
 				Entry<BlockPos, Integer> entry = iterator.next();
@@ -329,14 +328,6 @@ public abstract class LittleStructure {
 			
 			if (!tiles.contains(mainTile))
 				addTile(mainTile);
-			/* int i = 0;
-			 * while (i < tilesToLoad.size()) {
-			 * if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
-			 * tilesToLoad.remove(i);
-			 * else
-			 * i++;
-			 * } */
-			//System.out.println("LOADING Structure! time=" + (System.nanoTime()-time));
 			
 			if (tilesToLoad.size() == 0)
 				tilesToLoad = null;
@@ -349,8 +340,7 @@ public abstract class LittleStructure {
 	
 	public void loadStructure(LittleTile mainTile) {
 		this.mainTile = mainTile;
-		this.mainTile.isMainBlock = true;
-		this.mainTile.coord = null;
+		this.mainTile.connection = new StructureMainTile(mainTile, this);
 		
 		if (tiles != null && !containsTile(mainTile))
 			addTile(mainTile);
@@ -358,7 +348,7 @@ public abstract class LittleStructure {
 	
 	public void loadFromNBT(NBTTagCompound nbt) {
 		if (tiles != null)
-			tiles.clear();
+			tiles = null;
 		
 		tilesToLoad = new HashMap<>();
 		
@@ -448,9 +438,9 @@ public abstract class LittleStructure {
 	
 	public boolean doesLinkToMainTile(LittleTile tile) {
 		try {
-			return tile == getMainTile() || (!tile.isMainBlock && tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.is(tile.coord.context, tile.coord.identifier));
+			return tile == getMainTile() || (tile.connection.isLink() && tile.connection.getStructurePosition().equals(mainTile.te.getPos()) && tile.connection.is(mainTile));
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		}
 		return false;
 	}
@@ -470,11 +460,9 @@ public abstract class LittleStructure {
 				
 				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
-					if (tile.isStructureBlock && (tile.structure == this || doesLinkToMainTile(tile))) {
+					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
-						tile.structure = this;
-						if (tile.coord != null)
-							tile.coord.attribute = attribute;
+						tile.connection.setLoadedStructure(this, attribute);
 						found++;
 					}
 				}
@@ -486,53 +474,7 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	/* public boolean checkForTile(World world, LittleTileCoord pos)
-	 * {
-	 * BlockPos coord = pos.getAbsolutePosition(mainTile.te);
-	 * Chunk chunk = world.getChunkFromBlockCoords(coord);
-	 * if(WorldUtils.checkIfChunkExists(chunk))
-	 * {
-	 * //chunk.isChunkLoaded
-	 * TileEntity tileEntity = world.getTileEntity(coord);
-	 * if(tileEntity instanceof TileEntityLittleTiles)
-	 * {
-	 * LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
-	 * if(tile != null && tile.isStructureBlock)
-	 * {
-	 * if(!tiles.contains(tile))
-	 * addTile(tile);
-	 * tile.structure = this;
-	 * return true;
-	 * }
-	 * }
-	 * }
-	 * return false;
-	 * } */
-	
-	/* @Deprecated
-	 * public boolean checkForTile(World world, LittleTilePosition pos)
-	 * {
-	 * Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
-	 * if(!(chunk instanceof EmptyChunk))
-	 * {
-	 * //chunk.isChunkLoaded
-	 * TileEntity tileEntity = world.getTileEntity(pos.coord.posX, pos.coord.posY, pos.coord.posZ);
-	 * if(tileEntity instanceof TileEntityLittleTiles)
-	 * {
-	 * LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
-	 * if(tile != null && tile.isStructureBlock)
-	 * {
-	 * if(!tiles.contains(tile))
-	 * tiles.add(tile);
-	 * tile.structure = this;
-	 * return true;
-	 * }
-	 * }
-	 * }
-	 * return false;
-	 * } */
-	
-	//====================Placing====================
+	// ====================Placing====================
 	
 	public boolean shouldPlaceTile(LittleTile tile) {
 		return true;
@@ -607,15 +549,7 @@ public abstract class LittleStructure {
 	
 	//====================SORTING====================
 	
-	/* public HashMapList<BlockPos, LittleTile> getTilesSortedPerBlock()
-	 * {
-	 * HashMapList<BlockPos, LittleTile> coords = new HashMapList<>();
-	 * for (Iterator iterator = getTiles(); iterator.hasNext();) {
-	 * LittleTile tile = (LittleTile) iterator.next();
-	 * coords.add(tile.te.getPos(), tile);
-	 * }
-	 * return coords;
-	 * } */
+	// ====================SORTING====================
 	
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 	}

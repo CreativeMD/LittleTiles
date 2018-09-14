@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure;
+package com.creativemd.littletiles.common.structure.type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;

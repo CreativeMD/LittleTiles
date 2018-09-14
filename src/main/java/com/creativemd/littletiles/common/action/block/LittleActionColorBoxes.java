@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -97,7 +98,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				}
 			}
 			
-			if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isStructureBlock && (!tile.isLoaded() || !tile.structure.hasLoaded())))
+			if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).hasLoaded())))
 				continue;
 			
 			if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
@@ -129,32 +130,33 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						if (changedTile == null)
 							changedTile = tempTile;
 						
-						if (tile.isStructureBlock)
-							tile.structure.removeTile(tile);
+						if (tile.isConnectedToStructure())
+							tile.connection.getStructure(te.getWorld()).removeTile(tile);
 						
 						for (int i = 0; i < newBoxes.size(); i++) {
 							LittleTile newTile = tile.copy();
 							newTile.box = newBoxes.get(i);
 							newTile.place();
-							if (tile.isStructureBlock)
-								tile.structure.addTile(newTile);
+							if (tile.isConnectedToStructure())
+								tile.connection.getStructure(te.getWorld()).addTile(newTile);
 						}
 						
 						for (int i = 0; i < cutout.size(); i++) {
 							LittleTile newTile = changedTile.copy();
 							newTile.box = cutout.get(i);
 							newTile.place();
-							if (tile.isStructureBlock)
-								tile.structure.addTile(newTile);
+							if (tile.isConnectedToStructure())
+								tile.connection.getStructure(te.getWorld()).addTile(newTile);
 						}
 						
-						if (tile.isMainBlock)
-							tile.structure.selectMainTile();
+						if (tile.isConnectedToStructure()) {
+							if (tile.connection.isLink())
+								tile.connection.getStructure(te.getWorld()).updateStructure();
+							else
+								tile.connection.getStructureWithoutLoading().selectMainTile();
+						}
 						
-						if (tile.isStructureBlock)
-							tile.structure.updateStructure();
-						
-						tile.isStructureBlock = false;
+						tile.connection = null;
 						tile.destroy();
 					}
 				}
@@ -172,19 +174,18 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					if (changedTile != null) {
 						changedTile.place();
 						
-						if (tile.isStructureBlock) {
-							changedTile.isStructureBlock = true;
-							changedTile.structure.removeTile(tile);
-							changedTile.structure.addTile(changedTile);
+						if (tile.isChildOfStructure()) {
+							changedTile.connection = tile.connection.copy(changedTile);
+							LittleStructure structure = tile.connection.getStructure(te.getWorld());
+							structure.removeTile(tile);
+							structure.addTile(changedTile);
+							structure.updateStructure();
 							
-							if (tile.isStructureBlock)
-								tile.structure.updateStructure();
-							
-							if (tile.isMainBlock)
-								changedTile.structure.setMainTile(changedTile);
+							if (!tile.connection.isLink())
+								structure.setMainTile(changedTile);
 						}
 						
-						tile.isStructureBlock = false;
+						tile.connection = null;
 						tile.destroy();
 					}
 				}

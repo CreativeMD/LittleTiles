@@ -11,12 +11,15 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.connection.IStructureConnector;
+import com.creativemd.littletiles.common.structure.connection.StructureLink;
+import com.creativemd.littletiles.common.structure.connection.StructureLink.StructureLinkTile;
+import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -24,7 +27,6 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -43,7 +45,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.server.management.PlayerChunkMap;
 import net.minecraft.server.management.PlayerChunkMapEntry;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -56,7 +57,6 @@ import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -292,10 +292,10 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean canBeCombined(LittleTile tile) {
-		if (isStructureBlock != tile.isStructureBlock)
+		if (isChildOfStructure() != tile.isChildOfStructure())
 			return false;
 		
-		if (isStructureBlock && structure != tile.structure)
+		if (isChildOfStructure() && connection.getStructure(te.getWorld()) != tile.connection.getStructure(tile.te.getWorld()))
 			return false;
 		
 		if (invisible != tile.invisible)
@@ -312,14 +312,14 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public void combineTiles(LittleTile tile) {
-		if (isLoaded()) {
-			structure.removeTile(tile);
+		if (isConnectedToStructure()) {
+			connection.getStructure(te.getWorld()).removeTile(tile);
 		}
 	}
 	
 	@Override
 	public boolean isChildOfStructure() {
-		return isStructureBlock;
+		return connection != null;
 	}
 	
 	@Override
@@ -409,11 +409,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean canBeNBTGrouped(LittleTile tile) {
-		if (tile.canBeCombined(this) && this.canBeCombined(tile) && !tile.isMainBlock && !this.isMainBlock) {
-			if (coord != null && tile.coord != null)
-				return coord.identifier.equals(tile.coord.identifier);
-		}
-		return false;
+		return tile.canBeCombined(this) && this.canBeCombined(tile) && (this.connection == null || (this.te == tile.te && this.connection.equals(tile.connection)));
 	}
 	
 	public void groupNBTTile(NBTTagCompound nbt, LittleTile tile) {
@@ -457,14 +453,15 @@ public abstract class LittleTile implements ICombinable {
 		nbt.setString("tID", getID());
 		nbt.setIntArray("box", box.getArray());
 		
-		if (isStructureBlock) {
-			nbt.setBoolean("isStructure", true);
-			if (isMainBlock) {
-				nbt.setBoolean("main", true);
-				structure.writeToNBT(nbt);
-			} else {
-				coord.writeToNBT(nbt);
+		if (isChildOfStructure()) {
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			if (connection.isLink())
+				((StructureLink) connection).writeToNBT(structureNBT);
+			else {
+				connection.getStructureWithoutLoading().writeToNBT(structureNBT);
+				structureNBT.setBoolean("main", true);
 			}
+			nbt.setTag("structure", structureNBT);
 		}
 	}
 	
@@ -491,32 +488,38 @@ public abstract class LittleTile implements ICombinable {
 			box = LittleTileBox.createBox(nbt.getIntArray("box"));
 		}
 		
-		isStructureBlock = nbt.getBoolean("isStructure");
-		
-		if (isStructureBlock) {
-			if (nbt.getBoolean("main")) {
-				isMainBlock = true;
+		if (nbt.hasKey("structure", 10)) {
+			NBTTagCompound structureNBT = nbt.getCompoundTag("structure");
+			if (structureNBT.getBoolean("main")) {
+				LittleStructure structure = (connection != null && !connection.isLink()) ? connection.getStructureWithoutLoading() : null;
 				if (structure == null)
-					structure = LittleStructure.createAndLoadStructure(nbt, this);
+					structure = LittleStructure.createAndLoadStructure(structureNBT, this);
 				else {
 					structure.loadStructure(this);
 					for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
 						LittleTile tile = iterator.next();
-						if (tile != this && tile.isLoaded())
-							tile.structure = null;
+						if (tile != this)
+							tile.connection.reset();
 					}
-					structure.loadFromNBT(nbt);
+					structure.loadFromNBT(structureNBT);
 				}
-			} else {
-				isMainBlock = false;
-				structure = null;
-				
-				if (nbt.hasKey("coX")) {
-					LittleTilePosition pos = new LittleTilePosition(nbt);
-					coord = new LittleTileIdentifierStructure(te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE);
-					System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + coord);
-				} else
-					coord = new LittleTileIdentifierStructure(nbt);
+				connection = new StructureMainTile(this, structure);
+			} else
+				connection = new StructureLinkTile(structureNBT, this);
+			
+		} else { // Old
+			
+			if (nbt.getBoolean("isStructure")) {
+				if (nbt.getBoolean("main")) {
+					connection = new StructureMainTile(this, LittleStructure.createAndLoadStructure(nbt, this));
+				} else {
+					if (nbt.hasKey("coX")) {
+						LittleTilePosition pos = new LittleTilePosition(nbt);
+						connection = new StructureLinkTile(te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE, this);
+						System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + connection);
+					} else
+						connection = new StructureLinkTile(nbt, this);
+				}
 			}
 		}
 	}
@@ -542,9 +545,9 @@ public abstract class LittleTile implements ICombinable {
 	//================Destroying================
 	
 	public void destroy() {
-		if (isStructureBlock) {
-			if (isLoaded())
-				structure.onLittleTileDestroy();
+		if (isChildOfStructure()) {
+			if (isConnectedToStructure())
+				connection.getStructure(te.getWorld()).onLittleTileDestroy();
 		} else
 			te.removeTile(this);
 	}
@@ -580,10 +583,8 @@ public abstract class LittleTile implements ICombinable {
 		tile.box = box != null ? box.copy() : null;
 		tile.te = this.te;
 		
-		tile.isStructureBlock = this.isStructureBlock;
-		tile.structure = this.structure;
-		if (this.coord != null)
-			tile.coord = this.coord.copy();
+		if (this.connection != null)
+			tile.connection = this.connection.copy(tile);
 	}
 	
 	//================Drop================
@@ -591,9 +592,9 @@ public abstract class LittleTile implements ICombinable {
 	public ArrayList<ItemStack> getDrops() {
 		ArrayList<ItemStack> drops = new ArrayList<ItemStack>();
 		ItemStack stack = null;
-		if (isStructureBlock) {
-			if (isLoaded())
-				stack = structure.getStructureDrop();
+		if (isChildOfStructure()) {
+			if (isConnectedToStructure())
+				stack = connection.getStructure(te.getWorld()).getStructureDrop();
 		} else
 			stack = getDrop();
 		if (stack != null)
@@ -678,7 +679,7 @@ public abstract class LittleTile implements ICombinable {
 	protected abstract boolean canSawResize(EnumFacing facing, EntityPlayer player);
 	
 	public boolean canSawResizeTile(EnumFacing facing, EntityPlayer player) {
-		return !isStructureBlock && canSawResize(facing, player);
+		return !isChildOfStructure() && canSawResize(facing, player);
 	}
 	
 	public boolean canBeMoved(EnumFacing facing) {
@@ -696,8 +697,8 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (isLoaded())
-			return structure.onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action);
+		if (isConnectedToStructure())
+			return connection.getStructure(te.getWorld()).onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action);
 		return false;
 	}
 	
@@ -740,85 +741,28 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean shouldCheckForCollision() {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded() && structure.shouldCheckForCollision())
+		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isConnectedToStructure() && connection.getStructure(te.getWorld()).shouldCheckForCollision())
 			return true;
 		return false;
 	}
 	
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isLoaded())
-			structure.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isConnectedToStructure())
+			connection.getStructure(te.getWorld()).onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 	}
 	
 	//================Structure================
 	
-	public boolean isStructureBlock = false;
+	public IStructureConnector connection;
 	
-	public LittleStructure structure;
-	
-	public LittleTileIdentifierStructure coord;
-	
-	public boolean isMainBlock = false;
-	
-	protected boolean loadingStructure = false;
-	
-	public boolean checkForStructure() {
-		if (loadingStructure)
-			return false;
-		
-		if (structure != null)
-			return true;
-		
-		loadingStructure = true;
-		
-		World world = te.getWorld();
-		if (world != null) {
-			BlockPos absoluteCoord = coord.getAbsolutePosition(te);
-			Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
-			if (WorldUtils.checkIfChunkExists(chunk)) {
-				TileEntity tileEntity = world.getTileEntity(absoluteCoord);
-				if (tileEntity instanceof TileEntityLittleTiles) {
-					LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(coord.context, coord.identifier);
-					if (tile != null && tile.isStructureBlock) {
-						if (tile.isMainBlock) {
-							this.structure = tile.structure;
-							if (this.structure != null && this.structure.LoadList() && !this.structure.containsTile(this))
-								this.structure.addTile(this);
-							else if (!this.structure.LoadList())
-								System.out.println("Something went wrong");
-						}
-					}
-				}
-				
-				if (structure == null && !world.isRemote) {
-					te.removeTile(this);
-					te.updateBlock();
-				}
-				
-				loadingStructure = false;
-				
-				return structure != null;
-			}
-			
-		}
-		
-		loadingStructure = false;
-		
-		return false;
-	}
-	
-	public boolean isAllowedToSearchForStructure = true;
-	
-	public boolean isLoaded() {
-		return isAllowedToSearchForStructure && isStructureBlock && checkForStructure();
+	public boolean isConnectedToStructure() {
+		return connection != null && connection.isConnected(te.getWorld());
 	}
 	
 	public LittleStructureAttribute getStructureAttribute() {
-		if (!isStructureBlock)
-			return LittleStructureAttribute.NONE;
-		if (isMainBlock)
-			return structure.attribute;
-		return coord.attribute;
+		if (isConnectedToStructure())
+			return connection.getAttribute();
+		return LittleStructureAttribute.NONE;
 	}
 	
 	@Deprecated

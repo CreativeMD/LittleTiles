@@ -6,7 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.structure.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -49,9 +50,13 @@ public class OpenCommand extends CommandBase {
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			List<LittleDoorBase> doors = new ArrayList<>();
 			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity).getTiles()) {
-				if (tile.isStructureBlock && tile.isLoaded() && tile.structure instanceof LittleDoorBase && !doors.contains(tile.structure))
-					if (tile.structure.hasLoaded())
-						doors.add((LittleDoorBase) tile.structure);
+				if (!tile.isConnectedToStructure())
+					continue;
+				
+				LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
+				if (structure instanceof LittleDoorBase && !doors.contains(structure))
+					if (structure.hasLoaded())
+						doors.add((LittleDoorBase) structure);
 					else
 						notifyCommandListener(sender, this, "commands.open.notloaded");
 			}

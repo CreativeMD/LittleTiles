@@ -4,7 +4,8 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.littletiles.common.structure.LittleSlidingDoor;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -67,9 +68,10 @@ public class LittleSlidingDoorPacket extends CreativeCorePacket {
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-			if (tile != null && tile.isLoaded() && tile.structure instanceof LittleSlidingDoor && tile.structure.hasLoaded()) {
-				((LittleSlidingDoor) tile.structure).interactWithDoor(world, blockPos, player, uuid);
-				//System.out.println("Open Door");
+			LittleStructure structure;
+			if (tile != null && tile.isConnectedToStructure() && (structure = tile.connection.getStructure(world)) instanceof LittleSlidingDoor && structure.hasLoaded()) {
+				((LittleSlidingDoor) structure).interactWithDoor(world, blockPos, player, uuid);
+				// System.out.println("Open Door");
 			} else
 				System.out.println("No door found!");
 			

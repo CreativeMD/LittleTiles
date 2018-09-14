@@ -63,9 +63,13 @@ public class PlacePreviewTile {
 		
 		for (LittleTile tile : tiles) {
 			if (structure != null) {
-				tile.isStructureBlock = true;
-				tile.structure = structure;
-				structure.addTile(tile);
+				if (!structure.hasMainTile())
+					structure.setMainTile(tile);
+				else {
+					tile.connection = structure.getStructureLink(tile);
+					tile.connection.setLoadedStructure(structure, structure.attribute);
+					structure.addTile(tile);
+				}
 			}
 			tile.place();
 			tile.onPlaced(player, stack, facing);

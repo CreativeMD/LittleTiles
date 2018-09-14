@@ -27,7 +27,7 @@ import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.structure.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -538,9 +538,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						if (entity instanceof EntityPlayerMP)
 							LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
 						
-						/* entity.motionX += moveX;
-						 * entity.motionY += moveY;
-						 * entity.motionZ += moveZ; */
+						/* entity.motionX += moveX; entity.motionY += moveY; entity.motionZ += moveZ; */
 						
 						if (moveX != 0 || moveZ != 0)
 							collidedHorizontally = true;
@@ -883,8 +881,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
-				if (tile.isMainBlock)
-					this.structure = (LittleDoorBase) tile.structure;
+				if (!tile.connection.isLink())
+					this.structure = (LittleDoorBase) tile.connection.getStructureWithoutLoading();
 				tiles.add(tile);
 			}
 			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking(), te.isRendered()));

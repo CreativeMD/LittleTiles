@@ -69,7 +69,7 @@ public class LittleActionReplace extends LittleActionInteract {
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
-		if (tile.isStructureBlock)
+		if (tile.isChildOfStructure())
 			return false;
 		
 		if (!world.isRemote) {
@@ -90,7 +90,7 @@ public class LittleActionReplace extends LittleActionInteract {
 		if (BlockTile.selectEntireBlock(player, secondMode)) {
 			List<LittleTile> toRemove = new ArrayList<>();
 			for (LittleTile toDestroy : te.getTiles()) {
-				if (!toDestroy.isStructureBlock && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
+				if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
 					replacedTiles.addTile(toDestroy);
 					boxes.addBox(toDestroy);
 					toRemove.add(toDestroy);

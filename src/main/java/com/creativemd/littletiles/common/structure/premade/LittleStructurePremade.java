@@ -8,7 +8,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.google.common.base.Charsets;

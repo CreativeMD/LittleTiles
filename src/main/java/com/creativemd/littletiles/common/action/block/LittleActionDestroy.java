@@ -67,19 +67,19 @@ public class LittleActionDestroy extends LittleActionInteract {
 			}
 		}
 		
-		if (tile.isStructureBlock) {
-			boolean loaded = tile.isLoaded() && tile.structure.hasLoaded();
+		if (tile.isChildOfStructure()) {
+			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).hasLoaded();
 			if (loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 				if (loaded) {
-					structurePreview = new StructurePreview(tile.structure);
+					structurePreview = new StructurePreview(tile.connection.getStructure(world));
 					if (needIngredients(player) && !player.world.isRemote)
-						WorldUtils.dropItem(world, tile.structure.getStructureDrop(), pos);
+						WorldUtils.dropItem(world, tile.connection.getStructure(world).getStructureDrop(), pos);
 					tile.destroy();
 				} else
 					tile.te.removeTile(tile);
 				
-				//if(!world.isRemote)
-				//tile.structure.removeWorldProperties();
+				// if(!world.isRemote)
+				// tile.structure.removeWorldProperties();
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
 		} else {
@@ -90,8 +90,9 @@ public class LittleActionDestroy extends LittleActionInteract {
 			if (BlockTile.selectEntireBlock(player, secondMode)) {
 				List<LittleTile> remains = new ArrayList<>();
 				for (LittleTile toDestory : te.getTiles()) {
-					if (!toDestory.isStructureBlock) {
-						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one block
+					if (!toDestory.isChildOfStructure()) {
+						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one
+						                                   // block
 						tiles.add(toDestory);
 					} else
 						remains.add(toDestory);
