@@ -26,23 +26,21 @@ public class LittleTileIdentifierStructure extends LittleTileIdentifierRelative 
 		this.attribute = attribute;
 	}
 	
-	public LittleTileIdentifierStructure(String id, NBTTagCompound nbt) {
-		super(id, nbt);
-		this.attribute = LittleStructureAttribute.get(nbt.getInteger("attr"));
-	}
-	
 	protected LittleTileIdentifierStructure(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
 		super(relativeX, relativeY, relativeZ, context, identifier);
 		this.attribute = attribute;
 	}
 	
 	public LittleTileIdentifierStructure(NBTTagCompound nbt) {
-		this("", nbt);
+		super(nbt);
+		this.attribute = LittleStructureAttribute.get(nbt.getInteger("attr"));
 	}
 	
-	public void writeToNBT(String id, NBTTagCompound nbt) {
-		super.writeToNBT(id, nbt);
+	@Override
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		super.writeToNBT(nbt);
 		nbt.setInteger("attr", attribute.ordinal());
+		return nbt;
 	}
 	
 	@Override

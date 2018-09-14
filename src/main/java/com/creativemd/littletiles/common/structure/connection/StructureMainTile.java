@@ -7,7 +7,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class StructureMainTile implements IStructureConnector {
+public class StructureMainTile implements IStructureConnector<LittleTile> {
 	
 	public final LittleTile parent;
 	public final LittleStructure structure;

@@ -33,7 +33,11 @@ public class LittleTileIdentifierRelative {
 		this.identifier = identifier;
 	}
 	
-	public LittleTileIdentifierRelative(String id, NBTTagCompound nbt) {
+	public static LittleTileIdentifierRelative loadIdentifierOld(String id, NBTTagCompound nbt) {
+		return new LittleTileIdentifierRelative(id, nbt);
+	}
+	
+	private LittleTileIdentifierRelative(String id, NBTTagCompound nbt) {
 		if (nbt.hasKey(id + "coord")) {
 			int[] array = nbt.getIntArray(id + "coord");
 			if (array.length == 3)
@@ -53,7 +57,22 @@ public class LittleTileIdentifierRelative {
 	}
 	
 	public LittleTileIdentifierRelative(NBTTagCompound nbt) {
-		this("", nbt);
+		if (nbt.hasKey("coord")) {
+			int[] array = nbt.getIntArray("coord");
+			if (array.length == 3)
+				coord = new BlockPos(array[0], array[1], array[2]);
+			else
+				throw new InvalidParameterException("No valid coord given " + nbt);
+		} else if (nbt.hasKey("coordX"))
+			coord = new BlockPos(nbt.getInteger("coordX"), nbt.getInteger("coordY"), nbt.getInteger("coordZ"));
+		else
+			coord = new BlockPos(0, 0, 0);
+		if (nbt.hasKey("pos")) {
+			LittleTileVec position = new LittleTileVec("pos", nbt);
+			identifier = new int[] { position.x, position.y, position.z };
+		} else
+			identifier = nbt.getIntArray("id");
+		context = LittleGridContext.get(nbt);
 	}
 	
 	public BlockPos getAbsolutePosition(TileEntity te) {
@@ -68,17 +87,11 @@ public class LittleTileIdentifierRelative {
 		return new BlockPos(coord.getX() + x, coord.getY() + y, coord.getZ() + z);
 	}
 	
-	public void writeToNBT(String id, NBTTagCompound nbt) {
-		/* nbt.setInteger(id + "coordX", coord.getX()); nbt.setInteger(id + "coordY",
-		 * coord.getY()); nbt.setInteger(id + "coordZ", coord.getZ()); */
-		nbt.setIntArray(id + "coord", new int[] { coord.getX(), coord.getY(), coord.getZ() });
-		//position.writeToNBT(id + "pos", nbt);
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		nbt.setIntArray("coord", new int[] { coord.getX(), coord.getY(), coord.getZ() });
 		nbt.setIntArray("id", identifier);
 		context.set(nbt);
-	}
-	
-	public void writeToNBT(NBTTagCompound nbt) {
-		writeToNBT("", nbt);
+		return nbt;
 	}
 	
 	@Override
