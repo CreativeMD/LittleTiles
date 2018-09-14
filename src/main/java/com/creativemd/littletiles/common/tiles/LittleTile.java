@@ -17,8 +17,8 @@ import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnector;
-import com.creativemd.littletiles.common.structure.connection.StructureLink;
-import com.creativemd.littletiles.common.structure.connection.StructureLink.StructureLinkTile;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkBase;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
@@ -460,7 +460,7 @@ public abstract class LittleTile implements ICombinable {
 		if (isChildOfStructure()) {
 			NBTTagCompound structureNBT = new NBTTagCompound();
 			if (connection.isLink())
-				((StructureLink) connection).writeToNBT(structureNBT);
+				((StructureLinkBase) connection).writeToNBT(structureNBT);
 			else {
 				connection.getStructureWithoutLoading().writeToNBT(structureNBT);
 				structureNBT.setBoolean("main", true);
@@ -761,7 +761,7 @@ public abstract class LittleTile implements ICombinable {
 	
 	// ================Structure================
 	
-	public IStructureConnector connection;
+	public IStructureConnector<LittleTile> connection;
 	
 	public boolean isConnectedToStructure() {
 		return connection != null && connection.isConnected(te.getWorld());

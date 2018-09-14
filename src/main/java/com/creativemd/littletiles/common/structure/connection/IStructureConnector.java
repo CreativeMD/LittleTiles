@@ -7,7 +7,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public interface IStructureConnector {
+public interface IStructureConnector<T> {
 	
 	public BlockPos getStructurePosition();
 	
@@ -27,6 +27,6 @@ public interface IStructureConnector {
 	
 	public void reset();
 	
-	public IStructureConnector copy(LittleTile parent);
+	public IStructureConnector copy(T parent);
 	
 }

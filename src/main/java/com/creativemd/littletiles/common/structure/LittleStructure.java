@@ -18,7 +18,8 @@ import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.connection.StructureLink.StructureLinkTile;
+import com.creativemd.littletiles.common.structure.connection.StructureLink;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
@@ -159,6 +160,9 @@ public abstract class LittleStructure {
 	public final String structureID;
 	
 	public String name;
+	
+	public StructureLink parent;
+	public HashMap<Integer, StructureLink> children;
 	
 	public LittleStructure() {
 		LittleStructureEntry entry = getStructureEntryByClass(this.getClass());
@@ -365,7 +369,7 @@ public abstract class LittleStructure {
 					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
 					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
 				} else {
-					coord = new LittleTileIdentifierRelative("i" + i, nbt);
+					coord = LittleTileIdentifierRelative.loadIdentifierOld("i" + i, nbt);
 				}
 				
 				BlockPos pos = coord.getAbsolutePosition(mainTile.te);
@@ -394,6 +398,22 @@ public abstract class LittleStructure {
 		else
 			name = null;
 		
+		// Load family (parent and children)		
+		if (nbt.hasKey("parent", 10))
+			parent = new StructureLink(nbt, this, true);
+		else
+			parent = null;
+		
+		if (nbt.hasKey("children", 10)) {
+			children = new HashMap<>();
+			NBTTagList list = nbt.getTagList("tiles", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				StructureLink child = new StructureLink(list.getCompoundTagAt(i), this, false);
+				children.put(child.childID, child);
+			}
+		} else
+			children = null;
+		
 		loadFromNBTExtra(nbt);
 	}
 	
@@ -410,6 +430,18 @@ public abstract class LittleStructure {
 			nbt.setString("name", name);
 		else
 			nbt.removeTag("name");
+		
+		// Save family (parent and children)
+		if (parent != null)
+			nbt.setTag("parent", parent.writeToNBT(new NBTTagCompound()));
+		
+		if (children != null && !children.isEmpty()) {
+			NBTTagList list = new NBTTagList();
+			for (StructureLink child : children.values()) {
+				list.appendTag(child.writeToNBT(new NBTTagCompound()));
+			}
+			nbt.setTag("children", list);
+		}
 		
 		// SaveTiles
 		HashMap<BlockPos, Integer> positions = new HashMap<>();
