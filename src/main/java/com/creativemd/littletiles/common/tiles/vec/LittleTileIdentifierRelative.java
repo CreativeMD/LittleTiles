@@ -11,9 +11,9 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleTileIdentifierRelative {
 	
-	protected BlockPos coord;
-	public LittleGridContext context;
-	public int[] identifier;
+	protected final BlockPos coord;
+	public final LittleGridContext context;
+	public final int[] identifier;
 	
 	public LittleTileIdentifierRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier) {
 		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, context, identifier);
@@ -42,6 +42,8 @@ public class LittleTileIdentifierRelative {
 				throw new InvalidParameterException("No valid coord given " + nbt);
 		} else if (nbt.hasKey(id + "coordX"))
 			coord = new BlockPos(nbt.getInteger(id + "coordX"), nbt.getInteger(id + "coordY"), nbt.getInteger(id + "coordZ"));
+		else
+			coord = new BlockPos(0, 0, 0);
 		if (nbt.hasKey(id + "pos")) {
 			LittleTileVec position = new LittleTileVec(id + "pos", nbt);
 			identifier = new int[] { position.x, position.y, position.z };
@@ -67,10 +69,8 @@ public class LittleTileIdentifierRelative {
 	}
 	
 	public void writeToNBT(String id, NBTTagCompound nbt) {
-		/*
-		 * nbt.setInteger(id + "coordX", coord.getX()); nbt.setInteger(id + "coordY",
-		 * coord.getY()); nbt.setInteger(id + "coordZ", coord.getZ());
-		 */
+		/* nbt.setInteger(id + "coordX", coord.getX()); nbt.setInteger(id + "coordY",
+		 * coord.getY()); nbt.setInteger(id + "coordZ", coord.getZ()); */
 		nbt.setIntArray(id + "coord", new int[] { coord.getX(), coord.getY(), coord.getZ() });
 		// position.writeToNBT(id + "pos", nbt);
 		nbt.setIntArray("id", identifier);
@@ -79,6 +79,16 @@ public class LittleTileIdentifierRelative {
 	
 	public void writeToNBT(NBTTagCompound nbt) {
 		writeToNBT("", nbt);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof LittleTileIdentifierRelative) {
+			if (!coord.equals(((LittleTileIdentifierRelative) obj).coord))
+				return false;
+			return Arrays.equals(identifier, LittleTileIdentifierAbsolute.convertTo(((LittleTileIdentifierRelative) obj).identifier, ((LittleTileIdentifierRelative) obj).context, context));
+		}
+		return false;
 	}
 	
 	@Override

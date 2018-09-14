@@ -3,7 +3,8 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.structure.LittleBed;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 
@@ -49,8 +50,9 @@ public class LittleBedPacket extends CreativeCorePacket {
 			LittleTile tile;
 			try {
 				tile = LittleAction.getTile(player.world, coord);
-				if (tile.isLoaded() && tile.structure instanceof LittleBed) {
-					((LittleBed) tile.structure).trySleep((EntityPlayer) entity, tile.structure.getHighestCenterVec());
+				LittleStructure structure;
+				if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(player.world)) instanceof LittleBed) {
+					((LittleBed) structure).trySleep((EntityPlayer) entity, structure.getHighestCenterVec());
 				}
 			} catch (LittleActionException e) {
 				e.printStackTrace();

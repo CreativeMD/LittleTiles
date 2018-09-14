@@ -1,6 +1,8 @@
-package com.creativemd.littletiles.common.structure;
+package com.creativemd.littletiles.common.structure.type;
 
 import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructureParser;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

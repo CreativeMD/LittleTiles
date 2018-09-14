@@ -21,8 +21,8 @@ import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
@@ -400,10 +400,15 @@ public class LittleEvent {
 			if (te != null) {
 				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
-					if (tile.structure instanceof LittleBed && ((LittleBed) tile.structure).hasBeenActivated) {
-						((LittleBed) tile.structure).trySleep(event.getEntityPlayer(), tile.structure.getHighestCenterVec());
+					if (!tile.isConnectedToStructure())
+						continue;
+					
+					LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
+					
+					if (structure instanceof LittleBed && ((LittleBed) structure).hasBeenActivated) {
+						((LittleBed) structure).trySleep(event.getEntityPlayer(), structure.getHighestCenterVec());
 						event.setResult(SleepResult.OK);
-						((LittleBed) tile.structure).hasBeenActivated = false;
+						((LittleBed) structure).hasBeenActivated = false;
 						return;
 					}
 				}

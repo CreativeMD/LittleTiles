@@ -88,7 +88,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				continue;
 			
 			doneSomething = true;
-			if (!tile.isStructureBlock && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
+			if (!tile.isChildOfStructure() && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
 				double volume = 0;
 				LittleTilePreview preview = tile.getPreviewTile();
 				
@@ -119,14 +119,15 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				if (volume > 0)
 					ingredients.addPreview(preview, volume);
 			} else {
-				if (!tile.isStructureBlock)
+				if (!tile.isChildOfStructure())
 					ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
 				
 				if (!simulate) {
-					if (tile.isStructureBlock) {
-						if (!containsStructure(tile.structure) && tile.isLoaded() && tile.structure.hasLoaded()) {
-							destroyedStructures.add(new StructurePreview(tile.structure));
-							ItemStack drop = tile.structure.getStructureDrop();
+					if (tile.isChildOfStructure()) {
+						LittleStructure structure;
+						if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).hasLoaded() && !containsStructure(structure)) {
+							destroyedStructures.add(new StructurePreview(structure));
+							ItemStack drop = structure.getStructureDrop();
 							if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
 								WorldUtils.dropItem(player.world, drop, tile.te.getPos());
 							
@@ -254,7 +255,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			
-			if (!tile.intersectsWith(toCut) || tile.isStructureBlock || !tile.canBeSplitted())
+			if (!tile.intersectsWith(toCut) || tile.isChildOfStructure() || !tile.canBeSplitted())
 				continue;
 			
 			tile.destroy();
@@ -322,7 +323,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			if (!intersects)
 				continue;
 			
-			if (tile.isStructureBlock || !tile.canBeSplitted())
+			if (tile.isChildOfStructure() || !tile.canBeSplitted())
 				continue;
 			
 			tile.destroy();

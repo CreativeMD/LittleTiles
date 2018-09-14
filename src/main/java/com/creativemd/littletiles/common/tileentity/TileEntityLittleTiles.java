@@ -539,10 +539,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	public boolean preventUpdate = false;
 	
-	/*
-	 * public LittleTile getTileFromPosition(int x, int y, int z) { for (LittleTile
-	 * tile : tiles) { if(tile.isAt(x, y, z)) return tile; } return null; }
-	 */
+	/* public LittleTile getTileFromPosition(int x, int y, int z) { for (LittleTile
+	 * tile : tiles) { if(tile.isAt(x, y, z)) return tile; } return null; } */
 	
 	/** Used for rendering */
 	@SideOnly(Side.CLIENT)
@@ -576,7 +574,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public boolean isSpaceForLittleTileStructure(LittleTileBox box) {
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
-			if ((tile.isStructureBlock || !tile.canBeSplitted()) && tile.intersectsWith(box))
+			if ((tile.isChildOfStructure() || !tile.canBeSplitted()) && tile.intersectsWith(box))
 				return false;
 			
 		}
@@ -715,8 +713,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				
 				exstingTiles.remove(tile);
 			} else {
-				if (tile != null && tile.isLoaded())
-					tile.structure.removeTile(tile);
+				if (tile != null && tile.isConnectedToStructure())
+					tile.connection.getStructure(world).removeTile(tile);
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
 				if (tile != null)
 					tilesToAdd.add(tile);
@@ -726,14 +724,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		synchronized (tiles) {
 			synchronized (updateTiles) {
 				for (int i = 0; i < exstingTiles.size(); i++) {
-					if (exstingTiles.get(i).isStructureBlock && exstingTiles.get(i).isLoaded())
-						exstingTiles.get(i).structure.removeTile(exstingTiles.get(i));
+					if (exstingTiles.get(i).isConnectedToStructure())
+						exstingTiles.get(i).connection.getStructure(world).removeTile(exstingTiles.get(i));
 					removeLittleTile(exstingTiles.get(i));
 				}
 				for (int i = 0; i < tilesToAdd.size(); i++) {
 					addLittleTile(tilesToAdd.get(i));
-					if (tilesToAdd.get(i).isStructureBlock)
-						tilesToAdd.get(i).checkForStructure();
+					tilesToAdd.get(i).isConnectedToStructure();
 				}
 			}
 		}

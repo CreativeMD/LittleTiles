@@ -1,10 +1,12 @@
-package com.creativemd.littletiles.common.structure;
+package com.creativemd.littletiles.common.structure.type;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructureParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 

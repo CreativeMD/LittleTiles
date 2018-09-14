@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -256,10 +255,13 @@ public class LittleActionPlaceRelative extends LittleAction {
 									if (structure != null) {
 										if (!structure.hasMainTile())
 											structure.setMainTile(LT);
-										else
-											LT.coord = structure.getMainTileCoord(LT);
+										else {
+											LT.connection = structure.getStructureLink(LT);
+											LT.connection.setLoadedStructure(structure, structure.attribute);
+											structure.addTile(LT);
+										}
 									}
-									LT.isAllowedToSearchForStructure = false;
+									
 									placed.addPlacedTile(LT);
 								}
 							}
@@ -282,10 +284,6 @@ public class LittleActionPlaceRelative extends LittleAction {
 				if (structure.getMainTile() == null)
 					throw new LittleActionException("Missing maintile of structure. Placed " + placed.placedPreviews.size() + " tile(s).");
 				structure.setMainTile(structure.getMainTile());
-				for (Iterator<LittleTile> iterator = structure.getTiles(); iterator.hasNext();) {
-					LittleTile tile = iterator.next();
-					tile.isAllowedToSearchForStructure = true;
-				}
 				structure.combineTiles();
 				structure.placedStructure(stack);
 			}

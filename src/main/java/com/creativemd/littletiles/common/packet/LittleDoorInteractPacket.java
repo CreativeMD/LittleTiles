@@ -7,7 +7,8 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleEvent;
-import com.creativemd.littletiles.common.structure.LittleDoor;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -80,8 +81,9 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 			BlockTile.cancelNext = true;
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-			if (tile != null && tile.isLoaded() && tile.structure instanceof LittleDoor) {
-				((LittleDoor) tile.structure).interactWithDoor(world, player, direction, inverse, uuid);
+			LittleStructure structure;
+			if (tile != null && tile.isConnectedToStructure() && (structure = tile.connection.getStructure(world)) instanceof LittleDoor) {
+				((LittleDoor) structure).interactWithDoor(world, player, direction, inverse, uuid);
 				// System.out.println("Open Door");
 			} // else
 			  // System.out.println("No door found!");

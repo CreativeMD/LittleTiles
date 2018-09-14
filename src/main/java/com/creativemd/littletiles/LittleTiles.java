@@ -89,8 +89,8 @@ import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
-import com.creativemd.littletiles.common.structure.LittleStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
@@ -261,15 +261,15 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isStructureBlock && tile.structure instanceof LittleStorage)
-					return new SubGuiStorage((LittleStorage) tile.structure);
+				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
+					return new SubGuiStorage((LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
 				return null;
 			}
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isStructureBlock && tile.structure instanceof LittleStorage)
-					return new SubContainerStorage(player, (LittleStorage) tile.structure);
+				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
+					return new SubContainerStorage(player, (LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
 				return null;
 			}
 		});

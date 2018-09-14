@@ -26,8 +26,8 @@ import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.mods.chisel.ChiselManager;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
-import com.creativemd.littletiles.common.structure.LittleBed;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
@@ -213,12 +213,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (bed != null)
 				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
-					if (tile.structure == bed)
+					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()) == bed)
 						return true;
 				}
 			else
 				for (LittleTile tile : te.getTiles()) {
-					if (tile.isStructureBlock && tile.isLoaded() && tile.structure.isBed(world, pos, (EntityLivingBase) player))
+					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()).isBed(world, pos, (EntityLivingBase) player))
 						return true;
 				}
 		}
@@ -383,8 +383,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return false;
 	}
 	
-	/*
-	 * public int isProvidingWeakPower(IBlockAccess p_149709_1_, int p_149709_2_,
+	/* public int isProvidingWeakPower(IBlockAccess p_149709_1_, int p_149709_2_,
 	 * int p_149709_3_, int p_149709_4_, int p_149709_5_) { return 0; }
 	 * 
 	 * public boolean canProvidePower() { return false; }
@@ -394,8 +393,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	 * boolean hasComparatorInputOverride() { return false; }
 	 * 
 	 * public int getComparatorInputOverride(World p_149736_1_, int p_149736_2_, int
-	 * p_149736_3_, int p_149736_4_, int p_149736_5_) { return 0; }
-	 */
+	 * p_149736_3_, int p_149736_4_, int p_149736_5_) { return 0; } */
 	
 	@Override
 	public float getSlipperiness(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity entity) {
@@ -487,11 +485,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	/** Blocks will drop before this method is called */
 	public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		/*
-		 * TileEntityLittleTiles te = loadTe(world, pos); if(te != null) { for (Iterator
+		/* TileEntityLittleTiles te = loadTe(world, pos); if(te != null) { for (Iterator
 		 * iterator = te.getTiles().iterator(); iterator.hasNext();) { LittleTile tile =
-		 * (LittleTile) iterator.next(); stacks.addAll(tile.getDrops()); } }
-		 */
+		 * (LittleTile) iterator.next(); stacks.addAll(tile.getDrops()); } } */
 		return stacks;
 	}
 	
@@ -679,25 +675,21 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return sound;
 	}
 	
-	/*
-	 * public boolean rotateBlock(World worldObj, int x, int y, int z,
+	/* public boolean rotateBlock(World worldObj, int x, int y, int z,
 	 * ForgeDirection axis) { return RotationHelper.rotateVanillaBlock(this,
 	 * worldObj, x, y, z, axis); }
 	 * 
 	 * public ForgeDirection[] getValidRotations(World worldObj, int x, int y, int
 	 * z) {
 	 * 
-	 * }
-	 */
+	 * } */
 	
 	@Override
 	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
-		/*
-		 * if(loadingTileEntityFromWorld) if is normal cube player will be pushed out of
+		/* if(loadingTileEntityFromWorld) if is normal cube player will be pushed out of
 		 * the block (bad for no-clip structure or water return false; for (int i = 0; i
 		 * < 6; i++) { if(!isSideSolid(state, world, pos, EnumFacing.getFront(i)))
-		 * return false; } return true;
-		 */
+		 * return false; } return true; */
 		return false;
 	}
 	
@@ -723,11 +715,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				te.onNeighBorChangedClient();
 			} else {
 				PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos, fromPos), 100, pos);
-				/*
-				 * for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				/* for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				 * LittleTile tile = (LittleTile) iterator.next();
-				 * tile.onNeighborChangeOutside();; }
-				 */
+				 * tile.onNeighborChangeOutside();; } */
 			}
 		}
 	}
@@ -743,11 +733,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (te.getWorld().isRemote)
 				te.onNeighBorChangedClient();
 			else {
-				/*
-				 * for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				/* for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				 * LittleTile tile = (LittleTile) iterator.next();
-				 * tile.onNeighborChangeOutside(); }
-				 */
+				 * tile.onNeighborChangeOutside(); } */
 			}
 		}
 	}
@@ -937,7 +925,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			ArrayList<LittleTile> removeTiles = new ArrayList<>();
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
-				if (!tile.isStructureBlock) {
+				if (!tile.isChildOfStructure()) {
 					LittleTileVec vec = tile.getCenter();
 					Vec3d newVec = new Vec3d(pos);
 					newVec = newVec.add(vec.getVec(te.getContext()));
@@ -956,9 +944,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			te.updateTiles();
 		}
-		/*
-		 * world.setBlockToAir(pos); onBlockDestroyedByExplosion(world, pos, explosion);
-		 */
+		/* world.setBlockToAir(pos); onBlockDestroyedByExplosion(world, pos, explosion); */
 	}
 	
 	@Override
@@ -975,8 +961,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 	}
 	
-	/*
-	 * protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState
+	/* protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState
 	 * state) { double d0 = 0.0D; double d1 = 0.0D; double d2 = 0.0D;
 	 * BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos =
 	 * BlockPos.PooledMutableBlockPos.retain(); int i =
@@ -1024,8 +1009,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	 * false; } else { boolean flag = isExceptBlockForAttachWithPiston(block) ||
 	 * block instanceof BlockStairs; return !flag &&
 	 * iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID; }
-	 * }
-	 */
+	 * } */
 	
 	@Override
 	public Vec3d modifyAcceleration(World world, BlockPos pos, Entity entityIn, Vec3d motion) {

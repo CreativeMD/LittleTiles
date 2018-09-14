@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.tiles.vec;
 
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;

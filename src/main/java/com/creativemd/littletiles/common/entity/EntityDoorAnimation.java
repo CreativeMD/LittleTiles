@@ -9,7 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
-import com.creativemd.littletiles.common.structure.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;

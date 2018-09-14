@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.attributes;
+package com.creativemd.littletiles.common.structure.attribute;
 
 public enum LittleStructureAttribute {
 	
