@@ -75,6 +75,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(stack.getTagCompound()));
 		previews.addWithoutCheckingPreview(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;

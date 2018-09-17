@@ -238,7 +238,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 1));
 				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 2));
 				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 3));
-				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleLadder", "isLivingOnLadder", patchDESC("(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityLivingBase;)Z"), false));
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/type/LittleLadder", "isLivingOnLadder", patchDESC("(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/EntityLivingBase;)Z"), false));
 				m.instructions.add(new InsnNode(Opcodes.IRETURN));
 			}
 		});
@@ -329,8 +329,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 				}
 				
-				/*
-				 * m = findMethod(node, "getConnectedTexture",
+				/* m = findMethod(node, "getConnectedTexture",
 				 * "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/BlockStateBase;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/block/model/BakedQuad;ILnet/optifine/render/RenderEnv;)[Lnet/minecraft/client/renderer/block/model/BakedQuad;"
 				 * ); for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 				 * AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
@@ -352,8 +351,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				 * "(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"
 				 * ), false)); m.instructions.remove(insn);
 				 * 
-				 * break; } }
-				 */
+				 * break; } } */
 				
 				m = findMethod(node, "isNeighbourMatching", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
@@ -479,8 +477,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				}
 			}
 		});
-		/*
-		 * addTransformer(new Transformer("net.minecraft.util.ITickable") {
+		/* addTransformer(new Transformer("net.minecraft.util.ITickable") {
 		 * 
 		 * @Override public void transform(ClassNode node) { MethodNode m = new
 		 * MethodNode(Opcodes.ACC_PUBLIC, "shouldLTUpdate", "()Z", null, null);
@@ -531,10 +528,8 @@ public class LittleTilesTransformer extends CreativeTransformer {
 		 * m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 		 * m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC,
 		 * "com/creativemd/littletiles/common/events/LittleEvent",
-		 * "processStateUpdates", "(L" + worldClass + ";)V", false)); break; } } } });
-		 */
-		/*
-		 * addTransformer(new Transformer("net.minecraft.world.World") {
+		 * "processStateUpdates", "(L" + worldClass + ";)V", false)); break; } } } }); */
+		/* addTransformer(new Transformer("net.minecraft.world.World") {
 		 * 
 		 * @Override public void transform(ClassNode node) { String className =
 		 * patchClassName("net/minecraft/tileentity/TileEntity"); String methodName =
@@ -554,8 +549,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 		 * "com/creativemd/littletiles/common/utils/converting/ChiselAndBitsConveration",
 		 * "onAddedTileEntity", patchDESC("(Lnet/minecraft/tileentity/TileEntity;)V"),
 		 * false)); m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD,
-		 * before.var)); return ; } } } });
-		 */
+		 * before.var)); return ; } } } }); */
 	}
 	
 }
