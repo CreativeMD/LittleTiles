@@ -57,7 +57,8 @@ public abstract class LittleActionBoxes extends LittleAction {
 			BlockPos pos = entry.getKey();
 			IBlockState state = world.getBlockState(pos);
 			if (!isAllowedToInteract(player, pos, false, EnumFacing.EAST)) {
-				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
+				if (!world.isRemote)
+					sendBlockResetToClient((EntityPlayerMP) player, pos, null);
 				continue;
 			}
 			
