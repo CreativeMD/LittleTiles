@@ -5,7 +5,7 @@ import javax.annotation.Nonnull;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -71,7 +71,7 @@ public class LittleLadder extends LittleStructure {
 		}
 	}
 	
-	public static class LittleLadderParser extends LittleStructureParser<LittleLadder> {
+	public static class LittleLadderParser extends LittleStructureGuiParser<LittleLadder> {
 		
 		public LittleLadderParser(String id, GuiParent parent) {
 			super(id, parent);

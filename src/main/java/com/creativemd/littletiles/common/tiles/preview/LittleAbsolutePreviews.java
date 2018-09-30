@@ -15,6 +15,11 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 		this.pos = pos;
 	}
 	
+	protected LittleAbsolutePreviews(LittleAbsolutePreviews previews) {
+		super(previews);
+		this.pos = previews.pos;
+	}
+	
 	@Override
 	public boolean isAbsolute() {
 		return true;

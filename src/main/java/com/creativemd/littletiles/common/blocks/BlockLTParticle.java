@@ -13,7 +13,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
@@ -84,18 +83,12 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILit
 	}
 	
 	@Override
-	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
-		return LittleGridContext.get();
+	public void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
+		
 	}
 	
 	@Override
-	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
-		return LittleGridContext.get();
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return null;
+	public void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 	}
 	
 	@Override

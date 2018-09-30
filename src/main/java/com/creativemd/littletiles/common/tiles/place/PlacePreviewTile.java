@@ -9,9 +9,9 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -30,14 +30,18 @@ public class PlacePreviewTile {
 	public LittleTileBox box;
 	public LittleTilePreview preview;
 	
-	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview) {
+	public LittlePreviews structurePreview;
+	
+	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview, LittlePreviews previews) {
 		this.box = box;
 		this.preview = preview;
+		if (previews.hasStructure())
+			this.structurePreview = previews;
 	}
 	
 	/** NEEDS TO BE OVERRIDEN! ALWAYS! **/
 	public PlacePreviewTile copy() {
-		return new PlacePreviewTile(box.copy(), preview.copy());
+		return new PlacePreviewTile(box.copy(), preview.copy(), structurePreview);
 	}
 	
 	/** If false it will be placed after all regular tiles have been placed **/
@@ -51,7 +55,7 @@ public class PlacePreviewTile {
 		return previews;
 	}
 	
-	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles te, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(@Nullable EntityPlayer player, @Nullable ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles te, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest) {
 		LittleTile LT = preview.getLittleTile(te);
 		
 		if (LT == null)
@@ -62,15 +66,6 @@ public class PlacePreviewTile {
 		List<LittleTile> tiles = mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
 		
 		for (LittleTile tile : tiles) {
-			if (structure != null) {
-				if (!structure.hasMainTile())
-					structure.setMainTile(tile);
-				else {
-					tile.connection = structure.getStructureLink(tile);
-					tile.connection.setLoadedStructure(structure, structure.attribute);
-					structure.addTile(tile);
-				}
-			}
 			tile.place();
 			tile.onPlaced(player, stack, facing);
 		}

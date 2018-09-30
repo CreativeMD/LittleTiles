@@ -8,7 +8,6 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
@@ -41,14 +40,11 @@ public class StructureStringUtils {
 			JsonObject object = new JsonObject();
 			NBTTagCompound nbt = new NBTTagCompound();
 			LittlePreviews previews = null;
-			LittleStructure structure = null;
 			if (stack.getItem() instanceof ItemRecipe) {
 				previews = LittleTilePreview.getPreview(stack);
-				structure = ItemMultiTiles.getLTStructure(stack);
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
 				previews = tile.getLittlePreview(stack);
-				structure = tile.getLittleStructure(stack);
 			}
 			
 			List<String> texturenames = new ArrayList<>();
@@ -140,15 +136,17 @@ public class StructureStringUtils {
 			LittleStructure structure = null;
 			if (stack.getItem() instanceof ItemRecipe) {
 				previews = LittleTilePreview.getPreview(stack);
-				structure = ItemMultiTiles.getLTStructure(stack);
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
 				previews = tile.getLittlePreview(stack);
-				structure = tile.getLittleStructure(stack);
 			}
+			
+			structure = previews.getStructure();
 			
 			previews.context.setOverall(nbt);
 			nbt.setTag("tiles", LittleNBTCompressionTools.writePreviews(previews));
+			if (stack.getTagCompound().hasKey("children"))
+				nbt.setTag("children", stack.getTagCompound().getCompoundTag("children"));
 			
 			if (structure != null) {
 				NBTTagCompound nbtStructure = new NBTTagCompound();
@@ -202,7 +200,9 @@ public class StructureStringUtils {
 			
 			itemNBT.setInteger("tiles", tiles);
 		} else {
-			LittleTilePreview.savePreviewTiles(LittleNBTCompressionTools.readPreviews(LittleGridContext.getOverall(nbt), nbt.getTagList("tiles", 10)), stack);
+			LittleTilePreview.savePreview(LittleNBTCompressionTools.readPreviews(LittleGridContext.getOverall(nbt), nbt.getTagList("tiles", 10)), stack);
+			if (nbt.hasKey("children"))
+				itemNBT.setTag("children", nbt.getCompoundTag("children"));
 		}
 		
 		return stack;

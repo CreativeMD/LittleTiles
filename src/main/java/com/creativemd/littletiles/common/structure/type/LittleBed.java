@@ -18,7 +18,7 @@ import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -281,7 +281,7 @@ public class LittleBed extends LittleStructure {
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}
 	
-	public static class LittleBedParser extends LittleStructureParser<LittleBed> {
+	public static class LittleBedParser extends LittleStructureGuiParser<LittleBed> {
 		
 		public LittleBedParser(String id, GuiParent parent) {
 			super(id, parent);

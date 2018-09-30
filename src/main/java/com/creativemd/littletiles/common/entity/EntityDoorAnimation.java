@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
@@ -167,10 +167,10 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 					structure.isWaitingForApprove = true;
 				
 				if (!world.isRemote || approved) {
-					if (LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null) {
+					if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null) {
 						if (world.isRemote) {
 							waitingForRender = new CopyOnWriteArrayList<>();
-							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, previewPos).keySet());
+							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, previews, previewPos).keySet());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 								if (te instanceof TileEntityLittleTiles) {

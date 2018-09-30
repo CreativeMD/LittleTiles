@@ -39,7 +39,6 @@ import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -170,11 +169,6 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		getMode(stack).setPreviews(previews, stack);
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return null;
 	}
 	
 	@Override
@@ -566,15 +560,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
-			/*
-			 * LittleTile tile = new LittleTileBlock(state.getBlock(),
+			/* LittleTile tile = new LittleTileBlock(state.getBlock(),
 			 * state.getBlock().getMetaFromState(state)); tile.box = new
 			 * LittleTileBox(LittleTile.minPos, LittleTile.minPos, LittleTile.minPos,
 			 * LittleTile.gridSize, LittleTile.gridSize, LittleTile.gridSize);
 			 * List<LittleTilePreview> previews = new ArrayList<>();
 			 * previews.add(tile.getPreviewTile()); PlacePreviewMode.setPreview(stack,
-			 * previews);
-			 */
+			 * previews); */
 		}
 		
 		@Override

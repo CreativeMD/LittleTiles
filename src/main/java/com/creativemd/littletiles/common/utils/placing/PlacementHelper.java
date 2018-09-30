@@ -10,7 +10,6 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.FixedHandler;
 import com.creativemd.littletiles.common.tiles.place.InsideFixedHandler;
@@ -250,7 +249,7 @@ public class PlacementHelper {
 		if (tiles == null && iTile != null)
 			tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
 		
-		PreviewResult result = getPreviews(world, tiles, iTile.getLittleStructure(stack), stack, position, centered, fixed, allowLowResolution, mode);
+		PreviewResult result = getPreviews(world, tiles, stack, position, centered, fixed, allowLowResolution, mode);
 		
 		if (result != null) {
 			if (stack.getTagCompound() == null) {
@@ -275,12 +274,12 @@ public class PlacementHelper {
 	 * @param fixed
 	 *            if the previews should keep it's original boxes
 	 */
-	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, @Nullable LittleStructure structure, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
+	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
 		PreviewResult result = new PreviewResult();
 		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
-		if (tiles != null && tiles.size() > 0) {
+		if (tiles != null && !tiles.isEmpty()) {
 			if (tiles.isAbsolute()) {
 				result.context = tiles.context;
 				result.previews = tiles;
@@ -289,14 +288,13 @@ public class PlacementHelper {
 				result.offset = new LittleTilePos(tiles.getBlockPos(), result.context, LittleTileVec.ZERO);
 				position.assign(result.offset);
 				result.placePreviews = new ArrayList<>();
-				for (int i = 0; i < tiles.size(); i++) {
-					result.placePreviews.add(tiles.get(i).getPlaceableTile(null, true, null));
-				}
+				tiles.getPlacePreviews(result.placePreviews, null, true, null);
+				
 				return result;
 			}
 			
-			if (structure != null) {
-				LittleGridContext structureContext = structure.getMinContext();
+			if (tiles.hasStructure()) {
+				LittleGridContext structureContext = tiles.getMinContext();
 				if (structureContext.size > position.contextVec.context.size)
 					position.convertTo(structureContext);
 			}
@@ -375,30 +373,12 @@ public class PlacementHelper {
 			
 			result.placedFixed = canBePlaceFixed;
 			
+			if ((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == PreviewMode.LINES)
+				if (position.contextVec.vec.get(position.facing.getAxis()) % context.size == 0)
+					offset.contextVec.vec.add(position.facing.getOpposite());
+				
 			// Generating placetiles
-			for (int i = 0; i < tiles.size(); i++) {
-				LittleTilePreview tile = tiles.get(i);
-				if (tile != null) {
-					PlacePreviewTile preview = tile.getPlaceableTile(result.box, canBePlaceFixed, offset.contextVec.vec);
-					if (preview != null) {
-						if ((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == PreviewMode.LINES)
-							if (position.contextVec.vec.get(position.facing.getAxis()) % context.size == 0)
-								preview.box.addOffset(new LittleTileVec(context, position.facing.getOpposite().getDirectionVec()));
-						result.placePreviews.add(preview);
-					}
-				}
-			}
-			
-			if (structure != null) {
-				ArrayList<PlacePreviewTile> newBoxes = structure.getSpecialTiles(context);
-				
-				for (int i = 0; i < newBoxes.size(); i++) {
-					if (!canBePlaceFixed)
-						newBoxes.get(i).box.addOffset(offset.contextVec.vec);
-				}
-				
-				result.placePreviews.addAll(newBoxes);
-			}
+			tiles.getPlacePreviews(result.placePreviews, result.box, canBePlaceFixed, offset.contextVec.vec);
 			return result;
 		}
 		

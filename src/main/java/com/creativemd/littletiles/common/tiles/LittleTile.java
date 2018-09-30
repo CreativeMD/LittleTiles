@@ -103,8 +103,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public static LittleTile CreateandLoadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt) {
-		if (nbt.hasKey("tileID")) // If it's the old tileentity
-		{
+		if (nbt.hasKey("tileID")) { // If it's the old tileentity
 			if (nbt.hasKey("block")) {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");

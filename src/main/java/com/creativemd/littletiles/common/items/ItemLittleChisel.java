@@ -28,7 +28,6 @@ import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
@@ -274,11 +273,6 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
 		getShape(stack).flip(stack.getTagCompound(), axis);
 		return LittleGridContext.get();
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return null;
 	}
 	
 	@Override

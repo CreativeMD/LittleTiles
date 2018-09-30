@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.api;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -31,27 +30,31 @@ public interface ILittleTile {
 	
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews);
 	
-	public default LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
+	public default void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.rotatePreview(rotation, previews.context.rotationCenter);
 		}
+		if (previews.hasStructure()) {
+			previews.getStructure().onRotate(player.world, player, stack, previews.context, rotation, previews.context.rotationCenter);
+			previews.getStructure().writeToNBT(previews.getStructureData());
+		}
 		saveLittlePreview(stack, previews);
-		return previews.context;
 	}
 	
-	public default LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
+	public default void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		for (int i = 0; i < previews.size(); i++) {
 			LittleTilePreview preview = previews.get(i);
 			preview.flipPreview(axis, previews.context.rotationCenter);
 		}
+		if (previews.hasStructure()) {
+			previews.getStructure().onFlip(player.world, player, stack, previews.context, axis, previews.context.rotationCenter);
+			previews.getStructure().writeToNBT(previews.getStructureData());
+		}
 		saveLittlePreview(stack, previews);
-		return previews.context;
 	}
-	
-	public LittleStructure getLittleStructure(ItemStack stack);
 	
 	@SideOnly(Side.CLIENT)
 	public default LittleGridContext getPositionContext(ItemStack stack) {

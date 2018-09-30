@@ -26,11 +26,13 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructurePreviewHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -115,24 +117,6 @@ public class LittleDoor extends LittleDoorBase {
 			doubledRelativeAxis.add(lastMainTileVec.getRelative(absolute));
 		lastMainTileVec = absolute;
 		super.setMainTile(tile);
-	}
-	
-	@Override
-	public LittleGridContext getMinContext() {
-		doubledRelativeAxis.convertToSmallest();
-		return doubledRelativeAxis.context;
-	}
-	
-	@Override
-	public ArrayList<PlacePreviewTile> getSpecialTiles(LittleGridContext context) {
-		if (context.size < doubledRelativeAxis.context.size)
-			throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
-		
-		ArrayList<PlacePreviewTile> boxes = new ArrayList<>();
-		doubledRelativeAxis.convertTo(context);
-		boxes.add(new PlacePreviewTileAxis(new LittleTileBox(doubledRelativeAxis.vec.x, doubledRelativeAxis.vec.y, doubledRelativeAxis.vec.z, doubledRelativeAxis.vec.x + 1, doubledRelativeAxis.vec.y + 1, doubledRelativeAxis.vec.z + 1), null, axis, getAdditionalAxisVec()));
-		doubledRelativeAxis.convertToSmallest();
-		return boxes;
 	}
 	
 	@Override
@@ -525,8 +509,8 @@ public class LittleDoor extends LittleDoorBase {
 		public EnumFacing.Axis axis;
 		public LittleTileVec additionalOffset;
 		
-		public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis, LittleTileVec additionalOffset) {
-			super(box, preview);
+		public PlacePreviewTileAxis(LittleTileBox box, LittleTilePreview preview, EnumFacing.Axis axis, LittleTileVec additionalOffset, LittlePreviews structure) {
+			super(box, preview, structure);
 			this.axis = axis;
 			this.additionalOffset = additionalOffset;
 		}
@@ -538,7 +522,7 @@ public class LittleDoor extends LittleDoorBase {
 		
 		@Override
 		public PlacePreviewTile copy() {
-			return new PlacePreviewTileAxis(box.copy(), null, axis, additionalOffset.copy());
+			return new PlacePreviewTileAxis(box.copy(), null, axis, additionalOffset.copy(), structurePreview);
 		}
 		
 		@Override
@@ -572,9 +556,9 @@ public class LittleDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, LittleStructure structure, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest) {
-			if (structure instanceof LittleDoor) {
-				LittleDoor door = (LittleDoor) structure;
+		public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest) {
+			if (structurePreview.getStructure() instanceof LittleDoor) {
+				LittleDoor door = (LittleDoor) structurePreview.getStructure();
 				LittleTilePos absolute = new LittleTilePos(pos, context, box.getMinVec());
 				if (door.getMainTile() == null)
 					door.selectMainTile();
@@ -616,10 +600,8 @@ public class LittleDoor extends LittleDoorBase {
 			boolean even = false;
 			if (door != null) {
 				tile.axisDirection = door.axis;
-				/*
-				 * tile.axisX = door.axisPoint.x; tile.axisY = door.axisPoint.y; tile.axisZ =
-				 * door.axisPoint.z;
-				 */
+				/* tile.axisX = door.axisPoint.x; tile.axisY = door.axisPoint.y; tile.axisZ =
+				 * door.axisPoint.z; */
 				tile.axisX = door.doubledRelativeAxis.vec.x * 2;
 				tile.axisY = door.doubledRelativeAxis.vec.y * 2;
 				tile.axisZ = door.doubledRelativeAxis.vec.z * 2;
@@ -730,6 +712,30 @@ public class LittleDoor extends LittleDoorBase {
 			} else if (event.source.is("even")) {
 				viewer.setEven(((GuiCheckBox) event.source).value);
 			}
+		}
+		
+	}
+	
+	public static class LittleDoorPreviewHandler extends LittleStructurePreviewHandler {
+		
+		@Override
+		public LittleGridContext getMinContext(LittlePreviews previews) {
+			LittleDoor door = (LittleDoor) previews.getStructure();
+			door.doubledRelativeAxis.convertToSmallest();
+			return door.doubledRelativeAxis.context;
+		}
+		
+		@Override
+		public List<PlacePreviewTile> getSpecialTiles(LittleGridContext context, LittlePreviews previews) {
+			LittleDoor door = (LittleDoor) previews.getStructure();
+			if (context.size < door.doubledRelativeAxis.context.size)
+				throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
+			
+			List<PlacePreviewTile> boxes = new ArrayList<>();
+			door.doubledRelativeAxis.convertTo(context);
+			boxes.add(new PlacePreviewTileAxis(new LittleTileBox(door.doubledRelativeAxis.vec.x, door.doubledRelativeAxis.vec.y, door.doubledRelativeAxis.vec.z, door.doubledRelativeAxis.vec.x + 1, door.doubledRelativeAxis.vec.y + 1, door.doubledRelativeAxis.vec.z + 1), null, door.axis, door.getAdditionalAxisVec(), previews));
+			door.doubledRelativeAxis.convertToSmallest();
+			return boxes;
 		}
 		
 	}

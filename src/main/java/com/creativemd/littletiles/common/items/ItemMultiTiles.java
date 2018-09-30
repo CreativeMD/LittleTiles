@@ -12,7 +12,6 @@ import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -64,11 +63,9 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		/*
-		 * ItemStack stack = player.getHeldItem(hand); if(stack.hasTagCompound()) return
+		/* ItemStack stack = player.getHeldItem(hand); if(stack.hasTagCompound()) return
 		 * Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos,
-		 * hand, facing, hitX, hitY, hitZ);
-		 */
+		 * hand, facing, hitX, hitY, hitZ); */
 		return EnumActionResult.PASS;
 	}
 	
@@ -80,7 +77,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreviewTiles(previews, stack);
+		LittleTilePreview.savePreview(previews, stack);
 	}
 	
 	@Override
@@ -96,15 +93,6 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return getLTStructure(stack);
-	}
-	
-	public static LittleStructure getLTStructure(ItemStack stack) {
-		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
 	
 	@Override

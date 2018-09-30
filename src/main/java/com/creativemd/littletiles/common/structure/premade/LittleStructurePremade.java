@@ -8,6 +8,7 @@ import org.apache.commons.io.IOUtils;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -25,7 +26,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	private static JsonParser parser = new JsonParser();
 	
 	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure) {
-		registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE, null);
+		LittleStructureRegistry.registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE, null);
 		try {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
 			NBTTagCompound structureNBT = new NBTTagCompound();
