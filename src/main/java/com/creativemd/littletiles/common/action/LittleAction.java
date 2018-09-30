@@ -27,7 +27,9 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -351,6 +353,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static void writePreviews(LittlePreviews previews, ByteBuf buf) {
+		buf.writeBoolean(previews.isAbsolute());
+		buf.writeBoolean(previews.hasStructure());
+		if (previews.hasStructure())
+			writeNBT(buf, previews.getStructureData());
+		if (previews.isAbsolute())
+			writePos(buf, ((LittleAbsolutePreviews) previews).pos);
+		
 		writeContext(previews.context, buf);
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
@@ -358,19 +367,17 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static LittlePreviews readPreviews(ByteBuf buf) {
+		boolean absolute = buf.readBoolean();
+		boolean structure = buf.readBoolean();
+		
+		if (absolute)
+			if (structure)
+				return LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviewsStructure(readNBT(buf), readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
+			else
+				return LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
+		if (structure)
+			return LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(readNBT(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
 		return LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), readNBT(buf).getTagList("list", 10));
-	}
-	
-	public static void writeAbsolutePreviews(LittleAbsolutePreviews previews, ByteBuf buf) {
-		writePos(buf, previews.pos);
-		writeContext(previews.context, buf);
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
-		writeNBT(buf, nbt);
-	}
-	
-	public static LittleAbsolutePreviews readAbsolutePreviews(ByteBuf buf) {
-		return (LittleAbsolutePreviews) LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
 	}
 	
 	public static void writePlacementMode(PlacementMode mode, ByteBuf buf) {

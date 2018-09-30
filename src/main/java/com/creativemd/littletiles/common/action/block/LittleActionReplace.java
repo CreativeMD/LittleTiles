@@ -69,9 +69,6 @@ public class LittleActionReplace extends LittleActionInteract {
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
-		if (tile.isChildOfStructure())
-			return false;
-		
 		if (!world.isRemote) {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
@@ -107,14 +104,17 @@ public class LittleActionReplace extends LittleActionInteract {
 				toDestroy.destroy();
 				LittleTilePreview preview = toReplace.copy();
 				preview.box = toDestroy.box;
-				previews.add(preview.getPlaceableTile(null, true, null));
+				previews.add(preview.getPlaceableTile(null, true, null, null));
 			}
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
 			addTilesToInventoryOrDrop(player, unplaceableTiles);
 			
 		} else {
+			if (tile.isChildOfStructure())
+				return false;
+			
 			replacedTiles.addTile(tile);
 			boxes.addBox(tile);
 			addPreviewToInventory(player, replacedTiles);
@@ -127,10 +127,10 @@ public class LittleActionReplace extends LittleActionInteract {
 			drainPreviews(player, toBePlaced);
 			
 			List<PlacePreviewTile> previews = new ArrayList<>();
-			previews.add(toReplace.getPlaceableTile(null, true, null));
+			previews.add(toReplace.getPlaceableTile(null, true, null, null));
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceRelative.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
+			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
 			addTilesToInventoryOrDrop(player, unplaceableTiles);
 		}
 		

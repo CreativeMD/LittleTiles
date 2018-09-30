@@ -45,7 +45,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent;
 
-public class LittleActionPlaceRelative extends LittleAction {
+public class LittleActionPlaceStack extends LittleAction {
 	
 	public PositionResult position;
 	public boolean centered;
@@ -53,7 +53,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 	public PlacementMode mode;
 	public LittlePreviews previews;
 	
-	public LittleActionPlaceRelative(ItemStack stack, LittlePreviews previews, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
+	public LittleActionPlaceStack(ItemStack stack, LittlePreviews previews, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
 		super();
 		this.position = position;
 		this.centered = centered;
@@ -62,8 +62,15 @@ public class LittleActionPlaceRelative extends LittleAction {
 		this.previews = previews;
 	}
 	
-	public LittleActionPlaceRelative() {
+	public LittleActionPlaceStack() {
 		super();
+	}
+	
+	public void checkMode(LittlePreviews previews) {
+		if (previews.hasStructure() && !mode.canPlaceStructures()) {
+			System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
+			this.mode = PlacementMode.getStructureDefault();
+		}
 	}
 	
 	public void checkMode(LittleStructure structure) {
@@ -84,7 +91,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		
 		if (destroyed != null) {
 			destroyed.convertToSmallest();
-			return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, null, PlacementMode.normal, true));
+			return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(destroyed, PlacementMode.normal, true));
 		}
 		return new LittleActionDestroyBoxes(boxes);
 	}
@@ -120,12 +127,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		buf.writeBoolean(centered);
 		buf.writeBoolean(fixed);
 		writePlacementMode(mode, buf);
-		
-		buf.writeBoolean(previews.isAbsolute());
-		if (previews.isAbsolute())
-			writeAbsolutePreviews((LittleAbsolutePreviews) previews, buf);
-		else
-			writePreviews(previews, buf);
+		writePreviews(previews, buf);
 	}
 	
 	@Override
@@ -134,21 +136,16 @@ public class LittleActionPlaceRelative extends LittleAction {
 		this.centered = buf.readBoolean();
 		this.fixed = buf.readBoolean();
 		this.mode = readPlacementMode(buf);
-		
-		if (buf.readBoolean())
-			this.previews = readAbsolutePreviews(buf);
-		else
-			this.previews = readPreviews(buf);
+		this.previews = readPreviews(buf);
 	}
 	
 	public LittlePlaceResult placeTile(EntityPlayer player, ItemStack stack, World world, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) throws LittleActionException {
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-		LittleStructure structure = iTile.getLittleStructure(stack);
-		checkMode(structure);
-		if (structure != null)
-			structure.setTiles(new HashMapList<>());
+		checkMode(previews);
+		if (previews.hasStructure())
+			previews.getStructure().setTiles(new HashMapList<>());
 		
-		PreviewResult result = PlacementHelper.getPreviews(world, previews, structure, stack, position, centered, fixed, false, mode);
+		PreviewResult result = PlacementHelper.getPreviews(world, previews, stack, position, centered, fixed, false, mode);
 		
 		if (result == null)
 			return null;
@@ -165,7 +162,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 				canDrainPreviews(player, result.previews);
 		}
 		
-		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, structure, mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
+		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
 		
 		if (placedTiles != null) {
 			boxes = placedTiles.placedBoxes;
@@ -207,7 +204,7 @@ public class LittleActionPlaceRelative extends LittleAction {
 		}
 	}
 	
-	private static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, HashMap<BlockPos, PlacePreviews> splitted, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
+	private static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, HashMap<BlockPos, PlacePreviews> splitted, LittleStructure parentStructure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
 		if (splitted == null)
 			return null;
 		
@@ -246,18 +243,19 @@ public class LittleActionPlaceRelative extends LittleAction {
 						
 						placeTiles.ensureBothAreEqual(te);
 						
-						for (int j = 0; j < placeTiles.size(); j++) {
-							for (LittleTile LT : placeTiles.get(j).placeTile(player, stack, coord, te.getContext(), te, structure, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
-								if (structure == null || structure.shouldPlaceTile(LT)) {
+						for (PlacePreviewTile placeTile : placeTiles) {
+							for (LittleTile LT : placeTile.placeTile(player, stack, coord, te.getContext(), te, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
+								if (placeTile.structurePreview == null || placeTile.structurePreview.getStructure().shouldPlaceTile(LT)) {
 									if (!soundsToBePlayed.contains(LT.getSound()))
 										soundsToBePlayed.add(LT.getSound());
-									if (structure != null) {
-										if (!structure.hasMainTile())
-											structure.setMainTile(LT);
+									
+									if (placeTile.structurePreview != null) {
+										if (!placeTile.structurePreview.getStructure().hasMainTile())
+											placeTile.structurePreview.getStructure().setMainTile(LT);
 										else {
-											LT.connection = structure.getStructureLink(LT);
-											LT.connection.setLoadedStructure(structure, structure.attribute);
-											structure.addTile(LT);
+											LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
+											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure(), placeTile.structurePreview.getStructure().attribute);
+											placeTile.structurePreview.getStructure().addTile(LT);
 										}
 									}
 									
@@ -272,19 +270,18 @@ public class LittleActionPlaceRelative extends LittleAction {
 				}
 			}
 			
-			for (int j = 0; j < lastPlacedTiles.size(); j++) {
-				for (LittleTile tile : lastPlacedTiles.get(j).tile.placeTile(player, stack, lastPlacedTiles.get(j).pos, lastPlacedTiles.get(j).context, null, structure, unplaceableTiles, removedTiles, mode, facing, true)) {
+			for (LastPlacedTile lastPlacedTile : lastPlacedTiles) {
+				for (LittleTile tile : lastPlacedTile.tile.placeTile(player, stack, lastPlacedTile.pos, lastPlacedTile.context, null, unplaceableTiles, removedTiles, mode, facing, true)) {
 					if (tile != null)
 						placed.addPlacedTile(tile);
 				}
 			}
 			
-			if (structure != null) {
-				if (structure.getMainTile() == null)
+			if (parentStructure != null) {
+				if (parentStructure.getMainTile() == null)
 					throw new LittleActionException("Missing maintile of structure. Placed " + placed.placedPreviews.size() + " tile(s).");
-				structure.setMainTile(structure.getMainTile());
-				structure.combineTiles();
-				structure.placedStructure(stack);
+				
+				parentStructure.placedStructure(stack);
 			}
 			
 			for (int i = 0; i < soundsToBePlayed.size(); i++) {

@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.structure.type;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -39,7 +39,7 @@ public class LittleNoClipStructure extends LittleStructure {
 			entityIn.setInWeb();
 	}
 	
-	public static class LittleNoClipStructureParser extends LittleStructureParser<LittleNoClipStructure> {
+	public static class LittleNoClipStructureParser extends LittleStructureGuiParser<LittleNoClipStructure> {
 		
 		public LittleNoClipStructureParser(String id, GuiParent parent) {
 			super(id, parent);

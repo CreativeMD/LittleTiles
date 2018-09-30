@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -134,33 +135,32 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		public LittleAbsolutePreviews previews;
 		public boolean requiresItemStack;
-		public NBTTagCompound structureNBT;
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
 			if (!structure.hasLoaded())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
-			previews = new LittleAbsolutePreviews(structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			structure.writeToNBTPreview(structureNBT, previews.pos);
+			previews = new LittleAbsolutePreviewsStructure(structureNBT, structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.entrySet()) {
 				previews.addTiles(entry.getValue());
 			}
 			previews.convertToSmallest();
 			requiresItemStack = structure.canOnlyBePlacedByItemStack();
-			this.structureNBT = new NBTTagCompound();
-			structure.writeToNBTPreview(structureNBT, previews.pos);
+			
 			this.structure = structure;
 		}
 		
 		public LittleAction getPlaceAction() {
-			LittleStructure structure = LittleStructure.createAndLoadStructure(structureNBT, null);
 			if (requiresItemStack)
-				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, structure, PlacementMode.all, false);
-			return new LittleActionPlaceAbsolute(previews, structure, PlacementMode.all, false);
+				return new LittleActionPlaceAbsolute.LittleActionPlaceAbsolutePremade(previews, PlacementMode.all, false);
+			return new LittleActionPlaceAbsolute(previews, PlacementMode.all, false);
 		}
 		
 		@Override
 		public int hashCode() {
-			return structureNBT.hashCode();
+			return previews.getStructureData().hashCode();
 		}
 		
 		@Override

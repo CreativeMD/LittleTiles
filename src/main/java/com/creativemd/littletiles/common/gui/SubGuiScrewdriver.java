@@ -170,7 +170,7 @@ public class SubGuiScrewdriver extends SubGui {
 						previews.addPreview(pos, tile.getPreviewTile(), boxes.context);
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));
-					actions.add(new LittleActionPlaceAbsolute(previews, null, PlacementMode.all, false));
+					actions.add(new LittleActionPlaceAbsolute(previews, PlacementMode.all, false));
 				}
 			}
 			

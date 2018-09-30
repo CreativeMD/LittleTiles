@@ -7,10 +7,12 @@ import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructure.LittleStructureEntry;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructureEntry;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
@@ -20,7 +22,7 @@ public class SubGuiRecipe extends SubGui {
 	
 	public ItemStack stack;
 	public LittleStructure structure;
-	public LittleStructureParser parser;
+	public LittleStructureGuiParser parser;
 	
 	public SubGuiRecipe(ItemStack stack) {
 		super();
@@ -31,17 +33,18 @@ public class SubGuiRecipe extends SubGui {
 	public void createControls() {
 		ArrayList<String> lines = new ArrayList<>();
 		lines.add("none");
-		lines.addAll(LittleStructure.getStructureTypeNames());
+		lines.addAll(LittleStructureRegistry.getStructureTypeNames());
 		controls.add(new GuiLabel("type:", 2, 7));
 		GuiComboBox comboBox = new GuiComboBox("types", 32, 5, 70, lines);
-		LittleStructure structure = ItemMultiTiles.getLTStructure(stack);
+		LittlePreviews previews = LittleTilePreview.getPreview(stack);
+		LittleStructure structure = previews.getStructure();
 		if (structure != null) {
 			this.structure = structure;
-			comboBox.index = lines.indexOf(structure.getIDOfStructure());
+			comboBox.index = lines.indexOf(structure.structureID);
 			if (comboBox.index == -1)
 				comboBox.index = 0;
 			else
-				comboBox.caption = structure.getIDOfStructure();
+				comboBox.caption = structure.structureID;
 		}
 		controls.add(comboBox);
 		controls.add(new GuiButton("save", 115, 140, 50) {
@@ -78,9 +81,9 @@ public class SubGuiRecipe extends SubGui {
 			removeListener(parser);
 		
 		LittleStructure saved = this.structure;
-		if (saved != null && !saved.getIDOfStructure().equals(id))
+		if (saved != null && !saved.structureID.equals(id))
 			saved = null;
-		LittleStructureEntry entry = LittleStructure.getStructureEntryByID(id);
+		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(id);
 		if (entry != null) {
 			parser = entry.createParser(this);
 			if (parser != null) {

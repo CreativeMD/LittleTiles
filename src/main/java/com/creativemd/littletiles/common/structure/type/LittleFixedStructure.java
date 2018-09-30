@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.structure.type;
 
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,7 +19,7 @@ public class LittleFixedStructure extends LittleStructure {
 		
 	}
 	
-	public static class LittleFixedStructureParser extends LittleStructureParser<LittleFixedStructure> {
+	public static class LittleFixedStructureParser extends LittleStructureGuiParser<LittleFixedStructure> {
 		
 		public LittleFixedStructureParser(String id, GuiParent parent) {
 			super(id, parent);

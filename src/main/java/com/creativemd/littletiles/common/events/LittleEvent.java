@@ -11,7 +11,7 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
@@ -258,7 +258,7 @@ public class LittleEvent {
 		if (iTile.onRightClick(player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver)) {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack)) {
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
-				new LittleActionPlaceRelative(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
+				new LittleActionPlaceStack(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
 				
 				PreviewRenderer.marked = null;
 			}

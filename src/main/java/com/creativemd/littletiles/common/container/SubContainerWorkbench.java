@@ -34,22 +34,15 @@ public class SubContainerWorkbench extends SubContainer {
 		addPlayerSlotsToContainer(player);
 	}
 	
-	/* public static ArrayList<BlockEntry> getMissing(ArrayList<LittleTilePreview> tiles, ArrayList<BlockEntry> entries)
-	 * {
-	 * ArrayList<BlockEntry> missing = new ArrayList<>();
-	 * for (int i = 0; i < tiles.size(); i++) {
-	 * Block blockofTile = tiles.get(i).getPreviewBlock();
-	 * int meta = tiles.get(i).getPreviewBlockMeta();
-	 * double size = tiles.get(i).size.getPercentVolume();
-	 * int j = 0;
-	 * boolean found = false;
-	 * while(j < entries.size())
-	 * {
-	 * if(blockofTile == entries.get(j).block && meta == entries.get(j).meta)
-	 * {
-	 * double amount = Math.min(entries.get(j).value, size);
-	 * entries.get(j).value -= amount;
-	 * size -= amount;
+	/* public static ArrayList<BlockEntry> getMissing(ArrayList<LittleTilePreview>
+	 * tiles, ArrayList<BlockEntry> entries) { ArrayList<BlockEntry> missing = new
+	 * ArrayList<>(); for (int i = 0; i < tiles.size(); i++) { Block blockofTile =
+	 * tiles.get(i).getPreviewBlock(); int meta =
+	 * tiles.get(i).getPreviewBlockMeta(); double size =
+	 * tiles.get(i).size.getPercentVolume(); int j = 0; boolean found = false;
+	 * while(j < entries.size()) { if(blockofTile == entries.get(j).block && meta ==
+	 * entries.get(j).meta) { double amount = Math.min(entries.get(j).value, size);
+	 * entries.get(j).value -= amount; size -= amount;
 	 * 
 	 * if(entries.get(j).value <= 0)
 	 * {
@@ -58,26 +51,10 @@ public class SubContainerWorkbench extends SubContainer {
 	 * continue;
 	 * }
 	 * 
-	 * if(size <= 0)
-	 * {
-	 * found = true;
-	 * break;
-	 * }
-	 * }
-	 * j++;
-	 * }
-	 * if(!found)
-	 * {
-	 * BlockEntry entry = new BlockEntry(blockofTile, meta, size);
-	 * int index = missing.indexOf(entry);
-	 * if(index == -1)
-	 * missing.add(entry);
-	 * else
-	 * missing.get(index).value += size;
-	 * }
-	 * }
-	 * return missing;
-	 * } */
+	 * if(size <= 0) { found = true; break; } } j++; } if(!found) { BlockEntry entry
+	 * = new BlockEntry(blockofTile, meta, size); int index =
+	 * missing.indexOf(entry); if(index == -1) missing.add(entry); else
+	 * missing.get(index).value += size; } } return missing; } */
 	
 	@Override
 	public void onClosed() {
@@ -111,7 +88,7 @@ public class SubContainerWorkbench extends SubContainer {
 				LittlePreviews previews = ChiselsAndBitsManager.getPreviews(stack1);
 				if (previews != null && !previews.isEmpty() && stack2.isEmpty()) {
 					stack2 = new ItemStack(LittleTiles.multiTiles);
-					LittleTilePreview.savePreviewTiles(previews, stack2);
+					LittleTilePreview.savePreview(previews, stack2);
 					basic.setInventorySlotContents(0, ItemStack.EMPTY);
 					basic.setInventorySlotContents(1, stack2);
 				}

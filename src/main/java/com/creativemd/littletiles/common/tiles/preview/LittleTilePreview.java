@@ -251,13 +251,11 @@ public class LittleTilePreview implements ICombinable {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
 	
-	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
-		/* if(this.box == null) return new PlacePreviewTile(box.copy(), this); else{ */
+	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset, LittlePreviews previews) {
 		LittleTileBox newBox = this.box.copy();
 		if (!fixed)
 			newBox.addOffset(offset);
-		return new PlacePreviewTile(newBox, this);
-		//}
+		return new PlacePreviewTile(newBox, this, previews);
 	}
 	
 	//================Rotating/Flipping================
@@ -370,14 +368,29 @@ public class LittleTilePreview implements ICombinable {
 		nbt.removeTag("pos");
 		nbt.removeTag("tiles");
 		nbt.removeTag("count");
+		nbt.removeTag("children");
 	}
 	
-	public static void savePreviewTiles(LittlePreviews previews, ItemStack stack) {
+	public static NBTTagCompound saveChildPreviews(LittlePreviews previews) {
+		NBTTagCompound nbt = new NBTTagCompound();
+		if (previews.hasStructure())
+			nbt.setTag("structure", previews.getStructureData());
+		
+		NBTTagList list = LittleNBTCompressionTools.writePreviews(previews);
+		nbt.setTag("tiles", list);
+		nbt.setInteger("count", previews.size());
+		return nbt;
+	}
+	
+	public static void savePreview(LittlePreviews previews, ItemStack stack) {
 		if (previews instanceof LittleAbsolutePreviews)
 			throw new IllegalArgumentException("Absolute positions cannot be saved!");
 		
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
+		
+		if (previews.hasStructure())
+			stack.getTagCompound().setTag("structure", previews.getStructureData());
 		
 		previews.context.set(stack.getTagCompound());
 		
@@ -388,21 +401,19 @@ public class LittleTilePreview implements ICombinable {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		for (int i = 0; i < previews.size(); i++) {
-			LittleTilePreview preview = previews.get(i);
+		for (LittleTilePreview preview : previews.allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
 			maxX = Math.max(maxX, preview.box.maxX);
 			maxY = Math.max(maxY, preview.box.maxY);
 			maxZ = Math.max(maxZ, preview.box.maxZ);
-			
 		}
 		
 		new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ).writeToNBT("size", stack.getTagCompound());
 		new LittleTileVec(minX, minY, minZ).writeToNBT("min", stack.getTagCompound());
 		
-		if (previews.size() >= lowResolutionMode) {
+		if (previews.totalSize() >= lowResolutionMode) {
 			NBTTagList list = new NBTTagList();
 			//BlockPos lastPos = null;
 			
@@ -423,6 +434,16 @@ public class LittleTilePreview implements ICombinable {
 		stack.getTagCompound().setTag("tiles", list);
 		
 		stack.getTagCompound().setInteger("count", previews.size());
+		
+		if (previews.hasChildren()) {
+			NBTTagList children = new NBTTagList();
+			for (LittlePreviews child : previews.getChildren()) {
+				children.appendTag(saveChildPreviews(child));
+			}
+			
+			stack.getTagCompound().setTag("children", children);
+		} else
+			stack.getTagCompound().removeTag("children");
 	}
 	
 	public static void saveTiles(World world, LittleGridContext context, List<LittleTile> tiles, ItemStack stack) {
@@ -430,14 +451,14 @@ public class LittleTilePreview implements ICombinable {
 		
 		LittlePreviews previews = new LittlePreviews(context);
 		previews.addTiles(tiles);
-		savePreviewTiles(previews, stack);
+		savePreview(previews, stack);
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(LittlePreviews previews) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		for (int i = 0; i < previews.size(); i++) {
-			cubes.add(previews.get(i).getCubeBlock(previews.context));
+		for (LittleTilePreview preview : previews.allPreviews()) {
+			cubes.add(preview.getCubeBlock(previews.context));
 		}
 		return cubes;
 	}
@@ -453,8 +474,8 @@ public class LittleTilePreview implements ICombinable {
 			}
 		} else {
 			LittlePreviews previews = getPreview(stack);
-			for (int i = 0; i < previews.size(); i++) {
-				cubes.add(previews.get(i).getCubeBlock(previews.context));
+			for (LittleTilePreview preview : previews.allPreviews()) {
+				cubes.add(preview.getCubeBlock(previews.context));
 			}
 		}
 		return cubes;

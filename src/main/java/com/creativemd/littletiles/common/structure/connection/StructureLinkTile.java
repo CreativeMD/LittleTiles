@@ -39,12 +39,13 @@ public class StructureLinkTile extends StructureLinkBase<LittleTile> {
 	@Override
 	protected void connect(World world, LittleTile mainTile) {
 		
-		if (!this.structure.LoadList()) {
+		this.structure = mainTile.connection.getStructureWithoutLoading();
+		
+		if (structure == null || !this.structure.LoadList()) {
 			new RuntimeException("Failed to connect to structure because the list cannot be loaded!").printStackTrace();
+			structure = null;
 			return;
 		}
-		
-		this.structure = mainTile.connection.getStructureWithoutLoading();
 		
 		if (!this.structure.containsTile(parent))
 			this.structure.addTile(parent);

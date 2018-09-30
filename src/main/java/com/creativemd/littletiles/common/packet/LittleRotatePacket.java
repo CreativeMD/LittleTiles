@@ -4,15 +4,12 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumHand;
 
 public class LittleRotatePacket extends CreativeCorePacket {
@@ -53,16 +50,8 @@ public class LittleRotatePacket extends CreativeCorePacket {
 				itile = (ILittleTile) Block.getBlockFromItem(stack.getItem());
 			}
 			
-			if (itile != null) {
-				LittleGridContext context = itile.rotateLittlePreview(stack, rotation);
-				LittleStructure structure = itile.getLittleStructure(stack);
-				if (structure != null) {
-					structure.onRotate(player.world, player, stack, context, rotation, context.rotationCenter);
-					NBTTagCompound nbt = new NBTTagCompound();
-					structure.writeToNBT(nbt);
-					stack.getTagCompound().setTag("structure", nbt);
-				}
-			}
+			if (itile != null)
+				itile.rotateLittlePreview(player, stack, rotation);
 		}
 		
 		if (stack.getItem() instanceof ISpecialBlockSelector) {

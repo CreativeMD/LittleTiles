@@ -12,7 +12,7 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -97,7 +97,7 @@ public class LittleStorage extends LittleStructure {
 		return true;
 	}
 	
-	public static class LittleStorageParser extends LittleStructureParser<LittleStorage> {
+	public static class LittleStorageParser extends LittleStructureGuiParser<LittleStorage> {
 		
 		public LittleStorageParser(String id, GuiParent parent) {
 			super(id, parent);
@@ -122,7 +122,7 @@ public class LittleStorage extends LittleStructure {
 				if (previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
 					previews.get(i).setInvisibile(storage.invisibleStorageTiles);
 			}
-			LittleTilePreview.savePreviewTiles(previews, stack);
+			LittleTilePreview.savePreview(previews, stack);
 			storage.inventorySize = getSizeOfInventory(previews);
 			storage.stackSizeLimit = maxSlotStackSize;
 			storage.updateNumberOfSlots();

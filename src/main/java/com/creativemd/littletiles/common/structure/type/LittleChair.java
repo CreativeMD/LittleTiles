@@ -6,7 +6,7 @@ import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureParser;
+import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 
@@ -51,7 +51,7 @@ public class LittleChair extends LittleStructure {
 		return true;
 	}
 	
-	public static class LittleChairParser extends LittleStructureParser<LittleChair> {
+	public static class LittleChairParser extends LittleStructureGuiParser<LittleChair> {
 		
 		public LittleChairParser(String id, GuiParent parent) {
 			super(id, parent);

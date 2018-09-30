@@ -6,12 +6,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleStructureParser<T extends LittleStructure> {
+public abstract class LittleStructureGuiParser<T extends LittleStructure> {
 	
 	public final String structureID;
 	public final GuiParent parent;
 	
-	public LittleStructureParser(String id, GuiParent parent) {
+	public LittleStructureGuiParser(String id, GuiParent parent) {
 		this.structureID = id;
 		this.parent = parent;
 	}

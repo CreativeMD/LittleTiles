@@ -19,7 +19,10 @@ public abstract class PlacementMode {
 	
 	private static LinkedHashMap<String, PlacementMode> modes = new LinkedHashMap<>();
 	
-	/** Tries to place all tiles, fails if the main blockpos (the player aimed at) cannot be placed entirely. **/
+	/**
+	 * Tries to place all tiles, fails if the main block pos (the player aimed at)
+	 * cannot be placed entirely.
+	 **/
 	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS);
 	
 	/** Tries to fill in the tiles where it is possible. **/

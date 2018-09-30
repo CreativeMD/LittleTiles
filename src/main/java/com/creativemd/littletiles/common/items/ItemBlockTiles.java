@@ -10,7 +10,6 @@ import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -132,11 +131,6 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			}
 		}
 		return cubes;
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return null;
 	}
 	
 	@Override
