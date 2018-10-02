@@ -219,6 +219,15 @@ public class LittleTiles {
 		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
 		
+		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored", LittleTilePreviewHandler.defaultHandler);
+		
+		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle", LittleTilePreviewHandler.defaultHandler);
+		
+		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
+		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
+		
 		LittleStructureRegistry.initStructures();
 	}
 	
@@ -274,15 +283,6 @@ public class LittleTiles {
 		GameRegistry.registerTileEntity(TileEntityLittleTilesRendered.class, "LittleTilesTileEntityRendered");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class, "LittleTilesTileEntityTickingRendered");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
-		
-		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
-		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity", LittleTilePreviewHandler.defaultHandler);
-		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored", LittleTilePreviewHandler.defaultHandler);
-		
-		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle", LittleTilePreviewHandler.defaultHandler);
-		
-		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
-		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
 		
 		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
 			
