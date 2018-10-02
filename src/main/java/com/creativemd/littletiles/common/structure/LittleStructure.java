@@ -127,7 +127,10 @@ public abstract class LittleStructure {
 		this.mainTile.connection = new StructureMainTile(mainTile, this);
 		updateStructure();
 		
-		if (!containsTile(tile))
+		if (tiles == null) {
+			tiles = new HashMapList<>();
+			tiles.add(mainTile.te, mainTile);
+		} else if (!containsTile(tile))
 			addTile(tile);
 		
 		for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {

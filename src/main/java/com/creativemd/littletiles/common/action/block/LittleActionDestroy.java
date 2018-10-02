@@ -141,7 +141,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			if (!structure.hasLoaded())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
 			NBTTagCompound structureNBT = new NBTTagCompound();
-			structure.writeToNBTPreview(structureNBT, previews.pos);
+			structure.writeToNBTPreview(structureNBT, structure.getMainTile().te.getPos());
 			previews = new LittleAbsolutePreviewsStructure(structureNBT, structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.entrySet()) {
 				previews.addTiles(entry.getValue());

@@ -35,7 +35,7 @@ public class PlacePreviewTile {
 	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview, LittlePreviews previews) {
 		this.box = box;
 		this.preview = preview;
-		if (previews.hasStructure())
+		if (previews != null && previews.hasStructure())
 			this.structurePreview = previews;
 	}
 	
