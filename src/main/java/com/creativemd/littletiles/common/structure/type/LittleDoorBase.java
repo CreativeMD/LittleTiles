@@ -20,8 +20,10 @@ import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
 
@@ -101,9 +103,11 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public abstract LittleDoorBase copyToPlaceDoor();
 	
-	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews) {
+	public List<PlacePreviewTile> getAdditionalPreviews(LittlePreviews previews, PlacePreviews placePreviews) {
 		return new ArrayList<>();
 	}
+	
+	public abstract LittleGridContext getMinContext();
 	
 	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureGuiParser<T> {
 		

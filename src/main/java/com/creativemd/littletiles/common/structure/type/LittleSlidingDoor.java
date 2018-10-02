@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -112,12 +113,20 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		LittleTileVec offset = new LittleTileVec(moveDirection);
 		offset.scale(moveDistance);
 		placedAxis = new LittleTilePos(pos, moveContext);
-		/*
-		 * placedAxis.contextVec.vec.add(offset);
-		 * placedAxis.removeInternalBlockOffset(); pos = placedAxis.pos;
-		 */
+		/* placedAxis.contextVec.vec.add(offset);
+		 * placedAxis.removeInternalBlockOffset(); pos = placedAxis.pos; */
 		
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, moveContext);
+		LittleSlidingDoor structure = new LittleSlidingDoor();
+		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
+		structure.duration = duration;
+		structure.moveDirection = moveDirection.getOpposite();
+		structure.moveDistance = moveDistance;
+		structure.moveContext = moveContext;
+		structure.setTiles(new HashMapList<>());
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		structure.writeToNBTPreview(structureNBT, pos);
+		
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, moveContext);
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			previews.addTile(tile);
@@ -129,16 +138,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			offset.convertTo(moveContext, previews.context);
 		
 		for (LittleTilePreview preview : previews) {
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, offset));
+			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, offset, previews));
 		}
-		
-		LittleSlidingDoor structure = new LittleSlidingDoor();
-		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
-		structure.duration = duration;
-		structure.moveDirection = moveDirection.getOpposite();
-		structure.moveDistance = moveDistance;
-		structure.moveContext = moveContext;
-		structure.setTiles(new HashMapList<>());
 		
 		LittleTileVec moveVec = new LittleTileVec(moveDirection);
 		moveVec.scale(moveDistance);
@@ -225,8 +226,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		public void buttonClicked(GuiControlClickEvent event) {
 			if (event.source.is("direction")) {
 				EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
-				/*
-				 * GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
+				/* GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
 				 * 
 				 * LittleTileSize size = LittleTilePreview.getSize(gui.stack);
 				 * 
@@ -234,8 +234,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				 * size.getSizeOfAxis(direction.getAxis())+1; if(gui.structure instanceof
 				 * LittleSlidingDoor && ((LittleSlidingDoor) gui.structure).moveDirection ==
 				 * direction) slider.value = ((LittleSlidingDoor) gui.structure).moveDistance;
-				 * else slider.value = slider.maxValue-1;
-				 */
+				 * else slider.value = slider.maxValue-1; */
 			}
 			
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");

@@ -264,15 +264,13 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public LittleGridContext rotateLittlePreview(ItemStack stack, Rotation rotation) {
+	public void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
 		getShape(stack).rotate(stack.getTagCompound(), rotation);
-		return LittleGridContext.get();
 	}
 	
 	@Override
-	public LittleGridContext flipLittlePreview(ItemStack stack, Axis axis) {
+	public void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 		getShape(stack).flip(stack.getTagCompound(), axis);
-		return LittleGridContext.get();
 	}
 	
 	@Override

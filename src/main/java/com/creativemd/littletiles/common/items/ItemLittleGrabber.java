@@ -603,7 +603,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
-			LittleTilePreview.savePreviewTiles(previews, stack);
+			LittleTilePreview.savePreview(previews, stack);
 		}
 		
 		public static BlockPos getOrigin(ItemStack stack) {

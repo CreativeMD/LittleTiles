@@ -13,7 +13,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -58,7 +57,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreviewTiles(previews, stack);
+		LittleTilePreview.savePreview(previews, stack);
 	}
 	
 	@Override
@@ -144,11 +143,6 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		return ItemModelCache.getCache(stack, facing);
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return ItemMultiTiles.getLTStructure(stack);
 	}
 	
 	@Override

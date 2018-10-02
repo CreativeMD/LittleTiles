@@ -9,7 +9,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class StructureLinkTile extends StructureLinkBase<LittleTile> {
+public class StructureLinkTile extends StructureLinkBaseRelative<LittleTile> {
 	
 	public StructureLinkTile(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleTile parent) {
 		super(te, coord, context, identifier, attribute, parent);
