@@ -110,7 +110,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		stack.getTagCompound().removeTag("y");
 		stack.getTagCompound().removeTag("z");
 		
-		LittleTilePreview.savePreviewTiles(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
+		LittleTilePreview.savePreview(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
 	}
 	
 	@Override

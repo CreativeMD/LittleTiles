@@ -243,37 +243,39 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	protected Iterator<LittleTilePreview> allPreviewsIterator() {
-		return new Iterator<LittleTilePreview>() {
-			
-			public int i = -1;
-			public Iterator<LittleTilePreview> subIterator = previews.iterator();
-			public List<? extends LittlePreviews> children = getChildren();
-			
-			@Override
-			public boolean hasNext() {
-				if (subIterator.hasNext())
-					return true;
+		if (hasChildren())
+			return new Iterator<LittleTilePreview>() {
 				
-				i++;
+				public int i = -1;
+				public Iterator<LittleTilePreview> subIterator = previews.iterator();
+				public List<? extends LittlePreviews> children = getChildren();
 				
-				while (i < previews.size() && !subIterator.hasNext()) {
-					subIterator = children.get(i).allPreviewsIterator();
+				@Override
+				public boolean hasNext() {
+					if (subIterator.hasNext())
+						return true;
+					
 					i++;
+					
+					while (i < previews.size() && !subIterator.hasNext()) {
+						subIterator = children.get(i).allPreviewsIterator();
+						i++;
+					}
+					
+					return subIterator.hasNext();
 				}
 				
-				return subIterator.hasNext();
-			}
-			
-			@Override
-			public LittleTilePreview next() {
-				return subIterator.next();
-			}
-			
-			@Override
-			public void remove() {
-				subIterator.remove();
-			}
-		};
+				@Override
+				public LittleTilePreview next() {
+					return subIterator.next();
+				}
+				
+				@Override
+				public void remove() {
+					subIterator.remove();
+				}
+			};
+		return previews.iterator();
 	}
 	
 	public Iterable<LittleTilePreview> allPreviews() {

@@ -5,7 +5,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,33 +14,28 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public abstract class StructureLinkBase<T> extends LittleTileIdentifierStructure implements IStructureConnector<T> {
+public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierStructureAbsolute implements IStructureConnector<T> {
 	
 	protected LittleStructure structure;
 	protected final T parent;
 	
-	public StructureLinkBase(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
-		super(te, coord, context, identifier, attribute);
+	public StructureLinkBaseAbsolute(LittleTile tile, LittleStructureAttribute attribute, T parent) {
+		super(tile, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBase(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
-		super(origin, coord, context, identifier, attribute);
+	public StructureLinkBaseAbsolute(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+		super(te, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBase(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
-		super(baseX, baseY, baseZ, coord, context, identifier, attribute);
+	public StructureLinkBaseAbsolute(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+		super(pos, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBase(NBTTagCompound nbt, T parent) {
+	public StructureLinkBaseAbsolute(NBTTagCompound nbt, T parent) {
 		super(nbt);
-		this.parent = parent;
-	}
-	
-	protected StructureLinkBase(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
-		super(relativeX, relativeY, relativeZ, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
@@ -51,8 +46,17 @@ public abstract class StructureLinkBase<T> extends LittleTileIdentifierStructure
 	protected boolean loadingStructure;
 	
 	@Override
+	public BlockPos getStructurePosition() {
+		return pos;
+	}
+	
+	@Override
 	public LittleStructure getStructureWithoutLoading() {
 		return structure;
+	}
+	
+	protected World getWorld(World world) {
+		return world;
 	}
 	
 	@Override
@@ -64,6 +68,8 @@ public abstract class StructureLinkBase<T> extends LittleTileIdentifierStructure
 		
 		if (structure != null)
 			return true;
+		
+		world = getWorld(world);
 		
 		if (world == null)
 			return false;

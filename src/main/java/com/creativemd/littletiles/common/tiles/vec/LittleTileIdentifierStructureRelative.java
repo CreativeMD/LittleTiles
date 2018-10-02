@@ -7,31 +7,31 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class LittleTileIdentifierStructure extends LittleTileIdentifierRelative {
+public class LittleTileIdentifierStructureRelative extends LittleTileIdentifierRelative {
 	
 	public LittleStructureAttribute attribute;
 	
-	public LittleTileIdentifierStructure(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleTileIdentifierStructureRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
 		super(te, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleTileIdentifierStructure(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleTileIdentifierStructureRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
 		super(origin, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleTileIdentifierStructure(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleTileIdentifierStructureRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
 		super(baseX, baseY, baseZ, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	protected LittleTileIdentifierStructure(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	protected LittleTileIdentifierStructureRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
 		super(relativeX, relativeY, relativeZ, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleTileIdentifierStructure(NBTTagCompound nbt) {
+	public LittleTileIdentifierStructureRelative(NBTTagCompound nbt) {
 		super(nbt);
 		this.attribute = LittleStructureAttribute.get(nbt.getInteger("attr"));
 	}
@@ -48,8 +48,8 @@ public class LittleTileIdentifierStructure extends LittleTileIdentifierRelative 
 		return super.toString() + "|" + attribute;
 	}
 	
-	public LittleTileIdentifierStructure copy() {
-		return new LittleTileIdentifierStructure(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone(), attribute);
+	public LittleTileIdentifierStructureRelative copy() {
+		return new LittleTileIdentifierStructureRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone(), attribute);
 	}
 	
 }

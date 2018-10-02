@@ -18,6 +18,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructureEntry;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
@@ -28,7 +29,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
@@ -81,8 +82,8 @@ public abstract class LittleStructure {
 	
 	public String name;
 	
-	public StructureLink parent;
-	public LinkedHashMap<Integer, StructureLink> children;
+	public IStructureChildConnector parent;
+	public LinkedHashMap<Integer, IStructureChildConnector> children;
 	public List<LittleStructure> tempChildren;
 	
 	public LittleStructure() {
@@ -145,8 +146,8 @@ public abstract class LittleStructure {
 		
 	}
 	
-	public LittleTileIdentifierStructure getMainTileCoord(BlockPos pos) {
-		return new LittleTileIdentifierStructure(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
+	public LittleTileIdentifierStructureRelative getMainTileCoord(BlockPos pos) {
+		return new LittleTileIdentifierStructureRelative(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
 	}
 	
 	public StructureLinkTile getStructureLink(LittleTile tile) {
@@ -277,6 +278,18 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
+	public boolean loadChildren() {
+		if (children == null || children.isEmpty())
+			return true;
+		
+		for (IStructureChildConnector child : children.values()) {
+			if (!child.isConnected(mainTile.te.getWorld()))
+				return false;
+		}
+		
+		return true;
+	}
+	
 	public HashMap<BlockPos, Integer> tilesToLoad = null;
 	
 	public void loadStructure(LittleTile mainTile) {
@@ -334,7 +347,7 @@ public abstract class LittleStructure {
 		
 		// Load family (parent and children)		
 		if (nbt.hasKey("parent", 10))
-			parent = new StructureLink(nbt, this, true);
+			parent = StructureLink.loadFromNBT(this, nbt, true);
 		else
 			parent = null;
 		
@@ -342,8 +355,8 @@ public abstract class LittleStructure {
 			children = new LinkedHashMap<>();
 			NBTTagList list = nbt.getTagList("tiles", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
-				StructureLink child = new StructureLink(list.getCompoundTagAt(i), this, false);
-				children.put(child.childID, child);
+				IStructureChildConnector child = StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false);
+				children.put(child.getChildID(), child);
 			}
 		} else
 			children = null;
@@ -371,7 +384,7 @@ public abstract class LittleStructure {
 		
 		if (children != null && !children.isEmpty()) {
 			NBTTagList list = new NBTTagList();
-			for (StructureLink child : children.values()) {
+			for (IStructureChildConnector child : children.values()) {
 				list.appendTag(child.writeToNBT(new NBTTagCompound()));
 			}
 			nbt.setTag("children", list);

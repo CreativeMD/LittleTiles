@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.structure.connection;
 
+import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -10,7 +12,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class StructureLink extends StructureLinkBase<LittleStructure> {
+public class StructureLink extends StructureLinkBaseRelative<LittleStructure> implements IStructureChildConnector<LittleStructure> {
 	
 	public final boolean isChild;
 	public final int childID;
@@ -63,15 +65,15 @@ public class StructureLink extends StructureLinkBase<LittleStructure> {
 		this.structure = mainTile.connection.getStructureWithoutLoading();
 		
 		if (isChild) {
-			StructureLink link = this.structure.children.get(childID);
+			IStructureChildConnector link = this.structure.children.get(childID);
 			if (link == null) {
 				new RuntimeException("Parent does not remember child! coord=" + this).printStackTrace();
 				return;
 			}
 			
-			link.structure = parent;
+			link.setLoadedStructure(parent, parent.attribute);
 		} else
-			this.structure.parent.structure = parent; // Yeah it looks confusing ... it loads the parent for the child
+			this.structure.parent.setLoadedStructure(parent, parent.attribute); // Yeah it looks confusing ... it loads the parent for the child
 	}
 	
 	@Override
@@ -82,5 +84,23 @@ public class StructureLink extends StructureLinkBase<LittleStructure> {
 	@Override
 	public StructureLink copy(LittleStructure parent) {
 		return new StructureLink(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone(), attribute, parent, childID, isChild);
+	}
+	
+	@Override
+	public boolean isChild() {
+		return isChild;
+	}
+	
+	@Override
+	public int getChildID() {
+		return childID;
+	}
+	
+	public static IStructureChildConnector loadFromNBT(LittleStructure structure, NBTTagCompound nbt, boolean isChild) {
+		if (nbt.hasKey("entity"))
+			return new StructureLinkToSubWorld(nbt, structure);
+		else if (nbt.getBoolean("subWorld"))
+			return new StructureLinkFromSubWorld(nbt, (EntityAnimation) ((WorldFake) structure.getMainTile().te.getWorld()).parent);
+		return new StructureLink(nbt, structure, isChild);
 	}
 }

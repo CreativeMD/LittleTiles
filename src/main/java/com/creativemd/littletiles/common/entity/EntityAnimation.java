@@ -33,6 +33,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -640,6 +641,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		this.cachedUniqueIdString = this.entityUniqueID.toString();
 		
 		this.fakeWorld = fakeWorld;
+		this.fakeWorld.parent = this;
 		
 		setCenterVec(center, additional);
 		
@@ -889,8 +891,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			fakeWorld.setTileEntity(te.getPos(), te);
 		}
 		
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		structure.writeToNBTPreview(structureNBT, baseOffset);
 		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(getPreviewOffset(), absoluteAxis.getContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviewsStructure(structureNBT, getPreviewOffset(), absoluteAxis.getContext());
 		for (LittleTile tile : tiles) {
 			previews.addTile(tile);
 		}
@@ -900,10 +904,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		absoluteAxis.convertTo(previews.context);
 		
 		for (LittleTilePreview preview : previews) {
-			this.previews.add(preview.getPlaceableTile(preview.box, false, LittleTileVec.ZERO));
+			this.previews.add(preview.getPlaceableTile(preview.box, false, LittleTileVec.ZERO, previews));
 		}
 		
-		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(this.previews)) {
+		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(previews, this.previews)) {
 			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
 			this.previews.add(placePreview);
 		}

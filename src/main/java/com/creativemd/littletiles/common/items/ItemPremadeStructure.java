@@ -8,7 +8,6 @@ import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
@@ -83,12 +82,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreviewTiles(previews, stack);
-	}
-	
-	@Override
-	public LittleStructure getLittleStructure(ItemStack stack) {
-		return ItemMultiTiles.getLTStructure(stack);
+		LittleTilePreview.savePreview(previews, stack);
 	}
 	
 	@Override

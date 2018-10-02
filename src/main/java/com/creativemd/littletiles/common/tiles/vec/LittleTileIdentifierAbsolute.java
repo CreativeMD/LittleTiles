@@ -40,10 +40,11 @@ public class LittleTileIdentifierAbsolute {
 		context = LittleGridContext.get(nbt);
 	}
 	
-	public void writeToNBT(NBTTagCompound nbt) {
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt.setIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
 		nbt.setIntArray("id", identifier);
 		context.set(nbt);
+		return nbt;
 	}
 	
 	public static int[] convertTo(int[] identifier, LittleGridContext from, LittleGridContext to) {
