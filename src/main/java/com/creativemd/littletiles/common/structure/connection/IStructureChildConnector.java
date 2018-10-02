@@ -10,4 +10,6 @@ public interface IStructureChildConnector<T> extends IStructureConnector<T> {
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt);
 	
+	public void destroyStructure();
+	
 }

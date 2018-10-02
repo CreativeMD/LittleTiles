@@ -80,4 +80,9 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<EntityA
 	public int getChildID() {
 		return childID;
 	}
+	
+	@Override
+	public void destroyStructure() {
+		parent.isDead = true;
+	}
 }
