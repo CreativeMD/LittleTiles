@@ -1,9 +1,13 @@
 package com.creativemd.littletiles.common.structure.connection;
 
+import java.util.ArrayList;
+import java.util.Map.Entry;
+
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -102,5 +106,12 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 		else if (nbt.getBoolean("subWorld"))
 			return new StructureLinkFromSubWorld(nbt, (EntityAnimation) ((WorldFake) structure.getMainTile().te.getWorld()).parent);
 		return new StructureLink(nbt, structure, isChild);
+	}
+	
+	@Override
+	public void destroyStructure() {
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : parent.getEntrySet()) {
+			entry.getKey().removeTiles(entry.getValue());
+		}
 	}
 }
