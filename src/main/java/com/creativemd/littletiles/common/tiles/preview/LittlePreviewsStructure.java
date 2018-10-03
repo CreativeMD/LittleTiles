@@ -58,6 +58,13 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	}
 	
 	@Override
+	public LittlePreviewsStructure copy() {
+		LittlePreviewsStructure previews = new LittlePreviewsStructure(nbt, context);
+		previews.previews.addAll(this.previews);
+		return previews;
+	}
+	
+	@Override
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}
@@ -68,7 +75,7 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	}
 	
 	@Override
-	public void addChild(LittlePreviews child) {
+	public void addChild(LittlePreviewsStructure child) {
 		children.add((LittlePreviewsStructure) child);
 	}
 }

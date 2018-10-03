@@ -103,6 +103,8 @@ public abstract class LittleStructure {
 		if (stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
 			name = nbt.getString("Name");
 		
+		combineTiles();
+		
 		if (tempChildren != null) {
 			children = new LinkedHashMap<>();
 			for (int i = 0; i < tempChildren.size(); i++) {
@@ -287,7 +289,10 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean loadChildren() {
-		if (children == null || children.isEmpty())
+		if (children == null)
+			children = new LinkedHashMap<>();
+		
+		if (children.isEmpty())
 			return true;
 		
 		for (IStructureChildConnector child : children.values()) {
@@ -367,7 +372,7 @@ public abstract class LittleStructure {
 				children.put(child.getChildID(), child);
 			}
 		} else
-			children = null;
+			children = new LinkedHashMap<>();
 		
 		loadFromNBTExtra(nbt);
 	}
@@ -489,7 +494,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	protected LittlePreviewsStructure getPreviews(BlockPos pos) {
+	public LittlePreviewsStructure getPreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
 		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, LittleGridContext.getMin());
@@ -553,10 +558,10 @@ public abstract class LittleStructure {
 	
 	// ====================SORTING====================
 	
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 	}
 	
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 	}
 	
 	//====================Helpers====================

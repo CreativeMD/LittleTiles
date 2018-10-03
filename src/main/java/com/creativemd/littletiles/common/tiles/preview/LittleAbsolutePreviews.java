@@ -31,6 +31,13 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	}
 	
 	@Override
+	public LittleAbsolutePreviews copy() {
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, context);
+		previews.previews.addAll(this.previews);
+		return previews;
+	}
+	
+	@Override
 	public LittleTilePreview addPreview(BlockPos pos, LittleTilePreview preview, LittleGridContext context) {
 		if (this.context != context) {
 			if (this.context.size > context.size)

@@ -30,11 +30,7 @@ import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -139,7 +135,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public WorldFake fakeWorld;
 	public VecOrigin origin;
 	public LittleDoorBase structure;
-	public PlacePreviews previews;
+	public LittleAbsolutePreviewsStructure previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	
 	public double prevWorldRotX = 0;
@@ -631,7 +627,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
+	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -864,10 +860,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================Saving & Loading================
 	
-	protected BlockPos getPreviewOffset() {
-		return baseOffset;
-	}
-	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = WorldFake.createFakeWorld(world);
@@ -891,25 +883,19 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			fakeWorld.setTileEntity(te.getPos(), te);
 		}
 		
+		int[] array = compound.getIntArray("previewPos");
+		BlockPos pos;
+		if (array.length == 3)
+			pos = new BlockPos(array[0], array[1], array[2]);
+		else
+			pos = baseOffset;
+		
 		NBTTagCompound structureNBT = new NBTTagCompound();
-		structure.writeToNBTPreview(structureNBT, baseOffset);
-		LittleTilePos absoluteAxis = getCenter(); // structure.getAbsoluteAxisVec();
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviewsStructure(structureNBT, getPreviewOffset(), absoluteAxis.getContext());
+		structure.writeToNBTPreview(structureNBT, pos);
+		LittleTilePos absoluteAxis = getCenter();
+		previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, absoluteAxis.getContext());
 		for (LittleTile tile : tiles) {
 			previews.addTile(tile);
-		}
-		
-		previews.ensureContext(structure.getMinContext());
-		this.previews = new PlacePreviews(previews.context);
-		absoluteAxis.convertTo(previews.context);
-		
-		for (LittleTilePreview preview : previews) {
-			this.previews.add(preview.getPlaceableTile(preview.box, false, LittleTileVec.ZERO, previews));
-		}
-		
-		for (PlacePreviewTile placePreview : structure.getAdditionalPreviews(previews, this.previews)) {
-			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
-			this.previews.add(placePreview);
 		}
 		
 		updateWorldCollision();
@@ -929,6 +915,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 		
 		compound.setTag("tileEntity", list);
+		
+		compound.setIntArray("previewPos", new int[] { previews.pos.getX(), previews.pos.getY(), previews.pos.getZ() });
 		
 	}
 	

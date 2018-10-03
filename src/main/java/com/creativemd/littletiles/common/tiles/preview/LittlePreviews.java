@@ -81,7 +81,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return null;
 	}
 	
-	public void addChild(LittlePreviews child) {
+	public void addChild(LittlePreviewsStructure child) {
 		
 	}
 	
@@ -230,7 +230,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				NBTTagList list = stack.getTagCompound().getTagList("children", 10);
 				for (int i = 0; i < list.tagCount(); i++) {
 					NBTTagCompound child = list.getCompoundTagAt(i);
-					previews.addChild(LittleNBTCompressionTools.readPreviews(stack.getTagCompound().hasKey("structure") ? new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), context) : new LittlePreviews(context), stack.getTagCompound().getTagList("tiles", 10)));
+					previews.addChild((LittlePreviewsStructure) LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), context), stack.getTagCompound().getTagList("tiles", 10)));
 				}
 			}
 			
