@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -24,8 +23,6 @@ import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -110,43 +107,33 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, UUID uuid) {
-		LittleTileVec offset = new LittleTileVec(moveDirection);
-		offset.scale(moveDistance);
+		LittleTileVec offsetVec = new LittleTileVec(moveDirection);
+		offsetVec.scale(moveDistance);
+		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
 		placedAxis = new LittleTilePos(pos, moveContext);
-		/* placedAxis.contextVec.vec.add(offset);
-		 * placedAxis.removeInternalBlockOffset(); pos = placedAxis.pos; */
 		
-		LittleSlidingDoor structure = new LittleSlidingDoor();
+		LittleAbsolutePreviewsStructure previews = getDoorPreviews();
+		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
 		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
 		structure.duration = duration;
 		structure.moveDirection = moveDirection.getOpposite();
 		structure.moveDistance = moveDistance;
 		structure.moveContext = moveContext;
 		structure.setTiles(new HashMapList<>());
-		NBTTagCompound structureNBT = new NBTTagCompound();
-		structure.writeToNBTPreview(structureNBT, pos);
 		
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, moveContext);
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			previews.addTile(tile);
+		if (offset.context.size > previews.context.size)
+			previews.convertTo(offset.context);
+		else if (offset.context.size < previews.context.size)
+			offset.convertTo(previews.context);
+		
+		for (LittleTilePreview preview : previews.allPreviews()) {
+			preview.box.addOffset(offset.vec);
 		}
 		
-		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
-		
-		if (moveContext != previews.context)
-			offset.convertTo(moveContext, previews.context);
-		
-		for (LittleTilePreview preview : previews) {
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, offset, previews));
-		}
-		
-		LittleTileVec moveVec = new LittleTileVec(moveDirection);
-		moveVec.scale(moveDistance);
 		LittleTilePos absolute = getAbsoluteAxisVec();
-		absolute.add(new LittleTileVecContext(moveContext, moveVec));
+		absolute.add(offset);
 		absolute.removeInternalBlockOffset();
-		return place(world, structure, player, defaultpreviews, pos, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, absolute, getAdditionalAxisVec());
+		return place(world, player, previews, new SlidingDoorTransformation(moveDirection, moveContext, moveDistance), uuid, absolute, getAdditionalAxisVec());
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid) {

@@ -17,7 +17,7 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	private LittleStructure structure;
 	private LittleStructurePreviewHandler handler;
 	
-	protected List<LittleAbsolutePreviewsStructure> children = new ArrayList<>();
+	protected List<LittlePreviewsStructure> children = new ArrayList<>();
 	
 	public LittleAbsolutePreviewsStructure(NBTTagCompound nbt, LittleAbsolutePreviews previews) {
 		super(previews);
@@ -39,7 +39,7 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 		if (structure == null) {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);
 			structure.tempChildren = new ArrayList<>();
-			for (LittleAbsolutePreviewsStructure child : getChildren()) {
+			for (LittlePreviewsStructure child : getChildren()) {
 				structure.tempChildren.add(child.getStructure());
 			}
 		}
@@ -64,12 +64,21 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	}
 	
 	@Override
-	public List<LittleAbsolutePreviewsStructure> getChildren() {
+	public List<LittlePreviewsStructure> getChildren() {
 		return children;
 	}
 	
 	@Override
-	public void addChild(LittlePreviews child) {
-		children.add((LittleAbsolutePreviewsStructure) child);
+	public LittleAbsolutePreviewsStructure copy() {
+		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(nbt, pos, context);
+		previews.previews.addAll(this.previews);
+		return previews;
+	}
+	
+	@Override
+	public void addChild(LittlePreviewsStructure child) {
+		if (child.isAbsolute())
+			throw new RuntimeException("Absolute previews cannot be added as a child!");
+		children.add((LittlePreviewsStructure) child);
 	}
 }

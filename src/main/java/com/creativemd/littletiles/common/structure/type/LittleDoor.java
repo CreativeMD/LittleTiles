@@ -4,7 +4,6 @@ import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -30,8 +29,6 @@ import com.creativemd.littletiles.common.structure.LittleStructureRegistry.Littl
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -98,6 +95,7 @@ public class LittleDoor extends LittleDoorBase {
 	public LittleTilePos getAbsoluteAxisVec() {
 		LittleTilePos pos = getMainTile().getAbsolutePos();
 		pos.add(doubledRelativeAxis.getNonDoubledVec());
+		pos.contextVec.convertTo(doubledRelativeAxis.context);
 		return pos;
 	}
 	
@@ -159,36 +157,27 @@ public class LittleDoor extends LittleDoorBase {
 		this.normalDirection = RotationUtils.rotateFacing(normalDirection, rotation);
 	}
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, BlockPos pos, Rotation direction, boolean inverse, UUID uuid, LittleAbsolutePreviews originalPreviews, LittleTilePos absoluteAxis, LittleTileVec additional) {
-		LittleDoor structure = new LittleDoor();
-		structure.doubledRelativeAxis = new LittleRelativeDoubledAxis(LittleGridContext.getMin(), LittleTileVec.ZERO, LittleTileVec.ZERO);
-		structure.setTiles(new HashMapList<>());
-		structure.axis = this.axis;
-		structure.normalDirection = RotationUtils.rotateFacing(normalDirection, direction);
-		structure.duration = this.duration;
-		NBTTagCompound structureNBT = new NBTTagCompound();
-		structure.writeToNBTPreview(structureNBT, pos);
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
+		LittleAbsolutePreviewsStructure previews = getDoorPreviews();
 		
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviewsStructure(structureNBT, originalPreviews.pos, originalPreviews.context);
-		for (LittleTilePreview preview : originalPreviews) {
-			previews.addWithoutCheckingPreview(preview.copy());
+		LittleDoor newDoor = (LittleDoor) previews.getStructure();
+		if (newDoor.doubledRelativeAxis.context.size > previews.context.size)
+			previews.convertTo(newDoor.doubledRelativeAxis.context);
+		else if (newDoor.doubledRelativeAxis.context.size < previews.context.size)
+			newDoor.doubledRelativeAxis.convertTo(previews.context);
+		
+		//LittleTileVecContext vec = new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec());
+		//newDoor.doubledRelativeAxis.sub(vec);
+		
+		for (LittleTilePreview preview : previews.allPreviews()) {
+			preview.rotatePreview(direction, newDoor.doubledRelativeAxis.getRotationVec());
+		}
+		if (previews.hasStructure()) {
+			previews.getStructure().onRotate(world, player, null, previews.context, direction, newDoor.doubledRelativeAxis.getRotationVec());
+			previews.getStructure().writeToNBT(previews.getStructureData());
 		}
 		
-		PlacePreviews defaultpreviews = new PlacePreviews(previews.context);
-		absoluteAxis.convertTo(previews.context);
-		
-		for (LittleTilePreview preview : previews) {
-			preview.box.subOffset(absoluteAxis.contextVec.vec);
-			preview.rotatePreview(direction, additional);
-			defaultpreviews.add(preview.getPlaceableTile(preview.box, false, absoluteAxis.contextVec.vec, previews));
-		}
-		
-		for (PlacePreviewTile placePreview : getAdditionalPreviews(previews, defaultpreviews)) {
-			placePreview.box.addOffset(absoluteAxis.contextVec.vec);
-			defaultpreviews.add(placePreview);
-		}
-		
-		return place(world, structure, player, defaultpreviews, absoluteAxis.pos, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
+		return place(world, player, previews, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
 	}
 	
 	@Override
@@ -333,9 +322,7 @@ public class LittleDoor extends LittleDoorBase {
 		LittleTilePos axisPoint = getAbsoluteAxisVec();
 		LittleTileVec additional = getAdditionalAxisVec();
 		
-		axisPoint.removeInternalBlockOffset();
-		
-		BlockPos main = axisPoint.pos;
+		//axisPoint.removeInternalBlockOffset();
 		
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
@@ -350,13 +337,7 @@ public class LittleDoor extends LittleDoorBase {
 			entry.getKey().preventUpdate = false;
 		}
 		
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(axisPoint.pos, getMinContext());
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			previews.addTile(tile);
-		}
-		
-		if (tryToPlacePreviews(world, player, main, rotation, !inverse, uuid, previews, axisPoint, additional) || tryToPlacePreviews(world, player, main, rotation.getOpposite(), inverse, uuid, previews, axisPoint, additional)) {
+		if (tryToPlacePreviews(world, player, rotation, !inverse, uuid, axisPoint, additional) || tryToPlacePreviews(world, player, rotation.getOpposite(), inverse, uuid, axisPoint, additional)) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 				entry.getKey().updateTiles();
 			}
@@ -389,6 +370,7 @@ public class LittleDoor extends LittleDoorBase {
 	
 	@Override
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
+		super.writeToNBTPreview(nbt, newCenter);
 		LittleRelativeDoubledAxis axisPointBackup = doubledRelativeAxis.copy();
 		LittleTileVecContext vec = new LittleTilePos(getMainTile().te.getPos(), axisPointBackup.context).getRelative(new LittleTilePos(newCenter, axisPointBackup.context));
 		doubledRelativeAxis.add(vec);
@@ -407,15 +389,6 @@ public class LittleDoor extends LittleDoorBase {
 		structure.normalDirection = this.normalDirection;
 		structure.duration = this.duration;
 		return structure;
-	}
-	
-	@Override
-	public List<PlacePreviewTile> getAdditionalPreviews(LittlePreviews previews, PlacePreviews placePreviews) {
-		List<PlacePreviewTile> additional = new ArrayList<>();
-		LittleTileBox box = new LittleTileBox(0, 0, 0, 1, 1, 1);
-		// box.convertTo(doubledRelativeAxis.context, previews.context);
-		additional.add(new PlacePreviewTileAxis(box, null, axis, getAdditionalAxisVec(), previews));
-		return additional;
 	}
 	
 	public static class LittleRelativeDoubledAxis extends LittleTileVecContext {
