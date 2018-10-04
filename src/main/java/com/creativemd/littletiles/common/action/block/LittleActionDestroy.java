@@ -69,7 +69,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		}
 		
 		if (tile.isChildOfStructure()) {
-			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).hasLoaded();
+			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).hasLoaded() && tile.connection.getStructure(world).loadChildren();
 			if (loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 				if (loaded) {
 					structurePreview = new StructurePreview(tile.connection.getStructure(world));

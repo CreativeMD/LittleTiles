@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.tiles.preview;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
@@ -16,8 +15,6 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	public final NBTTagCompound nbt;
 	private LittleStructure structure;
 	private LittleStructurePreviewHandler handler;
-	
-	protected List<LittlePreviewsStructure> children = new ArrayList<>();
 	
 	public LittleAbsolutePreviewsStructure(NBTTagCompound nbt, LittleAbsolutePreviews previews) {
 		super(previews);
@@ -59,26 +56,10 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	}
 	
 	@Override
-	public boolean hasChildren() {
-		return !children.isEmpty();
-	}
-	
-	@Override
-	public List<LittlePreviewsStructure> getChildren() {
-		return children;
-	}
-	
-	@Override
 	public LittleAbsolutePreviewsStructure copy() {
 		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(nbt, pos, context);
 		previews.previews.addAll(this.previews);
+		previews.children.addAll(children);
 		return previews;
-	}
-	
-	@Override
-	public void addChild(LittlePreviewsStructure child) {
-		if (child.isAbsolute())
-			throw new RuntimeException("Absolute previews cannot be added as a child!");
-		children.add((LittlePreviewsStructure) child);
 	}
 }

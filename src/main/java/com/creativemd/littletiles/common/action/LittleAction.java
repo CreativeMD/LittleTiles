@@ -56,6 +56,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -363,6 +364,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 		writeContext(previews.context, buf);
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
+		
+		NBTTagList children = new NBTTagList();
+		for (LittlePreviewsStructure child : previews.getChildren()) {
+			children.appendTag(LittleTilePreview.saveChildPreviews(child));
+		}
+		nbt.setTag("children", children);
+		
 		writeNBT(buf, nbt);
 	}
 	
@@ -370,14 +378,26 @@ public abstract class LittleAction extends CreativeCorePacket {
 		boolean absolute = buf.readBoolean();
 		boolean structure = buf.readBoolean();
 		
-		if (absolute)
+		NBTTagCompound nbt;
+		LittlePreviews previews;
+		if (absolute) {
 			if (structure)
-				return LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviewsStructure(readNBT(buf), readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
+				previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviewsStructure(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
 			else
-				return LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
-		if (structure)
-			return LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(readNBT(buf), readContext(buf)), readNBT(buf).getTagList("list", 10));
-		return LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), readNBT(buf).getTagList("list", 10));
+				previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+		} else {
+			if (structure)
+				previews = LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(readNBT(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+			else
+				previews = LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+		}
+		
+		NBTTagList list = nbt.getTagList("children", 10);
+		for (int i = 0; i < list.tagCount(); i++) {
+			NBTTagCompound child = list.getCompoundTagAt(i);
+			previews.addChild(LittlePreviews.getChild(previews.context, child));
+		}
+		return previews;
 	}
 	
 	public static void writePlacementMode(PlacementMode mode, ByteBuf buf) {

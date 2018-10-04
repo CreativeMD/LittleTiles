@@ -77,7 +77,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public boolean activate(World world, EntityPlayer player, Rotation rotation, BlockPos pos) {
 		if (!isWaitingForApprove) {
-			if (!hasLoaded()) {
+			if (!hasLoaded() || !loadChildren() || !loadParent()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
@@ -112,7 +112,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
 		placedAxis = new LittleTilePos(pos, moveContext);
 		
-		LittleAbsolutePreviewsStructure previews = getDoorPreviews();
+		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
 		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
 		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
 		structure.duration = duration;
@@ -137,7 +137,10 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	public boolean interactWithDoor(World world, BlockPos pos, EntityPlayer player, UUID uuid) {
-		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		if (!hasLoaded() || !loadChildren())
+			return false;
+		
+		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
 		
 		for (TileEntityLittleTiles te : tempTiles.keySet()) {

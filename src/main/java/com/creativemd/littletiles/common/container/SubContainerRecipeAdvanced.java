@@ -25,7 +25,7 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 	public void onPacketReceive(NBTTagCompound nbt) {
 		if (nbt.getBoolean("save_selection")) {
 			SelectionMode mode = ItemRecipeAdvanced.getSelectionMode(stack);
-			LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"));
+			LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
 			
 			if (nbt.hasKey("grid")) {
 				LittleGridContext grid = LittleGridContext.get(nbt.getInteger("grid"));

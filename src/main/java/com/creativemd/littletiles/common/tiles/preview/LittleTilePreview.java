@@ -381,6 +381,15 @@ public class LittleTilePreview implements ICombinable {
 		NBTTagList list = LittleNBTCompressionTools.writePreviews(previews);
 		nbt.setTag("tiles", list);
 		nbt.setInteger("count", previews.size());
+		
+		if (previews.hasChildren()) {
+			NBTTagList children = new NBTTagList();
+			for (LittlePreviews child : previews.getChildren()) {
+				children.appendTag(saveChildPreviews(child));
+			}
+			
+			nbt.setTag("children", children);
+		}
 		return nbt;
 	}
 	

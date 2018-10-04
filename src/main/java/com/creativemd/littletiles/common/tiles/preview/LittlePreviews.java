@@ -28,6 +28,8 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	protected List<LittleTilePreview> previews;
 	public LittleGridContext context;
 	
+	protected List<LittlePreviewsStructure> children = new ArrayList<>();
+	
 	public LittlePreviews(LittleGridContext context) {
 		this.context = context;
 		this.previews = new ArrayList<>();
@@ -63,26 +65,27 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	public LittleGridContext getMinContext() {
-		if (hasStructure()) {
-			LittleGridContext context = LittleGridContext.max(this.context, getStructureHandler().getMinContext(this));
-			if (hasChildren())
-				for (LittlePreviews child : getChildren())
-					context = LittleGridContext.max(context, child.getMinContext());
-			return context;
-		}
+		LittleGridContext context = this.context;
+		if (hasStructure())
+			context = LittleGridContext.max(this.context, getStructureHandler().getMinContext(this));
+		if (hasChildren())
+			for (LittlePreviews child : getChildren())
+				context = LittleGridContext.max(context, child.getMinContext());
 		return context;
 	}
 	
 	public boolean hasChildren() {
-		return false;
+		return !children.isEmpty();
 	}
 	
-	public List<? extends LittlePreviews> getChildren() {
-		return null;
+	public List<LittlePreviewsStructure> getChildren() {
+		return children;
 	}
 	
 	public void addChild(LittlePreviewsStructure child) {
-		
+		if (child.isAbsolute())
+			throw new RuntimeException("Absolute previews cannot be added as a child!");
+		children.add((LittlePreviewsStructure) child);
 	}
 	
 	public void getPlacePreviews(List<PlacePreviewTile> placePreviews, LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
@@ -135,6 +138,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	public LittlePreviews copy() {
 		LittlePreviews previews = new LittlePreviews(context);
 		previews.previews.addAll(this.previews);
+		previews.children.addAll(children);
 		return previews;
 	}
 	
@@ -190,6 +194,18 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews.iterator();
 	}
 	
+	public static LittlePreviewsStructure getChild(LittleGridContext context, NBTTagCompound nbt) {
+		LittlePreviewsStructure previews = (LittlePreviewsStructure) LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(nbt.getCompoundTag("structure"), context), nbt.getTagList("tiles", 10));
+		if (nbt.hasKey("children")) {
+			NBTTagList list = nbt.getTagList("children", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				NBTTagCompound child = list.getCompoundTagAt(i);
+				previews.addChild(getChild(context, child));
+			}
+		}
+		return previews;
+	}
+	
 	public static LittlePreviews getPreview(ItemStack stack, boolean allowLowResolution) {
 		if (!stack.hasTagCompound())
 			return new LittlePreviews(LittleGridContext.get());
@@ -226,11 +242,11 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			LittlePreviews previews = stack.getTagCompound().hasKey("structure") ? new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), context) : new LittlePreviews(context);
 			previews = LittleNBTCompressionTools.readPreviews(previews, stack.getTagCompound().getTagList("tiles", 10));
 			
-			if (previews.hasStructure() && stack.getTagCompound().hasKey("children")) {
+			if (stack.getTagCompound().hasKey("children")) {
 				NBTTagList list = stack.getTagCompound().getTagList("children", 10);
 				for (int i = 0; i < list.tagCount(); i++) {
 					NBTTagCompound child = list.getCompoundTagAt(i);
-					previews.addChild((LittlePreviewsStructure) LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), context), stack.getTagCompound().getTagList("tiles", 10)));
+					previews.addChild(getChild(context, child));
 				}
 			}
 			
@@ -255,11 +271,9 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 					if (subIterator.hasNext())
 						return true;
 					
-					i++;
-					
-					while (i < previews.size() && !subIterator.hasNext()) {
-						subIterator = children.get(i).allPreviewsIterator();
+					while (i < children.size() - 1 && !subIterator.hasNext()) {
 						i++;
+						subIterator = children.get(i).allPreviewsIterator();
 					}
 					
 					return subIterator.hasNext();
@@ -338,12 +352,20 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			combiner.combine();
 			previews.addAll(list);
 		}
+		
+		if (hasChildren())
+			for (LittlePreviews child : getChildren())
+				child.combinePreviewBlocks();
 	}
 	
 	private void advancedScale(int from, int to) {
 		for (LittleTilePreview preview : previews) {
 			preview.convertTo(from, to);
 		}
+		
+		if (hasChildren())
+			for (LittlePreviews child : getChildren())
+				child.advancedScale(from, to);
 	}
 	
 	public static void advancedScale(LittlePreviews previews, int from, int to) {

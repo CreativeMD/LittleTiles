@@ -1,9 +1,12 @@
 package com.creativemd.littletiles.common.utils.selection.mode;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -75,7 +78,7 @@ public class AreaSelectionMode extends SelectionMode {
 	}
 	
 	@Override
-	public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT) {
+	public LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) {
 		
 		BlockPos pos = null;
 		if (stack.getTagCompound().hasKey("pos1")) {
@@ -108,7 +111,12 @@ public class AreaSelectionMode extends SelectionMode {
 		
 		boolean includeTE = includeCB || includeLT;
 		
+		BlockPos center = new BlockPos(minX, minY, minZ);
 		MutableBlockPos newPos = new MutableBlockPos();
+		
+		List<LittleStructure> structures = null;
+		if (rememberStructure)
+			structures = new ArrayList<>();
 		
 		for (int posX = minX; posX <= maxX; posX++) {
 			for (int posY = minY; posY <= maxY; posY++) {
@@ -121,8 +129,24 @@ public class AreaSelectionMode extends SelectionMode {
 							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-									LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
-									preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+									LittleTile tile = ((LittleTile) iterator.next());
+									
+									if (rememberStructure && tile.isConnectedToStructure()) {
+										LittleStructure structure = tile.connection.getStructure(world);
+										while (structure.parent != null) {
+											if (!structure.parent.isConnected(world))
+												continue;
+											structure = structure.parent.getStructure(world);
+										}
+										
+										if (structure.hasLoaded() && structure.loadChildren() && !structures.contains(structure)) {
+											previews.addChild(structure.getPreviews(center));
+											structures.add(structure);
+										}
+									} else {
+										LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
+										preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+									}
 								}
 								continue;
 							}

@@ -58,7 +58,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 				comboBox.caption = structure.structureID;
 		}
 		controls.add(comboBox);
-		controls.add(new GuiLabel("tiles", stack.getTagCompound().getInteger("count") + " tile(s)", 110, 7));
+		controls.add(new GuiLabel("tiles", previews.totalSize() + " tile(s)", 110, 7));
 		controls.add(new GuiButton("save", 140, 176, 50) {
 			@Override
 			public void onClicked(int x, int y, int button) {

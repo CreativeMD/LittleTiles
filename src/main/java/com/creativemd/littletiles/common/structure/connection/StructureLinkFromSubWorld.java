@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -10,33 +11,33 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<EntityAnimation> implements IStructureChildConnector<EntityAnimation> {
+public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleStructure> implements IStructureChildConnector<LittleStructure> {
 	
 	public final int childID;
 	
-	public StructureLinkFromSubWorld(LittleTile tile, LittleStructureAttribute attribute, EntityAnimation parent, int childID) {
+	public StructureLinkFromSubWorld(LittleTile tile, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
 		super(tile, attribute, parent);
 		this.childID = childID;
 	}
 	
-	public StructureLinkFromSubWorld(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, EntityAnimation parent, int childID) {
+	public StructureLinkFromSubWorld(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
 		super(te, context, identifier, attribute, parent);
 		this.childID = childID;
 	}
 	
-	public StructureLinkFromSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, EntityAnimation parent, int childID) {
+	public StructureLinkFromSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
 		super(pos, context, identifier, attribute, parent);
 		this.childID = childID;
 	}
 	
-	public StructureLinkFromSubWorld(NBTTagCompound nbt, EntityAnimation parent) {
+	public StructureLinkFromSubWorld(NBTTagCompound nbt, LittleStructure parent) {
 		super(nbt, parent);
 		this.childID = nbt.getInteger("childID");
 	}
 	
 	@Override
 	protected World getWorld(World world) {
-		return parent.world;
+		return ((WorldFake) parent.getWorld()).parentWorld;
 	}
 	
 	@Override
@@ -58,7 +59,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<EntityA
 			return;
 		}
 		
-		link.setLoadedStructure(parent.structure, parent.structure.attribute);
+		link.setLoadedStructure(structure, structure.attribute);
 	}
 	
 	@Override
@@ -67,7 +68,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<EntityA
 	}
 	
 	@Override
-	public StructureLinkFromSubWorld copy(EntityAnimation parent) {
+	public StructureLinkFromSubWorld copy(LittleStructure parent) {
 		return new StructureLinkFromSubWorld(pos, context, identifier.clone(), attribute, parent, childID);
 	}
 	
@@ -83,6 +84,12 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<EntityA
 	
 	@Override
 	public void destroyStructure() {
-		parent.isDead = true;
+		WorldFake fakeWorld = (WorldFake) parent.getWorld();
+		fakeWorld.parent.isDead = true;
+	}
+	
+	@Override
+	public boolean isLinkToAnotherWorld() {
+		return true;
 	}
 }

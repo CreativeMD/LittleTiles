@@ -144,14 +144,11 @@ public class PlacementHelper {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTilePreview tile = tiles.get(i);
-			if (tile == null)
-				return LittleTileVec.ZERO;
-			if (tile.box != null) {
-				minX = Math.min(minX, tile.box.minX);
-				minY = Math.min(minY, tile.box.minY);
-				minZ = Math.min(minZ, tile.box.minZ);
+		for (LittleTilePreview preview : tiles.allPreviews()) {
+			if (preview.box != null) {
+				minX = Math.min(minX, preview.box.minX);
+				minY = Math.min(minY, preview.box.minY);
+				minZ = Math.min(minZ, preview.box.minZ);
 			}
 		}
 		return new LittleTileVec(minX, minY, minZ);
@@ -168,16 +165,13 @@ public class PlacementHelper {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		LittleTileSize size = new LittleTileSize(0, 0, 0);
-		for (int i = 0; i < tiles.size(); i++) {
-			LittleTilePreview tile = tiles.get(i);
-			if (tile == null)
-				return new LittleTileSize(0, 0, 0);
-			minX = Math.min(minX, tile.box.minX);
-			minY = Math.min(minY, tile.box.minY);
-			minZ = Math.min(minZ, tile.box.minZ);
-			maxX = Math.max(maxX, tile.box.maxX);
-			maxY = Math.max(maxY, tile.box.maxY);
-			maxZ = Math.max(maxZ, tile.box.maxZ);
+		for (LittleTilePreview preview : tiles.allPreviews()) {
+			minX = Math.min(minX, preview.box.minX);
+			minY = Math.min(minY, preview.box.minY);
+			minZ = Math.min(minZ, preview.box.minZ);
+			maxX = Math.max(maxX, preview.box.maxX);
+			maxY = Math.max(maxY, preview.box.maxY);
+			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
 		return new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ).max(size);
 	}
@@ -332,9 +326,8 @@ public class PlacementHelper {
 							TileEntity te = world.getTileEntity(position.pos);
 							if (te instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
-								for (int i = 0; i < tiles.size(); i++) {
-									LittleTilePreview tile = tiles.get(i);
-									if (!teTiles.isSpaceForLittleTile(tile.box)) {
+								for (LittleTilePreview preview : tiles.allPreviews()) {
+									if (!teTiles.isSpaceForLittleTile(preview.box)) {
 										canBePlaceFixed = false;
 										break;
 									}

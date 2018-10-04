@@ -17,16 +17,14 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
 
@@ -88,7 +86,15 @@ public abstract class LittleDoorBase extends LittleStructure {
 				}
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, (LittleDoorBase) previews.getStructure(), blocks, previews, absolute, transformation, uuid, player, additional);
+			LittleStructure newDoor = previews.getStructure();
+			
+			if (parent != null) {
+				LittleStructure parentStructure = parent.getStructure(world);
+				parentStructure.children.put(parent.getChildID(), new StructureLinkToSubWorld(newDoor.getMainTile(), newDoor.attribute, parentStructure, parent.getChildID(), uuid.toString()));
+				newDoor.parent = new StructureLinkFromSubWorld(parentStructure.getMainTile(), parentStructure.attribute, newDoor, parent.getChildID());
+			}
+			
+			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, blocks, previews, absolute, transformation, uuid, player, additional, duration);
 			world.spawnEntity(animation);
 			return true;
 		}
@@ -107,27 +113,6 @@ public abstract class LittleDoorBase extends LittleStructure {
 	public abstract LittleTileVec getAdditionalAxisVec();
 	
 	public abstract LittleDoorBase copyToPlaceDoor();
-	
-	public abstract LittleGridContext getMinContext();
-	
-	public LittleAbsolutePreviewsStructure getDoorPreviews() {
-		BlockPos pos = getMainTile().te.getPos();
-		
-		NBTTagCompound structureNBT = new NBTTagCompound();
-		writeToNBTPreview(structureNBT, pos);
-		
-		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			LittleTilePreview preview = previews.addTile(tile);
-		}
-		
-		for (IStructureChildConnector child : children.values()) {
-			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
-		}
-		
-		return previews;
-	}
 	
 	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureGuiParser<T> {
 		

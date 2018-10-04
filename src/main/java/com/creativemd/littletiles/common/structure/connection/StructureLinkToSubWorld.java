@@ -1,12 +1,9 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-
+import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -92,9 +89,17 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : parent.getEntrySet()) {
-			entry.getKey().removeTiles(entry.getValue());
-		}
+		for (Entity entity : ((WorldFake) structure.getWorld()).parentWorld.getLoadedEntityList())
+			if (entity instanceof EntityAnimation && entity.getCachedUniqueIdString().equals(entityUUID)) {
+				entity.isDead = true;
+				break;
+			}
+		for (IStructureChildConnector child : structure.children.values())
+			child.destroyStructure();
 	}
 	
+	@Override
+	public boolean isLinkToAnotherWorld() {
+		return true;
+	}
 }

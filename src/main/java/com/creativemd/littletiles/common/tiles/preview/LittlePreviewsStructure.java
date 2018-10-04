@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.tiles.preview;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
@@ -15,8 +14,6 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	public NBTTagCompound nbt;
 	private LittleStructure structure;
 	private LittleStructurePreviewHandler handler;
-	
-	protected List<LittlePreviewsStructure> children = new ArrayList<>();
 	
 	public LittlePreviewsStructure(NBTTagCompound nbt, LittlePreviews previews) {
 		super(previews);
@@ -61,21 +58,8 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	public LittlePreviewsStructure copy() {
 		LittlePreviewsStructure previews = new LittlePreviewsStructure(nbt, context);
 		previews.previews.addAll(this.previews);
+		previews.children.addAll(children);
 		return previews;
 	}
 	
-	@Override
-	public boolean hasChildren() {
-		return !children.isEmpty();
-	}
-	
-	@Override
-	public List<LittlePreviewsStructure> getChildren() {
-		return children;
-	}
-	
-	@Override
-	public void addChild(LittlePreviewsStructure child) {
-		children.add((LittlePreviewsStructure) child);
-	}
 }

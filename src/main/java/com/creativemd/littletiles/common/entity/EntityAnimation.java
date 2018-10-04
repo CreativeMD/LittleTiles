@@ -27,7 +27,7 @@ import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -134,7 +134,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	public WorldFake fakeWorld;
 	public VecOrigin origin;
-	public LittleDoorBase structure;
 	public LittleAbsolutePreviewsStructure previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	
@@ -831,7 +830,6 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		animation.setUniqueId(getUniqueID());
 		animation.fakeWorld = fakeWorld;
 		animation.setCenterVec(center.copy(), additionalAxis.copy());
-		animation.structure = structure;
 		animation.previews = previews.copy();
 		animation.blocks = blocks;
 		
@@ -862,14 +860,31 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	// ================Saving & Loading================
 	
+	protected void reloadPreviews(LittleStructure parent, BlockPos pos) {
+		previews = parent.getAbsolutePreviews(pos);
+	}
+	
+	public LittleStructure getParentStructure() {
+		for (TileEntityLittleTiles te : blocks) {
+			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = iterator.next();
+				if (!tile.connection.isLink()) {
+					LittleStructure structure = tile.connection.getStructureWithoutLoading();
+					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
+						return structure;
+				}
+			}
+		}
+		return null;
+	}
+	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = WorldFake.createFakeWorld(world);
 		setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
-		ArrayList<LittleTile> tiles = new ArrayList<>();
-		structure = null;
+		LittleStructure parent = null;
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
@@ -877,9 +892,11 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
-				if (!tile.connection.isLink())
-					this.structure = (LittleDoorBase) tile.connection.getStructureWithoutLoading();
-				tiles.add(tile);
+				if (!tile.connection.isLink()) {
+					LittleStructure structure = tile.connection.getStructureWithoutLoading();
+					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
+						parent = structure;
+				}
 			}
 			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking(), te.isRendered()));
 			fakeWorld.setTileEntity(te.getPos(), te);
@@ -892,13 +909,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		else
 			pos = baseOffset;
 		
-		NBTTagCompound structureNBT = new NBTTagCompound();
-		structure.writeToNBTPreview(structureNBT, pos);
-		LittleTilePos absoluteAxis = getCenter();
-		previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, absoluteAxis.getContext());
-		for (LittleTile tile : tiles) {
-			previews.addTile(tile);
-		}
+		reloadPreviews(parent, pos);
 		
 		updateWorldCollision();
 		updateBoundingBox();
