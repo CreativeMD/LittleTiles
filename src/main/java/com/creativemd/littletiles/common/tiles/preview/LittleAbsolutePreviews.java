@@ -34,6 +34,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	public LittleAbsolutePreviews copy() {
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, context);
 		previews.previews.addAll(this.previews);
+		previews.children.addAll(children);
 		return previews;
 	}
 	

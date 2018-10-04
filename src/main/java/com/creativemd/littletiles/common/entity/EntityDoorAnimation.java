@@ -9,6 +9,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -59,14 +61,13 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super(worldIn);
 	}
 	
-	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis) {
+	public EntityDoorAnimation(World world, WorldFake worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, int duration) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
-		this.structure = structure;
 		
 		this.transformation = transformation;
-		this.duration = structure.duration;
+		this.duration = duration;
 		
 		setTransformationStartOffset();
 		
@@ -154,9 +155,8 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		} else {
 			if (progress >= duration) {
 				// Try to place door, if not drop ItemStack
-				NBTTagCompound structureNBT = new NBTTagCompound();
-				this.structure.writeToNBTPreview(structureNBT, previews.pos);
-				previews = new LittleAbsolutePreviewsStructure(structureNBT, previews);
+				LittleStructure placedStructureParent = getParentStructure();
+				reloadPreviews(placedStructureParent, previews.pos);
 				
 				if (world.isRemote)
 					((LittleDoorBase) previews.getStructure()).isWaitingForApprove = true;
@@ -165,7 +165,15 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 					List<PlacePreviewTile> placePreviews = new ArrayList<>();
 					previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 					
+					LittleStructure newDoor = previews.getStructure();
+					
 					if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
+						if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
+							LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
+							newDoor.parent = new StructureLink(newDoor.getMainTile().te, parentStructure.getMainTile().te.getPos(), parentStructure.getMainTile().getContext(), parentStructure.getMainTile().getIdentifier(), parentStructure.attribute, newDoor, placedStructureParent.parent.getChildID(), true);
+							parentStructure.children.put(newDoor.parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, newDoor.getMainTile().te.getPos(), newDoor.getMainTile().getContext(), newDoor.getMainTile().getIdentifier(), newDoor.attribute, parentStructure, newDoor.parent.getChildID(), false));
+						}
+						
 						if (world.isRemote) {
 							waitingForRender = new CopyOnWriteArrayList<>();
 							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
@@ -181,7 +189,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 							return;
 						}
 					} else if (!world.isRemote)
-						WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
+						WorldUtils.dropItem(world, previews.getStructure().getStructureDrop(), baseOffset);
 				}
 				
 				isDead = true;

@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
+import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -248,6 +249,19 @@ public abstract class LittleStructure {
 		return tiles.entrySet();
 	}
 	
+	public HashMapList<TileEntityLittleTiles, LittleTile> getAllTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
+		if (!hasLoaded() || !loadChildren())
+			return tiles;
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet()) {
+			tiles.add(entry.getKey(), entry.getValue());
+		}
+		for (IStructureChildConnector child : children.values()) {
+			child.getStructure(getWorld()).getAllTiles(tiles);
+		}
+		return tiles;
+	}
+	
 	public void removeTile(LittleTile tile) {
 		if (tiles != null)
 			tiles.removeValue(tile.te, tile);
@@ -288,6 +302,12 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
+	public boolean loadParent() {
+		if (parent != null)
+			return parent.isConnected(getWorld());
+		return true;
+	}
+	
 	public boolean loadChildren() {
 		if (children == null)
 			children = new LinkedHashMap<>();
@@ -296,7 +316,7 @@ public abstract class LittleStructure {
 			return true;
 		
 		for (IStructureChildConnector child : children.values()) {
-			if (!child.isConnected(mainTile.te.getWorld()))
+			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().loadChildren())
 				return false;
 		}
 		
@@ -359,14 +379,14 @@ public abstract class LittleStructure {
 			name = null;
 		
 		// Load family (parent and children)		
-		if (nbt.hasKey("parent", 10))
-			parent = StructureLink.loadFromNBT(this, nbt, true);
+		if (nbt.hasKey("parent"))
+			parent = StructureLink.loadFromNBT(this, nbt.getCompoundTag("parent"), true);
 		else
 			parent = null;
 		
-		if (nbt.hasKey("children", 10)) {
+		if (nbt.hasKey("children")) {
 			children = new LinkedHashMap<>();
-			NBTTagList list = nbt.getTagList("tiles", 10);
+			NBTTagList list = nbt.getTagList("children", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
 				IStructureChildConnector child = StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false);
 				children.put(child.getChildID(), child);
@@ -494,6 +514,10 @@ public abstract class LittleStructure {
 		}
 	}
 	
+	public LittleGridContext getMinContext() {
+		return LittleGridContext.getMin();
+	}
+	
 	public LittlePreviewsStructure getPreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
@@ -505,7 +529,30 @@ public abstract class LittleStructure {
 			preview.box.addOffset(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 		}
 		
+		for (IStructureChildConnector child : children.values()) {
+			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
+		}
+		
 		previews.convertToSmallest();
+		previews.ensureContext(getMinContext());
+		return previews;
+	}
+	
+	public LittleAbsolutePreviewsStructure getAbsolutePreviews(BlockPos pos) {
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		this.writeToNBTPreview(structureNBT, pos);
+		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, LittleGridContext.getMin());
+		
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			previews.addTile(iterator.next());
+		}
+		
+		for (IStructureChildConnector child : children.values()) {
+			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
+		}
+		
+		previews.convertToSmallest();
+		previews.ensureContext(getMinContext());
 		return previews;
 	}
 	
@@ -533,10 +580,6 @@ public abstract class LittleStructure {
 			
 			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 			LittlePreviews previews = getPreviews(pos);
-			
-			for (IStructureChildConnector child : children.values()) {
-				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
-			}
 			
 			LittleTilePreview.savePreview(previews, stack);
 			

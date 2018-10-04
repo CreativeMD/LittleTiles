@@ -62,7 +62,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 			lt.enabled = false;
 		controls.add(lt);
 		
-		controls.add((GuiControl) new GuiCheckBox("remember_structure", translate("selection.include.structure"), 0, 80, false).setEnabled(false));
+		controls.add((GuiControl) new GuiCheckBox("remember_structure", translate("selection.include.structure"), 0, 80, true));
 		// accurate
 		GuiLabel label = new GuiLabel("label_scale", translate("selection.scale") + ":", 0, 102);
 		controls.add(label);
@@ -79,6 +79,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 				nbt.setBoolean("includeVanilla", ((GuiCheckBox) get("includeVanilla")).value);
 				nbt.setBoolean("includeCB", ((GuiCheckBox) get("includeCB")).value);
 				nbt.setBoolean("includeLT", ((GuiCheckBox) get("includeLT")).value);
+				nbt.setBoolean("remember_structure", ((GuiCheckBox) get("remember_structure")).value);
 				
 				LittleGridContext minRequired = LittleGridContext.getMin();
 				if (nbt.getBoolean("includeCB") && result.minCBContext != null)

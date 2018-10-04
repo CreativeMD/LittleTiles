@@ -51,7 +51,7 @@ public abstract class SelectionMode {
 	
 	public abstract void clearSelection(ItemStack stack);
 	
-	public abstract LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT);
+	public abstract LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
 	
 	public void saveSelection(ItemStack stack) {
 	}

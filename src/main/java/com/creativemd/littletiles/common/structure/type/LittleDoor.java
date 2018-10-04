@@ -158,7 +158,7 @@ public class LittleDoor extends LittleDoorBase {
 	}
 	
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
-		LittleAbsolutePreviewsStructure previews = getDoorPreviews();
+		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
 		
 		LittleDoor newDoor = (LittleDoor) previews.getStructure();
 		if (newDoor.doubledRelativeAxis.context.size > previews.context.size)
@@ -188,7 +188,7 @@ public class LittleDoor extends LittleDoorBase {
 	@Override
 	public boolean activate(World world, @Nullable EntityPlayer player, @Nullable Rotation rotation, BlockPos pos) {
 		if (axis != null && !isWaitingForApprove) {
-			if (!hasLoaded()) {
+			if (!hasLoaded() || !loadChildren() || !loadParent()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return false;
 			}
@@ -317,14 +317,15 @@ public class LittleDoor extends LittleDoorBase {
 	}
 	
 	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid) {
-		LoadList();
+		if (!hasLoaded() || !loadChildren())
+			return false;
 		
 		LittleTilePos axisPoint = getAbsoluteAxisVec();
 		LittleTileVec additional = getAdditionalAxisVec();
 		
 		//axisPoint.removeInternalBlockOffset();
 		
-		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = new HashMapList<>(tiles);
+		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
 		
 		for (TileEntityLittleTiles te : tempTiles.keySet()) {

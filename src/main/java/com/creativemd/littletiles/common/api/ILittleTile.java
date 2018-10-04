@@ -32,8 +32,7 @@ public interface ILittleTile {
 	
 	public default void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
-		for (int i = 0; i < previews.size(); i++) {
-			LittleTilePreview preview = previews.get(i);
+		for (LittleTilePreview preview : previews.allPreviews()) {
 			preview.rotatePreview(rotation, previews.context.rotationCenter);
 		}
 		if (previews.hasStructure()) {
@@ -45,8 +44,7 @@ public interface ILittleTile {
 	
 	public default void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
-		for (int i = 0; i < previews.size(); i++) {
-			LittleTilePreview preview = previews.get(i);
+		for (LittleTilePreview preview : previews.allPreviews()) {
 			preview.flipPreview(axis, previews.context.rotationCenter);
 		}
 		if (previews.hasStructure()) {

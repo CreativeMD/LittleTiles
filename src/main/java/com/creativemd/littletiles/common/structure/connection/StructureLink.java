@@ -3,8 +3,6 @@ package com.creativemd.littletiles.common.structure.connection;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
-import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -104,14 +102,18 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 		if (nbt.hasKey("entity"))
 			return new StructureLinkToSubWorld(nbt, structure);
 		else if (nbt.getBoolean("subWorld"))
-			return new StructureLinkFromSubWorld(nbt, (EntityAnimation) ((WorldFake) structure.getMainTile().te.getWorld()).parent);
+			return new StructureLinkFromSubWorld(nbt, structure);
 		return new StructureLink(nbt, structure, isChild);
 	}
 	
 	@Override
 	public void destroyStructure() {
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : parent.getEntrySet()) {
-			entry.getKey().removeTiles(entry.getValue());
+		if (structure.hasLoaded() && structure.loadChildren()) {
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.getEntrySet()) {
+				entry.getKey().removeTiles(entry.getValue());
+			}
+			for (IStructureChildConnector child : structure.children.values())
+				child.destroyStructure();
 		}
 	}
 }

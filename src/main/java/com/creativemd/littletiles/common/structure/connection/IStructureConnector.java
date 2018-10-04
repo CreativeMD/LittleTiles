@@ -25,6 +25,10 @@ public interface IStructureConnector<T> {
 	
 	public boolean is(LittleTile mainTile);
 	
+	public default boolean isLinkToAnotherWorld() {
+		return false;
+	}
+	
 	public void reset();
 	
 	public IStructureConnector copy(T parent);
