@@ -294,7 +294,7 @@ public abstract class LittleTile implements ICombinable {
 		if (isChildOfStructure() != tile.isChildOfStructure())
 			return false;
 		
-		if (isChildOfStructure() && connection.getStructure(te.getWorld()) != tile.connection.getStructure(tile.te.getWorld()))
+		if (isChildOfStructure() && this.connection.equals(tile.connection))
 			return false;
 		
 		if (invisible != tile.invisible)
@@ -759,7 +759,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public LittleStructureAttribute getStructureAttribute() {
-		if (isConnectedToStructure())
+		if (isChildOfStructure())
 			return connection.getAttribute();
 		return LittleStructureAttribute.NONE;
 	}

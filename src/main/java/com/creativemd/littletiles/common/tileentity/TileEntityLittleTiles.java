@@ -723,7 +723,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				}
 				for (int i = 0; i < tilesToAdd.size(); i++) {
 					addLittleTile(tilesToAdd.get(i));
-					tilesToAdd.get(i).isConnectedToStructure();
 				}
 			}
 		}

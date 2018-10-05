@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleSaw;
+import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.mods.chisel.ChiselManager;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
@@ -380,10 +381,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	
 	@SideOnly(Side.CLIENT)
 	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		TEResult result = loadTeAndTile(worldIn, pos, mc.player);
-		if (result.isComplete()) {
-			//if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ))
-			//{
+		TEResult result = loadTeAndTile(worldIn, pos, playerIn);
+		if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench)) {
+			// if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand,
+			// heldItem, side, hitX, hitY, hitZ))
+			// {
 			return new LittleActionActivated(pos, playerIn).execute();
 		}
 		return false;

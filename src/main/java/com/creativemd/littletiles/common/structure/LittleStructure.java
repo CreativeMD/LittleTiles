@@ -323,6 +323,16 @@ public abstract class LittleStructure {
 		return true;
 	}
 	
+	public boolean isChildMoving() {
+		for (IStructureChildConnector child : children.values()) {
+			if (child.isLinkToAnotherWorld())
+				return true;
+			if (child.getStructure(getWorld()).isChildMoving())
+				return true;
+		}
+		return false;
+	}
+	
 	public HashMap<BlockPos, Integer> tilesToLoad = null;
 	
 	public void loadStructure(LittleTile mainTile) {
@@ -488,6 +498,22 @@ public abstract class LittleStructure {
 			}
 		}
 		return false;
+	}
+	
+	public int countTiles() {
+		int count = 0;
+		if (tilesToLoad != null) {
+			for (Integer tiles : tilesToLoad.values()) {
+				count += tiles;
+			}
+		}
+		if (tiles != null) {
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+				if (tilesToLoad == null || !tilesToLoad.containsKey(entry.getKey().getPos()))
+					count += entry.getValue().size();
+			}
+		}
+		return count;
 	}
 	
 	// ====================LittleTile-Stuff====================

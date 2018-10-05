@@ -47,6 +47,7 @@ import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
+import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
@@ -59,6 +60,7 @@ import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
+import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -426,6 +428,19 @@ public class LittleTiles {
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				return new SubContainerWorkbench(player);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("structureoverview", new LittleGuiHandler() {
+			
+			@Override
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
+				return new SubGuiStructureOverview(tile);
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
+				return new SubContainerStructureOverview(player, tile);
 			}
 		});
 		

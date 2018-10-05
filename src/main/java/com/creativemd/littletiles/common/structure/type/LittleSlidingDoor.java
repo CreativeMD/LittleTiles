@@ -77,7 +77,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public boolean activate(World world, EntityPlayer player, Rotation rotation, BlockPos pos) {
 		if (!isWaitingForApprove) {
-			if (!hasLoaded() || !loadChildren() || !loadParent()) {
+			if (!hasLoaded() || !loadChildren() || isChildMoving() || !loadParent()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return true;
 			}
@@ -101,7 +101,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			UUID uuid = UUID.randomUUID();
 			PacketHandler.sendPacketToServer(new LittleSlidingDoorPacket(pos, player, uuid));
 			interactWithDoor(world, pos, player, uuid);
-			action.preventPacket = true;
+			action.preventInteraction = true;
 		}
 		return true;
 	}
