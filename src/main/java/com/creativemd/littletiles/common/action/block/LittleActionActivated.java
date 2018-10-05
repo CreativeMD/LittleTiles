@@ -8,6 +8,7 @@ import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
@@ -37,12 +38,19 @@ public class LittleActionActivated extends LittleActionInteract {
 		BlockTile.cancelNext = true;
 	}
 	
-	public boolean preventPacket = false;
+	@Override
+	public void writeBytes(ByteBuf buf) {
+		super.writeBytes(buf);
+		buf.writeBoolean(preventInteraction);
+	}
 	
 	@Override
-	public boolean sendToServer() {
-		return !preventPacket;
+	public void readBytes(ByteBuf buf) {
+		super.readBytes(buf);
+		preventInteraction = buf.readBoolean();
 	}
+	
+	public boolean preventInteraction = false;
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
@@ -55,6 +63,12 @@ public class LittleActionActivated extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
+		if (preventInteraction) {
+			if (!player.world.isRemote) {
+				LittleEvent.cancelNext = true;
+			}
+			return true;
+		}
 		boolean result = super.action(player);
 		if (!player.world.isRemote)
 			BlockTile.cancelNext = true;

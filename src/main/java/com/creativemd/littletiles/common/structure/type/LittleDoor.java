@@ -188,7 +188,7 @@ public class LittleDoor extends LittleDoorBase {
 	@Override
 	public boolean activate(World world, @Nullable EntityPlayer player, @Nullable Rotation rotation, BlockPos pos) {
 		if (axis != null && !isWaitingForApprove) {
-			if (!hasLoaded() || !loadChildren() || !loadParent()) {
+			if (!hasLoaded() || !loadChildren() || isChildMoving() || !loadParent()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
 				return false;
 			}
@@ -305,7 +305,7 @@ public class LittleDoor extends LittleDoorBase {
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (world.isRemote) {
 			activate(world, player, null, pos);
-			action.preventPacket = true;
+			action.preventInteraction = true;
 		}
 		return true;
 	}
