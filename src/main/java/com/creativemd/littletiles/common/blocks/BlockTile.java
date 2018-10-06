@@ -932,20 +932,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		/* world.setBlockToAir(pos); onBlockDestroyedByExplosion(world, pos, explosion); */
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
-		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
-			for (LittleTile tile : te.getTiles()) {
-				if (tile.box.getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
-					return tile.getFogColor(world, pos, state, entity, originalColor, partialTicks);
-			}
-		}
-		
-		return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
-	}
-	
 	/* protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState
 	 * state) { double d0 = 0.0D; double d1 = 0.0D; double d2 = 0.0D;
 	 * BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos =
