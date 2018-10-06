@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.ingredients;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
@@ -22,35 +21,30 @@ public class BlockIngredient {
 	public int meta;
 	public double value;
 	
-	public BlockIngredient(Block block, int meta, double value)
-	{
+	public BlockIngredient(Block block, int meta, double value) {
 		this.block = block;
 		this.meta = meta;
 		this.value = value;
 	}
 	
-	public ItemStack getItemStack()
-	{
+	public ItemStack getItemStack() {
 		return new ItemStack(block, 1, meta);
 	}
 	
-	public ItemStack getTileItemStack()
-	{
+	public ItemStack getTileItemStack() {
 		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = new NBTTagCompound();
 		new LittleTileSize(1, 1, 1).writeToNBT("size", nbt);
-		
 		
 		LittleTile tile = new LittleTileBlock(block, meta);
 		tile.saveTileExtra(nbt);
 		nbt.setString("tID", "BlockTileBlock");
 		stack.setTagCompound(nbt);
 		
-		int count = (int) (value/LittleGridContext.get().minimumTileSize);
-		if(count == 0)
-		{
+		int count = (int) (value / LittleGridContext.get().minimumTileSize);
+		if (count == 0) {
 			LittleGridContext.getMax().set(stack.getTagCompound());
-			count = (int) (value/LittleGridContext.getMax().minimumTileSize);
+			count = (int) (value / LittleGridContext.getMax().minimumTileSize);
 		}
 		stack.setCount(count);
 		return stack;
@@ -62,18 +56,15 @@ public class BlockIngredient {
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		return object instanceof BlockIngredient && ((BlockIngredient)object).block == this.block && ((BlockIngredient)object).meta == this.meta;
+	public boolean equals(Object object) {
+		return object instanceof BlockIngredient && ((BlockIngredient) object).block == this.block && ((BlockIngredient) object).meta == this.meta;
 	}
 	
-	public IBlockState getState()
-	{
+	public IBlockState getState() {
 		return block.getStateFromMeta(meta);
 	}
 	
-	public boolean is(ItemStack stack)
-	{
+	public boolean is(ItemStack stack) {
 		return Block.getBlockFromItem(stack.getItem()) == this.block && stack.getItemDamage() == this.meta;
 	}
 	
@@ -85,12 +76,10 @@ public class BlockIngredient {
 		return new BlockIngredient(this.block, this.meta, value);
 	}
 	
-	public static class BlockIngredients
-	{
+	public static class BlockIngredients {
 		private List<BlockIngredient> content;
 		
-		public BlockIngredients()
-		{
+		public BlockIngredients() {
 			this.content = new ArrayList<>();
 		}
 		
@@ -99,106 +88,91 @@ public class BlockIngredient {
 			addIngredients(ingredients);
 		}
 		
-		public List<BlockIngredient> getIngredients()
-		{
+		public List<BlockIngredient> getIngredients() {
 			return content;
 		}
 		
-		public void addIngredients(BlockIngredients ingredients)
-		{
+		public void addIngredients(BlockIngredients ingredients) {
 			addIngredients(ingredients.content);
 		}
 		
-		public void addIngredients(List<BlockIngredient> ingredients)
-		{
+		public void addIngredients(List<BlockIngredient> ingredients) {
 			for (BlockIngredient ingredient : ingredients) {
 				addIngredient(ingredient);
 			}
 		}
 		
-		public void addIngredient(BlockIngredient ingredient)
-		{
-			if(ingredient == null)
-				return ;
+		public void addIngredient(BlockIngredient ingredient) {
+			if (ingredient == null)
+				return;
 			int indexOf = content.indexOf(ingredient);
-			if(indexOf != -1)
-			{
+			if (indexOf != -1) {
 				content.get(indexOf).value += ingredient.value;
-			}else
+			} else
 				content.add(ingredient.copy());
 		}
 		
 		/**
 		 * 
-		 * @param stack to drain from. Will only take necessary count
+		 * @param stack
+		 *            to drain from. Will only take necessary count
 		 * @return left overs
 		 */
-		public BlockIngredient drainItemStack(ItemStack stack)
-		{
+		public BlockIngredient drainItemStack(ItemStack stack) {
 			BlockIngredient ingredient = LittleAction.getIngredientsOfStackSimple(stack);
 			
 			int indexOf = content.indexOf(ingredient);
-			if(indexOf != -1)
-			{
+			if (indexOf != -1) {
 				BlockIngredient ownIngredient = content.get(indexOf);
 				
-				int amount = (int) Math.ceil(ownIngredient.value/ingredient.value);
-				double volume = ingredient.value*amount;
+				int amount = (int) Math.ceil(ownIngredient.value / ingredient.value);
+				double volume = ingredient.value * amount;
 				stack.shrink(amount);
 				
-				if(volume >= ownIngredient.value)
-				{
+				if (volume >= ownIngredient.value) {
 					content.remove(indexOf);
-					if(volume > ownIngredient.value)
-						return new BlockIngredient(ingredient.block, ingredient.meta, volume-ownIngredient.value);
-				}
-				else
+					if (volume > ownIngredient.value)
+						return new BlockIngredient(ingredient.block, ingredient.meta, volume - ownIngredient.value);
+				} else
 					ownIngredient.value -= volume;
 			}
 			return null;
 		}
 		
-		public void drainIngredient(BlockIngredient ingredient)
-		{
+		public void drainIngredient(BlockIngredient ingredient) {
 			int indexOf = content.indexOf(ingredient);
-			if(indexOf != -1)
-			{
+			if (indexOf != -1) {
 				BlockIngredient ownIngredient = content.get(indexOf);
 				ownIngredient.value -= ingredient.value;
-				if(ownIngredient.value <= 0)
+				if (ownIngredient.value <= 0)
 					content.remove(indexOf);
 			}
 		}
 		
-		public void drainIngredients(BlockIngredients ingredients)
-		{
+		public void drainIngredients(BlockIngredients ingredients) {
 			for (BlockIngredient ingredient : ingredients.content) {
 				drainIngredient(ingredient);
 			}
 		}
 		
-		public BlockIngredient getEqualIngredient(BlockIngredient ingredient)
-		{
+		public BlockIngredient getEqualIngredient(BlockIngredient ingredient) {
 			int indexOf = content.indexOf(ingredient);
-			if(indexOf != -1)
+			if (indexOf != -1)
 				return content.get(indexOf);
 			return null;
 		}
 		
-		public boolean isEmpty()
-		{
+		public boolean isEmpty() {
 			return content.isEmpty();
 		}
 		
-		public BlockIngredients copy()
-		{
+		public BlockIngredients copy() {
 			return new BlockIngredients(content);
 		}
 		
-		public int size()
-		{
+		public int size() {
 			return content.size();
 		}
-	
+		
 	}
 }

@@ -4,30 +4,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeReplace extends PlacementMode {
-
+	
 	public PlaceModeReplace(String name, PreviewMode mode) {
 		super(name, mode);
 	}
 	
 	@Override
-	public boolean shouldConvertBlock()
-	{
+	public boolean shouldConvertBlock() {
 		return true;
 	}
 	
 	@Override
-	public boolean checkAll()
-	{
+	public boolean checkAll() {
 		return false;
 	}
 	
@@ -35,11 +31,10 @@ public class PlaceModeReplace extends PlacementMode {
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return null;
 	}
-
+	
 	@Override
-	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles,
-			List<LittleTile> removedTiles, boolean requiresCollisionTest) {
-		if(!requiresCollisionTest)
+	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
+		if (!requiresCollisionTest)
 			return new ArrayList<>();
 		List<LittleTile> tiles = new ArrayList<>();
 		for (LittleTile lt : LittleActionDestroyBoxes.removeBox(te, te.getContext(), tile.box, false)) {
@@ -51,5 +46,5 @@ public class PlaceModeReplace extends PlacementMode {
 		}
 		return tiles;
 	}
-
+	
 }

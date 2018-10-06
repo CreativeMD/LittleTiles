@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -16,7 +14,7 @@ public class PlaceModeAll extends PlaceModeNormal {
 	public PlaceModeAll(String name, PreviewMode mode) {
 		super(name, mode);
 	}
-
+	
 	@Override
 	public boolean canPlaceStructures() {
 		return true;
@@ -24,11 +22,11 @@ public class PlaceModeAll extends PlaceModeNormal {
 	
 	@Override
 	public PlacementMode place() {
-		if(GuiScreen.isCtrlKeyDown())
+		if (GuiScreen.isCtrlKeyDown())
 			return PlacementMode.overwrite;
 		return super.place();
 	}
-
+	
 	@Override
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return new ArrayList<>(splittedTiles.keySet());

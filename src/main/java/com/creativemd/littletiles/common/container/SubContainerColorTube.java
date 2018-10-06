@@ -1,13 +1,12 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.littletiles.common.items.ItemColorTube;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubContainerColorTube extends SubContainer{
+public class SubContainerColorTube extends SubContainer {
 	
 	public ItemStack stack;
 	
@@ -15,7 +14,7 @@ public class SubContainerColorTube extends SubContainer{
 		super(player);
 		this.stack = stack;
 	}
-
+	
 	@Override
 	public void createControls() {
 		
@@ -25,5 +24,5 @@ public class SubContainerColorTube extends SubContainer{
 	public void onPacketReceive(NBTTagCompound nbt) {
 		stack.setTagCompound(nbt);
 	}
-
+	
 }

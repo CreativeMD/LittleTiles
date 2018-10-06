@@ -11,8 +11,7 @@ public abstract class LittleStructureParser<T extends LittleStructure> {
 	public final String structureID;
 	public final GuiParent parent;
 	
-	public LittleStructureParser(String id, GuiParent parent)
-	{
+	public LittleStructureParser(String id, GuiParent parent) {
 		this.structureID = id;
 		this.parent = parent;
 	}

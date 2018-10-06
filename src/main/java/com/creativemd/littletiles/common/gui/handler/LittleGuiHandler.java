@@ -6,30 +6,24 @@ import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.gui.SubGuiStorage;
-import com.creativemd.littletiles.common.structure.LittleStorage;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
-	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile)
-	{
+	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile) {
 		new LittleTileIdentifierAbsolute(tile).writeToNBT(nbt);
 		
 		GuiHandler.openGui(id, nbt, player);
 	}
 	
 	public abstract SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile);
-
+	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 		try {
@@ -42,7 +36,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	@SideOnly(Side.CLIENT)
 	public abstract SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile);
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
@@ -53,5 +47,5 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 		}
 		return null;
 	}
-
+	
 }

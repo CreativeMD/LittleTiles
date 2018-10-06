@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
@@ -18,7 +17,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.google.common.collect.Lists;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
@@ -44,20 +42,17 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public static PlacementMode currentMode = PlacementMode.getDefault();
 	public static LittleGridContext currentContext = LittleGridContext.get();
 	
-	public ItemMultiTiles()
-	{
+	public ItemMultiTiles() {
 		hasSubtypes = true;
 		setCreativeTab(LittleTiles.littleTab);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced)
-	{
-		if(stack.hasTagCompound())
-		{
+	public void addInformation(ItemStack stack, EntityPlayer player, List list, boolean advanced) {
+		if (stack.hasTagCompound()) {
 			String id = "none";
-			if(stack.getTagCompound().hasKey("structure"))
+			if (stack.getTagCompound().hasKey("structure"))
 				id = stack.getTagCompound().getCompoundTag("structure").getString("id");
 			list.add("structure: " + id);
 			list.add("contains " + stack.getTagCompound().getInteger("count") + " tiles");
@@ -65,20 +60,18 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	}
 	
 	@Override
-	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
-    {
-		/*ItemStack stack = player.getHeldItem(hand);
-		if(stack.hasTagCompound())
-			return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ);*/
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		/* ItemStack stack = player.getHeldItem(hand);
+		 * if(stack.hasTagCompound())
+		 * return Item.getItemFromBlock(LittleTiles.blockTile).onItemUse(player, world, pos, hand, facing, hitX, hitY, hitZ); */
 		return EnumActionResult.PASS;
-    }
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void getSubItems(Item stack, CreativeTabs tab, NonNullList<ItemStack> list)
-    {
-        
-    }
+	public void getSubItems(Item stack, CreativeTabs tab, NonNullList<ItemStack> list) {
+		
+	}
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
@@ -89,18 +82,17 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public boolean hasLittlePreview(ItemStack stack) {
 		return true;
 	}
-
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		return LittleTilePreview.getPreview(stack);
 	}
 	
 	@Override
-	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked)
-	{
+	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
 		return LittleTilePreview.getPreview(stack, allowLowResolution);
 	}
-
+	
 	@Override
 	public LittleStructure getLittleStructure(ItemStack stack) {
 		return getLTStructure(stack);
@@ -109,7 +101,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public static LittleStructure getLTStructure(ItemStack stack) {
 		return LittleStructure.createAndLoadStructure(stack.getTagCompound().getCompoundTag("structure"), null);
 	}
-
+	
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return LittleTilePreview.getCubes(stack);
@@ -117,37 +109,33 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType)
-	{
-		if(stack.hasTagCompound())
-		{
+	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
+		if (stack.hasTagCompound()) {
 			LittleTileSize size = LittleTilePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-			double scaler = 1/Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
+			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
 		}
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
-	{
-		if(stack != null)
+	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+		if (stack != null)
 			ItemModelCache.cacheModel(stack, facing, cachedQuads);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded)
-	{
-		if(stack == null)
+	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
+		if (stack == null)
 			return null;
 		return ItemModelCache.getCache(stack, facing);
 	}
 	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
-		if(!currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+		if (!currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
 			return PlacementMode.getStructureDefault();
 		return currentMode;
 	}
@@ -155,8 +143,8 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
-		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode){
-
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+			
 			@Override
 			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
 				ItemMultiTiles.currentContext = context;
@@ -178,7 +166,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public LittleTileSize getCachedSize(ItemStack stack) {
-		if(stack.getTagCompound().hasKey("size"))
+		if (stack.getTagCompound().hasKey("size"))
 			return LittleTilePreview.getSize(stack);
 		return null;
 	}
@@ -187,6 +175,5 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	public LittleTileVec getCachedOffset(ItemStack stack) {
 		return LittleTilePreview.getOffset(stack);
 	}
-	
 	
 }

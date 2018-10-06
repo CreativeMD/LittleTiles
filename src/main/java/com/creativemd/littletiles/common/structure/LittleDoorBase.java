@@ -9,31 +9,19 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.gui.SubGuiRecipe;
-import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
-import com.creativemd.littletiles.common.utils.transformation.OrdinaryDoorTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -52,14 +40,13 @@ public abstract class LittleDoorBase extends LittleStructure {
 	public int duration = 50;
 	
 	@Override
-	public void onUpdatePacketReceived()
-	{
+	public void onUpdatePacketReceived() {
 		isWaitingForApprove = false;
 	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		if(nbt.hasKey("duration"))
+		if (nbt.hasKey("duration"))
 			duration = nbt.getInteger("duration");
 		else
 			duration = 50;
@@ -71,25 +58,21 @@ public abstract class LittleDoorBase extends LittleStructure {
 		nbt.setInteger("duration", duration);
 	}
 	
-	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, PlacePreviews previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional)
-	{
+	public boolean place(World world, LittleDoorBase structure, EntityPlayer player, PlacePreviews previews, BlockPos pos, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional) {
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, pos);
-		if(LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, pos), PlacementMode.all))
-		{
+		if (LittleActionPlaceRelative.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, pos), PlacementMode.all)) {
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			WorldFake fakeWorld = WorldFake.createFakeWorld(world);
 			LittleActionPlaceRelative.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, EnumFacing.EAST);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
-				if(te instanceof TileEntityLittleTiles)
+				if (te instanceof TileEntityLittleTiles)
 					blocks.add((TileEntityLittleTiles) te);
 			}
 			
-			if(world.isRemote)
-			{
+			if (world.isRemote) {
 				for (TileEntityLittleTiles te : tiles.keySet()) {
-					if(te.waitingAnimation != null)
-					{
+					if (te.waitingAnimation != null) {
 						te.waitingAnimation.removeWaitingTe(te);
 						te.waitingAnimation = null;
 					}
@@ -104,8 +87,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return false;
 	}
 	
-	public Rotation getDefaultRotation()
-	{
+	public Rotation getDefaultRotation() {
 		return null;
 	}
 	
@@ -117,13 +99,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public abstract LittleDoorBase copyToPlaceDoor();
 	
-	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews)
-	{
+	public List<PlacePreviewTile> getAdditionalPreviews(PlacePreviews previews) {
 		return new ArrayList<>();
 	}
 	
 	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureParser<T> {
-
+		
 		public LittleDoorBaseParser(String id, GuiParent parent) {
 			super(id, parent);
 		}

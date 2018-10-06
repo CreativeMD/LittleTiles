@@ -4,9 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -30,49 +28,42 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		this.previews = new ArrayList<>();
 	}
 	
-	public boolean isAbsolute()
-	{
+	public boolean isAbsolute() {
 		return false;
 	}
 	
-	public BlockPos getBlockPos()
-	{
+	public BlockPos getBlockPos() {
 		return null;
 	}
 	
-	public void convertTo(LittleGridContext to)
-	{
+	public void convertTo(LittleGridContext to) {
 		for (LittleTilePreview preview : previews) {
 			preview.convertTo(this.context, to);
 		}
 		this.context = to;
 	}
 	
-	public void convertToSmallest()
-	{
+	public void convertToSmallest() {
 		int size = LittleGridContext.minSize;
 		for (LittleTilePreview preview : previews) {
 			size = Math.max(size, preview.getSmallestContext(context));
 		}
 		
-		if(size < context.size)
+		if (size < context.size)
 			convertTo(LittleGridContext.get(size));
 	}
-
-	public LittlePreviews copy()
-	{
+	
+	public LittlePreviews copy() {
 		LittlePreviews previews = new LittlePreviews(context);
 		previews.previews.addAll(this.previews);
 		return previews;
 	}
 	
-	protected LittleTilePreview getPreview(LittleTile tile)
-	{
+	protected LittleTilePreview getPreview(LittleTile tile) {
 		LittleTilePreview preview = tile.getPreviewTile();
 		LittleGridContext context = tile.getContext();
-		if(this.context != context)
-		{
-			if(this.context.size > context.size)
+		if (this.context != context) {
+			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
 			else
 				convertTo(context);
@@ -81,11 +72,9 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return preview;
 	}
 	
-	public LittleTilePreview addPreview(BlockPos pos, LittleTilePreview preview, LittleGridContext context)
-	{
-		if(this.context != context)
-		{
-			if(this.context.size > context.size)
+	public LittleTilePreview addPreview(BlockPos pos, LittleTilePreview preview, LittleGridContext context) {
+		if (this.context != context) {
+			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
 			else
 				convertTo(context);
@@ -95,23 +84,21 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return preview;
 	}
 	
-	public LittleTilePreview addTile(LittleTile tile)
-	{
+	public LittleTilePreview addTile(LittleTile tile) {
 		LittleTilePreview preview = getPreview(tile);
 		previews.add(preview);
 		return preview;
 		
 	}
-	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset)
-	{
+	
+	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset) {
 		LittleTilePreview preview = getPreview(tile);
 		preview.box.addOffset(offset);
 		return addPreview(null, tile.getPreviewTile(), tile.getContext());
 	}
 	
-	public void addTiles(List<LittleTile> tiles)
-	{
-		if(tiles.isEmpty())
+	public void addTiles(List<LittleTile> tiles) {
+		if (tiles.isEmpty())
 			return;
 		
 		for (LittleTile tile : tiles) {
@@ -124,77 +111,68 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews.iterator();
 	}
 	
-	public static LittlePreviews getPreview(ItemStack stack, boolean allowLowResolution)
-	{
-		if(!stack.hasTagCompound())
+	public static LittlePreviews getPreview(ItemStack stack, boolean allowLowResolution) {
+		if (!stack.hasTagCompound())
 			return new LittlePreviews(LittleGridContext.get());
 		
 		LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
-		if(stack.getTagCompound().getTag("tiles") instanceof NBTTagInt)
-		{
+		if (stack.getTagCompound().getTag("tiles") instanceof NBTTagInt) {
 			LittlePreviews previews = new LittlePreviews(context);
 			int tiles = stack.getTagCompound().getInteger("tiles");
 			for (int i = 0; i < tiles; i++) {
 				NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
-				if(preview != null)
+				if (preview != null)
 					previews.previews.add(preview);
 			}
 			return previews;
-		}else{
-			if(allowLowResolution && stack.getTagCompound().hasKey("pos"))
-			{
+		} else {
+			if (allowLowResolution && stack.getTagCompound().hasKey("pos")) {
 				LittlePreviews previews = new LittlePreviews(context);
 				NBTTagCompound tileData = new NBTTagCompound();
 				LittleTile tile = new LittleTileBlock(LittleTiles.coloredBlock);
 				tile.saveTileExtra(tileData);
-				tileData.setString("tID", tile.getID());	
+				tileData.setString("tID", tile.getID());
 				
 				NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 				for (int i = 0; i < list.tagCount(); i++) {
 					int[] array = list.getIntArrayAt(i);
-					previews.previews.add(new LittleTilePreview(new LittleTileBox(array[0] * context.size, array[1] * context.size, array[2] * context.size,
-							array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
+					previews.previews.add(new LittleTilePreview(new LittleTileBox(array[0] * context.size, array[1] * context.size, array[2] * context.size, array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
 				}
 				return previews;
 			}
 			return LittleNBTCompressionTools.readPreviews(context, stack.getTagCompound().getTagList("tiles", 10));
 		}
 	}
-
-	public LittleTilePreview get(int index)
-	{
+	
+	public LittleTilePreview get(int index) {
 		return previews.get(index);
 	}
 	
 	public int size() {
 		return previews.size();
 	}
-
-	public void ensureContext(LittleGridContext context)
-	{
-		if(this.context.size < context.size)
+	
+	public void ensureContext(LittleGridContext context) {
+		if (this.context.size < context.size)
 			convertTo(context);
 	}
-
+	
 	public boolean isEmpty() {
 		return previews.isEmpty();
 	}
 	
-	public void addWithoutCheckingPreview(LittleTilePreview preview)
-	{
+	public void addWithoutCheckingPreview(LittleTilePreview preview) {
 		previews.add(preview);
 	}
 	
-	public LittleVolumes getVolumes()
-	{
+	public LittleVolumes getVolumes() {
 		LittleVolumes volumes = new LittleVolumes(context);
 		volumes.addPreviews(this);
 		return volumes;
 	}
 	
-	public boolean isVolumeEqual(LittlePreviews previews)
-	{
+	public boolean isVolumeEqual(LittlePreviews previews) {
 		return getVolumes().equals(previews.getVolumes());
 	}
 }

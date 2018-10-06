@@ -50,56 +50,49 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		Axis one = RotationUtils.getDifferentAxisFirst(box.slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(box.slice.axis);
 		
-		if(box.hasAdditionalBoxTwo())
-		{
+		if (box.hasAdditionalBoxTwo()) {
 			cubeTwo = new LittleRenderingCube(box.getCube(context), box, block, meta);
 			
 			cubeTwo.setMin(one, context.toVanillaGrid((float) box.getMinSlice(one)));
 			cubeTwo.setMax(one, context.toVanillaGrid((float) box.getMaxSlice(one)));
-        	
-        	if(box.slice.isFacingPositive(two))
-        	{
-        		cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMin(two)));
-        		cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMinSlice(two)));
-        	}else{
-        		cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
-        		cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMax(two)));
-        	}
+			
+			if (box.slice.isFacingPositive(two)) {
+				cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMin(two)));
+				cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMinSlice(two)));
+			} else {
+				cubeTwo.setMin(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
+				cubeTwo.setMax(two, context.toVanillaGrid((float) box.getMax(two)));
+			}
 		}
 		
-		if(box.hasAdditionalBoxOne())
-		{
+		if (box.hasAdditionalBoxOne()) {
 			cubeOne = new LittleRenderingCube(box.getCube(context), box, block, meta);
 			
-			if(box.slice.isFacingPositive(one))
-        	{
+			if (box.slice.isFacingPositive(one)) {
 				cubeOne.setMin(one, context.toVanillaGrid((float) box.getMin(one)));
 				cubeOne.setMax(one, context.toVanillaGrid((float) box.getMinSlice(one)));
-        	}else{
-        		cubeOne.setMin(one, context.toVanillaGrid((float) box.getMaxSlice(one)));
-        		cubeOne.setMax(one, context.toVanillaGrid((float) box.getMax(one)));
-        	}
-        	
-        	if(box.slice.isFacingPositive(two))
-        	{
-        		cubeOne.setMin(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMin(two)) : context.toVanillaGrid((float) box.getMinSlice(two)));
-        		cubeOne.setMax(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
-        	}else{
-        		cubeOne.setMin(two, context.toVanillaGrid((float) box.getMinSlice(two)));
-        		cubeOne.setMax(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMax(two)) : context.toVanillaGrid((float) box.getMaxSlice(two)));
-        	}
+			} else {
+				cubeOne.setMin(one, context.toVanillaGrid((float) box.getMaxSlice(one)));
+				cubeOne.setMax(one, context.toVanillaGrid((float) box.getMax(one)));
+			}
+			
+			if (box.slice.isFacingPositive(two)) {
+				cubeOne.setMin(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMin(two)) : context.toVanillaGrid((float) box.getMinSlice(two)));
+				cubeOne.setMax(two, context.toVanillaGrid((float) box.getMaxSlice(two)));
+			} else {
+				cubeOne.setMin(two, context.toVanillaGrid((float) box.getMinSlice(two)));
+				cubeOne.setMax(two, cubeTwo != null ? context.toVanillaGrid((float) box.getMax(two)) : context.toVanillaGrid((float) box.getMaxSlice(two)));
+			}
 		}
 	}
 	
 	@Override
-	public CubeObject offset(BlockPos pos)
-	{
-		return new LittleSlicedRenderingCube(context, new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedBox) this.box, block, meta);
+	public CubeObject offset(BlockPos pos) {
+		return new LittleSlicedRenderingCube(context, new CubeObject(minX - pos.getX(), minY - pos.getY(), minZ - pos.getZ(), maxX - pos.getX(), maxY - pos.getY(), maxZ - pos.getZ(), this), (LittleTileSlicedBox) this.box, block, meta);
 	}
 	
 	@Override
-	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha)
-	{
+	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		
@@ -112,19 +105,19 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
-			if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
+			if ((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
 				LittleSlicedOrdinaryRenderingCube.renderFaceLine(dynamicCube, facing, facing.getAxis() == box.slice.axis, red, green, blue, alpha);
 			
-			if(cubeOne != null && facing != box.slice.getEmptySide(one))
+			if (cubeOne != null && facing != box.slice.getEmptySide(one))
 				renderFaceLine(cubeOne, facing, false, red, green, blue, alpha);
 			
-			if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
+			if (cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
 				renderFaceLine(cubeTwo, facing, false, red, green, blue, alpha);
 		}
 		
 		GlStateManager.pushMatrix();
 	}
-
+	
 	@Override
 	public void renderCubePreview(double x, double y, double z, ILittleTile iTile) {
 		
@@ -134,7 +127,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		GlStateManager.translate(x, y, z);
 		GlStateManager.enableRescaleNormal();
 		
-		GlStateManager.color((float)color.xCoord, (float)color.yCoord, (float)color.zCoord, (float)(Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
+		GlStateManager.color((float) color.xCoord, (float) color.yCoord, (float) color.zCoord, (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5) * iTile.getPreviewAlphaFactor());
 		
 		LittleTileSlicedBox box = (LittleTileSlicedBox) this.box;
 		
@@ -145,33 +138,32 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
-			if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
+			if ((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
 				LittleSlicedOrdinaryRenderingCube.renderFace(dynamicCube, facing, facing.getAxis() == box.slice.axis, box.slice);
 			
-			if(cubeOne != null && facing != box.slice.getEmptySide(one))
+			if (cubeOne != null && facing != box.slice.getEmptySide(one))
 				renderFace(cubeOne, facing, false, box.slice);
 			
-			if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
+			if (cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
 				renderFace(cubeTwo, facing, false, box.slice);
 		}
 		
-        GlStateManager.popMatrix();
+		GlStateManager.popMatrix();
 	}
 	
-	public static void renderFaceLine(CubeObject cube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha)
-	{
+	public static void renderFaceLine(CubeObject cube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha) {
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
-        
+		bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+		
 		Vector3f vec = new Vector3f();
 		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
 		
-		for (int i = 0; i < 4; i++) {			
+		for (int i = 0; i < 4; i++) {
 			
 			vec = cube.get(face.getVertexInformation(i), vec);
 			
-			if(i == 0)
+			if (i == 0)
 				bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, 0.0F).endVertex();
 			bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, alpha).endVertex();
 		}
@@ -179,8 +171,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		tessellator.draw();
 	}
 	
-	public static void renderFace(CubeObject cube, EnumFacing facing, boolean isTraingle, LittleSlice slice)
-	{
+	public static void renderFace(CubeObject cube, EnumFacing facing, boolean isTraingle, LittleSlice slice) {
 		GL11.glBegin(GL11.GL_POLYGON);
 		
 		Vec3i normal = facing.getDirectionVec();
@@ -189,7 +180,7 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		Vector3f vec = new Vector3f();
 		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
 		
-		for (int i = 0; i < 4; i++) {			
+		for (int i = 0; i < 4; i++) {
 			vec = cube.get(face.getVertexInformation(i), vec);
 			
 			GlStateManager.glVertex3f(vec.x, vec.y, vec.z);
@@ -199,16 +190,15 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 	}
 	
 	@Override
-	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
-	{
+	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
 		LittleTileSlicedBox box = (LittleTileSlicedBox) this.box;
 		LittleTileSize size = box.getSize();
 		
 		//if(!box.slice.shouldRenderSide(facing, size))
-			//return Collections.emptyList();
+		//return Collections.emptyList();
 		
 		List<BakedQuad> blockQuads = getBakedQuad(world, blockModel, state, facing, pos, layer, rand);
-		if(blockQuads.isEmpty())
+		if (blockQuads.isEmpty())
 			return Collections.emptyList();
 		
 		List<BakedQuad> quads = new ArrayList<>();
@@ -221,15 +211,14 @@ public class LittleSlicedRenderingCube extends LittleSlicedOrdinaryRenderingCube
 		Axis one = RotationUtils.getDifferentAxisFirst(box.slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(box.slice.axis);
 		
-		if((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two)))
-		{
+		if ((one != facing.getAxis() || cubeOne == null || facing == box.slice.getEmptySide(one)) && (two != facing.getAxis() || cubeTwo == null || facing == box.slice.getEmptySide(two))) {
 			quads.addAll(super.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		}
 		
-		if(cubeOne != null && facing != box.slice.getEmptySide(one))
+		if (cubeOne != null && facing != box.slice.getEmptySide(one))
 			quads.addAll(cubeOne.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
-		if(cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
+		if (cubeTwo != null && facing != box.slice.getEmptySide(two) && (cubeOne == null || facing != box.slice.getEmptySide(one).getOpposite()))
 			quads.addAll(cubeTwo.getBakedQuad(world, pos, offset, state, blockModel, facing, layer, rand, overrideTint, defaultColor));
 		
 		return quads;

@@ -1,14 +1,12 @@
 package com.creativemd.littletiles.common.blocks;
 
-import com.creativemd.littletiles.LittleTiles;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 
-public class ItemBlockTransparentColored extends ItemBlock{
-
+public class ItemBlockTransparentColored extends ItemBlock {
+	
 	public ItemBlockTransparentColored(Block block, ResourceLocation location) {
 		super(block);
 		setUnlocalizedName(location.getResourcePath());
@@ -16,18 +14,16 @@ public class ItemBlockTransparentColored extends ItemBlock{
 	}
 	
 	@Override
-	public String getUnlocalizedName(ItemStack stack)
-    {
+	public String getUnlocalizedName(ItemStack stack) {
 		String name = "default";
-		if(stack.getItemDamage() < BlockLTTransparentColored.EnumType.values().length)
+		if (stack.getItemDamage() < BlockLTTransparentColored.EnumType.values().length)
 			name = BlockLTTransparentColored.EnumType.values()[stack.getItemDamage()].getName();
 		return getUnlocalizedName() + "." + name;
-    }
+	}
 	
 	@Override
-    public int getMetadata(int meta)
-    {
+	public int getMetadata(int meta) {
 		return meta;
-    }
-
+	}
+	
 }

@@ -8,22 +8,18 @@ public class LittleTriple<T> {
 	public T y;
 	public T z;
 	
-	public LittleTriple(T x, T y, T z)
-	{
+	public LittleTriple(T x, T y, T z) {
 		set(x, y, z);
 	}
 	
-	public void set(T x, T y, T z)
-	{
+	public void set(T x, T y, T z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 	
-	public T get(Axis axis)
-	{
-		switch(axis)
-		{
+	public T get(Axis axis) {
+		switch (axis) {
 		case X:
 			return x;
 		case Y:

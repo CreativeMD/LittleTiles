@@ -8,10 +8,9 @@ import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.common.container.SubContainerStorage.StorageSize;
 import com.creativemd.littletiles.common.structure.LittleStorage;
 
-import net.minecraft.inventory.IInventory;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubGuiStorage extends SubGui{
+public class SubGuiStorage extends SubGui {
 	
 	public LittleStorage storage;
 	public final StorageSize size;
@@ -24,12 +23,10 @@ public class SubGuiStorage extends SubGui{
 	}
 	
 	@Override
-	public void addContainerControls()
-	{
-		if(!size.scrollbox)
-		{
+	public void addContainerControls() {
+		if (!size.scrollbox) {
 			super.addContainerControls();
-			return ;
+			return;
 		}
 		
 		GuiScrollBox box = new GuiScrollBox("box", 0, 0, 244, 150);
@@ -38,22 +35,19 @@ public class SubGuiStorage extends SubGui{
 			ContainerControl control = container.controls.get(i);
 			control.onOpened();
 			
-			if(control instanceof SlotControl && ((SlotControl) control).slot.inventory == storage.inventory)
-			{
+			if (control instanceof SlotControl && ((SlotControl) control).slot.inventory == storage.inventory) {
 				((SlotControl) control).slot.xPos -= 4;
 				box.addControl(control.getGuiControl());
-			}
-			else
+			} else
 				controls.add(control.getGuiControl());
 		}
 	}
-
+	
 	@Override
 	public void createControls() {
 		int x = this.size.playerOffsetX + 170;
 		int y = this.size.playerOffsetY;
-		if(size == StorageSize.SMALL)
-		{
+		if (size == StorageSize.SMALL) {
 			x = size.playerOffsetX;
 			y = size.playerOffsetY - 23;
 			
@@ -68,5 +62,5 @@ public class SubGuiStorage extends SubGui{
 			}
 		});
 	}
-
+	
 }

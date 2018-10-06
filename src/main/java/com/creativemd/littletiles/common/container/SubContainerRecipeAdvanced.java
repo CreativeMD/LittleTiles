@@ -22,8 +22,7 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		if(nbt.getBoolean("save_selection"))
-		{
+		if (nbt.getBoolean("save_selection")) {
 			SelectionMode mode = ItemRecipeAdvanced.getSelectionMode(stack);
 			LittlePreviews previews = mode.getPreviews(player.world, stack, nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"));
 			((ItemRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
@@ -32,16 +31,14 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		}
-		if(nbt.getBoolean("clear_content"))
-		{
+		if (nbt.getBoolean("clear_content")) {
 			LittleTilePreview.removePreviewTiles(stack);
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		}
-		if(nbt.getBoolean("set_structure"))
-		{
+		if (nbt.getBoolean("set_structure")) {
 			stack.setTagCompound(nbt.getCompoundTag("stack"));
 		}
 	}
-
+	
 }

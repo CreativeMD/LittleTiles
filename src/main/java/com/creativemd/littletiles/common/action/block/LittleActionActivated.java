@@ -26,31 +26,27 @@ public class LittleActionActivated extends LittleActionInteract {
 	}
 	
 	@Override
-	protected void onTileNotFound() throws LittleActionException
-	{
+	protected void onTileNotFound() throws LittleActionException {
 		LittleEvent.cancelNext = true;
 		BlockTile.cancelNext = true;
 	}
 	
 	@Override
-	protected void onTileEntityNotFound() throws LittleActionException
-	{
+	protected void onTileEntityNotFound() throws LittleActionException {
 		LittleEvent.cancelNext = true;
 		BlockTile.cancelNext = true;
 	}
 	
 	public boolean preventPacket = false;
-
+	
 	@Override
 	public boolean sendToServer() {
 		return !preventPacket;
 	}
-
+	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player,
-			RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		if(tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float)moving.hitVec.xCoord, (float)moving.hitVec.yCoord, (float)moving.hitVec.zCoord, this))
-		{
+	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+		if (tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.xCoord, (float) moving.hitVec.yCoord, (float) moving.hitVec.zCoord, this)) {
 			BlockTile.cancelNext = true;
 			return true;
 		}
@@ -60,21 +56,21 @@ public class LittleActionActivated extends LittleActionInteract {
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		boolean result = super.action(player);
-		if(!player.world.isRemote)
+		if (!player.world.isRemote)
 			BlockTile.cancelNext = true;
 		return result;
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		return false;
 	}
-
+	
 	@Override
 	public LittleAction revert() {
 		return null;
 	}
-
+	
 	@Override
 	protected boolean isRightClick() {
 		return true;

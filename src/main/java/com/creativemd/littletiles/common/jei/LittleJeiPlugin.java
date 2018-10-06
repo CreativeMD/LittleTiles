@@ -13,27 +13,27 @@ import net.minecraft.item.ItemStack;
 
 @JEIPlugin
 public class LittleJeiPlugin implements IModPlugin {
-
+	
 	@Override
 	public void registerItemSubtypes(ISubtypeRegistry subtypeRegistry) {
 		
 	}
-
+	
 	@Override
 	public void registerIngredients(IModIngredientRegistration registry) {
 		
 	}
-
+	
 	@Override
 	public void register(IModRegistry registry) {
 		IIngredientBlacklist itemBlacklist = registry.getJeiHelpers().getIngredientBlacklist();
 		itemBlacklist.addIngredientToBlacklist(new ItemStack(LittleTiles.blockTileTicking));
 		itemBlacklist.addIngredientToBlacklist(new ItemStack(LittleTiles.blockTileNoTicking));
 	}
-
+	
 	@Override
 	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
 		
 	}
-
+	
 }

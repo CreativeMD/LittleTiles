@@ -10,7 +10,9 @@ public interface ILittleTileTE {
 	
 	/**
 	 * Returns a converted version of the TileEntity.
-	 * @param force if false an exception will be thrown if a tile cannot be converted, if true it will try to convert it anyway
+	 * 
+	 * @param force
+	 *            if false an exception will be thrown if a tile cannot be converted, if true it will try to convert it anyway
 	 * @return VoxelBlob object from C&B
 	 * @throws Exception
 	 */
@@ -19,5 +21,5 @@ public interface ILittleTileTE {
 	
 	@Nullable
 	public IBlockState getState(AxisAlignedBB box, boolean realistic);
-
+	
 }

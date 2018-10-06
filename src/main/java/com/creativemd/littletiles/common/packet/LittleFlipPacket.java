@@ -8,15 +8,13 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 
-public class LittleFlipPacket extends CreativeCorePacket{
+public class LittleFlipPacket extends CreativeCorePacket {
 	
 	public LittleFlipPacket() {
 		
@@ -32,30 +30,26 @@ public class LittleFlipPacket extends CreativeCorePacket{
 	public void writeBytes(ByteBuf buf) {
 		buf.writeInt(axis.ordinal());
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		axis = Axis.values()[buf.readInt()];
 	}
-
+	
 	@Override
 	public void executeClient(EntityPlayer player) {
 		execute(player);
 	}
 	
-	public void execute(EntityPlayer player)
-	{
+	public void execute(EntityPlayer player) {
 		ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-		if(PlacementHelper.getLittleInterface(stack) != null)
-		{
+		if (PlacementHelper.getLittleInterface(stack) != null) {
 			ILittleTile itile = PlacementHelper.getLittleInterface(stack);
 			
-			if(itile != null)
-			{
+			if (itile != null) {
 				LittleGridContext context = itile.flipLittlePreview(stack, axis);
 				LittleStructure structure = itile.getLittleStructure(stack);
-				if(structure != null)
-				{
+				if (structure != null) {
 					structure.onFlip(player.world, player, stack, context, axis, context.rotationCenter);
 					NBTTagCompound nbt = new NBTTagCompound();
 					structure.writeToNBT(nbt);
@@ -64,15 +58,14 @@ public class LittleFlipPacket extends CreativeCorePacket{
 			}
 		}
 		
-		if(stack.getItem() instanceof ISpecialBlockSelector)
-		{
+		if (stack.getItem() instanceof ISpecialBlockSelector) {
 			((ISpecialBlockSelector) stack.getItem()).flipLittlePreview(stack, axis);
 		}
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		execute(player);
 	}
-
+	
 }

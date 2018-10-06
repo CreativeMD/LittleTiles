@@ -8,24 +8,16 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.client.render.PreviewRenderer;
-import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonWriter;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.JsonToNBT;
-import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiExport extends SubGui {
-
+	
 	public GuiTextfield textfield;
 	
 	@Override
@@ -49,24 +41,21 @@ public class SubGuiExport extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-				if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
-				{
-					 textfield.text = StructureStringUtils.exportModel(stack);
-				}else
+				if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+					textfield.text = StructureStringUtils.exportModel(stack);
+				} else
 					textfield.text = "";
 			}
 		});
 	}
 	
 	@CustomEventSubscribe
-	public void onSlotChange(SlotChangeEvent event)
-	{
+	public void onSlotChange(SlotChangeEvent event) {
 		ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-		if(stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe))
-		{
-			 textfield.text = StructureStringUtils.exportStructure(stack);
-		}else
+		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+			textfield.text = StructureStringUtils.exportStructure(stack);
+		} else
 			textfield.text = "";
 	}
-
+	
 }

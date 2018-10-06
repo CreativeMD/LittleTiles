@@ -5,9 +5,6 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -28,65 +25,53 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public interface ISpecialBlockHandler {
 	
-	public default boolean canBeConvertedToVanilla(LittleTileBlock tile)
-	{
+	public default boolean canBeConvertedToVanilla(LittleTileBlock tile) {
 		return true;
 	}
 	
-	public default List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes)
-	{
+	public default List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
 		return defaultBoxes;
 	}
 	
-	public default boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
-	{
+	public default boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		return false;
 	}
 	
-	public default void onTileExplodes(LittleTileBlock tile, Explosion explosion)
-	{
+	public default void onTileExplodes(LittleTileBlock tile, Explosion explosion) {
 		
 	}
 	
-	public default void randomDisplayTick(LittleTileBlock tile, IBlockState stateIn, World worldIn, BlockPos pos, Random rand)
-	{
+	public default void randomDisplayTick(LittleTileBlock tile, IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
 		
 	}
 	
-	public default boolean isMaterial(LittleTileBlock tile, Material material)
-	{
+	public default boolean isMaterial(LittleTileBlock tile, Material material) {
 		return tile.getBlockState().getMaterial() == material;
 	}
 	
-	public default boolean isLiquid(LittleTileBlock tile)
-	{
+	public default boolean isLiquid(LittleTileBlock tile) {
 		return tile.getBlockState().getMaterial().isLiquid();
 	}
 	
-	public default Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion)
-    {
-        return null;
-    }
-	
-	public default LittleTilePreview getPreview(LittleTileBlock tile)
-	{
+	public default Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion) {
 		return null;
 	}
-
+	
+	public default LittleTilePreview getPreview(LittleTileBlock tile) {
+		return null;
+	}
+	
 	@SideOnly(Side.CLIENT)
-	public default boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile)
-	{
+	public default boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile) {
 		return false;
 	}
 	
-	public default boolean shouldCheckForCollision(LittleTileBlock tile)
-	{
+	public default boolean shouldCheckForCollision(LittleTileBlock tile) {
 		return false;
 	}
 	
-    public default void onEntityCollidedWithBlock(World worldIn, LittleTileBlock tile, BlockPos pos, IBlockState state, Entity entityIn)
-    {
+	public default void onEntityCollidedWithBlock(World worldIn, LittleTileBlock tile, BlockPos pos, IBlockState state, Entity entityIn) {
 		
-    }
+	}
 	
 }

@@ -5,18 +5,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceRelative;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.structure.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -30,15 +24,10 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
@@ -55,8 +44,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	public BlockPos previewPos;
 	
-	public void setTransformationStartOffset()
-	{
+	public void setTransformationStartOffset() {
 		preventPush = true;
 		transformation.performTransformation(this, 0);
 		prevWorldRotX = worldRotX;
@@ -67,36 +55,34 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		prevPosZ = posZ;
 		preventPush = false;
 	}
-
+	
 	public EntityDoorAnimation(World worldIn) {
 		super(worldIn);
 	}
 	
-	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews,
-			LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, BlockPos previewPos) {
+	public EntityDoorAnimation(World world, WorldFake worldFake, LittleDoorBase structure, ArrayList<TileEntityLittleTiles> blocks, PlacePreviews previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, BlockPos previewPos) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
 		this.structure = structure;
-        
-        this.transformation = transformation;
-        this.duration = structure.duration;
-        
-        this.previewPos = previewPos;
-        
-        setTransformationStartOffset();
-        
-        prevPosY -= 0.1; // To force an update
-        updateBoundingBox();
-        updateOrigin();
-        
-        if(world.isRemote)
-        	approved = false;
+		
+		this.transformation = transformation;
+		this.duration = structure.duration;
+		
+		this.previewPos = previewPos;
+		
+		setTransformationStartOffset();
+		
+		prevPosY -= 0.1; // To force an update
+		updateBoundingBox();
+		updateOrigin();
+		
+		if (world.isRemote)
+			approved = false;
 	}
 	
 	@Override
-	public void copyExtra(EntityDoorAnimation animation)
-	{
+	public void copyExtra(EntityDoorAnimation animation) {
 		animation.progress = progress;
 		animation.duration = duration;
 		animation.approved = approved;
@@ -107,109 +93,94 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	
 	private float lastSendProgress = -1;
 	
-	public void setProgress(double progress)
-	{
-		if(progress > duration)
+	public void setProgress(double progress) {
+		if (progress > duration)
 			this.progress = duration;
 		else
 			this.progress = progress;
 		
-		/*if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress >= duration))
-		{
-			dataManager.set(ENTITY_PROGRESS, progress);
-			lastSendProgress = progress;
-		}*/		
+		/* if(!world.isRemote && (lastSendProgress == -1 || progress - lastSendProgress > 10 || progress >= duration))
+		 * {
+		 * dataManager.set(ENTITY_PROGRESS, progress);
+		 * lastSendProgress = progress;
+		 * } */
 	}
 	
-	public double getProgress()
-	{
+	public double getProgress() {
 		return progress;
 	}
-
+	
 	@Override
 	protected void entityInit() {
 		//this.dataManager.register(ENTITY_PROGRESS, 0F);
 	}
 	
 	@Override
-    public void notifyDataManagerChange(DataParameter<?> key)
-    {
-        //if (world.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
-        	//this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
-    }
-	
-	@Override
-	public void onTick()
-	{
-		if(world.isRemote && isWaitingForRender())
-			return ;
-		if(transformation != null)
-			transformation.performTransformation(this, progress/(double)duration);
+	public void notifyDataManagerChange(DataParameter<?> key) {
+		//if (world.isRemote && ENTITY_PROGRESS.equals(key) && !isWaitingForRender())
+		//this.progress = this.dataManager.get(ENTITY_PROGRESS).intValue();
 	}
 	
 	@Override
-	public void onPostTick()
-	{
-		if(transformation == null)
-			return ;
+	public void onTick() {
+		if (world.isRemote && isWaitingForRender())
+			return;
+		if (transformation != null)
+			transformation.performTransformation(this, progress / (double) duration);
+	}
+	
+	@Override
+	public void onPostTick() {
+		if (transformation == null)
+			return;
 		
-		if(world.isRemote && isWaitingForRender())
-		{
+		if (world.isRemote && isWaitingForRender()) {
 			ticksToWait--;
 			
-			if(ticksToWait % 10 == 0)
-			{
+			if (ticksToWait % 10 == 0) {
 				List<TileEntityLittleTiles> tileEntities = null;
 				for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
 					TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
-					if(te != te.getWorld().getTileEntity(te.getPos()))
-					{
-						if(tileEntities == null)
+					if (te != te.getWorld().getTileEntity(te.getPos())) {
+						if (tileEntities == null)
 							tileEntities = new ArrayList<>();
 						tileEntities.add(te);
 					}
 				}
-				if(tileEntities != null)
+				if (tileEntities != null)
 					waitingForRender.removeAll(tileEntities);
 			}
 			
-			if(waitingForRender.size() == 0 || ticksToWait < 0)
-			{
+			if (waitingForRender.size() == 0 || ticksToWait < 0) {
 				unloadRenderCache();
 				isDead = true;
-			}
-			else
+			} else
 				isDead = false;
-		}else{
-			if(progress >= duration)
-			{
+		} else {
+			if (progress >= duration) {
 				//Try to place door, if not drop ItemStack
 				LittleDoorBase structure = this.structure.copyToPlaceDoor();
 				
-				if(world.isRemote)
+				if (world.isRemote)
 					structure.isWaitingForApprove = true;
 				
-				if(!world.isRemote || approved)
-				{
-					if(LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null)
-					{
-						if(world.isRemote)
-						{
+				if (!world.isRemote || approved) {
+					if (LittleActionPlaceRelative.placeTilesWithoutPlayer(world, previews.context, previews, structure, PlacementMode.all, previewPos, null, null, null, EnumFacing.EAST) != null) {
+						if (world.isRemote) {
 							waitingForRender = new CopyOnWriteArrayList<>();
 							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceRelative.getSplittedTiles(previews.context, previews, previewPos).keySet());
 							for (int i = 0; i < coordsToCheck.size(); i++) {
 								TileEntity te = world.getTileEntity(coordsToCheck.get(i));
-								if(te instanceof TileEntityLittleTiles)
-								{
+								if (te instanceof TileEntityLittleTiles) {
 									((TileEntityLittleTiles) te).waitingAnimation = this;
 									waitingForRender.add((TileEntityLittleTiles) te);
 								}
 							}
 							ticksToWait = 200;
 							isDead = false;
-							return ;
+							return;
 						}
-					}else if(!world.isRemote)
+					} else if (!world.isRemote)
 						WorldUtils.dropItem(world, this.structure.getStructureDrop(), baseOffset);
 				}
 				
@@ -229,7 +200,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		
 		int[] array = compound.getIntArray("previewPos");
-		if(array.length == 3)
+		if (array.length == 3)
 			previewPos = new BlockPos(array[0], array[1], array[2]);
 		else
 			previewPos = baseOffset;
@@ -237,9 +208,9 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super.readEntityFromNBT(compound);
 		duration = compound.getInteger("duration");
 		NBTBase tag = compound.getTag("progress");
-		if(tag instanceof NBTTagInt)
+		if (tag instanceof NBTTagInt)
 			setProgress(((NBTTagInt) tag).getInt());
-		else if(tag instanceof NBTTagFloat)
+		else if (tag instanceof NBTTagFloat)
 			setProgress(((NBTTagFloat) tag).getFloat());
 		else
 			setProgress(((NBTTagDouble) tag).getDouble());
@@ -258,7 +229,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		compound.setInteger("duration", duration);
 		compound.setDouble("progress", progress);
 		
-		compound.setIntArray("previewPos", new int[] {previewPos.getX(), previewPos.getY(), previewPos.getZ()});
+		compound.setIntArray("previewPos", new int[] { previewPos.getX(), previewPos.getY(), previewPos.getZ() });
 		
 		compound.setTag("transform", transformation.writeToNBT(new NBTTagCompound()));
 	}

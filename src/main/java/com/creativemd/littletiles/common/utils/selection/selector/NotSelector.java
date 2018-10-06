@@ -11,7 +11,7 @@ public class NotSelector extends TileSelector {
 	public NotSelector(TileSelector selector) {
 		this.selector = selector;
 	}
-
+	
 	public NotSelector() {
 		
 	}
@@ -21,15 +21,15 @@ public class NotSelector extends TileSelector {
 		selector.saveNBT(nbt);
 		nbt.setString("type2", getTypeID(selector.getClass()));
 	}
-
+	
 	@Override
 	protected void loadNBT(NBTTagCompound nbt) {
 		selector = TileSelector.loadSelector(nbt.getString("type2"), nbt);
 	}
-
+	
 	@Override
 	public boolean is(LittleTile tile) {
 		return !selector.is(tile);
 	}
-
+	
 }

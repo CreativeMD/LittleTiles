@@ -2,35 +2,21 @@ package com.creativemd.littletiles.common.structure.premade;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructure.LittleStructureEntry;
 import com.creativemd.littletiles.common.structure.attributes.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.google.common.base.Charsets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleStructurePremade extends LittleStructure {
 	
@@ -38,8 +24,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	
 	private static JsonParser parser = new JsonParser();
 	
-	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure)
-	{
+	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure) {
 		registerStructureType(id, classStructure, LittleStructureAttribute.PREMADE, null);
 		try {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
@@ -56,42 +41,35 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			System.out.println("Could not load '" + id + "'! Structure will not be registered");
 		}
 		
-		
 	}
 	
-	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id)
-	{
+	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id) {
 		return structurePreviews.get(id);
 	}
 	
-	public static Collection<LittleStructurePremadeEntry> getPremadeStructures()
-	{
+	public static Collection<LittleStructurePremadeEntry> getPremadeStructures() {
 		return structurePreviews.values();
 	}
 	
-	public static Set<String> getPremadeStructureIds()
-	{
+	public static Set<String> getPremadeStructureIds() {
 		return structurePreviews.keySet();
 	}
 	
-	public static ItemStack getPremadeStack(String id)
-	{
+	public static ItemStack getPremadeStack(String id) {
 		return structurePreviews.get(id).stack.copy();
 	}
- 
+	
 	@Override
 	public ItemStack getStructureDrop() {
 		return getStructurePremadeEntry(structureID).stack.copy();
 	}
 	
 	@Override
-	public boolean canOnlyBePlacedByItemStack()
-	{
+	public boolean canOnlyBePlacedByItemStack() {
 		return true;
 	}
 	
-	public static void initPremadeStructures()
-	{
+	public static void initPremadeStructures() {
 		registerPremadeStructureType("workbench", LittleWorkbench.class);
 		registerPremadeStructureType("importer", LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleExporter.class);
@@ -107,10 +85,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			this.stack = stack;
 		}
 		
-		public boolean arePreviewsEqual(LittlePreviews previews)
-		{
+		public boolean arePreviewsEqual(LittlePreviews previews) {
 			return this.previews.isVolumeEqual(previews);
 		}
 	}
-
+	
 }

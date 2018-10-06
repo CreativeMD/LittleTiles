@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -21,26 +18,22 @@ public class PlaceModeFill extends PlacementMode {
 	}
 	
 	@Override
-	public boolean checkAll()
-	{
+	public boolean checkAll() {
 		return false;
 	}
-
+	
 	@Override
 	public List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos) {
 		return null;
 	}
-
+	
 	@Override
-	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles,
-			boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
-		if(!requiresCollisionTest)
-		{
+		if (!requiresCollisionTest) {
 			tiles.add(tile);
 			return tiles;
 		}
-		
 		
 		List<LittleTileBox> cutout = new ArrayList<>();
 		List<LittleTileBox> boxes = te.cutOut(tile.box, cutout);
@@ -57,6 +50,6 @@ public class PlaceModeFill extends PlacementMode {
 			unplaceableTiles.add(newTile);
 		}
 		
-		return tiles;			
+		return tiles;
 	}
 }

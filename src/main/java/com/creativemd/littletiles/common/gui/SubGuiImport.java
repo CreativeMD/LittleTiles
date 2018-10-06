@@ -10,14 +10,10 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
-import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
-import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiImport extends SubGui {
 	
@@ -35,12 +31,12 @@ public class SubGuiImport extends SubGui {
 				Clipboard clpbrd = Toolkit.getDefaultToolkit().getSystemClipboard();
 				Transferable t = clpbrd.getContents(this);
 				if (t == null)
-			        return ;
-			    try {
-			    	textfield.text = (String) t.getTransferData(DataFlavor.stringFlavor);
-			    } catch (Exception e){
-			    	
-			    }
+					return;
+				try {
+					textfield.text = (String) t.getTransferData(DataFlavor.stringFlavor);
+				} catch (Exception e) {
+					
+				}
 			}
 		});
 		
@@ -60,9 +56,8 @@ public class SubGuiImport extends SubGui {
 	}
 	
 	@CustomEventSubscribe
-	public void onSlotChange(SlotChangeEvent event)
-	{
+	public void onSlotChange(SlotChangeEvent event) {
 		
 	}
-
+	
 }

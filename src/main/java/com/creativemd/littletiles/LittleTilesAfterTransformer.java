@@ -1,6 +1,5 @@
 package com.creativemd.littletiles;
 
-import java.io.PrintWriter;
 import java.util.Iterator;
 
 import org.objectweb.asm.Opcodes;
@@ -15,18 +14,17 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
-import org.objectweb.asm.util.TraceClassVisitor;
 
 import com.creativemd.creativecore.transformer.CreativeTransformer;
 import com.creativemd.creativecore.transformer.Transformer;
 import com.creativemd.creativecore.transformer.TransformerNames;
 
 public class LittleTilesAfterTransformer extends CreativeTransformer {
-
+	
 	public LittleTilesAfterTransformer() {
 		super("littletiles");
 	}
-
+	
 	@Override
 	protected void initTransformers() {
 		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.RenderChunk") {
@@ -72,21 +70,20 @@ public class LittleTilesAfterTransformer extends CreativeTransformer {
 				
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
-					if(insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals(ownerBefore) && ((FieldInsnNode) insn).name.equals(nameBefore))
-					{
+					if (insn instanceof FieldInsnNode && ((FieldInsnNode) insn).owner.equals(ownerBefore) && ((FieldInsnNode) insn).name.equals(nameBefore)) {
 						insn = insn.getPrevious();
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, tilesLocalID));
 						int index = 17;
 						String varDesc = "Lnet/minecraft/tileentity/TileEntity;";
 						for (Iterator<LocalVariableNode> iterator2 = m.localVariables.iterator(); iterator2.hasNext();) {
 							LocalVariableNode local = iterator2.next();
-							if(local.desc.equals(varDesc))
+							if (local.desc.equals(varDesc))
 								index = local.index;
 						}
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, index));
 						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "addTileEntity", "(Ljava/util/List;Lnet/minecraft/tileentity/TileEntity;)V", false));
 						//m.instructions.insertBefore(insn, last);
-					}else if(insn instanceof MethodInsnNode && ((MethodInsnNode) insn).desc.equals(descAfter) && ((MethodInsnNode) insn).owner.equals(ownerAfter) && ((MethodInsnNode) insn).name.equals(nameAfter)){
+					} else if (insn instanceof MethodInsnNode && ((MethodInsnNode) insn).desc.equals(descAfter) && ((MethodInsnNode) insn).owner.equals(ownerAfter) && ((MethodInsnNode) insn).name.equals(nameAfter)) {
 						AbstractInsnNode before = insn.getPrevious().getPrevious();
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, tilesLocalID));
@@ -100,5 +97,5 @@ public class LittleTilesAfterTransformer extends CreativeTransformer {
 			}
 		});
 	}
-
+	
 }

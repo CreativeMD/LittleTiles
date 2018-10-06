@@ -13,7 +13,6 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -22,7 +21,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleDoorInteractPacket extends CreativeCorePacket {
-	
 	
 	public BlockPos blockPos;
 	public Rotation direction;
@@ -36,8 +34,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		
 	}
 	
-	public LittleDoorInteractPacket(BlockPos blockPos, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid)
-	{
+	public LittleDoorInteractPacket(BlockPos blockPos, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid) {
 		this.blockPos = blockPos;
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
@@ -47,7 +44,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		this.inverse = inverse;
 		this.uuid = uuid;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, blockPos);
@@ -57,7 +54,7 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		buf.writeBoolean(inverse);
 		writeString(buf, uuid.toString());
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		blockPos = readPos(buf);
@@ -67,32 +64,28 @@ public class LittleDoorInteractPacket extends CreativeCorePacket {
 		inverse = buf.readBoolean();
 		uuid = UUID.fromString(readString(buf));
 	}
-
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void executeClient(EntityPlayer player) {
 		
 	}
-
+	
 	@Override
 	public void executeServer(EntityPlayer player) {
 		TileEntity tileEntity = player.world.getTileEntity(blockPos);
 		World world = player.world;
-		if(tileEntity instanceof TileEntityLittleTiles)
-		{
+		if (tileEntity instanceof TileEntityLittleTiles) {
 			LittleEvent.cancelNext = true;
 			BlockTile.cancelNext = true;
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
-			if(tile != null && tile.isLoaded() && tile.structure instanceof LittleDoor)
-			{
+			if (tile != null && tile.isLoaded() && tile.structure instanceof LittleDoor) {
 				((LittleDoor) tile.structure).interactWithDoor(world, player, direction, inverse, uuid);
 				//System.out.println("Open Door");
-			}//else
-				//System.out.println("No door found!");
+			} //else
+			  //System.out.println("No door found!");
 		}
 	}
-	
-	
 	
 }

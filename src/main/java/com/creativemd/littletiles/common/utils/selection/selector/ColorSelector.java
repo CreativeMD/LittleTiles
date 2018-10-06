@@ -18,24 +18,24 @@ public class ColorSelector extends TileSelector {
 	public ColorSelector() {
 		
 	}
-
+	
 	@Override
 	protected void saveNBT(NBTTagCompound nbt) {
 		nbt.setInteger("color", ColorUtils.RGBToInt(color));
 	}
-
+	
 	@Override
 	protected void loadNBT(NBTTagCompound nbt) {
 		color = ColorUtils.IntToRGB(nbt.getInteger("color"));
 	}
-
+	
 	@Override
 	public boolean is(LittleTile tile) {
-		if(color.getX() == 255 && color.getY() == 255 && color.getZ() == 255)
+		if (color.getX() == 255 && color.getY() == 255 && color.getZ() == 255)
 			return !(tile instanceof LittleTileBlockColored);
-		else if(tile instanceof LittleTileBlockColored)
+		else if (tile instanceof LittleTileBlockColored)
 			return ColorUtils.IntToRGB(((LittleTileBlockColored) tile).color).equals(color);
 		return false;
 	}
-
+	
 }

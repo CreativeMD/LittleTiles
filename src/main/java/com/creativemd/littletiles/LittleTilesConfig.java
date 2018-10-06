@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;
@@ -24,33 +22,27 @@ public class LittleTilesConfig {
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
-	public static @interface LittleConfig
-	{
+	public static @interface LittleConfig {
 		
 	}
 	
-	public static List<String> getConfigProperties()
-	{
+	public static List<String> getConfigProperties() {
 		List<String> properties = new ArrayList<>();
 		loadProperties("", LittleTilesConfig.class, properties);
 		return properties;
 	}
 	
-	private static void loadProperties(String category, Class<?> clazz, List<String> properties)
-	{
-		for(Field field : clazz.getFields())
-		{
+	private static void loadProperties(String category, Class<?> clazz, List<String> properties) {
+		for (Field field : clazz.getFields()) {
 			Config.Name config = field.getAnnotation(Config.Name.class);
-			if(config != null)
-			{
-				if(field.getType().getAnnotation(LittleConfig.class) != null)
+			if (config != null) {
+				if (field.getType().getAnnotation(LittleConfig.class) != null)
 					loadProperties(category + (category.isEmpty() ? "" : ".") + config.value(), field.getType(), properties);
 				else
 					properties.add(category + "." + config.value());
 			}
 		}
 	}
-	
 	
 	@Config.Name("core")
 	@Config.LangKey("config.littletiles.core")
@@ -67,8 +59,7 @@ public class LittleTilesConfig {
 	
 	@Config.RequiresMcRestart
 	@LittleConfig
-	public static class Core
-	{
+	public static class Core {
 		
 		@Config.Name("defaultSize")
 		@Config.RequiresMcRestart
@@ -101,8 +92,7 @@ public class LittleTilesConfig {
 	}
 	
 	@LittleConfig
-	public static class Building
-	{
+	public static class Building {
 		
 		@Config.Name("invertStickToGrid")
 		@Config.LangKey("config.littletiles.invertStickToGrid")
@@ -127,8 +117,7 @@ public class LittleTilesConfig {
 	}
 	
 	@LittleConfig
-	public static class Rendering
-	{
+	public static class Rendering {
 		
 		@Config.Name("hideParticleBlock")
 		@Config.LangKey("config.littletiles.hideParticleBlock")

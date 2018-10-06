@@ -15,8 +15,7 @@ import net.minecraftforge.fml.relauncher.Side;
 
 public class IGCMLoader {
 	
-	public static void initIGCM()
-	{
+	public static void initIGCM() {
 		ConfigTab.root.registerElement("littletiles", new ConfigBranch("LittleTiles", new ItemStack(LittleTiles.hammer)) {
 			
 			@Override

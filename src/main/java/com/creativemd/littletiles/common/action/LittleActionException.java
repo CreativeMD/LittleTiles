@@ -9,8 +9,7 @@ public class LittleActionException extends Exception {
 	}
 	
 	@Override
-	public String getLocalizedMessage()
-	{
+	public String getLocalizedMessage() {
 		return I18n.translateToLocal(getMessage());
 	}
 	
@@ -39,7 +38,7 @@ public class LittleActionException extends Exception {
 	}
 	
 	public static class StructureNotLoadedException extends LittleActionException {
-
+		
 		public StructureNotLoadedException() {
 			super("action.structure.notloaded");
 		}

@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -12,15 +11,12 @@ import java.util.Set;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.LittleChair.LittleChairParser;
 import com.creativemd.littletiles.common.structure.LittleDoor.LittleDoorParser;
@@ -39,14 +35,12 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
-import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
-import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -57,17 +51,13 @@ import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.EmptyChunk;
-import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleStructure {
 	
@@ -76,59 +66,51 @@ public abstract class LittleStructure {
 	
 	private static List<String> cachedNames = new ArrayList<>();
 	
-	public static List<String> getStructureTypeNames()
-	{
+	public static List<String> getStructureTypeNames() {
 		return new ArrayList<>(cachedNames);
 	}
 	
-	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureParser> parser)
-	{
+	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureParser> parser) {
 		LittleStructureEntry entry = new LittleStructureEntry(id, classStructure, parser, attribute);
-		registerStructureType(id, entry);		
-		if(attribute != LittleStructureAttribute.PREMADE)
+		registerStructureType(id, entry);
+		if (attribute != LittleStructureAttribute.PREMADE)
 			cachedNames.add(id);
 	}
 	
-	private static void registerStructureType(String id, LittleStructureEntry entry)
-	{
-		if(structuresID.containsKey(id))
+	private static void registerStructureType(String id, LittleStructureEntry entry) {
+		if (structuresID.containsKey(id))
 			throw new RuntimeException("ID is already taken! id=" + id);
-		else if(structuresID.containsValue(entry))
+		else if (structuresID.containsValue(entry))
 			throw new RuntimeException("Already registered class=" + entry);
-		else{
+		else {
 			structuresID.put(id, entry);
 			structuresClass.put(entry.structureClass, entry);
 		}
 	}
 	
-	public static String getIDByClass(Class<? extends LittleStructure> classStructure)
-	{
+	public static String getIDByClass(Class<? extends LittleStructure> classStructure) {
 		LittleStructureEntry entry = structuresClass.get(classStructure);
-		if(entry != null)
+		if (entry != null)
 			return entry.id;
 		return null;
 	}
 	
-	public static Class<? extends LittleStructure> getClassByID(String id)
-	{
+	public static Class<? extends LittleStructure> getClassByID(String id) {
 		LittleStructureEntry entry = structuresID.get(id);
-		if(entry != null)
+		if (entry != null)
 			return entry.structureClass;
 		return null;
 	}
 	
-	public static LittleStructureEntry getStructureEntryByID(String id)
-	{
+	public static LittleStructureEntry getStructureEntryByID(String id) {
 		return structuresID.get(id);
 	}
 	
-	public static LittleStructureEntry getStructureEntryByClass(Class<? extends LittleStructure> classStructure)
-	{
+	public static LittleStructureEntry getStructureEntryByClass(Class<? extends LittleStructure> classStructure) {
 		return structuresClass.get(classStructure);
 	}
 	
-	public static void initStructures()
-	{
+	public static void initStructures() {
 		registerStructureType("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
 		registerStructureType("chair", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
 		registerStructureType("door", LittleDoor.class, LittleStructureAttribute.NONE, LittleDoorParser.class);
@@ -141,17 +123,14 @@ public abstract class LittleStructure {
 		LittleStructurePremade.initPremadeStructures();
 	}
 	
-	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile)
-	{
-		if(nbt == null)
+	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile) {
+		if (nbt == null)
 			return null;
 		String id = nbt.getString("id");
 		LittleStructureEntry entry = getStructureEntryByID(id);
-		if(entry != null)
-		{
+		if (entry != null) {
 			Class<? extends LittleStructure> classStructure = entry.structureClass;
-			if(classStructure != null)
-			{
+			if (classStructure != null) {
 				LittleStructure structure = null;
 				try {
 					structure = classStructure.getConstructor().newInstance();
@@ -171,37 +150,33 @@ public abstract class LittleStructure {
 	
 	public String name;
 	
-	public LittleStructure()
-	{
+	public LittleStructure() {
 		LittleStructureEntry entry = getStructureEntryByClass(this.getClass());
 		this.attribute = entry.attribute;
 		this.structureID = entry.id;
 	}
 	
-	public void placedStructure(ItemStack stack)
-	{
+	public void placedStructure(ItemStack stack) {
 		NBTTagCompound nbt;
-		if(stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
+		if (stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
 			name = nbt.getString("Name");
 	}
 	
 	/**
 	 * This will notify every client that the structure has changed
 	 */
-	public void updateStructure()
-	{
+	public void updateStructure() {
 		mainTile.te.updateBlock();
 	}
 	
-	public void setMainTile(LittleTile tile)
-	{		
+	public void setMainTile(LittleTile tile) {
 		this.mainTile = tile;
 		
 		this.mainTile.isMainBlock = true;
 		this.mainTile.coord = null;
 		this.mainTile.te.updateBlock();
 		
-		if(!containsTile(tile))
+		if (!containsTile(tile))
 			addTile(tile);
 		
 		for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
@@ -211,8 +186,7 @@ public abstract class LittleStructure {
 			for (Iterator iterator2 = entry.getValue().iterator(); iterator2.hasNext();) {
 				LittleTile stTile = (LittleTile) iterator2.next();
 				
-				if(stTile != mainTile)
-				{
+				if (stTile != mainTile) {
 					stTile.isMainBlock = false;
 					stTile.coord = getMainTileCoord(stTile);
 				}
@@ -221,169 +195,150 @@ public abstract class LittleStructure {
 		
 	}
 	
-	public LittleTileIdentifierStructure getMainTileCoord(LittleTile tile)
-	{
+	public LittleTileIdentifierStructure getMainTileCoord(LittleTile tile) {
 		return new LittleTileIdentifierStructure(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
 	}
 	
-	public boolean hasMainTile()
-	{
+	public boolean hasMainTile() {
 		return mainTile != null;
 	}
 	
-	public void moveStructure(EnumFacing facing)
-	{
+	public void moveStructure(EnumFacing facing) {
 		
 	}
 	
-	public void combineTiles()
-	{
-		if(!hasLoaded())
-			return ;
+	public void combineTiles() {
+		if (!hasLoaded())
+			return;
 		
 		BlockPos pos = null;
-
+		
 		for (Iterator<TileEntityLittleTiles> iterator = tiles.keySet().iterator(); iterator.hasNext();) {
 			iterator.next().combineTiles(this);
 		}
 	}
 	
-	public void selectMainTile()
-	{
-		if(hasLoaded())
-		{
+	public void selectMainTile() {
+		if (hasLoaded()) {
 			LittleTile first = tiles.getFirst();
-			if(first != null)
+			if (first != null)
 				setMainTile(first);
 		}
 	}
 	
 	private LittleTile mainTile;
 	
-	/**The core of the structure. Handles saving & loading of the structures. All Tiles inside the structure are containing relative coordinates to this tile**/
-	public LittleTile getMainTile()
-	{
+	/** The core of the structure. Handles saving & loading of the structures. All Tiles inside the structure are containing relative coordinates to this tile **/
+	public LittleTile getMainTile() {
 		return mainTile;
 	}
 	
 	protected HashMapList<TileEntityLittleTiles, LittleTile> tiles = null;
 	
-	public void setTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles)
-	{
+	public void setTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
 		this.tiles = tiles;
 	}
 	
-	public boolean LoadList()
-	{
-		if(tiles == null)
+	public boolean LoadList() {
+		if (tiles == null)
 			return loadTiles();
 		return true;
 	}
 	
-	public boolean containsTile(LittleTile tile)
-	{
+	public boolean containsTile(LittleTile tile) {
 		return tiles.contains(tile.te, tile);
 	}
-
-	public HashMapList<TileEntityLittleTiles, LittleTile> copyOfTiles()
-	{
-		if(tiles == null)
-			if(!loadTiles())
+	
+	public HashMapList<TileEntityLittleTiles, LittleTile> copyOfTiles() {
+		if (tiles == null)
+			if (!loadTiles())
 				return new HashMapList<>();
 		return new HashMapList<>(tiles);
 	}
 	
-	public Iterator<LittleTile> getTiles()
-	{
-		if(tiles == null)
-			if(!loadTiles())
+	public Iterator<LittleTile> getTiles() {
+		if (tiles == null)
+			if (!loadTiles())
 				return new Iterator<LittleTile>() {
 					
 					@Override
 					public boolean hasNext() {
 						return false;
 					}
-				
+					
 					@Override
 					public LittleTile next() {
 						return null;
 					}
-				
+					
 				};
-		
+			
 		return tiles.iterator();
 	}
 	
-	public Set<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> entrySet()
-	{
-		if(tiles == null)
-			if(!loadTiles())
+	public Set<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> entrySet() {
+		if (tiles == null)
+			if (!loadTiles())
 				return Collections.EMPTY_SET;
 		return tiles.entrySet();
 	}
 	
-	public void removeTile(LittleTile tile)
-	{
-		if(tiles != null)
+	public void removeTile(LittleTile tile) {
+		if (tiles != null)
 			tiles.removeValue(tile.te, tile);
 	}
 	
-	public void addTile(LittleTile tile)
-	{
+	public void addTile(LittleTile tile) {
 		tiles.add(tile.te, tile);
 	}
 	
-	/*public ArrayList<LittleTile> getTiles()
-	{
-		if(tiles == null)
-			if(!loadTiles())
-			{
-				ArrayList<LittleTile> tiles =  new ArrayList<>();
-				return tiles;
-			}
-		return tiles;
-	}*/
+	/* public ArrayList<LittleTile> getTiles()
+	 * {
+	 * if(tiles == null)
+	 * if(!loadTiles())
+	 * {
+	 * ArrayList<LittleTile> tiles = new ArrayList<>();
+	 * return tiles;
+	 * }
+	 * return tiles;
+	 * } */
 	
-	public boolean hasLoaded()
-	{
+	public boolean hasLoaded() {
 		loadTiles();
 		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0);
 	}
 	
-	public boolean loadTiles()
-	{
-		if(mainTile != null)
-		{
+	public boolean loadTiles() {
+		if (mainTile != null) {
 			//System.out.println("loading Structure");
-			if(tiles == null)
-			{
+			if (tiles == null) {
 				tiles = new HashMapList<>();
 				addTile(mainTile);
 			}
 			
-			if(tilesToLoad == null)
+			if (tilesToLoad == null)
 				return true;
 			
 			//long time = System.nanoTime();
 			
 			for (Iterator<Entry<BlockPos, Integer>> iterator = tilesToLoad.entrySet().iterator(); iterator.hasNext();) {
 				Entry<BlockPos, Integer> entry = iterator.next();
-				if(checkForTiles(mainTile.te.getWorld(), entry.getKey(), entry.getValue()))
+				if (checkForTiles(mainTile.te.getWorld(), entry.getKey(), entry.getValue()))
 					iterator.remove();
 			}
 			
-			if(!tiles.contains(mainTile))
+			if (!tiles.contains(mainTile))
 				addTile(mainTile);
-			/*int i = 0;
-			while (i < tilesToLoad.size()) {
-				if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
-					tilesToLoad.remove(i);
-				else
-					i++;
-			}*/
+			/* int i = 0;
+			 * while (i < tilesToLoad.size()) {
+			 * if(checkForTile(mainTile.te.getWorld(), tilesToLoad.get(i)))
+			 * tilesToLoad.remove(i);
+			 * else
+			 * i++;
+			 * } */
 			//System.out.println("LOADING Structure! time=" + (System.nanoTime()-time));
 			
-			if(tilesToLoad.size() == 0)
+			if (tilesToLoad.size() == 0)
 				tilesToLoad = null;
 			return true;
 		}
@@ -392,61 +347,56 @@ public abstract class LittleStructure {
 	
 	public HashMap<BlockPos, Integer> tilesToLoad = null;
 	
-	public void loadStructure(LittleTile mainTile)
-	{
+	public void loadStructure(LittleTile mainTile) {
 		this.mainTile = mainTile;
 		this.mainTile.isMainBlock = true;
 		this.mainTile.coord = null;
 		
-		if(tiles != null && !containsTile(mainTile))
+		if (tiles != null && !containsTile(mainTile))
 			addTile(mainTile);
 	}
 	
-	public void loadFromNBT(NBTTagCompound nbt)
-	{
-		if(tiles != null)
+	public void loadFromNBT(NBTTagCompound nbt) {
+		if (tiles != null)
 			tiles.clear();
 		
 		tilesToLoad = new HashMap<>();
 		
 		//LoadTiles
-		if(nbt.hasKey("count")) //Old way
+		if (nbt.hasKey("count")) //Old way
 		{
 			int count = nbt.getInteger("count");
 			for (int i = 0; i < count; i++) {
 				LittleTileIdentifierRelative coord = null;
-				if(nbt.hasKey("i" + i + "coX"))
-				{
+				if (nbt.hasKey("i" + i + "coX")) {
 					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[]{pos.position.x, pos.position.y, pos.position.z});
-				}else{
+					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
+				} else {
 					coord = new LittleTileIdentifierRelative("i" + i, nbt);
 				}
 				
 				BlockPos pos = coord.getAbsolutePosition(mainTile.te);
 				Integer insideBlock = tilesToLoad.get(pos);
-				if(insideBlock == null)
+				if (insideBlock == null)
 					insideBlock = new Integer(1);
 				else
 					insideBlock = insideBlock + 1;
 				tilesToLoad.put(pos, insideBlock);
 			}
 			
-		}else if(nbt.hasKey("tiles")){ //new way
+		} else if (nbt.hasKey("tiles")) { //new way
 			NBTTagList list = nbt.getTagList("tiles", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
-				if(array.length == 4)
-				{
+				if (array.length == 4) {
 					RelativeBlockPos pos = new RelativeBlockPos(array);
 					tilesToLoad.put(pos.getAbsolutePos(mainTile.te), array[3]);
-				}
-				else
+				} else
 					System.out.println("Found invalid array! " + nbt);
 			}
 		}
 		
-		if(nbt.hasKey("name"))
+		if (nbt.hasKey("name"))
 			name = nbt.getString("name");
 		else
 			name = null;
@@ -456,41 +406,37 @@ public abstract class LittleStructure {
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
 	
-	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter)
-	{
+	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
 		nbt.setString("id", getIDOfStructure());
 		writeToNBTExtra(nbt);
 	}
 	
-	public void writeToNBT(NBTTagCompound nbt)
-	{		
+	public void writeToNBT(NBTTagCompound nbt) {
 		nbt.setString("id", getIDOfStructure());
-		if(name != null)
+		if (name != null)
 			nbt.setString("name", name);
 		else
 			nbt.removeTag("name");
 		
 		//SaveTiles
 		HashMap<BlockPos, Integer> positions = new HashMap<>();
-		if(tiles != null)
-		{
+		if (tiles != null) {
 			for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
 				Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry = iterator.next();
-				if(entry.getValue().size() > 0)
+				if (entry.getValue().size() > 0)
 					positions.put(entry.getKey().getPos(), entry.getValue().size());
 			}
 		}
 		
-		if(tilesToLoad != null)
+		if (tilesToLoad != null)
 			positions.putAll(tilesToLoad);
 		
-		if(positions.size() > 0)
-		{
+		if (positions.size() > 0) {
 			NBTTagList list = new NBTTagList();
 			for (Iterator<Entry<BlockPos, Integer>> iterator = positions.entrySet().iterator(); iterator.hasNext();) {
 				Entry<BlockPos, Integer> entry = iterator.next();
 				RelativeBlockPos pos = new RelativeBlockPos(mainTile.te, entry.getKey());
-				list.appendTag(new NBTTagIntArray(new int[]{pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue()}));
+				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue() }));
 			}
 			nbt.setTag("tiles", list);
 		}
@@ -500,130 +446,118 @@ public abstract class LittleStructure {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
-	public boolean doesLinkToMainTile(LittleTile tile)
-	{
-		try{
+	public boolean doesLinkToMainTile(LittleTile tile) {
+		try {
 			return tile == getMainTile() || (!tile.isMainBlock && tile.coord.getAbsolutePosition(tile.te).equals(mainTile.te.getPos()) && mainTile.is(tile.coord.context, tile.coord.identifier));
-		}catch(Exception e){
+		} catch (Exception e) {
 			//e.printStackTrace();
 		}
 		return false;
 	}
 	
-	public boolean checkForTiles(World world, BlockPos pos, Integer expectedCount)
-	{
+	public boolean checkForTiles(World world, BlockPos pos, Integer expectedCount) {
 		Chunk chunk = world.getChunkFromBlockCoords(pos);
-		if(WorldUtils.checkIfChunkExists(chunk))
-		{
+		if (WorldUtils.checkIfChunkExists(chunk)) {
 			//chunk.isChunkLoaded
 			TileEntity tileEntity = world.getTileEntity(pos);
-			if(tileEntity instanceof TileEntityLittleTiles)
-			{
-				if(!((TileEntityLittleTiles) tileEntity).hasLoaded())
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				if (!((TileEntityLittleTiles) tileEntity).hasLoaded())
 					return false;
 				int found = 0;
 				
-				if(tiles.keySet().contains(tileEntity))
+				if (tiles.keySet().contains(tileEntity))
 					tiles.removeKey((TileEntityLittleTiles) tileEntity);
 				
 				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
 					LittleTile tile = (LittleTile) iterator.next();
-					if(tile.isStructureBlock && (tile.structure == this || doesLinkToMainTile(tile)))
-					{
+					if (tile.isStructureBlock && (tile.structure == this || doesLinkToMainTile(tile))) {
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						tile.structure = this;
-						if(tile.coord != null)
+						if (tile.coord != null)
 							tile.coord.attribute = attribute;
 						found++;
 					}
 				}
 				
-				if(found == expectedCount)
+				if (found == expectedCount)
 					return true;
 			}
 		}
 		return false;
 	}
 	
-	/*public boolean checkForTile(World world, LittleTileCoord pos)
-	{
-		BlockPos coord = pos.getAbsolutePosition(mainTile.te);
-		Chunk chunk = world.getChunkFromBlockCoords(coord);
-		if(WorldUtils.checkIfChunkExists(chunk))
-		{
-			//chunk.isChunkLoaded
-			TileEntity tileEntity = world.getTileEntity(coord);
-			if(tileEntity instanceof TileEntityLittleTiles)
-			{
-				LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
-				if(tile != null && tile.isStructureBlock)
-				{
-					if(!tiles.contains(tile))
-						addTile(tile);
-					tile.structure = this;
-					return true;
-				}
-			}
-		}
-		return false;
-	}*/
+	/* public boolean checkForTile(World world, LittleTileCoord pos)
+	 * {
+	 * BlockPos coord = pos.getAbsolutePosition(mainTile.te);
+	 * Chunk chunk = world.getChunkFromBlockCoords(coord);
+	 * if(WorldUtils.checkIfChunkExists(chunk))
+	 * {
+	 * //chunk.isChunkLoaded
+	 * TileEntity tileEntity = world.getTileEntity(coord);
+	 * if(tileEntity instanceof TileEntityLittleTiles)
+	 * {
+	 * LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
+	 * if(tile != null && tile.isStructureBlock)
+	 * {
+	 * if(!tiles.contains(tile))
+	 * addTile(tile);
+	 * tile.structure = this;
+	 * return true;
+	 * }
+	 * }
+	 * }
+	 * return false;
+	 * } */
 	
-	/*@Deprecated
-	public boolean checkForTile(World world, LittleTilePosition pos)
-	{
-		Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
-		if(!(chunk instanceof EmptyChunk))
-		{
-			//chunk.isChunkLoaded
-			TileEntity tileEntity = world.getTileEntity(pos.coord.posX, pos.coord.posY, pos.coord.posZ);
-			if(tileEntity instanceof TileEntityLittleTiles)
-			{
-				LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
-				if(tile != null && tile.isStructureBlock)
-				{
-					if(!tiles.contains(tile))
-						tiles.add(tile);
-					tile.structure = this;
-					return true;
-				}
-			}
-		}
-		return false;
-	}*/
+	/* @Deprecated
+	 * public boolean checkForTile(World world, LittleTilePosition pos)
+	 * {
+	 * Chunk chunk = world.getChunkFromBlockCoords(pos.coord.posX, pos.coord.posZ);
+	 * if(!(chunk instanceof EmptyChunk))
+	 * {
+	 * //chunk.isChunkLoaded
+	 * TileEntity tileEntity = world.getTileEntity(pos.coord.posX, pos.coord.posY, pos.coord.posZ);
+	 * if(tileEntity instanceof TileEntityLittleTiles)
+	 * {
+	 * LittleTile tile = ((TileEntityLittleTiles) tileEntity).getTile(pos.position);
+	 * if(tile != null && tile.isStructureBlock)
+	 * {
+	 * if(!tiles.contains(tile))
+	 * tiles.add(tile);
+	 * tile.structure = this;
+	 * return true;
+	 * }
+	 * }
+	 * }
+	 * return false;
+	 * } */
 	
 	//====================Placing====================
 	
-	public boolean shouldPlaceTile(LittleTile tile)
-	{
+	public boolean shouldPlaceTile(LittleTile tile) {
 		return true;
 	}
 	
-	public LittleGridContext getMinContext()
-	{
+	public LittleGridContext getMinContext() {
 		return LittleGridContext.getMin();
 	}
 	
-	public ArrayList<PlacePreviewTile> getSpecialTiles(LittleGridContext context)
-	{
+	public ArrayList<PlacePreviewTile> getSpecialTiles(LittleGridContext context) {
 		return new ArrayList<>();
 	}
 	
 	//====================LittleTile-Stuff====================
 	
-	public void onLittleTileDestroy()
-	{
-		if(hasLoaded())
-		{
+	public void onLittleTileDestroy() {
+		if (hasLoaded()) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
 				entry.getKey().removeTiles(entry.getValue());
 			}
 		}
 	}
 	
-	public ItemStack getStructureDrop()
-	{
-		if(hasLoaded())
-		{
+	public ItemStack getStructureDrop() {
+		if (hasLoaded()) {
 			BlockPos pos = getMainTile().te.getPos();
 			int x = pos.getX();
 			int y = pos.getY();
@@ -657,8 +591,7 @@ public abstract class LittleStructure {
 			this.writeToNBTPreview(structureNBT, pos);
 			stack.getTagCompound().setTag("structure", structureNBT);
 			
-			if(name != null)
-			{
+			if (name != null) {
 				NBTTagCompound display = new NBTTagCompound();
 				display.setString("Name", name);
 				stack.getTagCompound().setTag("display", display);
@@ -668,32 +601,32 @@ public abstract class LittleStructure {
 		return ItemStack.EMPTY;
 	}
 	
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action)
-	{
+	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		return false;
 	}
 	
 	//====================SORTING====================
 	
-	/*public HashMapList<BlockPos, LittleTile> getTilesSortedPerBlock()
-	{
-		HashMapList<BlockPos, LittleTile> coords = new HashMapList<>();
-		for (Iterator iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
-			coords.add(tile.te.getPos(), tile);
-		}
-		return coords;
-	}*/
+	/* public HashMapList<BlockPos, LittleTile> getTilesSortedPerBlock()
+	 * {
+	 * HashMapList<BlockPos, LittleTile> coords = new HashMapList<>();
+	 * for (Iterator iterator = getTiles(); iterator.hasNext();) {
+	 * LittleTile tile = (LittleTile) iterator.next();
+	 * coords.add(tile.te.getPos(), tile);
+	 * }
+	 * return coords;
+	 * } */
 	
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter){}
+	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	}
 	
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter){}
+	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	}
 	
 	//====================Helpers====================
 	
-	public Vec3d getHighestCenterVec()
-	{
-		if(tiles == null)
+	public Vec3d getHighestCenterVec() {
+		if (tiles == null)
 			return null;
 		
 		int minYPos = Integer.MAX_VALUE;
@@ -714,21 +647,18 @@ public abstract class LittleStructure {
 		HashMap<BlockPos, TileEntityLittleTiles> map = new HashMap<>();
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if(context.size < entry.getKey().getContext().size)
-			{
-				if(!first)
-				{
-					if(context.size > entry.getKey().getContext().size)
-					{
-						int modifier = context.size/entry.getKey().getContext().size;
+			if (context.size < entry.getKey().getContext().size) {
+				if (!first) {
+					if (context.size > entry.getKey().getContext().size) {
+						int modifier = context.size / entry.getKey().getContext().size;
 						minX /= modifier;
 						minY /= modifier;
 						minZ /= modifier;
 						maxX /= modifier;
 						maxY /= modifier;
 						maxZ /= modifier;
-					}else{
-						int modifier = entry.getKey().getContext().size/context.size;
+					} else {
+						int modifier = entry.getKey().getContext().size / context.size;
 						minX *= modifier;
 						minY *= modifier;
 						minZ *= modifier;
@@ -744,13 +674,13 @@ public abstract class LittleStructure {
 			
 			for (LittleTile tile : entry.getValue()) {
 				LittleTileBox box = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX()*context.size+box.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY()*context.size+box.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ()*context.size+box.minZ);
+				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
+				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
+				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
 				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX()*context.size+box.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY()*context.size+box.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ()*context.size+box.maxZ);
+				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
+				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
+				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
 				
 				minYPos = Math.min(minYPos, entry.getKey().getPos().getY());
 				maxYPos = Math.max(maxYPos, entry.getKey().getPos().getY());
@@ -760,32 +690,29 @@ public abstract class LittleStructure {
 		}
 		
 		//double test = Math.floor(((minX+maxX)/LittleTile.gridSize/2D));
-		int centerX = (int) Math.floor((minX+maxX)/(double)context.size/2D);
-		int centerY = (int) Math.floor((minY+maxY)/(double)context.size/2D);
-		int centerZ = (int) Math.floor((minZ+maxZ)/(double)context.size/2D);
+		int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
+		int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
+		int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
 		
-		int centerTileX = (int) (Math.floor(minX+maxX)/2D)-centerX*context.size;
-		int centerTileY = (int) (Math.floor(minY+maxY)/2D)-centerY*context.size;
-		int centerTileZ = (int) (Math.floor(minZ+maxZ)/2D)-centerZ*context.size;
+		int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.size;
+		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
+		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
 		
 		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
 		
 		for (int y = minYPos; y <= maxYPos; y++) {
 			TileEntityLittleTiles te = map.get(new BlockPos(centerX, y, centerZ));
 			ArrayList<LittleTile> tilesInCenter = tiles.getValues(te);
-			if(tilesInCenter != null)
-			{
+			if (tilesInCenter != null) {
 				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX+1, context.maxPos, centerTileZ+1);
-				if(context.size >= centerTileX)
-				{
-					box.minX = context.size-1;
+				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
+				if (context.size >= centerTileX) {
+					box.minX = context.size - 1;
 					box.maxX = context.size;
 				}
 				
-				if(context.size >= centerTileZ)
-				{
-					box.minZ = context.size-1;
+				if (context.size >= centerTileZ) {
+					box.minZ = context.size - 1;
 					box.maxZ = context.size;
 				}
 				
@@ -794,10 +721,9 @@ public abstract class LittleStructure {
 					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
 						LittleTileBox littleBox = collision.get(j);
-						if(LittleTileBox.intersectsWith(box, littleBox))
-						{
+						if (LittleTileBox.intersectsWith(box, littleBox)) {
 							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos)*context.size+littleBox.maxY, pos.contextVec.vec.y);
+							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
 						}
 					}
 				}
@@ -805,12 +731,11 @@ public abstract class LittleStructure {
 			}
 		}
 		
-		return new Vec3d(context.toVanillaGrid((minX+maxX)/2D), pos.getPosY(), context.toVanillaGrid((minZ+maxZ)/2D));
+		return new Vec3d(context.toVanillaGrid((minX + maxX) / 2D), pos.getPosY(), context.toVanillaGrid((minZ + maxZ) / 2D));
 	}
 	
-	public LittleTilePos getHighestCenterPoint()
-	{
-		if(tiles == null)
+	public LittleTilePos getHighestCenterPoint() {
+		if (tiles == null)
 			return null;
 		
 		int minYPos = Integer.MAX_VALUE;
@@ -831,21 +756,18 @@ public abstract class LittleStructure {
 		HashMap<BlockPos, TileEntityLittleTiles> map = new HashMap<>();
 		
 		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if(context.size < entry.getKey().getContext().size)
-			{
-				if(!first)
-				{
-					if(context.size > entry.getKey().getContext().size)
-					{
-						int modifier = context.size/entry.getKey().getContext().size;
+			if (context.size < entry.getKey().getContext().size) {
+				if (!first) {
+					if (context.size > entry.getKey().getContext().size) {
+						int modifier = context.size / entry.getKey().getContext().size;
 						minX /= modifier;
 						minY /= modifier;
 						minZ /= modifier;
 						maxX /= modifier;
 						maxY /= modifier;
 						maxZ /= modifier;
-					}else{
-						int modifier = entry.getKey().getContext().size/context.size;
+					} else {
+						int modifier = entry.getKey().getContext().size / context.size;
 						minX *= modifier;
 						minY *= modifier;
 						minZ *= modifier;
@@ -861,13 +783,13 @@ public abstract class LittleStructure {
 			
 			for (LittleTile tile : entry.getValue()) {
 				LittleTileBox box = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX()*context.size+box.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY()*context.size+box.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ()*context.size+box.minZ);
+				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
+				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
+				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
 				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX()*context.size+box.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY()*context.size+box.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ()*context.size+box.maxZ);
+				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
+				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
+				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
 				
 				minYPos = Math.min(minYPos, entry.getKey().getPos().getY());
 				maxYPos = Math.max(maxYPos, entry.getKey().getPos().getY());
@@ -877,32 +799,29 @@ public abstract class LittleStructure {
 		}
 		
 		//double test = Math.floor(((minX+maxX)/LittleTile.gridSize/2D));
-		int centerX = (int) Math.floor((minX+maxX)/(double)context.size/2D);
-		int centerY = (int) Math.floor((minY+maxY)/(double)context.size/2D);
-		int centerZ = (int) Math.floor((minZ+maxZ)/(double)context.size/2D);
+		int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
+		int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
+		int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
 		
-		int centerTileX = (int) (Math.floor(minX+maxX)/2D)-centerX*context.size;
-		int centerTileY = (int) (Math.floor(minY+maxY)/2D)-centerY*context.size;
-		int centerTileZ = (int) (Math.floor(minZ+maxZ)/2D)-centerZ*context.size;
+		int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.size;
+		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
+		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
 		
 		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
 		
 		for (int y = minYPos; y <= maxYPos; y++) {
 			TileEntityLittleTiles te = map.get(new BlockPos(centerX, y, centerZ));
 			ArrayList<LittleTile> tilesInCenter = tiles.getValues(te);
-			if(tilesInCenter != null)
-			{
+			if (tilesInCenter != null) {
 				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX+1, context.maxPos, centerTileZ+1);
-				if(context.size <= centerTileX)
-				{
-					box.minX = context.size-1;
+				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
+				if (context.size <= centerTileX) {
+					box.minX = context.size - 1;
 					box.maxX = context.size;
 				}
 				
-				if(context.size <= centerTileZ)
-				{
-					box.minZ = context.size-1;
+				if (context.size <= centerTileZ) {
+					box.minZ = context.size - 1;
 					box.maxZ = context.size;
 				}
 				
@@ -911,10 +830,9 @@ public abstract class LittleStructure {
 					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
 						LittleTileBox littleBox = collision.get(j);
-						if(LittleTileBox.intersectsWith(box, littleBox))
-						{
+						if (LittleTileBox.intersectsWith(box, littleBox)) {
 							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos)*context.size+littleBox.maxY, pos.contextVec.vec.y);
+							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
 						}
 					}
 				}
@@ -923,14 +841,13 @@ public abstract class LittleStructure {
 		}
 		
 		pos.removeInternalBlockOffset();
-		pos.convertToSmallest();		
+		pos.convertToSmallest();
 		return pos;
 	}
 	
 	//====================LittleStructure ID====================
 	
-	public String getIDOfStructure()
-	{
+	public String getIDOfStructure() {
 		return getIDByClass(this.getClass());
 	}
 	
@@ -941,8 +858,7 @@ public abstract class LittleStructure {
 		public Class<? extends LittleStructureParser> parser;
 		public final LittleStructureAttribute attribute;
 		
-		public LittleStructureEntry(String id, Class<? extends LittleStructure> structureClass, Class<? extends LittleStructureParser> parser, LittleStructureAttribute attribute)
-		{
+		public LittleStructureEntry(String id, Class<? extends LittleStructure> structureClass, Class<? extends LittleStructureParser> parser, LittleStructureAttribute attribute) {
 			this.id = id;
 			this.structureClass = structureClass;
 			this.parser = parser;
@@ -950,65 +866,56 @@ public abstract class LittleStructure {
 		}
 		
 		@Override
-		public boolean equals(Object object)
-		{
+		public boolean equals(Object object) {
 			return object instanceof LittleStructureEntry && ((LittleStructureEntry) object).structureClass == this.structureClass;
 		}
 		
 		@Override
-		public String toString()
-		{
+		public String toString() {
 			return structureClass.toString();
 		}
 		
-		public LittleStructureParser createParser(GuiParent parent)
-		{
+		public LittleStructureParser createParser(GuiParent parent) {
 			try {
 				return parser.getConstructor(String.class, GuiParent.class).newInstance(id, parent);
-			} catch(Exception e) {
+			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
 		}
 	}
 	
-	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player)
-	{
+	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player) {
 		return false;
 	}
 	
-	public boolean shouldCheckForCollision()
-	{
+	public boolean shouldCheckForCollision() {
 		return false;
 	}
 	
-    public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn)
-    {
-		
-    }
-
-	public void onUpdatePacketReceived()
-	{
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		
 	}
-
-	public void removeWorldProperties()
-	{
+	
+	public void onUpdatePacketReceived() {
+		
+	}
+	
+	public void removeWorldProperties() {
 		mainTile = null;
 		tiles = new HashMapList<>();
 		tilesToLoad = null;
 	}
 	
-	public boolean canOnlyBePlacedByItemStack()
-	{
+	public boolean canOnlyBePlacedByItemStack() {
 		return false;
 	}
 	
 	/**
 	 * Only important for structures which require to be placed by the given itemstack
+	 * 
 	 * @return
 	 */
-	public String getStructureDropIdentifier()
-	{
+	public String getStructureDropIdentifier() {
 		return null;
 	}
 	

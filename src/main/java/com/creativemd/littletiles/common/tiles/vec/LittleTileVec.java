@@ -5,9 +5,7 @@ import java.security.InvalidParameterException;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import net.minecraft.nbt.NBTTagByte;
 import net.minecraft.nbt.NBTTagCompound;
@@ -21,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import scala.tools.nsc.transform.patmat.Solving.Solver.Lit;
 
 public class LittleTileVec implements IVecInt {
 	
@@ -31,96 +28,85 @@ public class LittleTileVec implements IVecInt {
 	public int y;
 	public int z;
 	
-	public LittleTileVec(String name, NBTTagCompound nbt)
-	{
-		if(nbt.getTag(name + "x") instanceof NBTTagByte)
-		{
-			set(nbt.getByte(name+"x"), nbt.getByte(name+"y"), nbt.getByte(name+"z"));
+	public LittleTileVec(String name, NBTTagCompound nbt) {
+		if (nbt.getTag(name + "x") instanceof NBTTagByte) {
+			set(nbt.getByte(name + "x"), nbt.getByte(name + "y"), nbt.getByte(name + "z"));
 			writeToNBT(name, nbt);
-		}else if(nbt.getTag(name + "x") instanceof NBTTagInt)
-			set(nbt.getInteger(name+"x"), nbt.getInteger(name+"y"), nbt.getInteger(name+"z"));
-		else if(nbt.getTag(name) instanceof NBTTagIntArray){
+		} else if (nbt.getTag(name + "x") instanceof NBTTagInt)
+			set(nbt.getInteger(name + "x"), nbt.getInteger(name + "y"), nbt.getInteger(name + "z"));
+		else if (nbt.getTag(name) instanceof NBTTagIntArray) {
 			int[] array = nbt.getIntArray(name);
-			if(array.length == 3)
+			if (array.length == 3)
 				set(array[0], array[1], array[2]);
 			else
 				throw new InvalidParameterException("No valid coords given " + nbt);
-		}else if(nbt.getTag(name) instanceof NBTTagString){
+		} else if (nbt.getTag(name) instanceof NBTTagString) {
 			String[] coords = nbt.getString(name).split("\\.");
-			try{
+			try {
 				set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
-			}catch(Exception e){
+			} catch (Exception e) {
 				set(0, 0, 0);
 			}
 		}
 	}
 	
-	public LittleTileVec(LittleGridContext context, RayTraceResult result)
-	{
+	public LittleTileVec(LittleGridContext context, RayTraceResult result) {
 		this(context, result.hitVec, result.sideHit);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3d vec, EnumFacing facing)
-	{
+	public LittleTileVec(LittleGridContext context, Vec3d vec, EnumFacing facing) {
 		this(context, vec);
-		if(facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
+		if (facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
 			set(facing.getAxis(), get(facing.getAxis()) + 1);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3d vec)
-	{		
+	public LittleTileVec(LittleGridContext context, Vec3d vec) {
 		this.x = context.toGrid(vec.xCoord);
 		this.y = context.toGrid(vec.yCoord);
 		this.z = context.toGrid(vec.zCoord);
 	}
 	
-	public LittleTileVec(EnumFacing facing)
-	{
-		switch(facing)
-		{
+	public LittleTileVec(EnumFacing facing) {
+		switch (facing) {
 		case EAST:
-			set(1,0,0);
+			set(1, 0, 0);
 			break;
 		case WEST:
-			set(-1,0,0);
+			set(-1, 0, 0);
 			break;
 		case UP:
-			set(0,1,0);
+			set(0, 1, 0);
 			break;
 		case DOWN:
-			set(0,-1,0);
+			set(0, -1, 0);
 			break;
 		case SOUTH:
-			set(0,0,1);
+			set(0, 0, 1);
 			break;
 		case NORTH:
-			set(0,0,-1);
+			set(0, 0, -1);
 			break;
 		default:
-			set(0,0,0);
+			set(0, 0, 0);
 			break;
 		}
 	}
 	
-	public LittleTileVec(int x, int y, int z)
-	{
+	public LittleTileVec(int x, int y, int z) {
 		set(x, y, z);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3i vec)
-	{
+	public LittleTileVec(LittleGridContext context, Vec3i vec) {
 		this(context.toGrid(vec.getX()), context.toGrid(vec.getY()), context.toGrid(vec.getZ()));
 	}
 	
-	public void set(int x, int y, int z)
-	{
+	public void set(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
 	}
 	
-	public int getSmallestContext(LittleGridContext context)
-	{
+	public int getSmallestContext(LittleGridContext context) {
 		int size = LittleGridContext.minSize;
 		size = Math.max(size, context.getMinGrid(x));
 		size = Math.max(size, context.getMinGrid(y));
@@ -128,78 +114,65 @@ public class LittleTileVec implements IVecInt {
 		return size;
 	}
 	
-	public void convertTo(LittleGridContext from, LittleGridContext to)
-	{
-		if(from.size > to.size)
-		{
-			int ratio = from.size/to.size;
+	public void convertTo(LittleGridContext from, LittleGridContext to) {
+		if (from.size > to.size) {
+			int ratio = from.size / to.size;
 			x /= ratio;
 			y /= ratio;
 			z /= ratio;
-		}else{
-			int ratio = to.size/from.size;
+		} else {
+			int ratio = to.size / from.size;
 			x *= ratio;
 			y *= ratio;
 			z *= ratio;
 		}
 	}
 	
-	public BlockPos getBlockPos(LittleGridContext context)
-	{
+	public BlockPos getBlockPos(LittleGridContext context) {
 		return new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
 	}
 	
-	public Vec3d getVec(LittleGridContext context)
-	{
+	public Vec3d getVec(LittleGridContext context) {
 		return new Vec3d(context.toVanillaGrid(x), context.toVanillaGrid(y), context.toVanillaGrid(z));
 	}
 	
-	public double getPosX(LittleGridContext context)
-	{
+	public double getPosX(LittleGridContext context) {
 		return context.toVanillaGrid(x);
 	}
 	
-	public double getPosY(LittleGridContext context)
-	{
+	public double getPosY(LittleGridContext context) {
 		return context.toVanillaGrid(y);
 	}
 	
-	public double getPosZ(LittleGridContext context)
-	{
+	public double getPosZ(LittleGridContext context) {
 		return context.toVanillaGrid(z);
-	}	
+	}
 	
-	public void add(EnumFacing facing)
-	{
+	public void add(EnumFacing facing) {
 		set(facing.getAxis(), get(facing.getAxis()) + facing.getAxisDirection().getOffset());
 	}
 	
-	public void add(LittleTileVec vec)
-	{
+	public void add(LittleTileVec vec) {
 		this.x += vec.x;
 		this.y += vec.y;
 		this.z += vec.z;
 	}
 	
-	public void sub(EnumFacing facing)
-	{
+	public void sub(EnumFacing facing) {
 		set(facing.getAxis(), get(facing.getAxis()) - facing.getAxisDirection().getOffset());
 	}
 	
-	public void sub(LittleTileVec vec)
-	{
+	public void sub(LittleTileVec vec) {
 		this.x -= vec.x;
 		this.y -= vec.y;
 		this.z -= vec.z;
 	}
 	
-	public void flip(Axis axis)
-	{
+	public void flip(Axis axis) {
 		set(axis, -get(axis));
 	}
 	
-	public void rotateVec(Rotation rotation)
-	{
+	public void rotateVec(Rotation rotation) {
 		int tempX = x;
 		int tempY = y;
 		int tempZ = z;
@@ -208,79 +181,73 @@ public class LittleTileVec implements IVecInt {
 		this.z = rotation.getMatrix().getZ(tempX, tempY, tempZ);
 	}
 	
-	public double distanceTo(LittleTileVec vec)
-	{
-		return Math.sqrt(Math.pow(vec.x-this.x, 2)+Math.pow(vec.y-this.y, 2)+Math.pow(vec.z-this.z, 2));
+	public double distanceTo(LittleTileVec vec) {
+		return Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) + Math.pow(vec.z - this.z, 2));
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(object instanceof LittleTileVec)
+	public boolean equals(Object object) {
+		if (object instanceof LittleTileVec)
 			return x == ((LittleTileVec) object).x && y == ((LittleTileVec) object).y && z == ((LittleTileVec) object).z;
 		return super.equals(object);
 	}
 	
-	public LittleTileVec copy()
-	{
+	public LittleTileVec copy() {
 		return new LittleTileVec(x, y, z);
 	}
 	
-	public void writeToNBT(String name, NBTTagCompound  nbt)
-	{
-		nbt.setIntArray(name, new int[]{x, y, z});
+	public void writeToNBT(String name, NBTTagCompound nbt) {
+		nbt.setIntArray(name, new int[] { x, y, z });
 	}
 	
 	@Override
-	public String toString()
-	{
+	public String toString() {
 		return "[" + x + "," + y + "," + z + "]";
 	}
-
+	
 	public void invert() {
 		set(-x, -y, -z);
 	}
-
+	
 	public void scale(int factor) {
 		x *= factor;
 		y *= factor;
 		z *= factor;
 	}
-
+	
 	@Override
 	public int getX() {
 		return x;
 	}
-
+	
 	@Override
 	public int getY() {
 		return y;
 	}
-
+	
 	@Override
 	public int getZ() {
 		return z;
 	}
-
+	
 	@Override
 	public void setX(int value) {
 		x = value;
 	}
-
+	
 	@Override
 	public void setY(int value) {
 		y = value;
 	}
-
+	
 	@Override
 	public void setZ(int value) {
 		z = value;
 	}
-
+	
 	@Override
 	public int get(Axis axis) {
-		switch(axis)
-		{
+		switch (axis) {
 		case X:
 			return x;
 		case Y:
@@ -290,11 +257,10 @@ public class LittleTileVec implements IVecInt {
 		}
 		return 0;
 	}
-
+	
 	@Override
 	public void set(Axis axis, int value) {
-		switch(axis)
-		{
+		switch (axis) {
 		case X:
 			x = value;
 			break;

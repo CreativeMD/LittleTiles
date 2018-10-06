@@ -1,24 +1,19 @@
 package com.creativemd.littletiles.client;
 
 import java.util.Iterator;
-import java.util.Map;
 import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.OverlayRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
-import com.creativemd.littletiles.client.render.RenderUploader;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
-import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -26,23 +21,15 @@ import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BlockModelShapes;
 import net.minecraft.client.renderer.ItemMeshDefinition;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.statemap.IStateMapper;
-import net.minecraft.client.renderer.block.statemap.StateMap;
 import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
@@ -50,14 +37,10 @@ import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fluids.BlockFluidBase;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -69,9 +52,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class LittleTilesClient extends LittleTilesServer{
+public class LittleTilesClient extends LittleTilesServer {
 	
-	public static KeyBinding flip;	
+	public static KeyBinding flip;
 	public static KeyBinding mark;
 	public static KeyBinding configure;
 	public static KeyBinding up;
@@ -80,13 +63,12 @@ public class LittleTilesClient extends LittleTilesServer{
 	public static KeyBinding left;
 	
 	public static KeyBinding undo;
-	public static KeyBinding redo;	
+	public static KeyBinding redo;
 	
 	@Override
-	public void loadSidePre()
-	{
+	public void loadSidePre() {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
-
+			
 			@Override
 			public Render<? super EntitySizedTNTPrimed> createRenderFor(RenderManager manager) {
 				return new RenderSizedTNTPrimed(manager);
@@ -94,11 +76,11 @@ public class LittleTilesClient extends LittleTilesServer{
 		});
 		
 		RenderingRegistry.registerEntityRenderingHandler(EntityDoorAnimation.class, new IRenderFactory<EntityDoorAnimation>() {
-
+			
 			@Override
 			public Render<? super EntityDoorAnimation> createRenderFor(RenderManager manager) {
 				return new Render<EntityAnimation>(manager) {
-
+					
 					@Override
 					protected ResourceLocation getEntityTexture(EntityAnimation entity) {
 						return TextureMap.LOCATION_BLOCKS_TEXTURE;
@@ -110,8 +92,7 @@ public class LittleTilesClient extends LittleTilesServer{
 	}
 	
 	@Override
-	public void loadSide()
-	{		
+	public void loadSide() {
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, new TileEntityTilesRenderer());
 		
 		Minecraft mc = Minecraft.getMinecraft();
@@ -120,7 +101,7 @@ public class LittleTilesClient extends LittleTilesServer{
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTickingRendered);
-
+		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
 		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
 		
@@ -154,42 +135,39 @@ public class LittleTilesClient extends LittleTilesServer{
 		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTiles.class, renderer);
 		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTicking.class, renderer);
-
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);	
+		
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipeAdvanced);
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 0, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipeAdvanced, 1, new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);	
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.recipe);
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 0, new ModelResourceLocation(LittleTiles.modid + ":recipe", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.recipe, 1, new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory"));
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);	
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.chisel);
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 0, new ModelResourceLocation(LittleTiles.modid + ":chisel", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.chisel, 1, new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 		
-		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);	
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.grabber);
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 0, new ModelResourceLocation(LittleTiles.modid + ":grabber", "inventory"));
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.premade);
-
-		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition()
-        {
-            public ModelResourceLocation getModelLocation(ItemStack stack)
-            {
-                return new ModelResourceLocation("LTChisel", "inventory");
-            }
-        });
+		
+		mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new ItemMeshDefinition() {
+			public ModelResourceLocation getModelLocation(ItemStack stack) {
+				return new ModelResourceLocation("LTChisel", "inventory");
+			}
+		});
 		mc.getItemColors().registerItemColorHandler(new IItemColor() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
-		    public int getColorFromItemstack(ItemStack stack, int color)
-		    {
+			public int getColorFromItemstack(ItemStack stack, int color) {
 				if (color == 0)
-		        	return ColorUtils.WHITE;
-		        return ItemColorTube.getColor(stack);
-		    }
+					return ColorUtils.WHITE;
+				return ItemColorTube.getColor(stack);
+			}
 			
 		}, LittleTiles.colorTube);
 		
@@ -223,8 +201,8 @@ public class LittleTilesClient extends LittleTilesServer{
 		ClientRegistry.registerKeyBinding(undo);
 		ClientRegistry.registerKeyBinding(redo);
 		
-		EntityRegistry.instance().lookupModSpawn(EntityDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>(){
-
+		EntityRegistry.instance().lookupModSpawn(EntityDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
+			
 			@Override
 			public Entity apply(EntitySpawnMessage input) {
 				//entity = cls.getConstructor(World.class).newInstance(wc);
@@ -233,44 +211,41 @@ public class LittleTilesClient extends LittleTilesServer{
 				EntityDoorAnimation animation = null;
 				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
 					Entity entity = iterator.next();
-					if(entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid))
-					{
+					if (entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid)) {
 						animation = (EntityDoorAnimation) entity;
 						break;
 					}
 				}
 				
 				boolean alreadyExisted = animation != null;
-				if(animation == null)
-				{
+				if (animation == null) {
 					animation = new EntityDoorAnimation(mc.world);
 					
 					animation.setUniqueId(uuid);
 					//PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), true));
-				}else{
+				} else {
 					animation.spawnedInWorld = true;
 					animation.approved = true;
-					/*mc.world.removeEntity(animation);
-					animation = animation.copy();
-					PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), false));
-					animation.isDead = true;
-					mc.world.loadedEntityList.remove(animation);*/
+					/* mc.world.removeEntity(animation);
+					 * animation = animation.copy();
+					 * PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new NBTTagCompound(), false));
+					 * animation.isDead = true;
+					 * mc.world.loadedEntityList.remove(animation); */
 					//mc.world.removeEntity(animation);
 					//animation.isDead = false;
 				}
 				
-				if(animation != null)
-				{
+				if (animation != null) {
 					animation.setEntityId(ReflectionHelper.getPrivateValue(EntityMessage.class, input, "entityId"));
 					double rawX = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawX");
 					double rawY = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawY");
 					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
 					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
 					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
-					if(!alreadyExisted)
+					if (!alreadyExisted)
 						animation.setInitialPosition(rawX, rawY, rawZ);
 				}
-
+				
 				return animation;
 			}
 			

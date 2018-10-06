@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava;
+import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava.LittleFlowingLavaPreview;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater.LittleFlowingWaterPreview;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
@@ -35,10 +36,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
-import com.creativemd.littletiles.common.blocks.ItemBlockFlowingLava;
-import com.creativemd.littletiles.common.blocks.ItemBlockFlowingWater;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava.LittleFlowingLavaPreview;
 import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
@@ -135,7 +133,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles",acceptedMinecraftVersions="",guiFactory="com.creativemd.littletiles.client.LittleTilesSettings")
+@Mod(modid = LittleTiles.modid, version = LittleTiles.version, name = "LittleTiles", acceptedMinecraftVersions = "", guiFactory = "com.creativemd.littletiles.client.LittleTilesSettings")
 @Mod.EventBusSubscriber
 public class LittleTiles {
 	
@@ -184,31 +182,25 @@ public class LittleTiles {
 	public static Item grabber;
 	public static Item premade;
 	
-	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames)
-	{
-		for(ConfigCategory child : category.getChildren())
+	private void removeMissingProperties(String path, ConfigCategory category, List<String> allowedNames) {
+		for (ConfigCategory child : category.getChildren())
 			removeMissingProperties(path + (path.isEmpty() ? "" : ".") + category.getName(), child, allowedNames);
-		for(String propertyName : category.getPropertyOrder())
-		{
+		for (String propertyName : category.getPropertyOrder()) {
 			String name = path + (path.isEmpty() ? "" : ".") + propertyName;
-			if(!allowedNames.contains(name))
+			if (!allowedNames.contains(name))
 				category.remove(propertyName);
 		}
 	}
 	
 	@EventHandler
-	public void PreInit(FMLPreInitializationEvent event)
-	{
+	public void PreInit(FMLPreInitializationEvent event) {
 		event.getModMetadata().version = version;
 		
 		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 		config.load();
-		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."),
-				config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"),
-				config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist."),
-				config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
+		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."), config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"), config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist."), config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
 		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
-		for(String categoryName : config.getCategoryNames())
+		for (String categoryName : config.getCategoryNames())
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
 		proxy.loadSidePre();
@@ -231,33 +223,8 @@ public class LittleTiles {
 		LittleStructure.initStructures();
 	}
 	
-	@SubscribeEvent
-	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock,
-				flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava);
-	}
-	
-	@SubscribeEvent
-	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade,
-				new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()),
-				new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
-				new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()),
-				new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()),
-				new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()),
-				new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()),
-				new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(blockTileTickingRendered.getRegistryName()),
-				new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()),
-				new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()),
-				new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(flowingLava.getRegistryName()),
-				new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(whiteFlowingLava.getRegistryName()));
-		
-		proxy.loadSide();
-	}
-	
 	@EventHandler
-    public void Init(FMLInitializationEvent event)
-    {
+	public void Init(FMLInitializationEvent event) {
 		ForgeModContainer.fullBoundingBoxLadders = true;
 		
 		GameRegistry.register(hammer);
@@ -291,7 +258,7 @@ public class LittleTiles {
 		
 		GameRegistry.register(blockTileNoTickingRendered);
 		GameRegistry.register(new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()));
-
+		
 		GameRegistry.registerWithItem(storageBlock);
 		GameRegistry.registerWithItem(particleBlock);
 		
@@ -323,14 +290,14 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if(tile.isStructureBlock && tile.structure instanceof LittleStorage)
+				if (tile.isStructureBlock && tile.structure instanceof LittleStorage)
 					return new SubGuiStorage((LittleStorage) tile.structure);
 				return null;
 			}
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if(tile.isStructureBlock && tile.structure instanceof LittleStorage)
+				if (tile.isStructureBlock && tile.structure instanceof LittleStorage)
 					return new SubContainerStorage(player, (LittleStorage) tile.structure);
 				return null;
 			}
@@ -341,14 +308,14 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if(tile instanceof LittleTileParticle)
+				if (tile instanceof LittleTileParticle)
 					return new SubGuiParticle((TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
 				return null;
 			}
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if(tile instanceof LittleTileParticle)
+				if (tile instanceof LittleTileParticle)
 					return new SubContainerParticle(player, (TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
 				return null;
 			}
@@ -361,9 +328,9 @@ public class LittleTiles {
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-				if(iTile != null)
+				if (iTile != null)
 					return iTile.getConfigureGUI(player, stack);
-				else if(stack.getItem() instanceof ISpecialBlockSelector)
+				else if (stack.getItem() instanceof ISpecialBlockSelector)
 					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(player, stack);
 				return null;
 			}
@@ -374,7 +341,7 @@ public class LittleTiles {
 			}
 		});
 		
-		GuiHandler.registerGuiHandler("chisel", new CustomGuiHandler(){
+		GuiHandler.registerGuiHandler("chisel", new CustomGuiHandler() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
@@ -388,7 +355,7 @@ public class LittleTiles {
 			}
 		});
 		
-		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler(){
+		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
@@ -396,7 +363,7 @@ public class LittleTiles {
 				ItemStack stack = player.getHeldItemMainhand();
 				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
 			}
-
+			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
@@ -410,7 +377,7 @@ public class LittleTiles {
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				if(!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
+				if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
 					return new SubGuiRecipeAdvancedSelection(stack);
 				return new SubGuiRecipeAdvancedStructure(stack);
 			}
@@ -463,7 +430,6 @@ public class LittleTiles {
 			}
 		});
 		
-
 		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
@@ -495,138 +461,48 @@ public class LittleTiles {
 		//MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 		//Recipes
-		GameRegistry.addRecipe(new ItemStack(recipe, 5),  new Object[]
-				{
-				"XAX", "AXA", "XAX", 'X', Items.PAPER
-				});
-		GameRegistry.addRecipe(new ItemStack(recipeAdvanced, 5),  new Object[]
-				{
-				"XAX", "AXA", "XAX", 'X', Items.PAPER, 'A', Items.REDSTONE
-				});
+		GameRegistry.addRecipe(new ItemStack(recipe, 5), new Object[] { "XAX", "AXA", "XAX", 'X', Items.PAPER });
+		GameRegistry.addRecipe(new ItemStack(recipeAdvanced, 5), new Object[] { "XAX", "AXA", "XAX", 'X', Items.PAPER, 'A', Items.REDSTONE });
 		
-		GameRegistry.addRecipe(new ItemStack(hammer),  new Object[]
-				{
-				"XXX", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(hammer), new Object[] { "XXX", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(container),  new Object[]
-				{
-				"XXX", "XHX", "XXX", 'X', Items.IRON_INGOT, 'H', hammer
-				});
+		GameRegistry.addRecipe(new ItemStack(container), new Object[] { "XXX", "XHX", "XXX", 'X', Items.IRON_INGOT, 'H', hammer });
 		
-		GameRegistry.addRecipe(new ItemStack(saw),  new Object[]
-				{
-				"AXA", "AXA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(saw), new Object[] { "AXA", "AXA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(wrench),  new Object[]
-				{
-				"AXA", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(wrench), new Object[] { "AXA", "ALA", "ALA", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(rubberMallet),  new Object[]
-				{
-				"XXX", "XLX", "ALA", 'X', Blocks.WOOL, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(rubberMallet), new Object[] { "XXX", "XLX", "ALA", 'X', Blocks.WOOL, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(colorTube),  new Object[]
-				{
-				"XXX", "XLX", "XXX", 'X', Items.DYE, 'L', Items.IRON_INGOT
-				});
+		GameRegistry.addRecipe(new ItemStack(colorTube), new Object[] { "XXX", "XLX", "XXX", 'X', Items.DYE, 'L', Items.IRON_INGOT });
 		
-		GameRegistry.addRecipe(new ItemStack(utilityKnife),  new Object[]
-				{
-				"XAA", "AXA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(utilityKnife), new Object[] { "XAA", "AXA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(chisel),  new Object[]
-				{
-				"XAA", "ALA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4)
-				});
-
-		GameRegistry.addRecipe(new ItemStack(grabber),  new Object[]
-				{
-					"LLL", "WWW", "LLL", 'W', new ItemStack(Blocks.WOOL, 1, 11), 'L', new ItemStack(Items.DYE, 1, 4)
-				});
+		GameRegistry.addRecipe(new ItemStack(chisel), new Object[] { "XAA", "ALA", "AAL", 'X', Items.IRON_INGOT, 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 0),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 1),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.SANDSTONE
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 2),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.COBBLESTONE
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 3),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.DIRT
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 4),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.GRAVEL
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 5),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.BRICK_BLOCK
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 6),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.STONE
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 7),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 0)
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 8),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 3)
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 9),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 2)
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 10),  new Object[]
-				{
-				"XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.HARDENED_CLAY
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 11),  new Object[]
-				{
-				"XGX", "GBG", "XGX", 'G', Items.GLOWSTONE_DUST, 'B', new ItemStack(coloredBlock, 1, 0)
-				});
-		GameRegistry.addRecipe(new ItemStack(coloredBlock, 8, 13),  new Object[]
-				{
-				"XXX", "XGX", "XXX", 'G', new ItemStack(Items.DYE, 1, 15), 'X', Blocks.PLANKS
-				});
+		GameRegistry.addRecipe(new ItemStack(grabber), new Object[] { "LLL", "WWW", "LLL", 'W', new ItemStack(Blocks.WOOL, 1, 11), 'L', new ItemStack(Items.DYE, 1, 4) });
 		
-		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 0),  new Object[]
-				{
-				"SXS", "XGX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0), 'G', Blocks.GLASS
-				});
-		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 1),  new Object[]
-				{
-				"SXS", "XSX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
-				});
-		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 3, 2),  new Object[]
-				{
-				"SSS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
-				});
-		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 2, 3),  new Object[]
-				{
-				"SS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
-				});
-		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 1, 4),  new Object[]
-				{
-				"S", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0)
-				});
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 0), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 1), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.SANDSTONE });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 2), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.COBBLESTONE });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 3), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.DIRT });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 4), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.GRAVEL });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 5), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.BRICK_BLOCK });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 6), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.STONE });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 7), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 0) });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 8), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 3) });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 9), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', new ItemStack(Blocks.STONEBRICK, 1, 2) });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 10), new Object[] { "XXX", "XAX", "XXX", 'X', Blocks.QUARTZ_BLOCK, 'A', Blocks.HARDENED_CLAY });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 9, 11), new Object[] { "XGX", "GBG", "XGX", 'G', Items.GLOWSTONE_DUST, 'B', new ItemStack(coloredBlock, 1, 0) });
+		GameRegistry.addRecipe(new ItemStack(coloredBlock, 8, 13), new Object[] { "XXX", "XGX", "XXX", 'G', new ItemStack(Items.DYE, 1, 15), 'X', Blocks.PLANKS });
 		
-		GameRegistry.addRecipe(new ItemStack(particleBlock),  new Object[]
-				{
-				"XGX", "GLG", "XGX", 'X', Items.COAL, 'L', Items.DYE, 'G', Items.GUNPOWDER
-				});
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 0), new Object[] { "SXS", "XGX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0), 'G', Blocks.GLASS });
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 5, 1), new Object[] { "SXS", "XSX", "SXS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0) });
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 3, 2), new Object[] { "SSS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0) });
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 2, 3), new Object[] { "SS", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0) });
+		GameRegistry.addRecipe(new ItemStack(transparentColoredBlock, 1, 4), new Object[] { "S", 'S', new ItemStack(Blocks.STAINED_GLASS, 1, 0) });
+		
+		GameRegistry.addRecipe(new ItemStack(particleBlock), new Object[] { "XGX", "GLG", "XGX", 'X', Items.COAL, 'L', Items.DYE, 'G', Items.GUNPOWDER });
 		
 		//Water block
 		GameRegistry.addShapelessRecipe(new ItemStack(transparentColoredBlock, 1, BlockLTTransparentColored.EnumType.water.ordinal()), Items.WATER_BUCKET);
@@ -635,25 +511,13 @@ public class LittleTiles {
 		
 		GameRegistry.addShapelessRecipe(new ItemStack(coloredBlock, 1, BlockLTColored.EnumType.lava.ordinal()), Items.LAVA_BUCKET);
 		
-		GameRegistry.addRecipe(new ItemStack(storageBlock, 1),  new Object[]
-				{
-				"C", 'C', Blocks.CHEST
-				});
+		GameRegistry.addRecipe(new ItemStack(storageBlock, 1), new Object[] { "C", 'C', Blocks.CHEST });
 		
-		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"),  new Object[]
-				{
-				"PPP", "PWP", "PPP", 'P', Blocks.PLANKS, 'W', LittleTiles.wrench
-				});
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"), new Object[] { "PPP", "PWP", "PPP", 'P', Blocks.PLANKS, 'W', LittleTiles.wrench });
 		
-		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"),  new Object[]
-				{
-				"PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.IRON_BARS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE
-				});
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"), new Object[] { "PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.IRON_BARS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE });
 		
-		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("importer"),  new Object[]
-				{
-				"PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.GLASS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE
-				});
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("importer"), new Object[] { "PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.GLASS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE });
 		
 		//Entity
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
@@ -663,14 +527,13 @@ public class LittleTiles {
 		proxy.loadSide();
 		
 		DefaultBlockHandler.initVanillaBlockHandlers();
-
-		if(Loader.isModLoaded("igcm"))
+		
+		if (Loader.isModLoaded("igcm"))
 			IGCMLoader.initIGCM();
-    }
+	}
 	
 	@EventHandler
-	public void serverStarting(FMLServerStartingEvent event)
-	{
+	public void serverStarting(FMLServerStartingEvent event) {
 		event.registerServerCommand(new ExportCommand());
 		event.registerServerCommand(new ImportCommand());
 		event.registerServerCommand(new OpenCommand());

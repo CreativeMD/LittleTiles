@@ -12,8 +12,7 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
 	protected List<BitRange> yList;
 	protected List<BitRange> zList;
 	
-	public SplitRangeBoxes(RangedBitSet x, RangedBitSet y, RangedBitSet z)
-	{
+	public SplitRangeBoxes(RangedBitSet x, RangedBitSet y, RangedBitSet z) {
 		this.xList = x.getRanges();
 		this.yList = y.getRanges();
 		this.zList = z.getRanges();
@@ -38,17 +37,15 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
 				
 				return current < total;
 			}
-
+			
 			@Override
 			public SplitRangeBox next() {
-				box.set(xList.get(x), yList.get(y),  zList.get(z));
+				box.set(xList.get(x), yList.get(y), zList.get(z));
 				z++;
-				if(z >= zList.size())
-				{
+				if (z >= zList.size()) {
 					y++;
 					z = 0;
-					if(y >= yList.size())
-					{
+					if (y >= yList.size()) {
 						x++;
 						y = 0;
 					}
@@ -65,8 +62,7 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
 		public BitRange y;
 		public BitRange z;
 		
-		public void set(BitRange x, BitRange y, BitRange z)
-		{
+		public void set(BitRange x, BitRange y, BitRange z) {
 			this.x = x;
 			this.y = y;
 			this.z = z;

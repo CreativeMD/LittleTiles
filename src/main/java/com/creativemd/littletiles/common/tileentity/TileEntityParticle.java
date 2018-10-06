@@ -1,14 +1,12 @@
 package com.creativemd.littletiles.common.tileentity;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.world.IFakeWorld;
-import com.creativemd.creativecore.common.world.WorldFake;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -16,14 +14,9 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.ITickable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -39,7 +32,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	
 	public float ageModifier = 1;
 	
-	/**Amount of particles per tick**/
+	/** Amount of particles per tick **/
 	public float speed = 1;
 	
 	public int ticksToWait = 0;
@@ -47,23 +40,20 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	public boolean randomize = false;
 	
 	@Override
-	public void readFromNBT(NBTTagCompound compound)
-    {
-        super.readFromNBT(compound);
-        receiveUpdatePacket(compound);
-    }
-
+	public void readFromNBT(NBTTagCompound compound) {
+		super.readFromNBT(compound);
+		receiveUpdatePacket(compound);
+	}
+	
 	@Override
-    public NBTTagCompound writeToNBT(NBTTagCompound compound)
-    {
+	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		super.writeToNBT(compound);
 		getDescriptionNBT(compound);
 		return compound;
-    }
+	}
 	
 	@Override
-	public void getDescriptionNBT(NBTTagCompound nbt)
-	{
+	public void getDescriptionNBT(NBTTagCompound nbt) {
 		nbt.setString("particle", particle.name());
 		nbt.setFloat("par1", par1);
 		nbt.setFloat("par2", par2);
@@ -76,8 +66,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	}
 	
 	@Override
-	public void receiveUpdatePacket(NBTTagCompound nbt)
-	{
+	public void receiveUpdatePacket(NBTTagCompound nbt) {
 		particle = LittleParticleType.byName(nbt.getString("particle"));
 		par1 = nbt.getFloat("par1");
 		par2 = nbt.getFloat("par2");
@@ -91,68 +80,62 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSpawnParticles()
-	{
+	public boolean shouldSpawnParticles() {
 		return !(Minecraft.getMinecraft().player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench);
 	}
-
+	
 	@Override
 	public void update() {
-		if(isClientSide())
-		{
+		if (isClientSide()) {
 			Vec3d offset = new Vec3d(0.5, 1, 0.5);
-			if(tile != null)
-				offset = tile.box.getMinVec().getVec(tile.getContext()).addVector(tile.getContext().gridMCLength/2, particle.spawnBelow ? -tile.getContext().gridMCLength*2 : tile.getContext().gridMCLength, tile.getContext().gridMCLength/2);
-				
-			if(speed >= 1)
-			{
-				if(shouldSpawnParticles())
-				{
+			if (tile != null)
+				offset = tile.box.getMinVec().getVec(tile.getContext()).addVector(tile.getContext().gridMCLength / 2, particle.spawnBelow ? -tile.getContext().gridMCLength * 2 : tile.getContext().gridMCLength, tile.getContext().gridMCLength / 2);
+			
+			if (speed >= 1) {
+				if (shouldSpawnParticles()) {
 					for (int i = 0; i < speed; i++) {
 						spawnParticle(offset);
 					}
 				}
-			}else if(ticksToWait == 0){
-				if(shouldSpawnParticles())
+			} else if (ticksToWait == 0) {
+				if (shouldSpawnParticles())
 					spawnParticle(offset);
-				ticksToWait = (int) Math.ceil(1/speed);
-			}else
+				ticksToWait = (int) Math.ceil(1 / speed);
+			} else
 				ticksToWait--;
 			
 		}
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void spawnParticle(Vec3d offset)
-	{
+	public void spawnParticle(Vec3d offset) {
 		Vec3d additional = new Vec3d(par1, par2, par3);
-		if(randomize)
+		if (randomize)
 			additional = particle.type.randomize(par1, par2, par3);
 		
 		Minecraft mc = Minecraft.getMinecraft();
 		
-		if(spawnParticle0 == null)
+		if (spawnParticle0 == null)
 			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, "spawnParticle0", "func_190571_b", int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
 		
-		if(particleMaxAge == null)
+		if (particleMaxAge == null)
 			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");
 		
 		try {
-			Vector3d pos = new Vector3d(getPos().getX()+offset.xCoord, getPos().getY()+offset.yCoord, getPos().getZ()+offset.zCoord);
-			if(world instanceof IFakeWorld)
+			Vector3d pos = new Vector3d(getPos().getX() + offset.xCoord, getPos().getY() + offset.yCoord, getPos().getZ() + offset.zCoord);
+			if (world instanceof IFakeWorld)
 				((IFakeWorld) world).getOrigin().transformPointToWorld(pos);
 			
 			Particle particleEntity;
 			
-			if(particle.isModded)
-			{
-				particleEntity = particle.factory.createParticle(0, mc.world, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
+			if (particle.isModded) {
+				particleEntity = particle.factory.createParticle(0, mc.world, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[] {});
 				mc.effectRenderer.addEffect(particleEntity);
-			}else
-				particleEntity = (Particle) spawnParticle0.invoke(mc.renderGlobal, particle.particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[]{});
+			} else
+				particleEntity = (Particle) spawnParticle0.invoke(mc.renderGlobal, particle.particleType.getParticleID(), true, false, pos.x, pos.y, pos.z, additional.xCoord, additional.yCoord, additional.zCoord, new int[] {});
 			
-			if(particleEntity != null)
-				particleEntity.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particleEntity)*ageModifier)));
+			if (particleEntity != null)
+				particleEntity.setMaxAge(Math.max(1, (int) (particleMaxAge.getInt(particleEntity) * ageModifier)));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.tiles.place;
 
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
@@ -20,17 +19,15 @@ public abstract class FixedHandler {
 	
 	protected abstract LittleTileBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested);
 	
-	public void init(World world, BlockPos pos)
-	{
+	public void init(World world, BlockPos pos) {
 		
 	}
 	
-	public LittleTileBox getNewPosition(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested)
-	{
+	public LittleTileBox getNewPosition(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested) {
 		LittleTileBox oldBox = suggested.copy();
 		LittleTileBox newBox = getNewPos(world, pos, context, suggested);
 		
-		if(newBox != null)
+		if (newBox != null)
 			return newBox;
 		return oldBox;
 	}

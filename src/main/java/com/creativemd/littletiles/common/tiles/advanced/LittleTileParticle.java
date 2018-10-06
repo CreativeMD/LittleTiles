@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -24,39 +22,33 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileParticle extends LittleTileTE {
 	
-	public LittleTileParticle()
-	{
+	public LittleTileParticle() {
 		super();
 	}
 	
-	public LittleTileParticle(Block block, int meta, TileEntity tileEntity)
-	{
+	public LittleTileParticle(Block block, int meta, TileEntity tileEntity) {
 		super(block, meta, tileEntity);
 	}
 	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if(!worldIn.isRemote)
-				LittleGuiHandler.openGui("littleparticle", new NBTTagCompound(), player, this);
+		if (!worldIn.isRemote)
+			LittleGuiHandler.openGui("littleparticle", new NBTTagCompound(), player, this);
 		return true;
 	}
 	
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes() {
-		if(!LittleTilesConfig.rendering.hideParticleBlock)
+		if (!LittleTilesConfig.rendering.hideParticleBlock)
 			return super.getInternalRenderingCubes();
 		return new ArrayList<>();
 	}
 	
 	@Override
-	public void updateEntity()
-	{
+	public void updateEntity() {
 		((TileEntityParticle) getTileEntity()).tile = this;
 		super.updateEntity();
 	}

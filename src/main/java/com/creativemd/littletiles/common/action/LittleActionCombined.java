@@ -16,16 +16,16 @@ public class LittleActionCombined extends LittleAction {
 	public LittleActionCombined() {
 		
 	}
-
+	
 	@Override
 	public boolean canBeReverted() {
 		for (int i = 0; i < actions.length; i++) {
-			if(!actions[i].canBeReverted())
+			if (!actions[i].canBeReverted())
 				return false;
 		}
 		return true;
 	}
-
+	
 	@Override
 	public LittleAction revert() throws LittleActionException {
 		LittleAction[] newActions = new LittleAction[actions.length];
@@ -34,19 +34,19 @@ public class LittleActionCombined extends LittleAction {
 		}
 		return new LittleActionCombined(newActions);
 	}
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if(actions.length == 0)
+		if (actions.length == 0)
 			return true;
 		boolean success = false;
 		for (int i = 0; i < actions.length; i++) {
-			if(actions[i].action(player))
+			if (actions[i].action(player))
 				success = true;
 		}
 		return success;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		buf.writeInt(actions.length);
@@ -56,7 +56,7 @@ public class LittleActionCombined extends LittleAction {
 			actions[i].writeBytes(buf);
 		}
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		actions = new LittleAction[buf.readInt()];
@@ -75,5 +75,5 @@ public class LittleActionCombined extends LittleAction {
 			actions[i] = packet;
 		}
 	}
-
+	
 }

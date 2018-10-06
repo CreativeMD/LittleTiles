@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
@@ -15,7 +13,6 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -23,15 +20,10 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
-import com.creativemd.littletiles.common.utils.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Items;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiChisel extends SubGuiConfigure {
 	
@@ -40,8 +32,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		this.stack = stack;
 	}
 	
-	public LittleGridContext getContext()
-	{
+	public LittleGridContext getContext() {
 		return ((ILittleTile) stack.getItem()).getPositionContext(stack);
 	}
 	
@@ -63,14 +54,12 @@ public class SubGuiChisel extends SubGuiConfigure {
 	}
 	
 	@CustomEventSubscribe
-	public void onComboBoxChange(GuiControlChangedEvent event)
-	{
-		if(event.source.is("shape"))
+	public void onComboBoxChange(GuiControlChangedEvent event) {
+		if (event.source.is("shape"))
 			onChange();
 	}
 	
-	public void onChange()
-	{
+	public void onChange() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		
@@ -79,7 +68,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		scroll.controls.addAll(shape.getCustomSettings(stack.getTagCompound(), getContext()));
 		scroll.refreshControls();
 	}
-
+	
 	@Override
 	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
@@ -92,13 +81,11 @@ public class SubGuiChisel extends SubGuiConfigure {
 		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 		ItemStack selected = selector.getSelected();
 		
-		if(!selected.isEmpty() && selected.getItem() instanceof ItemBlock)
-		{
+		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
 			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
-		}
-		else
+		} else
 			preview = ItemLittleChisel.getPreview(stack);
 		
 		preview.setColor(ColorUtils.RGBAToInt(picker.color));

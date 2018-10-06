@@ -12,27 +12,23 @@ public class LittleVolumes {
 	public LittleGridContext context;
 	private HashMap<LittleVolume, Double> volumes = new HashMap<>();
 	
-	public LittleVolumes(LittleGridContext context)
-	{
+	public LittleVolumes(LittleGridContext context) {
 		this.context = context;
 	}
 	
-	public void convertTo(LittleGridContext context)
-	{
+	public void convertTo(LittleGridContext context) {
 		double ratio = (double) context.size / this.context.size;
 		for (Entry<LittleVolume, Double> entry : volumes.entrySet()) {
 			entry.setValue(entry.getValue() * ratio);
 		}
 	}
 	
-	public void ensureContext(LittleGridContext context)
-	{
-		if(this.context.size < context.size)
+	public void ensureContext(LittleGridContext context) {
+		if (this.context.size < context.size)
 			convertTo(context);
 	}
 	
-	public void addPreviews(LittlePreviews previews)
-	{
+	public void addPreviews(LittlePreviews previews) {
 		ensureContext(previews.context);
 		
 		for (LittleTilePreview preview : previews) {
@@ -40,22 +36,20 @@ public class LittleVolumes {
 		}
 	}
 	
-	public void addPreview(LittleGridContext context, LittleTilePreview preview)
-	{
+	public void addPreview(LittleGridContext context, LittleTilePreview preview) {
 		ensureContext(context);
 		
 		addPreviewDirectly(context, preview);
 	}
 	
-	private void addPreviewDirectly(LittleGridContext context, LittleTilePreview preview)
-	{
+	private void addPreviewDirectly(LittleGridContext context, LittleTilePreview preview) {
 		double volume = preview.getVolume();
-		if(context.size < this.context.size)
+		if (context.size < this.context.size)
 			volume *= this.context.size / context.size;
 		
 		LittleVolume type = new LittleVolume(preview.getPreviewBlock(), preview.getPreviewBlockMeta());
 		Double exist = volumes.get(type);
-		if(exist == null)
+		if (exist == null)
 			exist = volume;
 		else
 			exist += volume;
@@ -70,8 +64,7 @@ public class LittleVolumes {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof LittleVolumes)
-		{
+		if (obj instanceof LittleVolumes) {
 			LittleGridContext beforeThis = context;
 			ensureContext(((LittleVolumes) obj).context);
 			
@@ -80,10 +73,10 @@ public class LittleVolumes {
 			
 			boolean result = ((LittleVolumes) obj).volumes.equals(this.volumes);
 			
-			if(beforeThis != context)
+			if (beforeThis != context)
 				convertTo(beforeThis);
 			
-			if(beforeTheirs != ((LittleVolumes) obj).context)
+			if (beforeTheirs != ((LittleVolumes) obj).context)
 				((LittleVolumes) obj).convertTo(beforeTheirs);
 			
 			return result;
@@ -96,22 +89,19 @@ public class LittleVolumes {
 		public final Block block;
 		public final int meta;
 		
-		public LittleVolume(Block block, int meta)
-		{
+		public LittleVolume(Block block, int meta) {
 			this.block = block;
 			this.meta = meta;
 		}
 		
 		@Override
-		public int hashCode()
-		{
+		public int hashCode() {
 			return block.hashCode() + meta;
 		}
 		
 		@Override
-		public boolean equals(Object object)
-		{
-			if(object instanceof LittleVolume)
+		public boolean equals(Object object) {
+			if (object instanceof LittleVolume)
 				return ((LittleVolume) object).block == block && ((LittleVolume) object).meta == meta;
 			return false;
 		}

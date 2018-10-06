@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import net.minecraft.client.renderer.vertex.VertexBuffer;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -20,9 +19,8 @@ public class TERenderData {
 	}
 	
 	@Override
-	public boolean equals(Object object)
-	{
-		if(object instanceof TERenderData)
+	public boolean equals(Object object) {
+		if (object instanceof TERenderData)
 			return ((TERenderData) object).tePos.equals(tePos);
 		return false;
 	}

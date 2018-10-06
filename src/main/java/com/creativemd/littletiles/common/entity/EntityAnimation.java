@@ -10,24 +10,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.vecmath.Matrix3d;
-import javax.vecmath.Matrix4d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
-import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxFace;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.VecOrigin;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.world.IFakeWorld;
 import com.creativemd.creativecore.common.world.WorldFake;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -68,7 +63,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class EntityAnimation<T extends EntityAnimation> extends Entity {
 	
 	protected static Predicate<Entity> NO_ANIMATION = new Predicate<Entity>() {
-
+		
 		@Override
 		public boolean apply(Entity input) {
 			return !(input instanceof EntityAnimation);
@@ -78,38 +73,34 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================World Data================
 	
-	public static int intFloorDiv(int p_76137_0_, int p_76137_1_)
-    {
-        return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
-    }
+	public static int intFloorDiv(int p_76137_0_, int p_76137_1_) {
+		return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
+	}
 	
-	public void setCenterVec(LittleTilePos axis, LittleTileVec additional)
-	{
+	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
 		axis.removeInternalBlockOffset();
 		
 		this.center = axis;
-        this.baseOffset = axis.pos;
-        
-        this.inBlockCenter = axis.contextVec;
-        this.chunkOffset = getRenderChunkPos(baseOffset);
-        
-        
-        int chunkX = intFloorDiv(baseOffset.getX(), 16);
+		this.baseOffset = axis.pos;
+		
+		this.inBlockCenter = axis.contextVec;
+		this.chunkOffset = getRenderChunkPos(baseOffset);
+		
+		int chunkX = intFloorDiv(baseOffset.getX(), 16);
 		int chunkY = intFloorDiv(baseOffset.getY(), 16);
 		int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
-        
-        this.inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX*16), baseOffset.getY() - (chunkY*16), baseOffset.getZ() - (chunkZ*16));
-        this.additionalAxis = additional;
-        
-        this.rotationCenter = new Vector3d(axis.getPosX()+additionalAxis.getPosX(axis.getContext())/2, axis.getPosY()+additionalAxis.getPosY(axis.getContext())/2, axis.getPosZ()+additionalAxis.getPosZ(axis.getContext())/2);
-        this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX()+additionalAxis.getPosX(inBlockCenter.context)/2, inBlockCenter.getPosY()+additionalAxis.getPosY(inBlockCenter.context)/2, inBlockCenter.getPosZ()+additionalAxis.getPosZ(inBlockCenter.context)/2);
-        
-        this.origin = new VecOrigin(rotationCenter);
-        ((IFakeWorld) this.fakeWorld).setOrigin(origin);
+		
+		this.inChunkOffset = new BlockPos(baseOffset.getX() - (chunkX * 16), baseOffset.getY() - (chunkY * 16), baseOffset.getZ() - (chunkZ * 16));
+		this.additionalAxis = additional;
+		
+		this.rotationCenter = new Vector3d(axis.getPosX() + additionalAxis.getPosX(axis.getContext()) / 2, axis.getPosY() + additionalAxis.getPosY(axis.getContext()) / 2, axis.getPosZ() + additionalAxis.getPosZ(axis.getContext()) / 2);
+		this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX() + additionalAxis.getPosX(inBlockCenter.context) / 2, inBlockCenter.getPosY() + additionalAxis.getPosY(inBlockCenter.context) / 2, inBlockCenter.getPosZ() + additionalAxis.getPosZ(inBlockCenter.context) / 2);
+		
+		this.origin = new VecOrigin(rotationCenter);
+		((IFakeWorld) this.fakeWorld).setOrigin(origin);
 	}
 	
-	public static BlockPos getRenderChunkPos(BlockPos blockPos)
-	{
+	public static BlockPos getRenderChunkPos(BlockPos blockPos) {
 		return new BlockPos(blockPos.getX() >> 4, blockPos.getY() >> 4, blockPos.getZ() >> 4);
 	}
 	
@@ -122,28 +113,23 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public Vector3d rotationCenter;
 	public Vector3d rotationCenterInsideBlock;
 	
-	public LittleTilePos getCenter()
-	{
+	public LittleTilePos getCenter() {
 		return center;
 	}
 	
-	public LittleTileVecContext getInsideBlockCenter()
-	{
+	public LittleTileVecContext getInsideBlockCenter() {
 		return inBlockCenter;
 	}
 	
-	public BlockPos getAxisPos()
-	{
+	public BlockPos getAxisPos() {
 		return baseOffset;
 	}
 	
-	public BlockPos getAxisChunkPos()
-	{
+	public BlockPos getAxisChunkPos() {
 		return chunkOffset;
 	}
 	
-	public BlockPos getInsideChunkPos()
-	{
+	public BlockPos getInsideChunkPos() {
 		return inChunkOffset;
 	}
 	
@@ -163,11 +149,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public double worldRotY = 0;
 	public double worldRotZ = 0;
 	
-	public Vec3d getRotVector(float partialTicks)
-	{
-		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double)partialTicks,
-				this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double)partialTicks,
-				this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double)partialTicks);
+	public Vec3d getRotVector(float partialTicks) {
+		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double) partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double) partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double) partialTicks);
 	}
 	
 	//================Collision================
@@ -194,8 +177,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	/**
 	 * Should be called if the world of the animation will be modified (Currently not possible)
 	 */
-	public void updateWorldCollision()
-	{
+	public void updateWorldCollision() {
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double minZ = Integer.MAX_VALUE;
@@ -240,24 +222,20 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
-	private static double minIgnore(double par1, double par2)
-	{
-		if(Math.abs(par2) < Math.abs(par1))
+	private static double minIgnore(double par1, double par2) {
+		if (Math.abs(par2) < Math.abs(par1))
 			return par2;
 		return par1;
 	}
 	
-	private static double maxIgnore(double par1, double par2)
-	{
-		if(Math.abs(par2) > Math.abs(par1))
+	private static double maxIgnore(double par1, double par2) {
+		if (Math.abs(par2) > Math.abs(par1))
 			return par2;
 		return par1;
 	}
 	
-	public double getRot(Axis axis)
-	{
-		switch(axis)
-		{
+	public double getRot(Axis axis) {
+		switch (axis) {
 		case X:
 			return worldRotX;
 		case Y:
@@ -269,51 +247,43 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 	}
 	
-	public void rotXTo(double x)
-	{
+	public void rotXTo(double x) {
 		rotateAnimation(x - worldRotX, 0, 0);
 	}
 	
-	public void rotYTo(double y)
-	{
+	public void rotYTo(double y) {
 		rotateAnimation(0, y - worldRotY, 0);
 	}
 	
-	public void rotZTo(double z)
-	{
+	public void rotZTo(double z) {
 		rotateAnimation(0, 0, z - worldRotZ);
 	}
 	
-	public void rotateAnimation(double rotX, double rotY, double rotZ)
-	{
+	public void rotateAnimation(double rotX, double rotY, double rotZ) {
 		moveAndRotateAnimation(0, 0, 0, rotX, rotY, rotZ);
 	}
 	
-	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ)
-	{
+	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
 		boolean moved = false;
-		if(!preventPush)
-		{
+		if (!preventPush) {
 			//Create rotation matrix to transform to caclulate surrounding box			
 			Matrix3d rotationX = rotX != 0 ? MatrixUtils.createRotationMatrixX(rotX) : null;
 			Matrix3d rotationY = rotY != 0 ? MatrixUtils.createRotationMatrixY(rotY) : null;
 			Matrix3d rotationZ = rotZ != 0 ? MatrixUtils.createRotationMatrixZ(rotZ) : null;
 			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
 			
-			if(rotationX != null || rotationY != null || rotationZ != null || translation != null)
-			{
+			if (rotationX != null || rotationY != null || rotationZ != null || translation != null) {
 				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 				
 				noCollision = true;
 				
 				List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityAnimation.NO_ANIMATION);
-				if(!entities.isEmpty())
-				{
+				if (!entities.isEmpty()) {
 					// PHASE ONE
 					List<AxisAlignedBB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
 					for (OrientatedBoundingBox box : worldCollisionBoxes) {
 						
-						if(box.cache == null)
+						if (box.cache == null)
 							box.buildCache();
 						box.cache.reset();
 						
@@ -340,25 +310,22 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						OrientatedBoundingBox pushingBox = null;
 						EnumFacing facing = null;
 						
-						checking_all_boxes:
-						for (int i = 0; i < surroundingBoxes.size(); i++) {
-							if(surroundingBoxes.get(i).intersectsWith(entityBox))
-							{
+						checking_all_boxes: for (int i = 0; i < surroundingBoxes.size(); i++) {
+							if (surroundingBoxes.get(i).intersectsWith(entityBox)) {
 								//Check for earliest hit
 								OrientatedBoundingBox box = worldCollisionBoxes.get(i);
 								
-								if(!box.cache.isCached())
+								if (!box.cache.isCached())
 									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
 								
 								//Binary search
-								for(CollidingPlane plane : box.cache.planes) {
+								for (CollidingPlane plane : box.cache.planes) {
 									Double tempT = plane.binarySearch(t, entityBox, radius, center, table);
-									if(tempT != null)
-									{
+									if (tempT != null) {
 										t = tempT;
 										pushingBox = box;
 										facing = plane.facing;
-										if(t == 0)
+										if (t == 0)
 											break checking_all_boxes;
 									}
 								}
@@ -366,8 +333,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						}
 						
 						// Applying found t
-						if(t != null)
-						{
+						if (t != null) {
 							PushCache cache = new PushCache();
 							cache.facing = facing;
 							
@@ -378,7 +344,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							origin.transformPointToWorld(newCenter);
 							
 							cache.pushBox = pushingBox;
-							cache.entityBox = entityBox.offset(newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);			
+							cache.entityBox = entityBox.offset(newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);
 							caches[j] = cache;
 						}
 					}
@@ -400,8 +366,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						PushCache cache = caches[i];
 						
 						boolean cached = cache != null;
-						if(!cached)
-						{
+						if (!cached) {
 							cache = new PushCache();
 							cache.entityBox = entity.getEntityBoundingBox();
 						}
@@ -447,74 +412,63 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						List<OrientatedBoundingBox> intersecting = new ArrayList<>();
 						List<EnumFacing> intersectingFacing = new ArrayList<>();
 						
-						if(cached)
-						{
+						if (cached) {
 							intersecting.add(cache.pushBox);
 							intersectingFacing.add(cache.facing);
 						}
 						
 						for (OrientatedBoundingBox box : worldCollisionBoxes) {
-							if((!cached || box != cache.pushBox) && box.intersectsWith(fakeBox))
-							{
-								if(!box.cache.isCached())
+							if ((!cached || box != cache.pushBox) && box.intersectsWith(fakeBox)) {
+								if (!box.cache.isCached())
 									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
 								
 								boolean add = !cached;
 								EnumFacing facing = CollidingPlane.getDirection(box, box.cache.planes, center);
 								
-								if(facing == null || (!table.hasOneRotation && RotationUtils.get(facing.getAxis(), translation) == 0))
+								if (facing == null || (!table.hasOneRotation && RotationUtils.get(facing.getAxis(), translation) == 0))
 									continue;
 								
-								if(cached)
-								{
-									if(facing == cache.facing)
+								if (cached) {
+									if (facing == cache.facing)
 										add = true;
-									else if(!ignoreOne && facing.getAxis() == one)
-									{
+									else if (!ignoreOne && facing.getAxis() == one) {
 										add = true;
-										if(positiveOne == null)
+										if (positiveOne == null)
 											positiveOne = facing.getAxisDirection() == AxisDirection.POSITIVE;
-										else if(facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne)
-										{
+										else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne) {
 											ignoreOne = true;
 											add = false;
 										}
-									}
-									else if(!ignoreTwo && facing.getAxis() == two)
-									{
+									} else if (!ignoreTwo && facing.getAxis() == two) {
 										add = true;
-										if(positiveTwo == null)
+										if (positiveTwo == null)
 											positiveTwo = facing.getAxisDirection() == AxisDirection.POSITIVE;
-										else if(facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo)
-										{
+										else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo) {
 											ignoreTwo = true;
 											add = false;
 										}
 									}
 								}
 								
-								if(add)
-								{
+								if (add) {
 									double intersectingVolume = box.getIntersectionVolume(fakeBox);
 									
-									if(intersectingVolume > maxVolume)
-									{
+									if (intersectingVolume > maxVolume) {
 										cache.pushBox = box;
 										maxVolume = intersectingVolume;
 										cache.facing = facing;
 									}
-								
+									
 									intersecting.add(box);
 									intersectingFacing.add(facing);
 								}
 							}
 						}
 						
-						if(intersecting.isEmpty())
+						if (intersecting.isEmpty())
 							continue;
 						
-						if(!cached)
-						{
+						if (!cached) {
 							one = RotationUtils.getDifferentAxisFirst(cache.facing.getAxis());
 							two = RotationUtils.getDifferentAxisSecond(cache.facing.getAxis());
 							
@@ -523,22 +477,19 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							
 							for (EnumFacing facing : intersectingFacing) {
 								
-								if(!ignoreOne && facing.getAxis() == one)
-								{
-									if(positiveOne == null)
+								if (!ignoreOne && facing.getAxis() == one) {
+									if (positiveOne == null)
 										positiveOne = facing.getAxisDirection() == AxisDirection.POSITIVE;
-									else if(facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne)
+									else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne)
 										ignoreOne = true;
-								}
-								else if(!ignoreTwo && facing.getAxis() == two)
-								{
-									if(positiveTwo == null)
+								} else if (!ignoreTwo && facing.getAxis() == two) {
+									if (positiveTwo == null)
 										positiveTwo = facing.getAxisDirection() == AxisDirection.POSITIVE;
-									else if(facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo)
+									else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo)
 										ignoreTwo = true;
 								}
 								
-								if(ignoreOne && ignoreTwo)
+								if (ignoreOne && ignoreTwo)
 									break;
 							}
 						}
@@ -546,9 +497,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						// Now things are ready. Go through all intersecting ones and push the box out
 						Vector3d pushVec = new Vector3d();
 						RotationUtils.setValue(pushVec, cache.facing.getAxisDirection().getOffset(), cache.facing.getAxis());
-						if(!ignoreOne && positiveOne != null)
+						if (!ignoreOne && positiveOne != null)
 							RotationUtils.setValue(pushVec, positiveOne ? 1 : -1, one);
-						if(!ignoreTwo && positiveTwo != null)
+						if (!ignoreTwo && positiveTwo != null)
 							RotationUtils.setValue(pushVec, positiveTwo ? 1 : -1, two);
 						
 						Vector3d pushInv = new Vector3d(-pushVec.x, -pushVec.y, -pushVec.z);
@@ -566,7 +517,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 							
 							EnumFacing facing = intersectingFacing.get(j);
 							
-							if((ignoreOne && facing.getAxis() == one) || (ignoreTwo && facing.getAxis() == two))
+							if ((ignoreOne && facing.getAxis() == one) || (ignoreTwo && facing.getAxis() == two))
 								continue;
 							
 							scale = intersecting.get(j).getPushOutScale(scale, fakeBox, cache.entityBox, pushVec, pushInv, xPlane, yPlane, zPlane);
@@ -584,17 +535,16 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						
 						entity.move(MoverType.SELF, moveX, moveY, moveZ);
 						
-						if(entity instanceof EntityPlayerMP)
+						if (entity instanceof EntityPlayerMP)
 							LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
 						
-						/*entity.motionX += moveX;
-						entity.motionY += moveY;
-						entity.motionZ += moveZ;*/
+						/* entity.motionX += moveX;
+						 * entity.motionY += moveY;
+						 * entity.motionZ += moveZ; */
 						
-						if(moveX != 0 || moveZ != 0)
+						if (moveX != 0 || moveZ != 0)
 							collidedHorizontally = true;
-						if(moveY != 0)
-						{
+						if (moveY != 0) {
 							collidedVertically = true;
 							onGround = true;
 						}
@@ -602,8 +552,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 						entity.isCollidedHorizontally = collidedHorizontally;
 						entity.isCollidedVertically = collidedVertically;
 						entity.onGround = onGround;
-						entity.isCollided = collidedHorizontally || collidedVertically;						
-						
+						entity.isCollided = collidedHorizontally || collidedVertically;
 						
 					}
 				}
@@ -612,8 +561,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			}
 		}
 		
-		if(!moved)
-		{
+		if (!moved) {
 			posX += x;
 			posY += y;
 			posZ += z;
@@ -626,23 +574,19 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 	}
 	
-	public void moveXTo(double x)
-	{
+	public void moveXTo(double x) {
 		moveAnimation(x - posX, 0, 0);
 	}
 	
-	public void moveYTo(double y)
-	{
+	public void moveYTo(double y) {
 		moveAnimation(0, y - posY, 0);
 	}
 	
-	public void moveZTo(double z)
-	{
+	public void moveZTo(double z) {
 		moveAnimation(0, 0, z - posZ);
 	}
 	
-	public void moveAnimation(double x, double y, double z)
-	{
+	public void moveAnimation(double x, double y, double z) {
 		moveAndRotateAnimation(x, y, z, 0, 0, 0);
 	}
 	
@@ -661,22 +605,19 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	protected int ticksToWait;
 	
 	@SideOnly(Side.CLIENT)
-	public boolean isWaitingForRender()
-	{
+	public boolean isWaitingForRender() {
 		return waitingForRender != null;
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void removeWaitingTe(TileEntityLittleTiles te)
-	{
+	public void removeWaitingTe(TileEntityLittleTiles te) {
 		waitingForRender.remove(te);
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void unloadRenderCache()
-	{
-		if(renderChunks == null)
-			return ;
+	public void unloadRenderCache() {
+		if (renderChunks == null)
+			return;
 		for (LittleRenderChunk chunk : renderChunks.values()) {
 			chunk.unload();
 		}
@@ -686,7 +627,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	public boolean spawnedInWorld;
 	
 	//================Constructors================
-
+	
 	public EntityAnimation(World worldIn) {
 		super(worldIn);
 	}
@@ -698,47 +639,40 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		this.previews = previews;
 		
 		this.entityUniqueID = uuid;
-        this.cachedUniqueIdString = this.entityUniqueID.toString();
-        
-        this.fakeWorld = fakeWorld;
-        
-        setCenterVec(center, additional);
-        
-        updateWorldCollision();
-        
-        setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
-        
-        addDoor();
+		this.cachedUniqueIdString = this.entityUniqueID.toString();
+		
+		this.fakeWorld = fakeWorld;
+		
+		setCenterVec(center, additional);
+		
+		updateWorldCollision();
+		
+		setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
+		
+		addDoor();
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void createClient()
-	{
-		if(blocks != null)
-		{
+	public void createClient() {
+		if (blocks != null) {
 			this.renderChunks = new LinkedHashMap<>();
 			this.renderQueue = new ArrayList<>(blocks);
 		}
 	}
 	
-	public void addDoor()
-	{
-		if(!addedDoor)
-		{
+	public void addDoor() {
+		if (!addedDoor) {
 			LittleDoorHandler.getHandler(world).createDoor(this);
 			addedDoor = true;
 		}
 	}
 	
-	
 	//================Events================
 	
-	public void onScanningTE(TileEntityLittleTiles te)
-	{
+	public void onScanningTE(TileEntityLittleTiles te) {
 		te.setLoaded();
-		if(world.isRemote)
-		{
-			if(te.rendering == null)
+		if (world.isRemote) {
+			if (te.rendering == null)
 				te.rendering = new AtomicBoolean(false);
 			
 			RenderingThread.addCoordToUpdate(te, 0, false);
@@ -747,62 +681,54 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================Ticking================
 	
-	protected void handleForces()
-	{
+	protected void handleForces() {
 		motionX = 0;
 		motionY = 0;
 		motionZ = 0;
 	}
 	
-	public void updateBoundingBox()
-	{
-		if(worldBoundingBox == null || fakeWorld == null)
-			return ;
+	public void updateBoundingBox() {
+		if (worldBoundingBox == null || fakeWorld == null)
+			return;
 		
 		boolean rotated = prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ;
 		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
-		if(rotated || moved)
+		if (rotated || moved)
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
 	}
 	
-	public void updateOrigin()
-	{
+	public void updateOrigin() {
 		origin.off(posX - getAxisPos().getX(), posY - getAxisPos().getY(), posZ - getAxisPos().getZ());
 		origin.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	
-	public void onTick()
-	{
+	public void onTick() {
 		
 	}
 	
-	public void onPostTick()
-	{
+	public void onPostTick() {
 		
 	}
 	
 	public boolean addedDoor = false;
 	
 	@Override
-	public void onUpdate()
-	{
+	public void onUpdate() {
 		addDoor();
 	}
 	
-	public void onUpdateForReal()
-	{
-		if(blocks == null && !world.isRemote)
+	public void onUpdateForReal() {
+		if (blocks == null && !world.isRemote)
 			isDead = true;
 		
-		if(blocks == null)
-			return ;
+		if (blocks == null)
+			return;
 		
-		if(collisionBoxWorker != null)
-		{
+		if (collisionBoxWorker != null) {
 			collisionBoxWorker.work();
 			
-			if(collisionBoxWorker.hasFinished())
+			if (collisionBoxWorker.hasFinished())
 				collisionBoxWorker = null;
 		}
 		
@@ -824,98 +750,83 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			((ITickable) te).update();
 		}
 		
-		
 	}
 	
 	//================Overridden================
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport)
-    {
-        
-    }
-	
-	@Override	
-	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch)
-    {
+	public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport) {
 		
-    }
+	}
 	
 	@Override
-	public void setPositionAndUpdate(double x, double y, double z)
-    {
+	public void setPositionAndRotation(double x, double y, double z, float yaw, float pitch) {
 		
-    }
+	}
 	
 	@Override
-	public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch)
-    {
+	public void setPositionAndUpdate(double x, double y, double z) {
 		
-    }
+	}
 	
-	public void setInitialPosition(double x, double y, double z)
-	{
+	@Override
+	public void setLocationAndAngles(double x, double y, double z, float yaw, float pitch) {
+		
+	}
+	
+	public void setInitialPosition(double x, double y, double z) {
 		setPosition(x, y, z);
 	}
 	
 	@Override
-	public void setPosition(double x, double y, double z)
-    {
-        this.posX = x;
-        this.posY = y;
-        this.posZ = z;
-        updateBoundingBox();
-    }
+	public void setPosition(double x, double y, double z) {
+		this.posX = x;
+		this.posY = y;
+		this.posZ = z;
+		updateBoundingBox();
+	}
 	
 	@Override
-	public void setDead()
-    {
-		if(!world.isRemote)
+	public void setDead() {
+		if (!world.isRemote)
 			this.isDead = true;
-    }
+	}
 	
 	@Override
-	public boolean canBeCollidedWith()
-    {
-        return true;
-    }
+	public boolean canBeCollidedWith() {
+		return true;
+	}
 	
 	@Override
-	public AxisAlignedBB getCollisionBox(Entity entityIn)
-    {
-        return null;
-    }
+	public AxisAlignedBB getCollisionBox(Entity entityIn) {
+		return null;
+	}
 	
 	@Override
-    public AxisAlignedBB getCollisionBoundingBox()
-    {
-        return null;
-    }
+	public AxisAlignedBB getCollisionBoundingBox() {
+		return null;
+	}
 	
 	@Override
-	public boolean processInitialInteract(EntityPlayer player, EnumHand hand)
-    {
-        return true;
-    }
+	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
+		return true;
+	}
 	
 	@Override
-	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand)
-    {
-        return EnumActionResult.SUCCESS;
-    }
+	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand) {
+		return EnumActionResult.SUCCESS;
+	}
 	
 	//================Copy================
 	
 	protected abstract void copyExtra(T animation);
 	
-	public T copy()
-	{
+	public T copy() {
 		T animation = null;
 		try {
 			animation = (T) this.getClass().getConstructor(World.class).newInstance(this.world);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-				| NoSuchMethodException | SecurityException e) {
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
 		
@@ -929,10 +840,9 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		animation.worldBoundingBox = worldBoundingBox;
 		animation.worldCollisionBoxes = new ArrayList<>(worldCollisionBoxes);
 		//if(collisionBoxes != null)
-			//animation.collisionBoxes = new ArrayList<>(collisionBoxes);
+		//animation.collisionBoxes = new ArrayList<>(collisionBoxes);
 		
-		if(world.isRemote)
-		{
+		if (world.isRemote) {
 			animation.renderChunks = renderChunks;
 			animation.renderQueue = renderQueue;
 		}
@@ -954,11 +864,10 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	//================Saving & Loading================
 	
-	protected BlockPos getPreviewOffset()
-	{
+	protected BlockPos getPreviewOffset() {
 		return baseOffset;
 	}
-
+	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = WorldFake.createFakeWorld(world);
@@ -966,7 +875,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		ArrayList<LittleTile> tiles = new ArrayList<>();
-		structure = null; 
+		structure = null;
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
@@ -974,7 +883,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
-				if(tile.isMainBlock)
+				if (tile.isMainBlock)
 					this.structure = (LittleDoorBase) tile.structure;
 				tiles.add(tile);
 			}
@@ -988,7 +897,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 			previews.addTile(tile);
 		}
 		
-		previews.ensureContext(structure.getMinContext());		
+		previews.ensureContext(structure.getMinContext());
 		this.previews = new PlacePreviews(previews.context);
 		absoluteAxis.convertTo(previews.context);
 		
@@ -1004,7 +913,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		updateWorldCollision();
 		updateBoundingBox();
 	}
-
+	
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {
 		center.writeToNBT("axis", compound);
@@ -1020,5 +929,5 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		compound.setTag("tileEntity", list);
 		
 	}
-
+	
 }

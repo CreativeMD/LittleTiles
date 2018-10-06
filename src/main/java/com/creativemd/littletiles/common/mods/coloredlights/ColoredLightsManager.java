@@ -17,30 +17,26 @@ public class ColoredLightsManager {
 	public static final String coloredlightsID = "coloredlights";
 	
 	private static boolean isinstalled = Loader.isModLoaded(coloredlightsID);
-
-	public static boolean isInstalled()
-	{
+	
+	public static boolean isInstalled() {
 		return isinstalled;
 	}
 	
 	private static Block invertedColorsBlock;
 	
-	public static Block getInvertedColorsBlock()
-	{
-		if(invertedColorsBlock == null)
+	public static Block getInvertedColorsBlock() {
+		if (invertedColorsBlock == null)
 			invertedColorsBlock = Block.REGISTRY.getObject(new ResourceLocation(coloredlightsID, "coloredLampInverted"));
 		return invertedColorsBlock;
 	}
 	
 	private static Method getHex;
 	
-	public static int getColorFromBlock(IBlockState state)
-	{
+	public static int getColorFromBlock(IBlockState state) {
 		for (IProperty<?> property : state.getPropertyKeys()) {
-			if(property.getName().equals("color"))
-			{
+			if (property.getName().equals("color")) {
 				Object value = state.getValue(property);
-				if(getHex == null)
+				if (getHex == null)
 					getHex = ReflectionHelper.findMethod(value.getClass(), "getHex", "getHex");
 				try {
 					return (int) getHex.invoke(value);
@@ -51,6 +47,5 @@ public class ColoredLightsManager {
 		}
 		return ColorUtils.WHITE;
 	}
-	
 	
 }

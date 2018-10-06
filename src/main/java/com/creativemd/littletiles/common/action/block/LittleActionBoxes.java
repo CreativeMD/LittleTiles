@@ -9,9 +9,6 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -21,7 +18,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -40,19 +36,17 @@ public abstract class LittleActionBoxes extends LittleAction {
 	}
 	
 	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException;
-
+	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if(boxes.isEmpty())
+		if (boxes.isEmpty())
 			return false;
 		
 		boolean placed = false;
 		World world = player.world;
 		
-		
-		if(SpecialServerConfig.isEditLimited(player))
-		{
-			if(boxes.getSurroundingBox().getPercentVolume(boxes.context) > SpecialServerConfig.maxEditBlocks)
+		if (SpecialServerConfig.isEditLimited(player)) {
+			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > SpecialServerConfig.maxEditBlocks)
 				throw new SpecialServerConfig.NotAllowedToEditException();
 		}
 		
@@ -62,10 +56,9 @@ public abstract class LittleActionBoxes extends LittleAction {
 			Entry<BlockPos, ArrayList<LittleTileBox>> entry = iterator.next();
 			BlockPos pos = entry.getKey();
 			IBlockState state = world.getBlockState(pos);
-			if(!isAllowedToInteract(player, pos, false, EnumFacing.EAST))
-			{
+			if (!isAllowedToInteract(player, pos, false, EnumFacing.EAST)) {
 				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
-				continue ;
+				continue;
 			}
 			
 			placed = true;
@@ -76,12 +69,12 @@ public abstract class LittleActionBoxes extends LittleAction {
 		world.playSound(null, player.getPosition(), SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, SoundCategory.BLOCKS, 1, 1);
 		return placed;
 	}
-
+	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writeBoxes(boxes, buf);
 	}
-
+	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		boxes = readBoxes(buf);

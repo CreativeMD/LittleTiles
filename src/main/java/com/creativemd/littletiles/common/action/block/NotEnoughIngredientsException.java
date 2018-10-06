@@ -8,7 +8,7 @@ import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import net.minecraft.item.ItemStack;
 
 public abstract class NotEnoughIngredientsException extends LittleActionException {
-
+	
 	public NotEnoughIngredientsException(String msg) {
 		super(msg);
 	}
@@ -23,8 +23,7 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 		}
 		
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			return super.getLocalizedMessage() + " " + missing.getDescription();
 		}
 		
@@ -40,12 +39,11 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 		}
 		
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			String message = super.getLocalizedMessage() + " (";
 			boolean first = true;
 			for (BlockIngredient ingredient : ingredients.getIngredients()) {
-				if(!first)
+				if (!first)
 					message += ", ";
 				else
 					first = false;
@@ -80,8 +78,7 @@ public abstract class NotEnoughIngredientsException extends LittleActionExceptio
 		}
 		
 		@Override
-		public String getLocalizedMessage()
-		{
+		public String getLocalizedMessage() {
 			return super.getLocalizedMessage() + " " + stack.getDisplayName();
 		}
 		

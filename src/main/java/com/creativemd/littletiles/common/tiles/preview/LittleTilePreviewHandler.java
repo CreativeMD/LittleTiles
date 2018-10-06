@@ -18,96 +18,89 @@ public abstract class LittleTilePreviewHandler {
 	
 	public static DefaultPreviewHandler defaultHandler = new DefaultPreviewHandler();
 	
-	public static class DefaultPreviewHandler extends LittleTilePreviewHandler
-	{
-
+	public static class DefaultPreviewHandler extends LittleTilePreviewHandler {
+		
 		@Override
 		public boolean canBeConvertedToBlockEntry(LittleTilePreview preview) {
 			return true;
 		}
-
+		
 		@Override
 		public String getPreviewBlockName(LittleTilePreview preview) {
 			return preview.getTileData().getString("block");
 		}
-
+		
 		@Override
 		public Block getPreviewBlock(LittleTilePreview preview) {
-			if(preview.getTileData().hasKey("block"))
+			if (preview.getTileData().hasKey("block"))
 				return Block.getBlockFromName(preview.getTileData().getString("block"));
 			return Blocks.AIR;
 		}
-
+		
 		@Override
 		public int getPreviewBlockMeta(LittleTilePreview preview) {
 			return preview.getTileData().getInteger("meta");
 		}
-
+		
 		@Override
 		public boolean hasColor(LittleTilePreview preview) {
 			return preview.getTileData().hasKey("color");
 		}
-
+		
 		@Override
 		public int getColor(LittleTilePreview preview) {
-			if(preview.getTileData().hasKey("color"))
+			if (preview.getTileData().hasKey("color"))
 				return preview.getTileData().getInteger("color");
 			return -1;
 		}
 		
 		@Override
 		public void setColor(LittleTilePreview preview, int color) {
-			if(ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color))
-			{
-				if(preview.getTileData().getString("tID").equals("BlockTileColored"))
+			if (ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color)) {
+				if (preview.getTileData().getString("tID").equals("BlockTileColored"))
 					preview.getTileData().setString("tID", "BlockTileBlock");
 				preview.getTileData().removeTag("color");
-			}
-			else
-			{
-				if(preview.getTileData().getString("tID").equals("BlockTileBlock"))
+			} else {
+				if (preview.getTileData().getString("tID").equals("BlockTileBlock"))
 					preview.getTileData().setString("tID", "BlockTileColored");
 				preview.getTileData().setInteger("color", color);
 			}
-				
 			
 		}
-
+		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview)
-		{
+		public RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview) {
 			RenderCubeObject cube = preview.box.getRenderingCube(context, getPreviewBlock(preview), getPreviewBlockMeta(preview));
-			if(preview.getTileData().hasKey("color"))
+			if (preview.getTileData().hasKey("color"))
 				cube.color = preview.getTileData().getInteger("color");
 			return cube;
 		}
-
+		
 		@Override
 		public BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
 			return new BlockIngredient(getPreviewBlock(preview), getPreviewBlockMeta(preview), preview.getPercentVolume(context));
 		}
-
+		
 		@Override
 		public void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
 			
 		}
-
+		
 		@Override
 		public void rotatePreview(Rotation direction, LittleTilePreview preview, LittleTileVec doubledCenter) {
 			
 		}
-
+		
 		@Override
 		public boolean canBeNBTGrouped() {
 			return true;
 		}
-
+		
 		@Override
 		public ItemStack getBlockStack(LittleTilePreview preview) {
 			return new ItemStack(getPreviewBlock(preview), 1, getPreviewBlockMeta(preview));
 		}
-
 		
 	}
 	

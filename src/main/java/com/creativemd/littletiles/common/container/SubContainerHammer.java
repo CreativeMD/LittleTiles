@@ -14,15 +14,15 @@ public class SubContainerHammer extends SubContainer {
 		super(player);
 		this.stack = stack;
 	}
-
+	
 	@Override
 	public void createControls() {
 		
 	}
-
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		stack.setTagCompound(nbt);
 	}
-
+	
 }

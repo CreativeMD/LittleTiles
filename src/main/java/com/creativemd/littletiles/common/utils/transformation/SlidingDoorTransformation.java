@@ -1,8 +1,6 @@
 package com.creativemd.littletiles.common.utils.transformation;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,26 +21,25 @@ public class SlidingDoorTransformation extends DoorTransformation {
 		this.distance = distance;
 		this.context = context;
 	}
-
+	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("direction", direction.ordinal());
 		nbt.setInteger("distance", distance);
 		context.set(nbt);
 	}
-
+	
 	@Override
 	protected void readFromNBT(NBTTagCompound nbt) {
 		direction = EnumFacing.getFront(nbt.getInteger("direction"));
 		distance = nbt.getInteger("distance");
 		context = LittleGridContext.get(nbt);
 	}
-
+	
 	@Override
 	public void performTransformation(EntityDoorAnimation animation, double progress) {
-		double pushDistance = distance*context.gridMCLength*(1-progress);
-		switch(direction)
-		{
+		double pushDistance = distance * context.gridMCLength * (1 - progress);
+		switch (direction) {
 		case EAST:
 			animation.moveXTo(animation.getAxisPos().getX() - pushDistance);
 			break;
@@ -66,10 +63,10 @@ public class SlidingDoorTransformation extends DoorTransformation {
 		
 		}
 	}
-
+	
 	@Override
 	public boolean equals(Object object) {
-		if(object instanceof SlidingDoorTransformation)
+		if (object instanceof SlidingDoorTransformation)
 			return ((SlidingDoorTransformation) object).direction == direction && ((SlidingDoorTransformation) object).distance == distance && ((SlidingDoorTransformation) object).context == context;
 		return false;
 	}

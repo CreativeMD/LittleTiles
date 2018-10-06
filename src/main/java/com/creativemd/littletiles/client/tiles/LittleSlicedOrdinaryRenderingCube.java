@@ -47,14 +47,12 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	}
 	
 	@Override
-	public CubeObject offset(BlockPos pos)
-	{
-		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX-pos.getX(), minY-pos.getY(), minZ-pos.getZ(), maxX-pos.getX(), maxY-pos.getY(), maxZ-pos.getZ(), this), (LittleTileSlicedOrdinaryBox) this.box, block, meta);
+	public CubeObject offset(BlockPos pos) {
+		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX - pos.getX(), minY - pos.getY(), minZ - pos.getZ(), maxX - pos.getX(), maxY - pos.getY(), maxZ - pos.getZ(), this), (LittleTileSlicedOrdinaryBox) this.box, block, meta);
 	}
 	
 	@Override
-	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha)
-	{
+	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha) {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		
@@ -63,27 +61,26 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
-			if(box.slice.shouldRenderSide(facing, size))
+			if (box.slice.shouldRenderSide(facing, size))
 				renderFaceLine(dynamicCube, facing, facing.getAxis() == box.slice.axis, red, green, blue, alpha);
 		}
 		
-        GlStateManager.popMatrix();
+		GlStateManager.popMatrix();
 	}
 	
-	public static void renderFaceLine(LittleDynamicCube dynamicCube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha)
-	{		
+	public static void renderFaceLine(LittleDynamicCube dynamicCube, EnumFacing facing, boolean isTraingle, float red, float green, float blue, float alpha) {
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
-        
+		bufferbuilder.begin(3, DefaultVertexFormats.POSITION_COLOR);
+		
 		Vector3f vec = new Vector3f();
 		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
 		
-		for (int i = 0; i < 4; i++) {			
+		for (int i = 0; i < 4; i++) {
 			
 			vec = dynamicCube.get(facing, face.getVertexInformation(i), vec);
 			
-			if(i == 0)
+			if (i == 0)
 				bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, 0.0F).endVertex();
 			bufferbuilder.pos(vec.x, vec.y, vec.z).color(red, green, blue, alpha).endVertex();
 		}
@@ -100,7 +97,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.translate(x, y, z);
 		GlStateManager.enableRescaleNormal();
 		
-		GlStateManager.color((float)color.xCoord, (float)color.yCoord, (float)color.zCoord, (float)(Math.sin(System.nanoTime()/200000000D)*0.2+0.5) * iTile.getPreviewAlphaFactor());
+		GlStateManager.color((float) color.xCoord, (float) color.yCoord, (float) color.zCoord, (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5) * iTile.getPreviewAlphaFactor());
 		
 		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
 		
@@ -108,15 +105,14 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
-			if(box.slice.shouldRenderSide(facing, size))
+			if (box.slice.shouldRenderSide(facing, size))
 				renderFace(dynamicCube, facing, facing.getAxis() == box.slice.axis, box.slice);
 		}
 		
-        GlStateManager.popMatrix();
+		GlStateManager.popMatrix();
 	}
 	
-	public static void renderFace(LittleDynamicCube cube, EnumFacing facing, boolean isTraingle, LittleSlice slice)
-	{
+	public static void renderFace(LittleDynamicCube cube, EnumFacing facing, boolean isTraingle, LittleSlice slice) {
 		GL11.glBegin(GL11.GL_POLYGON);
 		
 		Vec3i normal = facing.getDirectionVec();
@@ -125,7 +121,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		Vector3f vec = new Vector3f();
 		EnumFaceDirection face = EnumFaceDirection.getFacing(facing);
 		
-		for (int i = 0; i < 4; i++) {			
+		for (int i = 0; i < 4; i++) {
 			vec = cube.get(facing, face.getVertexInformation(i), vec);
 			
 			GlStateManager.glVertex3f(vec.x, vec.y, vec.z);
@@ -134,10 +130,8 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.glEnd();
 	}
 	
-	public boolean intersectsWithFace(EnumFacing facing, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, BlockPos offset)
-	{
-		switch(facing.getAxis())
-		{
+	public boolean intersectsWithFace(EnumFacing facing, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, BlockPos offset) {
+		switch (facing.getAxis()) {
 		case X:
 			return maxY > dynamicCube.defaultCube.minY - offset.getY() && minY < dynamicCube.defaultCube.maxY - offset.getY() && maxZ > dynamicCube.defaultCube.minZ - offset.getZ() && minZ < dynamicCube.defaultCube.maxZ - offset.getZ();
 		case Y:
@@ -149,16 +143,15 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	}
 	
 	@Override
-	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor)
-	{
+	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
 		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
 		//LittleTileSize size = box.getSize();
 		
-		if(!box.slice.shouldRenderSide(facing, dynamicCube.defaultCube.getSize()))
+		if (!box.slice.shouldRenderSide(facing, dynamicCube.defaultCube.getSize()))
 			return Collections.emptyList();
 		
 		List<BakedQuad> blockQuads = getBakedQuad(world, blockModel, state, facing, pos, layer, rand);
-		if(blockQuads.isEmpty())
+		if (blockQuads.isEmpty())
 			return Collections.emptyList();
 		
 		List<BakedQuad> quads = new ArrayList<>();
@@ -168,8 +161,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		
 		int color = this.color != -1 ? this.color : defaultColor;
 		
-		for(int i = 0; i < blockQuads.size(); i++)
-		{
+		for (int i = 0; i < blockQuads.size(); i++) {
 			BakedQuad oldQuad = blockQuads.get(i);
 			
 			int index = 0;
@@ -185,23 +177,18 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			
 			index = 1 * oldQuad.getFormat().getIntegerSize();
 			uvIndex = index + oldQuad.getFormat().getUvOffsetById(0) / 4;
-			if(tempMinX != Float.intBitsToFloat(oldQuad.getVertexData()[index]))
-			{
-				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+			if (tempMinX != Float.intBitsToFloat(oldQuad.getVertexData()[index])) {
+				if (tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
 					uvInverted = Axis.X != RotationUtils.getUAxisFromFacing(facing);
 				else
 					uvInverted = Axis.X != RotationUtils.getVAxisFromFacing(facing);
-			}
-			else if(tempMinY != Float.intBitsToFloat(oldQuad.getVertexData()[index + 1]))
-			{
-				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+			} else if (tempMinY != Float.intBitsToFloat(oldQuad.getVertexData()[index + 1])) {
+				if (tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
 					uvInverted = Axis.Y != RotationUtils.getUAxisFromFacing(facing);
 				else
 					uvInverted = Axis.Y != RotationUtils.getVAxisFromFacing(facing);
-			}
-			else
-			{
-				if(tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
+			} else {
+				if (tempU != Float.intBitsToFloat(oldQuad.getVertexData()[uvIndex]))
 					uvInverted = Axis.Z != RotationUtils.getUAxisFromFacing(facing);
 				else
 					uvInverted = Axis.Z != RotationUtils.getVAxisFromFacing(facing);
@@ -219,9 +206,8 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			float maxY = Math.max(tempMinY, tempMaxY);
 			float maxZ = Math.max(tempMinZ, tempMaxZ);
 			
-			
 			//Check if it is intersecting, otherwise there is no need to render it
-			if(!intersectsWithFace(facing, minX, minY, minZ, maxX, maxY, maxZ, offset))
+			if (!intersectsWithFace(facing, minX, minY, minZ, maxX, maxY, maxZ, offset))
 				continue;
 			
 			float sizeX = maxX - minX;
@@ -232,20 +218,17 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 			
 			uvIndex = quad.getFormat().getUvOffsetById(0) / 4;
 			float u1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
-			float v1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
+			float v1 = Float.intBitsToFloat(quad.getVertexData()[uvIndex + 1]);
 			uvIndex = 2 * quad.getFormat().getIntegerSize() + quad.getFormat().getUvOffsetById(0) / 4;
 			float u2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex]);
-			float v2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex+1]);
+			float v2 = Float.intBitsToFloat(quad.getVertexData()[uvIndex + 1]);
 			
 			float sizeU;
 			float sizeV;
-			if(uvInverted)
-			{
+			if (uvInverted) {
 				sizeU = RotationUtils.getVFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getVFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? u2 - u1 : u1 - u2;
 				sizeV = RotationUtils.getUFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getUFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? v2 - v1 : v1 - v2;
-			}
-			else
-			{
+			} else {
 				sizeU = RotationUtils.getUFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getUFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? u2 - u1 : u1 - u2;
 				sizeV = RotationUtils.getVFromFacing(facing, tempMinX, tempMinY, tempMinZ) < RotationUtils.getVFromFacing(facing, tempMaxX, tempMaxY, tempMaxZ) ? v2 - v1 : v1 - v2;
 			}
@@ -270,27 +253,24 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 				z = vec.z;
 				
 				float oldX = Float.intBitsToFloat(quad.getVertexData()[index]);
-				float oldY = Float.intBitsToFloat(quad.getVertexData()[index+1]);
-				float oldZ = Float.intBitsToFloat(quad.getVertexData()[index+2]);
+				float oldY = Float.intBitsToFloat(quad.getVertexData()[index + 1]);
+				float oldZ = Float.intBitsToFloat(quad.getVertexData()[index + 2]);
 				
 				quad.getVertexData()[index] = Float.floatToIntBits(x + offset.getX());
-				quad.getVertexData()[index+1] = Float.floatToIntBits(y + offset.getY());
-				quad.getVertexData()[index+2] = Float.floatToIntBits(z + offset.getZ());
+				quad.getVertexData()[index + 1] = Float.floatToIntBits(y + offset.getY());
+				quad.getVertexData()[index + 2] = Float.floatToIntBits(z + offset.getZ());
 				
-				if(keepVU)
+				if (keepVU)
 					continue;
 				
 				uvIndex = index + quad.getFormat().getUvOffsetById(0) / 4;
 				
 				float uOffset;
 				float vOffset;
-				if(uvInverted)
-				{
+				if (uvInverted) {
 					uOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
 					vOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
-				}
-				else
-				{
+				} else {
 					uOffset = ((RotationUtils.getUFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getUFromFacing(facing, x, y, z)) / RotationUtils.getUFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeU;
 					vOffset = ((RotationUtils.getVFromFacing(facing, oldX, oldY, oldZ) - RotationUtils.getVFromFacing(facing, x, y, z)) / RotationUtils.getVFromFacing(facing, sizeX, sizeY, sizeZ)) * sizeV;
 				}

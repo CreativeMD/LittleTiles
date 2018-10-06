@@ -17,20 +17,17 @@ public class BlockLayerRenderBuffer {
 	
 	private AtomicBoolean isDrawing = new AtomicBoolean(false);
 	
-	public synchronized void setDrawing() throws RenderOverlapException
-	{
-		if(isDrawing.get())
+	public synchronized void setDrawing() throws RenderOverlapException {
+		if (isDrawing.get())
 			throw new RenderOverlapException();
 		isDrawing.set(true);
 	}
 	
-	public synchronized void setFinishedDrawing()
-	{
+	public synchronized void setFinishedDrawing() {
 		isDrawing.set(false);
 	}
 	
-	public synchronized boolean isDrawing()
-	{
+	public synchronized boolean isDrawing() {
 		return isDrawing.get();
 	}
 	
@@ -52,8 +49,7 @@ public class BlockLayerRenderBuffer {
 	private VertexBuffer cutout;
 	private VertexBuffer translucent;
 	
-	public VertexBuffer createVertexBuffer(List<? extends RenderCubeObject> cubes)
-	{
+	public VertexBuffer createVertexBuffer(List<? extends RenderCubeObject> cubes) {
 		int size = 1;
 		for (RenderCubeObject cube : cubes) {
 			size += cube.getQuads();
@@ -61,10 +57,8 @@ public class BlockLayerRenderBuffer {
 		return new VertexBuffer(bufferSizePerQuad * size);
 	}
 	
-	public VertexBuffer getBufferByLayer(BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
+	public VertexBuffer getBufferByLayer(BlockRenderLayer layer) {
+		switch (layer) {
 		case SOLID:
 			return solid;
 		case CUTOUT_MIPPED:
@@ -77,10 +71,8 @@ public class BlockLayerRenderBuffer {
 		return null;
 	}
 	
-	public void setBufferByLayer(VertexBuffer buffer, BlockRenderLayer layer)
-	{
-		switch(layer)
-		{
+	public void setBufferByLayer(VertexBuffer buffer, BlockRenderLayer layer) {
+		switch (layer) {
 		case SOLID:
 			solid = buffer;
 			break;
@@ -96,15 +88,14 @@ public class BlockLayerRenderBuffer {
 		}
 	}
 	
-	public void clear()
-	{
+	public void clear() {
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;
-		translucent = null;		
+		translucent = null;
 	}
 	
-	public static class RenderOverlapException extends Exception{
+	public static class RenderOverlapException extends Exception {
 		
 		public RenderOverlapException() {
 			super("Buffer is already rendering!");

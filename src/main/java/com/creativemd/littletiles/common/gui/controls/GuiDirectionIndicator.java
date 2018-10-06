@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 
 import net.minecraft.util.EnumFacing;
@@ -11,30 +10,26 @@ import net.minecraft.util.EnumFacing.Axis;
 public class GuiDirectionIndicator extends GuiButton {
 	
 	private EnumFacing direction;
-
+	
 	public GuiDirectionIndicator(String name, int x, int y, EnumFacing facing) {
 		super(name, "->", x, y, 14, 14);
 		setDirection(facing);
 	}
-
+	
 	@Override
-	public void onClicked(int x, int y, int button)
-	{
+	public void onClicked(int x, int y, int button) {
 		
 	}
 	
-	public EnumFacing getDirection()
-	{
+	public EnumFacing getDirection() {
 		return direction;
 	}
 	
-	public void setDirection(EnumFacing direction)
-	{
-		if(direction.getAxis() != Axis.Z)
+	public void setDirection(EnumFacing direction) {
+		if (direction.getAxis() != Axis.Z)
 			caption = "->";
 		
-		switch(direction)
-		{
+		switch (direction) {
 		case EAST:
 			rotation = 0F;
 			
@@ -61,12 +56,10 @@ public class GuiDirectionIndicator extends GuiButton {
 	}
 	
 	@Override
-	public ArrayList<String> getTooltip()
-	{
+	public ArrayList<String> getTooltip() {
 		ArrayList<String> tooltip = new ArrayList<>();
 		tooltip.add("relative direction:");
-		switch(direction)
-		{
+		switch (direction) {
 		case EAST:
 			tooltip.add("points right");
 			break;
@@ -88,5 +81,5 @@ public class GuiDirectionIndicator extends GuiButton {
 		}
 		return tooltip;
 	}
-
+	
 }

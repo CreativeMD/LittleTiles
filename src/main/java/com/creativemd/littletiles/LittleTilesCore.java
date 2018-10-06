@@ -14,7 +14,7 @@ public class LittleTilesCore extends DummyModContainer {
 	public static final String version = "1.0.0";
 	
 	public LittleTilesCore() {
-
+		
 		super(new ModMetadata());
 		ModMetadata meta = getMetadata();
 		meta.modId = modid;

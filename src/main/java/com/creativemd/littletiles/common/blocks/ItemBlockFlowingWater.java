@@ -6,8 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 
-public class ItemBlockFlowingWater extends ItemBlock{
-
+public class ItemBlockFlowingWater extends ItemBlock {
+	
 	public ItemBlockFlowingWater(Block block, ResourceLocation location) {
 		super(block);
 		setUnlocalizedName(location.getResourcePath());
@@ -15,18 +15,16 @@ public class ItemBlockFlowingWater extends ItemBlock{
 	}
 	
 	@Override
-	public String getUnlocalizedName(ItemStack stack)
-    {
+	public String getUnlocalizedName(ItemStack stack) {
 		String name = "default";
-		if(stack.getItemDamage() < BlockLTFlowingWater.DIRECTION.getAllowedValues().size())
+		if (stack.getItemDamage() < BlockLTFlowingWater.DIRECTION.getAllowedValues().size())
 			name = EnumFacing.getFront(stack.getItemDamage()).getName();
 		return getUnlocalizedName() + "." + name;
-    }
+	}
 	
 	@Override
-    public int getMetadata(int meta)
-    {
+	public int getMetadata(int meta) {
 		return meta;
-    }
-
+	}
+	
 }

@@ -1,24 +1,19 @@
 package com.creativemd.littletiles.common.utils.shape;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -36,8 +31,7 @@ public abstract class DragShape {
 	
 	public static DragShape defaultShape = box;
 	
-	public static DragShape getShape(String name)
-	{
+	public static DragShape getShape(String name) {
 		DragShape shape = DragShape.shapes.get(name);
 		return shape == null ? DragShape.defaultShape : shape;
 	}
