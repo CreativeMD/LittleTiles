@@ -476,8 +476,13 @@ public class LittleTilePreview implements ICombinable {
 	
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack) {
+		return getCubes(stack, true);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack, boolean allowLowResolution) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") >= lowResolutionMode) {
+		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") >= lowResolutionMode && allowLowResolution) {
 			NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);

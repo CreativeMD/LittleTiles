@@ -16,6 +16,7 @@ import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -80,7 +81,7 @@ public class GuiTileViewer extends GuiParent {
 	}
 	
 	public void updateNormalAxis() {
-		List<? extends RenderCubeObject> cubes = ((ICreativeRendered) stack.getItem()).getRenderingCubes(null, null, stack);
+		List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
 		double minZ = Integer.MAX_VALUE;
@@ -259,12 +260,10 @@ public class GuiTileViewer extends GuiParent {
 		else
 			yAxis = "<- " + yAxis;
 		
-		/*
-		 * switch(viewDirection){ case EAST: xAxis = "X ->"; yAxis = "<- Y"; break; case
+		/* switch(viewDirection){ case EAST: xAxis = "X ->"; yAxis = "<- Y"; break; case
 		 * WEST: xAxis = "<- X"; yAxis = "<- Y"; break; case DOWN: xAxis = "X ->"; yAxis
 		 * = "<- Z"; break; case SOUTH: xAxis = "<- Z"; yAxis = "<- Y"; break; case
-		 * NORTH: xAxis = "Z ->"; yAxis = "<- Y"; break; }
-		 */
+		 * NORTH: xAxis = "Z ->"; yAxis = "<- Y"; break; } */
 		
 		helper.drawStringWithShadow(xAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		
