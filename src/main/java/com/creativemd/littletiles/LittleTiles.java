@@ -434,6 +434,7 @@ public class LittleTiles {
 		GuiHandler.registerGuiHandler("structureoverview", new LittleGuiHandler() {
 			
 			@Override
+			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
 				return new SubGuiStructureOverview(tile);
 			}
