@@ -14,6 +14,7 @@ import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
@@ -236,7 +237,7 @@ public class LittleBed extends LittleStructure {
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!hasLoaded())
+		if (!hasLoaded() && !SpecialServerConfig.enableBed)
 			return false;
 		if (world.isRemote) {
 			hasBeenActivated = true;

@@ -25,6 +25,8 @@ public class SpecialServerConfig {
 	/** tile-size: 1x1x1 of default grid **/
 	public static float storagePerPixel = 1;
 	
+	public static boolean enableBed = true;
+	
 	public static boolean isEditLimited(EntityPlayer player) {
 		if (limitEditBlocksSurvival)
 			return !player.isCreative();
