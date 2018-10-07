@@ -25,7 +25,7 @@ public class SubGuiRecipe extends SubGui {
 	public LittleStructureGuiParser parser;
 	
 	public SubGuiRecipe(ItemStack stack) {
-		super();
+		super(176, 186);
 		this.stack = stack;
 	}
 	
@@ -47,7 +47,7 @@ public class SubGuiRecipe extends SubGui {
 				comboBox.caption = structure.structureID;
 		}
 		controls.add(comboBox);
-		controls.add(new GuiButton("save", 115, 140, 50) {
+		controls.add(new GuiButton("save", 115, 163, 50) {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				if (SubGuiRecipe.this.parser != null) {

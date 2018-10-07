@@ -11,23 +11,14 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 public class BasicCombiner {
 	
-	/**
-	 * only one combination process can run at the same time on each thread
-	 */
 	public static void combineBoxes(List<LittleTileBox> boxes) {
 		new BasicCombiner(boxes).combine();
 	}
 	
-	/**
-	 * only one combination process can run at the same time on each thread
-	 */
 	public static void combineTiles(List<LittleTile> tiles) {
 		new AdvancedCombiner<>(tiles).combine();
 	}
 	
-	/**
-	 * only one combination process can run at the same time on each thread
-	 */
 	public static void combineTiles(List<LittleTile> tiles, LittleStructure structure) {
 		new StructureCombiner(tiles, structure).combine();
 	}
