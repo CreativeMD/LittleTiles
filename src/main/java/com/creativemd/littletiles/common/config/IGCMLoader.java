@@ -37,6 +37,7 @@ public class IGCMLoader {
 			public void onRecieveFrom(Side side) {
 				SpecialServerConfig.allowFlowingWater = (Boolean) getValue("allowFlowingWater");
 				SpecialServerConfig.allowFlowingLava = (Boolean) getValue("allowFlowingLava");
+				SpecialServerConfig.enableBed = (Boolean) getValue("enableBed");
 			}
 			
 			@Override
@@ -85,6 +86,7 @@ public class IGCMLoader {
 				
 				registerElement("allowFlowingWater", new BooleanSegment("Allow Flowing Water", true).setToolTip("If disabled the bucket cannot be used to change the water flow."));
 				registerElement("allowFlowingLava", new BooleanSegment("Allow Flowing Lava", true).setToolTip("If disabled the bucket cannot be used to change the lava flow."));
+				registerElement("enableBed", new BooleanSegment("Enable Bed", true).setToolTip("Whether players should be allowed to sleep in LT beds or not."));
 			}
 		});
 	}
