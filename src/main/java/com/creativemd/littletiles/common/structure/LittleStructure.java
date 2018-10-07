@@ -50,6 +50,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -585,6 +586,16 @@ public abstract class LittleStructure {
 		return previews;
 	}
 	
+	public MutableBlockPos getMinPos(MutableBlockPos pos) {
+		for (TileEntityLittleTiles te : tiles.keySet()) {
+			pos.setPos(Math.min(pos.getX(), te.getPos().getX()), Math.min(pos.getY(), te.getPos().getY()), Math.min(pos.getZ(), te.getPos().getZ()));
+		}
+		for (IStructureChildConnector child : children.values()) {
+			child.getStructure(getWorld()).getMinPos(pos);
+		}
+		return pos;
+	}
+	
 	public ItemStack getStructureDrop() {
 		if (parent != null) {
 			if (parent.isConnected(getWorld()))
@@ -593,19 +604,7 @@ public abstract class LittleStructure {
 		}
 		
 		if (hasLoaded() && loadChildren()) {
-			BlockPos pos = getMainTile().te.getPos();
-			int x = pos.getX();
-			int y = pos.getY();
-			int z = pos.getZ();
-			
-			for (Iterator<TileEntityLittleTiles> iterator = tiles.keySet().iterator(); iterator.hasNext();) {
-				TileEntityLittleTiles te = iterator.next();
-				x = Math.min(x, te.getPos().getX());
-				y = Math.min(y, te.getPos().getY());
-				z = Math.min(z, te.getPos().getZ());
-			}
-			
-			pos = new BlockPos(x, y, z);
+			BlockPos pos = getMinPos(new MutableBlockPos(getMainTile().te.getPos()));
 			
 			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 			LittlePreviews previews = getPreviews(pos);
