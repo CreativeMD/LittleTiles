@@ -96,7 +96,7 @@ item.LTPremade.workbench.name=Little Workbench
 item.LTPremade.importer.name=Little Importer
 item.LTPremade.exporter.name=Little Exporter
 
-selection.clear=Clear selection
+selection.clear=clear
 selection.dialog.clear=Do you really want to clear all content?
 selection.include.vanilla=Regular Blocks
 selection.include.cb=C&B Blocks

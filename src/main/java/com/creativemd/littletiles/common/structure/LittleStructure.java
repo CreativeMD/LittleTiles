@@ -102,7 +102,7 @@ public abstract class LittleStructure {
 	 */
 	public void placedStructure(@Nullable ItemStack stack) {
 		NBTTagCompound nbt;
-		if (stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
+		if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
 			name = nbt.getString("Name");
 		
 		combineTiles();
@@ -320,7 +320,7 @@ public abstract class LittleStructure {
 			return true;
 		
 		for (IStructureChildConnector child : children.values()) {
-			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().loadChildren())
+			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().hasLoaded() || !child.getStructureWithoutLoading().loadChildren())
 				return false;
 		}
 		
@@ -415,6 +415,10 @@ public abstract class LittleStructure {
 	
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
 		nbt.setString("id", structureID);
+		if (name != null)
+			nbt.setString("name", name);
+		else
+			nbt.removeTag("name");
 		writeToNBTExtra(nbt);
 	}
 	

@@ -20,6 +20,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.init.Blocks;
@@ -28,6 +29,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.MinecraftForgeClient;
 
 public class GuiTileViewer extends GuiParent {
 	
@@ -196,12 +198,8 @@ public class GuiTileViewer extends GuiParent {
 		}
 		
 		if (baked == null) {
-			// ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-			// stack.setTagCompound(this.stack.getTagCompound().copy());
-			CreativeBakedModel.setLastItemStack(stack);
-			
-			baked = new ArrayList<>(CreativeBakedModel.getBlockQuads(null, facing, 0, false));
-			CreativeBakedModel.setLastItemStack(null);
+			List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
+			baked = CreativeBakedModel.getBlockQuads(cubes, new ArrayList<>(), (ICreativeRendered) stack.getItem(), facing, null, MinecraftForgeClient.getRenderLayer(), Block.getBlockFromItem(stack.getItem()), null, 0, stack, false);
 		}
 		
 		ArrayList<BakedQuad> quads = new ArrayList<>();
@@ -354,8 +352,8 @@ public class GuiTileViewer extends GuiParent {
 			if (lastPosition != null) {
 				Vec3d move = lastPosition.subtract(currentPosition);
 				double percent = 0.3;
-				offsetX += 1 / scale * move.x * percent;
-				offsetY += 1 / scale * move.y * percent;
+				offsetX += 1F / scale * move.x * percent;
+				offsetY += 1F / scale * move.y * percent;
 			}
 			lastPosition = currentPosition;
 		}

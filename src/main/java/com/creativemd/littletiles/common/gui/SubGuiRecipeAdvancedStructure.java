@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -34,7 +35,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 	
 	@Override
 	public void createControls() {
-		controls.add(new GuiButton("clear", translate("selection.clear"), 10, 176, 100) {
+		controls.add(new GuiButton("clear", translate("selection.clear"), 105, 176, 38) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -59,13 +60,14 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 		}
 		controls.add(comboBox);
 		controls.add(new GuiLabel("tiles", previews.totalSize() + " tile(s)", 110, 7));
-		controls.add(new GuiButton("save", 140, 176, 50) {
+		controls.add(new GuiButton("save", 150, 176, 40) {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				if (SubGuiRecipeAdvancedStructure.this.parser != null) {
+					GuiTextfield textfield = (GuiTextfield) get("name");
 					LittleStructure structure = SubGuiRecipeAdvancedStructure.this.parser.parseStructure(stack);
 					if (structure != null) {
-						
+						structure.name = textfield.text.isEmpty() ? null : textfield.text;
 						NBTTagCompound structureNBT = new NBTTagCompound();
 						structure.writeToNBT(structureNBT);
 						stack.getTagCompound().setTag("structure", structureNBT);
@@ -85,11 +87,13 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 				closeGui();
 			}
 		});
+		controls.add(new GuiLabel("name:", 0, 179));
+		controls.add(new GuiTextfield("name", (structure != null && structure.name != null) ? structure.name : "", 32, 176, 65, 14));
 		onChanged();
 	}
 	
 	public void onChanged() {
-		removeControls("type:", "types", "save", "clear", "tiles");
+		removeControls("type:", "types", "save", "clear", "tiles", "name:", "name");
 		String id = ((GuiComboBox) get("types")).caption;
 		
 		if (parser != null)
@@ -108,6 +112,8 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			}
 		} else
 			parser = null;
+		
+		get("name").setEnabled(parser != null);
 	}
 	
 	@CustomEventSubscribe
