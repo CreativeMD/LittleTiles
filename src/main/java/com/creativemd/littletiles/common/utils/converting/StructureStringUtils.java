@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.compression.JsonToNBTFixed;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -160,7 +161,7 @@ public class StructureStringUtils {
 	
 	public static ItemStack importStructure(String input) {
 		try {
-			return importStructure(JsonToNBT.getTagFromJson(input));
+			return importStructure(JsonToNBTFixed.getTagFromJson(input));
 		} catch (NBTException e) {
 			e.printStackTrace();
 		}

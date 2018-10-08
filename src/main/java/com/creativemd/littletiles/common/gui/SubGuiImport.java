@@ -10,6 +10,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
+import com.creativemd.littletiles.common.utils.compression.JsonToNBTFixed;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.JsonToNBT;
@@ -45,7 +46,7 @@ public class SubGuiImport extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
-					sendPacketToServer(JsonToNBT.getTagFromJson(textfield.text));
+					sendPacketToServer(JsonToNBTFixed.getTagFromJson(textfield.text));
 				} catch (NBTException e) {
 					e.printStackTrace();
 				}

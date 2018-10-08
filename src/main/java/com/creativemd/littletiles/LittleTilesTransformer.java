@@ -464,7 +464,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					
 					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEINTERFACE && ((MethodInsnNode) insn).name.equals("isEmpty") && ((MethodInsnNode) insn).owner.equals("java/util/List")) {
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, patchClassName("net/minecraft/network/NetHandlerPlayServer"), patchFieldName("player"), patchDESC("Lnet/minecraft/entity/player/EntityPlayerMP;")));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, patchClassName("net/minecraft/network/NetHandlerPlayServer"), patchFieldName("playerEntity"), patchDESC("Lnet/minecraft/entity/player/EntityPlayerMP;")));
 						
 						MethodInsnNode mInsn = (MethodInsnNode) insn;
 						mInsn.setOpcode(Opcodes.INVOKESTATIC);

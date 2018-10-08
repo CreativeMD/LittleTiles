@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.compression.JsonToNBTFixed;
 import com.google.common.base.Charsets;
 import com.google.gson.JsonParser;
 
@@ -31,7 +32,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
 			NBTTagCompound structureNBT = new NBTTagCompound();
 			structureNBT.setString("id", id);
-			NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/littletiles/premade/" + id + ".struct"), Charsets.UTF_8));
+			NBTTagCompound nbt = JsonToNBTFixed.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/littletiles/premade/" + id + ".struct"), Charsets.UTF_8));
 			nbt.setTag("structure", structureNBT);
 			stack.setTagCompound(nbt);
 			LittlePreviews previews = LittleTilePreview.getPreview(stack);
