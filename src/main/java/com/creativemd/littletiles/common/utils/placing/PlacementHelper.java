@@ -270,7 +270,7 @@ public class PlacementHelper {
 		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
-		if (tiles != null && !tiles.isEmpty()) {
+		if (tiles != null && (!tiles.isEmpty() || tiles.hasChildren())) {
 			if (tiles.isAbsolute()) {
 				result.context = tiles.context;
 				result.previews = tiles;

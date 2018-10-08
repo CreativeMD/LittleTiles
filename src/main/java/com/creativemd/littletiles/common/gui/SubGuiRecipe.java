@@ -6,6 +6,7 @@ import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
@@ -51,9 +52,10 @@ public class SubGuiRecipe extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				if (SubGuiRecipe.this.parser != null) {
+					GuiTextfield textfield = (GuiTextfield) get("name");
 					LittleStructure structure = SubGuiRecipe.this.parser.parseStructure(stack);
 					if (structure != null) {
-						
+						structure.name = textfield.text.isEmpty() ? null : textfield.text;
 						NBTTagCompound structureNBT = new NBTTagCompound();
 						structure.writeToNBT(structureNBT);
 						stack.getTagCompound().setTag("structure", structureNBT);
@@ -70,11 +72,13 @@ public class SubGuiRecipe extends SubGui {
 				closeGui();
 			}
 		});
+		controls.add(new GuiLabel("name:", 0, 165));
+		controls.add(new GuiTextfield("name", (structure != null && structure.name != null) ? structure.name : "", 32, 163, 65, 14));
 		onChanged();
 	}
 	
 	public void onChanged() {
-		removeControls("type:", "types", "save", "clear");
+		removeControls("type:", "types", "save", "clear", "name:", "name");
 		String id = ((GuiComboBox) get("types")).caption;
 		
 		if (parser != null)
@@ -93,6 +97,8 @@ public class SubGuiRecipe extends SubGui {
 			}
 		} else
 			parser = null;
+		
+		get("name").setEnabled(parser != null);
 	}
 	
 	@CustomEventSubscribe
