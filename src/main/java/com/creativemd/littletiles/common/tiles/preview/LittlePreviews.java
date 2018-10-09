@@ -86,6 +86,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		if (child.isAbsolute())
 			throw new RuntimeException("Absolute previews cannot be added as a child!");
 		children.add((LittlePreviewsStructure) child);
+		if (context.size < child.getSmallestContext())
+			convertToSmallest();
+		else
+			child.convertTo(context);
 	}
 	
 	public void getPlacePreviews(List<PlacePreviewTile> placePreviews, LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
@@ -109,8 +113,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	public void convertTo(LittleGridContext to) {
-		for (LittleTilePreview preview : previews) {
-			preview.convertTo(this.context, to);
+		if (context != to) {
+			for (LittleTilePreview preview : previews) {
+				preview.convertTo(this.context, to);
+			}
 		}
 		if (hasChildren())
 			for (LittlePreviews child : getChildren())
@@ -131,7 +137,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			for (LittlePreviews child : getChildren())
 				size = Math.max(child.getSmallestContext(), size);
 			
-		if (size < context.size)
+		if (size != context.size)
 			convertTo(LittleGridContext.get(size));
 	}
 	
