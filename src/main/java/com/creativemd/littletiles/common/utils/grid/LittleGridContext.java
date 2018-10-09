@@ -15,7 +15,7 @@ public class LittleGridContext {
 	public static final int overallDefault = 16;
 	
 	@Deprecated
-	public static final int oldHaldGridSize = 8;
+	public static final int oldHalfGridSize = 8;
 	
 	public static int[] gridSizes;
 	public static int minSize;

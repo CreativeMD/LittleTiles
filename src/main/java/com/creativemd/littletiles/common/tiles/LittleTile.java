@@ -108,7 +108,7 @@ public abstract class LittleTile implements ICombinable {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");
 				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
-				box.addOffset(new LittleTileVec(LittleGridContext.oldHaldGridSize, LittleGridContext.oldHaldGridSize, LittleGridContext.oldHaldGridSize));
+				box.addOffset(new LittleTileVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
 				tile.box = box;
 				return tile;
