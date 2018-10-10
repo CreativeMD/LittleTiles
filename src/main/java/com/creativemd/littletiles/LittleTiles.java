@@ -529,7 +529,7 @@ public class LittleTiles {
 		
 		GameRegistry.addRecipe(new ItemStack(storageBlock, 1), new Object[] { "C", 'C', Blocks.CHEST });
 		
-		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"), new Object[] { "PPP", "PWP", "PPP", 'P', Blocks.PLANKS, 'W', LittleTiles.wrench });
+		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("workbench"), new Object[] { "PPP", "PWP", "PPP", 'P', Blocks.PLANKS, 'W', LittleTiles.wrench });
 		
 		GameRegistry.addRecipe(LittleStructurePremade.getPremadeStack("exporter"), new Object[] { "PXP", "ILI", "IRI", 'P', Blocks.PLANKS, 'X', Blocks.IRON_BARS, 'I', Items.IRON_INGOT, 'L', LittleTiles.recipe, 'R', Items.REDSTONE });
 		
