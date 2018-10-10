@@ -706,11 +706,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				
 				exstingTiles.remove(tile);
 			} else {
-				if (tile != null && tile.isConnectedToStructure())
-					tile.connection.getStructure(world).removeTile(tile);
+				LittleStructure structure = null;
+				if (tile != null && tile.isConnectedToStructure()) {
+					structure = tile.connection.getStructure(world);
+					structure.removeTile(tile);
+				}
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
-				if (tile != null)
+				if (tile != null) {
 					tilesToAdd.add(tile);
+					if (structure != null)
+						structure.addTile(tile);
+				}
 			}
 		}
 		
