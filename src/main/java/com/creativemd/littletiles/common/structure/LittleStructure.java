@@ -129,6 +129,16 @@ public abstract class LittleStructure {
 	public void setMainTile(LittleTile tile) {
 		this.mainTile = tile;
 		
+		if (parent != null) {
+			LittleStructure parentStructure = parent.getStructure(getWorld());
+			parentStructure.children.put(parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, this.mainTile.te.getPos(), this.mainTile.getContext(), this.mainTile.getIdentifier(), this.attribute, parentStructure, parent.getChildID(), false));
+		}
+		
+		for (Entry<Integer, IStructureChildConnector> entry : children.entrySet()) {
+			LittleStructure child = entry.getValue().getStructure(getWorld());
+			entry.setValue(new StructureLink(child.getMainTile().te, this.mainTile.te.getPos(), this.mainTile.getContext(), this.mainTile.getIdentifier(), this.attribute, child, entry.getKey(), true));
+		}
+		
 		this.mainTile.connection = new StructureMainTile(mainTile, this);
 		updateStructure();
 		
@@ -274,7 +284,19 @@ public abstract class LittleStructure {
 	
 	public boolean hasLoaded() {
 		loadTiles();
-		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0);
+		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0) && !isRelationToParentBroken() && !isRelationToChildrenBroken();
+	}
+	
+	public boolean isRelationToParentBroken() {
+		return parent != null && !parent.isConnected(getWorld());
+	}
+	
+	public boolean isRelationToChildrenBroken() {
+		for (IStructureChildConnector child : children.values()) {
+			if (!child.isConnected(getWorld()))
+				return true;
+		}
+		return false;
 	}
 	
 	public boolean loadTiles() {
