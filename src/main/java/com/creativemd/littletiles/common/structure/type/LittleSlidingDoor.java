@@ -93,8 +93,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (world.isRemote && !isWaitingForApprove) {
-			if (!hasLoaded()) {
+			if (!hasLoaded() || !loadChildren()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
+				return true;
+			}
+			
+			if (isChildMoving()) {
+				player.sendStatusMessage(new TextComponentTranslation("A child is still in motion!"), true);
 				return true;
 			}
 			
@@ -126,9 +131,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		else if (offset.context.size < previews.context.size)
 			offset.convertTo(previews.context);
 		
-		for (LittleTilePreview preview : previews.allPreviews()) {
-			preview.box.addOffset(offset.vec);
-		}
+		previews.movePreviews(world, player, null, previews.context, offset.vec);
 		
 		LittleTilePos absolute = getAbsoluteAxisVec();
 		absolute.add(offset);
@@ -191,7 +194,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public LittleGridContext getMinContext() {
-		return moveContext;
+		return LittleGridContext.max(super.getMinContext(), moveContext);
 	}
 	
 	@Override

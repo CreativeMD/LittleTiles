@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -17,11 +20,14 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
 
 public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
@@ -98,7 +104,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		if (hasStructure()) {
-			for (PlacePreviewTile placePreviewTile : getStructureHandler().getSpecialTiles(context, this)) {
+			for (PlacePreviewTile placePreviewTile : getStructureHandler().getSpecialTiles(this)) {
 				if (!fixed)
 					placePreviewTile.box.addOffset(offset);
 				placePreviews.add(placePreviewTile);
@@ -110,6 +116,54 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				child.getPlacePreviews(placePreviews, overallBox, fixed, offset);
 			}
 		}
+	}
+	
+	public void movePreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
+		
+		if (context.size > this.context.size)
+			convertTo(context);
+		else if (context.size < this.context.size)
+			offset.convertTo(context, this.context);
+		
+		for (LittleTilePreview preview : previews) {
+			preview.box.addOffset(offset);
+		}
+		if (hasStructure()) {
+			getStructure().onMove(world, player, stack, context, offset);
+		}
+		
+		if (hasChildren())
+			for (LittlePreviewsStructure child : children) {
+				child.movePreviews(world, player, stack, context, offset);
+			}
+	}
+	
+	public void flipPreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		for (LittleTilePreview preview : previews) {
+			preview.flipPreview(axis, doubledCenter);
+		}
+		if (hasStructure()) {
+			getStructure().onFlip(world, player, stack, context, axis, doubledCenter);
+		}
+		
+		if (hasChildren())
+			for (LittlePreviewsStructure child : children) {
+				child.flipPreviews(world, player, stack, context, axis, doubledCenter);
+			}
+	}
+	
+	public void rotatePreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+		for (LittleTilePreview preview : previews) {
+			preview.rotatePreview(rotation, doubledCenter);
+		}
+		if (hasStructure()) {
+			getStructure().onRotate(world, player, stack, context, rotation, doubledCenter);
+		}
+		
+		if (hasChildren())
+			for (LittlePreviewsStructure child : children) {
+				child.rotatePreviews(world, player, stack, context, rotation, doubledCenter);
+			}
 	}
 	
 	public void convertTo(LittleGridContext to) {

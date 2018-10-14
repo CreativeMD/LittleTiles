@@ -119,6 +119,12 @@ public class LittleDoor extends LittleDoorBase {
 	}
 	
 	@Override
+	public void onMove(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, LittleTileVec offset) {
+		super.onMove(world, player, stack, context, offset);
+		doubledRelativeAxis.add(new LittleTileVecContext(context, offset));
+	}
+	
+	@Override
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		doubledCenter = doubledCenter.copy();
 		if (context.size > doubledRelativeAxis.context.size)
@@ -166,16 +172,7 @@ public class LittleDoor extends LittleDoorBase {
 		else if (newDoor.doubledRelativeAxis.context.size < previews.context.size)
 			newDoor.doubledRelativeAxis.convertTo(previews.context);
 		
-		//LittleTileVecContext vec = new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec());
-		//newDoor.doubledRelativeAxis.sub(vec);
-		
-		for (LittleTilePreview preview : previews.allPreviews()) {
-			preview.rotatePreview(direction, newDoor.doubledRelativeAxis.getRotationVec());
-		}
-		if (previews.hasStructure()) {
-			previews.getStructure().onRotate(world, player, null, previews.context, direction, newDoor.doubledRelativeAxis.getRotationVec());
-			previews.getStructure().writeToNBT(previews.getStructureData());
-		}
+		previews.rotatePreviews(world, player, null, previews.context, direction, newDoor.doubledRelativeAxis.getRotationVec());
 		
 		return place(world, player, previews, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
 	}
@@ -188,8 +185,13 @@ public class LittleDoor extends LittleDoorBase {
 	@Override
 	public boolean activate(World world, @Nullable EntityPlayer player, @Nullable Rotation rotation, BlockPos pos) {
 		if (axis != null && !isWaitingForApprove) {
-			if (!hasLoaded() || !loadChildren() || isChildMoving() || !loadParent()) {
+			if (!hasLoaded() || !loadChildren()) {
 				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
+				return false;
+			}
+			
+			if (isChildMoving()) {
+				player.sendStatusMessage(new TextComponentTranslation("A child is still in motion!"), true);
 				return false;
 			}
 			
@@ -313,7 +315,7 @@ public class LittleDoor extends LittleDoorBase {
 	@Override
 	public LittleGridContext getMinContext() {
 		doubledRelativeAxis.convertToSmallest();
-		return doubledRelativeAxis.context;
+		return LittleGridContext.max(super.getMinContext(), doubledRelativeAxis.context);
 	}
 	
 	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid) {
@@ -709,13 +711,13 @@ public class LittleDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public List<PlacePreviewTile> getSpecialTiles(LittleGridContext context, LittlePreviews previews) {
+		public List<PlacePreviewTile> getSpecialTiles(LittlePreviews previews) {
 			LittleDoor door = (LittleDoor) previews.getStructure();
-			if (context.size < door.doubledRelativeAxis.context.size)
+			if (previews.context.size < door.doubledRelativeAxis.context.size)
 				throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
 			
 			List<PlacePreviewTile> boxes = new ArrayList<>();
-			door.doubledRelativeAxis.convertTo(context);
+			door.doubledRelativeAxis.convertTo(previews.context);
 			boxes.add(new PlacePreviewTileAxis(new LittleTileBox(door.doubledRelativeAxis.vec.x, door.doubledRelativeAxis.vec.y, door.doubledRelativeAxis.vec.z, door.doubledRelativeAxis.vec.x + 1, door.doubledRelativeAxis.vec.y + 1, door.doubledRelativeAxis.vec.z + 1), null, door.axis, door.getAdditionalAxisVec(), previews));
 			door.doubledRelativeAxis.convertToSmallest();
 			return boxes;

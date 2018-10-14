@@ -571,7 +571,11 @@ public abstract class LittleStructure {
 	}
 	
 	public LittleGridContext getMinContext() {
-		return LittleGridContext.getMin();
+		LittleGridContext context = LittleGridContext.getMin();
+		for (IStructureChildConnector child : children.values()) {
+			context = LittleGridContext.max(context, child.getStructure(getWorld()).getMinContext());
+		}
+		return context;
 	}
 	
 	public LittlePreviewsStructure getPreviews(BlockPos pos) {
@@ -597,7 +601,7 @@ public abstract class LittleStructure {
 	public LittleAbsolutePreviewsStructure getAbsolutePreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, LittleGridContext.getMin());
+		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			previews.addTile(iterator.next());
@@ -652,6 +656,9 @@ public abstract class LittleStructure {
 	}
 	
 	// ====================SORTING====================
+	
+	public void onMove(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
+	}
 	
 	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 	}

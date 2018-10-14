@@ -146,7 +146,7 @@ public class LittleStructureRegistry {
 			return LittleGridContext.getMin();
 		}
 		
-		public List<PlacePreviewTile> getSpecialTiles(LittleGridContext context, LittlePreviews previews) {
+		public List<PlacePreviewTile> getSpecialTiles(LittlePreviews previews) {
 			return new ArrayList<>();
 		}
 		
