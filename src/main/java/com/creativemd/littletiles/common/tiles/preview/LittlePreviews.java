@@ -106,7 +106,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		if (hasStructure()) {
 			for (PlacePreviewTile placePreviewTile : getStructureHandler().getSpecialTiles(this)) {
 				if (!fixed)
-					placePreviewTile.box.addOffset(offset);
+					placePreviewTile.addOffset(offset);
 				placePreviews.add(placePreviewTile);
 			}
 		}

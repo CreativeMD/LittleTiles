@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -73,6 +74,12 @@ public class PlacePreviewTile {
 		return tiles;
 	}
 	
+	public PlacePreviewTile copyWithBox(LittleTileBox box) {
+		PlacePreviewTile tile = this.copy();
+		tile.box = box;
+		return tile;
+	}
+	
 	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos) {
 		if (preview != null && !preview.canSplit && box.needsMultipleBlocks(context))
 			return false;
@@ -81,13 +88,15 @@ public class PlacePreviewTile {
 		this.box.split(context, pos, boxes);
 		for (Entry<BlockPos, ArrayList<LittleTileBox>> entry : boxes.entrySet()) {
 			for (LittleTileBox box : entry.getValue()) {
-				PlacePreviewTile tile = this.copy();
-				tile.box = box;
-				tiles.add(entry.getKey(), tile);
+				tiles.add(entry.getKey(), this.copyWithBox(box));
 			}
 		}
 		
 		return true;
+	}
+	
+	public void addOffset(LittleTileVec vec) {
+		box.addOffset(vec);
 	}
 	
 	public void convertTo(LittleGridContext context, LittleGridContext to) {

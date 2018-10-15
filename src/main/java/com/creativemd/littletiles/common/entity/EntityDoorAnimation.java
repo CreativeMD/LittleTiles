@@ -173,7 +173,6 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 							newDoor.parent = new StructureLink(newDoor.getMainTile().te, parentStructure.getMainTile().te.getPos(), parentStructure.getMainTile().getContext(), parentStructure.getMainTile().getIdentifier(), parentStructure.attribute, newDoor, placedStructureParent.parent.getChildID(), true);
 							parentStructure.children.put(newDoor.parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, newDoor.getMainTile().te.getPos(), newDoor.getMainTile().getContext(), newDoor.getMainTile().getIdentifier(), newDoor.attribute, parentStructure, newDoor.parent.getChildID(), false));
 						}
-						
 						if (world.isRemote) {
 							waitingForRender = new CopyOnWriteArrayList<>();
 							ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());

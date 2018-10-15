@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -76,6 +77,11 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		return true;
+	}
+	
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		return PlacementMode.all;
 	}
 	
 	@Override
