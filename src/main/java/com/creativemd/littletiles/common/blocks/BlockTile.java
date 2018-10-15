@@ -401,7 +401,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		float slipperiness = 1;
 		boolean found = false;
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null && entity.getEntityBoundingBox() != null) {
+		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
 			for (LittleTile tile : te.getTiles()) {
 				for (LittleTileBox box : tile.getCollisionBoxes()) {
