@@ -170,7 +170,7 @@ public class StructureStringUtils {
 	public static ItemStack importStructure(NBTTagCompound nbt) {
 		NBTTagCompound itemNBT = new NBTTagCompound();
 		
-		ItemStack stack = new ItemStack(LittleTiles.recipe);
+		ItemStack stack = new ItemStack(LittleTiles.recipeAdvanced);
 		
 		stack.setTagCompound(itemNBT);
 		
