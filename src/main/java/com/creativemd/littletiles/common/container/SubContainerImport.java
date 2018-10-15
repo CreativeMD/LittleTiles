@@ -30,7 +30,10 @@ public class SubContainerImport extends SubContainer {
 		ItemStack stack = slot.getStackInSlot(0);
 		if ((stack.getItem() instanceof ItemRecipe) || (getPlayer().capabilities.isCreativeMode && stack.isEmpty())) {
 			ItemStack newStack = StructureStringUtils.importStructure(nbt);
-			newStack.setCount(stack.getCount());
+			if (getPlayer().isCreative() && stack.isEmpty())
+				newStack.setCount(1);
+			else
+				newStack.setCount(stack.getCount());
 			slot.setInventorySlotContents(0, newStack);
 		}
 	}
