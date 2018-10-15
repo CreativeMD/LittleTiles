@@ -119,7 +119,6 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	public void movePreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
-		
 		if (context.size > this.context.size)
 			convertTo(context);
 		else if (context.size < this.context.size)
