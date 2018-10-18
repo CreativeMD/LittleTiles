@@ -479,10 +479,21 @@ public class LittleTilePreview implements ICombinable {
 		return getCubes(stack, true);
 	}
 	
+	public static int getTotalCount(NBTTagCompound nbt) {
+		int count = nbt.getInteger("count");
+		if (nbt.hasKey("children")) {
+			NBTTagList list = nbt.getTagList("children", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				count += getTotalCount(list.getCompoundTagAt(i));
+			}
+		}
+		return count;
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack, boolean allowLowResolution) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") >= lowResolutionMode && allowLowResolution) {
+		if (stack.hasTagCompound() && getTotalCount(stack.getTagCompound()) >= lowResolutionMode && allowLowResolution) {
 			NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
