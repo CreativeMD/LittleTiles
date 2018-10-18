@@ -371,28 +371,6 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 				}
 				
-				m = findMethod(node, "isNeighbourOverlay", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
-				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
-					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
-					
-					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESTATIC && ((MethodInsnNode) insn).name.equals("block") && ((MethodInsnNode) insn).owner.equals("net/optifine/config/Matches")) {
-						m.instructions.remove(insn.getPrevious());
-						m.instructions.remove(insn.getPrevious());
-						
-						AbstractInsnNode before = insn.getPrevious().getPrevious();
-						
-						m.instructions.remove(before.getPrevious());
-						m.instructions.remove(before.getPrevious());
-						
-						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
-						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
-						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
-						
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
-						m.instructions.remove(insn);
-					}
-				}
-				
 				m = findMethod(node, "isNeighbour", "(Lnet/optifine/ConnectedProperties;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;ILnet/minecraft/client/renderer/texture/TextureAtlasSprite;I)Z");
 				
 				LabelNode insn = (LabelNode) m.instructions.getFirst();
