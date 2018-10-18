@@ -372,9 +372,8 @@ public class LittleDoor extends LittleDoorBase {
 	
 	@Override
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
-		super.writeToNBTPreview(nbt, newCenter);
 		LittleRelativeDoubledAxis axisPointBackup = doubledRelativeAxis.copy();
-		LittleTileVecContext vec = new LittleTilePos(getMainTile().te.getPos(), axisPointBackup.context).getRelative(new LittleTilePos(newCenter, axisPointBackup.context));
+		LittleTileVecContext vec = new LittleTilePos(getMainTile().te.getPos(), doubledRelativeAxis.context).getRelative(new LittleTilePos(newCenter, doubledRelativeAxis.context));
 		doubledRelativeAxis.add(vec);
 		vec = new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec());
 		doubledRelativeAxis.add(vec);
