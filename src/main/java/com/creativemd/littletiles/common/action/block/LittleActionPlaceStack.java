@@ -372,17 +372,20 @@ public class LittleActionPlaceStack extends LittleAction {
 				
 				TileEntityLittleTiles te = loadTe(player, world, pos, false);
 				if (te != null) {
+					LittleGridContext contextBefore = te.getContext();
 					tiles.ensureBothAreEqual(te);
 					
 					for (int j = 0; j < tiles.size(); j++)
 						if (tiles.get(j).needsCollisionTest())
 							if (mode.checkAll()) {
 								if (!te.isSpaceForLittleTile(tiles.get(j).box)) {
-									te.convertToSmallest();
+									if (te.getContext() != contextBefore)
+										te.convertTo(contextBefore);
 									return false;
 								}
 							} else if (!te.isSpaceForLittleTileStructure(tiles.get(j).box)) {
-								te.convertToSmallest();
+								if (te.getContext() != contextBefore)
+									te.convertTo(contextBefore);
 								return false;
 							}
 						
