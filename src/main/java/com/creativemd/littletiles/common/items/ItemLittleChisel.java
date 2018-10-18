@@ -298,6 +298,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		position = position.copy();
 		
 		EnumFacing facing = result.sideHit;
+		if (facing == null) {
+			new RuntimeException("Missing facing for some odd reason: " + result).printStackTrace();
+			facing = position.facing;
+		}
 		if (mode.mode == PreviewMode.LINES)
 			facing = facing.getOpposite();
 		if (facing.getAxisDirection() == AxisDirection.NEGATIVE)
@@ -310,9 +314,14 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		if (ItemLittleChisel.min == null) {
 			ItemLittleChisel.min = getPosition(position, result, currentMode);
-		} else if (LittleAction.isUsingSecondMode(player))
+		} else if (LittleAction.isUsingSecondMode(player)) {
 			ItemLittleChisel.min = null;
-		else
+			ItemLittleChisel.lastMax = null;
+			ItemLittleChisel.cachedPos = null;
+			ItemLittleChisel.cachedSettings = null;
+			ItemLittleChisel.cachedShape = null;
+			
+		} else
 			return true;
 		return false;
 	}
