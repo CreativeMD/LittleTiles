@@ -129,6 +129,11 @@ public class LittleTilesConfig {
 		@Config.Comment("Number of threads for rendering blocks")
 		public int renderingThreadCount = 2;
 		
+		@Config.Name("showStructureBoundingBox")
+		@Config.LangKey("config.littletiles.showStructureBoundingBox")
+		@Config.Comment("Whether a tile of structure should render its own selection box or that of the entire structure")
+		public boolean showStructureBoundingBox = false;
+		
 	}
 	
 	@SubscribeEvent

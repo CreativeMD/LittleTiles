@@ -11,6 +11,7 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
@@ -184,6 +185,8 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos) {
+		if (LittleTilesConfig.rendering.showStructureBoundingBox && isConnectedToStructure() && connection.getStructureWithoutLoading().hasLoaded())
+			return connection.getStructureWithoutLoading().getSurroundingBox();
 		return box.getSelectionBox(getContext(), pos);
 	}
 	
