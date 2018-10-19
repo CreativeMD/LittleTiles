@@ -141,20 +141,7 @@ public class StructureStringUtils {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
 				previews = tile.getLittlePreview(stack);
 			}
-			
-			structure = previews.getStructure();
-			
-			previews.context.setOverall(nbt);
-			nbt.setTag("tiles", LittleNBTCompressionTools.writePreviews(previews));
-			if (stack.getTagCompound().hasKey("children"))
-				nbt.setTag("children", stack.getTagCompound().getCompoundTag("children"));
-			
-			if (structure != null) {
-				NBTTagCompound nbtStructure = new NBTTagCompound();
-				structure.writeToNBT(nbtStructure);
-				nbt.setTag("structure", nbtStructure);
-			}
-			text = nbt.toString();
+			text = stack.getTagCompound().toString();
 		}
 		return text;
 	}
@@ -169,16 +156,13 @@ public class StructureStringUtils {
 	}
 	
 	public static ItemStack importStructure(NBTTagCompound nbt) {
-		NBTTagCompound itemNBT = new NBTTagCompound();
-		
 		ItemStack stack = new ItemStack(LittleTiles.recipeAdvanced);
-		
-		stack.setTagCompound(itemNBT);
-		
-		if (nbt.hasKey("structure"))
-			itemNBT.setTag("structure", nbt.getCompoundTag("structure"));
-		
 		if (nbt.getTag("tiles") instanceof NBTTagInt) {
+			NBTTagCompound itemNBT = new NBTTagCompound();
+			stack.setTagCompound(itemNBT);
+			if (nbt.hasKey("structure"))
+				itemNBT.setTag("structure", nbt.getCompoundTag("structure"));
+			
 			String[] names = nbt.getString("names").split("\\.");
 			
 			int tiles = nbt.getInteger("tiles");
@@ -200,11 +184,8 @@ public class StructureStringUtils {
 			}
 			
 			itemNBT.setInteger("tiles", tiles);
-		} else {
-			LittleTilePreview.savePreview(LittleNBTCompressionTools.readPreviews(LittleGridContext.getOverall(nbt), nbt.getTagList("tiles", 10)), stack);
-			if (nbt.hasKey("children"))
-				itemNBT.setTag("children", nbt.getCompoundTag("children"));
-		}
+		} else
+			stack.setTagCompound(nbt);
 		
 		return stack;
 	}
