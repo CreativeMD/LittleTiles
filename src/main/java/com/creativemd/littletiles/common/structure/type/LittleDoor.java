@@ -121,7 +121,7 @@ public class LittleDoor extends LittleDoorBase {
 	@Override
 	public void onMove(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, LittleTileVec offset) {
 		super.onMove(world, player, stack, context, offset);
-		doubledRelativeAxis.add(new LittleTileVecContext(context, offset));
+		doubledRelativeAxis.add(new LittleTileVecContext(context, offset.copy()));
 	}
 	
 	@Override
