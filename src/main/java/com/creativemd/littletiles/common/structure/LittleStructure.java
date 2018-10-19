@@ -49,6 +49,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -666,6 +667,58 @@ public abstract class LittleStructure {
 	}
 	
 	//====================Helpers====================
+	
+	public AxisAlignedBB getSurroundingBox() {
+		long minX = Long.MAX_VALUE;
+		long minY = Long.MAX_VALUE;
+		long minZ = Long.MAX_VALUE;
+		long maxX = Long.MIN_VALUE;
+		long maxY = Long.MIN_VALUE;
+		long maxZ = Long.MIN_VALUE;
+		
+		LittleGridContext context = LittleGridContext.getMin();
+		boolean first = true;
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+			if (context.size < entry.getKey().getContext().size) {
+				if (!first) {
+					if (context.size > entry.getKey().getContext().size) {
+						int modifier = context.size / entry.getKey().getContext().size;
+						minX /= modifier;
+						minY /= modifier;
+						minZ /= modifier;
+						maxX /= modifier;
+						maxY /= modifier;
+						maxZ /= modifier;
+					} else {
+						int modifier = entry.getKey().getContext().size / context.size;
+						minX *= modifier;
+						minY *= modifier;
+						minZ *= modifier;
+						maxX *= modifier;
+						maxY *= modifier;
+						maxZ *= modifier;
+					}
+				}
+				context = entry.getKey().getContext();
+			}
+			
+			first = false;
+			
+			for (LittleTile tile : entry.getValue()) {
+				LittleTileBox box = tile.getCompleteBox();
+				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
+				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
+				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
+				
+				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
+				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
+				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
+			}
+		}
+		
+		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+	}
 	
 	public Vec3d getHighestCenterVec() {
 		if (tiles == null)
