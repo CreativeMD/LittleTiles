@@ -43,8 +43,6 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	
 	protected abstract void failedConnect(World world);
 	
-	protected boolean loadingStructure;
-	
 	@Override
 	public BlockPos getStructurePosition() {
 		return pos;
@@ -61,11 +59,6 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	
 	@Override
 	public boolean isConnected(World world) {
-		if (loadingStructure) {
-			new RuntimeException("Attempted to load structure twice!").printStackTrace();
-			return false;
-		}
-		
 		if (structure != null)
 			return true;
 		
@@ -73,8 +66,6 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 		
 		if (world == null)
 			return false;
-		
-		loadingStructure = true;
 		
 		BlockPos absoluteCoord = getStructurePosition();
 		Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
@@ -91,12 +82,8 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 				failedConnect(world);
 			}
 			
-			loadingStructure = false;
-			
 			return structure != null;
 		}
-		
-		loadingStructure = false;
 		
 		return false;
 		

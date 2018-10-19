@@ -92,20 +92,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (world.isRemote && !isWaitingForApprove) {
-			if (!hasLoaded() || !loadChildren()) {
-				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
-				return true;
-			}
-			
-			if (isChildMoving()) {
-				player.sendStatusMessage(new TextComponentTranslation("A child is still in motion!"), true);
-				return true;
-			}
-			
-			UUID uuid = UUID.randomUUID();
-			PacketHandler.sendPacketToServer(new LittleSlidingDoorPacket(pos, player, uuid));
-			interactWithDoor(world, pos, player, uuid);
+		if (world.isRemote) {
+			activate(world, player, null, pos);
 			action.preventInteraction = true;
 		}
 		return true;

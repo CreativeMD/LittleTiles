@@ -578,7 +578,7 @@ public abstract class LittleStructure {
 	public LittlePreviewsStructure getPreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, LittleGridContext.getMin());
+		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
