@@ -37,9 +37,17 @@ public class OpenCommand extends CommandBase {
 		return "commands.open.usage";
 	}
 	
+	protected boolean checkStructureName(LittleStructure structure, String[] args) {
+		if (args.length > 3)
+			for (int i = 3; i < args.length; i++)
+				if (structure.name != null && structure.name.equalsIgnoreCase(args[i]))
+					return true;
+		return false;
+	}
+	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		if (args.length != 3)
+		if (args.length < 3)
 			throw new WrongUsageException("commands.open.usage", new Object[0]);
 		
 		BlockPos blockpos = parseBlockPos(sender, args, 0, false);
@@ -54,7 +62,7 @@ public class OpenCommand extends CommandBase {
 					continue;
 				
 				LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
-				if (structure instanceof LittleDoorBase && !doors.contains(structure))
+				if (structure instanceof LittleDoorBase && checkStructureName(structure, args) && !doors.contains(structure))
 					if (structure.hasLoaded())
 						doors.add((LittleDoorBase) structure);
 					else
