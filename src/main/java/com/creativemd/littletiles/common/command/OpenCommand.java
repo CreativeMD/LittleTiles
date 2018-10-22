@@ -38,11 +38,13 @@ public class OpenCommand extends CommandBase {
 	}
 	
 	protected boolean checkStructureName(LittleStructure structure, String[] args) {
-		if (args.length > 3)
+		if (args.length > 3) {
 			for (int i = 3; i < args.length; i++)
 				if (structure.name != null && structure.name.equalsIgnoreCase(args[i]))
 					return true;
-		return false;
+			return false;
+		}
+		return true;
 	}
 	
 	@Override
