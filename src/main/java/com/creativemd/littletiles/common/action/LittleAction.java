@@ -285,14 +285,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing) {
-		if (player == null)
+		if (player == null || player.world.isRemote)
 			return true;
 		
 		if (player.isSpectator() || PlayerUtils.isAdventure(player) || !player.isAllowEdit())
 			return false;
-		
-		if (player.world.isRemote)
-			return true;
 		
 		if (WorldEditEvent != null) {
 			PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, EnumHand.MAIN_HAND, pos, facing, new Vec3d(pos)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing, new Vec3d(pos));
