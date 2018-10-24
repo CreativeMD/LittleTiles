@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.container;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.gui.container.SubContainer;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,12 +29,17 @@ public class SubContainerImport extends SubContainer {
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		ItemStack stack = slot.getStackInSlot(0);
-		if ((stack.getItem() instanceof ItemRecipe) || (getPlayer().capabilities.isCreativeMode && stack.isEmpty())) {
+		if (stack.getItem() instanceof ItemRecipe || stack.getItem() instanceof ItemRecipeAdvanced || (getPlayer().capabilities.isCreativeMode && stack.isEmpty())) {
 			ItemStack newStack = StructureStringUtils.importStructure(nbt);
-			if (getPlayer().isCreative() && stack.isEmpty())
-				newStack.setCount(1);
-			else
-				newStack.setCount(stack.getCount());
+			if (stack.getItem() instanceof ItemRecipe) {
+				stack.setTagCompound(newStack.getTagCompound());
+				newStack = stack;
+			} else {
+				if (getPlayer().isCreative() && stack.isEmpty())
+					newStack.setCount(1);
+				else
+					newStack.setCount(stack.getCount());
+			}
 			slot.setInventorySlotContents(0, newStack);
 		}
 	}
