@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -161,6 +162,18 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
 		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));
 		return false;
+	}
+	
+	@Override
+	public LittleTileSize getCachedSize(ItemStack stack) {
+		if (stack.getTagCompound().hasKey("size"))
+			return LittleTilePreview.getSize(stack);
+		return null;
+	}
+	
+	@Override
+	public LittleTileVec getCachedOffset(ItemStack stack) {
+		return LittleTilePreview.getOffset(stack);
 	}
 	
 	public static SelectionMode getSelectionMode(ItemStack stack) {
