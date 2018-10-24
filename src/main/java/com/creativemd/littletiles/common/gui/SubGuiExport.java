@@ -36,17 +36,34 @@ public class SubGuiExport extends SubGui {
 			}
 		});
 		
-		controls.add(new GuiButton("Export model", 43, 52) {
+		controls.add(new GuiButton("Export model", 43, 52, 100) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-				if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
-					textfield.text = StructureStringUtils.exportModel(stack);
-				} else
-					textfield.text = "";
+				if (this.caption.equals("Export model")) {
+					ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
+					if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+						textfield.text = StructureStringUtils.exportModel(stack);
+						this.caption = "Export structure";
+						this.customTooltip.clear();
+						this.customTooltip.add("Export structure instead,");
+						this.customTooltip.add("can be imported again!");
+					} else
+						textfield.text = "";
+					
+				} else {
+					ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
+					if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+						textfield.text = StructureStringUtils.exportStructure(stack);
+						this.caption = "Export model";
+						this.customTooltip.clear();
+						this.customTooltip.add("Export minecraft model instead,");
+						this.customTooltip.add("cannot be imported again!");
+					} else
+						textfield.text = "";
+				}
 			}
-		});
+		}.setCustomTooltip("Export minecraft model instead.", "CANNOT be imported again!"));
 	}
 	
 	@CustomEventSubscribe
