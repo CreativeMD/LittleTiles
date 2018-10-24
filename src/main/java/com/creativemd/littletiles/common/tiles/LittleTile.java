@@ -185,7 +185,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos) {
-		if (LittleTilesConfig.rendering.showStructureBoundingBox && isConnectedToStructure() && connection.getStructureWithoutLoading().hasLoaded())
+		if (LittleTilesConfig.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().hasLoaded())
 			return connection.getStructureWithoutLoading().getSurroundingBox();
 		return box.getSelectionBox(getContext(), pos);
 	}
