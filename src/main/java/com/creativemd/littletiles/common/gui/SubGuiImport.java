@@ -40,7 +40,7 @@ public class SubGuiImport extends SubGui {
 			}
 		});
 		
-		controls.add(new GuiButton("Import", 100, 52) {
+		controls.add(new GuiButton("Import", 128, 52) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
