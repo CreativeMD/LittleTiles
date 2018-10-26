@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.container;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
@@ -21,6 +22,13 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 		this.second = pos;
 	}
 	
+	public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {
+		previews.context = context;
+		if (previews.hasChildren())
+			for (LittlePreviewsStructure child : previews.getChildren())
+				setLittlePreviewsContextSecretly(child, context);
+	}
+	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		if (nbt.getBoolean("save_selection")) {
@@ -32,7 +40,7 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 				previews.convertTo(grid);
 				LittleGridContext aimedGrid = LittleGridContext.get(nbt.getInteger("aimedGrid"));
 				if (aimedGrid.size > grid.size)
-					previews.context = aimedGrid;
+					setLittlePreviewsContextSecretly(previews, aimedGrid);
 				else
 					LittlePreviews.advancedScale(previews, aimedGrid.size, grid.size);
 				previews.combinePreviewBlocks();
@@ -43,14 +51,12 @@ public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 			
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
-		}
-		if (nbt.getBoolean("clear_content")) {
+		} else if (nbt.getBoolean("clear_content")) {
 			LittleTilePreview.removePreviewTiles(stack);
 			stack.getTagCompound().removeTag("structure");
 			sendNBTToGui(stack.getTagCompound());
 			GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
-		}
-		if (nbt.getBoolean("set_structure")) {
+		} else if (nbt.getBoolean("set_structure")) {
 			stack.setTagCompound(nbt.getCompoundTag("stack"));
 		}
 	}
