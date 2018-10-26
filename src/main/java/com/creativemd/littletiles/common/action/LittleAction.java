@@ -288,7 +288,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (player == null || player.world.isRemote)
 			return true;
 		
-		if (player.isSpectator() || PlayerUtils.isAdventure(player) || !player.isAllowEdit())
+		if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.isAllowEdit())))
 			return false;
 		
 		if (WorldEditEvent != null) {
