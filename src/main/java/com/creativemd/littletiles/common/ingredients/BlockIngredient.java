@@ -125,7 +125,7 @@ public class BlockIngredient {
 			if (indexOf != -1) {
 				BlockIngredient ownIngredient = content.get(indexOf);
 				
-				int amount = (int) Math.ceil(ownIngredient.value / ingredient.value);
+				int amount = Math.min(stack.getCount(), (int) Math.ceil(ownIngredient.value / ingredient.value));
 				double volume = ingredient.value * amount;
 				stack.shrink(amount);
 				
