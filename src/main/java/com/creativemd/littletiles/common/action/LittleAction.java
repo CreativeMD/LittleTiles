@@ -740,6 +740,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean store(List<ItemStack> bags, BlockIngredients toCheck, ColorUnit color, boolean simulate) throws NotEnoughIngredientsException {
+		if ((toCheck == null || toCheck.isEmpty()) && (color == null || color.isEmpty()))
+			return true;
+		
 		for (ItemStack stack : bags) {
 			if (toCheck != null)
 				toCheck = ItemTileContainer.storeBlocks(stack, toCheck, true, simulate);
@@ -761,7 +764,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (color != null && !color.isEmpty())
 			throw new NotEnoughIngredientsException.NotEnoughColorSpaceException();
 		
-		if (toCheck != null)
+		if (toCheck != null && !toCheck.isEmpty())
 			throw new NotEnoughIngredientsException.NotEnoughVolumeSpaceException();
 		
 		return true;
