@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
@@ -14,6 +16,7 @@ import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 
@@ -23,9 +26,14 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiWorkbench extends SubGui {
 	
+	public SubGuiWorkbench() {
+		super(200, 200);
+	}
+	
 	@Override
 	public void createControls() {
-		controls.add(new GuiButton("Craft", 55, 3, 40) {
+		controls.add(new GuiLabel("->", 25, 6));
+		controls.add(new GuiButton("Craft", 70, 3, 40) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -38,7 +46,7 @@ public class SubGuiWorkbench extends SubGui {
 				listBox.clear();
 				
 				if (!stack1.isEmpty()) {
-					if (stack1.getItem() instanceof ItemRecipe) {
+					if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
 						LittlePreviews previews = LittleTilePreview.getPreview(stack1);
 						
 						EntityPlayer player = getPlayer();
@@ -60,8 +68,10 @@ public class SubGuiWorkbench extends SubGui {
 								for (BlockIngredient ingredient : ingredients.getIngredients()) {
 									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value * previews.context.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
 								}
-							} else
+							} else {
 								label.caption = e.getLocalizedMessage();
+								label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
+							}
 						}
 						
 					} else {
@@ -72,8 +82,8 @@ public class SubGuiWorkbench extends SubGui {
 			}
 			
 		});
-		controls.add(new GuiItemListBox("missing", 5, 25, 160, 50, new ArrayList<ItemStack>(), new ArrayList<String>()));
-		controls.add(new GuiLabel("label", "", 100, 5));
+		controls.add(new GuiItemListBox("missing", 5, 25, 180, 70, new ArrayList<ItemStack>(), new ArrayList<String>()));
+		controls.add(new GuiLabel("label", "", 5, 102, ColorUtils.RGBAToInt(255, 50, 50, 255)));
 	}
 	
 }
