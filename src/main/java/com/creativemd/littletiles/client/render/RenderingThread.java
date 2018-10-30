@@ -163,10 +163,10 @@ public class RenderingThread extends Thread {
 							RenderCubeObject cube = cubes.get(j);
 							if (cube.doesNeedQuadUpdate) {
 								if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
-									fakeAccess.set(mc.world, pos, cube.getBlockState());
+									fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
 									world = fakeAccess;
 								} else
-									world = mc.world;
+									world = data.te.getWorld();
 								
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
 								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
