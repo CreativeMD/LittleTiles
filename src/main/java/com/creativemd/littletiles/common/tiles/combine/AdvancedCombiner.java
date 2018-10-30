@@ -79,7 +79,6 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 			}
 		}
 		this.tiles = null;
-		this.boxes = null;
 		this.currentTile = null;
 	}
 	
