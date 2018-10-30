@@ -163,10 +163,10 @@ public class RenderingThread extends Thread {
 							RenderCubeObject cube = cubes.get(j);
 							if (cube.doesNeedQuadUpdate) {
 								if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
-									fakeAccess.set(mc.world, pos, cube.getBlockState());
+									fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
 									world = fakeAccess;
 								} else
-									world = mc.world;
+									world = data.te.getWorld();
 								
 								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
 								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
@@ -315,11 +315,9 @@ public class RenderingThread extends Thread {
 				updateCoords.clear();
 				chunks.clear();
 			} else if (world != null && !chunks.isEmpty()) {
-				/*
-				 * synchronized (chunks){ for (Iterator iterator = chunks.keySet().iterator();
+				/* synchronized (chunks){ for (Iterator iterator = chunks.keySet().iterator();
 				 * iterator.hasNext();) { RenderUploader.finishChunkUpdate((RenderChunk)
-				 * iterator.next()); } chunks.clear(); }
-				 */
+				 * iterator.next()); } chunks.clear(); } */
 			}
 			try {
 				sleep(1);
@@ -329,15 +327,13 @@ public class RenderingThread extends Thread {
 		}
 	}
 	
-	/*
-	 * private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]>
+	/* private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]>
 	 * formatMaps;
 	 * 
 	 * private static ConcurrentMap<Pair<VertexFormat, VertexFormat>, int[]>
 	 * getFormatMaps() { if(formatMaps == null) formatMaps =
 	 * ReflectionHelper.getPrivateValue(LightUtil.class, null, "formatMaps"); return
-	 * formatMaps; }
-	 */
+	 * formatMaps; } */
 	
 	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 	
