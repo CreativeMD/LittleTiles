@@ -10,6 +10,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughColorException;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
@@ -68,6 +69,16 @@ public class SubGuiWorkbench extends SubGui {
 								for (BlockIngredient ingredient : ingredients.getIngredients()) {
 									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value * previews.context.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
 								}
+							} else if (e instanceof NotEnoughColorException) {
+								ColorUnit unit = ((NotEnoughColorException) e).missing;
+								if (unit.BLACK > 0)
+									listBox.add(unit.getBlackDescription(), ItemStack.EMPTY);
+								if (unit.CYAN > 0)
+									listBox.add(unit.getCyanDescription(), ItemStack.EMPTY);
+								if (unit.MAGENTA > 0)
+									listBox.add(unit.getMagentaDescription(), ItemStack.EMPTY);
+								if (unit.YELLOW > 0)
+									listBox.add(unit.getYellowDescription(), ItemStack.EMPTY);
 							} else {
 								label.caption = e.getLocalizedMessage();
 								label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
