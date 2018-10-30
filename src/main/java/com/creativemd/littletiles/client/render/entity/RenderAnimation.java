@@ -127,75 +127,17 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		float f1 = (float) mc.getRenderViewEntity().posY + mc.getRenderViewEntity().getEyeHeight();
 		float f2 = (float) mc.getRenderViewEntity().posZ;
 		
-		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-			BlockRenderLayer layer = BlockRenderLayer.values()[i];
-			
-			if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-				ShadersRender.preRenderChunkLayer(layer);
-			
-			for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-				
-				if (layer == BlockRenderLayer.TRANSLUCENT)
-					chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
-				
-				VertexBuffer buffer = chunk.getLayerBuffer(layer);
-				
-				if (buffer == null)
-					continue;
-				
-				//Render buffer
-				GlStateManager.pushMatrix();
-				
-				double posX = (chunk.pos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
-				double posY = (chunk.pos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
-				double posZ = (chunk.pos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
-				
-				GlStateManager.translate(x, y, z);
-				
-				//GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2, entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2, entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
-				GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
-				
-				GL11.glRotated(rotation.xCoord, 1, 0, 0);
-				GL11.glRotated(rotation.yCoord, 0, 1, 0);
-				GL11.glRotated(rotation.zCoord, 0, 0, 1);
-				
-				GlStateManager.translate(posX, posY, posZ);
-				
-				//GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2, -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2, -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
-				GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
-				
-				//Render
-				if (layer == BlockRenderLayer.TRANSLUCENT) {
-					GlStateManager.enableBlend();
-					GlStateManager.disableAlpha();
-				} else {
-					GlStateManager.disableBlend();
-					GlStateManager.enableAlpha();
-				}
-				
-				buffer.bindBuffer();
-				
-				if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-					ShadersRender.setupArrayPointersVbo();
-				else {
-					GlStateManager.glVertexPointer(3, 5126, 28, 0);
-					GlStateManager.glColorPointer(4, 5121, 28, 12);
-					GlStateManager.glTexCoordPointer(2, 5126, 28, 16);
-					OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-					GlStateManager.glTexCoordPointer(2, 5122, 28, 24);
-					OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-				}
-				
-				buffer.drawArrays(GL11.GL_QUADS);
-				buffer.unbindBuffer();
-				
-				GlStateManager.popMatrix();
-				
-			}
-			
-			if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-				ShadersRender.postRenderChunkLayer(layer);
-		}
+		GlStateManager.disableAlpha();
+		renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, rotation);
+		GlStateManager.enableAlpha();
+		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+		renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, rotation);
+		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, rotation);
+		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+		
+		renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, rotation);
 		
 		for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
 			final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
@@ -312,8 +254,10 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			 * double d1 = (Minecraft.getMinecraft().player.posY - Minecraft.getMinecraft().player.prevPosY) * (double)partialTicks;
 			 * double d2 = (Minecraft.getMinecraft().player.posZ - Minecraft.getMinecraft().player.prevPosZ) * (double)partialTicks;
 			 * 
-			 * RenderGlobal.drawBoundingBox(entityBB.minX - entity.posX + x + d0, entityBB.minY - entity.posY + y + d1, entityBB.minZ - entity.posZ + z + d2,
-			 * entityBB.maxX - entity.posX + x + d0, entityBB.maxY - entity.posY + y + d1, entityBB.maxZ- entity.posZ + z + d2, 1.0F, 1.0F, 1.0F, 1.0F);
+			 * RenderGlobal.drawBoundingBox(entityBB.minX - entity.posX + x + d0,
+			 * entityBB.minY - entity.posY + y + d1, entityBB.minZ - entity.posZ + z + d2,
+			 * entityBB.maxX - entity.posX + x + d0, entityBB.maxY - entity.posY + y + d1,
+			 * entityBB.maxZ- entity.posZ + z + d2, 1.0F, 1.0F, 1.0F, 1.0F);
 			 * GlStateManager.popMatrix(); */
 			
 			GlStateManager.popMatrix();
@@ -328,6 +272,81 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			GlStateManager.disableBlend();
 			GlStateManager.depthMask(true);
 		}
+	}
+	
+	public void renderBlockLayer(BlockRenderLayer layer, EntityDoorAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d rotation) {
+		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
+			ShadersRender.preRenderChunkLayer(layer);
+		
+		for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+			
+			if (layer == BlockRenderLayer.TRANSLUCENT)
+				chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
+			
+			VertexBuffer buffer = chunk.getLayerBuffer(layer);
+			
+			if (buffer == null)
+				continue;
+			
+			// Render buffer
+			GlStateManager.pushMatrix();
+			
+			mc.entityRenderer.enableLightmap();
+			
+			double posX = (chunk.pos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
+			double posY = (chunk.pos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
+			double posZ = (chunk.pos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
+			
+			GlStateManager.translate(x, y, z);
+			
+			// GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2,
+			// entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2,
+			// entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
+			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+			
+			GL11.glRotated(rotation.xCoord, 1, 0, 0);
+			GL11.glRotated(rotation.yCoord, 0, 1, 0);
+			GL11.glRotated(rotation.zCoord, 0, 0, 1);
+			
+			GlStateManager.translate(posX, posY, posZ);
+			
+			if (layer == BlockRenderLayer.TRANSLUCENT) {
+				GlStateManager.enableBlend();
+				GlStateManager.disableAlpha();
+			} else {
+				GlStateManager.disableBlend();
+				GlStateManager.enableAlpha();
+			}
+			
+			// GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2,
+			// -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2,
+			// -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
+			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+			
+			buffer.bindBuffer();
+			
+			if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
+				ShadersRender.setupArrayPointersVbo();
+			else {
+				GlStateManager.glVertexPointer(3, 5126, 28, 0);
+				GlStateManager.glColorPointer(4, 5121, 28, 12);
+				GlStateManager.glTexCoordPointer(2, 5126, 28, 16);
+				OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
+				GlStateManager.glTexCoordPointer(2, 5122, 28, 24);
+				OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+			}
+			
+			buffer.drawArrays(GL11.GL_QUADS);
+			buffer.unbindBuffer();
+			
+			mc.entityRenderer.disableLightmap();
+			
+			GlStateManager.popMatrix();
+			
+		}
+		
+		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
+			ShadersRender.postRenderChunkLayer(layer);
 	}
 	
 	public void renderTempShit(EntityDoorAnimation entity, double x, double y, double z) {
