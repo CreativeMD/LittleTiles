@@ -46,16 +46,32 @@ public class ColorUnit {
 		return I18n.translateToLocal("color.unit.multiple");
 	}
 	
+	public String getBlackDescription() {
+		return BLACK + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(BLACK);
+	}
+	
+	public String getCyanDescription() {
+		return CYAN + " " + ChatFormatting.AQUA + I18n.translateToLocal("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(CYAN);
+	}
+	
+	public String getMagentaDescription() {
+		return MAGENTA + " " + ChatFormatting.LIGHT_PURPLE + I18n.translateToLocal("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(MAGENTA);
+	}
+	
+	public String getYellowDescription() {
+		return YELLOW + " " + ChatFormatting.YELLOW + I18n.translateToLocal("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(YELLOW);
+	}
+	
 	public String getDescription() {
 		String description = "";
 		if (BLACK > 0)
-			description += BLACK + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(BLACK);
+			description += getBlackDescription();
 		if (CYAN > 0)
-			description += CYAN + " " + ChatFormatting.DARK_RED + I18n.translateToLocal("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(CYAN);
+			description += getCyanDescription();
 		if (MAGENTA > 0)
-			description += MAGENTA + " " + ChatFormatting.DARK_GREEN + I18n.translateToLocal("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(MAGENTA);
+			description += getMagentaDescription();
 		if (YELLOW > 0)
-			description += YELLOW + " " + ChatFormatting.DARK_BLUE + I18n.translateToLocal("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(YELLOW);
+			description += getYellowDescription();
 		return description;
 	}
 	
@@ -114,13 +130,11 @@ public class ColorUnit {
 	
 	public static float dyeToBlockPercentage = 4096;
 	
-	/*
-	 * public static ColorUnit getColors(int color) { double percent = (255 * 0.1 *
+	/* public static ColorUnit getColors(int color) { double percent = (255 * 0.1 *
 	 * dyeToBlockPercentage)/ 3D; int maxPerColor = (int) (percent*255); int r =
 	 * (int) ((color >> 16 & 255) * percent); int g = (int) ((color >> 8 & 255) *
 	 * percent); int b = (int) ((color & 255) * percent); return new
-	 * ColorUnit(maxPerColor - r + maxPerColor - g + maxPerColor - b, r, g, b); }
-	 */
+	 * ColorUnit(maxPerColor - r + maxPerColor - g + maxPerColor - b, r, g, b); } */
 	
 	public static ColorUnit getColors(LittleTilePreview preview, double volume) {
 		if (preview.hasColor()) {
@@ -136,8 +150,7 @@ public class ColorUnit {
 	}
 	
 	public static ColorUnit getColors(int color) {
-		/*
-		 * if(ColorUtils.isWhite(color)) return new ColorUnit(); double percent = (255 *
+		/* if(ColorUtils.isWhite(color)) return new ColorUnit(); double percent = (255 *
 		 * 0.1 * dyeToBlockPercentage)/ 3D; int maxPerColor = (int)
 		 * Math.ceil(percent*255); int r = (int) ((color >> 16 & 255) * percent); int g
 		 * = (int) ((color >> 8 & 255) * percent); int b = (int) ((color & 255) *
@@ -145,8 +158,7 @@ public class ColorUnit {
 		 * b -= lowest; int remaining = maxPerColor - lowest;
 		 * 
 		 * return new ColorUnit(maxPerColor - lowest + remaining - r + remaining - g +
-		 * remaining - b, r, g, b);
-		 */
+		 * remaining - b, r, g, b); */
 		
 		float cmyk_scale = dyeToBlockPercentage;
 		
