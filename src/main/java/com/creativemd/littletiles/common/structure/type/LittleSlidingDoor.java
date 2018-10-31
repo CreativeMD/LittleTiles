@@ -105,7 +105,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
 		placedAxis = new LittleTilePos(pos, moveContext);
 		
-		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
+		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)));
 		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
 		structure.placedAxis = new LittleTilePos(pos, new LittleTileVecContext(moveContext, LittleTileVec.ZERO));
 		structure.duration = duration;
