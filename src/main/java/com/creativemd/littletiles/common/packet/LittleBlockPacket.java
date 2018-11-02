@@ -28,6 +28,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -60,6 +61,16 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
 				ItemLittleGrabber.getMode(stack).littleBlockAction(world, te, tile, stack, pos, nbt);
 			}
+		},
+		WRENCH(true) {
+			
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				player.sendStatusMessage(new TextComponentString("grid:" + te.getContext()), true);
+				te.combineTiles();
+				te.convertBlockToVanilla();
+			}
+			
 		};
 		
 		public final boolean rightClick;
