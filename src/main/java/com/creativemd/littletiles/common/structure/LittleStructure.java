@@ -29,13 +29,13 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStr
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -670,275 +670,15 @@ public abstract class LittleStructure {
 	// ====================Helpers====================
 	
 	public AxisAlignedBB getSurroundingBox() {
-		long minX = Long.MAX_VALUE;
-		long minY = Long.MAX_VALUE;
-		long minZ = Long.MAX_VALUE;
-		long maxX = Long.MIN_VALUE;
-		long maxY = Long.MIN_VALUE;
-		long maxZ = Long.MIN_VALUE;
-		
-		LittleGridContext context = LittleGridContext.getMin();
-		boolean first = true;
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if (context.size < entry.getKey().getContext().size) {
-				if (!first) {
-					if (context.size > entry.getKey().getContext().size) {
-						int modifier = context.size / entry.getKey().getContext().size;
-						minX /= modifier;
-						minY /= modifier;
-						minZ /= modifier;
-						maxX /= modifier;
-						maxY /= modifier;
-						maxZ /= modifier;
-					} else {
-						int modifier = entry.getKey().getContext().size / context.size;
-						minX *= modifier;
-						minY *= modifier;
-						minZ *= modifier;
-						maxX *= modifier;
-						maxY *= modifier;
-						maxZ *= modifier;
-					}
-				}
-				context = entry.getKey().getContext();
-			}
-			
-			first = false;
-			
-			for (LittleTile tile : entry.getValue()) {
-				LittleTileBox box = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
-				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
-			}
-		}
-		
-		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+		return new SurroundingBox(true).add(tiles.entrySet()).getSurroundingBox();
 	}
 	
 	public Vec3d getHighestCenterVec() {
-		if (tiles == null)
-			return null;
-		
-		int minYPos = Integer.MAX_VALUE;
-		
-		long minX = Long.MAX_VALUE;
-		long minY = Long.MAX_VALUE;
-		long minZ = Long.MAX_VALUE;
-		
-		int maxYPos = Integer.MIN_VALUE;
-		
-		long maxX = Long.MIN_VALUE;
-		long maxY = Long.MIN_VALUE;
-		long maxZ = Long.MIN_VALUE;
-		
-		LittleGridContext context = LittleGridContext.getMin();
-		boolean first = true;
-		
-		HashMap<BlockPos, TileEntityLittleTiles> map = new HashMap<>();
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if (context.size < entry.getKey().getContext().size) {
-				if (!first) {
-					if (context.size > entry.getKey().getContext().size) {
-						int modifier = context.size / entry.getKey().getContext().size;
-						minX /= modifier;
-						minY /= modifier;
-						minZ /= modifier;
-						maxX /= modifier;
-						maxY /= modifier;
-						maxZ /= modifier;
-					} else {
-						int modifier = entry.getKey().getContext().size / context.size;
-						minX *= modifier;
-						minY *= modifier;
-						minZ *= modifier;
-						maxX *= modifier;
-						maxY *= modifier;
-						maxZ *= modifier;
-					}
-				}
-				context = entry.getKey().getContext();
-			}
-			
-			first = false;
-			
-			for (LittleTile tile : entry.getValue()) {
-				LittleTileBox box = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
-				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
-				
-				minYPos = Math.min(minYPos, entry.getKey().getPos().getY());
-				maxYPos = Math.max(maxYPos, entry.getKey().getPos().getY());
-			}
-			
-			map.put(entry.getKey().getPos(), entry.getKey());
-		}
-		
-		// double test = Math.floor(((minX+maxX)/LittleTile.gridSize/2D));
-		int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
-		int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
-		int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
-		
-		int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.size;
-		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
-		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
-		
-		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
-		
-		for (int y = minYPos; y <= maxYPos; y++) {
-			TileEntityLittleTiles te = map.get(new BlockPos(centerX, y, centerZ));
-			ArrayList<LittleTile> tilesInCenter = tiles.getValues(te);
-			if (tilesInCenter != null) {
-				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
-				if (context.size >= centerTileX) {
-					box.minX = context.size - 1;
-					box.maxX = context.size;
-				}
-				
-				if (context.size >= centerTileZ) {
-					box.minZ = context.size - 1;
-					box.maxZ = context.size;
-				}
-				
-				// int highest = LittleTile.minPos;
-				for (int i = 0; i < tilesInCenter.size(); i++) {
-					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
-					for (int j = 0; j < collision.size(); j++) {
-						LittleTileBox littleBox = collision.get(j);
-						if (LittleTileBox.intersectsWith(box, littleBox)) {
-							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
-						}
-					}
-				}
-				te.convertToSmallest();
-			}
-		}
-		
-		return new Vec3d(context.toVanillaGrid((minX + maxX) / 2D), pos.getPosY(), context.toVanillaGrid((minZ + maxZ) / 2D));
+		return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterVec();
 	}
 	
 	public LittleTilePos getHighestCenterPoint() {
-		if (tiles == null)
-			return null;
-		
-		int minYPos = Integer.MAX_VALUE;
-		
-		long minX = Long.MAX_VALUE;
-		long minY = Long.MAX_VALUE;
-		long minZ = Long.MAX_VALUE;
-		
-		int maxYPos = Integer.MIN_VALUE;
-		
-		long maxX = Long.MIN_VALUE;
-		long maxY = Long.MIN_VALUE;
-		long maxZ = Long.MIN_VALUE;
-		
-		LittleGridContext context = LittleGridContext.getMin();
-		boolean first = true;
-		
-		HashMap<BlockPos, TileEntityLittleTiles> map = new HashMap<>();
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-			if (context.size < entry.getKey().getContext().size) {
-				if (!first) {
-					if (context.size > entry.getKey().getContext().size) {
-						int modifier = context.size / entry.getKey().getContext().size;
-						minX /= modifier;
-						minY /= modifier;
-						minZ /= modifier;
-						maxX /= modifier;
-						maxY /= modifier;
-						maxZ /= modifier;
-					} else {
-						int modifier = entry.getKey().getContext().size / context.size;
-						minX *= modifier;
-						minY *= modifier;
-						minZ *= modifier;
-						maxX *= modifier;
-						maxY *= modifier;
-						maxZ *= modifier;
-					}
-				}
-				context = entry.getKey().getContext();
-			}
-			
-			first = false;
-			
-			for (LittleTile tile : entry.getValue()) {
-				LittleTileBox box = tile.getCompleteBox();
-				minX = Math.min(minX, entry.getKey().getPos().getX() * context.size + box.minX);
-				minY = Math.min(minY, entry.getKey().getPos().getY() * context.size + box.minY);
-				minZ = Math.min(minZ, entry.getKey().getPos().getZ() * context.size + box.minZ);
-				
-				maxX = Math.max(maxX, entry.getKey().getPos().getX() * context.size + box.maxX);
-				maxY = Math.max(maxY, entry.getKey().getPos().getY() * context.size + box.maxY);
-				maxZ = Math.max(maxZ, entry.getKey().getPos().getZ() * context.size + box.maxZ);
-				
-				minYPos = Math.min(minYPos, entry.getKey().getPos().getY());
-				maxYPos = Math.max(maxYPos, entry.getKey().getPos().getY());
-			}
-			
-			map.put(entry.getKey().getPos(), entry.getKey());
-		}
-		
-		// double test = Math.floor(((minX+maxX)/LittleTile.gridSize/2D));
-		int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
-		int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
-		int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
-		
-		int centerTileX = (int) (Math.floor(minX + maxX) / 2D) - centerX * context.size;
-		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
-		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
-		
-		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
-		
-		for (int y = minYPos; y <= maxYPos; y++) {
-			TileEntityLittleTiles te = map.get(new BlockPos(centerX, y, centerZ));
-			ArrayList<LittleTile> tilesInCenter = tiles.getValues(te);
-			if (tilesInCenter != null) {
-				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
-				if (context.size <= centerTileX) {
-					box.minX = context.size - 1;
-					box.maxX = context.size;
-				}
-				
-				if (context.size <= centerTileZ) {
-					box.minZ = context.size - 1;
-					box.maxZ = context.size;
-				}
-				
-				// int highest = LittleTile.minPos;
-				for (int i = 0; i < tilesInCenter.size(); i++) {
-					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
-					for (int j = 0; j < collision.size(); j++) {
-						LittleTileBox littleBox = collision.get(j);
-						if (LittleTileBox.intersectsWith(box, littleBox)) {
-							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
-						}
-					}
-				}
-				te.convertToSmallest();
-			}
-		}
-		
-		pos.removeInternalBlockOffset();
-		pos.convertToSmallest();
-		return pos;
+		return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterPoint();
 	}
 	
 	// ====================Extra====================
