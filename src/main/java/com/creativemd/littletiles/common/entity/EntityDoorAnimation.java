@@ -7,7 +7,7 @@ import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
@@ -63,7 +63,7 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 		super(worldIn);
 	}
 	
-	public EntityDoorAnimation(World world, WorldFake worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, int duration) {
+	public EntityDoorAnimation(World world, CreativeWorld worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleTilePos axis, DoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, int duration) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;

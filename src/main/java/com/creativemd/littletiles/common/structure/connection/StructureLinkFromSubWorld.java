@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -37,7 +37,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	
 	@Override
 	protected World getWorld(World world) {
-		return ((WorldFake) parent.getWorld()).parentWorld;
+		return ((SubWorld) parent.getWorld()).parentWorld;
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	
 	@Override
 	public void destroyStructure() {
-		WorldFake fakeWorld = (WorldFake) parent.getWorld();
+		SubWorld fakeWorld = (SubWorld) parent.getWorld();
 		fakeWorld.parent.isDead = true;
 	}
 	

@@ -21,8 +21,9 @@ import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.VecOrigin;
-import com.creativemd.creativecore.common.world.IFakeWorld;
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.CreativeWorld;
+import com.creativemd.creativecore.common.world.FakeWorld;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -94,7 +95,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX() + additionalAxis.getPosX(inBlockCenter.context) / 2, inBlockCenter.getPosY() + additionalAxis.getPosY(inBlockCenter.context) / 2, inBlockCenter.getPosZ() + additionalAxis.getPosZ(inBlockCenter.context) / 2);
 		
 		this.origin = new VecOrigin(rotationCenter);
-		((IFakeWorld) this.fakeWorld).setOrigin(origin);
+		this.fakeWorld.setOrigin(origin);
 	}
 	
 	public static BlockPos getRenderChunkPos(BlockPos blockPos) {
@@ -132,7 +133,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	// ================World Data================
 	
-	public WorldFake fakeWorld;
+	public CreativeWorld fakeWorld;
 	public VecOrigin origin;
 	public LittleAbsolutePreviewsStructure previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
@@ -628,7 +629,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, WorldFake fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
+	public EntityAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -880,7 +881,7 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
-		this.fakeWorld = WorldFake.createFakeWorld(world);
+		this.fakeWorld = compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote);
 		setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
@@ -919,6 +920,8 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	protected void writeEntityToNBT(NBTTagCompound compound) {
 		center.writeToNBT("axis", compound);
 		additionalAxis.writeToNBT("additional", compound);
+		
+		compound.setBoolean("subworld", fakeWorld.hasParent());
 		
 		NBTTagList list = new NBTTagList();
 		

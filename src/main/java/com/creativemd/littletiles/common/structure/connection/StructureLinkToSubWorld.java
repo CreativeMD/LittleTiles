@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -89,7 +89,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
-		for (Entity entity : ((WorldFake) structure.getWorld()).parentWorld.getLoadedEntityList())
+		for (Entity entity : ((SubWorld) structure.getWorld()).parentWorld.getLoadedEntityList())
 			if (entity instanceof EntityAnimation && entity.getCachedUniqueIdString().equals(entityUUID)) {
 				entity.isDead = true;
 				break;

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
-import com.creativemd.creativecore.common.world.IFakeWorld;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -123,8 +123,8 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 		
 		try {
 			Vector3d pos = new Vector3d(getPos().getX() + offset.x, getPos().getY() + offset.y, getPos().getZ() + offset.z);
-			if (world instanceof IFakeWorld)
-				((IFakeWorld) world).getOrigin().transformPointToWorld(pos);
+			if (world instanceof IOrientatedWorld)
+				((IOrientatedWorld) world).getOrigin().transformPointToWorld(pos);
 			
 			Particle particleEntity;
 			

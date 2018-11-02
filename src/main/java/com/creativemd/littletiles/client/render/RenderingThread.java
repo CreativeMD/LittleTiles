@@ -14,7 +14,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -78,7 +78,7 @@ public class RenderingThread extends Thread {
 	public static void addCoordToUpdate(TileEntityLittleTiles te) // , IBlockState state)
 	{
 		try {
-			if (!(te.getWorld() instanceof WorldFake))
+			if (!(te.getWorld() instanceof SubWorld))
 				addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -199,8 +199,8 @@ public class RenderingThread extends Thread {
 								consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
 							
 							World renderWorld = data.te.getWorld();
-							if (renderWorld instanceof WorldFake && !((WorldFake) renderWorld).shouldRender)
-								renderWorld = ((WorldFake) renderWorld).parentWorld;
+							if (renderWorld instanceof SubWorld && !((SubWorld) renderWorld).shouldRender)
+								renderWorld = ((SubWorld) renderWorld).parentWorld;
 							
 							consumer.setWorld(renderWorld);
 							consumer.setBlockPos(pos);

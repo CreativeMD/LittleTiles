@@ -9,7 +9,7 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.world.WorldFake;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
@@ -69,7 +69,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		if (LittleActionPlaceStack.canPlaceTiles(player, world, splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all)) {
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
-			WorldFake fakeWorld = WorldFake.createFakeWorld(world);
+			SubWorld fakeWorld = SubWorld.createFakeWorld(world);
 			LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
 			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 				TileEntity te = (TileEntity) iterator.next();
