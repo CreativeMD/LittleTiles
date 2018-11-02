@@ -47,7 +47,7 @@ public class SubGuiImport extends SubGui {
 				try {
 					sendPacketToServer(JsonToNBT.getTagFromJson(textfield.text));
 				} catch (NBTException e) {
-					e.printStackTrace();
+					
 				}
 				// nbt.setString("text", textfield.text);
 				
