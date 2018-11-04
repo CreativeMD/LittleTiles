@@ -300,7 +300,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	protected static PositionResult getPosition(PositionResult position, RayTraceResult result, PlacementMode mode) {
 		position = position.copy();
 		
-		EnumFacing facing = result.sideHit;
+		EnumFacing facing = position.facing;
 		if (mode.mode == PreviewMode.LINES)
 			facing = facing.getOpposite();
 		if (facing.getAxisDirection() == AxisDirection.NEGATIVE)
