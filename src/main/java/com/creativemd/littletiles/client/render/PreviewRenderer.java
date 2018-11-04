@@ -99,7 +99,6 @@ public class PreviewRenderer {
 				PositionResult position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack));
 				
 				processRotateKeys(position.getContext());
-				
 				iTile.tickPreview(player, stack, position, mc.objectMouseOver);
 				
 				PlacementMode mode = iTile.getPlacementMode(stack);
@@ -199,29 +198,31 @@ public class PreviewRenderer {
 			PacketHandler.sendPacketToServer(packet);
 		}
 		
+		boolean repeated = marked != null;
+		
 		// Rotate Block
-		while (LittleTilesClient.up.isPressed()) {
+		while (LittleTilesClient.up.isPressed(repeated)) {
 			if (marked != null)
 				marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.UP : EnumFacing.EAST);
 			else
 				processRotateKey(Rotation.Z_CLOCKWISE);
 		}
 		
-		while (LittleTilesClient.down.isPressed()) {
+		while (LittleTilesClient.down.isPressed(repeated)) {
 			if (marked != null)
 				marked.move(context, LittleAction.isUsingSecondMode(mc.player) ? EnumFacing.DOWN : EnumFacing.WEST);
 			else
 				processRotateKey(Rotation.Z_COUNTER_CLOCKWISE);
 		}
 		
-		while (LittleTilesClient.right.isPressed()) {
+		while (LittleTilesClient.right.isPressed(repeated)) {
 			if (marked != null)
 				marked.move(context, EnumFacing.SOUTH);
 			else
 				processRotateKey(Rotation.Y_COUNTER_CLOCKWISE);
 		}
 		
-		while (LittleTilesClient.left.isPressed()) {
+		while (LittleTilesClient.left.isPressed(repeated)) {
 			if (marked != null)
 				marked.move(context, EnumFacing.NORTH);
 			else
