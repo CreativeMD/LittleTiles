@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
 
+import com.creativemd.creativecore.client.key.ExtendedKeyBinding;
 import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHelper;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
@@ -58,10 +59,10 @@ public class LittleTilesClient extends LittleTilesServer {
 	public static KeyBinding flip;
 	public static KeyBinding mark;
 	public static KeyBinding configure;
-	public static KeyBinding up;
-	public static KeyBinding down;
-	public static KeyBinding right;
-	public static KeyBinding left;
+	public static ExtendedKeyBinding up;
+	public static ExtendedKeyBinding down;
+	public static ExtendedKeyBinding right;
+	public static ExtendedKeyBinding left;
 	
 	public static KeyBinding undo;
 	public static KeyBinding redo;
@@ -94,12 +95,10 @@ public class LittleTilesClient extends LittleTilesServer {
 	
 	@Override
 	public void loadSidePost() {
-		/*
-		 * mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new
+		/* mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new
 		 * ItemMeshDefinition() { public ModelResourceLocation
 		 * getModelLocation(ItemStack stack) { return new
-		 * ModelResourceLocation("LTChisel", "inventory"); } });
-		 */
+		 * ModelResourceLocation("LTChisel", "inventory"); } }); */
 		mc.getItemColors().registerItemColorHandler(new IItemColor() {
 			
 			@Override
@@ -119,10 +118,10 @@ public class LittleTilesClient extends LittleTilesServer {
 		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.client = new LittleDoorHandler(Side.CLIENT));
 		// MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		
-		up = new KeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
-		down = new KeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
-		right = new KeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
-		left = new KeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
+		up = new ExtendedKeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
+		down = new ExtendedKeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
+		right = new ExtendedKeyBinding("key.rotateright", Keyboard.KEY_RIGHT, "key.categories.littletiles");
+		left = new ExtendedKeyBinding("key.rotateleft", Keyboard.KEY_LEFT, "key.categories.littletiles");
 		
 		flip = new KeyBinding("key.little.flip", Keyboard.KEY_G, "key.categories.littletiles");
 		mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
@@ -168,12 +167,10 @@ public class LittleTilesClient extends LittleTilesServer {
 				} else {
 					animation.spawnedInWorld = true;
 					animation.approved = true;
-					/*
-					 * mc.world.removeEntity(animation); animation = animation.copy();
+					/* mc.world.removeEntity(animation); animation = animation.copy();
 					 * PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new
 					 * NBTTagCompound(), false)); animation.isDead = true;
-					 * mc.world.loadedEntityList.remove(animation);
-					 */
+					 * mc.world.loadedEntityList.remove(animation); */
 					// mc.world.removeEntity(animation);
 					// animation.isDead = false;
 				}

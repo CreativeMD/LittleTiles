@@ -286,22 +286,22 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			int index = EnumFacing.UP.ordinal();
 			if (door != null)
 				index = door.moveDirection.ordinal();
-			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getFacingNames()));
+			parent.addControl(new GuiStateButton("direction", index, 110, 0, 37, RotationUtils.getFacingNames()));
 			
-			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
+			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
 			parent.addControl(relativeDirection);
 			int distance = size.getSizeOfAxis(EnumFacing.getFront(index).getAxis());
 			if (door != null)
 				distance = door.moveDistance;
-			parent.addControl(new GuiTextfield("distance", "" + distance, 110, 51, 60, 14).setNumbersOnly());
+			parent.addControl(new GuiTextfield("distance", "" + distance, 110, 21, 60, 14).setNumbersOnly());
 			// parent.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance,
 			// 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
 			
-			parent.addControl(new GuiIDButton("reset view", 110, 75, 0));
-			parent.addControl(new GuiIDButton("change view", 110, 95, 1));
-			parent.addControl(new GuiIDButton("flip view", 110, 115, 1));
+			parent.addControl(new GuiIDButton("reset view", 110, 45, 0));
+			parent.addControl(new GuiIDButton("change view", 110, 65, 1));
+			parent.addControl(new GuiIDButton("flip view", 110, 85, 1));
 			
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
 			tile.visibleAxis = false;
 			tile.updateViewDirection();
 			parent.addControl(tile);

@@ -105,11 +105,11 @@ public class LittleStorage extends LittleStructure {
 		
 		@Override
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(stack)), 5, 30));
+			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(stack)), 5, 0));
 			boolean invisible = false;
 			if (structure instanceof LittleStorage)
 				invisible = ((LittleStorage) structure).invisibleStorageTiles;
-			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 45, invisible));
+			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 15, invisible));
 		}
 		
 		@Override

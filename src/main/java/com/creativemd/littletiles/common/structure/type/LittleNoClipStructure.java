@@ -51,7 +51,7 @@ public class LittleNoClipStructure extends LittleStructure {
 			boolean slowness = true;
 			if (structure instanceof LittleNoClipStructure)
 				slowness = ((LittleNoClipStructure) structure).web;
-			parent.controls.add(new GuiCheckBox("web", "slowness (cobwebs)", 3, 30, slowness));
+			parent.controls.add(new GuiCheckBox("web", "slowness (cobwebs)", 3, 0, slowness));
 		}
 		
 		@Override

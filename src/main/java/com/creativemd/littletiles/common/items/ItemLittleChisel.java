@@ -301,10 +301,6 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		position = position.copy();
 		
 		EnumFacing facing = result.sideHit;
-		if (facing == null) {
-			new RuntimeException("Missing facing for some odd reason: " + result).printStackTrace();
-			facing = position.facing;
-		}
 		if (mode.mode == PreviewMode.LINES)
 			facing = facing.getOpposite();
 		if (facing.getAxisDirection() == AxisDirection.NEGATIVE)

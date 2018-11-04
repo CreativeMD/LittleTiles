@@ -302,7 +302,7 @@ public class LittleBed extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
 			tile.viewDirection = EnumFacing.UP;
 			parent.addControl(tile);
 			
@@ -312,9 +312,9 @@ public class LittleBed extends LittleStructure {
 				index = EnumFacing.SOUTH.getHorizontalIndex();
 			if (structure instanceof LittleBed)
 				index = ((LittleBed) structure).direction.getHorizontalIndex();
-			parent.addControl(new GuiStateButton("direction", index, 110, 30, 37, RotationUtils.getHorizontalFacingNames()));
+			parent.addControl(new GuiStateButton("direction", index, 110, 0, 37, RotationUtils.getHorizontalFacingNames()));
 			
-			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 30, EnumFacing.UP);
+			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
 			parent.addControl(relativeDirection);
 			LittleSlidingDoorParser.updateDirection(tile, EnumFacing.getHorizontal(index).getOpposite(), relativeDirection);
 		}

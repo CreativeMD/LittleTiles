@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
@@ -25,7 +26,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 	public LittleStructureGuiParser parser;
 	
 	public SubGuiRecipeAdvancedStructure(ItemStack stack) {
-		super(200, 200, stack);
+		super(350, 200, stack);
 	}
 	
 	@Override
@@ -58,8 +59,10 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			else
 				comboBox.caption = structure.structureID;
 		}
-		controls.add(comboBox);
+		controls.add(new GuiPanel("renderer", 208, 30, 136, 135));
+		controls.add(new GuiPanel("panel", 0, 30, 200, 135));
 		controls.add(new GuiLabel("tiles", previews.totalSize() + " tile(s)", 110, 7));
+		controls.add(comboBox);
 		controls.add(new GuiButton("save", 150, 176, 40) {
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -93,7 +96,9 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 	}
 	
 	public void onChanged() {
-		removeControls("type:", "types", "save", "clear", "tiles", "name:", "name");
+		GuiPanel panel = (GuiPanel) get("panel");
+		panel.controls.clear();
+		
 		String id = ((GuiComboBox) get("types")).caption;
 		
 		if (parser != null)
@@ -104,10 +109,10 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			saved = null;
 		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(id);
 		if (entry != null) {
-			parser = entry.createParser(this);
+			parser = entry.createParser(panel);
 			if (parser != null) {
 				parser.createControls(stack, saved);
-				this.refreshControls();
+				panel.refreshControls();
 				addListener(parser);
 			}
 		} else

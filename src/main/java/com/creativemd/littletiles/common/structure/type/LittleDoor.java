@@ -616,7 +616,7 @@ public class LittleDoor extends LittleDoorBase {
 			LittleDoor door = null;
 			if (structure instanceof LittleDoor)
 				door = (LittleDoor) structure;
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 30, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
 			
 			boolean even = false;
 			if (door != null) {
@@ -635,25 +635,25 @@ public class LittleDoor extends LittleDoorBase {
 			tile.visibleAxis = true;
 			tile.updateViewDirection();
 			parent.controls.add(tile);
-			parent.controls.add(new GuiIDButton("reset view", 109, 45, 0));
+			parent.controls.add(new GuiIDButton("reset view", 109, 20, 0));
 			// parent.controls.add(new GuiButton("y", 170, 50, 20));
-			parent.controls.add(new GuiIDButton("flip view", 109, 65, 1));
+			parent.controls.add(new GuiIDButton("flip view", 109, 40, 1));
 			
-			parent.controls.add(new GuiIDButton("swap axis", 109, 25, 2));
-			parent.controls.add(new GuiIDButton("swap normal", 109, 85, 3));
+			parent.controls.add(new GuiIDButton("swap axis", 109, 0, 2));
+			parent.controls.add(new GuiIDButton("swap normal", 109, 60, 3));
 			// parent.controls.add(new GuiButton("-->", 150, 50, 20));
 			
 			// parent.controls.add(new GuiButton("<-Z", 130, 70, 20));
-			parent.controls.add(new GuiButton("up", "<-", 125, 106, 14) {
+			parent.controls.add(new GuiButton("up", "<-", 125, 85, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
 					
 				}
 				
 			}.setRotation(90));
-			parent.controls.add(new GuiIDButton("->", 146, 127, 4));
-			parent.controls.add(new GuiIDButton("<-", 107, 127, 5));
-			parent.controls.add(new GuiButton("down", "<-", 125, 127, 14) {
+			parent.controls.add(new GuiIDButton("->", 146, 105, 4));
+			parent.controls.add(new GuiIDButton("<-", 107, 105, 5));
+			parent.controls.add(new GuiButton("down", "<-", 125, 105, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
 					
@@ -661,10 +661,7 @@ public class LittleDoor extends LittleDoorBase {
 				
 			}.setRotation(-90));
 			
-			parent.controls.add(new GuiCheckBox("even", 107, 144, even));
-			// parent.controls.add(new GuiButton("->", 190, 90, 20));
-			// parent.controls.add(new GuiStateButton("direction", 3, 130, 50, 50, 20,
-			// "NORTH", "SOUTH", "WEST", "EAST"));
+			parent.controls.add(new GuiCheckBox("even", 0, 105, even));
 		}
 		
 		@CustomEventSubscribe
