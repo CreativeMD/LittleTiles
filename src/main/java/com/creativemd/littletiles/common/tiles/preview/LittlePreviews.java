@@ -137,31 +137,33 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			}
 	}
 	
-	public void flipPreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void flipPreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, Axis axis, LittleTileVec doubledCenter) {
 		for (LittleTilePreview preview : previews) {
 			preview.flipPreview(axis, doubledCenter);
 		}
 		if (hasStructure()) {
 			getStructure().onFlip(world, player, stack, context, axis, doubledCenter);
+			getStructure().writeToNBT(getStructureData());
 		}
 		
 		if (hasChildren())
 			for (LittlePreviewsStructure child : children) {
-				child.flipPreviews(world, player, stack, context, axis, doubledCenter);
+				child.flipPreviews(world, player, stack, axis, doubledCenter);
 			}
 	}
 	
-	public void rotatePreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void rotatePreviews(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, Rotation rotation, LittleTileVec doubledCenter) {
 		for (LittleTilePreview preview : previews) {
 			preview.rotatePreview(rotation, doubledCenter);
 		}
 		if (hasStructure()) {
 			getStructure().onRotate(world, player, stack, context, rotation, doubledCenter);
+			getStructure().writeToNBT(getStructureData());
 		}
 		
 		if (hasChildren())
 			for (LittlePreviewsStructure child : children) {
-				child.rotatePreviews(world, player, stack, context, rotation, doubledCenter);
+				child.rotatePreviews(world, player, stack, rotation, doubledCenter);
 			}
 	}
 	

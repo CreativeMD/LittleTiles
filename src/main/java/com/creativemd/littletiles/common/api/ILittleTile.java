@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.api;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -32,25 +31,13 @@ public interface ILittleTile {
 	
 	public default void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
-		for (LittleTilePreview preview : previews.allPreviews()) {
-			preview.rotatePreview(rotation, previews.context.rotationCenter);
-		}
-		if (previews.hasStructure()) {
-			previews.getStructure().onRotate(player.world, player, stack, previews.context, rotation, previews.context.rotationCenter);
-			previews.getStructure().writeToNBT(previews.getStructureData());
-		}
+		previews.rotatePreviews(player.world, player, stack, rotation, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	
 	public default void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
-		for (LittleTilePreview preview : previews.allPreviews()) {
-			preview.flipPreview(axis, previews.context.rotationCenter);
-		}
-		if (previews.hasStructure()) {
-			previews.getStructure().onFlip(player.world, player, stack, previews.context, axis, previews.context.rotationCenter);
-			previews.getStructure().writeToNBT(previews.getStructureData());
-		}
+		previews.flipPreviews(player.world, player, stack, axis, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	

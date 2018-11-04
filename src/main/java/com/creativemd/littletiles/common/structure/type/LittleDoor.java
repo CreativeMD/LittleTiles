@@ -172,7 +172,7 @@ public class LittleDoor extends LittleDoorBase {
 		else if (newDoor.doubledRelativeAxis.context.size < previews.context.size)
 			newDoor.doubledRelativeAxis.convertTo(previews.context);
 		
-		previews.rotatePreviews(world, player, null, previews.context, direction, newDoor.doubledRelativeAxis.getRotationVec());
+		previews.rotatePreviews(world, player, null, direction, newDoor.doubledRelativeAxis.getRotationVec());
 		
 		return place(world, player, previews, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
 	}
