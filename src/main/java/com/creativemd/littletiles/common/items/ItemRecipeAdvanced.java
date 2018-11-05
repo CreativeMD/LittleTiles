@@ -12,6 +12,8 @@ import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -81,11 +83,6 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
 		return true;
-	}
-	
-	@Override
-	public PlacementMode getPlacementMode(ItemStack stack) {
-		return PlacementMode.all;
 	}
 	
 	@Override
@@ -165,6 +162,32 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
 		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));
 		return false;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
+			
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemMultiTiles.currentContext = context;
+				ItemMultiTiles.currentMode = mode;
+			}
+			
+		};
+	}
+	
+	@Override
+	public PlacementMode getPlacementMode(ItemStack stack) {
+		if (!ItemMultiTiles.currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+			return PlacementMode.getStructureDefault();
+		return ItemMultiTiles.currentMode;
+	}
+	
+	@Override
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return ItemMultiTiles.currentContext;
 	}
 	
 	@Override
