@@ -23,7 +23,6 @@ import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
@@ -208,6 +207,17 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+	}
+	
+	@Override
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
 			
 			@Override
@@ -286,7 +296,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@SideOnly(Side.CLIENT)
 		public void onClickBlock(EntityPlayer player, ItemStack stack, @Nullable RayTraceResult result) {
-			GuiHandler.openGui("grabber", new NBTTagCompound(), player);
+			
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -520,7 +530,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				}
 				
 				@Override
-				public void saveChanges() {
+				public void saveConfiguration() {
 					LittleTilePreview preview = getPreview(context);
 					preview.box.set(context.minPos, context.minPos, context.minPos, size.sizeX, size.sizeY, size.sizeZ);
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
@@ -640,7 +650,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			return new SubGuiGrabber(this, stack, 140, 140, context) {
 				
 				@Override
-				public void saveChanges() {
+				public void saveConfiguration() {
 					
 				}
 				
@@ -676,7 +686,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			return new SubGuiGrabber(this, stack, 140, 140, context) {
 				
 				@Override
-				public void saveChanges() {
+				public void saveConfiguration() {
 					
 				}
 			};

@@ -5,16 +5,13 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
-import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.container.SubContainerHammer;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.SubGuiHammer;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiGridSelector;
@@ -41,7 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreator {
+public class ItemHammer extends Item implements ISpecialBlockSelector {
 	
 	public static TileSelector currentFilter = null;
 	
@@ -110,13 +107,13 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiHammer(stack);
 	}
 	
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerHammer(player, stack);
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
 	}
 	
 	@Override
@@ -135,7 +132,7 @@ public class ItemHammer extends Item implements ISpecialBlockSelector, IGuiCreat
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
 			
 			@Override

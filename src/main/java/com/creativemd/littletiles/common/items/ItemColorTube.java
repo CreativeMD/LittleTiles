@@ -7,16 +7,13 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
-import com.creativemd.creativecore.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.container.SubContainerColorTube;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.SubGuiColorTube;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiGridSelector;
@@ -48,7 +45,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSelector {
+public class ItemColorTube extends Item implements ISpecialBlockSelector {
 	
 	public static TileSelector currentFilter = null;
 	
@@ -106,13 +103,13 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return new SubGuiColorTube(stack);
 	}
 	
 	@Override
-	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerColorTube(player, stack);
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
 	}
 	
 	public static SelectShape getShape(ItemStack stack) {
@@ -185,7 +182,7 @@ public class ItemColorTube extends Item implements IGuiCreator, ISpecialBlockSel
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
 			
 			@Override

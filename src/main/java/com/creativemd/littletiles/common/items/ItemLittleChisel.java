@@ -16,11 +16,12 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
+import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiMarkMode;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
@@ -341,15 +342,13 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void onClickAir(EntityPlayer player, ItemStack stack) {
-		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		return new SubGuiChisel(stack);
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-		GuiHandler.openGui("chisel", new NBTTagCompound(), player);
-		return true;
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
 	}
 	
 	public static PlacementMode currentMode = PlacementMode.fill;
@@ -361,7 +360,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, currentMode) {
 			
 			@Override

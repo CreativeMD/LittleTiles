@@ -135,7 +135,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
 			
 			@Override

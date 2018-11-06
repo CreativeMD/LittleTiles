@@ -8,10 +8,13 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
+import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
@@ -75,14 +78,16 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@Override
-	public void onClickAir(EntityPlayer player, ItemStack stack) {
-		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+		if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
+			return new SubGuiRecipeAdvancedSelection(stack);
+		return new SubGuiRecipeAdvancedStructure(stack);
 	}
 	
 	@Override
-	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-		GuiHandler.openGui("recipeadvanced", new NBTTagCompound(), player);
-		return true;
+	public SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerRecipeAdvanced(player, stack);
 	}
 	
 	@Override
@@ -166,7 +171,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
 		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemMultiTiles.currentMode) {
 			
 			@Override

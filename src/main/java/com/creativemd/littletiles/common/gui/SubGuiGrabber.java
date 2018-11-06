@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -11,30 +11,26 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public abstract class SubGuiGrabber extends SubGui {
+public abstract class SubGuiGrabber extends SubGuiConfigure {
 	
-	public ItemStack stack;
 	public final GrabberMode mode;
 	public final int index;
 	public final GrabberMode[] modes;
 	public LittleGridContext context;
 	
 	public SubGuiGrabber(GrabberMode mode, ItemStack stack, int width, int height, LittleGridContext context) {
-		super(width, height);
-		this.stack = stack;
+		super(width, height, stack);
 		this.mode = mode;
 		this.modes = ItemLittleGrabber.getModes();
 		this.index = ItemLittleGrabber.indexOf(mode);
 		this.context = context;
 	}
 	
-	public abstract void saveChanges();
-	
 	@Override
 	public void onClosed() {
 		super.onClosed();
 		ItemLittleGrabber.setMode(stack, mode);
-		saveChanges();
+		saveConfiguration();
 		sendPacketToServer(stack.getTagCompound());
 	}
 	

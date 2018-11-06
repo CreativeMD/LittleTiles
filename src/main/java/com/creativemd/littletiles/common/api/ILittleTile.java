@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.api;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -97,6 +98,19 @@ public interface ILittleTile {
 	@SideOnly(Side.CLIENT)
 	public default SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		return null;
+	}
+	
+	public default SubContainerConfigure getConfigureContainer(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public default SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+		return null;
+	}
+	
+	public default SubContainerConfigure getConfigureContainerAdvanced(EntityPlayer player, ItemStack stack) {
+		return new SubContainerConfigure(player, stack);
 	}
 	
 	@SideOnly(Side.CLIENT)

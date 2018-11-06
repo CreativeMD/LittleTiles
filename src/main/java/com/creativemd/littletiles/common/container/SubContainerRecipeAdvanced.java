@@ -11,15 +11,11 @@ import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.math.BlockPos;
 
 public class SubContainerRecipeAdvanced extends SubContainerConfigure {
 	
-	public BlockPos second;
-	
-	public SubContainerRecipeAdvanced(EntityPlayer player, ItemStack stack, BlockPos pos) {
+	public SubContainerRecipeAdvanced(EntityPlayer player, ItemStack stack) {
 		super(player, stack);
-		this.second = pos;
 	}
 	
 	public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {

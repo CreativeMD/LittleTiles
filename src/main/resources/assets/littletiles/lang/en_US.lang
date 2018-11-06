@@ -42,7 +42,8 @@ tile.LTStorageBlockTile.name=Little Storage Block
 key.categories.littletiles=LittleTiles Settings
 key.little.flip=Flip Preview
 key.little.mark=Mark Preview
-key.little.config=Configure Preview
+key.little.config.item=Configure Tool
+key.little.config=Configure Advanced
 
 itemGroup.littletiles=LittleTiles
 

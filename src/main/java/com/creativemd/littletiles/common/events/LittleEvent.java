@@ -481,7 +481,7 @@ public class LittleEvent {
 					lastSelectedItem = null;
 				}
 				
-				if (LittleTilesClient.configure.isPressed()) {
+				while (LittleTilesClient.configure.isPressed()) {
 					ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 					if (iTile != null) {
 						SubGui gui = iTile.getConfigureGUI(mc.player, stack);
@@ -491,6 +491,19 @@ public class LittleEvent {
 						SubGui gui = ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(mc.player, stack);
 						if (gui != null)
 							GuiHandler.openGui("configure", new NBTTagCompound());
+					}
+				}
+				
+				while (LittleTilesClient.configureAdvanced.isPressed()) {
+					ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+					if (iTile != null) {
+						SubGui gui = iTile.getConfigureGUIAdvanced(mc.player, stack);
+						if (gui != null)
+							GuiHandler.openGui("configureadvanced", new NBTTagCompound());
+					} else if (stack.getItem() instanceof ISpecialBlockSelector) {
+						SubGui gui = ((ISpecialBlockSelector) stack.getItem()).getConfigureGUIAdvanced(mc.player, stack);
+						if (gui != null)
+							GuiHandler.openGui("configureadvanced", new NBTTagCompound());
 					}
 				}
 			}

@@ -2,11 +2,11 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.gui.container.SubGui;
 import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
@@ -15,13 +15,10 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class SubGuiHammer extends SubGui {
-	
-	public ItemStack stack;
+public class SubGuiHammer extends SubGuiConfigure {
 	
 	public SubGuiHammer(ItemStack stack) {
-		super(140, 150);
-		this.stack = stack;
+		super(140, 150, stack);
 	}
 	
 	public LittleGridContext getContext() {
@@ -29,7 +26,7 @@ public class SubGuiHammer extends SubGui {
 	}
 	
 	@Override
-	public void onClosed() {
+	public void saveConfiguration() {
 		GuiComboBox box = (GuiComboBox) get("shape");
 		GuiScrollBox scroll = (GuiScrollBox) get("settings");
 		SelectShape shape = SelectShape.getShape(box.caption);
@@ -37,9 +34,7 @@ public class SubGuiHammer extends SubGui {
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setString("shape", shape.key);
 		shape.saveCustomSettings(scroll, nbt, getContext());
-		sendPacketToServer(nbt);
-		
-		super.onClosed();
+		stack.setTagCompound(nbt);
 	}
 	
 	@Override

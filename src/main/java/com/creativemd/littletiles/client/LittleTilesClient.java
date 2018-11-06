@@ -59,6 +59,7 @@ public class LittleTilesClient extends LittleTilesServer {
 	public static KeyBinding flip;
 	public static KeyBinding mark;
 	public static KeyBinding configure;
+	public static KeyBinding configureAdvanced;
 	public static ExtendedKeyBinding up;
 	public static ExtendedKeyBinding down;
 	public static ExtendedKeyBinding right;
@@ -125,7 +126,9 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		flip = new KeyBinding("key.little.flip", Keyboard.KEY_G, "key.categories.littletiles");
 		mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
-		configure = new KeyBinding("key.little.config", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_C, "key.categories.littletiles");
+		mark = new KeyBinding("key.little.mark", Keyboard.KEY_M, "key.categories.littletiles");
+		configure = new KeyBinding("key.little.config.item", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.NONE, Keyboard.KEY_C, "key.categories.littletiles");
+		configureAdvanced = new KeyBinding("key.little.config", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_C, "key.categories.littletiles");
 		
 		undo = new KeyBinding("key.little.undo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Z, "key.categories.littletiles");
 		redo = new KeyBinding("key.little.redo", net.minecraftforge.client.settings.KeyConflictContext.UNIVERSAL, KeyModifier.CONTROL, Keyboard.KEY_Y, "key.categories.littletiles");

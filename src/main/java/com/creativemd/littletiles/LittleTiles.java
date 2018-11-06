@@ -43,11 +43,9 @@ import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.config.IGCMLoader;
-import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
-import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
@@ -55,12 +53,9 @@ import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.events.LittleEvent;
-import com.creativemd.littletiles.common.gui.SubGuiChisel;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
@@ -118,7 +113,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.ForgeModContainer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -310,54 +304,39 @@ public class LittleTiles {
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubContainerConfigure(player, player.getHeldItemMainhand());
+				ItemStack stack = player.getHeldItemMainhand();
+				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+				if (iTile != null)
+					return iTile.getConfigureContainer(player, stack);
+				else if (stack.getItem() instanceof ISpecialBlockSelector)
+					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainer(player, stack);
+				return null;
 			}
 		});
 		
-		GuiHandler.registerGuiHandler("chisel", new CustomGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubGuiChisel(player.getHeldItemMainhand());
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubContainerConfigure(player, player.getHeldItemMainhand());
-			}
-		});
-		
-		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
+		GuiHandler.registerGuiHandler("configureadvanced", new CustomGuiHandler() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+				if (iTile != null)
+					return iTile.getConfigureGUIAdvanced(player, stack);
+				else if (stack.getItem() instanceof ISpecialBlockSelector)
+					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUIAdvanced(player, stack);
+				return null;
 			}
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
-			}
-		});
-		
-		GuiHandler.registerGuiHandler("recipeadvanced", new CustomGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-				ItemStack stack = player.getHeldItemMainhand();
-				if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
-					return new SubGuiRecipeAdvancedSelection(stack);
-				return new SubGuiRecipeAdvancedStructure(stack);
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubContainerRecipeAdvanced(player, player.getHeldItemMainhand(), new BlockPos(nbt.getInteger("posX"), nbt.getInteger("posY"), nbt.getInteger("posZ")));
+				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
+				if (iTile != null)
+					return iTile.getConfigureContainerAdvanced(player, stack);
+				else if (stack.getItem() instanceof ISpecialBlockSelector)
+					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
+				return null;
 			}
 		});
 		
