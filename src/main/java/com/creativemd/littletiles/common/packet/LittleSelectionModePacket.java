@@ -11,9 +11,11 @@ import net.minecraft.util.math.BlockPos;
 public class LittleSelectionModePacket extends CreativeCorePacket {
 	
 	public BlockPos pos;
+	public boolean rightClick;
 	
-	public LittleSelectionModePacket(BlockPos pos) {
+	public LittleSelectionModePacket(BlockPos pos, boolean rightClick) {
 		this.pos = pos;
+		this.rightClick = rightClick;
 	}
 	
 	public LittleSelectionModePacket() {
@@ -23,11 +25,13 @@ public class LittleSelectionModePacket extends CreativeCorePacket {
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, pos);
+		buf.writeBoolean(rightClick);
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		pos = readPos(buf);
+		rightClick = buf.readBoolean();
 	}
 	
 	@Override
@@ -39,7 +43,10 @@ public class LittleSelectionModePacket extends CreativeCorePacket {
 	public void executeServer(EntityPlayer player) {
 		ItemStack stack = player.getHeldItemMainhand();
 		if (stack.getItem() instanceof ItemRecipeAdvanced)
-			ItemRecipeAdvanced.getSelectionMode(stack).onRightClick(player, stack, pos);
+			if (rightClick)
+				ItemRecipeAdvanced.getSelectionMode(stack).onRightClick(player, stack, pos);
+			else
+				ItemRecipeAdvanced.getSelectionMode(stack).onLeftClick(player, stack, pos);
 	}
 	
 }

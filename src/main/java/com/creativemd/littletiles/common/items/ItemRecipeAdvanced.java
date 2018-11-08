@@ -165,8 +165,17 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
-		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos()));
-		return false;
+		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos(), true));
+		return true;
+	}
+	
+	@Override
+	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+		if (hasLittlePreview(stack))
+			return true;
+		getSelectionMode(stack).onLeftClick(player, stack, result.getBlockPos());
+		PacketHandler.sendPacketToServer(new LittleSelectionModePacket(result.getBlockPos(), false));
+		return true;
 	}
 	
 	@Override

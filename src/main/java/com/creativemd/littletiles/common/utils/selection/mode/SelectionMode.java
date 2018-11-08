@@ -47,6 +47,8 @@ public abstract class SelectionMode {
 	
 	public abstract SelectionResult generateResult(World world, ItemStack stack);
 	
+	public abstract void onLeftClick(EntityPlayer player, ItemStack stack, BlockPos pos);
+	
 	public abstract void onRightClick(EntityPlayer player, ItemStack stack, BlockPos pos);
 	
 	public abstract void clearSelection(ItemStack stack);

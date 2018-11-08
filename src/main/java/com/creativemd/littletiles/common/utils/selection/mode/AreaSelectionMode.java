@@ -59,16 +59,17 @@ public class AreaSelectionMode extends SelectionMode {
 	}
 	
 	@Override
+	public void onLeftClick(EntityPlayer player, ItemStack stack, BlockPos pos) {
+		stack.getTagCompound().setIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+		if (!player.world.isRemote)
+			player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
+	}
+	
+	@Override
 	public void onRightClick(EntityPlayer player, ItemStack stack, BlockPos pos) {
-		if (player.isSneaking()) {
-			stack.getTagCompound().setIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-			if (!player.world.isRemote)
-				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
-		} else {
-			stack.getTagCompound().setIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
-			if (!player.world.isRemote)
-				player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
-		}
+		stack.getTagCompound().setIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+		if (!player.world.isRemote)
+			player.sendMessage(new TextComponentTranslation("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
 	}
 	
 	@Override
