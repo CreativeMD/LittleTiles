@@ -276,7 +276,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public boolean isLadder(IBlockState state, IBlockAccess world, BlockPos pos, EntityLivingBase entity) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
+		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
