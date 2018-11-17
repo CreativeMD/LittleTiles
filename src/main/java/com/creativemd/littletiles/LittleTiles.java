@@ -46,6 +46,7 @@ import com.creativemd.littletiles.common.config.IGCMLoader;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
+import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
@@ -56,6 +57,8 @@ import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
@@ -393,6 +396,39 @@ public class LittleTiles {
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
 				return new SubContainerStructureOverview(player, tile);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("grabber", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				ItemStack stack = player.getHeldItemMainhand();
+				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				ItemStack stack = player.getHeldItemMainhand();
+				return ItemLittleGrabber.getMode(stack).getContainer(player, stack);
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("recipeadvanced", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				ItemStack stack = player.getHeldItemMainhand();
+				if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
+					return new SubGuiRecipeAdvancedSelection(stack);
+				return new SubGuiRecipeAdvancedStructure(stack);
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerRecipeAdvanced(player, player.getHeldItemMainhand());
 			}
 		});
 		
