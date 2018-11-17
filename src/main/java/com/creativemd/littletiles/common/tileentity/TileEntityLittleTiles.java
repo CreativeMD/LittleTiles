@@ -384,7 +384,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			boolean[][][] filled = new boolean[context.size][context.size][context.size];
 			for (LittleTile tile : tiles) {
 				if (firstTile == null) {
-					if (tile.getClass() != LittleTileBlock.class)
+					if (tile.canBeConvertedToVanilla())
 						return false;
 					
 					firstTile = tile;

@@ -158,7 +158,9 @@ public abstract class LittleTile implements ICombinable {
 		box.convertTo(from, to);
 	}
 	
-	public abstract boolean canBeConvertedToVanilla();
+	public boolean canBeConvertedToVanilla() {
+		return !isChildOfStructure();
+	}
 	
 	public LittleTilePos getAbsolutePos() {
 		return new LittleTilePos(te.getPos(), getContext(), box.getMinVec());

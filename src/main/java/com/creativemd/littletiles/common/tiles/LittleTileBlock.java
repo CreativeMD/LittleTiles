@@ -251,6 +251,8 @@ public class LittleTileBlock extends LittleTile {
 	
 	@Override
 	public boolean canBeConvertedToVanilla() {
+		if (!super.canBeConvertedToVanilla())
+			return false;
 		if (hasSpecialBlockHandler())
 			return handler.canBeConvertedToVanilla(this);
 		return true;
