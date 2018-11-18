@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -45,7 +46,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
 
-public class RenderAnimation extends Render<EntityDoorAnimation> {
+public class RenderAnimation extends Render<EntityAnimation> {
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	public static final VertexBufferUploader uploader = new VertexBufferUploader();
@@ -55,7 +56,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	}
 	
 	@Override
-	public void doRender(EntityDoorAnimation entity, double x, double y, double z, float entityYaw, float partialTicks) {
+	public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
 		if (entity.isDead)
@@ -287,7 +288,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 		}
 	}
 	
-	public void renderBlockLayer(BlockRenderLayer layer, EntityDoorAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d rotation) {
+	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d rotation) {
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 			ShadersRender.preRenderChunkLayer(layer);
 		
@@ -362,7 +363,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 			ShadersRender.postRenderChunkLayer(layer);
 	}
 	
-	public void renderTempShit(EntityDoorAnimation entity, double x, double y, double z) {
+	public void renderTempShit(EntityAnimation entity, double x, double y, double z) {
 		GlStateManager.pushMatrix();
 		if (entity.worldCollisionBoxes.size() > 1)
 			return;
@@ -486,7 +487,7 @@ public class RenderAnimation extends Render<EntityDoorAnimation> {
 	}
 	
 	@Override
-	protected ResourceLocation getEntityTexture(EntityDoorAnimation entity) {
+	protected ResourceLocation getEntityTexture(EntityAnimation entity) {
 		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 	

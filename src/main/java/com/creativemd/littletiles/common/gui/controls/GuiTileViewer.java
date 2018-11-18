@@ -162,10 +162,10 @@ public class GuiTileViewer extends GuiParent {
 		GlStateManager.pushMatrix();
 		
 		// Vec3 offset = Vec3.createVectorHelper(p_72443_0_, p_72443_2_, p_72443_4_);
-		GL11.glTranslated(this.width / 2 + offsetX, this.height / 2 + offsetY, 0);
-		GL11.glScaled(4, 4, 4);
-		GL11.glScaled(this.scale, this.scale, this.scale);
-		GL11.glTranslated(-offsetX * 2, -offsetY * 2, 0);
+		GlStateManager.translate(this.width / 2 + offsetX, this.height / 2 + offsetY, 0);
+		GlStateManager.scale(4, 4, 4);
+		GlStateManager.scale(this.scale, this.scale, this.scale);
+		GlStateManager.translate(-offsetX * 2, -offsetY * 2, 0);
 		
 		GlStateManager.pushMatrix();
 		
@@ -270,6 +270,7 @@ public class GuiTileViewer extends GuiParent {
 		GlStateManager.rotate(90, 0, 0, 1);
 		helper.drawStringWithShadow(yAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		GlStateManager.popMatrix();
+		GlStateManager.disableDepth();
 	}
 	
 	public EnumFacing getXFacing() {

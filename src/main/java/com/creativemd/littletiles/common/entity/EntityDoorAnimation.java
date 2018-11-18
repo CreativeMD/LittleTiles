@@ -32,7 +32,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
+public class EntityDoorAnimation extends EntityAnimation {
 	
 	// private static final DataParameter<Float> ENTITY_PROGRESS =
 	// EntityDataManager.<Double>createKey(EntityDoorAnimation.class,
@@ -82,12 +82,13 @@ public class EntityDoorAnimation extends EntityAnimation<EntityDoorAnimation> {
 	}
 	
 	@Override
-	public void copyExtra(EntityDoorAnimation animation) {
-		animation.progress = progress;
-		animation.duration = duration;
-		animation.approved = approved;
-		animation.transformation = transformation;
-		animation.lastSendProgress = lastSendProgress;
+	public void copyExtra(EntityAnimation animation) {
+		EntityDoorAnimation doorAnimation = (EntityDoorAnimation) animation;
+		doorAnimation.progress = progress;
+		doorAnimation.duration = duration;
+		doorAnimation.approved = approved;
+		doorAnimation.transformation = transformation;
+		doorAnimation.lastSendProgress = lastSendProgress;
 		animation.additionalAxis = additionalAxis.copy();
 	}
 	

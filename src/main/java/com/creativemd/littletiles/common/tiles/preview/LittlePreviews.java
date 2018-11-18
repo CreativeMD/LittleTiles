@@ -429,6 +429,26 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				child.advancedScale(from, to);
 	}
 	
+	public LittleTileBox getSurroundingBox() {
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		
+		for (LittleTilePreview preview : allPreviews()) {
+			minX = Math.min(minX, preview.box.minX);
+			minY = Math.min(minY, preview.box.minY);
+			minZ = Math.min(minZ, preview.box.minZ);
+			maxX = Math.max(maxX, preview.box.maxX);
+			maxY = Math.max(maxY, preview.box.maxY);
+			maxZ = Math.max(maxZ, preview.box.maxZ);
+		}
+		
+		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
 	public static void advancedScale(LittlePreviews previews, int from, int to) {
 		previews.advancedScale(from, to);
 	}

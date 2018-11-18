@@ -644,16 +644,16 @@ public class LittleDoor extends LittleDoorBase {
 			// parent.controls.add(new GuiButton("-->", 150, 50, 20));
 			
 			// parent.controls.add(new GuiButton("<-Z", 130, 70, 20));
-			parent.controls.add(new GuiButton("up", "<-", 125, 85, 14) {
+			parent.controls.add(new GuiButton("up", "<-", 125, 80, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
 					
 				}
 				
 			}.setRotation(90));
-			parent.controls.add(new GuiIDButton("->", 146, 105, 4));
-			parent.controls.add(new GuiIDButton("<-", 107, 105, 5));
-			parent.controls.add(new GuiButton("down", "<-", 125, 105, 14) {
+			parent.controls.add(new GuiIDButton("->", 146, 100, 4));
+			parent.controls.add(new GuiIDButton("<-", 107, 100, 5));
+			parent.controls.add(new GuiButton("down", "<-", 125, 100, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
 					
@@ -661,7 +661,7 @@ public class LittleDoor extends LittleDoorBase {
 				
 			}.setRotation(-90));
 			
-			parent.controls.add(new GuiCheckBox("even", 0, 105, even));
+			parent.controls.add(new GuiCheckBox("even", 107, 117, even));
 		}
 		
 		@CustomEventSubscribe

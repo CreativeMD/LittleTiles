@@ -78,10 +78,10 @@ public class LittleTilesClient extends LittleTilesServer {
 			}
 		});
 		
-		RenderingRegistry.registerEntityRenderingHandler(EntityDoorAnimation.class, new IRenderFactory<EntityDoorAnimation>() {
+		RenderingRegistry.registerEntityRenderingHandler(EntityAnimation.class, new IRenderFactory<EntityAnimation>() {
 			
 			@Override
-			public Render<? super EntityDoorAnimation> createRenderFor(RenderManager manager) {
+			public Render<? super EntityAnimation> createRenderFor(RenderManager manager) {
 				return new Render<EntityAnimation>(manager) {
 					
 					@Override

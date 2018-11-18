@@ -139,8 +139,7 @@ public class LittleDoorHandler {
 					throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
 				}
 				
-				/*
-				 * try { if (!this.renderOutlines) { render.doRenderShadowAndFire(entityIn, x,
+				/* try { if (!this.renderOutlines) { render.doRenderShadowAndFire(entityIn, x,
 				 * y, z, yaw, partialTicks); } } catch (Throwable throwable2) { throw new
 				 * ReportedException(CrashReport.makeCrashReport(throwable2,
 				 * "Post-rendering entity in world")); }
@@ -150,8 +149,7 @@ public class LittleDoorHandler {
 				 * this.renderDebugBoundingBox(entityIn, x, y, z, yaw, partialTicks); } catch
 				 * (Throwable throwable) { throw new
 				 * ReportedException(CrashReport.makeCrashReport(throwable,
-				 * "Rendering entity hitbox in world")); } }
-				 */
+				 * "Rendering entity hitbox in world")); } } */
 			}
 			
 		}
@@ -189,7 +187,7 @@ public class LittleDoorHandler {
 			return;
 		
 		AxisAlignedBB box = event.getAabb();
-		for (EntityAnimation<?> animation : findDoors(event.getWorld(), box)) {
+		for (EntityAnimation animation : findDoors(event.getWorld(), box)) {
 			if (animation.noCollision)
 				continue;
 			

@@ -124,8 +124,8 @@ public abstract class LittleDoorBase extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			
-			parent.controls.add(new GuiLabel("Duration:", 0, 141));
-			parent.controls.add(new GuiSteppedSlider("duration_s", 50, 140, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
+			parent.controls.add(new GuiLabel("Duration:", 0, 116));
+			parent.controls.add(new GuiSteppedSlider("duration_s", 50, 115, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 		}
 		
 		@Override

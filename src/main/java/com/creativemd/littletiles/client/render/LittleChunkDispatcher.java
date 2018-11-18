@@ -3,7 +3,6 @@ package com.creativemd.littletiles.client.render;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -61,23 +60,19 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
-	/*
-	 * public static void onStartRendering(RenderChunk chunk) {
+	/* public static void onStartRendering(RenderChunk chunk) {
 	 * List<TileEntityLittleTiles> tiles = new ArrayList<>(); try {
 	 * tempLittleTiles.set(chunk, new ArrayList<>()); } catch
 	 * (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace();
-	 * } }
-	 */
+	 * } } */
 	
 	public static void addTileEntity(List<TileEntityLittleTiles> tiles, TileEntity te) {
 		if (te instanceof TileEntityLittleTiles) {
 			tiles.add((TileEntityLittleTiles) te);
-			/*
-			 * try { ((ArrayList<TileEntityLittleTiles>)
+			/* try { ((ArrayList<TileEntityLittleTiles>)
 			 * tempLittleTiles.get(chunk)).add((TileEntityLittleTiles) te); } catch
 			 * (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace();
-			 * }
-			 */
+			 * } */
 		}
 	}
 	
@@ -116,8 +111,14 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			// layer + " state=" + compiled.getState());
 			List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
 			
-			if (tiles == null)
-				tiles = new ArrayList<>();
+			if (tiles == null || tiles.isEmpty()) {
+				try {
+					added.setBoolean(buffer, true);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
+				}
+				return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
+			}
 			
 			int expanded = 0;
 			

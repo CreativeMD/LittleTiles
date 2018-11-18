@@ -21,6 +21,13 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 		this.nbt = nbt;
 	}
 	
+	public LittleAbsolutePreviewsStructure(NBTTagCompound nbt, BlockPos pos, LittlePreviews previews) {
+		super(pos, previews.context);
+		this.previews.addAll(previews.previews);
+		this.children.addAll(previews.children);
+		this.nbt = nbt;
+	}
+	
 	public LittleAbsolutePreviewsStructure(NBTTagCompound nbt, BlockPos pos, LittleGridContext context) {
 		super(pos, context);
 		this.nbt = nbt;

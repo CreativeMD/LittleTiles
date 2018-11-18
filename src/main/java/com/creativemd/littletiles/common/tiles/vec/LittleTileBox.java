@@ -194,6 +194,10 @@ public class LittleTileBox {
 		return true;
 	}
 	
+	public int getLongestSide() {
+		return Math.max(maxX - minX, Math.max(maxY - minY, maxZ - minZ));
+	}
+	
 	public Vec3d getSizeVec(LittleGridContext context) {
 		return new Vec3d(context.toVanillaGrid(maxX - minX), context.toVanillaGrid(maxY - minY), context.toVanillaGrid(maxZ - minZ));
 	}

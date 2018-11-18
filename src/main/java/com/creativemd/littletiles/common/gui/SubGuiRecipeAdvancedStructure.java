@@ -9,6 +9,7 @@ import com.creativemd.creativecore.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.common.gui.controls.GuiAnimationViewer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
@@ -59,7 +60,7 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			else
 				comboBox.caption = structure.structureID;
 		}
-		controls.add(new GuiPanel("renderer", 208, 30, 136, 135));
+		controls.add(new GuiAnimationViewer("renderer", 208, 30, 136, 135, stack));
 		controls.add(new GuiPanel("panel", 0, 30, 200, 135));
 		controls.add(new GuiLabel("tiles", previews.totalSize() + " tile(s)", 110, 7));
 		controls.add(comboBox);

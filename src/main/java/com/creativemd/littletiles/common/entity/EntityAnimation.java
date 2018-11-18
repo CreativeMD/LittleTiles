@@ -58,7 +58,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class EntityAnimation<T extends EntityAnimation> extends Entity {
+public abstract class EntityAnimation extends Entity {
 	
 	protected static Predicate<Entity> NO_ANIMATION = new Predicate<Entity>() {
 		
@@ -658,7 +658,13 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 		}
 	}
 	
+	public boolean shouldAddDoor() {
+		return true;
+	}
+	
 	public void addDoor() {
+		if (!shouldAddDoor())
+			return;
 		if (!addedDoor) {
 			LittleDoorHandler.getHandler(world).createDoor(this);
 			addedDoor = true;
@@ -818,12 +824,12 @@ public abstract class EntityAnimation<T extends EntityAnimation> extends Entity 
 	
 	// ================Copy================
 	
-	protected abstract void copyExtra(T animation);
+	protected abstract void copyExtra(EntityAnimation animation);
 	
-	public T copy() {
-		T animation = null;
+	public EntityAnimation copy() {
+		EntityAnimation animation = null;
 		try {
-			animation = (T) this.getClass().getConstructor(World.class).newInstance(this.world);
+			animation = (EntityAnimation) this.getClass().getConstructor(World.class).newInstance(this.world);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
