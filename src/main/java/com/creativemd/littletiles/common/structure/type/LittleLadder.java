@@ -14,6 +14,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
@@ -37,6 +38,7 @@ public class LittleLadder extends LittleStructure {
 		if (!ForgeModContainer.fullBoundingBoxLadders) {
 			return state.getBlock().isLadder(state, world, pos, entity);
 		} else {
+			MutableBlockPos tmp = new MutableBlockPos();
 			AxisAlignedBB bb = entity.getEntityBoundingBox();
 			int mX = MathHelper.floor(bb.minX);
 			int mY = MathHelper.floor(bb.minY);
@@ -44,7 +46,7 @@ public class LittleLadder extends LittleStructure {
 			for (int y2 = mY; y2 < bb.maxY; y2++) {
 				for (int x2 = mX; x2 < bb.maxX; x2++) {
 					for (int z2 = mZ; z2 < bb.maxZ; z2++) {
-						BlockPos tmp = new BlockPos(x2, y2, z2);
+						tmp.setPos(x2, y2, z2);
 						state = world.getBlockState(tmp);
 						if (state.getBlock().isLadder(state, world, tmp, entity)) {
 							return true;
@@ -59,7 +61,7 @@ public class LittleLadder extends LittleStructure {
 			for (int y2 = mY; y2 < bb.maxY; y2++) {
 				for (int x2 = mX; x2 < bb.maxX; x2++) {
 					for (int z2 = mZ; z2 < bb.maxZ; z2++) {
-						BlockPos tmp = new BlockPos(x2, y2, z2);
+						tmp.setPos(x2, y2, z2);
 						state = world.getBlockState(tmp);
 						if (state.getBlock() instanceof BlockTile && state.getBlock().isLadder(state, world, tmp, entity)) {
 							return true;
