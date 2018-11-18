@@ -49,7 +49,7 @@ public class SubContainerWorkbench extends SubContainer {
 		ItemStack stack2 = basic.getStackInSlot(1);
 		if (!stack1.isEmpty()) {
 			if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
-				if (stack1.getTagCompound() != null && !stack1.getTagCompound().hasKey("x")) {
+				if (stack1.hasTagCompound() && !stack1.getTagCompound().hasKey("x")) {
 					LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
 					
 					try {
@@ -73,7 +73,7 @@ public class SubContainerWorkbench extends SubContainer {
 				}
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
-				if (tile != null && !stack2.isEmpty() && stack2.getItem() instanceof ItemRecipe) {
+				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced)) {
 					stack2.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
 				}
 			}
