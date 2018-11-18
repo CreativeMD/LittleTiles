@@ -241,6 +241,9 @@ public class LittleActionPlaceStack extends LittleAction {
 					if (te != null) {
 						te.preventUpdate = true;
 						
+						if (te.getTiles().isEmpty())
+							requiresCollisionTest = false;
+						
 						placeTiles.ensureBothAreEqual(te);
 						
 						for (PlacePreviewTile placeTile : placeTiles) {
