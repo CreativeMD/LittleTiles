@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -47,7 +47,7 @@ public class RenderingThread extends Thread {
 	private static final String[] fakeWorldMods = new String[] { "chisel" };
 	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	public static ConcurrentHashMap<RenderChunk, AtomicInteger> chunks = new ConcurrentHashMap<>();
+	public static HashMap<RenderChunk, AtomicInteger> chunks = new HashMap<>();
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
 	public static int nearbyRenderDistance = 32 * 32;
@@ -62,7 +62,7 @@ public class RenderingThread extends Thread {
 					chunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
 					te.lastRenderedChunk = chunk;
 				}
-				synchronized (renderer.chunks) {
+				synchronized (chunks) {
 					AtomicInteger count = renderer.chunks.get(chunk);
 					if (count == null) {
 						count = new AtomicInteger(0);
@@ -377,34 +377,28 @@ public class RenderingThread extends Thread {
 			}
 			
 			synchronized (chunks) {
-				boolean finished = true;
-				for (RenderingThread thread : threads) {
-					if (thread.updateCoords.size() > 0) {
-						finished = false;
-						break;
-					}
-				}
-				if (finished)
-					chunks.clear();
-				// if(distanceRenderer.updateCoords.size() == 0 &&
-				// nearbyRenderer.updateCoords.size() == 0)
-				// chunks.clear();
-				
 				AtomicInteger count = chunks.get(chunk);
 				if (count != null)
 					count.getAndDecrement();
-				
-				// System.out.println("finished " + count);
 				
 				boolean uploadDirectly = te.getBuffer() == null;
 				uploadDirectly = false;
 				te.setBuffer(buffer);
 				
 				if (count == null || count.intValue() <= 0) {
-					// System.out.println("updating chunk " + chunk.boundingBox);
 					chunks.remove(chunk);
-					chunk.setNeedsUpdate(true);
+					chunk.setNeedsUpdate(false);
 				}
+				
+				boolean finished = true;
+				for (RenderingThread thread : threads) {
+					if (!thread.updateCoords.isEmpty()) {
+						finished = false;
+						break;
+					}
+				}
+				if (finished)
+					chunks.clear();
 			}
 		} else
 			te.setBuffer(buffer);
