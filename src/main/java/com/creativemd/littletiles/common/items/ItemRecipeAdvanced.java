@@ -114,6 +114,9 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		return new ArrayList<RenderCubeObject>();
 	}
 	
+	@SideOnly(Side.CLIENT)
+	IBakedModel model;
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
@@ -123,7 +126,8 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
-			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
+			if (model == null)
+				model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":recipeadvanced_background", "inventory"));
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
 			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);

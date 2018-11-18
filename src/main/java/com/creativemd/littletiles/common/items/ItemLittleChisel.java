@@ -149,13 +149,17 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		return Collections.emptyList();
 	}
 	
+	@SideOnly(Side.CLIENT)
+	IBakedModel model;
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 		
-		IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
+		if (model == null)
+			model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":chisel_background", "inventory"));
 		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 		
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
@@ -165,7 +169,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			
 			LittleTilePreview preview = getPreview(stack);
 			ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
-			model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
+			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 			if (!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
