@@ -29,16 +29,13 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
-import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class GuiAnimationViewer extends GuiControl {
 	
@@ -140,7 +137,7 @@ public class GuiAnimationViewer extends GuiControl {
 		GlStateManager.viewport(x * scale, y * scale, width * scale, height * scale);
 		GlStateManager.matrixMode(5889);
 		GlStateManager.loadIdentity();
-		Project.gluPerspective(90, (float) width / (float) height, 0.05F, ((float) ReflectionHelper.getPrivateValue(EntityRenderer.class, mc.entityRenderer, "farPlaneDistance")) * MathHelper.SQRT_2);
+		Project.gluPerspective(90, (float) width / (float) height, 0.05F, 16 * 16);
 		GlStateManager.matrixMode(5888);
 		GlStateManager.loadIdentity();
 		//GlStateManager.matrixMode(5890);
