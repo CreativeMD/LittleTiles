@@ -8,8 +8,9 @@ import org.apache.commons.io.IOUtils;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.google.common.base.Charsets;
@@ -20,6 +21,10 @@ import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
 
 public abstract class LittleStructurePremade extends LittleStructure {
+	
+	public LittleStructurePremade(LittleStructureType type) {
+		super(type);
+	}
 	
 	private static HashMap<String, LittleStructurePremadeEntry> structurePreviews = new HashMap<>();
 	

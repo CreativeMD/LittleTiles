@@ -108,3 +108,11 @@ selection.mode.area.pos.second=Second position selected [%s,%s,%s]
 selection.save=Save
 selection.scale=Scale
 mode.selection.area=Area
+
+structure.none.name=None
+structure.fixed.name=Fixed
+structure.chair.name=Chair
+structure.ladder.name=Ladder
+structure.bed.name=Bed
+structure.storage.name=Storage
+structure.noclip.name=No-clip

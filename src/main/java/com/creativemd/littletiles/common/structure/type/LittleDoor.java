@@ -25,7 +25,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructurePreviewHandler;
+import com.creativemd.littletiles.common.structure.registry.LittleStructurePreviewHandler;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -58,6 +59,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleDoor extends LittleDoorBase {
+	
+	public LittleDoor(LittleStructureType type) {
+		super(type);
+	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -381,17 +386,6 @@ public class LittleDoor extends LittleDoorBase {
 		doubledRelativeAxis = axisPointBackup;
 	}
 	
-	@Override
-	public LittleDoorBase copyToPlaceDoor() {
-		LittleDoor structure = new LittleDoor();
-		structure.doubledRelativeAxis = new LittleRelativeDoubledAxis(LittleGridContext.getMin(), LittleTileVec.ZERO, LittleTileVec.ZERO);
-		structure.setTiles(new HashMapList<>());
-		structure.axis = this.axis;
-		structure.normalDirection = this.normalDirection;
-		structure.duration = this.duration;
-		return structure;
-	}
-	
 	public static class LittleRelativeDoubledAxis extends LittleTileVecContext {
 		
 		public LittleTileVec additional;
@@ -591,16 +585,16 @@ public class LittleDoor extends LittleDoorBase {
 		
 	}
 	
-	public static class LittleDoorParser extends LittleDoorBaseParser<LittleDoor> {
+	public static class LittleDoorParser extends LittleDoorBaseParser {
 		
-		public LittleDoorParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleDoorParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleDoor parseStructure(int duration) {
-			LittleDoor door = new LittleDoor();
+			LittleDoor door = createStructure(LittleDoor.class);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
 			door.axis = viewer.axisDirection;

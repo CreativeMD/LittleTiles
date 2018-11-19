@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -47,6 +48,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleSlidingDoor extends LittleDoorBase {
+	
+	public LittleSlidingDoor(LittleStructureType type) {
+		super(type);
+	}
 	
 	public EnumFacing moveDirection;
 	public int moveDistance;
@@ -185,21 +190,10 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		return LittleGridContext.max(super.getMinContext(), moveContext);
 	}
 	
-	@Override
-	public LittleDoorBase copyToPlaceDoor() {
-		LittleSlidingDoor structure = new LittleSlidingDoor();
-		structure.setTiles(new HashMapList<>());
-		structure.moveDirection = moveDirection;
-		structure.moveDistance = moveDistance;
-		structure.moveContext = moveContext;
-		structure.duration = this.duration;
-		return structure;
-	}
-	
-	public static class LittleSlidingDoorParser extends LittleDoorBaseParser<LittleSlidingDoor> {
+	public static class LittleSlidingDoorParser extends LittleDoorBaseParser {
 		
-		public LittleSlidingDoorParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleSlidingDoorParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -275,7 +269,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(ItemStack stack, @Nullable LittleStructure structure) {
 			super.createControls(stack, structure);
 			LittleSlidingDoor door = null;
 			if (structure instanceof LittleSlidingDoor)
@@ -317,7 +311,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			// GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("distance");
 			GuiTextfield distance = (GuiTextfield) parent.get("distance");
 			
-			LittleSlidingDoor door = new LittleSlidingDoor();
+			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class);
 			door.duration = duration;
 			door.moveDirection = direction;
 			door.moveDistance = (int) Integer.parseInt(distance.text);

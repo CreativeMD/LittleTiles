@@ -16,9 +16,10 @@ import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
@@ -38,6 +39,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleDoorBase extends LittleStructure {
+	
+	public LittleDoorBase(LittleStructureType type) {
+		super(type);
+	}
 	
 	public boolean isWaitingForApprove = false;
 	
@@ -112,12 +117,10 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public abstract LittleTileVec getAdditionalAxisVec();
 	
-	public abstract LittleDoorBase copyToPlaceDoor();
-	
-	public static abstract class LittleDoorBaseParser<T extends LittleDoorBase> extends LittleStructureGuiParser<T> {
+	public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {
 		
-		public LittleDoorBaseParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleDoorBaseParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
@@ -130,12 +133,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public T parseStructure(ItemStack stack) {
+		public LittleDoorBase parseStructure(ItemStack stack) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
 			return parseStructure((int) slider.value);
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public abstract T parseStructure(int duration);
+		public abstract LittleDoorBase parseStructure(int duration);
 	}
 }

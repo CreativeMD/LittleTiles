@@ -16,12 +16,13 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructureEntry;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
@@ -62,22 +63,18 @@ public abstract class LittleStructure {
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile) {
 		if (nbt == null)
 			return null;
+		
 		String id = nbt.getString("id");
-		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(id);
-		if (entry != null) {
-			Class<? extends LittleStructure> classStructure = entry.structureClass;
-			if (classStructure != null) {
-				LittleStructure structure = null;
-				try {
-					structure = classStructure.getConstructor().newInstance();
-				} catch (Exception e) {
-					System.out.println("Found invalid structureID=" + id);
-				}
-				structure.mainTile = mainTile;
-				structure.loadFromNBT(nbt);
-				return structure;
-			}
-		}
+		LittleStructureType type = LittleStructureRegistry.getStructureType(id);
+		if (type != null) {
+			LittleStructure structure = type.createStructure();
+			structure.mainTile = mainTile;
+			structure.loadFromNBT(nbt);
+			
+			return structure;
+			
+		} else
+			System.out.println("Could not find structureID=" + id);
 		return null;
 	}
 	
@@ -90,10 +87,9 @@ public abstract class LittleStructure {
 	public LinkedHashMap<Integer, IStructureChildConnector> children;
 	public List<LittleStructure> tempChildren;
 	
-	public LittleStructure() {
-		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(this.getClass());
-		this.attribute = entry.attribute;
-		this.structureID = entry.id;
+	public LittleStructure(LittleStructureType type) {
+		this.attribute = type.attribute;
+		this.structureID = type.id;
 	}
 	
 	/**

@@ -3,7 +3,8 @@ package com.creativemd.littletiles.common.structure.type;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -15,6 +16,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleNoClipStructure extends LittleStructure {
+	
+	public LittleNoClipStructure(LittleStructureType type) {
+		super(type);
+	}
 	
 	public boolean web = true;
 	
@@ -39,10 +44,10 @@ public class LittleNoClipStructure extends LittleStructure {
 			entityIn.setInWeb();
 	}
 	
-	public static class LittleNoClipStructureParser extends LittleStructureGuiParser<LittleNoClipStructure> {
+	public static class LittleNoClipStructureParser extends LittleStructureGuiParser {
 		
-		public LittleNoClipStructureParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleNoClipStructureParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
@@ -57,7 +62,7 @@ public class LittleNoClipStructure extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleNoClipStructure parseStructure(ItemStack stack) {
-			LittleNoClipStructure structure = new LittleNoClipStructure();
+			LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class);
 			structure.web = ((GuiCheckBox) parent.get("web")).value;
 			
 			return structure;

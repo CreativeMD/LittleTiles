@@ -12,7 +12,8 @@ import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -30,6 +31,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleStorage extends LittleStructure {
+	
+	public LittleStorage(LittleStructureType type) {
+		super(type);
+	}
 	
 	public static int maxSlotStackSize = 64;
 	
@@ -97,10 +102,10 @@ public class LittleStorage extends LittleStructure {
 		return true;
 	}
 	
-	public static class LittleStorageParser extends LittleStructureGuiParser<LittleStorage> {
+	public static class LittleStorageParser extends LittleStructureGuiParser {
 		
-		public LittleStorageParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleStorageParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
@@ -115,7 +120,7 @@ public class LittleStorage extends LittleStructure {
 		@Override
 		public LittleStorage parseStructure(ItemStack stack) {
 			
-			LittleStorage storage = new LittleStorage();
+			LittleStorage storage = createStructure(LittleStorage.class);
 			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
 			LittlePreviews previews = LittleTilePreview.getPreview(stack);
 			for (int i = 0; i < previews.size(); i++) {

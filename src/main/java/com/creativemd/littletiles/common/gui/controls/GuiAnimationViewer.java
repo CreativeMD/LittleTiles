@@ -9,6 +9,7 @@ import java.util.UUID;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
+import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.gui.GuiControl;
 import com.creativemd.creativecore.gui.GuiRenderHelper;
@@ -29,6 +30,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.item.ItemStack;
@@ -44,10 +46,12 @@ public class GuiAnimationViewer extends GuiControl {
 	public LittleTileBox entireBox;
 	public LittleGridContext context;
 	public AxisAlignedBB box;
-	public double rotX = 0;
-	public double rotY = 0;
-	public double rotZ = 0;
-	public double distance = 0;
+	
+	public SmoothValue rotX = new SmoothValue(200);
+	public SmoothValue rotY = new SmoothValue(200);
+	public SmoothValue rotZ = new SmoothValue(200);
+	public SmoothValue distance = new SmoothValue(200);
+	
 	protected LoadingThread loadingThread;
 	
 	public boolean grabbed = false;
@@ -82,8 +86,8 @@ public class GuiAnimationViewer extends GuiControl {
 	public void mouseMove(int x, int y, int button) {
 		super.mouseMove(x, y, button);
 		if (grabbed) {
-			rotY += x - grabX;
-			rotX += y - grabY;
+			rotY.set(rotY.aimed() + x - grabX);
+			rotX.set(rotX.aimed() + y - grabY);
 			grabX = x;
 			grabY = y;
 		}
@@ -108,7 +112,7 @@ public class GuiAnimationViewer extends GuiControl {
 	
 	@Override
 	public boolean mouseScrolled(int x, int y, int scrolled) {
-		distance = Math.max(distance + scrolled * -1, 0);
+		distance.set(Math.max(distance.aimed() + scrolled * -(GuiScreen.isCtrlKeyDown() ? 5 : 1), 0));
 		return true;
 	}
 	
@@ -116,6 +120,12 @@ public class GuiAnimationViewer extends GuiControl {
 	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
 		if (loadingThread != null)
 			return;
+		
+		rotX.tick();
+		rotY.tick();
+		rotZ.tick();
+		distance.tick();
+		
 		Vec3d center = box.getCenter();
 		GlStateManager.disableDepth();
 		
@@ -141,13 +151,13 @@ public class GuiAnimationViewer extends GuiControl {
 		GlStateManager.matrixMode(5888);
 		GlStateManager.loadIdentity();
 		//GlStateManager.matrixMode(5890);
-		GlStateManager.translate(0, 0, -distance);
+		GlStateManager.translate(0, 0, -distance.current());
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.enableDepth();
 		
-		GL11.glRotated(rotX, 1, 0, 0);
-		GL11.glRotated(rotY, 0, 1, 0);
-		GL11.glRotated(rotZ, 0, 0, 1);
+		GL11.glRotated(rotX.current(), 1, 0, 0);
+		GL11.glRotated(rotY.current(), 0, 1, 0);
+		GL11.glRotated(rotZ.current(), 0, 0, 1);
 		
 		GlStateManager.pushMatrix();
 		
@@ -189,7 +199,7 @@ public class GuiAnimationViewer extends GuiControl {
 				entireBox = previews.getSurroundingBox();
 				context = previews.context;
 				box = entireBox.getBox(context);
-				distance = context.toVanillaGrid(entireBox.getLongestSide()) / 2D + 2;
+				distance.setStart(context.toVanillaGrid(entireBox.getLongestSide()) / 2D + 2);
 				BlockPos pos = new BlockPos(0, 75, 0);
 				FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
 				

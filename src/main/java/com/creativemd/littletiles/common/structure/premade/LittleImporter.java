@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure.premade;
 
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.block.state.IBlockState;
@@ -14,6 +15,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class LittleImporter extends LittleStructurePremade {
+	
+	public LittleImporter(LittleStructureType type) {
+		super(type);
+	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {

@@ -9,21 +9,22 @@ import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructureEntry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 
 public class SubGuiRecipe extends SubGui {
 	
 	public ItemStack stack;
 	public LittleStructure structure;
 	public LittleStructureGuiParser parser;
+	public ArrayList<String> lines;
 	
 	public SubGuiRecipe(ItemStack stack) {
 		super(176, 186);
@@ -32,11 +33,15 @@ public class SubGuiRecipe extends SubGui {
 	
 	@Override
 	public void createControls() {
-		ArrayList<String> lines = new ArrayList<>();
+		lines = new ArrayList<>();
 		lines.add("none");
-		lines.addAll(LittleStructureRegistry.getStructureTypeNames());
-		controls.add(new GuiLabel("type:", 2, 7));
-		GuiComboBox comboBox = new GuiComboBox("types", 32, 5, 70, lines);
+		lines.addAll(LittleStructureRegistry.getParserIds());
+		ArrayList<String> translatedLines = new ArrayList<>();
+		for (String string : lines) {
+			translatedLines.add(I18n.translateToLocal("structure." + string + ".name"));
+		}
+		
+		GuiComboBox comboBox = new GuiComboBox("types", 0, 5, 100, translatedLines);
 		LittlePreviews previews = LittleTilePreview.getPreview(stack);
 		LittleStructure structure = previews.getStructure();
 		if (structure != null) {
@@ -87,14 +92,11 @@ public class SubGuiRecipe extends SubGui {
 		LittleStructure saved = this.structure;
 		if (saved != null && !saved.structureID.equals(id))
 			saved = null;
-		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(id);
-		if (entry != null) {
-			parser = entry.createParser(this);
-			if (parser != null) {
-				parser.createControls(stack, saved);
-				this.refreshControls();
-				addListener(parser);
-			}
+		parser = LittleStructureRegistry.getParser(this, id);
+		if (parser != null) {
+			parser.createControls(stack, saved);
+			this.refreshControls();
+			addListener(parser);
 		} else
 			parser = null;
 		

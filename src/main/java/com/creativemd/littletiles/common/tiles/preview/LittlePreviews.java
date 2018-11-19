@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructurePreviewHandler;
+import com.creativemd.littletiles.common.structure.registry.LittleStructurePreviewHandler;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;

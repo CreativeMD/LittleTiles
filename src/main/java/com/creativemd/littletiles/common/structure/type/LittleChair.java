@@ -6,7 +6,8 @@ import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 
@@ -23,8 +24,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure {
 	
-	public LittleChair() {
-		
+	public LittleChair(LittleStructureType type) {
+		super(type);
 	}
 	
 	@Override
@@ -51,10 +52,10 @@ public class LittleChair extends LittleStructure {
 		return true;
 	}
 	
-	public static class LittleChairParser extends LittleStructureGuiParser<LittleChair> {
+	public static class LittleChairParser extends LittleStructureGuiParser {
 		
-		public LittleChairParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleChairParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
@@ -65,8 +66,8 @@ public class LittleChair extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleChair parseStructure(ItemStack stack) {
-			return new LittleChair();
+		public LittleStructure parseStructure(ItemStack stack) {
+			return createStructure(LittleChair.class);
 		}
 	}
 }

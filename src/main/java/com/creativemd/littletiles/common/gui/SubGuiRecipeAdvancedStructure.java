@@ -11,20 +11,21 @@ import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.controls.GuiAnimationViewer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.LittleStructureRegistry.LittleStructureEntry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 
 public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 	
 	public LittleStructure structure;
 	public LittleStructureGuiParser parser;
+	public ArrayList<String> lines;
 	
 	public SubGuiRecipeAdvancedStructure(ItemStack stack) {
 		super(350, 200, stack);
@@ -45,11 +46,15 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 			}
 		});
 		
-		ArrayList<String> lines = new ArrayList<>();
+		lines = new ArrayList<>();
 		lines.add("none");
-		lines.addAll(LittleStructureRegistry.getStructureTypeNames());
-		controls.add(new GuiLabel("type:", 2, 7));
-		GuiComboBox comboBox = new GuiComboBox("types", 32, 5, 70, lines);
+		lines.addAll(LittleStructureRegistry.getParserIds());
+		ArrayList<String> translatedLines = new ArrayList<>();
+		for (String string : lines) {
+			translatedLines.add(I18n.translateToLocal("structure." + string + ".name"));
+		}
+		
+		GuiComboBox comboBox = new GuiComboBox("types", 0, 5, 100, translatedLines);
 		LittlePreviews previews = LittleTilePreview.getPreview(stack);
 		LittleStructure structure = previews.getStructure();
 		if (structure != null) {
@@ -100,7 +105,8 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 		GuiPanel panel = (GuiPanel) get("panel");
 		panel.controls.clear();
 		
-		String id = ((GuiComboBox) get("types")).caption;
+		GuiComboBox types = (GuiComboBox) get("types");
+		String id = lines.get(types.index);
 		
 		if (parser != null)
 			removeListener(parser);
@@ -108,14 +114,12 @@ public class SubGuiRecipeAdvancedStructure extends SubGuiConfigure {
 		LittleStructure saved = this.structure;
 		if (saved != null && !saved.structureID.equals(id))
 			saved = null;
-		LittleStructureEntry entry = LittleStructureRegistry.getStructureEntry(id);
-		if (entry != null) {
-			parser = entry.createParser(panel);
-			if (parser != null) {
-				parser.createControls(stack, saved);
-				panel.refreshControls();
-				addListener(parser);
-			}
+		
+		parser = LittleStructureRegistry.getParser(panel, id);
+		if (parser != null) {
+			parser.createControls(stack, saved);
+			panel.refreshControls();
+			addListener(parser);
 		} else
 			parser = null;
 		

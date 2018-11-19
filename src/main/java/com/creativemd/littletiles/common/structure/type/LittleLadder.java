@@ -5,7 +5,8 @@ import javax.annotation.Nonnull;
 import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -20,6 +21,10 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
 
 public class LittleLadder extends LittleStructure {
+	
+	public LittleLadder(LittleStructureType type) {
+		super(type);
+	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -73,10 +78,10 @@ public class LittleLadder extends LittleStructure {
 		}
 	}
 	
-	public static class LittleLadderParser extends LittleStructureGuiParser<LittleLadder> {
+	public static class LittleLadderParser extends LittleStructureGuiParser {
 		
-		public LittleLadderParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleLadderParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@Override
@@ -86,7 +91,7 @@ public class LittleLadder extends LittleStructure {
 		
 		@Override
 		public LittleLadder parseStructure(ItemStack stack) {
-			return new LittleLadder();
+			return createStructure(LittleLadder.class);
 		}
 	}
 }

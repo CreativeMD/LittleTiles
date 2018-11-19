@@ -19,7 +19,8 @@ import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -56,6 +57,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleBed extends LittleStructure {
+	
+	public LittleBed(LittleStructureType type) {
+		super(type);
+	}
 	
 	public EntityLivingBase sleepingPlayer = null;
 	@SideOnly(Side.CLIENT)
@@ -282,10 +287,10 @@ public class LittleBed extends LittleStructure {
 		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
 	}
 	
-	public static class LittleBedParser extends LittleStructureGuiParser<LittleBed> {
+	public static class LittleBedParser extends LittleStructureGuiParser {
 		
-		public LittleBedParser(String id, GuiParent parent) {
-			super(id, parent);
+		public LittleBedParser(GuiParent parent) {
+			super(parent);
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -323,7 +328,7 @@ public class LittleBed extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public LittleBed parseStructure(ItemStack stack) {
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-			LittleBed bed = new LittleBed();
+			LittleBed bed = createStructure(LittleBed.class);
 			bed.direction = direction;
 			return bed;
 		}
