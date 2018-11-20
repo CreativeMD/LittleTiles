@@ -19,11 +19,13 @@ public abstract class SubGuiConfigure extends SubGui {
 	
 	@Override
 	public boolean onKeyPressed(char character, int key) {
+		if (super.onKeyPressed(character, key))
+			return true;
 		if (LittleTilesClient.configure.getKeyCode() == key) {
 			closeGui();
 			return true;
 		}
-		return super.onKeyPressed(character, key);
+		return false;
 	}
 	
 	@Override
