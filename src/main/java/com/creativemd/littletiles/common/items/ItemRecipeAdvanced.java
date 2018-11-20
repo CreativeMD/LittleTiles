@@ -58,6 +58,13 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@Override
+	public String getItemStackDisplayName(ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
+			return stack.getTagCompound().getCompoundTag("structure").getString("name");
+		return super.getItemStackDisplayName(stack);
+	}
+	
+	@Override
 	public boolean hasLittlePreview(ItemStack stack) {
 		return stack.hasTagCompound() && (stack.getTagCompound().getInteger("count") > 0 || stack.getTagCompound().hasKey("children"));
 	}

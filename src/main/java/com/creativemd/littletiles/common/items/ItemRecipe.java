@@ -59,6 +59,13 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	}
 	
 	@Override
+	public String getItemStackDisplayName(ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure") && stack.getTagCompound().getCompoundTag("structure").hasKey("name"))
+			return stack.getTagCompound().getCompoundTag("structure").getString("name");
+		return super.getItemStackDisplayName(stack);
+	}
+	
+	@Override
 	public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand) {
 		ItemStack stack = player.getHeldItem(hand);
 		if (hand == EnumHand.OFF_HAND)
