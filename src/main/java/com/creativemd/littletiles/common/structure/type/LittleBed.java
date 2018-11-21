@@ -244,8 +244,9 @@ public class LittleBed extends LittleStructure {
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!hasLoaded() && !SpecialServerConfig.enableBed)
+		if (!hasLoaded() || !SpecialServerConfig.enableBed)
 			return false;
+		
 		if (world.isRemote) {
 			hasBeenActivated = true;
 			return true;
