@@ -8,18 +8,23 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorParser;
+import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorPreviewHandler;
+import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
@@ -116,6 +121,11 @@ public abstract class LittleDoorBase extends LittleStructure {
 	public abstract LittleTilePos getAbsoluteAxisVec();
 	
 	public abstract LittleTileVec getAdditionalAxisVec();
+	
+	public static void initDoors() {
+		LittleStructureRegistry.registerStructureType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE, LittleAxisDoorParser.class, new LittleAxisDoorPreviewHandler());
+		LittleStructureRegistry.registerStructureType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE, LittleSlidingDoorParser.class);
+	}
 	
 	public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {
 		

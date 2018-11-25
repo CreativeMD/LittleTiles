@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.container;
 
+import com.creativemd.creativecore.common.gui.container.SubContainer;
+import com.creativemd.creativecore.common.slots.SlotStackLimit;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.slots.SlotStackLimit;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 
 import net.minecraft.entity.player.EntityPlayer;

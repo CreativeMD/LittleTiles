@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.common.gui.configure;
 
-import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 import org.lwjgl.util.Color;
 
+import com.creativemd.creativecore.common.gui.controls.gui.GuiColorPicker;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.gui.controls.gui.GuiColorPicker;
-import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;

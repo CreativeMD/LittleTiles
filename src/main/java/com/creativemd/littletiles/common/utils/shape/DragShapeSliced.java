@@ -3,9 +3,9 @@ package com.creativemd.littletiles.common.utils.shape;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.GuiControl;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.gui.GuiControl;
-import com.creativemd.creativecore.gui.container.GuiParent;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;

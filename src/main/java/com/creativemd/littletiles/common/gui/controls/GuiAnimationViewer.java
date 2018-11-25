@@ -9,20 +9,22 @@ import java.util.UUID;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
+import com.creativemd.creativecore.common.gui.GuiControl;
+import com.creativemd.creativecore.common.gui.GuiRenderHelper;
+import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.world.FakeWorld;
-import com.creativemd.creativecore.gui.GuiControl;
-import com.creativemd.creativecore.gui.GuiRenderHelper;
-import com.creativemd.creativecore.gui.client.style.Style;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -183,6 +185,7 @@ public class GuiAnimationViewer extends GuiControl {
 		GlStateManager.matrixMode(5888);
 		GlStateManager.loadIdentity();
 		mc.entityRenderer.setupOverlayRendering();
+		GlStateManager.disableDepth();
 	}
 	
 	public class LoadingThread extends Thread {
@@ -194,8 +197,8 @@ public class GuiAnimationViewer extends GuiControl {
 		@Override
 		public void run() {
 			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-			if (iTile != null && iTile.hasLittlePreview(stack)) {
-				LittlePreviews previews = iTile.getLittlePreview(stack);
+			if (stack.getItem() instanceof ItemRecipe || (iTile != null && iTile.hasLittlePreview(stack))) {
+				LittlePreviews previews = iTile != null ? iTile.getLittlePreview(stack) : LittleTilePreview.getPreview(stack);
 				entireBox = previews.getSurroundingBox();
 				context = previews.context;
 				box = entireBox.getBox(context);

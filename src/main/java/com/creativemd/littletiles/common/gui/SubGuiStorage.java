@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.gui.ContainerControl;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.controls.container.SlotControl;
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
+import com.creativemd.creativecore.common.gui.ContainerControl;
+import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.common.container.SubContainerStorage.StorageSize;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 

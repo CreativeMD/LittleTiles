@@ -2,8 +2,8 @@ package com.creativemd.littletiles.client.render;
 
 import org.lwjgl.util.Color;
 
+import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.gui.GuiRenderHelper;
 import com.creativemd.littletiles.LittleTiles;
 
 import net.minecraft.client.Minecraft;

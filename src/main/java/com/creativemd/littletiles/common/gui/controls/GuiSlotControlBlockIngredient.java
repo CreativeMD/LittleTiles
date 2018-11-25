@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.gui.controls.container.SlotControl;
-import com.creativemd.creativecore.gui.controls.container.client.GuiSlotControl;
+import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
+import com.creativemd.creativecore.common.gui.controls.container.client.GuiSlotControl;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;

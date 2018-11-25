@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.command;
 
-import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;

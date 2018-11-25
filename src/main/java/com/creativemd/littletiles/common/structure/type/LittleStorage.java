@@ -2,10 +2,10 @@ package com.creativemd.littletiles.common.structure.type;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
-import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;

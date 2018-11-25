@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.structure.type;
 
 import javax.annotation.Nonnull;
 
-import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;

@@ -10,16 +10,16 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButtonImpl;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
-import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
@@ -58,9 +58,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleDoor extends LittleDoorBase {
+public class LittleAxisDoor extends LittleDoorBase {
 	
-	public LittleDoor(LittleStructureType type) {
+	public LittleAxisDoor(LittleStructureType type) {
 		super(type);
 	}
 	
@@ -171,7 +171,7 @@ public class LittleDoor extends LittleDoorBase {
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
 		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
 		
-		LittleDoor newDoor = (LittleDoor) previews.getStructure();
+		LittleAxisDoor newDoor = (LittleAxisDoor) previews.getStructure();
 		if (newDoor.doubledRelativeAxis.context.size > previews.context.size)
 			previews.convertTo(newDoor.doubledRelativeAxis.context);
 		else if (newDoor.doubledRelativeAxis.context.size < previews.context.size)
@@ -572,8 +572,8 @@ public class LittleDoor extends LittleDoorBase {
 		
 		@Override
 		public List<LittleTile> placeTile(EntityPlayer player, ItemStack stack, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest) {
-			if (structurePreview.getStructure() instanceof LittleDoor) {
-				LittleDoor door = (LittleDoor) structurePreview.getStructure();
+			if (structurePreview.getStructure() instanceof LittleAxisDoor) {
+				LittleAxisDoor door = (LittleAxisDoor) structurePreview.getStructure();
 				LittleTilePos absolute = new LittleTilePos(pos, context, box.getMinVec());
 				if (door.getMainTile() == null)
 					door.selectMainTile();
@@ -585,16 +585,16 @@ public class LittleDoor extends LittleDoorBase {
 		
 	}
 	
-	public static class LittleDoorParser extends LittleDoorBaseParser {
+	public static class LittleAxisDoorParser extends LittleDoorBaseParser {
 		
-		public LittleDoorParser(GuiParent parent) {
+		public LittleAxisDoorParser(GuiParent parent) {
 			super(parent);
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleDoor parseStructure(int duration) {
-			LittleDoor door = createStructure(LittleDoor.class);
+		public LittleAxisDoor parseStructure(int duration) {
+			LittleAxisDoor door = createStructure(LittleAxisDoor.class);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
 			door.axis = viewer.axisDirection;
@@ -607,9 +607,9 @@ public class LittleDoor extends LittleDoorBase {
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			super.createControls(stack, structure);
-			LittleDoor door = null;
-			if (structure instanceof LittleDoor)
-				door = (LittleDoor) structure;
+			LittleAxisDoor door = null;
+			if (structure instanceof LittleAxisDoor)
+				door = (LittleAxisDoor) structure;
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
 			
 			boolean even = false;
@@ -629,12 +629,12 @@ public class LittleDoor extends LittleDoorBase {
 			tile.visibleAxis = true;
 			tile.updateViewDirection();
 			parent.controls.add(tile);
-			parent.controls.add(new GuiIDButton("reset view", 109, 20, 0));
+			parent.controls.add(new GuiButtonImpl("reset view", 109, 20));
 			// parent.controls.add(new GuiButton("y", 170, 50, 20));
-			parent.controls.add(new GuiIDButton("flip view", 109, 40, 1));
+			parent.controls.add(new GuiButtonImpl("flip view", 109, 40));
 			
-			parent.controls.add(new GuiIDButton("swap axis", 109, 0, 2));
-			parent.controls.add(new GuiIDButton("swap normal", 109, 60, 3));
+			parent.controls.add(new GuiButtonImpl("swap axis", 109, 0));
+			parent.controls.add(new GuiButtonImpl("swap normal", 109, 60));
 			// parent.controls.add(new GuiButton("-->", 150, 50, 20));
 			
 			// parent.controls.add(new GuiButton("<-Z", 130, 70, 20));
@@ -645,8 +645,8 @@ public class LittleDoor extends LittleDoorBase {
 				}
 				
 			}.setRotation(90));
-			parent.controls.add(new GuiIDButton("->", 146, 100, 4));
-			parent.controls.add(new GuiIDButton("<-", 107, 100, 5));
+			parent.controls.add(new GuiButtonImpl("->", 146, 100));
+			parent.controls.add(new GuiButtonImpl("<-", 107, 100));
 			parent.controls.add(new GuiButton("down", "<-", 125, 100, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -728,18 +728,18 @@ public class LittleDoor extends LittleDoorBase {
 		
 	}
 	
-	public static class LittleDoorPreviewHandler extends LittleStructurePreviewHandler {
+	public static class LittleAxisDoorPreviewHandler extends LittleStructurePreviewHandler {
 		
 		@Override
 		public LittleGridContext getMinContext(LittlePreviews previews) {
-			LittleDoor door = (LittleDoor) previews.getStructure();
+			LittleAxisDoor door = (LittleAxisDoor) previews.getStructure();
 			door.doubledRelativeAxis.convertToSmallest();
 			return door.doubledRelativeAxis.context;
 		}
 		
 		@Override
 		public List<PlacePreviewTile> getSpecialTiles(LittlePreviews previews) {
-			LittleDoor door = (LittleDoor) previews.getStructure();
+			LittleAxisDoor door = (LittleAxisDoor) previews.getStructure();
 			if (previews.context.size < door.doubledRelativeAxis.context.size)
 				throw new RuntimeException("Invalid context as it is smaller than the context of the axis");
 			

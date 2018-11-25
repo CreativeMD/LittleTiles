@@ -8,12 +8,14 @@ import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttr
 public final class LittleStructureType {
 	
 	public final String id;
+	public final String category;
 	public final Class<? extends LittleStructure> structureClass;
 	public final LittleStructureAttribute attribute;
 	public final LittleStructurePreviewHandler handler;
 	
-	LittleStructureType(String id, Class<? extends LittleStructure> structureClass, LittleStructureAttribute attribute, @Nullable LittleStructurePreviewHandler handler) {
+	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleStructureAttribute attribute, @Nullable LittleStructurePreviewHandler handler) {
 		this.id = id;
+		this.category = category;
 		this.structureClass = structureClass;
 		this.attribute = attribute;
 		if (handler == null)

@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.structure.registry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 
 import net.minecraft.item.ItemStack;

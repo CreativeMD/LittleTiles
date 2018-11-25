@@ -7,15 +7,15 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButtonImpl;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.creativecore.gui.container.GuiParent;
-import com.creativemd.creativecore.gui.controls.gui.GuiIDButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
@@ -291,9 +291,9 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			// parent.addControl(new GuiSteppedSlider("distance", 110, 51, 60, 14, distance,
 			// 1, size.getSizeOfAxis(EnumFacing.getFront(index).getAxis())+1));
 			
-			parent.addControl(new GuiIDButton("reset view", 110, 45, 0));
-			parent.addControl(new GuiIDButton("change view", 110, 65, 1));
-			parent.addControl(new GuiIDButton("flip view", 110, 85, 1));
+			parent.addControl(new GuiButtonImpl("reset view", 110, 45));
+			parent.addControl(new GuiButtonImpl("change view", 110, 65));
+			parent.addControl(new GuiButtonImpl("flip view", 110, 85));
 			
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
 			tile.visibleAxis = false;

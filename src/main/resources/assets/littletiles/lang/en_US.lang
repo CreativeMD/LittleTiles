@@ -99,6 +99,9 @@ item.LTPremade.exporter.name=Little Exporter
 
 selection.clear=clear
 selection.dialog.clear=Do you really want to clear all content?
+selection.structure.name=structure name
+selection.structure.tiles=tiles
+selection.structure.tile=tile
 selection.include.vanilla=Regular Blocks
 selection.include.cb=C&B Blocks
 selection.include.lt=LittleTiles Blocks
@@ -116,3 +119,10 @@ structure.ladder.name=Ladder
 structure.bed.name=Bed
 structure.storage.name=Storage
 structure.noclip.name=No-clip
+structure.door.name=Door
+structure.axisDoor.name=Axis Door
+structure.slidingDoor.name=Sliding Door
+structure.advancedDoor.name=Advanced Door
+
+structure.category.simple=Simple
+structure.category.door=Doors

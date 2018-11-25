@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.gui.client.style.ColoredDisplayStyle;
-import com.creativemd.creativecore.gui.client.style.DisplayStyle;
-import com.creativemd.creativecore.gui.client.style.Style;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.controls.gui.GuiProgressBar;
+import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
+import com.creativemd.creativecore.common.gui.client.style.DisplayStyle;
+import com.creativemd.creativecore.common.gui.client.style.Style;
+import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiProgressBar;
 import com.creativemd.littletiles.common.container.SubContainerTileContainer;
 import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.items.ItemTileContainer;

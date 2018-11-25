@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.gui;
 
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;

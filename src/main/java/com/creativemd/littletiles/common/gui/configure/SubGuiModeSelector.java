@@ -3,9 +3,9 @@ package com.creativemd.littletiles.common.gui.configure;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiTextBox;
-import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextBox;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;

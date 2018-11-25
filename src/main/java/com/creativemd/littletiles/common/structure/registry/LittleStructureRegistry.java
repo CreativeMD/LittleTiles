@@ -2,9 +2,10 @@ package com.creativemd.littletiles.common.structure.registry;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
-import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.utils.type.Pair;
+import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
@@ -12,15 +13,13 @@ import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
 import com.creativemd.littletiles.common.structure.type.LittleChair.LittleChairParser;
-import com.creativemd.littletiles.common.structure.type.LittleDoor;
-import com.creativemd.littletiles.common.structure.type.LittleDoor.LittleDoorPreviewHandler;
+import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleLadder;
 import com.creativemd.littletiles.common.structure.type.LittleLadder.LittleLadderParser;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
-import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
 
@@ -29,32 +28,53 @@ public class LittleStructureRegistry {
 	private static HashMap<String, LittleStructureType> structures = new LinkedHashMap<String, LittleStructureType>();
 	private static HashMap<Class<? extends LittleStructure>, LittleStructureType> structuresClass = new LinkedHashMap<Class<? extends LittleStructure>, LittleStructureType>();
 	
-	private static LinkedHashMap<String, Class<? extends LittleStructureGuiParser>> craftables = new LinkedHashMap<>();
+	private static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables = new PairList<>();
 	
-	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureGuiParser> parser) {
-		registerStructureType(id, classStructure, attribute, parser, null);
+	public static void registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureGuiParser> parser) {
+		registerStructureType(id, category, classStructure, attribute, parser, null);
 	}
 	
-	public static void registerStructureType(String id, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureGuiParser> parser, LittleStructurePreviewHandler handler) {
-		LittleStructureType entry = new LittleStructureType(id, classStructure, attribute, handler);
-		registerStructureType(id, entry, parser);
+	public static void registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureGuiParser> parser, LittleStructurePreviewHandler handler) {
+		registerStructureType(id, new LittleStructureType(id, category, classStructure, attribute, handler), parser);
 	}
 	
-	public static void registerGuiParser(String id, Class<? extends LittleStructureGuiParser> parser) {
-		craftables.put(id, parser);
+	public static void registerGuiParser(String id, String category, Class<? extends LittleStructureGuiParser> parser) {
+		category = "structure.category." + category;
+		PairList<String, Class<? extends LittleStructureGuiParser>> categoryList = craftables.getValue(category);
+		if (categoryList == null) {
+			categoryList = new PairList<>();
+			craftables.add(category, categoryList);
+		}
+		categoryList.add("structure." + id + ".name", parser);
 	}
 	
-	public static Set<String> getParserIds() {
-		return craftables.keySet();
+	public static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> getCraftables() {
+		return craftables;
 	}
 	
 	public static Class<? extends LittleStructureGuiParser> getParserClass(String id) {
-		return craftables.get(id);
+		for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> pair : craftables) {
+			Class<? extends LittleStructureGuiParser> parser = pair.value.getValue(id);
+			if (parser != null)
+				return parser;
+		}
+		return null;
+	}
+	
+	public static LittleStructureGuiParser getParser(GuiParent parent, Class<? extends LittleStructureGuiParser> clazz) {
+		try {
+			if (clazz == null)
+				return null;
+			return clazz.getConstructor(GuiParent.class).newInstance(parent);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 	
 	public static LittleStructureGuiParser getParser(GuiParent parent, String id) {
 		try {
-			Class<? extends LittleStructureGuiParser> clazz = craftables.get(id);
+			Class<? extends LittleStructureGuiParser> clazz = getParserClass(id);
 			if (clazz == null)
 				return null;
 			return clazz.getConstructor(GuiParent.class).newInstance(parent);
@@ -71,7 +91,7 @@ public class LittleStructureRegistry {
 			throw new RuntimeException("Already registered class=" + entry);
 		
 		if (parser != null)
-			registerGuiParser(id, parser);
+			registerGuiParser(id, entry.category, parser);
 		
 		structures.put(id, entry);
 		structuresClass.put(entry.structureClass, entry);
@@ -100,14 +120,17 @@ public class LittleStructureRegistry {
 	}
 	
 	public static void initStructures() {
-		registerStructureType("fixed", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
-		registerStructureType("chair", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
-		registerStructureType("door", LittleDoor.class, LittleStructureAttribute.NONE, null, new LittleDoorPreviewHandler());
-		registerStructureType("slidingDoor", LittleSlidingDoor.class, LittleStructureAttribute.NONE, null);
-		registerStructureType("ladder", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class);
-		registerStructureType("bed", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class);
-		registerStructureType("storage", LittleStorage.class, LittleStructureAttribute.NONE, LittleStorageParser.class);
-		registerStructureType("noclip", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION, LittleNoClipStructureParser.class);
+		registerStructureType("fixed", "simple", LittleFixedStructure.class, LittleStructureAttribute.NONE, LittleFixedStructureParser.class);
+		
+		registerStructureType("ladder", "simple", LittleLadder.class, LittleStructureAttribute.LADDER, LittleLadderParser.class);
+		
+		registerStructureType("bed", "simple", LittleBed.class, LittleStructureAttribute.NONE, LittleBedParser.class);
+		registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
+		
+		registerStructureType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE, LittleStorageParser.class);
+		registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION, LittleNoClipStructureParser.class);
+		
+		LittleDoorBase.initDoors();
 		
 		LittleStructurePremade.initPremadeStructures();
 	}

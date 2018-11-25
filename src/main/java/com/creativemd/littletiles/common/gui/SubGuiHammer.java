@@ -2,9 +2,9 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiScrollBox;
-import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemHammer;

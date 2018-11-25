@@ -3,10 +3,10 @@ package com.creativemd.littletiles.common.gui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
+import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackCollector;
+import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackCollector;
-import com.creativemd.creativecore.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;

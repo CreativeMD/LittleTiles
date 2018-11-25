@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.structure.type;
 
-import com.creativemd.creativecore.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;

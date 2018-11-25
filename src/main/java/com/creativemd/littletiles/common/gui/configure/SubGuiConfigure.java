@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.gui.configure;
 
-import com.creativemd.creativecore.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.littletiles.client.LittleTilesClient;
 
 import net.minecraft.item.ItemStack;

@@ -8,13 +8,13 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
-import com.creativemd.creativecore.gui.opener.IGuiCreator;
+import com.creativemd.creativecore.common.gui.container.SubContainer;
+import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
+import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.ItemModelCache;
-import com.creativemd.littletiles.common.container.SubContainerStructure;
+import com.creativemd.littletiles.common.container.SubContainerRecipe;
 import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -176,7 +176,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerStructure(player, stack);
+		return new SubContainerRecipe(player, stack);
 	}
 	
 	@Override

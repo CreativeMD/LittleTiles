@@ -2,11 +2,11 @@ package com.creativemd.littletiles;
 
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.container.SubContainer;
+import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.creativecore.gui.container.SubContainer;
-import com.creativemd.creativecore.gui.container.SubGui;
-import com.creativemd.creativecore.gui.opener.CustomGuiHandler;
-import com.creativemd.creativecore.gui.opener.GuiHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -58,7 +58,7 @@ import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
@@ -423,7 +423,7 @@ public class LittleTiles {
 				ItemStack stack = player.getHeldItemMainhand();
 				if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
 					return new SubGuiRecipeAdvancedSelection(stack);
-				return new SubGuiRecipeAdvancedStructure(stack);
+				return new SubGuiRecipe(stack);
 			}
 			
 			@Override

@@ -14,7 +14,7 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedStructure;
+import com.creativemd.littletiles.common.gui.SubGuiRecipe;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
@@ -89,7 +89,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	public SubGuiConfigure getConfigureGUI(EntityPlayer player, ItemStack stack) {
 		if (!((ItemRecipeAdvanced) stack.getItem()).hasLittlePreview(stack))
 			return new SubGuiRecipeAdvancedSelection(stack);
-		return new SubGuiRecipeAdvancedStructure(stack);
+		return new SubGuiRecipe(stack);
 	}
 	
 	@Override

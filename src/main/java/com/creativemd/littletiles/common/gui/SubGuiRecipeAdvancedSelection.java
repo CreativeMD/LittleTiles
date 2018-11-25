@@ -2,13 +2,13 @@ package com.creativemd.littletiles.common.gui;
 
 import org.apache.commons.lang3.ArrayUtils;
 
-import com.creativemd.creativecore.gui.GuiControl;
-import com.creativemd.creativecore.gui.controls.gui.GuiArraySlider;
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiComboBox;
-import com.creativemd.creativecore.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.gui.GuiControl;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiArraySlider;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;

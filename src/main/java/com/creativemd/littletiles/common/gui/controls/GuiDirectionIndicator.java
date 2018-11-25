@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
