@@ -187,16 +187,12 @@ public abstract class SelectShape {
 	
 	public abstract LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
-	/**
-	 * @return if the shape has been selected (information will then be send to the
-	 *         server)
-	 */
+	/** @return if the shape has been selected (information will then be send to the
+	 *         server) */
 	public abstract boolean rightClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
-	/**
-	 * @return if the shape has been selected (information will then be send to the
-	 *         server)
-	 */
+	/** @return if the shape has been selected (information will then be send to the
+	 *         server) */
 	public abstract boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
 	public abstract void deselect(EntityPlayer player, NBTTagCompound nbt, LittleGridContext context);

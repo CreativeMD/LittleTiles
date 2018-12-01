@@ -294,7 +294,6 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
 			tile.visibleAxis = false;
-			tile.updateViewDirection();
 			parent.addControl(tile);
 			
 			updateDirection(tile, EnumFacing.getFront(index), relativeDirection);

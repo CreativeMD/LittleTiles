@@ -233,20 +233,16 @@ public abstract class LittleTile implements ICombinable {
 		box.fillInSpace(otherBox, filled);
 	}
 	
-	/**
-	 * Cannot be overridden!
+	/** Cannot be overridden!
 	 * 
-	 * @return
-	 */
+	 * @return */
 	public final int[] getIdentifier() {
 		return box.getIdentifier();
 	}
 	
-	/**
-	 * It's faster than isAt()
+	/** It's faster than isAt()
 	 * 
-	 * @return if the min vec of the box equals the given coordinates
-	 */
+	 * @return if the min vec of the box equals the given coordinates */
 	public boolean is(LittleGridContext context, int[] identifier) {
 		identifier = LittleTileIdentifierAbsolute.convertTo(identifier, context, getContext());
 		if (identifier == null)
@@ -254,11 +250,9 @@ public abstract class LittleTile implements ICombinable {
 		return box.is(identifier);
 	}
 	
-	/**
-	 * It's slower than isCornerAt()
+	/** It's slower than isCornerAt()
 	 * 
-	 * @return if the coordinates are inside the box(es) of the tile
-	 */
+	 * @return if the coordinates are inside the box(es) of the tile */
 	public boolean isAt(int x, int y, int z) {
 		return box.isVecInsideBox(x, y, z);
 	}
@@ -350,11 +344,9 @@ public abstract class LittleTile implements ICombinable {
 	
 	protected static Field playerInChunkMapEntry = ReflectionHelper.findField(PlayerChunkMapEntry.class, "players", "field_187283_c");
 	
-	/**
-	 * Only works for tiles which support update packets. Example: LittleTileTE
+	/** Only works for tiles which support update packets. Example: LittleTileTE
 	 * 
-	 * @return
-	 */
+	 * @return */
 	public boolean sendUpdatePacketToClient() {
 		if (supportsUpdatePacket()) {
 			if (!te.getWorld().isRemote && te.getWorld() instanceof WorldServer) {
@@ -375,10 +367,8 @@ public abstract class LittleTile implements ICombinable {
 		return false;
 	}
 	
-	/**
-	 * Can be used to force a complete update on client for tiles which support
-	 * update packet (example: LittleTileTE)
-	 */
+	/** Can be used to force a complete update on client for tiles which support
+	 * update packet (example: LittleTileTE) */
 	public boolean needsFullUpdate = false;
 	
 	public boolean supportsUpdatePacket() {
@@ -444,10 +434,8 @@ public abstract class LittleTile implements ICombinable {
 		saveTileExtra(nbt);
 	}
 	
-	/**
-	 * Used to save extra data like block-name, meta, color etc. everything
-	 * necessary for a preview
-	 **/
+	/** Used to save extra data like block-name, meta, color etc. everything
+	 * necessary for a preview **/
 	public void saveTileExtra(NBTTagCompound nbt) {
 		if (invisible)
 			nbt.setBoolean("invisible", invisible);

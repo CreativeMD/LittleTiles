@@ -232,34 +232,28 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		return new Ray2d(one, two, new Vector3d(corner.x, corner.y, corner.z), getSize(one) * slice.getDirectionScale(one), getSize(two) * slice.getDirectionScale(two));
 	}
 	
-	/**
-	 * if instance and the argument bounding boxes overlap in the Y and Z
+	/** if instance and the argument bounding boxes overlap in the Y and Z
 	 * dimensions, calculate the offset between them in the X dimension. return var2
 	 * if the bounding boxes do not overlap or if var2 is closer to 0 then the
-	 * calculated offset. Otherwise return the calculated offset.
-	 */
+	 * calculated offset. Otherwise return the calculated offset. */
 	@Override
 	public double calculateXOffset(AxisAlignedBB other, double offsetX) {
 		return calculateAxisOffset(other, Axis.X, offsetX);
 	}
 	
-	/**
-	 * if instance and the argument bounding boxes overlap in the X and Z
+	/** if instance and the argument bounding boxes overlap in the X and Z
 	 * dimensions, calculate the offset between them in the Y dimension. return var2
 	 * if the bounding boxes do not overlap or if var2 is closer to 0 then the
-	 * calculated offset. Otherwise return the calculated offset.
-	 */
+	 * calculated offset. Otherwise return the calculated offset. */
 	@Override
 	public double calculateYOffset(AxisAlignedBB other, double offsetY) {
 		return calculateAxisOffset(other, Axis.Y, offsetY);
 	}
 	
-	/**
-	 * if instance and the argument bounding boxes overlap in the Y and X
+	/** if instance and the argument bounding boxes overlap in the Y and X
 	 * dimensions, calculate the offset between them in the Z dimension. return var2
 	 * if the bounding boxes do not overlap or if var2 is closer to 0 then the
-	 * calculated offset. Otherwise return the calculated offset.
-	 */
+	 * calculated offset. Otherwise return the calculated offset. */
 	@Override
 	public double calculateZOffset(AxisAlignedBB other, double offsetZ) {
 		return calculateAxisOffset(other, Axis.Z, offsetZ);

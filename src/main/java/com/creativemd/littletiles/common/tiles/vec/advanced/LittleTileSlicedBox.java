@@ -31,25 +31,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
-	/**
-	 * start vec (startOne/startTwo) of the slice. Relative to the min vec of the
-	 * box. One is the first different axis from slice.axis
-	 */
+	/** start vec (startOne/startTwo) of the slice. Relative to the min vec of the
+	 * box. One is the first different axis from slice.axis */
 	public float startOne;
-	/**
-	 * start vec (startOne/startTwo) of the slice. Relative to the min vec of the
-	 * box. Two is the second different axis from slice.axis
-	 */
+	/** start vec (startOne/startTwo) of the slice. Relative to the min vec of the
+	 * box. Two is the second different axis from slice.axis */
 	public float startTwo;
-	/**
-	 * end vec (endOne/endTwo) of the slice. Relative to the min vec of the box. One
-	 * is the first different axis from slice.axis
-	 */
+	/** end vec (endOne/endTwo) of the slice. Relative to the min vec of the box. One
+	 * is the first different axis from slice.axis */
 	public float endOne;
-	/**
-	 * end vec (endOne/endTwo) of the slice. Relative to the min vec of the box. Two
-	 * is the second different axis from slice.axis
-	 */
+	/** end vec (endOne/endTwo) of the slice. Relative to the min vec of the box. Two
+	 * is the second different axis from slice.axis */
 	public float endTwo;
 	
 	// ================Constructors================

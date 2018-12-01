@@ -9,18 +9,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
-/**
- * To be implemented on blocks that "hide" another block inside, so connected
- * textures can still be accomplished.
- */
+/** To be implemented on blocks that "hide" another block inside, so connected
+ * textures can still be accomplished. */
 public interface IFacade {
 	
 	@Nonnull
 	@Deprecated
 	IBlockState getFacade(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nullable EnumFacing side);
 	
-	/**
-	 * Gets the blockstate this facade appears as.
+	/** Gets the blockstate this facade appears as.
 	 *
 	 * @param world
 	 *            {@link World}
@@ -33,8 +30,7 @@ public interface IFacade {
 	 *            appropriately.
 	 * @param connection
 	 *            The position of the block being connected to.
-	 * @return The blockstate which your block appears as.
-	 */
+	 * @return The blockstate which your block appears as. */
 	@Nonnull
 	IBlockState getFacade(@Nonnull IBlockAccess world, @Nonnull BlockPos pos, @Nullable EnumFacing side, @Nonnull BlockPos connection);
 	

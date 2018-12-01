@@ -14,13 +14,9 @@ public class AABBCombiner {
 	private int i = -1;
 	private int j = -1;
 	
-	/**
-	 * how many operations should be done before checking for the time span
-	 */
+	/** how many operations should be done before checking for the time span */
 	public int timedOperation = 100;
-	/**
-	 * in nano seconds
-	 */
+	/** in nano seconds */
 	public long workingTime = 30000;
 	
 	public AABBCombiner(List<OrientatedBoundingBox> boxes, double deviation) {

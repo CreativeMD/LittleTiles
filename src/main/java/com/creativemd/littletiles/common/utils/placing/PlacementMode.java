@@ -19,10 +19,8 @@ public abstract class PlacementMode {
 	
 	private static LinkedHashMap<String, PlacementMode> modes = new LinkedHashMap<>();
 	
-	/**
-	 * Tries to place all tiles, fails if the main block pos (the player aimed at)
-	 * cannot be placed entirely.
-	 **/
+	/** Tries to place all tiles, fails if the main block pos (the player aimed at)
+	 * cannot be placed entirely. **/
 	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS);
 	
 	/** Tries to fill in the tiles where it is possible. **/
@@ -34,9 +32,7 @@ public abstract class PlacementMode {
 	/** Places all tiles no matter what is in the way. **/
 	public static PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
 	
-	/**
-	 * Similar to overwrite only that replace will not place any tiles in the air.
-	 **/
+	/** Similar to overwrite only that replace will not place any tiles in the air. **/
 	public static PlacementMode replace = new PlaceModeReplace("placement.mode.replace", PreviewMode.LINES);
 	
 	public static PlacementMode getDefault() {

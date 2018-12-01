@@ -235,10 +235,10 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
 			RenderHelper3D.renderBlock(cube.minX + context.gridMCLength / 2, cube.minY + context.gridMCLength / 2, cube.minZ + context.gridMCLength / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
 			
-			GlStateManager.enableTexture2D();
-			
 			GlStateManager.popMatrix();
 		}
+		
+		GlStateManager.enableTexture2D();
 		
 		GlStateManager.enableDepth();
 		

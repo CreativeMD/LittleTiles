@@ -160,10 +160,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	@SideOnly(Side.CLIENT)
 	public abstract boolean canBeReverted();
 	
-	/**
-	 * 
-	 * @return null if an revert action is not available
-	 */
+	/** @return null if an revert action is not available */
 	@SideOnly(Side.CLIENT)
 	public abstract LittleAction revert() throws LittleActionException;
 	
@@ -529,9 +526,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return null;
 	}
 	
-	/**
-	 * @return does not take care of stackSize
-	 */
+	/** @return does not take care of stackSize */
 	public static CombinedIngredients getIngredientsOfStack(ItemStack stack) {
 		if (!stack.isEmpty()) {
 			ILittleTile tile = PlacementHelper.getLittleInterface(stack);
@@ -690,12 +685,10 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	/**
-	 * Cannot be used for anything else but ingredients calculations
+	/** Cannot be used for anything else but ingredients calculations
 	 * 
 	 * @param tiles
-	 * @return
-	 */
+	 * @return */
 	public static LittlePreviews getIngredientsPreviews(List<LittleTile> tiles) {
 		LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
 		previews.addTiles(tiles);

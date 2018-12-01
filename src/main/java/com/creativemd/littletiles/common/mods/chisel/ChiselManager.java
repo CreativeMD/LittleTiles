@@ -24,11 +24,9 @@ public class ChiselManager {
 	private static Field passthrough = null;
 	private static Field stateCache = null;
 	
-	/**
-	 * The RegionCache caches incorrect values due to the IBlockAccessFake class,
+	/** The RegionCache caches incorrect values due to the IBlockAccessFake class,
 	 * there is only one way to fix and that is to get its parent and to check if
-	 * it's a fake. Kind of messy, but works
-	 */
+	 * it's a fake. Kind of messy, but works */
 	public static IBlockState getCorrectStateOrigin(IBlockAccess world, BlockPos pos) {
 		try {
 			if (regionCacheClass == null) {

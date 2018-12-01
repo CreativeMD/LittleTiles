@@ -36,10 +36,8 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-/**
- * This class does all calculate on where to place a block. Used for rendering
- * preview and placing
- **/
+/** This class does all calculate on where to place a block. Used for rendering
+ * preview and placing **/
 public class PlacementHelper {
 	
 	public static class PositionResult extends LittleTilePos {
@@ -228,14 +226,12 @@ public class PlacementHelper {
 		return result;
 	}
 	
-	/**
-	 * @param centered
+	/** @param centered
 	 *            if the previews should be centered
 	 * @param facing
 	 *            if centered is true it will be used to apply the offset
 	 * @param fixed
-	 *            if the previews should keep it's original boxes
-	 */
+	 *            if the previews should keep it's original boxes */
 	public static PreviewResult getPreviews(World world, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, boolean marked, PlacementMode mode) {
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		
@@ -258,16 +254,14 @@ public class PlacementHelper {
 		return result;
 	}
 	
-	/**
-	 * @param hit
+	/** @param hit
 	 *            relative vector to pos
 	 * @param centered
 	 *            if the previews should be centered
 	 * @param facing
 	 *            if centered is true it will be used to apply the offset
 	 * @param fixed
-	 *            if the previews should keep it's original boxes
-	 */
+	 *            if the previews should keep it's original boxes */
 	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
 		PreviewResult result = new PreviewResult();
 		

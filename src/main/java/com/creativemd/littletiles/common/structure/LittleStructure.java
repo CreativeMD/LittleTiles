@@ -92,8 +92,7 @@ public abstract class LittleStructure {
 		this.structureID = type.id;
 	}
 	
-	/**
-	 * takes name of stack and connects the structure to its children (does so recursively)
+	/** takes name of stack and connects the structure to its children (does so recursively)
 	 * 
 	 * @param stack
 	 */
@@ -116,9 +115,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	/**
-	 * This will notify every client that the structure has changed
-	 */
+	/** This will notify every client that the structure has changed */
 	public void updateStructure() {
 		mainTile.te.updateBlock();
 	}
@@ -198,10 +195,8 @@ public abstract class LittleStructure {
 	
 	private LittleTile mainTile;
 	
-	/**
-	 * The core of the structure. Handles saving & loading of the structures. All
-	 * Tiles inside the structure are containing relative coordinates to this tile
-	 **/
+	/** The core of the structure. Handles saving & loading of the structures. All
+	 * Tiles inside the structure are containing relative coordinates to this tile **/
 	public LittleTile getMainTile() {
 		return mainTile;
 	}
@@ -709,12 +704,10 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	/**
-	 * Only important for structures which require to be placed by the given
+	/** Only important for structures which require to be placed by the given
 	 * itemstack
 	 * 
-	 * @return
-	 */
+	 * @return */
 	public String getStructureDropIdentifier() {
 		return null;
 	}

@@ -162,12 +162,9 @@ public class LittleTilePreview implements ICombinable {
 		return null;
 	}
 	
-	/**
-	 * 
-	 * @param context
+	/** @param context
 	 * @return An ordinary itemstack of the block, not taking care of actual preview
-	 *         size (it's always a full cube).
-	 */
+	 *         size (it's always a full cube). */
 	public ItemStack getBlockStack() {
 		return handler.getBlockStack(this);
 	}

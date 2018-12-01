@@ -525,11 +525,9 @@ public class LittleTileBox {
 		return set;
 	}
 	
-	/**
-	 * @param cutout
+	/** @param cutout
 	 *            a list of boxes which have been cut out.
-	 * @return all remaining boxes or null if the box remains as it is
-	 */
+	 * @return all remaining boxes or null if the box remains as it is */
 	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout) {
 		List<LittleTileBox> newBoxes = new ArrayList<>();
 		SplitRangeBoxes ranges;
@@ -606,9 +604,7 @@ public class LittleTileBox {
 		return newBoxes;
 	}
 	
-	/**
-	 * @return all remaining boxes or null if the box remains as it is
-	 */
+	/** @return all remaining boxes or null if the box remains as it is */
 	public List<LittleTileBox> cutOut(LittleTileBox box) {
 		if (intersectsWith(box)) {
 			List<LittleTileBox> boxes = new ArrayList<>();
@@ -868,14 +864,11 @@ public class LittleTileBox {
 	
 	// ================Rotation & Flip================
 	
-	/**
-	 * 
-	 * @param rotation
+	/** @param rotation
 	 * @param doubledCenter
 	 *            coordinates are doubled, meaning in order to get the correct
 	 *            coordinates they have to be divided by two. This allows to rotate
-	 *            around even axis.
-	 */
+	 *            around even axis. */
 	public void rotateBox(Rotation rotation, LittleTileVec doubledCenter) {
 		long tempMinX = minX * 2 - doubledCenter.x;
 		long tempMinY = minY * 2 - doubledCenter.y;
@@ -886,14 +879,11 @@ public class LittleTileBox {
 		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
 	}
 	
-	/**
-	 * 
-	 * @param axis
+	/** @param axis
 	 * @param doubledCenter
 	 *            coordinates are doubled, meaning in order to get the correct
 	 *            coordinates they have to be divided by two. This allows to flip
-	 *            around even axis.
-	 */
+	 *            around even axis. */
 	public void flipBox(Axis axis, LittleTileVec doubledCenter) {
 		long tempMin = getMin(axis) * 2 - doubledCenter.get(axis);
 		long tempMax = getMax(axis) * 2 - doubledCenter.get(axis);

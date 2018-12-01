@@ -47,9 +47,7 @@ public interface ILittleTile {
 		return LittleGridContext.get();
 	}
 	
-	/**
-	 * @return Whether it should try to place it or not.
-	 */
+	/** @return Whether it should try to place it or not. */
 	@SideOnly(Side.CLIENT)
 	public default boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		return true;
@@ -122,24 +120,20 @@ public interface ILittleTile {
 		return false;
 	}
 	
-	/**
-	 * needs to be implemented by any ILittleTile which supports low resolution and
+	/** needs to be implemented by any ILittleTile which supports low resolution and
 	 * only uses full blocks
 	 * 
 	 * @param stack
-	 * @return
-	 */
+	 * @return */
 	public default LittleTileSize getCachedSize(ItemStack stack) {
 		return null;
 	}
 	
-	/**
-	 * needs to be implemented by any ILittleTile which supports low resolution and
+	/** needs to be implemented by any ILittleTile which supports low resolution and
 	 * only uses full blocks
 	 * 
 	 * @param stack
-	 * @return
-	 */
+	 * @return */
 	public default LittleTileVec getCachedOffset(ItemStack stack) {
 		return null;
 	}

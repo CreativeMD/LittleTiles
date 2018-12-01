@@ -8,23 +8,17 @@ import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleTileCylinder extends LittleTileBox {
 	
-	/**
-	 * relative to min vec It is two times larger than ordinary grid to support in
+	/** relative to min vec It is two times larger than ordinary grid to support in
 	 * between positions. In order to get the right position it has to be divided by
-	 * 2
-	 */
+	 * 2 */
 	public int centerOne;
-	/**
-	 * relative to min vec It is two times larger than ordinary grid to support in
+	/** relative to min vec It is two times larger than ordinary grid to support in
 	 * between positions. In order to get the right position it has to be divided by
-	 * 2
-	 */
+	 * 2 */
 	public int centerTwo;
 	public Axis axis;
-	/**
-	 * It is two times larger than ordinary grid to support in between positions. In
-	 * order to get the right position it has to be divided by 2
-	 */
+	/** It is two times larger than ordinary grid to support in between positions. In
+	 * order to get the right position it has to be divided by 2 */
 	public int radius;
 	
 	public LittleTileCylinder(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, Axis axis, int centerOne, int centerTwo, int radius) {

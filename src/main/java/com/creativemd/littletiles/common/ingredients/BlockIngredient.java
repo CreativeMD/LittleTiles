@@ -112,12 +112,9 @@ public class BlockIngredient {
 				content.add(ingredient.copy());
 		}
 		
-		/**
-		 * 
-		 * @param stack
+		/** @param stack
 		 *            to drain from. Will only take necessary count
-		 * @return left overs
-		 */
+		 * @return left overs */
 		public BlockIngredient drainItemStack(ItemStack stack) {
 			BlockIngredient ingredient = LittleAction.getIngredientsOfStackSimple(stack);
 			

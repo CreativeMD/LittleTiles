@@ -24,9 +24,7 @@ public interface ISpecialBlockSelector {
 	
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit);
 	
-	/**
-	 * @return a list of absolute LittleTileBoxes (not relative to the pos)
-	 */
+	/** @return a list of absolute LittleTileBoxes (not relative to the pos) */
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit);
 	
 	@SideOnly(Side.CLIENT)

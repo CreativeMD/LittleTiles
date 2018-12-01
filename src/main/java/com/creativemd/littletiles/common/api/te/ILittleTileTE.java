@@ -8,8 +8,7 @@ import net.minecraftforge.fml.common.Optional.Method;
 
 public interface ILittleTileTE {
 	
-	/**
-	 * Returns a converted version of the TileEntity.
+	/** Returns a converted version of the TileEntity.
 	 * 
 	 * @param force
 	 *            if false an exception will be thrown if a tile cannot be
