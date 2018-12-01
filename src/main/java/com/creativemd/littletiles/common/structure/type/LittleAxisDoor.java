@@ -610,7 +610,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleAxisDoor door = null;
 			if (structure instanceof LittleAxisDoor)
 				door = (LittleAxisDoor) structure;
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
 			
 			boolean even = false;
 			if (door != null) {
@@ -627,7 +627,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 				tile.setEven(false);
 			}
 			tile.visibleAxis = true;
-			tile.updateViewDirection();
 			parent.controls.add(tile);
 			parent.controls.add(new GuiButtonImpl("reset view", 109, 20));
 			// parent.controls.add(new GuiButton("y", 170, 50, 20));
@@ -679,18 +678,14 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 				viewer.axisDirection = axis;
 				viewer.updateViewDirection();
-				
-				viewer.updateNormalAxis();
-				// viewer.axisDirection
 			} else if (event.source.is("reset view")) {
-				viewer.offsetX = 0;
-				viewer.offsetY = 0;
-				viewer.scale = 5;
+				viewer.offsetX.set(0);
+				viewer.offsetY.set(0);
+				viewer.scale.set(40);
 				// viewer.viewDirection = ForgeDirection.EAST;
 				// ((GuiStateButton) event.source.parent.getControl("direction")).setState(3);
 			} else if (event.source.is("flip view")) {
 				viewer.viewDirection = viewer.viewDirection.getOpposite();
-				viewer.baked = null;
 				// viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton)
 				// event.source).getState()+2);
 			} else if (event.source instanceof GuiButton) {

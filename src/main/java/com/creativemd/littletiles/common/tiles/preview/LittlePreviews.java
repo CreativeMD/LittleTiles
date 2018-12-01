@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -447,6 +448,46 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
+	}
+	
+	public LittleTileVec getMinVec() {
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		
+		for (LittleTilePreview preview : allPreviews()) {
+			minX = Math.min(minX, preview.box.minX);
+			minY = Math.min(minY, preview.box.minY);
+			minZ = Math.min(minZ, preview.box.minZ);
+			maxX = Math.max(maxX, preview.box.maxX);
+			maxY = Math.max(maxY, preview.box.maxY);
+			maxZ = Math.max(maxZ, preview.box.maxZ);
+		}
+		
+		return new LittleTileVec(minX, minY, minZ);
+	}
+	
+	public LittleTileSize getSize() {
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		int maxX = Integer.MIN_VALUE;
+		int maxY = Integer.MIN_VALUE;
+		int maxZ = Integer.MIN_VALUE;
+		
+		for (LittleTilePreview preview : allPreviews()) {
+			minX = Math.min(minX, preview.box.minX);
+			minY = Math.min(minY, preview.box.minY);
+			minZ = Math.min(minZ, preview.box.minZ);
+			maxX = Math.max(maxX, preview.box.maxX);
+			maxY = Math.max(maxY, preview.box.maxY);
+			maxZ = Math.max(maxZ, preview.box.maxZ);
+		}
+		
+		return new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ);
 	}
 	
 	public static void advancedScale(LittlePreviews previews, int from, int to) {

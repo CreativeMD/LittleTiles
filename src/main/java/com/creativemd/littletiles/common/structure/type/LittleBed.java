@@ -308,7 +308,7 @@ public class LittleBed extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
 			tile.viewDirection = EnumFacing.UP;
 			parent.addControl(tile);
 			

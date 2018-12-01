@@ -1,43 +1,42 @@
 package com.creativemd.littletiles.common.gui.controls;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.client.MinecraftForgeClient;
 
-public class GuiTileViewer extends GuiParent {
+public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	
-	public ItemStack stack;
+	public EntityAnimation animation;
+	public LittleGridContext context;
+	public LittleTileSize size;
+	public LittleTileVec min;
 	
-	public float scale = 5;
-	public float offsetX = 0;
-	public float offsetY = 0;
+	public SmoothValue scale = new SmoothValue(200, 40);
+	public SmoothValue offsetX = new SmoothValue(100);
+	public SmoothValue offsetY = new SmoothValue(100);
 	
 	public EnumFacing viewDirection = EnumFacing.EAST;
 	
@@ -49,8 +48,6 @@ public class GuiTileViewer extends GuiParent {
 	public int axisX = 1;
 	public int axisY = 1;
 	public int axisZ = 1;
-	
-	public LittleGridContext context;
 	
 	private boolean even;
 	
@@ -69,60 +66,37 @@ public class GuiTileViewer extends GuiParent {
 	
 	public boolean grabbed = false;
 	
-	public GuiTileViewer(String name, int x, int y, int width, int height, ItemStack stack) {
+	public GuiTileViewer(String name, int x, int y, int width, int height, LittleGridContext context) {
 		super(name, x, y, width, height);
-		if (PlacementHelper.isLittleBlock(stack))
-			this.context = PlacementHelper.getLittleInterface(stack).getLittlePreview(stack).context;
-		else if (stack.getItem() instanceof ItemRecipe)
-			this.context = ((ItemRecipe) stack.getItem()).getContext(stack);
-		else
-			this.context = LittleGridContext.get();
-		this.stack = stack;
+		this.context = context;
 		this.marginWidth = 0;
-		updateNormalAxis();
+	}
+	
+	@Override
+	public boolean hasMouseOverEffect() {
+		return false;
 	}
 	
 	public void updateNormalAxis() {
-		List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
-		double minX = Integer.MAX_VALUE;
-		double minY = Integer.MAX_VALUE;
-		double minZ = Integer.MAX_VALUE;
-		double maxX = Integer.MIN_VALUE;
-		double maxY = Integer.MIN_VALUE;
-		double maxZ = Integer.MIN_VALUE;
-		
-		for (int i = 0; i < cubes.size(); i++) {
-			CubeObject cube = cubes.get(i);
-			minX = Math.min(minX, cube.minX);
-			minY = Math.min(minY, cube.minY);
-			minZ = Math.min(minZ, cube.minZ);
-			maxX = Math.max(maxX, cube.maxX);
-			maxY = Math.max(maxY, cube.maxY);
-			maxZ = Math.max(maxZ, cube.maxZ);
-		}
-		
-		double sizeX = maxX - minX;
-		double sizeY = maxY - minZ;
-		double sizeZ = maxZ - minZ;
 		
 		switch (axisDirection) {
 		case X:
-			if (sizeY >= sizeZ)
+			if (size.sizeY >= size.sizeZ)
 				normalAxis = EnumFacing.Axis.Y;
 			else
 				normalAxis = EnumFacing.Axis.Z;
 			break;
 		case Y:
-			if (sizeX >= sizeZ)
+			if (size.sizeX >= size.sizeZ)
 				normalAxis = EnumFacing.Axis.Z;
 			else
 				normalAxis = EnumFacing.Axis.X;
 			break;
 		case Z:
-			if (sizeX >= sizeY)
-				normalAxis = EnumFacing.Axis.X;
-			else
+			if (size.sizeX >= size.sizeY)
 				normalAxis = EnumFacing.Axis.Y;
+			else
+				normalAxis = EnumFacing.Axis.X;
 			break;
 		default:
 			break;
@@ -154,61 +128,92 @@ public class GuiTileViewer extends GuiParent {
 		}
 	}
 	
-	public List<BakedQuad> baked = null;
-	
 	@Override
 	protected void renderContent(GuiRenderHelper helper, Style style, int width, int height) {
+		if (animation == null)
+			return;
+		
+		scale.tick();
+		offsetX.tick();
+		offsetY.tick();
 		
 		GlStateManager.pushMatrix();
 		
 		// Vec3 offset = Vec3.createVectorHelper(p_72443_0_, p_72443_2_, p_72443_4_);
-		GlStateManager.translate(this.width / 2 + offsetX, this.height / 2 + offsetY, 0);
-		GlStateManager.scale(4, 4, 4);
-		GlStateManager.scale(this.scale, this.scale, this.scale);
-		GlStateManager.translate(-offsetX * 2, -offsetY * 2, 0);
-		
-		GlStateManager.pushMatrix();
+		GlStateManager.translate(this.width / 2 + offsetX.current(), this.height / 2 + offsetY.current(), 0);
+		//GlStateManager.scale(4, 4, 4);
+		GlStateManager.scale(this.scale.current(), this.scale.current(), this.scale.current());
+		GlStateManager.translate(-offsetX.current() * 2, -offsetY.current() * 2, 0);
 		
 		if (viewDirection.getAxis() != EnumFacing.Axis.Y)
-			GL11.glRotated(180, 0, 0, 1);
+			GlStateManager.rotate(180, 0, 0, 1);
 		EnumFacing facing = viewDirection;
 		switch (viewDirection) {
 		case EAST:
-			GL11.glRotated(180, 0, 1, 0);
+			GlStateManager.rotate(180, 0, 1, 0);
 			facing = EnumFacing.SOUTH;
 			break;
 		case WEST:
-			// GL11.glRotated(-180, 0, 1, 0);
 			facing = EnumFacing.NORTH;
 			break;
 		case UP:
-			GL11.glRotated(-90, 1, 0, 0);
+			GlStateManager.rotate(-90, 1, 0, 0);
 			break;
 		case DOWN:
-			GL11.glRotated(90, 1, 0, 0);
+			GlStateManager.rotate(90, 1, 0, 0);
 			break;
 		case SOUTH:
-			GL11.glRotated(90, 0, 1, 0);
+			GlStateManager.rotate(90, 0, 1, 0);
 			facing = EnumFacing.EAST;
 			break;
 		case NORTH:
-			GL11.glRotated(-90, 0, 1, 0);
+			GlStateManager.rotate(-90, 0, 1, 0);
 			facing = EnumFacing.WEST;
 			break;
 		}
 		
-		if (baked == null) {
-			List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
-			baked = CreativeBakedModel.getBlockQuads(cubes, new ArrayList<>(), (ICreativeRendered) stack.getItem(), facing, null, MinecraftForgeClient.getRenderLayer(), Block.getBlockFromItem(stack.getItem()), null, 0, stack, false);
-		}
+		GlStateManager.translate(-min.getPosX(context), -min.getPosY(context), -min.getPosZ(context));
 		
-		ArrayList<BakedQuad> quads = new ArrayList<>();
+		GlStateManager.pushMatrix();
+		
+		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
+		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+		GlStateManager.enableRescaleNormal();
+		GlStateManager.alphaFunc(516, 0.1F);
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		
+		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, 1.0F);
+		
+		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
+		GlStateManager.disableBlend();
+		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+		
+		GlStateManager.popMatrix();
+		
+		GlStateManager.disableTexture2D();
+		GlStateManager.disableDepth();
+		GlStateManager.disableLighting();
+		
 		if (visibleAxis) {
-			ArrayList<RenderCubeObject> cubes = new ArrayList<>();
+			
+			GlStateManager.pushMatrix();
+			
+			GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
+			
 			CubeObject cube = new CubeObject(context.toVanillaGrid(axisX / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisY / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisZ / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisX / 2F) + (float) context.gridMCLength / 2, context.toVanillaGrid(axisY / 2F) + (float) context.gridMCLength / 2, context.toVanillaGrid(axisZ / 2F) + (float) context.gridMCLength / 2);
 			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
+			normalCube.minX += context.gridMCLength / 3;
+			normalCube.minY += context.gridMCLength / 3;
+			normalCube.minZ += context.gridMCLength / 3;
+			normalCube.maxX -= context.gridMCLength / 3;
+			normalCube.maxY -= context.gridMCLength / 3;
+			normalCube.maxZ -= context.gridMCLength / 3;
 			normalCube.keepVU = true;
-			float min = -100 * 1 / scale;
+			float min = (float) (-10000 * 1 / scale.aimed());
 			float max = -min;
 			switch (normalAxis) {
 			case X:
@@ -226,22 +231,16 @@ public class GuiTileViewer extends GuiParent {
 			default:
 				break;
 			}
-			cubes.add(normalCube);
 			
-			RenderCubeObject axisCube = new RenderCubeObject(cube, Blocks.WOOL, 5);
-			axisCube.keepVU = true;
-			cubes.add(axisCube);
+			RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
+			RenderHelper3D.renderBlock(cube.minX + context.gridMCLength / 2, cube.minY + context.gridMCLength / 2, cube.minZ + context.gridMCLength / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
 			
-			CreativeBakedModel.getBlockQuads(cubes, quads, (ICreativeRendered) LittleTiles.multiTiles, facing, null, BlockRenderLayer.SOLID, Blocks.WOOL, null, 0, null, false);
+			GlStateManager.enableTexture2D();
+			
+			GlStateManager.popMatrix();
 		}
 		
-		helper.renderBakedQuads(baked);
-		
-		GlStateManager.disableDepth();
-		helper.renderBakedQuads(quads);
 		GlStateManager.enableDepth();
-		
-		GlStateManager.popMatrix();
 		
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -258,11 +257,6 @@ public class GuiTileViewer extends GuiParent {
 		else
 			yAxis = "<- " + yAxis;
 		
-		/* switch(viewDirection){ case EAST: xAxis = "X ->"; yAxis = "<- Y"; break; case
-		 * WEST: xAxis = "<- X"; yAxis = "<- Y"; break; case DOWN: xAxis = "X ->"; yAxis
-		 * = "<- Z"; break; case SOUTH: xAxis = "<- Z"; yAxis = "<- Y"; break; case
-		 * NORTH: xAxis = "Z ->"; yAxis = "<- Y"; break; } */
-		
 		helper.drawStringWithShadow(xAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		
 		GlStateManager.pushMatrix();
@@ -271,6 +265,7 @@ public class GuiTileViewer extends GuiParent {
 		helper.drawStringWithShadow(yAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		GlStateManager.popMatrix();
 		GlStateManager.disableDepth();
+		
 	}
 	
 	public EnumFacing getXFacing() {
@@ -330,9 +325,9 @@ public class GuiTileViewer extends GuiParent {
 	@Override
 	public boolean mouseScrolled(int posX, int posY, int scrolled) {
 		if (scrolled > 0)
-			scale *= scrolled * 1.5;
+			scale.set(scale.aimed() * scrolled * 1.5);
 		else if (scrolled < 0)
-			scale /= scrolled * -1.5;
+			scale.set(scale.aimed() / (scrolled * -1.5));
 		return true;
 	}
 	
@@ -352,9 +347,9 @@ public class GuiTileViewer extends GuiParent {
 			Vec3d currentPosition = new Vec3d(posX, posY, 0);
 			if (lastPosition != null) {
 				Vec3d move = lastPosition.subtract(currentPosition);
-				double percent = 0.3;
-				offsetX += 1F / scale * move.x * percent;
-				offsetY += 1F / scale * move.y * percent;
+				double percent = 0.5;
+				offsetX.set(offsetX.aimed() + (1D / scale.aimed() * move.x * percent));
+				offsetY.set(offsetY.aimed() + (1D / scale.aimed() * move.y * percent));
 			}
 			lastPosition = currentPosition;
 		}
@@ -371,28 +366,28 @@ public class GuiTileViewer extends GuiParent {
 	@Override
 	public boolean onKeyPressed(char character, int key) {
 		if (key == Keyboard.KEY_ADD) {
-			scale *= 2;
+			scale.set(scale.aimed() * 2);
 			return true;
 		}
 		if (key == Keyboard.KEY_SUBTRACT) {
-			scale /= 2;
+			scale.set(scale.aimed() / 2);
 			return true;
 		}
-		int ammount = 5;
+		double percent = 1;
 		if (key == Keyboard.KEY_UP) {
-			offsetY += ammount;
+			offsetY.set(offsetY.aimed() - (1D / scale.aimed() * percent));
 			return true;
 		}
 		if (key == Keyboard.KEY_DOWN) {
-			offsetY -= ammount;
+			offsetY.set(offsetY.aimed() + (1D / scale.aimed() * percent));
 			return true;
 		}
 		if (key == Keyboard.KEY_RIGHT) {
-			offsetX -= ammount;
+			offsetX.set(offsetX.aimed() + (1D / scale.aimed() * percent));
 			return true;
 		}
 		if (key == Keyboard.KEY_LEFT) {
-			offsetX += ammount;
+			offsetX.set(offsetX.aimed() - (1D / scale.aimed() * percent));
 			return true;
 		}
 		
@@ -414,6 +409,13 @@ public class GuiTileViewer extends GuiParent {
 			break;
 		}
 		updateNormalAxis();
-		baked = null;
+	}
+	
+	@Override
+	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
+		this.animation = animation;
+		this.size = previews.getSize();
+		this.min = previews.getMinVec();
+		updateNormalAxis();
 	}
 }

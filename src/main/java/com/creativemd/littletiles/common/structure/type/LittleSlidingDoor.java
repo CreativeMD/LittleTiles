@@ -228,15 +228,12 @@ public class LittleSlidingDoor extends LittleDoorBase {
 					break;
 				}
 				viewer.updateViewDirection();
-				
-				viewer.updateNormalAxis();
 			} else if (event.source.is("reset view")) {
-				viewer.offsetX = 0;
-				viewer.offsetY = 0;
-				viewer.scale = 5;
+				viewer.offsetX.set(0);
+				viewer.offsetY.set(0);
+				viewer.scale.set(5);
 			} else if (event.source.is("flip view")) {
 				viewer.viewDirection = viewer.viewDirection.getOpposite();
-				viewer.baked = null;
 			}
 			
 			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
@@ -295,7 +292,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			parent.addControl(new GuiButtonImpl("change view", 110, 65));
 			parent.addControl(new GuiButtonImpl("flip view", 110, 85));
 			
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stack);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
 			tile.visibleAxis = false;
 			tile.updateViewDirection();
 			parent.addControl(tile);
