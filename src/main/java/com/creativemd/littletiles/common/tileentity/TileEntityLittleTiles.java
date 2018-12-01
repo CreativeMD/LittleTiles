@@ -366,11 +366,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			RenderingThread.addCoordToUpdate(this);
 	}
 	
-	/**
-	 * Tries to convert the TileEntity to a vanilla block
+	/** Tries to convert the TileEntity to a vanilla block
 	 * 
-	 * @return whether it could convert it or not
-	 */
+	 * @return whether it could convert it or not */
 	public boolean convertBlockToVanilla() {
 		LittleTile firstTile = null;
 		if (tiles.isEmpty()) {
@@ -556,13 +554,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return !face.isFilled();
 	}
 	
-	/**
-	 * 
-	 * @param box
+	/** @param box
 	 * @param cutout
 	 *            filled with all boxes which are cutout by tiles
-	 * @return all boxes which are not cutout by other tiles
-	 */
+	 * @return all boxes which are not cutout by other tiles */
 	public List<LittleTileBox> cutOut(LittleTileBox box, List<LittleTileBox> cutout) {
 		List<LittleTileBox> cutting = new ArrayList<>();
 		for (LittleTile tile : tiles) {
@@ -757,9 +752,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return nbt;
 	}
 	
-	/**
-	 * uses the corner and is therefore faster
-	 */
+	/** uses the corner and is therefore faster */
 	public LittleTile getTile(LittleGridContext context, int[] identifier) {
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
@@ -977,7 +970,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Nullable
 	public IBlockState getState(AxisAlignedBB box, boolean realistic) {
 		if (realistic) {
-			box = box.expand(0, context.gridMCLength, 0);
+			box = box.expand(0, -context.gridMCLength, 0);
 			for (LittleTile tile : tiles) {
 				if (tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
 					return ((LittleTileBlock) tile).getBlockState();
