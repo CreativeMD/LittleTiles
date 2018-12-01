@@ -154,27 +154,19 @@ public abstract class EntityAnimation extends Entity {
 	
 	public boolean preventPush = false;
 	
-	/**
-	 * Is true when animation moves other entities
-	 */
+	/** Is true when animation moves other entities */
 	public boolean noCollision = false;
 	
 	public AABBCombiner collisionBoxWorker;
 	
-	/**
-	 * Static not affected by direction or entity offset
-	 */
+	/** Static not affected by direction or entity offset */
 	public List<OrientatedBoundingBox> worldCollisionBoxes;
 	
-	/**
-	 * Static not affected by direction or entity offset
-	 */
+	/** Static not affected by direction or entity offset */
 	public OrientatedBoundingBox worldBoundingBox;
 	
-	/**
-	 * Should be called if the world of the animation will be modified (Currently
-	 * not possible)
-	 */
+	/** Should be called if the world of the animation will be modified (Currently
+	 * not possible) */
 	public void updateWorldCollision() {
 		double minX = Integer.MAX_VALUE;
 		double minY = Integer.MAX_VALUE;
@@ -532,7 +524,7 @@ public abstract class EntityAnimation extends Entity {
 						double moveY = cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale;
 						double moveZ = cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale;
 						
-						entity.move(MoverType.SELF, moveX, moveY, moveZ);
+						entity.move(MoverType.PISTON, moveX, moveY, moveZ);
 						
 						if (entity instanceof EntityPlayerMP)
 							LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
