@@ -187,7 +187,19 @@ public class LittleTilePos {
 	public boolean equals(Object paramObject) {
 		if (paramObject instanceof LittleTilePos) {
 			LittleTilePos pos = (LittleTilePos) paramObject;
-			return pos.pos.equals(this.pos) && pos.contextVec.equals(this.contextVec);
+			LittleGridContext newContext = LittleGridContext.max(getContext(), pos.getContext());
+			
+			int multiplier = newContext.size / getContext().size;
+			long thisX = this.pos.getX() * newContext.size + this.contextVec.vec.x * multiplier;
+			long thisY = this.pos.getY() * newContext.size + this.contextVec.vec.y * multiplier;
+			long thisZ = this.pos.getZ() * newContext.size + this.contextVec.vec.z * multiplier;
+			
+			multiplier = newContext.size / pos.getContext().size;
+			long otherX = pos.pos.getX() * newContext.size + pos.contextVec.vec.x * multiplier;
+			long otherY = pos.pos.getY() * newContext.size + pos.contextVec.vec.y * multiplier;
+			long otherZ = pos.pos.getZ() * newContext.size + pos.contextVec.vec.z * multiplier;
+			
+			return thisX == otherX && thisY == otherY && thisZ == otherZ;
 		}
 		return super.equals(paramObject);
 	}
