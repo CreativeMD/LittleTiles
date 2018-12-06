@@ -65,8 +65,12 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	@Override
 	public LittleAbsolutePreviewsStructure copy() {
 		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(nbt, pos, context);
-		previews.previews.addAll(this.previews);
-		previews.children.addAll(children);
+		for (LittleTilePreview preview : this.previews) {
+			previews.previews.add(preview.copy());
+		}
+		for (LittlePreviewsStructure child : this.children) {
+			previews.children.add(child.copy());
+		}
 		return previews;
 	}
 }
