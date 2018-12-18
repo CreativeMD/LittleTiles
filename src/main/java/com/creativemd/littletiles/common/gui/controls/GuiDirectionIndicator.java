@@ -2,17 +2,17 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 
-public class GuiDirectionIndicator extends GuiButton {
+public class GuiDirectionIndicator extends GuiIconButton {
 	
 	private EnumFacing direction;
 	
 	public GuiDirectionIndicator(String name, int x, int y, EnumFacing facing) {
-		super(name, "->", x, y, 14, 14);
+		super(name, x, y, 0);
 		setDirection(facing);
 	}
 	
@@ -31,25 +31,22 @@ public class GuiDirectionIndicator extends GuiButton {
 		
 		switch (direction) {
 		case EAST:
-			rotation = 0F;
-			
+			setIcon(0);
 			break;
 		case WEST:
-			rotation = 180F;
+			setIcon(2);
 			break;
 		case UP:
-			rotation = -90F;
+			setIcon(1);
 			break;
 		case DOWN:
-			rotation = 90F;
+			setIcon(3);
 			break;
 		case SOUTH:
-			rotation = 0;
-			caption = "*";
+			setIcon(6);
 			break;
 		case NORTH:
-			rotation = 0;
-			caption = "X";
+			setIcon(5);
 			break;
 		}
 		this.direction = direction;

@@ -1,29 +1,27 @@
 package com.creativemd.littletiles.common.structure.type;
 
+import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
-
-import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButtonImpl;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
-import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructurePreviewHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -37,23 +35,21 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.utils.animation.AnimationState;
+import com.creativemd.littletiles.common.utils.animation.transformation.RotationTransformation;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.transformation.OrdinaryDoorTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -79,8 +75,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 		} else {
 			doubledRelativeAxis = new LittleRelativeDoubledAxis("avec", nbt);
 		}
-		axis = EnumFacing.Axis.values()[nbt.getInteger("axis")];
-		normalDirection = EnumFacing.getFront(nbt.getInteger("ndirection"));
+		axis = Axis.values()[nbt.getInteger("axis")];
+		
+		if (nbt.hasKey("ndirection")) {
+			doorRotation = new PlayerOrientatedRotation();
+			((PlayerOrientatedRotation) doorRotation).normalAxis = EnumFacing.getFront(nbt.getInteger("ndirection")).getAxis();
+		} else
+			doorRotation = parseRotation(nbt);
 	}
 	
 	@Override
@@ -88,11 +89,11 @@ public class LittleAxisDoor extends LittleDoorBase {
 		super.writeToNBTExtra(nbt);
 		doubledRelativeAxis.writeToNBT("avec", nbt);
 		nbt.setInteger("axis", axis.ordinal());
-		nbt.setInteger("ndirection", normalDirection.getIndex());
+		doorRotation.writeToNBT(nbt);
 	}
 	
-	public EnumFacing normalDirection;
-	public EnumFacing.Axis axis;
+	public AxisDoorRotation doorRotation;
+	public Axis axis;
 	public LittleRelativeDoubledAxis doubledRelativeAxis;
 	public LittleTilePos lastMainTileVec = null;
 	
@@ -145,6 +146,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		doubleddoubled.flip(axis);
 		doubleddoubled.add(doubledCenter);
 		doubledRelativeAxis = new LittleRelativeDoubledAxis(doubledRelativeAxis.context, new LittleTileVec(doubleddoubled.x / 2, doubleddoubled.y / 2, doubleddoubled.z / 2), new LittleTileVec(doubleddoubled.x % 2, doubleddoubled.y % 2, doubleddoubled.z % 2));
+		
+		doorRotation.flip(axis);
 	}
 	
 	@Override
@@ -164,215 +167,37 @@ public class LittleAxisDoor extends LittleDoorBase {
 		doubleddoubled.add(doubledCenter);
 		doubledRelativeAxis = new LittleRelativeDoubledAxis(doubledRelativeAxis.context, new LittleTileVec(doubleddoubled.x / 2, doubleddoubled.y / 2, doubleddoubled.z / 2), new LittleTileVec(doubleddoubled.x % 2, doubleddoubled.y % 2, doubleddoubled.z % 2));
 		
-		this.axis = RotationUtils.rotateFacing(RotationUtils.getFacing(axis), rotation).getAxis();
-		this.normalDirection = RotationUtils.rotateFacing(normalDirection, rotation);
+		this.axis = RotationUtils.rotate(axis, rotation);
+		doorRotation.rotate(rotation);
 	}
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, Rotation direction, boolean inverse, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
+	@Override
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
 		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
+		Rotation rotation = player != null ? doorRotation.getRotation(player, this, absoluteAxis, additional) : doorRotation.getDefaultRotation(this, absoluteAxis, additional);
 		
+		if (tryToPlacePreviews(world, player, previews.copy(), rotation, uuid, absoluteAxis, additional))
+			return true;
+		return doorRotation.tryOpposite() && tryToPlacePreviews(world, player, previews, rotation.getOpposite(), uuid, absoluteAxis, additional);
+	}
+	
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, Rotation rotation, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
 		LittleAxisDoor newDoor = (LittleAxisDoor) previews.getStructure();
 		if (newDoor.doubledRelativeAxis.context.size > previews.context.size)
 			previews.convertTo(newDoor.doubledRelativeAxis.context);
 		else if (newDoor.doubledRelativeAxis.context.size < previews.context.size)
 			newDoor.doubledRelativeAxis.convertTo(previews.context);
 		
-		previews.rotatePreviews(world, player, null, direction, newDoor.doubledRelativeAxis.getRotationVec());
+		if (doorRotation.shouldRotatePreviews(this))
+			previews.rotatePreviews(world, player, null, rotation, newDoor.doubledRelativeAxis.getRotationVec());
 		
-		return place(world, player, previews, new OrdinaryDoorTransformation(direction), uuid, absoluteAxis, additional);
-	}
-	
-	@Override
-	public Rotation getDefaultRotation() {
-		return Rotation.getRotation(axis, true);
-	}
-	
-	@Override
-	public boolean activate(World world, @Nullable EntityPlayer player, @Nullable Rotation rotation, BlockPos pos) {
-		if (axis != null && !isWaitingForApprove) {
-			if (!hasLoaded() || !loadChildren()) {
-				player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
-				return false;
-			}
-			
-			if (isChildMoving()) {
-				player.sendStatusMessage(new TextComponentTranslation("A child is still in motion!"), true);
-				return false;
-			}
-			
-			// Calculate rotation
-			if (rotation == null) {
-				double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
-				boolean rotX = playerRotation <= -90 || playerRotation >= 90;
-				boolean rotY = player.rotationPitch > 0;
-				boolean rotZ = playerRotation > 0 && playerRotation <= 180;
-				
-				switch (axis) {
-				case X:
-					// System.out.println(normalDirection);
-					rotation = Rotation.X_CLOCKWISE;
-					switch (normalDirection) {
-					case UP:
-						if (!rotY)
-							rotation = Rotation.X_COUNTER_CLOCKWISE;
-						break;
-					case DOWN:
-						if (rotY)
-							rotation = Rotation.X_COUNTER_CLOCKWISE;
-						break;
-					case SOUTH:
-						if (!rotX)
-							rotation = Rotation.X_COUNTER_CLOCKWISE;
-						break;
-					case NORTH:
-						if (rotX)
-							rotation = Rotation.X_COUNTER_CLOCKWISE;
-						break;
-					default:
-						break;
-					}
-					break;
-				case Y:
-					rotation = Rotation.Y_CLOCKWISE;
-					switch (normalDirection) {
-					case EAST:
-						if (rotX)
-							rotation = Rotation.Y_COUNTER_CLOCKWISE;
-						break;
-					case WEST:
-						if (!rotX)
-							rotation = Rotation.Y_COUNTER_CLOCKWISE;
-						break;
-					case SOUTH:
-						if (!rotZ)
-							rotation = Rotation.Y_COUNTER_CLOCKWISE;
-						break;
-					case NORTH:
-						if (rotZ)
-							rotation = Rotation.Y_COUNTER_CLOCKWISE;
-						break;
-					default:
-						break;
-					}
-					break;
-				case Z:
-					rotation = Rotation.Z_CLOCKWISE;
-					switch (normalDirection) {
-					case EAST:
-						if (rotZ)
-							rotation = Rotation.Z_COUNTER_CLOCKWISE;
-						break;
-					case WEST:
-						if (!rotZ)
-							rotation = Rotation.Z_COUNTER_CLOCKWISE;
-						break;
-					case UP:
-						if (!rotY)
-							rotation = Rotation.Z_COUNTER_CLOCKWISE;
-						break;
-					case DOWN:
-						if (rotY)
-							rotation = Rotation.Z_COUNTER_CLOCKWISE;
-						break;
-					default:
-						break;
-					}
-					break;
-				default:
-					break;
-				}
-				
-			}
-			
-			boolean inverse = false;
-			switch (axis) {
-			case X:
-				inverse = rotation == Rotation.X_CLOCKWISE;
-				break;
-			case Y:
-				inverse = rotation == Rotation.Y_CLOCKWISE;
-				break;
-			case Z:
-				inverse = rotation == Rotation.Z_CLOCKWISE;
-				break;
-			default:
-				break;
-			}
-			
-			UUID uuid = UUID.randomUUID();
-			if (world.isRemote)
-				PacketHandler.sendPacketToServer(new LittleDoorInteractPacket(pos, player, rotation, inverse, uuid));
-			interactWithDoor(world, player, rotation, inverse, uuid);
-			return true;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (world.isRemote) {
-			activate(world, player, null, pos);
-			action.preventInteraction = true;
-		}
-		return true;
+		return place(world, player, previews, doorRotation.createController(rotation, this), uuid, absoluteAxis, additional);
 	}
 	
 	@Override
 	public LittleGridContext getMinContext() {
 		doubledRelativeAxis.convertToSmallest();
 		return LittleGridContext.max(super.getMinContext(), doubledRelativeAxis.context);
-	}
-	
-	public boolean interactWithDoor(World world, EntityPlayer player, Rotation rotation, boolean inverse, UUID uuid) {
-		if (!hasLoaded() || !loadChildren())
-			return false;
-		
-		LittleTilePos axisPoint = getAbsoluteAxisVec();
-		LittleTileVec additional = getAdditionalAxisVec();
-		//axisPoint.removeInternalBlockOffset();
-		
-		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
-		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
-		
-		for (TileEntityLittleTiles te : tempTiles.keySet()) {
-			tempContext.put(te, te.getContext());
-		}
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
-			entry.getKey().preventUpdate = true;
-			entry.getKey().removeTiles(entry.getValue());
-			entry.getKey().preventUpdate = false;
-		}
-		
-		if (tryToPlacePreviews(world, player, rotation, !inverse, uuid, axisPoint, additional) || tryToPlacePreviews(world, player, rotation.getOpposite(), inverse, uuid, axisPoint, additional)) {
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
-				entry.getKey().updateTiles();
-			}
-			return true;
-		}
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
-			entry.getKey().convertTo(tempContext.get(entry.getKey()));
-			entry.getKey().addTiles(entry.getValue());
-		}
-		
-		return false;
-	}
-	
-	public void updateNormalDirection() {
-		switch (axis) {
-		case X:
-			normalDirection = RotationUtils.getFacing(Axis.Z);
-			break;
-		case Y:
-			normalDirection = RotationUtils.getFacing(Axis.X);
-			break;
-		case Z:
-			normalDirection = RotationUtils.getFacing(Axis.Y);
-			break;
-		default:
-			break;
-		}
 	}
 	
 	@Override
@@ -597,8 +422,11 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleAxisDoor door = createStructure(LittleAxisDoor.class);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.doubledRelativeAxis = new LittleRelativeDoubledAxis(viewer.context, new LittleTileVec(viewer.axisX / 2, viewer.axisY / 2, viewer.axisZ / 2), new LittleTileVec(viewer.axisX % 2, viewer.axisY % 2, viewer.axisZ % 2));
-			door.axis = viewer.axisDirection;
-			door.normalDirection = RotationUtils.getFacing(viewer.normalAxis);
+			door.axis = viewer.getAxis();
+			
+			GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
+			door.doorRotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
+			door.doorRotation.parseGui(viewer, typePanel);
 			door.duration = duration;
 			return door;
 		}
@@ -610,114 +438,120 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleAxisDoor door = null;
 			if (structure instanceof LittleAxisDoor)
 				door = (LittleAxisDoor) structure;
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
+			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
 			
 			boolean even = false;
+			AxisDoorRotation doorRotation;
 			if (door != null) {
-				tile.axisDirection = door.axis;
-				/* tile.axisX = door.axisPoint.x; tile.axisY = door.axisPoint.y; tile.axisZ =
-				 * door.axisPoint.z; */
-				tile.axisX = door.doubledRelativeAxis.vec.x * 2;
-				tile.axisY = door.doubledRelativeAxis.vec.y * 2;
-				tile.axisZ = door.doubledRelativeAxis.vec.z * 2;
-				tile.normalAxis = door.normalDirection.getAxis();
+				viewer.setAxis(door.axis);
+				viewer.axisX = door.doubledRelativeAxis.vec.x * 2;
+				viewer.axisY = door.doubledRelativeAxis.vec.y * 2;
+				viewer.axisZ = door.doubledRelativeAxis.vec.z * 2;
 				even = door.doubledRelativeAxis.isEven();
-				tile.setEven(even);
+				viewer.setEven(even);
+				
+				doorRotation = door.doorRotation;
 			} else {
-				tile.setEven(false);
+				viewer.setEven(false);
+				doorRotation = new PlayerOrientatedRotation();
 			}
-			tile.visibleAxis = true;
-			parent.controls.add(tile);
-			parent.controls.add(new GuiButtonImpl("reset view", 109, 20));
-			// parent.controls.add(new GuiButton("y", 170, 50, 20));
-			parent.controls.add(new GuiButtonImpl("flip view", 109, 40));
+			viewer.visibleAxis = true;
+			parent.addControl(viewer);
 			
-			parent.controls.add(new GuiButtonImpl("swap axis", 109, 0));
-			parent.controls.add(new GuiButtonImpl("swap normal", 109, 60));
-			// parent.controls.add(new GuiButton("-->", 150, 50, 20));
+			parent.addControl(new GuiTabStateButton("doorRotation", rotationTypes.indexOf(doorRotation.getClass()), 110, 0, 12, rotationTypeNames.toArray(new String[0])));
 			
-			// parent.controls.add(new GuiButton("<-Z", 130, 70, 20));
-			parent.controls.add(new GuiButton("up", "<-", 125, 80, 14) {
+			GuiPanel typePanel = new GuiPanel("typePanel", 110, 20, 80, 40);
+			parent.addControl(typePanel);
+			parent.addControl(new GuiIconButton("reset view", 20, 107, 8) {
+				
 				@Override
 				public void onClicked(int x, int y, int button) {
-					
+					viewer.offsetX.set(0);
+					viewer.offsetY.set(0);
+					viewer.scale.set(40);
 				}
+			}.setCustomTooltip("reset view"));
+			parent.addControl(new GuiIconButton("change view", 40, 107, 7) {
 				
-			}.setRotation(90));
-			parent.controls.add(new GuiButtonImpl("->", 146, 100));
-			parent.controls.add(new GuiButtonImpl("<-", 107, 100));
-			parent.controls.add(new GuiButton("down", "<-", 125, 100, 14) {
 				@Override
 				public void onClicked(int x, int y, int button) {
-					
+					switch (viewer.getAxis()) {
+					case X:
+						viewer.setAxis(EnumFacing.Axis.Y);
+						break;
+					case Y:
+						viewer.setAxis(EnumFacing.Axis.Z);
+						break;
+					case Z:
+						viewer.setAxis(EnumFacing.Axis.X);
+						break;
+					default:
+						break;
+					}
 				}
+			}.setCustomTooltip("change view"));
+			parent.addControl(new GuiIconButton("flip view", 60, 107, 4) {
 				
-			}.setRotation(-90));
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.setViewDirection(viewer.getViewDirection().getOpposite());
+				}
+			}.setCustomTooltip("flip view"));
 			
-			parent.controls.add(new GuiCheckBox("even", 107, 117, even));
+			parent.addControl(new GuiIconButton("up", 124, 83, 1) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.moveY(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2);
+				}
+			});
+			
+			parent.addControl(new GuiIconButton("right", 141, 100, 0) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.moveX(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2);
+				}
+			});
+			
+			parent.addControl(new GuiIconButton("left", 107, 100, 2) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.moveX(-(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2));
+				}
+			});
+			
+			parent.addControl(new GuiIconButton("down", 124, 100, 3) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.moveY(-(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2));
+				}
+			});
+			
+			parent.controls.add(new GuiCheckBox("even", 147, 80, even));
+			
+			doorRotation.onSelected(viewer, typePanel);
 		}
 		
 		@CustomEventSubscribe
 		@SideOnly(Side.CLIENT)
 		public void onButtonClicked(GuiControlClickEvent event) {
 			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-			if (event.source.is("swap axis")) {
-				Axis axis = null;
-				switch (viewer.axisDirection) {
-				case X:
-					axis = EnumFacing.Axis.Y;
-					break;
-				case Y:
-					axis = EnumFacing.Axis.Z;
-					break;
-				case Z:
-					axis = EnumFacing.Axis.X;
-					break;
-				default:
-					break;
-				}
-				viewer.axisDirection = axis;
-				viewer.updateViewDirection();
-			} else if (event.source.is("reset view")) {
-				viewer.offsetX.set(0);
-				viewer.offsetY.set(0);
-				viewer.scale.set(40);
-				// viewer.viewDirection = ForgeDirection.EAST;
-				// ((GuiStateButton) event.source.parent.getControl("direction")).setState(3);
-			} else if (event.source.is("flip view")) {
-				viewer.viewDirection = viewer.viewDirection.getOpposite();
-				// viewer.viewDirection = ForgeDirection.getOrientation(((GuiStateButton)
-				// event.source).getState()+2);
-			} else if (event.source instanceof GuiButton) {
-				int amount = GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2;
-				if (event.source.is("<-")) {
-					if (viewer.axisDirection == Axis.X)
-						viewer.axisZ += amount;
-					else
-						viewer.axisX -= amount;
-				}
-				if (event.source.is("->")) {
-					if (viewer.axisDirection == Axis.X)
-						viewer.axisZ -= amount;
-					else
-						viewer.axisX += amount;
-				}
-				if (event.source.is("up")) {
-					if (viewer.axisDirection == Axis.Y)
-						viewer.axisZ -= amount;
-					else
-						viewer.axisY += amount;
-				}
-				if (event.source.is("down")) {
-					if (viewer.axisDirection == Axis.Y)
-						viewer.axisZ += amount;
-					else
-						viewer.axisY -= amount;
-				} else if (event.source.is("swap normal")) {
-					viewer.changeNormalAxis();
-				}
-			} else if (event.source.is("even")) {
+			if (event.source.is("even")) {
 				viewer.setEven(((GuiCheckBox) event.source).value);
+			}
+		}
+		
+		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
+		public void onStateChange(GuiControlChangedEvent event) {
+			if (event.source.is("doorRotation")) {
+				AxisDoorRotation rotation = createRotation(((GuiTabStateButton) event.source).getState());
+				GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
+				typePanel.controls.clear();
+				rotation.onSelected((GuiTileViewer) parent.get("tileviewer"), typePanel);
 			}
 		}
 		
@@ -743,6 +577,261 @@ public class LittleAxisDoor extends LittleDoorBase {
 			boxes.add(new PlacePreviewTileAxis(null, door.axis, previews, door.doubledRelativeAxis.copy()));
 			door.doubledRelativeAxis.convertToSmallest();
 			return boxes;
+		}
+		
+	}
+	
+	private static List<Class<? extends AxisDoorRotation>> rotationTypes = new ArrayList<>();
+	private static List<String> rotationTypeNames = new ArrayList<>();
+	static {
+		rotationTypes.add(PlayerOrientatedRotation.class);
+		rotationTypeNames.add("orientated");
+		rotationTypes.add(FixedRotation.class);
+		rotationTypeNames.add("fixed");
+	}
+	
+	protected static AxisDoorRotation parseRotation(NBTTagCompound nbt) {
+		int index = nbt.getInteger("rot-type");
+		
+		if (index >= 0 && index < rotationTypes.size()) {
+			Class<? extends AxisDoorRotation> rotationType = rotationTypes.get(index);
+			try {
+				AxisDoorRotation rotation = rotationType.getConstructor().newInstance();
+				rotation.readFromNBT(nbt);
+				return rotation;
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		throw new RuntimeException("Invalid axis door rotation found index: " + index);
+	}
+	
+	protected static AxisDoorRotation createRotation(int index) {
+		if (index >= 0 && index < rotationTypes.size()) {
+			Class<? extends AxisDoorRotation> rotationType = rotationTypes.get(index);
+			try {
+				return rotationType.getConstructor().newInstance();
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		throw new RuntimeException("Invalid axis door rotation found index: " + index);
+	}
+	
+	public abstract static class AxisDoorRotation {
+		
+		protected abstract void writeToNBTCore(NBTTagCompound nbt);
+		
+		public void writeToNBT(NBTTagCompound nbt) {
+			nbt.setInteger("rot-type", rotationTypes.indexOf(this.getClass()));
+			writeToNBTCore(nbt);
+		}
+		
+		protected abstract void readFromNBT(NBTTagCompound nbt);
+		
+		protected abstract void rotate(Rotation rotation);
+		
+		protected abstract void flip(Axis axis);
+		
+		protected abstract boolean tryOpposite();
+		
+		protected abstract Rotation getRotation(EntityPlayer player, LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional);
+		
+		protected abstract Rotation getDefaultRotation(LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional);
+		
+		protected abstract boolean shouldRotatePreviews(LittleAxisDoor door);
+		
+		protected abstract DoorController createController(Rotation rotation, LittleAxisDoor door);
+		
+		protected abstract void onSelected(GuiTileViewer viewer, GuiParent parent);
+		
+		protected abstract void parseGui(GuiTileViewer viewer, GuiParent parent);
+		
+	}
+	
+	public static class PlayerOrientatedRotation extends AxisDoorRotation {
+		
+		public Axis normalAxis;
+		
+		@Override
+		protected void writeToNBTCore(NBTTagCompound nbt) {
+			nbt.setInteger("normal", normalAxis.ordinal());
+		}
+		
+		@Override
+		protected void readFromNBT(NBTTagCompound nbt) {
+			normalAxis = Axis.values()[nbt.getInteger("normal")];
+		}
+		
+		@Override
+		protected void rotate(Rotation rotation) {
+			this.normalAxis = RotationUtils.rotate(normalAxis, rotation);
+		}
+		
+		@Override
+		protected void flip(Axis axis) {
+			
+		}
+		
+		@Override
+		protected boolean tryOpposite() {
+			return true;
+		}
+		
+		@Override
+		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional) {
+			Vec3d axisVec = axisPos.getVec();
+			Vec3d playerVec = player.getPositionVector();
+			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
+			boolean clockwise;
+			Axis third = RotationUtils.getDifferentAxis(door.axis, normalAxis);
+			boolean toTheSide = RotationUtils.get(third, playerVec) <= RotationUtils.get(third, axisVec);
+			
+			switch (third) {
+			case X:
+				clockwise = !(playerRotation <= -90 || playerRotation >= 90);
+				break;
+			case Y:
+				clockwise = player.rotationPitch <= 0;
+				break;
+			case Z:
+				clockwise = playerRotation > 0 && playerRotation <= 180;
+				break;
+			default:
+				clockwise = false;
+				break;
+			}
+			return Rotation.getRotation(door.axis, toTheSide == clockwise);
+		}
+		
+		@Override
+		protected Rotation getDefaultRotation(LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional) {
+			return Rotation.getRotation(door.axis, true);
+		}
+		
+		@Override
+		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
+			RotationTransformation transformation = new RotationTransformation(0, 0, 0);
+			switch (rotation) {
+			case X_CLOCKWISE:
+				transformation.x = -90;
+				break;
+			case X_COUNTER_CLOCKWISE:
+				transformation.x = 90;
+				break;
+			case Y_CLOCKWISE:
+				transformation.y = -90;
+				break;
+			case Y_COUNTER_CLOCKWISE:
+				transformation.y = 90;
+				break;
+			case Z_CLOCKWISE:
+				transformation.z = -90;
+				break;
+			case Z_COUNTER_CLOCKWISE:
+				transformation.z = 90;
+				break;
+			}
+			return new DoorController(new AnimationState("closed", transformation, null), new AnimationState("opened", null, null), true, door.duration);
+		}
+		
+		@Override
+		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
+			parent.addControl(new GuiButton("swap normal", 0, 0) {
+				
+				@Override
+				public void onClicked(int x, int y, int button) {
+					viewer.changeNormalAxis();
+				}
+				
+			});
+			
+			if (normalAxis != null)
+				viewer.setNormalAxis(normalAxis);
+			viewer.visibleNormalAxis = true;
+		}
+		
+		@Override
+		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
+			normalAxis = viewer.getNormalAxis();
+		}
+		
+		@Override
+		protected boolean shouldRotatePreviews(LittleAxisDoor door) {
+			return true;
+		}
+		
+	}
+	
+	public static class FixedRotation extends AxisDoorRotation {
+		
+		public double degree;
+		
+		@Override
+		protected void writeToNBTCore(NBTTagCompound nbt) {
+			nbt.setDouble("degree", degree);
+		}
+		
+		@Override
+		protected void readFromNBT(NBTTagCompound nbt) {
+			degree = nbt.getDouble("degree");
+		}
+		
+		@Override
+		protected void rotate(Rotation rotation) {
+			
+		}
+		
+		@Override
+		protected void flip(Axis axis) {
+			
+		}
+		
+		@Override
+		protected boolean tryOpposite() {
+			return false;
+		}
+		
+		@Override
+		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional) {
+			return getDefaultRotation(door, axisPos, additional);
+		}
+		
+		@Override
+		protected Rotation getDefaultRotation(LittleAxisDoor door, LittleTilePos axisPos, LittleTileVec additional) {
+			return Rotation.getRotation(door.axis, degree > 0);
+		}
+		
+		@Override
+		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
+			return new DoorController(new AnimationState("opened", new RotationTransformation(Rotation.getRotation(door.axis, degree > 0), degree), null), false, door.duration);
+		}
+		
+		@Override
+		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
+			viewer.visibleNormalAxis = false;
+			if (this.degree == 0)
+				this.degree = 90;
+			parent.addControl(new GuiTextfield("degree", "" + degree, 0, 0, 30, 12).setFloatOnly());
+			
+		}
+		
+		@Override
+		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
+			float degree;
+			try {
+				degree = Float.parseFloat(((GuiTextfield) parent.get("degree")).text);
+			} catch (NumberFormatException e) {
+				degree = 0;
+			}
+			this.degree = degree;
+		}
+		
+		@Override
+		protected boolean shouldRotatePreviews(LittleAxisDoor door) {
+			return false;
 		}
 		
 	}

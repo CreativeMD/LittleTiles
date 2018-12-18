@@ -506,7 +506,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 		RotationUtils.setValue(vec, getSize(one) * slice.getDirectionScale(one), one);
 		RotationUtils.setValue(vec, getSize(two) * slice.getDirectionScale(two), two);
 		
-		RotationUtils.rotateVec(vec, Rotation.getRotation(slice.axis, slice.isRight));
+		RotationUtils.rotate(vec, Rotation.getRotation(slice.axis, slice.isRight));
 		vec.normalize();
 		return new Vec3d(vec.x, vec.y, vec.z);
 	}

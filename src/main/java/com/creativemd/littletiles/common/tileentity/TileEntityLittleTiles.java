@@ -21,7 +21,7 @@ import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mods.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -159,7 +159,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public EntityDoorAnimation waitingAnimation;
+	public EntityAnimation waitingAnimation;
 	
 	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
@@ -172,7 +172,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			getCubeCache().clearCache();
 		
 		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate()) {
-			waitingAnimation.removeWaitingTe(this);
+			waitingAnimation.controller.removeWaitingTe(this);
 			waitingAnimation = null;
 		}
 		

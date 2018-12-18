@@ -125,7 +125,7 @@ public enum LittleSlice {
 		this.traingleOrderPositive = traingleOrderPositive;
 		this.traingleOrderNegative = traingleOrderNegative;
 		this.sliceVec = new Vec3i(getDirectionBetweenFacing(start.x, end.x), getDirectionBetweenFacing(start.y, end.y), getDirectionBetweenFacing(start.z, end.z));
-		Vec3i temp = RotationUtils.rotateVec(sliceVec, Rotation.getRotation(axis, isRight));
+		Vec3i temp = RotationUtils.rotate(sliceVec, Rotation.getRotation(axis, isRight));
 		this.normal = new int[] { temp.getX(), temp.getY(), temp.getZ() };
 		Axis one = RotationUtils.getDifferentAxisFirst(axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(axis);

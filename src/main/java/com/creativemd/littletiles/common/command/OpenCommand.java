@@ -72,7 +72,7 @@ public class OpenCommand extends CommandBase {
 			}
 			
 			for (LittleDoorBase door : doors) {
-				door.activate(world, null, door.getDefaultRotation(), door.getMainTile().te.getPos());
+				door.activate(world, null, blockpos, null);
 			}
 		}
 	}

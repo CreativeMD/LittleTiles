@@ -20,6 +20,7 @@ import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.controls.GuiAnimationViewer;
 import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
@@ -30,12 +31,12 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -74,7 +75,8 @@ public class SubGuiRecipe extends SubGuiConfigure {
 			if (control instanceof GuiParent)
 				onLoaded((GuiParent) control, animation, entireBox, context, box);
 		}
-		
+		if (parser != null)
+			parser.onLoaded(animation, entireBox, context, box);
 	}
 	
 	@Override
@@ -175,8 +177,9 @@ public class SubGuiRecipe extends SubGuiConfigure {
 			parser.createControls(stack, saved);
 			panel.refreshControls();
 			addListener(parser);
-			if (loaded)
+			if (loaded) {
 				onLoaded(panel, animation, entireBox, context, box);
+			}
 		} else
 			parser = null;
 		
@@ -233,18 +236,23 @@ public class SubGuiRecipe extends SubGuiConfigure {
 				context = previews.context;
 				box = entireBox.getBox(context);
 				
-				animation = new EntityAnimation(fakeWorld, fakeWorld, blocks, new LittleAbsolutePreviewsStructure(previews.getStructureData(), pos, previews), UUID.randomUUID(), new LittleTilePos(pos, previews.context, entireBox.getCenter()), new LittleTileVec(0, 0, 0)) {
+				animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
 					
 					@Override
-					protected void copyExtra(EntityAnimation animation) {
+					protected void writeToNBTExtra(NBTTagCompound nbt) {
 						
 					}
 					
 					@Override
-					protected void entityInit() {
+					protected void readFromNBT(NBTTagCompound nbt) {
 						
 					}
 					
+					@Override
+					public boolean onRightClick() {
+						return false;
+					}
+				}.addStateAndSelect(new AnimationState("nothing", null, null)), pos, UUID.randomUUID(), new LittleTilePos(pos, previews.context, entireBox.getCenter()), new LittleTileVec(0, 0, 0)) {
 					@Override
 					public boolean shouldAddDoor() {
 						return false;

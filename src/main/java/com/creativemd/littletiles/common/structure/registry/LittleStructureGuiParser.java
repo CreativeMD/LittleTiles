@@ -3,9 +3,13 @@ package com.creativemd.littletiles.common.structure.registry;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -28,6 +32,11 @@ public abstract class LittleStructureGuiParser {
 		if (type == null)
 			throw new RuntimeException("Could find structure for " + structureClass);
 		return (T) type.createStructure();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box) {
+		
 	}
 	
 }

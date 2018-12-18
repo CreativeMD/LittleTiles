@@ -9,7 +9,6 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -75,7 +74,7 @@ public class LittleDoorHandler {
 	public void tick(WorldTickEvent event) {
 		if (event.side == side && event.phase == Phase.END) {
 			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
-				EntityDoorAnimation door = (EntityDoorAnimation) iterator.next();
+				EntityAnimation door = (EntityAnimation) iterator.next();
 				
 				door.onUpdateForReal();
 				
@@ -121,6 +120,7 @@ public class LittleDoorHandler {
 				double d0 = door.lastTickPosX + (door.posX - door.lastTickPosX) * (double) partialTicks;
 				double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * (double) partialTicks;
 				double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * (double) partialTicks;
+				
 				float f = door.prevRotationYaw + (door.rotationYaw - door.prevRotationYaw) * partialTicks;
 				int i = door.getBrightnessForRender();
 				
@@ -138,18 +138,6 @@ public class LittleDoorHandler {
 				} catch (Throwable throwable1) {
 					throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
 				}
-				
-				/* try { if (!this.renderOutlines) { render.doRenderShadowAndFire(entityIn, x,
-				 * y, z, yaw, partialTicks); } } catch (Throwable throwable2) { throw new
-				 * ReportedException(CrashReport.makeCrashReport(throwable2,
-				 * "Post-rendering entity in world")); }
-				 * 
-				 * if (this.debugBoundingBox && !entityIn.isInvisible() && !p_188391_10_ &&
-				 * !Minecraft.getMinecraft().isReducedDebug()) { try {
-				 * this.renderDebugBoundingBox(entityIn, x, y, z, yaw, partialTicks); } catch
-				 * (Throwable throwable) { throw new
-				 * ReportedException(CrashReport.makeCrashReport(throwable,
-				 * "Rendering entity hitbox in world")); } } */
 			}
 			
 		}
@@ -160,7 +148,7 @@ public class LittleDoorHandler {
 	public void tickClient(ClientTickEvent event) {
 		if (event.side == side && event.phase == Phase.END) {
 			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
-				EntityDoorAnimation door = (EntityDoorAnimation) iterator.next();
+				EntityAnimation door = (EntityAnimation) iterator.next();
 				if (door.isDead)
 					iterator.remove();
 				

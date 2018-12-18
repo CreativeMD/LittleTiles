@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.structure.type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.UUID;
 
 import javax.annotation.Nullable;
@@ -11,10 +11,14 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
-import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.SubWorld;
+import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.entity.DoorController;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
@@ -26,19 +30,23 @@ import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxi
 import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorPreviewHandler;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.transformation.DoorTransformation;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -49,14 +57,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		super(type);
 	}
 	
-	public boolean isWaitingForApprove = false;
-	
 	public int duration = 50;
-	
-	@Override
-	public void onUpdatePacketReceived() {
-		isWaitingForApprove = false;
-	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -64,7 +65,6 @@ public abstract class LittleDoorBase extends LittleStructure {
 			duration = nbt.getInteger("duration");
 		else
 			duration = 50;
-		isWaitingForApprove = false;
 	}
 	
 	@Override
@@ -72,7 +72,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		nbt.setInteger("duration", duration);
 	}
 	
-	public boolean place(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, UUID uuid, LittleTilePos absolute, LittleTileVec additional) {
+	public boolean place(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, LittleTilePos absolute, LittleTileVec additional) {
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
@@ -81,16 +81,15 @@ public abstract class LittleDoorBase extends LittleStructure {
 			ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 			SubWorld fakeWorld = SubWorld.createFakeWorld(world);
 			LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
-			for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
-				TileEntity te = (TileEntity) iterator.next();
-				if (te instanceof TileEntityLittleTiles)
-					blocks.add((TileEntityLittleTiles) te);
-			}
+			
+			controller.activator = player;
 			
 			if (world.isRemote) {
+				controller.markWaitingForApprove();
+				
 				for (TileEntityLittleTiles te : tiles.keySet()) {
 					if (te.waitingAnimation != null) {
-						te.waitingAnimation.removeWaitingTe(te);
+						te.waitingAnimation.controller.removeWaitingTe(te);
 						te.waitingAnimation = null;
 					}
 				}
@@ -104,7 +103,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 				newDoor.parent = new StructureLinkFromSubWorld(parentStructure.getMainTile(), parentStructure.attribute, newDoor, parent.getChildID());
 			}
 			
-			EntityDoorAnimation animation = new EntityDoorAnimation(world, fakeWorld, blocks, previews, absolute, transformation, uuid, player, additional, duration);
+			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute, additional);
 			world.spawnEntity(animation);
 			return true;
 		}
@@ -112,11 +111,66 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return false;
 	}
 	
-	public Rotation getDefaultRotation() {
-		return null;
+	public boolean activate(World world, @Nullable EntityPlayer player, BlockPos pos, @Nullable LittleTile tile) {
+		if (!hasLoaded() || !loadChildren()) {
+			player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
+			return false;
+		}
+		
+		if (isChildMoving()) {
+			player.sendStatusMessage(new TextComponentTranslation("A child is still in motion!"), true);
+			return false;
+		}
+		
+		UUID uuid = UUID.randomUUID();
+		if (world.isRemote)
+			PacketHandler.sendPacketToServer(new LittleDoorPacket(tile != null ? tile : getMainTile(), uuid));
+		
+		openDoor(world, player, uuid);
+		
+		return true;
 	}
 	
-	public abstract boolean activate(World world, @Nullable EntityPlayer player, Rotation rotation, BlockPos pos);
+	public void openDoor(World world, @Nullable EntityPlayer player, UUID uuid) {
+		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
+		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
+		
+		LittleTilePos axisPoint = getAbsoluteAxisVec();
+		LittleTileVec additional = getAdditionalAxisVec();
+		
+		for (TileEntityLittleTiles te : tempTiles.keySet()) {
+			tempContext.put(te, te.getContext());
+		}
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().preventUpdate = true;
+			entry.getKey().removeTiles(entry.getValue());
+			entry.getKey().preventUpdate = false;
+		}
+		
+		if (tryToPlacePreviews(world, player, uuid, axisPoint, additional)) {
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+				entry.getKey().updateTiles();
+			}
+			return;
+		}
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
+			entry.getKey().convertTo(tempContext.get(entry.getKey()));
+			entry.getKey().addTiles(entry.getValue());
+		}
+	}
+	
+	public abstract boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional);
+	
+	@Override
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+		if (world.isRemote) {
+			activate(world, player, pos, tile);
+			action.preventInteraction = true;
+		}
+		return true;
+	}
 	
 	public abstract LittleTilePos getAbsoluteAxisVec();
 	
@@ -137,8 +191,8 @@ public abstract class LittleDoorBase extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			
-			parent.controls.add(new GuiLabel("Duration:", 0, 116));
-			parent.controls.add(new GuiSteppedSlider("duration_s", 50, 115, 50, 12, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
+			parent.controls.add(new GuiLabel("Duration:", 90, 122));
+			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 		}
 		
 		@Override
@@ -150,5 +204,6 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		@SideOnly(Side.CLIENT)
 		public abstract LittleDoorBase parseStructure(int duration);
+		
 	}
 }

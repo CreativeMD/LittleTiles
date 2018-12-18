@@ -1,5 +1,8 @@
 package com.creativemd.littletiles.common.gui.controls;
 
+import javax.vecmath.Matrix3d;
+import javax.vecmath.Vector3d;
+
 import org.lwjgl.input.Keyboard;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
@@ -7,6 +10,7 @@ import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
@@ -18,6 +22,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.init.Blocks;
@@ -26,6 +31,7 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 
 public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	
@@ -38,12 +44,21 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	public SmoothValue offsetX = new SmoothValue(100);
 	public SmoothValue offsetY = new SmoothValue(100);
 	
-	public EnumFacing viewDirection = EnumFacing.EAST;
+	private EnumFacing viewDirection;
 	
 	public boolean visibleAxis = false;
+	public boolean visibleNormalAxis = false;
 	
-	public EnumFacing.Axis normalAxis = null;
-	public EnumFacing.Axis axisDirection = EnumFacing.Axis.Y;
+	private Axis normalAxis;
+	private Axis axisDirection;
+	
+	private EnumFacing xFacing;
+	private EnumFacing yFacing;
+	private EnumFacing zFacing;
+	
+	public SmoothValue rotX = new SmoothValue(400);
+	public SmoothValue rotY = new SmoothValue(400);
+	public SmoothValue rotZ = new SmoothValue(400);
 	
 	public int axisX = 1;
 	public int axisY = 1;
@@ -70,6 +85,134 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		super(name, x, y, width, height);
 		this.context = context;
 		this.marginWidth = 0;
+		
+		setAxis(Axis.Y);
+		rotX.setStart(rotX.aimed());
+		rotY.setStart(rotY.aimed());
+		rotZ.setStart(rotZ.aimed());
+	}
+	
+	public void setNormalAxis(Axis normalAxis) {
+		this.normalAxis = normalAxis;
+	}
+	
+	public Axis getNormalAxis() {
+		return normalAxis;
+	}
+	
+	public EnumFacing getViewDirection() {
+		return viewDirection;
+	}
+	
+	public void setViewDirection(EnumFacing facing) {
+		this.viewDirection = facing;
+		updateNormalAxis();
+		
+		switch (facing) {
+		case EAST:
+			rotX.set(0);
+			rotY.set(-90);
+			rotZ.set(180);
+			break;
+		case WEST:
+			rotX.set(0);
+			rotY.set(90);
+			rotZ.set(180);
+			break;
+		case UP:
+			rotX.set(90);
+			rotY.set(0);
+			rotZ.set(0);
+			break;
+		case DOWN:
+			rotX.set(-90);
+			rotY.set(0);
+			rotZ.set(0);
+			break;
+		case SOUTH:
+			rotX.set(0);
+			rotY.set(-180);
+			rotZ.set(180);
+			break;
+		case NORTH:
+			rotX.set(0);
+			rotY.set(0);
+			rotZ.set(180);
+			break;
+		}
+		
+		Vec3i direction = EnumFacing.EAST.getDirectionVec();
+		Vector3d vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
+		
+		transform(vec);
+		
+		if (vec.x != 0)
+			if (vec.x > 0)
+				xFacing = EnumFacing.EAST;
+			else
+				xFacing = EnumFacing.WEST;
+		else if (vec.y != 0)
+			if (vec.y > 0)
+				yFacing = EnumFacing.EAST;
+			else
+				yFacing = EnumFacing.WEST;
+		else if (vec.z != 0)
+			if (vec.z > 0)
+				zFacing = EnumFacing.EAST;
+			else
+				zFacing = EnumFacing.WEST;
+			
+		direction = EnumFacing.UP.getDirectionVec();
+		vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
+		
+		transform(vec);
+		
+		if (vec.x != 0)
+			if (vec.x > 0)
+				xFacing = EnumFacing.UP;
+			else
+				xFacing = EnumFacing.DOWN;
+		else if (vec.y != 0)
+			if (vec.y > 0)
+				yFacing = EnumFacing.UP;
+			else
+				yFacing = EnumFacing.DOWN;
+		else if (vec.z != 0)
+			if (vec.z > 0)
+				zFacing = EnumFacing.UP;
+			else
+				zFacing = EnumFacing.DOWN;
+			
+		direction = EnumFacing.SOUTH.getDirectionVec();
+		vec = new Vector3d(direction.getX(), direction.getY(), direction.getZ());
+		
+		transform(vec);
+		
+		if (vec.x != 0)
+			if (vec.x > 0)
+				xFacing = EnumFacing.SOUTH;
+			else
+				xFacing = EnumFacing.NORTH;
+		else if (vec.y != 0)
+			if (vec.y > 0)
+				yFacing = EnumFacing.SOUTH;
+			else
+				yFacing = EnumFacing.NORTH;
+		else if (vec.z != 0)
+			if (vec.z > 0)
+				zFacing = EnumFacing.SOUTH;
+			else
+				zFacing = EnumFacing.NORTH;
+	}
+	
+	public Axis getAxis() {
+		return axisDirection;
+	}
+	
+	public void setAxis(Axis axis) {
+		this.axisDirection = axis;
+		setViewDirection(EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, axisDirection));
+		
 	}
 	
 	@Override
@@ -78,54 +221,19 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	}
 	
 	public void updateNormalAxis() {
+		if (size == null)
+			return;
 		
-		switch (axisDirection) {
-		case X:
-			if (size.sizeY >= size.sizeZ)
-				normalAxis = EnumFacing.Axis.Y;
-			else
-				normalAxis = EnumFacing.Axis.Z;
-			break;
-		case Y:
-			if (size.sizeX >= size.sizeZ)
-				normalAxis = EnumFacing.Axis.Z;
-			else
-				normalAxis = EnumFacing.Axis.X;
-			break;
-		case Z:
-			if (size.sizeX >= size.sizeY)
-				normalAxis = EnumFacing.Axis.Y;
-			else
-				normalAxis = EnumFacing.Axis.X;
-			break;
-		default:
-			break;
-		}
+		Axis one = RotationUtils.getDifferentAxisFirst(axisDirection);
+		Axis two = RotationUtils.getDifferentAxisSecond(axisDirection);
+		if (size.get(one) >= size.get(two))
+			normalAxis = two;
+		else
+			normalAxis = one;
 	}
 	
 	public void changeNormalAxis() {
-		switch (axisDirection) {
-		case X:
-			if (normalAxis == EnumFacing.Axis.Z)
-				normalAxis = EnumFacing.Axis.Y;
-			else
-				normalAxis = EnumFacing.Axis.Z;
-			break;
-		case Y:
-			if (normalAxis == EnumFacing.Axis.Z)
-				normalAxis = EnumFacing.Axis.X;
-			else
-				normalAxis = EnumFacing.Axis.Z;
-			break;
-		case Z:
-			if (normalAxis == EnumFacing.Axis.Y)
-				normalAxis = EnumFacing.Axis.X;
-			else
-				normalAxis = EnumFacing.Axis.Y;
-			break;
-		default:
-			break;
-		}
+		normalAxis = RotationUtils.getDifferentAxis(axisDirection, normalAxis);
 	}
 	
 	@Override
@@ -137,45 +245,25 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		offsetX.tick();
 		offsetY.tick();
 		
+		rotX.tick();
+		rotY.tick();
+		rotZ.tick();
+		
 		GlStateManager.pushMatrix();
 		
-		// Vec3 offset = Vec3.createVectorHelper(p_72443_0_, p_72443_2_, p_72443_4_);
 		GlStateManager.translate(this.width / 2 + offsetX.current(), this.height / 2 + offsetY.current(), 0);
-		//GlStateManager.scale(4, 4, 4);
 		GlStateManager.scale(this.scale.current(), this.scale.current(), this.scale.current());
 		GlStateManager.translate(-offsetX.current() * 2, -offsetY.current() * 2, 0);
 		
-		if (viewDirection.getAxis() != EnumFacing.Axis.Y)
-			GlStateManager.rotate(180, 0, 0, 1);
-		EnumFacing facing = viewDirection;
-		switch (viewDirection) {
-		case EAST:
-			GlStateManager.rotate(180, 0, 1, 0);
-			facing = EnumFacing.SOUTH;
-			break;
-		case WEST:
-			facing = EnumFacing.NORTH;
-			break;
-		case UP:
-			GlStateManager.rotate(-90, 1, 0, 0);
-			break;
-		case DOWN:
-			GlStateManager.rotate(90, 1, 0, 0);
-			break;
-		case SOUTH:
-			GlStateManager.rotate(90, 0, 1, 0);
-			facing = EnumFacing.EAST;
-			break;
-		case NORTH:
-			GlStateManager.rotate(-90, 0, 1, 0);
-			facing = EnumFacing.WEST;
-			break;
-		}
+		GlStateManager.rotate((float) rotX.current(), 1, 0, 0);
+		GlStateManager.rotate((float) rotY.current(), 0, 1, 0);
+		GlStateManager.rotate((float) rotZ.current(), 0, 0, 1);
 		
 		GlStateManager.translate(-min.getPosX(context), -min.getPosY(context), -min.getPosZ(context));
 		
 		GlStateManager.pushMatrix();
 		
+		GlStateManager.enableDepth();
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
 		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
@@ -232,15 +320,15 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 				break;
 			}
 			
-			RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
+			if (visibleNormalAxis)
+				RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
 			RenderHelper3D.renderBlock(cube.minX + context.gridMCLength / 2, cube.minY + context.gridMCLength / 2, cube.minZ + context.gridMCLength / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
 			
 			GlStateManager.popMatrix();
 		}
 		
 		GlStateManager.enableTexture2D();
-		
-		GlStateManager.enableDepth();
+		GlStateManager.disableDepth();
 		
 		GlStateManager.disableBlend();
 		GlStateManager.disableLighting();
@@ -264,62 +352,66 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		GlStateManager.rotate(90, 0, 0, 1);
 		helper.drawStringWithShadow(yAxis, 0, 0, width, 14, ColorUtils.WHITE);
 		GlStateManager.popMatrix();
-		GlStateManager.disableDepth();
 		
 	}
 	
-	public EnumFacing getXFacing() {
-		switch (viewDirection) {
-		case EAST:
-			return EnumFacing.EAST;
-		case WEST:
-			return EnumFacing.WEST;
-		case UP:
-			return EnumFacing.EAST;
-		case DOWN:
-			return EnumFacing.EAST;
-		case SOUTH:
-			return EnumFacing.NORTH;
-		case NORTH:
-			return EnumFacing.SOUTH;
+	private void transform(Vector3d vec) {
+		Matrix3d matrix = new Matrix3d();
+		
+		if (rotZ.aimed() != 0) {
+			matrix.rotZ(Math.toRadians(rotZ.aimed()));
+			matrix.transform(vec);
 		}
-		return EnumFacing.EAST;
+		
+		if (rotY.aimed() != 0) {
+			matrix.rotY(Math.toRadians(rotY.aimed()));
+			matrix.transform(vec);
+		}
+		
+		if (rotX.aimed() != 0) {
+			matrix.rotX(Math.toRadians(rotX.aimed()));
+			matrix.transform(vec);
+		}
+		
+		vec.x = Math.round(vec.x);
+		vec.y = Math.round(vec.y);
+		vec.z = Math.round(vec.z);
+	}
+	
+	public EnumFacing getXFacing() {
+		return xFacing;
 	}
 	
 	public EnumFacing getYFacing() {
-		switch (viewDirection) {
-		case EAST:
-			return EnumFacing.DOWN;
-		case WEST:
-			return EnumFacing.DOWN;
-		case UP:
-			return EnumFacing.SOUTH;
-		case DOWN:
-			return EnumFacing.NORTH;
-		case SOUTH:
-			return EnumFacing.DOWN;
-		case NORTH:
-			return EnumFacing.DOWN;
-		}
-		return EnumFacing.DOWN;
+		return yFacing;
 	}
 	
 	public EnumFacing getZFacing() {
-		switch (viewDirection) {
-		case EAST:
-			return EnumFacing.NORTH;
-		case WEST:
-			return EnumFacing.NORTH;
-		case UP:
-			return EnumFacing.DOWN;
-		case DOWN:
-			return EnumFacing.DOWN;
-		case SOUTH:
-			return EnumFacing.WEST;
-		case NORTH:
-			return EnumFacing.WEST;
+		return zFacing;
+	}
+	
+	public void moveX(int distance) {
+		move(getXFacing().getAxis(), distance * getXFacing().getAxisDirection().getOffset());
+	}
+	
+	public void moveY(int distance) {
+		move(getYFacing().getAxis(), -distance * getYFacing().getAxisDirection().getOffset());
+	}
+	
+	protected void move(Axis axis, int distance) {
+		switch (axis) {
+		case X:
+			axisX += distance;
+			break;
+		case Y:
+			axisY += distance;
+			break;
+		case Z:
+			axisZ += distance;
+			break;
+		default:
+			break;
 		}
-		return EnumFacing.NORTH;
 	}
 	
 	@Override
@@ -342,7 +434,6 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	
 	@Override
 	public void mouseMove(int posX, int posY, int button) {
-		// Vec3d mouse = getParent().getMousePos();
 		if (grabbed) {
 			Vec3d currentPosition = new Vec3d(posX, posY, 0);
 			if (lastPosition != null) {
@@ -374,41 +465,41 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			return true;
 		}
 		double percent = 1;
-		if (key == Keyboard.KEY_UP) {
+		if (key == Keyboard.KEY_W) {
 			offsetY.set(offsetY.aimed() - (1D / scale.aimed() * percent));
 			return true;
 		}
-		if (key == Keyboard.KEY_DOWN) {
+		if (key == Keyboard.KEY_S) {
 			offsetY.set(offsetY.aimed() + (1D / scale.aimed() * percent));
 			return true;
 		}
-		if (key == Keyboard.KEY_RIGHT) {
+		if (key == Keyboard.KEY_D) {
 			offsetX.set(offsetX.aimed() + (1D / scale.aimed() * percent));
 			return true;
 		}
-		if (key == Keyboard.KEY_LEFT) {
+		if (key == Keyboard.KEY_A) {
 			offsetX.set(offsetX.aimed() - (1D / scale.aimed() * percent));
 			return true;
 		}
 		
-		return false;
-	}
-	
-	public void updateViewDirection() {
-		switch (axisDirection) {
-		case X:
-			viewDirection = EnumFacing.SOUTH;
-			break;
-		case Y:
-			viewDirection = EnumFacing.UP;
-			break;
-		case Z:
-			viewDirection = EnumFacing.EAST;
-			break;
-		default:
-			break;
+		if (key == Keyboard.KEY_UP) {
+			moveY(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2);
+			return true;
 		}
-		updateNormalAxis();
+		if (key == Keyboard.KEY_DOWN) {
+			moveY(-(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2));
+			return true;
+		}
+		if (key == Keyboard.KEY_RIGHT) {
+			moveX(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2);
+			return true;
+		}
+		if (key == Keyboard.KEY_LEFT) {
+			moveX(-(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2));
+			return true;
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -416,6 +507,6 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.animation = animation;
 		this.size = previews.getSize();
 		this.min = previews.getMinVec();
-		updateViewDirection();
+		updateNormalAxis();
 	}
 }

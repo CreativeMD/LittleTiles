@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
@@ -85,9 +84,9 @@ public class LittleEvent {
 	
 	@SubscribeEvent
 	public void trackEntity(StartTracking event) {
-		if (event.getTarget() instanceof EntityDoorAnimation && ((EntityDoorAnimation) event.getTarget()).activator != event.getEntityPlayer()) {
-			EntityDoorAnimation animation = (EntityDoorAnimation) event.getTarget();
-			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), true), (EntityPlayerMP) event.getEntityPlayer());
+		if (event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).controller.activator() != event.getEntityPlayer()) {
+			EntityAnimation animation = (EntityAnimation) event.getTarget();
+			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
 	

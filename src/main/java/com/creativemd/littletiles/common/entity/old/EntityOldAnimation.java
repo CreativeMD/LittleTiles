@@ -1,5 +1,6 @@
-package com.creativemd.littletiles.common.entity;
+package com.creativemd.littletiles.common.entity.old;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -10,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
@@ -26,8 +26,8 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.entity.AABBCombiner;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -36,7 +36,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
-import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
@@ -59,108 +58,22 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EntityAnimation extends Entity {
+@Deprecated
+public abstract class EntityOldAnimation extends Entity {
 	
-	protected static final Predicate<Entity> noAnimation = new Predicate<Entity>() {
+	protected static Predicate<Entity> NO_ANIMATION = new Predicate<Entity>() {
 		
 		@Override
 		public boolean apply(Entity input) {
-			return !(input instanceof EntityAnimation);
+			return !(input instanceof EntityOldAnimation);
 		}
 		
 	};
 	
-	// ================Constructors================
-	
-	public EntityAnimation(World worldIn) {
-		super(worldIn);
-	}
-	
-	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, LittleTilePos center, LittleTileVec additional) {
-		this(world);
-		
-		this.controller = controller;
-		this.controller.parent = this;
-		
-		this.absolutePreviewPos = absolutePreviewPos;
-		
-		this.entityUniqueID = uuid;
-		this.cachedUniqueIdString = this.entityUniqueID.toString();
-		
-		this.fakeWorld = fakeWorld;
-		this.fakeWorld.parent = this;
-		
-		setCenterVec(center, additional);
-		
-		reloadWorldBlocks();
-		updateWorldCollision();
-		
-		setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
-		
-		addDoor();
-		onUpdateForReal();
-	}
-	
-	public boolean shouldAddDoor() {
-		return true;
-	}
-	
-	public void addDoor() {
-		if (!shouldAddDoor())
-			return;
-		if (!addedDoor) {
-			LittleDoorHandler.getHandler(world).createDoor(this);
-			addedDoor = true;
-		}
-	}
-	
-	public void reloadWorldBlocks() {
-		blocks = new ArrayList<>();
-		for (TileEntity te : fakeWorld.loadedTileEntityList)
-			if (te instanceof TileEntityLittleTiles)
-				blocks.add((TileEntityLittleTiles) te);
-	}
-	
-	@Override
-	protected void entityInit() {
-		addDoor();
-	}
-	
 	// ================World Data================
 	
-	public CreativeWorld fakeWorld;
-	public VecOrigin origin;
-	public EntityAnimationController controller;
-	public List<TileEntityLittleTiles> blocks;
-	
-	public double prevWorldRotX;
-	public double prevWorldRotY;
-	public double prevWorldRotZ;
-	
-	public double worldRotX;
-	public double worldRotY;
-	public double worldRotZ;
-	
-	public double prevWorldOffsetX;
-	public double prevWorldOffsetY;
-	public double prevWorldOffsetZ;
-	
-	public double worldOffsetX;
-	public double worldOffsetY;
-	public double worldOffsetZ;
-	
-	public Vec3d getRotationVector(float partialTicks) {
-		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double) partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double) partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double) partialTicks);
-	}
-	
-	public Vec3d getOffsetVector(float partialTicks) {
-		return new Vec3d(this.prevWorldOffsetX + (this.worldOffsetX - this.prevWorldOffsetX) * (double) partialTicks, this.prevWorldOffsetY + (this.worldOffsetY - this.prevWorldOffsetY) * (double) partialTicks, this.prevWorldOffsetZ + (this.worldOffsetZ - this.prevWorldOffsetZ) * (double) partialTicks);
-	}
-	
-	// ================Axis================
-	
-	public static int intFloorDiv(int coord, int bucketSize) {
-		return coord < 0 ? -((-coord - 1) / bucketSize) - 1 : coord / bucketSize;
+	public static int intFloorDiv(int p_76137_0_, int p_76137_1_) {
+		return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
 	}
 	
 	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
@@ -170,7 +83,8 @@ public class EntityAnimation extends Entity {
 		this.baseOffset = axis.pos;
 		
 		this.inBlockCenter = axis.contextVec;
-		this.chunkOffset = new BlockPos(baseOffset.getX() >> 4, baseOffset.getY() >> 4, baseOffset.getZ() >> 4);
+		this.chunkOffset = getRenderChunkPos(baseOffset);
+		
 		int chunkX = intFloorDiv(baseOffset.getX(), 16);
 		int chunkY = intFloorDiv(baseOffset.getY(), 16);
 		int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
@@ -185,13 +99,16 @@ public class EntityAnimation extends Entity {
 		this.fakeWorld.setOrigin(origin);
 	}
 	
+	public static BlockPos getRenderChunkPos(BlockPos blockPos) {
+		return new BlockPos(blockPos.getX() >> 4, blockPos.getY() >> 4, blockPos.getZ() >> 4);
+	}
+	
 	protected LittleTilePos center;
 	protected LittleTileVecContext inBlockCenter;
 	protected BlockPos baseOffset;
 	protected BlockPos chunkOffset;
 	protected BlockPos inChunkOffset;
 	protected LittleTileVec additionalAxis;
-	public BlockPos absolutePreviewPos;
 	public Vector3d rotationCenter;
 	public Vector3d rotationCenterInsideBlock;
 	
@@ -213,6 +130,25 @@ public class EntityAnimation extends Entity {
 	
 	public BlockPos getInsideChunkPos() {
 		return inChunkOffset;
+	}
+	
+	// ================World Data================
+	
+	public CreativeWorld fakeWorld;
+	public VecOrigin origin;
+	public LittleAbsolutePreviewsStructure previews;
+	public ArrayList<TileEntityLittleTiles> blocks;
+	
+	public double prevWorldRotX = 0;
+	public double prevWorldRotY = 0;
+	public double prevWorldRotZ = 0;
+	
+	public double worldRotX = 0;
+	public double worldRotY = 0;
+	public double worldRotZ = 0;
+	
+	public Vec3d getRotVector(float partialTicks) {
+		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double) partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double) partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double) partialTicks);
 	}
 	
 	// ================Collision================
@@ -303,6 +239,22 @@ public class EntityAnimation extends Entity {
 		}
 	}
 	
+	public void rotXTo(double x) {
+		rotateAnimation(x - worldRotX, 0, 0);
+	}
+	
+	public void rotYTo(double y) {
+		rotateAnimation(0, y - worldRotY, 0);
+	}
+	
+	public void rotZTo(double z) {
+		rotateAnimation(0, 0, z - worldRotZ);
+	}
+	
+	public void rotateAnimation(double rotX, double rotY, double rotZ) {
+		moveAndRotateAnimation(0, 0, 0, rotX, rotY, rotZ);
+	}
+	
 	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
 		boolean moved = false;
 		if (!preventPush) {
@@ -317,7 +269,7 @@ public class EntityAnimation extends Entity {
 				
 				noCollision = true;
 				
-				List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityAnimation.noAnimation);
+				List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityOldAnimation.NO_ANIMATION);
 				if (!entities.isEmpty()) {
 					// PHASE ONE
 					List<AxisAlignedBB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
@@ -389,9 +341,9 @@ public class EntityAnimation extends Entity {
 						}
 					}
 					
-					worldOffsetX += x;
-					worldOffsetY += y;
-					worldOffsetZ += z;
+					posX += x;
+					posY += y;
+					posZ += z;
 					
 					worldRotX += rotX;
 					worldRotY += rotY;
@@ -600,9 +552,9 @@ public class EntityAnimation extends Entity {
 		}
 		
 		if (!moved) {
-			worldOffsetX += x;
-			worldOffsetY += y;
-			worldOffsetZ += z;
+			posX += x;
+			posY += y;
+			posZ += z;
 			
 			worldRotX += rotX;
 			worldRotY += rotY;
@@ -610,6 +562,22 @@ public class EntityAnimation extends Entity {
 			
 			updateOrigin();
 		}
+	}
+	
+	public void moveXTo(double x) {
+		moveAnimation(x - posX, 0, 0);
+	}
+	
+	public void moveYTo(double y) {
+		moveAnimation(0, y - posY, 0);
+	}
+	
+	public void moveZTo(double z) {
+		moveAnimation(0, 0, z - posZ);
+	}
+	
+	public void moveAnimation(double x, double y, double z) {
+		moveAndRotateAnimation(x, y, z, 0, 0, 0);
 	}
 	
 	// ================Rendering================
@@ -631,6 +599,31 @@ public class EntityAnimation extends Entity {
 	
 	@SideOnly(Side.CLIENT)
 	public boolean spawnedInWorld;
+	
+	// ================Constructors================
+	
+	public EntityOldAnimation(World worldIn) {
+		super(worldIn);
+	}
+	
+	public EntityOldAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
+		this(world);
+		
+		this.blocks = blocks;
+		this.previews = previews;
+		
+		this.entityUniqueID = uuid;
+		this.cachedUniqueIdString = this.entityUniqueID.toString();
+		
+		this.fakeWorld = fakeWorld;
+		this.fakeWorld.parent = this;
+		
+		setCenterVec(center, additional);
+		
+		updateWorldCollision();
+		
+		setPosition(baseOffset.getX(), baseOffset.getY(), baseOffset.getZ());
+	}
 	
 	@SideOnly(Side.CLIENT)
 	public void createClient() {
@@ -665,56 +658,30 @@ public class EntityAnimation extends Entity {
 			return;
 		
 		boolean rotated = prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ;
-		boolean moved = prevWorldOffsetX != worldOffsetX || prevWorldOffsetY != worldOffsetY || prevWorldOffsetZ != worldOffsetZ;
+		boolean moved = prevPosX != posX || prevPosY != posY || prevPosZ != posZ;
 		
 		if (rotated || moved)
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
 	}
 	
 	public void updateOrigin() {
-		origin.off(worldOffsetX, worldOffsetY, worldOffsetZ);
+		origin.off(posX - getAxisPos().getX(), posY - getAxisPos().getY(), posZ - getAxisPos().getZ());
 		origin.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	
 	public void onTick() {
-		AnimationState state = controller.tick();
-		double moveX;
-		double moveY;
-		double moveZ;
-		if (state.offset != null) {
-			moveX = state.offset.x;
-			moveY = state.offset.y;
-			moveZ = state.offset.z;
-		} else {
-			moveX = 0;
-			moveY = 0;
-			moveZ = 0;
-		}
 		
-		double rotateX;
-		double rotateY;
-		double rotateZ;
-		if (state.rotation != null) {
-			rotateX = state.rotation.x;
-			rotateY = state.rotation.y;
-			rotateZ = state.rotation.z;
-		} else {
-			rotateX = 0;
-			rotateY = 0;
-			rotateZ = 0;
-		}
-		moveAndRotateAnimation(moveX - worldOffsetX, moveY - worldOffsetY, moveZ - worldOffsetZ, rotateX - worldRotX, rotateY - worldRotY, rotateZ - worldRotZ);
 	}
 	
 	public void onPostTick() {
 		
 	}
 	
-	public boolean addedDoor;
+	public boolean addedDoor = false;
 	
 	@Override
 	public void onUpdate() {
-		
+		onUpdateForReal();
 	}
 	
 	public void onUpdateForReal() {
@@ -734,10 +701,6 @@ public class EntityAnimation extends Entity {
 		prevWorldRotX = worldRotX;
 		prevWorldRotY = worldRotY;
 		prevWorldRotZ = worldRotZ;
-		
-		prevWorldOffsetX = worldOffsetX;
-		prevWorldOffsetY = worldOffsetY;
-		prevWorldOffsetZ = worldOffsetZ;
 		
 		handleForces();
 		
@@ -813,25 +776,61 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public boolean processInitialInteract(EntityPlayer player, EnumHand hand) {
-		
 		return true;
-	}
-	
-	public boolean onRightClick(EntityPlayer player) {
-		return controller.onRightClick();
 	}
 	
 	@Override
 	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand) {
-		if (!world.isRemote && onRightClick(player))
-			PacketHandler.sendPacketToPlayer(new LittleEntityInteractPacket(entityUniqueID), (EntityPlayerMP) player);
 		return EnumActionResult.SUCCESS;
+	}
+	
+	// ================Copy================
+	
+	protected abstract void copyExtra(EntityOldAnimation animation);
+	
+	public EntityOldAnimation copy() {
+		EntityOldAnimation animation = null;
+		try {
+			animation = (EntityOldAnimation) this.getClass().getConstructor(World.class).newInstance(this.world);
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			e.printStackTrace();
+		}
+		
+		animation.setUniqueId(getUniqueID());
+		animation.fakeWorld = fakeWorld;
+		animation.setCenterVec(center.copy(), additionalAxis.copy());
+		animation.previews = previews.copy();
+		animation.blocks = blocks;
+		
+		animation.worldBoundingBox = worldBoundingBox;
+		animation.worldCollisionBoxes = new ArrayList<>(worldCollisionBoxes);
+		// if(collisionBoxes != null)
+		// animation.collisionBoxes = new ArrayList<>(collisionBoxes);
+		
+		if (world.isRemote) {
+			animation.renderChunks = renderChunks;
+			animation.renderQueue = renderQueue;
+		}
+		
+		animation.prevWorldRotX = prevWorldRotX;
+		animation.prevWorldRotY = prevWorldRotY;
+		animation.prevWorldRotZ = prevWorldRotZ;
+		
+		animation.worldRotX = worldRotX;
+		animation.worldRotY = worldRotY;
+		animation.worldRotZ = worldRotZ;
+		
+		// animation.startOffset = startOffset;
+		
+		copyExtra(animation);
+		
+		return animation;
 	}
 	
 	// ================Saving & Loading================
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviews(LittleStructure parent) {
-		return parent.getAbsolutePreviews(absolutePreviewPos);
+	protected void reloadPreviews(LittleStructure parent, BlockPos pos) {
+		previews = parent.getAbsolutePreviews(pos);
 	}
 	
 	public LittleStructure getParentStructure() {
@@ -873,12 +872,13 @@ public class EntityAnimation extends Entity {
 		}
 		
 		int[] array = compound.getIntArray("previewPos");
+		BlockPos pos;
 		if (array.length == 3)
-			absolutePreviewPos = new BlockPos(array[0], array[1], array[2]);
+			pos = new BlockPos(array[0], array[1], array[2]);
 		else
-			absolutePreviewPos = baseOffset;
+			pos = baseOffset;
 		
-		controller = EntityAnimationController.parseController(this, compound.getCompoundTag("controller"));
+		reloadPreviews(parent, pos);
 		
 		updateWorldCollision();
 		updateBoundingBox();
@@ -898,11 +898,9 @@ public class EntityAnimation extends Entity {
 			list.appendTag(te.writeToNBT(new NBTTagCompound()));
 		}
 		
-		compound.setTag("controller", controller.writeToNBT(new NBTTagCompound()));
-		
 		compound.setTag("tileEntity", list);
 		
-		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(), absolutePreviewPos.getZ() });
+		compound.setIntArray("previewPos", new int[] { previews.pos.getX(), previews.pos.getY(), previews.pos.getZ() });
 		
 	}
 	

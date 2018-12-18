@@ -196,7 +196,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		@Override
 		public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
 			super.rotatePreview(rotation, doubledCenter);
-			getTileData().setInteger("meta", RotationUtils.rotateFacing(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
+			getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
 		}
 		
 		@Override

@@ -18,8 +18,8 @@ import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
+import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
@@ -144,38 +144,69 @@ public class LittleTilesClient extends LittleTilesServer {
 		ClientRegistry.registerKeyBinding(undo);
 		ClientRegistry.registerKeyBinding(redo);
 		
-		EntityRegistry.instance().lookupModSpawn(EntityDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
+		EntityRegistry.instance().lookupModSpawn(EntityAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
 			
 			@Override
 			public Entity apply(EntitySpawnMessage input) {
 				// entity = cls.getConstructor(World.class).newInstance(wc);
 				
 				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
-				EntityDoorAnimation animation = null;
-				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
-					Entity entity = iterator.next();
-					if (entity instanceof EntityDoorAnimation && entity.getUniqueID().equals(uuid)) {
-						animation = (EntityDoorAnimation) entity;
+				EntityAnimation animation = null;
+				for (EntityAnimation entity : LittleDoorHandler.client.openDoors) {
+					if (entity.getUniqueID().equals(uuid)) {
+						animation = entity;
 						break;
 					}
 				}
 				
 				boolean alreadyExisted = animation != null;
 				if (animation == null) {
-					animation = new EntityDoorAnimation(mc.world);
+					animation = new EntityAnimation(mc.world);
 					
 					animation.setUniqueId(uuid);
-					// PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new
-					// NBTTagCompound(), true));
+				} else {
+					animation.spawnedInWorld = true;
+					animation.controller.onServerApproves();
+				}
+				
+				if (animation != null) {
+					animation.setEntityId(ReflectionHelper.getPrivateValue(EntityMessage.class, input, "entityId"));
+					double rawX = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawX");
+					double rawY = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawY");
+					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
+					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
+					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
+					if (!alreadyExisted)
+						animation.setInitialPosition(rawX, rawY, rawZ);
+				}
+				
+				return animation;
+			}
+			
+		}, false);
+		
+		EntityRegistry.instance().lookupModSpawn(EntityOldDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
+			
+			@Override
+			public Entity apply(EntitySpawnMessage input) {
+				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
+				EntityOldDoorAnimation animation = null;
+				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
+					Entity entity = iterator.next();
+					if (entity instanceof EntityOldDoorAnimation && entity.getUniqueID().equals(uuid)) {
+						animation = (EntityOldDoorAnimation) entity;
+						break;
+					}
+				}
+				
+				boolean alreadyExisted = animation != null;
+				if (animation == null) {
+					animation = new EntityOldDoorAnimation(mc.world);
+					
+					animation.setUniqueId(uuid);
 				} else {
 					animation.spawnedInWorld = true;
 					animation.approved = true;
-					/* mc.world.removeEntity(animation); animation = animation.copy();
-					 * PacketHandler.sendPacketToServer(new LittleEntityRequestPacket(uuid, new
-					 * NBTTagCompound(), false)); animation.isDead = true;
-					 * mc.world.loadedEntityList.remove(animation); */
-					// mc.world.removeEntity(animation);
-					// animation.isDead = false;
 				}
 				
 				if (animation != null) {

@@ -50,15 +50,16 @@ import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
+import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.common.gui.SubGuiRecipe;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
@@ -80,13 +81,13 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
-import com.creativemd.littletiles.common.packet.LittleDoorInteractPacket;
+import com.creativemd.littletiles.common.packet.LittleDoorPacket;
+import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
-import com.creativemd.littletiles.common.packet.LittleSlidingDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -436,9 +437,9 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
-		CreativeCorePacket.registerPacket(LittleDoorInteractPacket.class, "LittleDoor");
-		CreativeCorePacket.registerPacket(LittleSlidingDoorPacket.class, "LittleSlidingDoor");
+		CreativeCorePacket.registerPacket(LittleDoorPacket.class, "LittleDoor");
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
+		CreativeCorePacket.registerPacket(LittleEntityInteractPacket.class, "EntityInteract");
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
@@ -465,7 +466,9 @@ public class LittleTiles {
 		// Entity
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
 		
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityOldDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
+		
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
 		
 		DefaultBlockHandler.initVanillaBlockHandlers();
 		

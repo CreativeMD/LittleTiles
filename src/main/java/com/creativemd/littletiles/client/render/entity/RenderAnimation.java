@@ -18,7 +18,6 @@ import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntityDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -76,7 +75,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 						RenderingThread.addCoordToUpdate(te, 0, false);
 						continue;
 					}
-					BlockPos renderChunkPos = EntityDoorAnimation.getRenderChunkPos(te.getPos());
+					BlockPos renderChunkPos = getRenderChunkPos(te.getPos());
 					LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
 					if (chunk == null) {
 						chunk = new LittleRenderChunk(renderChunkPos);
@@ -100,7 +99,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		}
 		
 		/** ===Render static part=== **/
-		Vec3d rotation = entity.getRotVector(partialTicks);
+		Vec3d rotation = entity.getRotationVector(partialTicks);
+		Vec3d offset = entity.getOffsetVector(partialTicks);
 		
 		LittleGridContext context = entity.getInsideBlockCenter().context;
 		
@@ -129,16 +129,16 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		float f2 = (float) mc.getRenderViewEntity().posZ;
 		
 		GlStateManager.disableAlpha();
-		renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, rotation);
+		renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
 		GlStateManager.enableAlpha();
 		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-		renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, rotation);
+		renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
 		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, rotation);
+		renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
 		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 		
-		renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, rotation);
+		renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
 		
 		for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
 			final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
@@ -165,7 +165,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		GlStateManager.enableRescaleNormal();
 		
-		if (!entity.isWaitingForRender()) {
+		if (!entity.controller.isWaitingForRender()) {
 			// Setup OPENGL
 			for (Iterator<TileEntityLittleTiles> iterator = entity.blocks.iterator(); iterator.hasNext();) {
 				TileEntityLittleTiles te = iterator.next();
@@ -177,10 +177,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					BlockPos newpos = te.getPos().subtract(entity.getAxisPos());
 					
 					GlStateManager.translate(x, y, z);
+					GlStateManager.translate(offset.x, offset.y, offset.z);
 					
-					// GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2,
-					// entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2,
-					// entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
 					GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 					
 					GL11.glRotated(rotation.x, 1, 0, 0);
@@ -189,15 +187,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					
 					GlStateManager.translate(-((double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), -((double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), -((double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 					
-					// GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2,
-					// -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2,
-					// -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
 					GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
 					// Render TileEntity
-					
-					// GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX,
-					// -TileEntityRendererDispatcher.staticPlayerY,
-					// -TileEntityRendererDispatcher.staticPlayerZ);
 					
 					TileEntityRendererDispatcher.instance.render(te, partialTicks, -1);
 					
@@ -220,7 +211,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			GlStateManager.pushMatrix();
 			
-			// GlStateManager.translate(x, y, z);
 			double rotY = entity.worldRotY - entity.prevWorldRotY;
 			Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
 			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.origin.rotation(), entity.origin.translation(), null, 0, rotationY, rotY, null, 0, null);
@@ -231,10 +221,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GlStateManager.pushMatrix();
 			
 			GlStateManager.translate(x, y, z);
-			
-			// GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2,
-			// entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2,
-			// entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
+			GlStateManager.translate(offset.x, offset.y, offset.z);
 			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
 			
 			GL11.glRotated(rotation.x, 1, 0, 0);
@@ -242,10 +229,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GL11.glRotated(rotation.z, 0, 0, 1);
 			
 			GlStateManager.translate(entity.origin.offX(), entity.origin.offY(), entity.origin.offZ());
-			
-			// GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2,
-			// -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2,
-			// -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
 			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
 			
 			GlStateManager.translate(-x, -y, -z);
@@ -258,21 +241,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z, bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ - entity.posZ + z, 1.0F, intersect ? 0.0F : 1.0F, intersect ? 0.0F : 1.0F, 1.0F);
 				GlStateManager.popMatrix();
 			}
-			
-			/* GlStateManager.pushMatrix();
-			 * 
-			 * double d0 = (Minecraft.getMinecraft().player.posX -
-			 * Minecraft.getMinecraft().player.prevPosX) * (double)partialTicks; double d1 =
-			 * (Minecraft.getMinecraft().player.posY -
-			 * Minecraft.getMinecraft().player.prevPosY) * (double)partialTicks; double d2 =
-			 * (Minecraft.getMinecraft().player.posZ -
-			 * Minecraft.getMinecraft().player.prevPosZ) * (double)partialTicks;
-			 * 
-			 * RenderGlobal.drawBoundingBox(entityBB.minX - entity.posX + x + d0,
-			 * entityBB.minY - entity.posY + y + d1, entityBB.minZ - entity.posZ + z + d2,
-			 * entityBB.maxX - entity.posX + x + d0, entityBB.maxY - entity.posY + y + d1,
-			 * entityBB.maxZ- entity.posZ + z + d2, 1.0F, 1.0F, 1.0F, 1.0F);
-			 * GlStateManager.popMatrix(); */
 			
 			GlStateManager.popMatrix();
 			
@@ -288,7 +256,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		}
 	}
 	
-	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d rotation) {
+	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 			ShadersRender.preRenderChunkLayer(layer);
 		
@@ -312,6 +280,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			double posZ = (chunk.pos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
 			
 			GlStateManager.translate(x, y, z);
+			GlStateManager.translate(offset.x, offset.y, offset.z);
 			
 			// GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2,
 			// entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2,
@@ -491,4 +460,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		return TextureMap.LOCATION_BLOCKS_TEXTURE;
 	}
 	
+	public static BlockPos getRenderChunkPos(BlockPos blockPos) {
+		return new BlockPos(blockPos.getX() >> 4, blockPos.getY() >> 4, blockPos.getZ() >> 4);
+	}
 }

@@ -285,7 +285,7 @@ public class LittleBed extends LittleStructure {
 	
 	@Override
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
-		this.direction = RotationUtils.rotateFacing(this.direction, rotation);
+		this.direction = RotationUtils.rotate(this.direction, rotation);
 	}
 	
 	public static class LittleBedParser extends LittleStructureGuiParser {
@@ -309,7 +309,7 @@ public class LittleBed extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
-			tile.viewDirection = EnumFacing.UP;
+			tile.setViewDirection(EnumFacing.UP);
 			parent.addControl(tile);
 			
 			LittleTileSize size = LittleTilePreview.getSize(stack);

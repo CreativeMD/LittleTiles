@@ -216,7 +216,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 		@Override
 		public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
 			super.rotatePreview(rotation, doubledCenter);
-			getTileData().setInteger("meta", RotationUtils.rotateFacing(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
+			getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
 		}
 		
 		@Override

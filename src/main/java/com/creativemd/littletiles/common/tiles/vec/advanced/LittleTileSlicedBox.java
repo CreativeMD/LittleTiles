@@ -871,10 +871,10 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		end.y -= doubledCenter.y;
 		end.z -= doubledCenter.z;
 		
-		RotationUtils.rotateVec(start, rotation);
-		RotationUtils.rotateVec(end, rotation);
-		beforeOne = RotationUtils.rotateAxis(beforeOne, rotation);
-		beforeTwo = RotationUtils.rotateAxis(beforeTwo, rotation);
+		RotationUtils.rotate(start, rotation);
+		RotationUtils.rotate(end, rotation);
+		beforeOne = RotationUtils.rotate(beforeOne, rotation);
+		beforeTwo = RotationUtils.rotate(beforeTwo, rotation);
 		
 		start.x += doubledCenter.x;
 		start.y += doubledCenter.y;
@@ -958,7 +958,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		RotationUtils.setValue(vec, getSliceSize(one) * slice.getDirectionScale(one), one);
 		RotationUtils.setValue(vec, getSliceSize(two) * slice.getDirectionScale(two), two);
 		
-		RotationUtils.rotateVec(vec, Rotation.getRotation(slice.axis, slice.isRight));
+		RotationUtils.rotate(vec, Rotation.getRotation(slice.axis, slice.isRight));
 		vec.normalize();
 		return new Vec3d(vec.x, vec.y, vec.z);
 	}
