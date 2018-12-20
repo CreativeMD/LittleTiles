@@ -65,7 +65,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					m.instructions.clear();
 					
 					m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-					m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleBed", "getBedOrientationInDegrees", patchDESC("(Lnet/minecraft/entity/player/EntityPlayer;)F"), false));
+					m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/type/LittleBed", "getBedOrientationInDegrees", patchDESC("(Lnet/minecraft/entity/player/EntityPlayer;)F"), false));
 					m.instructions.add(new InsnNode(Opcodes.FRETURN));
 				}
 			}
@@ -82,7 +82,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				while (iterator.hasNext()) {
 					AbstractInsnNode insn = iterator.next();
 					if (nextLabel && insn instanceof LabelNode) {
-						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/LittleBed", "setBedDirection", patchDESC("(Lnet/minecraft/entity/Entity;)V"), false));
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/structure/type/LittleBed", "setBedDirection", patchDESC("(Lnet/minecraft/entity/Entity;)V"), false));
 						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, 3));
 						break;
 					}
