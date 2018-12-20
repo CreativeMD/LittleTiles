@@ -166,8 +166,12 @@ public class DoorController extends EntityAnimationController {
 				newDoor.parent = new StructureLink(newDoor.getMainTile().te, parentStructure.getMainTile().te.getPos(), parentStructure.getMainTile().getContext(), parentStructure.getMainTile().getIdentifier(), parentStructure.attribute, newDoor, placedStructureParent.parent.getChildID(), true);
 				parentStructure.children.put(newDoor.parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, newDoor.getMainTile().te.getPos(), newDoor.getMainTile().getContext(), newDoor.getMainTile().getIdentifier(), newDoor.attribute, parentStructure, newDoor.parent.getChildID(), false));
 			}
-		} else if (!world.isRemote)
-			WorldUtils.dropItem(world, previews.getStructure().getStructureDrop(), parent.baseOffset);
+		} else {
+			parent.isDead = true;
+			if (!world.isRemote)
+				WorldUtils.dropItem(world, placedStructureParent.getStructureDrop(), parent.baseOffset);
+			return;
+		}
 		
 		if (!world.isRemote)
 			parent.isDead = true;
