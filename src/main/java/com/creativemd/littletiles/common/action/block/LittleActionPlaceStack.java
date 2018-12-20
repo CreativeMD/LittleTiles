@@ -304,7 +304,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			if (SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
 				throw new SpecialServerConfig.NotAllowedToPlaceException();
 			
-			if (SpecialServerConfig.isTransparenceyRestricted(player))
+			if (SpecialServerConfig.isTransparencyRestricted(player))
 				for (PlacePreviewTile placePreview : previews)
 					isAllowedToPlacePreview(player, placePreview.preview);
 		}

@@ -81,7 +81,7 @@ public class LittleActionReplace extends LittleActionInteract {
 		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 		boxes = new LittleBoxes(pos, te.getContext());
 		
-		if (SpecialServerConfig.isTransparenceyRestricted(player))
+		if (SpecialServerConfig.isTransparencyRestricted(player))
 			isAllowedToPlacePreview(player, toReplace);
 		
 		if (BlockTile.selectEntireBlock(player, secondMode)) {

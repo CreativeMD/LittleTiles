@@ -308,7 +308,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (preview == null)
 			return true;
 		
-		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparencty(player))
+		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparency(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
 		
 		return true;

@@ -138,9 +138,6 @@ public class SubGuiRecipe extends SubGuiConfigure {
 						NBTTagCompound structureNBT = new NBTTagCompound();
 						structure.writeToNBT(structureNBT);
 						stack.getTagCompound().setTag("structure", structureNBT);
-						// ItemStack multiTiles = new ItemStack(LittleTiles.multiTiles);
-						// multiTiles.stackTagCompound = stack.stackTagCompound;
-						// WorldUtils.dropItem(container.player, multiTiles);
 					} else
 						stack.getTagCompound().removeTag("structure");
 					

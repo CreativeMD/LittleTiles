@@ -39,7 +39,7 @@ public class SpecialServerConfig {
 		return false;
 	}
 	
-	public static boolean isTransparenceyRestricted(EntityPlayer player) {
+	public static boolean isTransparencyRestricted(EntityPlayer player) {
 		if (player.isCreative())
 			return false;
 		return minimumTransparency > 0;
@@ -49,7 +49,7 @@ public class SpecialServerConfig {
 		return player.isCreative() || minimumTransparency < 255;
 	}
 	
-	public static int getMinimumTransparencty(EntityPlayer player) {
+	public static int getMinimumTransparency(EntityPlayer player) {
 		if (player.isCreative())
 			return 0;
 		return minimumTransparency;

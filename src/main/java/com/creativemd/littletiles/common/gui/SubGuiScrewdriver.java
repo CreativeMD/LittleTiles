@@ -70,7 +70,7 @@ public class SubGuiScrewdriver extends SubGui {
 		Color color = new Color(255, 255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
 		
-		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
+		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 		
 		controls.add(new GuiButton("undo", "undo", 150, 135, 40) {
 			

@@ -34,7 +34,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
 	public void createControls() {
 		Color color = ColorUtils.IntToRGBA(ItemColorTube.getColor(stack));
 		// color.setAlpha(255);
-		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
+		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 		
 		ArrayList<String> shapes = new ArrayList<>(SelectShape.shapes.keySet());
 		shapes.add(0, "tile");

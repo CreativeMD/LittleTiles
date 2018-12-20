@@ -201,7 +201,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
-		if (ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparencty(player))
+		if (ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparency(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
 		
 		TileEntity tileEntity = loadTe(player, world, pos, true);

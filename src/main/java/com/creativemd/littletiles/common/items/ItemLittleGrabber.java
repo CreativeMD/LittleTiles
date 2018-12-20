@@ -457,7 +457,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.sizeZ, 1, context.size));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
-					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparencty(getPlayer())));
+					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 					
 					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
 					label.name = "avatar";
