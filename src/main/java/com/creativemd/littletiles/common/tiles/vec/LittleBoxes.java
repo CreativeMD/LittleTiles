@@ -31,7 +31,7 @@ public class LittleBoxes extends ArrayList<LittleTileBox> {
 				convertTo(context);
 		}
 		
-		box.addOffset(new LittleTileVec(context, pos.subtract(this.pos)));
+		box.add(new LittleTileVec(context, pos.subtract(this.pos)));
 		add(box);
 	}
 	

@@ -89,7 +89,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			previews.context.set(nbt);
 			LittleTileBox tempBox = preview.box;
 			preview.box = preview.box.copy();
-			preview.box.subOffset(preview.box.getMinVec());
+			preview.box.sub(preview.box.getMinVec());
 			preview.writeToNBT(nbt);
 			preview.box = tempBox;
 			stack.setTagCompound(nbt);

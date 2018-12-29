@@ -5,6 +5,7 @@ import java.security.InvalidParameterException;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 public class LittleTileVecContext {
@@ -62,6 +63,10 @@ public class LittleTileVecContext {
 		this.convertToSmallest();
 	}
 	
+	public void add(BlockPos pos) {
+		this.vec.add(pos, context);
+	}
+	
 	public void sub(LittleTileVecContext vec) {
 		ensureBothAreEqual(vec);
 		this.vec.sub(vec.vec);
@@ -69,8 +74,16 @@ public class LittleTileVecContext {
 		this.convertToSmallest();
 	}
 	
+	public void sub(BlockPos pos) {
+		this.vec.sub(pos, context);
+	}
+	
 	public LittleTileVecContext copy() {
 		return new LittleTileVecContext(context, vec.copy());
+	}
+	
+	public BlockPos getBlockPos() {
+		return vec.getBlockPos(context);
 	}
 	
 	public double getPosX() {

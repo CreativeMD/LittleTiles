@@ -169,7 +169,7 @@ public class DoorController extends EntityAnimationController {
 		} else {
 			parent.isDead = true;
 			if (!world.isRemote)
-				WorldUtils.dropItem(world, placedStructureParent.getStructureDrop(), parent.baseOffset);
+				WorldUtils.dropItem(world, placedStructureParent.getStructureDrop(), parent.center.baseOffset);
 			return;
 		}
 		

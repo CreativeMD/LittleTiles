@@ -105,9 +105,15 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		if (hasStructure()) {
+			for (PlacePreviewTile placePreviewTile : getStructure().getSpecialTiles(this)) {
+				if (!fixed)
+					placePreviewTile.add(offset);
+				placePreviews.add(placePreviewTile);
+			}
+			
 			for (PlacePreviewTile placePreviewTile : getStructureHandler().getSpecialTiles(this)) {
 				if (!fixed)
-					placePreviewTile.addOffset(offset);
+					placePreviewTile.add(offset);
 				placePreviews.add(placePreviewTile);
 			}
 		}
@@ -126,7 +132,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			offset.convertTo(context, this.context);
 		
 		for (LittleTilePreview preview : previews) {
-			preview.box.addOffset(offset);
+			preview.box.add(offset);
 		}
 		if (hasStructure()) {
 			getStructure().onMove(world, player, stack, context, offset);
@@ -238,7 +244,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
 	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset) {
 		LittleTilePreview preview = getPreview(tile);
-		preview.box.addOffset(offset);
+		preview.box.add(offset);
 		return addPreview(null, tile.getPreviewTile(), tile.getContext());
 	}
 	

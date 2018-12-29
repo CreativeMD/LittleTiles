@@ -102,7 +102,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		Vec3d rotation = entity.getRotationVector(partialTicks);
 		Vec3d offset = entity.getOffsetVector(partialTicks);
 		
-		LittleGridContext context = entity.getInsideBlockCenter().context;
+		LittleGridContext context = entity.center.inBlockOffset.context;
 		
 		// SETUP OPENGL
 		
@@ -174,12 +174,12 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					
 					BlockPos blockpos = te.getPos();
 					
-					BlockPos newpos = te.getPos().subtract(entity.getAxisPos());
+					BlockPos newpos = te.getPos().subtract(entity.center.baseOffset);
 					
 					GlStateManager.translate(x, y, z);
 					GlStateManager.translate(offset.x, offset.y, offset.z);
 					
-					GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+					GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
 					
 					GL11.glRotated(rotation.x, 1, 0, 0);
 					GL11.glRotated(rotation.y, 0, 1, 0);
@@ -187,12 +187,12 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					
 					GlStateManager.translate(-((double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), -((double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), -((double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
 					
-					GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+					GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
 					// Render TileEntity
 					
 					TileEntityRendererDispatcher.instance.render(te, partialTicks, -1);
 					
-					GlStateManager.translate(-entity.getInsideBlockCenter().getPosX() - context.gridMCLength / 2, -entity.getInsideBlockCenter().getPosY() - context.gridMCLength / 2, -entity.getInsideBlockCenter().getPosZ() - context.gridMCLength / 2);
+					GlStateManager.translate(-entity.center.inBlockOffset.getPosX() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosY() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosZ() - context.gridMCLength / 2);
 					GlStateManager.popMatrix();
 				}
 			}
@@ -213,7 +213,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			double rotY = entity.worldRotY - entity.prevWorldRotY;
 			Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
-			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.rotationCenter, entity.origin.rotation(), entity.origin.translation(), null, 0, rotationY, rotY, null, 0, null);
+			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.center.rotationCenter, entity.origin.rotation(), entity.origin.translation(), null, 0, rotationY, rotY, null, 0, null);
 			RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z, moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
 			
 			GlStateManager.popMatrix();
@@ -222,14 +222,14 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			GlStateManager.translate(x, y, z);
 			GlStateManager.translate(offset.x, offset.y, offset.z);
-			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+			GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
 			
 			GL11.glRotated(rotation.x, 1, 0, 0);
 			GL11.glRotated(rotation.y, 0, 1, 0);
 			GL11.glRotated(rotation.z, 0, 0, 1);
 			
 			GlStateManager.translate(entity.origin.offX(), entity.origin.offY(), entity.origin.offZ());
-			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+			GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
 			
 			GlStateManager.translate(-x, -y, -z);
 			
@@ -275,17 +275,14 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			mc.entityRenderer.enableLightmap();
 			
-			double posX = (chunk.pos.getX() - entity.getAxisChunkPos().getX()) * 16 - entity.getInsideChunkPos().getX();
-			double posY = (chunk.pos.getY() - entity.getAxisChunkPos().getY()) * 16 - entity.getInsideChunkPos().getY();
-			double posZ = (chunk.pos.getZ() - entity.getAxisChunkPos().getZ()) * 16 - entity.getInsideChunkPos().getZ();
+			double posX = (chunk.pos.getX() - entity.center.chunkOffset.getX()) * 16 - entity.center.inChunkOffset.getX();
+			double posY = (chunk.pos.getY() - entity.center.chunkOffset.getY()) * 16 - entity.center.inChunkOffset.getY();
+			double posZ = (chunk.pos.getZ() - entity.center.chunkOffset.getZ()) * 16 - entity.center.inChunkOffset.getZ();
 			
 			GlStateManager.translate(x, y, z);
 			GlStateManager.translate(offset.x, offset.y, offset.z);
 			
-			// GlStateManager.translate(entity.getInsideBlockCenter().getPosX()+entity.additionalAxis.getPosX(context)/2,
-			// entity.getInsideBlockCenter().getPosY()+entity.additionalAxis.getPosY(context)/2,
-			// entity.getInsideBlockCenter().getPosZ()+entity.additionalAxis.getPosZ(context)/2);
-			GlStateManager.translate(entity.rotationCenterInsideBlock.x, entity.rotationCenterInsideBlock.y, entity.rotationCenterInsideBlock.z);
+			GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
 			
 			GL11.glRotated(rotation.x, 1, 0, 0);
 			GL11.glRotated(rotation.y, 0, 1, 0);
@@ -301,10 +298,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				GlStateManager.enableAlpha();
 			}
 			
-			// GlStateManager.translate(-entity.getInsideBlockCenter().getPosX()-entity.additionalAxis.getPosX(context)/2,
-			// -entity.getInsideBlockCenter().getPosY()-entity.additionalAxis.getPosY(context)/2,
-			// -entity.getInsideBlockCenter().getPosZ()-entity.additionalAxis.getPosZ(context)/2);
-			GlStateManager.translate(-entity.rotationCenterInsideBlock.x, -entity.rotationCenterInsideBlock.y, -entity.rotationCenterInsideBlock.z);
+			GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
 			
 			buffer.bindBuffer();
 			

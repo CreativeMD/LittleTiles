@@ -26,15 +26,15 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkToSub
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor.LittleAdvancedDoorParser;
 import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorParser;
-import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorPreviewHandler;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -72,7 +72,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		nbt.setInteger("duration", duration);
 	}
 	
-	public boolean place(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, LittleTilePos absolute, LittleTileVec additional) {
+	public boolean place(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, StructureAbsolute absolute) {
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
@@ -103,7 +103,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 				newDoor.parent = new StructureLinkFromSubWorld(parentStructure.getMainTile(), parentStructure.attribute, newDoor, parent.getChildID());
 			}
 			
-			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute, additional);
+			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute);
 			world.spawnEntity(animation);
 			return true;
 		}
@@ -135,8 +135,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
 		
-		LittleTilePos axisPoint = getAbsoluteAxisVec();
-		LittleTileVec additional = getAdditionalAxisVec();
+		StructureAbsolute absolute = getAbsoluteAxis();
 		
 		for (TileEntityLittleTiles te : tempTiles.keySet()) {
 			tempContext.put(te, te.getContext());
@@ -148,7 +147,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 			entry.getKey().preventUpdate = false;
 		}
 		
-		if (tryToPlacePreviews(world, player, uuid, axisPoint, additional)) {
+		if (tryToPlacePreviews(world, player, uuid, absolute)) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 				entry.getKey().updateTiles();
 			}
@@ -161,7 +160,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		}
 	}
 	
-	public abstract boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional);
+	public abstract boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, StructureAbsolute absolute);
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
@@ -172,13 +171,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 		return true;
 	}
 	
-	public abstract LittleTilePos getAbsoluteAxisVec();
-	
-	public abstract LittleTileVec getAdditionalAxisVec();
+	public abstract StructureAbsolute getAbsoluteAxis();
 	
 	public static void initDoors() {
-		LittleStructureRegistry.registerStructureType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE, LittleAxisDoorParser.class, new LittleAxisDoorPreviewHandler());
+		LittleStructureRegistry.registerStructureType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE, LittleAxisDoorParser.class);
 		LittleStructureRegistry.registerStructureType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE, LittleSlidingDoorParser.class);
+		LittleStructureRegistry.registerStructureType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE, LittleAdvancedDoorParser.class);
 	}
 	
 	public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {

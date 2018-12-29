@@ -60,22 +60,38 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	public SmoothValue rotY = new SmoothValue(400);
 	public SmoothValue rotZ = new SmoothValue(400);
 	
-	public int axisX = 1;
-	public int axisY = 1;
-	public int axisZ = 1;
-	
+	private LittleTileBox box;
+	private LittleGridContext axisContext;
 	private boolean even;
 	
+	public LittleTileBox getBox() {
+		return box;
+	}
+	
+	public LittleGridContext getAxisContext() {
+		return axisContext;
+	}
+	
+	public void setAxis(LittleTileBox box, LittleGridContext context) {
+		this.box = box;
+		this.axisContext = context;
+	}
+	
 	public void setEven(boolean even) {
+		boolean changed = this.even != even;
 		this.even = even;
+		
+		if (!changed || box == null)
+			return;
+		
 		if (even) {
-			axisX = axisX % 2 == 0 ? axisX : axisX - 1;
-			axisY = axisY % 2 == 0 ? axisY : axisY - 1;
-			axisZ = axisZ % 2 == 0 ? axisZ : axisZ - 1;
+			box.minX -= 1;
+			box.minY -= 1;
+			box.minZ -= 1;
 		} else {
-			axisX = axisX % 2 == 0 ? axisX + 1 : axisX;
-			axisY = axisY % 2 == 0 ? axisY + 1 : axisY;
-			axisZ = axisZ % 2 == 0 ? axisZ + 1 : axisZ;
+			box.minX += 1;
+			box.minY += 1;
+			box.minZ += 1;
 		}
 	}
 	
@@ -290,9 +306,9 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			
 			GlStateManager.pushMatrix();
 			
-			GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
+			//GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
 			
-			CubeObject cube = new CubeObject(context.toVanillaGrid(axisX / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisY / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisZ / 2F) - (float) context.gridMCLength / 2, context.toVanillaGrid(axisX / 2F) + (float) context.gridMCLength / 2, context.toVanillaGrid(axisY / 2F) + (float) context.gridMCLength / 2, context.toVanillaGrid(axisZ / 2F) + (float) context.gridMCLength / 2);
+			CubeObject cube = new CubeObject(box.getBox(axisContext));
 			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
 			normalCube.minX += context.gridMCLength / 3;
 			normalCube.minY += context.gridMCLength / 3;
@@ -322,7 +338,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			
 			if (visibleNormalAxis)
 				RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
-			RenderHelper3D.renderBlock(cube.minX + context.gridMCLength / 2, cube.minY + context.gridMCLength / 2, cube.minZ + context.gridMCLength / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
+			RenderHelper3D.renderBlock(cube.minX + cube.getSize(Axis.X) / 2, cube.minY + cube.getSize(Axis.Y) / 2, cube.minZ + cube.getSize(Axis.Z) / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
 			
 			GlStateManager.popMatrix();
 		}
@@ -401,13 +417,16 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	protected void move(Axis axis, int distance) {
 		switch (axis) {
 		case X:
-			axisX += distance;
+			box.minX += distance;
+			box.maxX += distance;
 			break;
 		case Y:
-			axisY += distance;
+			box.minY += distance;
+			box.maxY += distance;
 			break;
 		case Z:
-			axisZ += distance;
+			box.minZ += distance;
+			box.maxZ += distance;
 			break;
 		default:
 			break;

@@ -23,9 +23,12 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
+import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
@@ -34,6 +37,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
@@ -79,7 +83,7 @@ public abstract class LittleStructure {
 	}
 	
 	public final LittleStructureAttribute attribute;
-	public final String structureID;
+	public final LittleStructureType type;
 	
 	public String name;
 	
@@ -87,9 +91,11 @@ public abstract class LittleStructure {
 	public LinkedHashMap<Integer, IStructureChildConnector> children;
 	public List<LittleStructure> tempChildren;
 	
+	public LittleTilePos lastMainTileVec = null;
+	
 	public LittleStructure(LittleStructureType type) {
 		this.attribute = type.attribute;
-		this.structureID = type.id;
+		this.type = type;
 	}
 	
 	/** takes name of stack and connects the structure to its children (does so recursively)
@@ -156,6 +162,19 @@ public abstract class LittleStructure {
 			}
 		}
 		
+		LittleTilePos absolute = tile.getAbsolutePos();
+		if (lastMainTileVec != null) {
+			LittleTileVecContext vec = lastMainTileVec.getRelative(absolute);
+			if (!lastMainTileVec.equals(absolute)) {
+				for (StructureTypeRelative relative : type.relatives) {
+					StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+					if (relativeST != null)
+						relativeST.onMove(this, vec.context, vec.vec);
+				}
+			}
+		}
+		lastMainTileVec = absolute;
+		
 	}
 	
 	public LittleTileIdentifierStructureRelative getMainTileCoord(BlockPos pos) {
@@ -170,10 +189,6 @@ public abstract class LittleStructure {
 		return mainTile != null;
 	}
 	
-	public void moveStructure(EnumFacing facing) {
-		
-	}
-	
 	public void combineTiles() {
 		if (!hasLoaded())
 			return;
@@ -185,12 +200,15 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	public void selectMainTile() {
+	public boolean selectMainTile() {
 		if (hasLoaded()) {
 			LittleTile first = tiles.getFirst();
-			if (first != null)
+			if (first != null) {
 				setMainTile(first);
+				return true;
+			}
 		}
+		return false;
 	}
 	
 	private LittleTile mainTile;
@@ -422,22 +440,46 @@ public abstract class LittleStructure {
 		} else
 			children = new LinkedHashMap<>();
 		
+		for (StructureTypeRelative relative : type.relatives) {
+			if (nbt.hasKey(relative.saveKey))
+				relative.createAndSetRelative(this, nbt);
+			else
+				failedLoadingRelative(nbt, relative);
+		}
+		
 		loadFromNBTExtra(nbt);
+	}
+	
+	protected void failedLoadingRelative(NBTTagCompound nbt, StructureTypeRelative relative) {
+		
 	}
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
 	
 	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
-		nbt.setString("id", structureID);
+		nbt.setString("id", type.id);
 		if (name != null)
 			nbt.setString("name", name);
 		else
 			nbt.removeTag("name");
+		
+		LittleTileVecContext vec = getMainTile().getAbsolutePos().getRelative(new LittleTilePos(newCenter, getMainTile().getContext()));
+		
+		LittleTileVec inverted = vec.vec.copy();
+		inverted.invert();
+		
+		for (StructureTypeRelative relative : type.relatives) {
+			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			relativeST.onMove(this, vec.context, vec.vec);
+			relativeST.writeToNBT(relative.saveKey, nbt);
+			relativeST.onMove(this, vec.context, inverted);
+		}
+		
 		writeToNBTExtra(nbt);
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt) {
-		nbt.setString("id", structureID);
+		nbt.setString("id", type.id);
 		if (name != null)
 			nbt.setString("name", name);
 		else
@@ -476,6 +518,10 @@ public abstract class LittleStructure {
 				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue() }));
 			}
 			nbt.setTag("tiles", list);
+		}
+		
+		for (StructureTypeRelative relative : type.relatives) {
+			((StructureRelative) relative.getRelative(this)).writeToNBT(relative.saveKey, nbt);
 		}
 		
 		writeToNBTExtra(nbt);
@@ -567,6 +613,11 @@ public abstract class LittleStructure {
 		for (IStructureChildConnector child : children.values()) {
 			context = LittleGridContext.max(context, child.getStructure(getWorld()).getMinContext());
 		}
+		for (StructureTypeRelative relative : type.relatives) {
+			StructureRelative relativeST = relative.getRelative(this);
+			relativeST.convertToSmallest();
+			context = LittleGridContext.max(context, relativeST.getContext());
+		}
 		return context;
 	}
 	
@@ -578,7 +629,7 @@ public abstract class LittleStructure {
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			LittleTilePreview preview = previews.addTile(tile);
-			preview.box.addOffset(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
+			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 		}
 		
 		for (IStructureChildConnector child : children.values()) {
@@ -618,6 +669,20 @@ public abstract class LittleStructure {
 		return pos;
 	}
 	
+	public List<PlacePreviewTile> getSpecialTiles(LittlePreviews previews) {
+		if (type.relatives.isEmpty())
+			return Collections.EMPTY_LIST;
+		List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		for (StructureTypeRelative relative : type.relatives) {
+			placePreviews.add(getPlacePreview(relative.getRelative(this), relative, previews));
+		}
+		return placePreviews;
+	}
+	
+	protected PlacePreviewTile getPlacePreview(StructureRelative relative, StructureTypeRelative type, LittlePreviews previews) {
+		return relative.getPlacePreview(previews, type);
+	}
+	
 	public ItemStack getStructureDrop() {
 		if (parent != null) {
 			if (parent.isConnected(getWorld()))
@@ -650,12 +715,21 @@ public abstract class LittleStructure {
 	// ====================SORTING====================
 	
 	public void onMove(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
+		for (StructureTypeRelative relative : type.relatives) {
+			((StructureRelative) relative.getRelative(this)).onMove(this, context, offset);
+		}
 	}
 	
 	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		for (StructureTypeRelative relative : type.relatives) {
+			((StructureRelative) relative.getRelative(this)).onFlip(this, context, axis, doubledCenter);
+		}
 	}
 	
 	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+		for (StructureTypeRelative relative : type.relatives) {
+			((StructureRelative) relative.getRelative(this)).onRotate(this, context, rotation, doubledCenter);
+		}
 	}
 	
 	// ====================Helpers====================

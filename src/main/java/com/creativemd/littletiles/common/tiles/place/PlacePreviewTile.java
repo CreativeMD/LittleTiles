@@ -81,7 +81,12 @@ public class PlacePreviewTile {
 	}
 	
 	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos) {
-		if (preview != null && !preview.canSplit && box.needsMultipleBlocks(context))
+		if (!requiresSplit()) {
+			tiles.add(pos, this);
+			return true;
+		}
+		
+		if (canSplit() && box.needsMultipleBlocks(context))
 			return false;
 		
 		HashMapList<BlockPos, LittleTileBox> boxes = new HashMapList<>();
@@ -95,8 +100,16 @@ public class PlacePreviewTile {
 		return true;
 	}
 	
-	public void addOffset(LittleTileVec vec) {
-		box.addOffset(vec);
+	public boolean requiresSplit() {
+		return true;
+	}
+	
+	public boolean canSplit() {
+		return preview != null && !preview.canSplit;
+	}
+	
+	public void add(LittleTileVec vec) {
+		box.add(vec);
 	}
 	
 	public void convertTo(LittleGridContext context, LittleGridContext to) {

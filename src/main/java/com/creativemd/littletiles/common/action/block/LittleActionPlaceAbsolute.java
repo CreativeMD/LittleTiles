@@ -150,12 +150,12 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		
 		@Override
 		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException {
-			drainPremadeItemStack(player, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().structureID).stack);
+			drainPremadeItemStack(player, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id).stack);
 		}
 		
 		@Override
 		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException {
-			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().structureID);
+			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id);
 			return canDrainPremadeItemStack(player, entry.stack) && entry.arePreviewsEqual(previews);
 		}
 		

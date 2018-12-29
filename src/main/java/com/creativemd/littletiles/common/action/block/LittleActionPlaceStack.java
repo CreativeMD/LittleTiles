@@ -268,7 +268,10 @@ public class LittleActionPlaceStack extends LittleAction {
 						}
 						
 						te.preventUpdate = false;
-						te.combineTiles();
+						if (parentStructure != null)
+							te.combineTiles(parentStructure);
+						else
+							te.combineTiles();
 						
 						if (parentStructure != null && te.getTiles().size() == 1 && te.convertBlockToVanilla())
 							placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)

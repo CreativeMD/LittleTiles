@@ -692,12 +692,16 @@ public class LittleTileBox {
 	
 	// ================Vectors================
 	
-	/* public void addOffset(Vec3i vec) { minX += vec.getX() * LittleTile.size; minY
-	 * += vec.getY() * LittleTile.size; minZ += vec.getZ() * LittleTile.size; maxX
-	 * += vec.getX() * LittleTile.size; maxY += vec.getY() * LittleTile.size; maxZ
-	 * += vec.getZ() * LittleTile.size; } */
+	public void add(int x, int y, int z) {
+		minX += x;
+		minY += y;
+		minZ += z;
+		maxX += x;
+		maxY += y;
+		maxZ += z;
+	}
 	
-	public void addOffset(LittleTileVec vec) {
+	public void add(LittleTileVec vec) {
 		minX += vec.x;
 		minY += vec.y;
 		minZ += vec.z;
@@ -706,12 +710,16 @@ public class LittleTileBox {
 		maxZ += vec.z;
 	}
 	
-	/* public void subOffset(Vec3i vec) { minX -= vec.getX() * LittleTile.size; minY
-	 * -= vec.getY() * LittleTile.size; minZ -= vec.getZ() * LittleTile.size; maxX
-	 * -= vec.getX() * LittleTile.size; maxY -= vec.getY() * LittleTile.size; maxZ
-	 * -= vec.getZ() * LittleTile.size; } */
+	public void sub(int x, int y, int z) {
+		minX -= x;
+		minY -= y;
+		minZ -= z;
+		maxX -= x;
+		maxY -= y;
+		maxZ -= z;
+	}
 	
-	public void subOffset(LittleTileVec vec) {
+	public void sub(LittleTileVec vec) {
 		minX -= vec.x;
 		minY -= vec.y;
 		minZ -= vec.z;

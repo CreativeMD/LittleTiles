@@ -833,6 +833,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	public void combineTiles(LittleStructure structure) {
 		BasicCombiner.combineTiles(tiles, structure);
+		
+		convertToSmallest();
 		updateTiles();
 	}
 	

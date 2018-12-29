@@ -158,6 +158,12 @@ public class LittleTileVec implements IVecInt {
 		this.z += vec.z;
 	}
 	
+	public void add(BlockPos pos, LittleGridContext context) {
+		this.x += context.toGrid(pos.getX());
+		this.y += context.toGrid(pos.getY());
+		this.z += context.toGrid(pos.getZ());
+	}
+	
 	public void sub(EnumFacing facing) {
 		set(facing.getAxis(), get(facing.getAxis()) - facing.getAxisDirection().getOffset());
 	}
@@ -166,6 +172,12 @@ public class LittleTileVec implements IVecInt {
 		this.x -= vec.x;
 		this.y -= vec.y;
 		this.z -= vec.z;
+	}
+	
+	public void sub(BlockPos pos, LittleGridContext context) {
+		this.x -= context.toGrid(pos.getX());
+		this.y -= context.toGrid(pos.getY());
+		this.z -= context.toGrid(pos.getZ());
 	}
 	
 	public void flip(Axis axis) {

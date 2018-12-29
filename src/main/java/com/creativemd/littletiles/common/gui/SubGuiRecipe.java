@@ -28,13 +28,13 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -114,7 +114,7 @@ public class SubGuiRecipe extends SubGuiConfigure {
 			this.structure = structure;
 			int index = 0;
 			for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
-				int currentIndex = category.value.indexOfKey("structure." + structure.structureID + ".name");
+				int currentIndex = category.value.indexOfKey("structure." + structure.type.id + ".name");
 				if (currentIndex != -1) {
 					comboBox.select(currentIndex + index);
 					break;
@@ -166,7 +166,7 @@ public class SubGuiRecipe extends SubGuiConfigure {
 			removeListener(parser);
 		
 		LittleStructure saved = this.structure;
-		if (saved != null && !selected.key.equals("structure." + saved.structureID + ".name"))
+		if (saved != null && !selected.key.equals("structure." + saved.type.id + ".name"))
 			saved = null;
 		
 		parser = LittleStructureRegistry.getParser(panel, selected.value);
@@ -249,7 +249,7 @@ public class SubGuiRecipe extends SubGuiConfigure {
 					public boolean onRightClick() {
 						return false;
 					}
-				}.addStateAndSelect(new AnimationState("nothing", null, null)), pos, UUID.randomUUID(), new LittleTilePos(pos, previews.context, entireBox.getCenter()), new LittleTileVec(0, 0, 0)) {
+				}.addStateAndSelect(new AnimationState("nothing", null, null)), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context)) {
 					@Override
 					public boolean shouldAddDoor() {
 						return false;

@@ -39,12 +39,12 @@ public class SubGuiStructureOverview extends SubGui {
 				}
 			});
 		} else {
-			controls.add(new GuiLabel(ChatFormatting.WHITE + "status: " + ChatFormatting.DARK_GREEN + (structure.name != null ? structure.name : structure.structureID) + ChatFormatting.WHITE + ", " + structure.countTiles() + " tile(s)", 0, 3));
+			controls.add(new GuiLabel(ChatFormatting.WHITE + "status: " + ChatFormatting.DARK_GREEN + (structure.name != null ? structure.name : structure.type.id) + ChatFormatting.WHITE + ", " + structure.countTiles() + " tile(s)", 0, 3));
 			
 			if (structure.parent == null)
 				controls.add(new GuiLabel(ChatFormatting.WHITE + "no parent", 0, 20));
 			else {
-				controls.add(new GuiLabel(ChatFormatting.WHITE + "parent: " + (structure.parent.getStructureWithoutLoading() == null ? ChatFormatting.YELLOW + "pending" : ChatFormatting.DARK_GREEN + (structure.parent.getStructureWithoutLoading().name != null ? structure.parent.getStructureWithoutLoading().name : structure.parent.getStructureWithoutLoading().structureID) + ChatFormatting.WHITE + ", " + structure.parent.getStructureWithoutLoading().countTiles() + " tile(s)"), 0, 20));
+				controls.add(new GuiLabel(ChatFormatting.WHITE + "parent: " + (structure.parent.getStructureWithoutLoading() == null ? ChatFormatting.YELLOW + "pending" : ChatFormatting.DARK_GREEN + (structure.parent.getStructureWithoutLoading().name != null ? structure.parent.getStructureWithoutLoading().name : structure.parent.getStructureWithoutLoading().type.id) + ChatFormatting.WHITE + ", " + structure.parent.getStructureWithoutLoading().countTiles() + " tile(s)"), 0, 20));
 				
 				if (structure.parent.getStructureWithoutLoading() == null)
 					controls.add(new GuiButton("connect", 130, 17) {
@@ -71,7 +71,7 @@ public class SubGuiStructureOverview extends SubGui {
 			scrollBox.scaleFactor = 0.9F;
 			int i = 0;
 			for (IStructureChildConnector child : structure.children.values()) {
-				scrollBox.addControl(new GuiLabel("id: " + child.getChildID() + ", " + (child.getStructureWithoutLoading() == null ? ChatFormatting.YELLOW + "pending" : ChatFormatting.DARK_GREEN + (child.getStructureWithoutLoading().name != null ? child.getStructureWithoutLoading().name : child.getStructureWithoutLoading().structureID) + ChatFormatting.WHITE + ", " + child.getStructureWithoutLoading().countTiles() + " tile(s)"), 0, 5 + 20 * i));
+				scrollBox.addControl(new GuiLabel("id: " + child.getChildID() + ", " + (child.getStructureWithoutLoading() == null ? ChatFormatting.YELLOW + "pending" : ChatFormatting.DARK_GREEN + (child.getStructureWithoutLoading().name != null ? child.getStructureWithoutLoading().name : child.getStructureWithoutLoading().type.id) + ChatFormatting.WHITE + ", " + child.getStructureWithoutLoading().countTiles() + " tile(s)"), 0, 5 + 20 * i));
 				if (child.getStructureWithoutLoading() == null)
 					scrollBox.addControl(new GuiButton("connect", 115, 2 + 20 * i) {
 						

@@ -90,7 +90,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
 							LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
-							preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 						continue;
 					}
@@ -98,7 +98,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 					if (specialPreviews != null) {
 						for (int i = 0; i < specialPreviews.size(); i++) {
 							LittleTilePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-							preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 					}
 				}

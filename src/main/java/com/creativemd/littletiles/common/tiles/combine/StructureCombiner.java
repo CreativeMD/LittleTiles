@@ -28,6 +28,7 @@ public class StructureCombiner extends AdvancedCombiner<LittleTile> {
 	@Override
 	public void onCombined(LittleTile first, LittleTile second) {
 		super.onCombined(first, second);
+		
 		if (!first.connection.isLink() || !second.connection.isLink())
 			modifiedMainTile = true;
 	}

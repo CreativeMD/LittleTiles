@@ -253,7 +253,7 @@ public class LittleTilePreview implements ICombinable {
 	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset, LittlePreviews previews) {
 		LittleTileBox newBox = this.box.copy();
 		if (!fixed)
-			newBox.addOffset(offset);
+			newBox.add(offset);
 		return new PlacePreviewTile(newBox, this, previews);
 	}
 	

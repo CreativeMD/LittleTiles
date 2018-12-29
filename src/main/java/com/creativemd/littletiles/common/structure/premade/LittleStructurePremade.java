@@ -67,7 +67,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	
 	@Override
 	public ItemStack getStructureDrop() {
-		return getStructurePremadeEntry(structureID).stack.copy();
+		return getPremadeStack(type.id).copy();
 	}
 	
 	@Override

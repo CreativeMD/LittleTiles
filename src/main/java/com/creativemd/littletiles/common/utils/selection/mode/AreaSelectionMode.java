@@ -146,7 +146,7 @@ public class AreaSelectionMode extends SelectionMode {
 										}
 									} else {
 										LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
-										preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+										preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 									}
 								}
 								continue;
@@ -158,7 +158,7 @@ public class AreaSelectionMode extends SelectionMode {
 							if (specialPreviews != null) {
 								for (int i = 0; i < specialPreviews.size(); i++) {
 									LittleTilePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-									preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+									preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 								}
 								continue;
 							}
@@ -171,7 +171,7 @@ public class AreaSelectionMode extends SelectionMode {
 							LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 							tile.box = new LittleTileBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
 							LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());
-							preview.box.addOffset(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 					}
 				}

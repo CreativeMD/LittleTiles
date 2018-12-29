@@ -47,7 +47,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 				convertTo(context);
 		}
 		
-		preview.box.addOffset(new LittleTileVec(context, pos.subtract(this.pos)));
+		preview.box.add(new LittleTileVec(context, pos.subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
@@ -55,7 +55,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public LittleTilePreview addTile(LittleTile tile) {
 		LittleTilePreview preview = getPreview(tile);
-		preview.box.addOffset(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
+		preview.box.add(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
@@ -63,8 +63,8 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset) {
 		LittleTilePreview preview = getPreview(tile);
-		preview.box.addOffset(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
-		preview.box.addOffset(offset);
+		preview.box.add(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
+		preview.box.add(offset);
 		previews.add(preview);
 		return preview;
 		

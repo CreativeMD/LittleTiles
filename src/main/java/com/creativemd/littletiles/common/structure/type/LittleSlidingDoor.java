@@ -18,10 +18,10 @@ import com.creativemd.littletiles.common.gui.controls.GuiLTDistance;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
@@ -67,7 +67,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, LittleTilePos absoluteAxis, LittleTileVec additional) {
+	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, StructureAbsolute absolute) {
 		LittleTileVec offsetVec = new LittleTileVec(moveDirection);
 		offsetVec.scale(moveDistance);
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
@@ -87,7 +87,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		previews.movePreviews(world, player, null, previews.context, offset.vec);
 		
-		return place(world, player, previews, new DoorController(new AnimationState("closed", null, new OffsetTransformation(moveDirection, moveContext, -moveDistance)), new AnimationState("opened", null, null), true, duration), uuid, absoluteAxis, additional);
+		return place(world, player, previews, new DoorController(new AnimationState("closed", null, new OffsetTransformation(moveDirection, moveContext, -moveDistance)), new AnimationState("opened", null, null), true, duration), uuid, absolute);
 	}
 	
 	@Override
@@ -102,13 +102,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public LittleTilePos getAbsoluteAxisVec() {
-		return getMainTile().getAbsolutePos();
-	}
-	
-	@Override
-	public LittleTileVec getAdditionalAxisVec() {
-		return LittleTileVec.ZERO;
+	public StructureAbsolute getAbsoluteAxis() {
+		return new StructureAbsolute(getMainTile().te.getPos(), getMainTile().box, getMainTile().getContext());
 	}
 	
 	@Override
