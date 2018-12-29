@@ -99,6 +99,14 @@ public class EntityAnimation extends Entity {
 		
 		addDoor();
 		onUpdateForReal();
+		
+		prevWorldOffsetX = worldOffsetX;
+		prevWorldOffsetY = worldOffsetY;
+		prevWorldOffsetZ = worldOffsetZ;
+		
+		prevWorldRotX = worldRotX;
+		prevWorldRotY = worldRotY;
+		prevWorldRotZ = worldRotZ;
 	}
 	
 	public boolean shouldAddDoor() {
