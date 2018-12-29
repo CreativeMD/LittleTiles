@@ -109,7 +109,7 @@ public abstract class LittleTile implements ICombinable {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");
 				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
-				box.addOffset(new LittleTileVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
+				box.add(new LittleTileVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
 				tile.box = box;
 				return tile;
@@ -293,7 +293,7 @@ public abstract class LittleTile implements ICombinable {
 		if (isChildOfStructure() != tile.isChildOfStructure())
 			return false;
 		
-		if (isChildOfStructure() && this.connection.equals(tile.connection))
+		if (isChildOfStructure() && this.connection.getStructureWithoutLoading() != tile.connection.getStructureWithoutLoading() && !this.connection.equals(tile.connection))
 			return false;
 		
 		if (invisible != tile.invisible)
