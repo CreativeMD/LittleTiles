@@ -674,7 +674,11 @@ public abstract class LittleStructure {
 			return Collections.EMPTY_LIST;
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		for (StructureTypeRelative relative : type.relatives) {
-			placePreviews.add(getPlacePreview(relative.getRelative(this), relative, previews));
+			StructureRelative relativeST = relative.getRelative(this);
+			PlacePreviewTile tile = getPlacePreview(relativeST, relative, previews);
+			if (relativeST.getContext().size < previews.context.size)
+				tile.convertTo(relativeST.getContext(), previews.context);
+			placePreviews.add(tile);
 		}
 		return placePreviews;
 	}

@@ -77,6 +77,10 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.axisContext = context;
 	}
 	
+	public boolean isEven() {
+		return even;
+	}
+	
 	public void setEven(boolean even) {
 		boolean changed = this.even != even;
 		this.even = even;
@@ -310,12 +314,12 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			
 			CubeObject cube = new CubeObject(box.getBox(axisContext));
 			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
-			normalCube.minX += context.gridMCLength / 3;
-			normalCube.minY += context.gridMCLength / 3;
-			normalCube.minZ += context.gridMCLength / 3;
-			normalCube.maxX -= context.gridMCLength / 3;
-			normalCube.maxY -= context.gridMCLength / 3;
-			normalCube.maxZ -= context.gridMCLength / 3;
+			normalCube.minX += axisContext.gridMCLength / 3;
+			normalCube.minY += axisContext.gridMCLength / 3;
+			normalCube.minZ += axisContext.gridMCLength / 3;
+			normalCube.maxX -= axisContext.gridMCLength / 3;
+			normalCube.maxY -= axisContext.gridMCLength / 3;
+			normalCube.maxZ -= axisContext.gridMCLength / 3;
 			normalCube.keepVU = true;
 			float min = (float) (-10000 * 1 / scale.aimed());
 			float max = -min;
@@ -502,19 +506,19 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		}
 		
 		if (key == Keyboard.KEY_UP) {
-			moveY(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2);
+			moveY(GuiScreen.isCtrlKeyDown() ? context.size : 1);
 			return true;
 		}
 		if (key == Keyboard.KEY_DOWN) {
-			moveY(-(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2));
+			moveY(-(GuiScreen.isCtrlKeyDown() ? context.size : 1));
 			return true;
 		}
 		if (key == Keyboard.KEY_RIGHT) {
-			moveX(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2);
+			moveX(GuiScreen.isCtrlKeyDown() ? context.size : 1);
 			return true;
 		}
 		if (key == Keyboard.KEY_LEFT) {
-			moveX(-(GuiScreen.isCtrlKeyDown() ? 2 * context.size : 2));
+			moveX(-(GuiScreen.isCtrlKeyDown() ? context.size : 1));
 			return true;
 		}
 		

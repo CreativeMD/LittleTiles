@@ -13,6 +13,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTabStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
@@ -120,14 +121,14 @@ public class LittleAxisDoor extends LittleDoorBase {
 	@Override
 	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		super.onFlip(world, player, stack, context, axis, doubledCenter);
-		doorRotation.flip(axis);
+		doorRotation.flip(this, axis);
 	}
 	
 	@Override
 	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		super.onRotate(world, player, stack, context, rotation, doubledCenter);
 		this.axis = RotationUtils.rotate(axis, rotation);
-		doorRotation.rotate(rotation);
+		doorRotation.rotate(this, rotation);
 	}
 	
 	@Override
@@ -282,7 +283,11 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleAxisDoor door = null;
 			if (structure instanceof LittleAxisDoor)
 				door = (LittleAxisDoor) structure;
-			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
+			
+			LittleGridContext stackContext = LittleGridContext.get(stack.getTagCompound());
+			LittleGridContext axisContext = stackContext;
+			
+			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
 			
 			boolean even = false;
 			AxisDoorRotation doorRotation;
@@ -290,11 +295,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 				even = door.axisCenter.isEven();
 				viewer.setEven(even);
 				
+				axisContext = door.axisCenter.getContext();
 				viewer.setAxis(door.axis);
 				door.axisCenter.convertToSmallest();
-				viewer.setAxis(door.axisCenter.getBox(), door.axisCenter.getContext());
+				viewer.setAxis(door.axisCenter.getBox(), axisContext);
 				
 				doorRotation = door.doorRotation;
+				
 			} else {
 				viewer.setEven(false);
 				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
@@ -347,7 +354,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
-					viewer.moveY(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2);
+					viewer.moveY(GuiScreen.isCtrlKeyDown() ? viewer.context.size : 1);
 				}
 			});
 			
@@ -355,7 +362,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
-					viewer.moveX(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2);
+					viewer.moveX(GuiScreen.isCtrlKeyDown() ? viewer.context.size : 1);
 				}
 			});
 			
@@ -363,7 +370,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
-					viewer.moveX(-(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2));
+					viewer.moveX(-(GuiScreen.isCtrlKeyDown() ? viewer.context.size : 1));
 				}
 			});
 			
@@ -371,11 +378,14 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
-					viewer.moveY(-(GuiScreen.isCtrlKeyDown() ? 2 * viewer.context.size : 2));
+					viewer.moveY(-(GuiScreen.isCtrlKeyDown() ? viewer.context.size : 1));
 				}
 			});
 			
 			parent.controls.add(new GuiCheckBox("even", 147, 80, even));
+			
+			GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 100, 20, 12, LittleGridContext.getNames().toArray(new String[0]));
+			parent.controls.add(contextBox);
 			
 			doorRotation.onSelected(viewer, typePanel);
 		}
@@ -397,6 +407,35 @@ public class LittleAxisDoor extends LittleDoorBase {
 				GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
 				typePanel.controls.clear();
 				rotation.onSelected((GuiTileViewer) parent.get("tileviewer"), typePanel);
+			} else if (event.source.is("grid")) {
+				GuiStateButton contextBox = (GuiStateButton) event.source;
+				LittleGridContext context;
+				try {
+					context = LittleGridContext.get(Integer.parseInt(contextBox.caption));
+				} catch (NumberFormatException e) {
+					context = LittleGridContext.get();
+				}
+				
+				GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
+				LittleTileBox box = viewer.getBox();
+				box.convertTo(viewer.getAxisContext(), context);
+				
+				if (viewer.isEven())
+					box.maxX = box.minX + 2;
+				else
+					box.maxX = box.minX + 1;
+				
+				if (viewer.isEven())
+					box.maxY = box.minY + 2;
+				else
+					box.maxY = box.minY + 1;
+				
+				if (viewer.isEven())
+					box.maxZ = box.minZ + 2;
+				else
+					box.maxZ = box.minZ + 1;
+				
+				viewer.setAxis(box, context);
 			}
 		}
 		
@@ -452,9 +491,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract void readFromNBT(NBTTagCompound nbt);
 		
-		protected abstract void rotate(Rotation rotation);
+		protected abstract void rotate(LittleAxisDoor door, Rotation rotation);
 		
-		protected abstract void flip(Axis axis);
+		protected abstract void flip(LittleAxisDoor door, Axis axis);
 		
 		protected abstract boolean tryOpposite();
 		
@@ -487,12 +526,12 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected void rotate(Rotation rotation) {
+		protected void rotate(LittleAxisDoor door, Rotation rotation) {
 			this.normalAxis = RotationUtils.rotate(normalAxis, rotation);
 		}
 		
 		@Override
-		protected void flip(Axis axis) {
+		protected void flip(LittleAxisDoor door, Axis axis) {
 			
 		}
 		
@@ -601,13 +640,15 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected void rotate(Rotation rotation) {
-			
+		protected void rotate(LittleAxisDoor door, Rotation rotation) {
+			if (door.axis != rotation.axis && rotation.clockwise)
+				degree = -degree;
 		}
 		
 		@Override
-		protected void flip(Axis axis) {
-			
+		protected void flip(LittleAxisDoor door, Axis axis) {
+			if (door.axis != axis)
+				degree = -degree;
 		}
 		
 		@Override
