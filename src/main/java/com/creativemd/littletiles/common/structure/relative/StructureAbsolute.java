@@ -106,6 +106,6 @@ public class StructureAbsolute extends StructureRelative {
 	public static LittleTileBox convertAxisToBox(LittleTileVecContext vec, LittleTileVec additional) {
 		if (additional.x == 0)
 			return new LittleTileBox(vec.vec.x - 1, vec.vec.y - 1, vec.vec.z - 1, vec.vec.x + 1, vec.vec.y + 1, vec.vec.z + 1);
-		return new LittleTileBox(vec.vec.x, vec.vec.y, vec.vec.z, vec.vec.x + 1, vec.vec.y + 1, vec.vec.z + 1);
+		return new LittleTileBox(additional.x > 0 ? vec.vec.x : vec.vec.x - 1, additional.y > 0 ? vec.vec.y : vec.vec.y - 1, additional.z > 0 ? vec.vec.z : vec.vec.z - 1, additional.x > 0 ? vec.vec.x + 1 : vec.vec.x, additional.y > 0 ? vec.vec.y + 1 : vec.vec.y, additional.z > 0 ? vec.vec.z + 1 : vec.vec.z);
 	}
 }
