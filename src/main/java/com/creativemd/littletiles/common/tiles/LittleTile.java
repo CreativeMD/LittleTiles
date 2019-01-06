@@ -81,7 +81,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public static LittleTilePreviewHandler getPreviewHandler(String id) {
-		return previewHandlers.get(id);
+		return previewHandlers.getOrDefault(id, LittleTilePreviewHandler.defaultHandler);
 	}
 	
 	/** The id has to be unique and cannot be changed! **/

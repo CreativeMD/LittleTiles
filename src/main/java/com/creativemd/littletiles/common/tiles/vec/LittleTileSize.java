@@ -156,4 +156,18 @@ public class LittleTileSize {
 		}
 	}
 	
+	public void convertTo(LittleGridContext from, LittleGridContext to) {
+		if (from.size > to.size) {
+			int ratio = from.size / to.size;
+			sizeX /= ratio;
+			sizeY /= ratio;
+			sizeZ /= ratio;
+		} else {
+			int ratio = to.size / from.size;
+			sizeX *= ratio;
+			sizeY *= ratio;
+			sizeZ *= ratio;
+		}
+	}
+	
 }

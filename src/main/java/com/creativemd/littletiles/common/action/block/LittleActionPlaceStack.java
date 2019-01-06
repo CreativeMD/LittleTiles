@@ -145,7 +145,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		if (previews.hasStructure())
 			previews.getStructure().setTiles(new HashMapList<>());
 		
-		PreviewResult result = PlacementHelper.getPreviews(world, previews, stack, position, centered, fixed, false, mode);
+		PreviewResult result = PlacementHelper.getPreviews(world, previews, iTile.getPreviewsContext(stack), stack, position, centered, fixed, false, mode);
 		
 		if (result == null)
 			return null;

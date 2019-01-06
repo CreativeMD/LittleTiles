@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.Block;
@@ -76,7 +77,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	public LittlePreviews getLittlePreview(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-		LittlePreviews previews = new LittlePreviews(LittleGridContext.get(stack.getTagCompound()));
+		LittlePreviews previews = new LittlePreviews(getPreviewsContext(stack));
 		previews.addWithoutCheckingPreview(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;
 	}
@@ -125,8 +126,9 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 					cubes.add(cube);
 				}
 			} else {
+				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
-				cubes.add((LittleRenderingCube) preview.getCubeBlock(LittleGridContext.get(stack.getTagCompound())));
+				cubes.add((LittleRenderingCube) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
 			}
 		}
 		return cubes;

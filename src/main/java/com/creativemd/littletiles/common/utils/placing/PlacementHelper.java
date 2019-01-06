@@ -135,10 +135,13 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public static LittleTileVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles) {
+	public static LittleTileVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, LittleGridContext original) {
 		LittleTileVec offset = iTile.getCachedOffset(stack);
-		if (offset != null)
+		if (offset != null) {
+			if (tiles.context != original)
+				offset.convertTo(original, tiles.context);
 			return offset;
+		}
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -152,10 +155,13 @@ public class PlacementHelper {
 		return new LittleTileVec(minX, minY, minZ);
 	}
 	
-	public static LittleTileSize getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution) {
+	public static LittleTileSize getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution, LittleGridContext original) {
 		LittleTileSize cached = iTile.getCachedSize(stack);
-		if (cached != null)
+		if (cached != null) {
+			if (tiles.context != original)
+				cached.convertTo(original, tiles.context);
 			return cached;
+		}
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -239,7 +245,7 @@ public class PlacementHelper {
 		if (tiles == null && iTile != null)
 			tiles = iTile.getLittlePreview(stack, allowLowResolution, marked);
 		
-		PreviewResult result = getPreviews(world, tiles, stack, position, centered, fixed, allowLowResolution, mode);
+		PreviewResult result = getPreviews(world, tiles, iTile.getPreviewsContext(stack), stack, position, centered, fixed, allowLowResolution, mode);
 		
 		if (result != null) {
 			if (stack.getTagCompound() == null) {
@@ -262,7 +268,7 @@ public class PlacementHelper {
 	 *            if centered is true it will be used to apply the offset
 	 * @param fixed
 	 *            if the previews should keep it's original boxes */
-	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
+	public static PreviewResult getPreviews(World world, @Nullable LittlePreviews tiles, LittleGridContext original, ItemStack stack, PositionResult position, boolean centered, boolean fixed, boolean allowLowResolution, PlacementMode mode) {
 		PreviewResult result = new PreviewResult();
 		
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
@@ -296,7 +302,7 @@ public class PlacementHelper {
 			result.context = context;
 			result.previews = tiles;
 			
-			result.size = getSize(iTile, stack, tiles, allowLowResolution);
+			result.size = getSize(iTile, stack, tiles, allowLowResolution, original);
 			
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
@@ -352,7 +358,7 @@ public class PlacementHelper {
 			}
 			
 			LittleTilePos offset = new LittleTilePos(position.pos, context, result.box.getMinVec());
-			LittleTileVec internalOffset = getInternalOffset(iTile, stack, tiles);
+			LittleTileVec internalOffset = getInternalOffset(iTile, stack, tiles, original);
 			internalOffset.invert();
 			offset.contextVec.vec.add(internalOffset);
 			
