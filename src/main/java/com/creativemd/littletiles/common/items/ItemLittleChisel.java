@@ -44,6 +44,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionR
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
+import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -93,6 +94,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		DragShape shape = getShape(stack);
 		tooltip.add("shape: " + shape.key);
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
+		LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+		tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
 	}
 	
 	public static PositionResult min;

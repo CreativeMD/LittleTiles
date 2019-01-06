@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
+import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -90,6 +91,7 @@ public class ItemColorTube extends Item implements ISpecialBlockSelector {
 		tooltip.add("shift+click: copies tile's color");
 		SelectShape shape = getShape(stack);
 		tooltip.add("shape: " + (shape == null ? "tile" : shape.key));
+		tooltip.add(TooltipUtils.printRGB(getColor(stack)));
 	}
 	
 	@Override

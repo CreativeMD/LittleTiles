@@ -50,6 +50,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -61,6 +62,7 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -90,6 +92,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	public float getDestroySpeed(ItemStack stack, IBlockState state) {
 		return 0F;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		getMode(stack).addExtraInformation(stack.getTagCompound(), tooltip);
 	}
 	
 	@Override
@@ -290,6 +298,10 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			modes.put(name, this);
 		}
 		
+		public void addExtraInformation(NBTTagCompound nbt, List<String> tooltip) {
+			
+		}
+		
 		public String getLocalizedName() {
 			return I18n.translateToLocal(title);
 		}
@@ -402,17 +414,22 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
-			LittleTilePreview preview = null;
 			if (stack.getTagCompound().hasKey("preview"))
-				preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
-			else {
-				IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
-				LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-				tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, 1, 1, 1);
-				preview = tile.getPreviewTile();
-				setPreview(stack, preview);
-			}
+				return getPreview(stack.getTagCompound());
+			
+			LittleTilePreview preview = getPreview(stack.getTagCompound()); // Old way
+			setPreview(stack, preview);
 			return preview;
+		}
+		
+		public static LittleTilePreview getPreview(NBTTagCompound nbt) {
+			if (nbt.hasKey("preview"))
+				return LittleTilePreview.loadPreviewFromNBT(nbt.getCompoundTag("preview"));
+			
+			IBlockState state = nbt.hasKey("state") ? Block.getStateById(nbt.getInteger("state")) : Blocks.STONE.getDefaultState();
+			LittleTile tile = nbt.hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), nbt.getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, 1, 1, 1);
+			return tile.getPreviewTile();
 		}
 		
 		public static void setPreview(ItemStack stack, LittleTilePreview preview) {
@@ -544,6 +561,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		public SubContainerConfigure getContainer(EntityPlayer player, ItemStack stack) {
 			return new SubContainerConfigure(player, stack);
+		}
+		
+		@Override
+		public void addExtraInformation(NBTTagCompound nbt, List<String> tooltip) {
+			super.addExtraInformation(nbt, tooltip);
+			LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(nbt);
+			tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
 		}
 		
 	}
