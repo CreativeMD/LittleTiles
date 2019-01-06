@@ -73,13 +73,23 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
+				boolean rememberStructure = ((GuiCheckBox) get("remember_structure")).value;
+				boolean includeVanilla = ((GuiCheckBox) get("includeVanilla")).value;
+				boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
+				boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
+				
+				if (rememberStructure && mode.getPreviews(getPlayer().world, stack, includeVanilla, includeCB, includeLT, rememberStructure).isEmpty()) {
+					openButtonDialogDialog("Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection.", "ok");
+					return;
+				}
+				
 				mode.saveSelection(stack);
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("save_selection", true);
-				nbt.setBoolean("includeVanilla", ((GuiCheckBox) get("includeVanilla")).value);
-				nbt.setBoolean("includeCB", ((GuiCheckBox) get("includeCB")).value);
-				nbt.setBoolean("includeLT", ((GuiCheckBox) get("includeLT")).value);
-				nbt.setBoolean("remember_structure", ((GuiCheckBox) get("remember_structure")).value);
+				nbt.setBoolean("includeVanilla", includeVanilla);
+				nbt.setBoolean("includeCB", includeCB);
+				nbt.setBoolean("includeLT", includeLT);
+				nbt.setBoolean("remember_structure", rememberStructure);
 				
 				LittleGridContext minRequired = LittleGridContext.getMin();
 				if (nbt.getBoolean("includeCB") && result.minCBContext != null)
