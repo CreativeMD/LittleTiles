@@ -451,7 +451,7 @@ public abstract class LittleStructure {
 	}
 	
 	protected void failedLoadingRelative(NBTTagCompound nbt, StructureTypeRelative relative) {
-		
+		relative.setRelative(this, null);
 	}
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
@@ -470,6 +470,8 @@ public abstract class LittleStructure {
 		
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			if (relativeST == null)
+				continue;
 			relativeST.onMove(this, vec.context, vec.vec);
 			relativeST.writeToNBT(relative.saveKey, nbt);
 			relativeST.onMove(this, vec.context, inverted);
@@ -521,7 +523,10 @@ public abstract class LittleStructure {
 		}
 		
 		for (StructureTypeRelative relative : type.relatives) {
-			((StructureRelative) relative.getRelative(this)).writeToNBT(relative.saveKey, nbt);
+			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			if (relativeST == null)
+				continue;
+			relativeST.writeToNBT(relative.saveKey, nbt);
 		}
 		
 		writeToNBTExtra(nbt);
@@ -615,6 +620,8 @@ public abstract class LittleStructure {
 		}
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = relative.getRelative(this);
+			if (relativeST == null)
+				continue;
 			relativeST.convertToSmallest();
 			context = LittleGridContext.max(context, relativeST.getContext());
 		}
@@ -675,6 +682,8 @@ public abstract class LittleStructure {
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = relative.getRelative(this);
+			if (relativeST == null)
+				continue;
 			PlacePreviewTile tile = getPlacePreview(relativeST, relative, previews);
 			if (relativeST.getContext().size < previews.context.size)
 				tile.convertTo(relativeST.getContext(), previews.context);
@@ -720,19 +729,28 @@ public abstract class LittleStructure {
 	
 	public void onMove(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
 		for (StructureTypeRelative relative : type.relatives) {
-			((StructureRelative) relative.getRelative(this)).onMove(this, context, offset);
+			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			if (relativeST == null)
+				continue;
+			relativeST.onMove(this, context, offset);
 		}
 	}
 	
 	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
-			((StructureRelative) relative.getRelative(this)).onFlip(this, context, axis, doubledCenter);
+			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			if (relativeST == null)
+				continue;
+			relativeST.onFlip(this, context, axis, doubledCenter);
 		}
 	}
 	
 	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
-			((StructureRelative) relative.getRelative(this)).onRotate(this, context, rotation, doubledCenter);
+			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			if (relativeST == null)
+				continue;
+			relativeST.onRotate(this, context, rotation, doubledCenter);
 		}
 	}
 	
