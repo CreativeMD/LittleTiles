@@ -106,7 +106,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.context = context;
 		this.marginWidth = 0;
 		
-		setAxis(Axis.Y);
+		setViewAxis(Axis.Y);
 		rotX.setStart(rotX.aimed());
 		rotY.setStart(rotY.aimed());
 		rotZ.setStart(rotZ.aimed());
@@ -229,7 +229,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		return axisDirection;
 	}
 	
-	public void setAxis(Axis axis) {
+	public void setViewAxis(Axis axis) {
 		this.axisDirection = axis;
 		setViewDirection(EnumFacing.getFacingFromAxis(AxisDirection.POSITIVE, axisDirection));
 		

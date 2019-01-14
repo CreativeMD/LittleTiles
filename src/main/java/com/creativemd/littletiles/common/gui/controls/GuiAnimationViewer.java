@@ -110,7 +110,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		
 		int x = getPixelOffsetX();
-		int y = getPixelOffsetY();
+		int y = getPixelOffsetY() - 1;
 		int scale = getGuiScale();
 		GlStateManager.viewport(x * scale, y * scale, width * scale, height * scale);
 		GlStateManager.matrixMode(5889);
