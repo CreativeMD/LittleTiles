@@ -53,7 +53,9 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				EntityAnimation animation = (EntityAnimation) entity;
 				animation.readFromNBT(nbt);
 				animation.updateBoundingBox();
+				animation.preventPush = true;
 				animation.onUpdateForReal();
+				animation.preventPush = false;
 				
 				animation.prevWorldOffsetX = animation.worldOffsetX;
 				animation.prevWorldOffsetY = animation.worldOffsetY;
@@ -65,6 +67,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				return;
 			}
 		}
+		System.out.println("Entity not found!");
 	}
 	
 	@Override

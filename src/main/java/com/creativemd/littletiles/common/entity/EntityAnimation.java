@@ -98,7 +98,9 @@ public class EntityAnimation extends Entity {
 		setPosition(center.baseOffset.getX(), center.baseOffset.getY(), center.baseOffset.getZ());
 		
 		addDoor();
+		preventPush = true;
 		onUpdateForReal();
+		preventPush = false;
 		
 		prevWorldOffsetX = worldOffsetX;
 		prevWorldOffsetY = worldOffsetY;
@@ -430,7 +432,7 @@ public class EntityAnimation extends Entity {
 								boolean add = !cached;
 								EnumFacing facing = CollidingPlane.getDirection(box, box.cache.planes, center);
 								
-								if (facing == null || (!table.hasOneRotation && RotationUtils.get(facing.getAxis(), translation) == 0))
+								if (facing == null || (!table.hasOneRotation && (!table.hasTranslation || RotationUtils.get(facing.getAxis(), translation) == 0)))
 									continue;
 								
 								if (cached) {
