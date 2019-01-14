@@ -68,6 +68,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	public static int[] savePairList(PairList<Integer, Double> list) {
+		if (list == null)
+			return null;
+		
 		int[] array = new int[list.size() * 3];
 		for (int i = 0; i < list.size(); i++) {
 			Pair<Integer, Double> pair = list.get(i);
