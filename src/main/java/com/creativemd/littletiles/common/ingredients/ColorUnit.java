@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.ingredients;
 
+import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.util.text.translation.I18n;
 

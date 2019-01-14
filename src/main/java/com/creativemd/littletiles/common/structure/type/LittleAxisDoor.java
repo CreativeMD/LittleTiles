@@ -74,7 +74,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 	
 	@Override
 	protected void failedLoadingRelative(NBTTagCompound nbt, StructureTypeRelative relative) {
-		super.failedLoadingRelative(nbt, relative);
 		if (relative.key.equals("axisCenter")) {
 			
 			LittleRelativeDoubledAxis doubledRelativeAxis;
@@ -91,7 +90,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 				doubledRelativeAxis = new LittleRelativeDoubledAxis("avec", nbt);
 			}
 			axisCenter = new StructureRelative(StructureAbsolute.convertAxisToBox(doubledRelativeAxis.getNonDoubledVec(), doubledRelativeAxis.additional), doubledRelativeAxis.context);
-		}
+		} else
+			super.failedLoadingRelative(nbt, relative);
 	}
 	
 	@Override
@@ -296,7 +296,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				viewer.setEven(even);
 				
 				axisContext = door.axisCenter.getContext();
-				viewer.setAxis(door.axis);
+				viewer.setViewAxis(door.axis);
 				door.axisCenter.convertToSmallest();
 				viewer.setAxis(door.axisCenter.getBox(), axisContext);
 				
@@ -329,13 +329,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 				public void onClicked(int x, int y, int button) {
 					switch (viewer.getAxis()) {
 					case X:
-						viewer.setAxis(EnumFacing.Axis.Y);
+						viewer.setViewAxis(EnumFacing.Axis.Y);
 						break;
 					case Y:
-						viewer.setAxis(EnumFacing.Axis.Z);
+						viewer.setViewAxis(EnumFacing.Axis.Z);
 						break;
 					case Z:
-						viewer.setAxis(EnumFacing.Axis.X);
+						viewer.setViewAxis(EnumFacing.Axis.X);
 						break;
 					default:
 						break;
@@ -641,8 +641,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected void rotate(LittleAxisDoor door, Rotation rotation) {
-			if (door.axis != rotation.axis && rotation.clockwise)
-				degree = -degree;
+			degree = Rotation.getRotation(door.axis, degree > 0 ? true : false).clockwise ? Math.abs(degree) : -Math.abs(degree);
 		}
 		
 		@Override

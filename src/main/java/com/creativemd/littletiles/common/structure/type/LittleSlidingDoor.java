@@ -196,13 +196,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				public void onClicked(int x, int y, int button) {
 					switch (viewer.getAxis()) {
 					case X:
-						viewer.setAxis(EnumFacing.Axis.Y);
+						viewer.setViewAxis(EnumFacing.Axis.Y);
 						break;
 					case Y:
-						viewer.setAxis(EnumFacing.Axis.Z);
+						viewer.setViewAxis(EnumFacing.Axis.Z);
 						break;
 					case Z:
-						viewer.setAxis(EnumFacing.Axis.X);
+						viewer.setViewAxis(EnumFacing.Axis.X);
 						break;
 					default:
 						break;
