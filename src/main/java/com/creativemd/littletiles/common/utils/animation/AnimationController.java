@@ -71,7 +71,11 @@ public class AnimationController {
 	}
 	
 	public AnimationController addTransition(String from, String to, AnimationTimeline animation) {
-		stateTransition.put(from + ":" + to, animation);
+		return addTransition(from + ":" + to, animation);
+	}
+	
+	public AnimationController addTransition(String key, AnimationTimeline animation) {
+		stateTransition.put(key, animation);
 		return this;
 	}
 	

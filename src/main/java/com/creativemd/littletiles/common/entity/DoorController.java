@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.entity;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
@@ -13,11 +14,14 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.animation.AnimationController;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
+import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
@@ -39,6 +43,8 @@ public class DoorController extends EntityAnimationController {
 	public long duration;
 	public EntityPlayer activator;
 	
+	protected boolean modifiedTransition;
+	
 	@SideOnly(Side.CLIENT)
 	List<TileEntityLittleTiles> waitingForRender;
 	
@@ -54,9 +60,32 @@ public class DoorController extends EntityAnimationController {
 		
 		addState(opened);
 		addStateAndSelect(closed);
+		
 		generateAllTransistions(duration);
+		modifiedTransition = false;
 		
 		startTransition(openedState);
+	}
+	
+	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, long duration, AnimationTimeline open, AnimationTimeline close) {
+		this.openedState = opened != null ? opened.name : null;
+		this.closedState = closed.name;
+		this.turnBack = turnBack;
+		this.duration = duration;
+		
+		addState(opened);
+		addStateAndSelect(closed);
+		
+		addTransition("closed", "opened", open);
+		addTransition("opened", "closed", close);
+		
+		startTransition(openedState);
+	}
+	
+	@Override
+	public AnimationController addTransition(String from, String to, AnimationTimeline animation) {
+		modifiedTransition = true;
+		return super.addTransition(from, to, animation);
 	}
 	
 	public DoorController(AnimationState opened, Boolean turnBack, long duration) {
@@ -202,6 +231,16 @@ public class DoorController extends EntityAnimationController {
 		
 		nbt.setLong("duration", duration);
 		nbt.setByte("turnBack", (byte) (turnBack == null ? 0 : (turnBack ? 1 : -1)));
+		
+		if (modifiedTransition) {
+			NBTTagList list = new NBTTagList();
+			for (Entry<String, AnimationTimeline> entry : stateTransition.entrySet()) {
+				NBTTagCompound transitionNBT = entry.getValue().writeToNBT(new NBTTagCompound());
+				transitionNBT.setString("key", entry.getKey());
+				list.appendTag(transitionNBT);
+			}
+			nbt.setTag("transitions", list);
+		}
 	}
 	
 	@Override
@@ -215,8 +254,14 @@ public class DoorController extends EntityAnimationController {
 		addState(opened);
 		
 		duration = nbt.getLong("duration");
-		
-		generateAllTransistions(duration);
+		if (nbt.hasKey("transitions")) {
+			NBTTagList list = nbt.getTagList("transitions", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				NBTTagCompound transitionNBT = list.getCompoundTagAt(i);
+				addTransition(transitionNBT.getString("key"), new AnimationTimeline(transitionNBT));
+			}
+		} else
+			generateAllTransistions(duration);
 		
 		boolean isOpen = nbt.getBoolean("isOpen");
 		if (!isOpen)
