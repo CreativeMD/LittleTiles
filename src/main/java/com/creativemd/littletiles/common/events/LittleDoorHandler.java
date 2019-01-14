@@ -27,6 +27,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -165,6 +166,17 @@ public class LittleDoorHandler {
 					((EntityAnimation) entity).addedDoor = false;
 					openDoors.remove(entity);
 				}
+			}
+		}
+	}
+	
+	@SubscribeEvent
+	public void worldUnload(WorldEvent.Unload event) {
+		for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
+			EntityAnimation animation = (EntityAnimation) iterator.next();
+			if (animation.world == event.getWorld()) {
+				animation.addedDoor = false;
+				iterator.remove();
 			}
 		}
 	}
