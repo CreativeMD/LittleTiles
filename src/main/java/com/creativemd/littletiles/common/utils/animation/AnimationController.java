@@ -33,6 +33,14 @@ public class AnimationController {
 		return this;
 	}
 	
+	public AnimationState getCurrentState() {
+		return currentState;
+	}
+	
+	public AnimationState getAimedState() {
+		return aimedState;
+	}
+	
 	public AnimationController generateTransition(String from, String to, long duration) {
 		AnimationState fromState = states.get(from);
 		if (fromState == null)

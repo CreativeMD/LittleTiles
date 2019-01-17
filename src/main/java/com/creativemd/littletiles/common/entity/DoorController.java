@@ -260,6 +260,7 @@ public class DoorController extends EntityAnimationController {
 				NBTTagCompound transitionNBT = list.getCompoundTagAt(i);
 				addTransition(transitionNBT.getString("key"), new AnimationTimeline(transitionNBT));
 			}
+			modifiedTransition = true;
 		} else
 			generateAllTransistions(duration);
 		
@@ -276,7 +277,6 @@ public class DoorController extends EntityAnimationController {
 		
 		byte turnBackData = nbt.getByte("turnBack");
 		turnBack = turnBackData == 0 ? null : (turnBackData > 0 ? true : false);
-		
 	}
 	
 	@Override

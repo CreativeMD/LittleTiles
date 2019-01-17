@@ -100,7 +100,7 @@ public class TimestampAnimation extends Animation {
 		Pair<Integer, Double> before = list.get(higher - 1);
 		Pair<Integer, Double> after = list.get(higher);
 		double percentage = (double) (tick - before.key) / (after.key - before.key);
-		return Math.round(((after.value - before.value) * percentage + before.value) * 100) / 100;
+		return (after.value - before.value) * percentage + before.value;
 	}
 	
 	public int[] getArray() {
@@ -111,6 +111,69 @@ public class TimestampAnimation extends Animation {
 		int[] rotYArray = LittleAdvancedDoor.savePairList(rotY);
 		int[] rotZArray = LittleAdvancedDoor.savePairList(rotZ);
 		
-		return new int[2 + 6 + (offXArray != null ? offXArray.length : 0) + (offYArray != null ? offYArray.length : 0) + (offZArray != null ? offZArray.length : 0) + (rotXArray != null ? rotXArray.length : 0) + (rotYArray != null ? rotYArray.length : 0) + (rotZArray != null ? rotZArray.length : 0)];
+		int[] array = new int[2 + 6 + (offXArray != null ? offXArray.length : 0) + (offYArray != null ? offYArray.length : 0) + (offZArray != null ? offZArray.length : 0) + (rotXArray != null ? rotXArray.length : 0) + (rotYArray != null ? rotYArray.length : 0) + (rotZArray != null ? rotZArray.length : 0)];
+		array[0] = (int) (duration >> 32);
+		array[1] = (int) duration;
+		int index = 2;
+		
+		if (offXArray != null) {
+			array[index] = offXArray.length;
+			for (int i = 0; i < offXArray.length; i++) {
+				array[index + 1 + i] = offXArray[i];
+			}
+			index += offXArray.length;
+		} else
+			array[index] = 0;
+		index++;
+		
+		if (offYArray != null) {
+			array[index] = offYArray.length;
+			for (int i = 0; i < offYArray.length; i++) {
+				array[index + 1 + i] = offYArray[i];
+			}
+			index += offYArray.length;
+		} else
+			array[index] = 0;
+		index++;
+		
+		if (offZArray != null) {
+			array[index] = offZArray.length;
+			for (int i = 0; i < offZArray.length; i++) {
+				array[index + 1 + i] = offZArray[i];
+			}
+			index += offZArray.length;
+		} else
+			array[index] = 0;
+		index++;
+		
+		if (rotXArray != null) {
+			array[index] = rotXArray.length;
+			for (int i = 0; i < rotXArray.length; i++) {
+				array[index + 1 + i] = rotXArray[i];
+			}
+			index += rotXArray.length;
+		} else
+			array[index] = 0;
+		index++;
+		
+		if (rotYArray != null) {
+			array[index] = rotYArray.length;
+			for (int i = 0; i < rotYArray.length; i++) {
+				array[index + 1 + i] = rotYArray[i];
+			}
+			index += rotYArray.length;
+		} else
+			array[index] = 0;
+		index++;
+		
+		if (rotZArray != null) {
+			array[index] = rotZArray.length;
+			for (int i = 0; i < rotZArray.length; i++) {
+				array[index + 1 + i] = rotZArray[i];
+			}
+			index += rotZArray.length;
+		} else
+			array[index] = 0;
+		return array;
 	}
 }

@@ -80,6 +80,7 @@ public class AnimationTimeline extends Animation {
 			animationNBT.setIntArray("data", getAnimationData(pair.value));
 			animationNBT.setInteger("type", type);
 			animationNBT.setLong("time", pair.key);
+			list.appendTag(animationNBT);
 		}
 		nbt.setTag("animations", list);
 		return nbt;

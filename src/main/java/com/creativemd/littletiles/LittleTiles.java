@@ -1,6 +1,7 @@
 package com.creativemd.littletiles;
 
 import java.util.List;
+import java.util.UUID;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
@@ -43,6 +44,7 @@ import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.config.IGCMLoader;
+import com.creativemd.littletiles.common.container.SubContainerDiagnose;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
@@ -55,6 +57,7 @@ import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.gui.SubGuiDiagnose;
 import com.creativemd.littletiles.common.gui.SubGuiExport;
 import com.creativemd.littletiles.common.gui.SubGuiImport;
 import com.creativemd.littletiles.common.gui.SubGuiParticle;
@@ -341,6 +344,21 @@ public class LittleTiles {
 				else if (stack.getItem() instanceof ISpecialBlockSelector)
 					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
 				return null;
+			}
+		});
+		
+		GuiHandler.registerGuiHandler("diagnose", new CustomGuiHandler() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
+				UUID uuid = UUID.fromString(nbt.getString("uuid"));
+				return new SubGuiDiagnose(uuid, LittleDoorHandler.client.findDoor(uuid));
+			}
+			
+			@Override
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
+				return new SubContainerDiagnose(player);
 			}
 		});
 		

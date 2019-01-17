@@ -60,7 +60,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	public static PairList<Integer, Double> loadPairList(int[] array, int from, int length) {
 		PairList<Integer, Double> list = new PairList<>();
 		int i = from;
-		while (i < length) {
+		while (i < from + length) {
 			list.add(array[i], Double.longBitsToDouble((((long) array[i + 1]) << 32) | (array[i + 2] & 0xffffffffL)));
 			i += 3;
 		}
@@ -236,6 +236,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				} catch (NumberFormatException e) {
 					
 				}
+			} else if (event.source.is("duration_s")) {
+				try {
+					GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
+					timeline.setDuration(Integer.parseInt(((GuiTextfield) event.source).text));
+				} catch (NumberFormatException e) {
+					
+				}
 			}
 		}
 		
@@ -258,18 +265,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		@Override
 		public LittleStructure parseStructure(ItemStack stack) {
-			GuiTextfield textfield = (GuiTextfield) parent.get("duration_s");
-			int duration = 0;
-			try {
-				duration = Integer.parseInt(textfield.text);
-			} catch (NumberFormatException e) {
-				
-			}
 			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class);
 			GuiTileViewer viewer = ((GuiAxisButton) parent.get("axis")).viewer;
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
-			door.duration = duration;
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
+			door.duration = timeline.getDuration();
 			door.rotX = timeline.channels.get(0).getPairs();
 			door.rotY = timeline.channels.get(1).getPairs();
 			door.rotZ = timeline.channels.get(2).getPairs();

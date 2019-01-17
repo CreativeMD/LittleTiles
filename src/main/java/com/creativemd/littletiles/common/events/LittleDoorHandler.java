@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
@@ -65,6 +66,13 @@ public class LittleDoorHandler {
 				doors.add(door);
 		}
 		return doors;
+	}
+	
+	public EntityAnimation findDoor(UUID uuid) {
+		for (EntityAnimation animation : openDoors)
+			if (animation.getUniqueID().equals(uuid))
+				return animation;
+		return null;
 	}
 	
 	public void createDoor(EntityAnimation door) {

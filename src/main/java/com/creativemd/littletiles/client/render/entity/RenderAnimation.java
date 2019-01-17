@@ -218,7 +218,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			GlStateManager.popMatrix();
 			
-			GlStateManager.pushMatrix();
+			/*GlStateManager.pushMatrix();
 			
 			GlStateManager.translate(x, y, z);
 			GlStateManager.translate(offset.x, offset.y, offset.z);
@@ -244,16 +244,17 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			GlStateManager.popMatrix();
 			
-			renderTempShit(entity, x, y, z);
+			renderTempShit(entity, x, y, z);*/
 			
 			GlStateManager.glLineWidth(2.0F);
-			
 			GlStateManager.enableTexture2D();
 			GlStateManager.enableLighting();
 			GlStateManager.enableCull();
 			GlStateManager.disableBlend();
 			GlStateManager.depthMask(true);
+			
 		}
+		
 	}
 	
 	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
