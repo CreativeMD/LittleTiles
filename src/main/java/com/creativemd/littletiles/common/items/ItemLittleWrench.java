@@ -4,10 +4,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
@@ -56,5 +58,13 @@ public class ItemLittleWrench extends Item {
 			return EnumActionResult.SUCCESS;
 		}
 		return EnumActionResult.PASS;
+	}
+	
+	public static void rightClickAnimation(EntityAnimation animation, EntityPlayer player) {
+		if (!player.world.isRemote) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setString("uuid", animation.getCachedUniqueIdString());
+			GuiHandler.openGui("diagnose", nbt, player);
+		}
 	}
 }

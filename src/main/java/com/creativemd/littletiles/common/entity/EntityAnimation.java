@@ -27,6 +27,7 @@ import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
@@ -763,6 +764,10 @@ public class EntityAnimation extends Entity {
 			this.isDead = true;
 	}
 	
+	public void destroyAnimation() {
+		this.isDead = true;
+	}
+	
 	@Override
 	public boolean canBeCollidedWith() {
 		return true;
@@ -785,6 +790,10 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public boolean onRightClick(EntityPlayer player) {
+		if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
+			ItemLittleWrench.rightClickAnimation(this, player);
+			return false;
+		}
 		return controller.onRightClick();
 	}
 	
