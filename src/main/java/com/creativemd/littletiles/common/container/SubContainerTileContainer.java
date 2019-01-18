@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.container;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
@@ -20,9 +21,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.ItemDye;
+import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.oredict.DyeUtils;
 
 public class SubContainerTileContainer extends SubContainerHeldItem {
 	
@@ -81,8 +83,11 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 					updateSlots();
 					
 					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
-				} else if (input.getItem() instanceof ItemDye) {
-					ColorUnit color = ColorUnit.getColors(ItemDye.DYE_COLORS[input.getItemDamage()]);
+				} else if (DyeUtils.isDye(input)) {
+					Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(input);
+					if (!optional.isPresent())
+						return;
+					ColorUnit color = ColorUnit.getColors(optional.get().getColorValue());
 					color.scale(2);
 					ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
 					if (result != null && result.equals(color))
