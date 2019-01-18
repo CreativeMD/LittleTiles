@@ -760,7 +760,7 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public void setDead() {
-		if (!world.isRemote)
+		if (!world.isRemote || !controller.isWaitingForRender())
 			this.isDead = true;
 	}
 	
