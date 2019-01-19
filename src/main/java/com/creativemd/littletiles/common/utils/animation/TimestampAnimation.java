@@ -31,7 +31,7 @@ public class TimestampAnimation extends Animation {
 			int size = array[index];
 			index++;
 			if (size != 0) {
-				PairList<Integer, Double> list = LittleAdvancedDoor.loadPairList(array, index, size);
+				PairList<Integer, Double> list = LittleAdvancedDoor.loadPairListDouble(array, index, size);
 				switch (step) {
 				case 0:
 					offX = list;
@@ -104,12 +104,12 @@ public class TimestampAnimation extends Animation {
 	}
 	
 	public int[] getArray() {
-		int[] offXArray = LittleAdvancedDoor.savePairList(offX);
-		int[] offYArray = LittleAdvancedDoor.savePairList(offY);
-		int[] offZArray = LittleAdvancedDoor.savePairList(offZ);
-		int[] rotXArray = LittleAdvancedDoor.savePairList(rotX);
-		int[] rotYArray = LittleAdvancedDoor.savePairList(rotY);
-		int[] rotZArray = LittleAdvancedDoor.savePairList(rotZ);
+		int[] offXArray = LittleAdvancedDoor.savePairListDouble(offX);
+		int[] offYArray = LittleAdvancedDoor.savePairListDouble(offY);
+		int[] offZArray = LittleAdvancedDoor.savePairListDouble(offZ);
+		int[] rotXArray = LittleAdvancedDoor.savePairListDouble(rotX);
+		int[] rotYArray = LittleAdvancedDoor.savePairListDouble(rotY);
+		int[] rotZArray = LittleAdvancedDoor.savePairListDouble(rotZ);
 		
 		int[] array = new int[2 + 6 + (offXArray != null ? offXArray.length : 0) + (offYArray != null ? offYArray.length : 0) + (offZArray != null ? offZArray.length : 0) + (rotXArray != null ? rotXArray.length : 0) + (rotYArray != null ? rotYArray.length : 0) + (rotZArray != null ? rotZArray.length : 0)];
 		array[0] = (int) (duration >> 32);

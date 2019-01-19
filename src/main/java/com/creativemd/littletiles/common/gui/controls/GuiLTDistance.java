@@ -4,19 +4,21 @@ import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
+import com.creativemd.creativecore.common.gui.event.ControlEvent;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 public class GuiLTDistance extends GuiParent {
 	
 	public GuiLTDistance(String name, int x, int y, LittleGridContext context, int distance) {
-		super(name, x, y, 100, 100);
+		super(name, x, y, 72, 12);
 		marginWidth = 0;
 		borderWidth = 0;
 		addControl(new GuiTextfield("blocks", "", 0, 0, 20, 12).setNumbersOnly().setCustomTooltip("blocks"));
 		addControl(new GuiComboBox("grid", 30, 0, 15, LittleGridContext.getNames()).setDimension(15, 12).setCustomTooltip("gridsize"));
 		addControl(new GuiTextfield("ltdistance", "", 52, 0, 20, 12).setNumbersOnly().setCustomTooltip("grid distance"));
 		
-		setStyle(Style.emptyStyle);
+		setStyle(Style.emptyStyleDisabled);
 		setDistance(context, distance);
 	}
 	
@@ -25,16 +27,32 @@ public class GuiLTDistance extends GuiParent {
 		return false;
 	}
 	
+	@Override
+	public boolean raiseEvent(ControlEvent event) {
+		if (event instanceof GuiControlChangedEvent)
+			super.raiseEvent(new GuiControlChangedEvent(this));
+		return super.raiseEvent(event);
+	}
+	
+	public void resetTextfield() {
+		((GuiTextfield) get("blocks")).setCursorPositionZero();
+		((GuiTextfield) get("ltdistance")).setCursorPositionZero();
+	}
+	
 	public void setDistance(LittleGridContext context, int distance) {
 		GuiComboBox contextBox = (GuiComboBox) get("grid");
-		contextBox.select(context.size + "");
+		contextBox.index = contextBox.lines.indexOf(context.size + "");
+		if (contextBox.index != -1)
+			contextBox.caption = context.size + "";
 		
 		int blocks = distance / context.size;
 		GuiTextfield blocksTF = (GuiTextfield) get("blocks");
 		blocksTF.text = "" + blocks;
+		blocksTF.setCursorPositionZero();
 		
 		GuiTextfield ltdistanceTF = (GuiTextfield) get("ltdistance");
 		ltdistanceTF.text = "" + (distance - blocks * context.size);
+		ltdistanceTF.setCursorPositionZero();
 	}
 	
 	public int getDistance() {
