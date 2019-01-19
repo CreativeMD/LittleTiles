@@ -799,8 +799,8 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand) {
-		if (!world.isRemote && onRightClick(player))
-			PacketHandler.sendPacketToPlayer(new LittleEntityInteractPacket(entityUniqueID), (EntityPlayerMP) player);
+		if (world.isRemote)
+			PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(entityUniqueID));
 		return EnumActionResult.SUCCESS;
 	}
 	
