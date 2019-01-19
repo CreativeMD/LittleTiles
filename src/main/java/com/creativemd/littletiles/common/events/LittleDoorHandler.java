@@ -1,10 +1,12 @@
 package com.creativemd.littletiles.common.events;
 
 import java.lang.reflect.Field;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -33,6 +35,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
@@ -162,10 +166,20 @@ public class LittleDoorHandler {
 		}
 	}
 	
+	public Queue<EntityPlayer> blockedPlayers = new ArrayDeque<>();
+	
 	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
 	public void rightClick(PlayerInteractEvent event) {
-		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem) {
+		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific || event instanceof EntityInteract) {
+			if (blockedPlayers.contains(event.getEntityPlayer())) {
+				if (event instanceof RightClickBlock)
+					event.setCanceled(true);
+				blockedPlayers.remove(event.getEntityPlayer());
+			}
+			
+			if (!event.getWorld().isRemote)
+				return;
+			
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayer entity = event.getEntityPlayer();
 			Vec3d vec3d = entity.getPositionEyes(TickUtils.getPartialTickTime());
@@ -226,9 +240,21 @@ public class LittleDoorHandler {
 				return;
 			}
 			
-			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
+			Entity selectedEntity = mc.objectMouseOver != null ? mc.objectMouseOver.entityHit : null;
+			if (event instanceof EntityInteractSpecific)
+				selectedEntity = ((EntityInteractSpecific) event).getTarget();
+			else if (event instanceof EntityInteract)
+				selectedEntity = ((EntityInteract) event).getTarget();
+			
+			if (pointedEntity == null && selectedEntity instanceof EntityAnimation)
+				pointedEntity = (EntityAnimation) selectedEntity;
+			
+			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null || selectedEntity == pointedEntity)) {
 				if (pointedEntity.onRightClick(entity))
 					PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(pointedEntity.getUniqueID()));
+				
+				if (event instanceof RightClickBlock)
+					event.setCanceled(true);
 			}
 		}
 	}
