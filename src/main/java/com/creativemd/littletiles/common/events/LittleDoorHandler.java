@@ -7,9 +7,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,12 +23,19 @@ import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -149,6 +159,77 @@ public class LittleDoorHandler {
 				}
 			}
 			
+		}
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void rightClick(PlayerInteractEvent event) {
+		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem) {
+			Minecraft mc = Minecraft.getMinecraft();
+			EntityPlayer entity = event.getEntityPlayer();
+			Vec3d vec3d = entity.getPositionEyes(TickUtils.getPartialTickTime());
+			double d0 = (double) mc.playerController.getBlockReachDistance();
+			double d1 = d0;
+			boolean flag = false;
+			if (mc.playerController.extendedReach()) {
+				d1 = 6.0D;
+				d0 = d1;
+			} else {
+				if (d0 > 3.0D) {
+					flag = true;
+				}
+			}
+			
+			if (mc.objectMouseOver != null) {
+				d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
+			}
+			
+			Vec3d vec3d1 = entity.getLook(1.0F);
+			Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
+			EntityAnimation pointedEntity = null;
+			Vec3d vec3d3 = null;
+			float f = 1.0F;
+			List<EntityAnimation> list = findDoors(entity.world, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D));
+			double d2 = d1;
+			
+			for (int j = 0; j < list.size(); ++j) {
+				EntityAnimation entity1 = list.get(j);
+				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow((double) entity1.getCollisionBorderSize());
+				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
+				
+				if (axisalignedbb.contains(vec3d)) {
+					if (d2 >= 0.0D) {
+						pointedEntity = entity1;
+						vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
+						d2 = 0.0D;
+					}
+				} else if (raytraceresult != null) {
+					double d3 = vec3d.distanceTo(raytraceresult.hitVec);
+					
+					if (d3 < d2 || d2 == 0.0D) {
+						if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract()) {
+							if (d2 == 0.0D) {
+								pointedEntity = entity1;
+								vec3d3 = raytraceresult.hitVec;
+							}
+						} else {
+							pointedEntity = entity1;
+							vec3d3 = raytraceresult.hitVec;
+							d2 = d3;
+						}
+					}
+				}
+			}
+			
+			if (pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0D) {
+				return;
+			}
+			
+			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
+				if (pointedEntity.onRightClick(entity))
+					PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(pointedEntity.getUniqueID()));
+			}
 		}
 	}
 	

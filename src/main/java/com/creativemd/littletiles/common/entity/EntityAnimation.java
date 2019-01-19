@@ -10,7 +10,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
@@ -28,7 +27,6 @@ import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
-import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -47,7 +45,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
@@ -792,16 +789,9 @@ public class EntityAnimation extends Entity {
 	public boolean onRightClick(EntityPlayer player) {
 		if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 			ItemLittleWrench.rightClickAnimation(this, player);
-			return false;
+			return true;
 		}
 		return controller.onRightClick();
-	}
-	
-	@Override
-	public EnumActionResult applyPlayerInteraction(EntityPlayer player, Vec3d vec, EnumHand hand) {
-		if (world.isRemote)
-			PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(entityUniqueID));
-		return EnumActionResult.SUCCESS;
 	}
 	
 	// ================Saving & Loading================
