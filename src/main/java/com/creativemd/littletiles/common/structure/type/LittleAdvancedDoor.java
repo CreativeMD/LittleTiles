@@ -231,12 +231,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			LittleAdvancedDoor door = structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null;
 			List<TimelineChannel> channels = new ArrayList<>();
-			channels.add(new TimelineChannelDouble("rot X").addKeys(door != null ? door.rotX : null));
-			channels.add(new TimelineChannelDouble("rot Y").addKeys(door != null ? door.rotY : null));
-			channels.add(new TimelineChannelDouble("rot Z").addKeys(door != null ? door.rotZ : null));
-			channels.add(new TimelineChannelInteger("off X").addKeys(door != null ? door.offX : null));
-			channels.add(new TimelineChannelInteger("off Y").addKeys(door != null ? door.offY : null));
-			channels.add(new TimelineChannelInteger("off Z").addKeys(door != null ? door.offZ : null));
+			channels.add(new TimelineChannelDouble("rot X").addKeyFixed(0, 0D).addKeys(door != null ? door.rotX : null));
+			channels.add(new TimelineChannelDouble("rot Y").addKeyFixed(0, 0D).addKeys(door != null ? door.rotY : null));
+			channels.add(new TimelineChannelDouble("rot Z").addKeyFixed(0, 0D).addKeys(door != null ? door.rotZ : null));
+			channels.add(new TimelineChannelInteger("off X").addKeyFixed(0, 0).addKeys(door != null ? door.offX : null));
+			channels.add(new TimelineChannelInteger("off Y").addKeyFixed(0, 0).addKeys(door != null ? door.offY : null));
+			channels.add(new TimelineChannelInteger("off Z").addKeyFixed(0, 0).addKeys(door != null ? door.offZ : null));
 			parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 50, channels).setSidebarWidth(30));
 			parent.controls.add(new GuiLabel("tick", "0", 150, 75));
 			
@@ -275,6 +275,10 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		@CustomEventSubscribe
 		public void onTextfieldChanges(GuiControlChangedEvent event) {
 			if (event.source.is("keyDistance")) {
+				
+				if (!selected.modifiable)
+					return;
+				
 				GuiLTDistance distance = (GuiLTDistance) event.source;
 				LittleGridContext newContext = distance.getDistanceContext();
 				if (newContext.size > context.size) {
@@ -293,6 +297,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				int scale = context.size / newContext.size;
 				selected.value = distance.getDistance();
 			} else if (event.source.is("keyValue")) {
+				if (!selected.modifiable)
+					return;
+				
 				try {
 					selected.value = Double.parseDouble(((GuiTextfield) event.source).text);
 				} catch (NumberFormatException e) {
