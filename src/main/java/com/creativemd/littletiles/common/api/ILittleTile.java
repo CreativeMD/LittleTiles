@@ -43,7 +43,9 @@ public interface ILittleTile {
 	}
 	
 	public default LittleGridContext getPreviewsContext(ItemStack stack) {
-		return LittleGridContext.get(stack.getTagCompound());
+		if (stack.hasTagCompound())
+			return LittleGridContext.get(stack.getTagCompound());
+		return LittleGridContext.get();
 	}
 	
 	@SideOnly(Side.CLIENT)

@@ -30,6 +30,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -77,6 +78,20 @@ public class LittleDoorHandler {
 		List<EntityAnimation> doors = new ArrayList<>();
 		for (EntityAnimation door : openDoors) {
 			if (door.world == world && door.getEntityBoundingBox().intersects(bb))
+				doors.add(door);
+		}
+		return doors;
+	}
+	
+	public List<EntityAnimation> findDoors(World world, BlockPos pos) {
+		if (openDoors.isEmpty())
+			return Collections.emptyList();
+		
+		AxisAlignedBB box = new AxisAlignedBB(pos);
+		
+		List<EntityAnimation> doors = new ArrayList<>();
+		for (EntityAnimation door : openDoors) {
+			if (door.world == world && door.getEntityBoundingBox().intersects(box))
 				doors.add(door);
 		}
 		return doors;
