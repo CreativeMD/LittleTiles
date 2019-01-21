@@ -50,7 +50,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -715,8 +714,10 @@ public class EntityAnimation extends Entity {
 		
 		updateBoundingBox();
 		
-		for (TileEntity te : fakeWorld.tickableTileEntities) {
-			((ITickable) te).update();
+		for (TileEntityLittleTiles te : blocks) {
+			if (te.getUpdateTiles() != null && !te.getUpdateTiles().isEmpty())
+				for (LittleTile tile : te.getUpdateTiles())
+					tile.updateEntity();
 		}
 		
 	}
