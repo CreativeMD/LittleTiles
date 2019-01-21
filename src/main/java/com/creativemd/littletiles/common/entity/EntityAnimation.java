@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
@@ -786,8 +787,8 @@ public class EntityAnimation extends Entity {
 		return true;
 	}
 	
-	public boolean onRightClick(EntityPlayer player) {
-		if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
+	public boolean onRightClick(@Nullable EntityPlayer player) {
+		if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 			ItemLittleWrench.rightClickAnimation(this, player);
 			return true;
 		}

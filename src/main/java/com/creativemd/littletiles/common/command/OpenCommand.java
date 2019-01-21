@@ -6,6 +6,10 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -55,8 +59,14 @@ public class OpenCommand extends CommandBase {
 		BlockPos blockpos = parseBlockPos(sender, args, 0, false);
 		World world = sender.getEntityWorld();
 		
+		for (EntityAnimation animation : LittleDoorHandler.server.findDoors(world, blockpos)) {
+			LittleStructure structure = animation.getParentStructure();
+			if (structure instanceof LittleDoorBase && checkStructureName(structure, args))
+				if (animation.onRightClick(null))
+					PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(animation.getUniqueID()));
+		}
+		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
-		;
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			List<LittleDoorBase> doors = new ArrayList<>();
 			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity).getTiles()) {
@@ -74,7 +84,9 @@ public class OpenCommand extends CommandBase {
 			for (LittleDoorBase door : doors) {
 				door.activate(world, null, blockpos, null);
 			}
+			
 		}
+		
 	}
 	
 	@Override
