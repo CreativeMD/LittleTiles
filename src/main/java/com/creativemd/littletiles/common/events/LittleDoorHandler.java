@@ -69,6 +69,8 @@ public class LittleDoorHandler {
 		this.side = side;
 	}
 	
+	protected List<EntityAnimation> toBeAdded = new ArrayList<>();
+	protected boolean isTicking = false;
 	public List<EntityAnimation> openDoors = new ArrayList<>();
 	
 	public List<EntityAnimation> findDoors(World world, AxisAlignedBB bb) {
@@ -105,12 +107,20 @@ public class LittleDoorHandler {
 	}
 	
 	public void createDoor(EntityAnimation door) {
-		openDoors.add(door);
+		if (isTicking)
+			toBeAdded.add(door);
+		else
+			openDoors.add(door);
 	}
 	
 	@SubscribeEvent
 	public void tick(WorldTickEvent event) {
 		if (event.side == side && event.phase == Phase.END) {
+			
+			openDoors.addAll(toBeAdded);
+			toBeAdded.clear();
+			
+			isTicking = true;
 			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
 				EntityAnimation door = (EntityAnimation) iterator.next();
 				
@@ -119,6 +129,7 @@ public class LittleDoorHandler {
 				if (door.isDead)
 					iterator.remove();
 			}
+			isTicking = false;
 		}
 	}
 	
