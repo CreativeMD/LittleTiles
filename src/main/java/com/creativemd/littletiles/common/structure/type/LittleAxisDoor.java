@@ -667,7 +667,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
-			return new DoorController(new AnimationState("opened", new RotationTransformation(Rotation.getRotation(door.axis, degree > 0), degree), null), false, door.duration);
+			return new DoorController(new AnimationState("opened", new RotationTransformation(Rotation.getRotation(door.axis, degree > 0), Math.abs(degree)), null), false, door.duration);
 		}
 		
 		@Override
