@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.gui.controls;
 
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.ControlEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
@@ -15,7 +15,8 @@ public class GuiLTDistance extends GuiParent {
 		marginWidth = 0;
 		borderWidth = 0;
 		addControl(new GuiTextfield("blocks", "", 0, 0, 20, 12).setNumbersIncludingNegativeOnly().setCustomTooltip("blocks"));
-		addControl(new GuiComboBox("grid", 30, 0, 15, LittleGridContext.getNames()).setDimension(15, 12).setCustomTooltip("gridsize"));
+		GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(context + ""), 30, 0, 15, 12, LittleGridContext.getNames().toArray(new String[0]));
+		controls.add(contextBox);
 		addControl(new GuiTextfield("ltdistance", "", 52, 0, 20, 12).setNumbersIncludingNegativeOnly().setCustomTooltip("grid distance"));
 		
 		setStyle(Style.emptyStyleDisabled);
@@ -40,10 +41,8 @@ public class GuiLTDistance extends GuiParent {
 	}
 	
 	public void setDistance(LittleGridContext context, int distance) {
-		GuiComboBox contextBox = (GuiComboBox) get("grid");
-		contextBox.index = contextBox.lines.indexOf(context.size + "");
-		if (contextBox.index != -1)
-			contextBox.caption = context.size + "";
+		GuiStateButton contextBox = (GuiStateButton) get("grid");
+		contextBox.setState(LittleGridContext.getNames().indexOf(context + ""));
 		
 		int blocks = distance / context.size;
 		GuiTextfield blocksTF = (GuiTextfield) get("blocks");
@@ -68,7 +67,7 @@ public class GuiLTDistance extends GuiParent {
 	}
 	
 	public LittleGridContext getDistanceContext() {
-		GuiComboBox contextBox = (GuiComboBox) get("grid");
+		GuiStateButton contextBox = (GuiStateButton) get("grid");
 		try {
 			return LittleGridContext.get(Integer.parseInt(contextBox.caption));
 		} catch (NumberFormatException e) {
