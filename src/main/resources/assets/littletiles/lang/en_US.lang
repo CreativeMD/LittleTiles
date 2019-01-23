@@ -119,8 +119,7 @@ structure.ladder.name=Ladder
 structure.bed.name=Bed
 structure.storage.name=Storage
 structure.noclip.name=No-clip
-structure.door.name=Door
-structure.axisDoor.name=Axis Door
+structure.door.name=Axis Door
 structure.slidingDoor.name=Sliding Door
 structure.advancedDoor.name=Advanced Door
 
