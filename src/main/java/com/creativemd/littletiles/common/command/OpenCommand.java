@@ -84,7 +84,6 @@ public class OpenCommand extends CommandBase {
 			for (LittleDoorBase door : doors) {
 				door.activate(world, null, blockpos, null);
 			}
-			
 		}
 		
 	}

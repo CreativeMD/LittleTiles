@@ -49,6 +49,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -63,7 +64,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public TileEntityLittleTiles() {
-		
+		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
+			initClient();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	protected void initClient() {
+		waitingAnimation = new ArrayList<>();
 	}
 	
 	protected void assign(TileEntityLittleTiles te) {
@@ -159,10 +166,27 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public EntityAnimation waitingAnimation;
+	public List<EntityAnimation> waitingAnimation;
 	
 	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
+	
+	@SideOnly(Side.CLIENT)
+	public void clearWaitingAnimations() {
+		synchronized (waitingAnimation) {
+			for (EntityAnimation animation : waitingAnimation) {
+				animation.controller.removeWaitingTe(this);
+			}
+			waitingAnimation = new ArrayList<>();
+		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void addWaitingAnimation(EntityAnimation animation) {
+		synchronized (waitingAnimation) {
+			waitingAnimation.add(animation);
+		}
+	}
 	
 	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(RenderChunk chunk) {
@@ -171,10 +195,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
 		
-		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate()) {
-			waitingAnimation.controller.removeWaitingTe(this);
-			waitingAnimation = null;
-		}
+		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate())
+			clearWaitingAnimations();
 		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
 		

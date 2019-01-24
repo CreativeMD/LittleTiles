@@ -210,7 +210,7 @@ public class DoorController extends EntityAnimationController {
 			for (int i = 0; i < coordsToCheck.size(); i++) {
 				TileEntity te = world.getTileEntity(coordsToCheck.get(i));
 				if (te instanceof TileEntityLittleTiles) {
-					((TileEntityLittleTiles) te).waitingAnimation = parent;
+					((TileEntityLittleTiles) te).addWaitingAnimation(parent);
 					waitingForRender.add((TileEntityLittleTiles) te);
 				}
 			}

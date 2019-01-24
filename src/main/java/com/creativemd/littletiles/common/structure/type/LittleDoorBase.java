@@ -87,12 +87,9 @@ public abstract class LittleDoorBase extends LittleStructure {
 			if (world.isRemote) {
 				controller.markWaitingForApprove();
 				
-				for (TileEntityLittleTiles te : tiles.keySet()) {
-					if (te.waitingAnimation != null) {
-						te.waitingAnimation.controller.removeWaitingTe(te);
-						te.waitingAnimation = null;
-					}
-				}
+				for (TileEntityLittleTiles te : tiles.keySet())
+					if (te.waitingAnimation != null)
+						te.clearWaitingAnimations();
 			}
 			
 			LittleStructure newDoor = previews.getStructure();
