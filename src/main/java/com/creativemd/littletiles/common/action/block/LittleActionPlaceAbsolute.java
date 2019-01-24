@@ -45,7 +45,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	}
 	
 	public void checkMode() {
-		if (previews != null && !mode.canPlaceStructures()) {
+		if (previews != null && previews.hasStructure() && !mode.canPlaceStructures()) {
 			System.out.println("Using invalid mode for placing structure. mode=" + mode.name);
 			this.mode = PlacementMode.getStructureDefault();
 		}
