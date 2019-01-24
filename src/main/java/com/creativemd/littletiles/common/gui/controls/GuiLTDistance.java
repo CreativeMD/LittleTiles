@@ -16,7 +16,7 @@ public class GuiLTDistance extends GuiParent {
 		borderWidth = 0;
 		addControl(new GuiTextfield("blocks", "", 0, 0, 20, 12).setNumbersIncludingNegativeOnly().setCustomTooltip("blocks"));
 		GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(context + ""), 30, 0, 15, 12, LittleGridContext.getNames().toArray(new String[0]));
-		controls.add(contextBox);
+		addControl(contextBox);
 		addControl(new GuiTextfield("ltdistance", "", 52, 0, 20, 12).setNumbersIncludingNegativeOnly().setCustomTooltip("grid distance"));
 		
 		setStyle(Style.emptyStyleDisabled);
