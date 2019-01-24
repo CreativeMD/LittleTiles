@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class StateSelector extends BlockSelector {
+public class StateSelector extends TileSelectorBlock {
 	
 	public int meta;
 	

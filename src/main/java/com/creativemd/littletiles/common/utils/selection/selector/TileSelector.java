@@ -74,7 +74,7 @@ public abstract class TileSelector {
 		registerType("and", AndSelector.class);
 		registerType("or", OrSelector.class);
 		registerType("not", NotSelector.class);
-		registerType("block", BlockSelector.class);
+		registerType("block", TileSelectorBlock.class);
 		registerType("state", StateSelector.class);
 		registerType("color", ColorSelector.class);
 		registerType("nostructure", NoStructureSelector.class);

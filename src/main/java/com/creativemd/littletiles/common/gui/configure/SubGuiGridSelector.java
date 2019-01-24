@@ -8,9 +8,9 @@ import com.creativemd.littletiles.common.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.AnySelector;
-import com.creativemd.littletiles.common.utils.selection.selector.BlockSelector;
 import com.creativemd.littletiles.common.utils.selection.selector.StateSelector;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.TileSelectorBlock;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -46,7 +46,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 			ItemStack stackFilter = filter.getSelected();
 			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 			boolean meta = ((GuiCheckBox) get("meta")).value;
-			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
+			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new TileSelectorBlock(filterBlock);
 		}
 		saveConfiguration(context, selector);
 	}
@@ -60,8 +60,8 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector));
 		
 		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), true);
-		if (selector instanceof BlockSelector) {
-			IBlockState state = ((BlockSelector) selector).getState();
+		if (selector instanceof TileSelectorBlock) {
+			IBlockState state = ((TileSelectorBlock) selector).getState();
 			guiSelector.setSelectedForce(new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state)));
 		}
 		controls.add(guiSelector);

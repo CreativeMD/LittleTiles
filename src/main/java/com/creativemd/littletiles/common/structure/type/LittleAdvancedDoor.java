@@ -44,6 +44,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleAdvancedDoor extends LittleDoorBase {
 	
@@ -228,6 +230,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			LittleAdvancedDoor door = structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null;
 			List<TimelineChannel> channels = new ArrayList<>();
@@ -249,9 +252,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 140, 112, 40, 10).setNumbersOnly());
 		}
 		
+		@SideOnly(Side.CLIENT)
 		private KeyControl selected;
 		
 		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
 		public void onKeySelected(KeySelectedEvent event) {
 			GuiTextfield textfield = (GuiTextfield) parent.get("keyValue");
 			GuiLTDistance distance = (GuiLTDistance) parent.get("keyDistance");
@@ -273,6 +278,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		}
 		
 		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
 		public void onTextfieldChanges(GuiControlChangedEvent event) {
 			if (event.source.is("keyDistance")) {
 				
@@ -316,6 +322,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		}
 		
 		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
 		public void onKeyDeselected(KeyDeselectedEvent event) {
 			selected = null;
 			GuiTextfield textfield = (GuiTextfield) parent.get("keyValue");
@@ -329,6 +336,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		}
 		
 		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
 		public void toolTip(GuiToolTipEvent event) {
 			if (event.source.is("timeline")) {
 				((GuiLabel) parent.get("tick")).caption = event.tooltip.get(0);
@@ -337,6 +345,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		public LittleStructure parseStructure(ItemStack stack) {
 			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class);
 			GuiTileViewer viewer = ((GuiAxisButton) parent.get("axis")).viewer;

@@ -128,6 +128,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			}
 		}
 		
+		@SideOnly(Side.CLIENT)
 		public static void updateDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection) {
 			EnumFacing newDirection = EnumFacing.EAST;
 			

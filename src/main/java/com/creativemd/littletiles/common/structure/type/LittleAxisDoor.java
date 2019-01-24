@@ -505,8 +505,10 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract DoorController createController(Rotation rotation, LittleAxisDoor door);
 		
+		@SideOnly(Side.CLIENT)
 		protected abstract void onSelected(GuiTileViewer viewer, GuiParent parent);
 		
+		@SideOnly(Side.CLIENT)
 		protected abstract void parseGui(GuiTileViewer viewer, GuiParent parent);
 		
 	}
@@ -598,6 +600,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
 			parent.addControl(new GuiButton("swap normal", 0, 0) {
 				
@@ -614,6 +617,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
 			normalAxis = viewer.getNormalAxis();
 		}
@@ -671,6 +675,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
 			viewer.visibleNormalAxis = false;
 			if (this.degree == 0)
@@ -680,6 +685,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
 		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
 			float degree;
 			try {
