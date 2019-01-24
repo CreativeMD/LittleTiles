@@ -223,11 +223,11 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	
 	protected boolean intersectsWithBetweenSliceAndBox(LittleTileBox box) {
 		if (box instanceof LittleTileSlicedOrdinaryBox)
-			return intersectsWithBetweenSliceAndBox2(box) && ((LittleTileSlicedOrdinaryBox) box).intersectsWithBetweenSliceAndBox2(this);
-		return intersectsWithBetweenSliceAndBox2(box);
+			return intersectsWithBetweenSliceAndBoxInternally(box) || ((LittleTileSlicedOrdinaryBox) box).intersectsWithBetweenSliceAndBoxInternally(this);
+		return intersectsWithBetweenSliceAndBoxInternally(box);
 	}
 	
-	protected boolean intersectsWithBetweenSliceAndBox2(LittleTileBox box) {
+	protected boolean intersectsWithBetweenSliceAndBoxInternally(LittleTileBox box) {
 		EnumFacing ignoreFace = RotationUtils.getFacing(slice.axis);
 		
 		Axis axisOne = RotationUtils.getDifferentAxisFirst(slice.axis);

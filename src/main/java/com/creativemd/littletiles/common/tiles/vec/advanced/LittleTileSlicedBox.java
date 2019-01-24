@@ -486,7 +486,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	protected boolean intersectsWithBetweenSliceAndBox(LittleTileBox box) {
+	protected boolean intersectsWithBetweenSliceAndBoxInternally(LittleTileBox box) {
 		EnumFacing ignoreFace = RotationUtils.getFacing(slice.axis);
 		
 		Axis axisOne = RotationUtils.getDifferentAxisFirst(slice.axis);
@@ -514,7 +514,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 			return true;
 		
 		// pointing positive
-		if (slice.getNormal()[axisOne.ordinal()] > 0) {
+		if (slice.isFacingPositive(axisOne)) {
 			// check axis one
 			if (RotationUtils.get(axisOne, minVec) <= pointOne)
 				return true;
@@ -527,7 +527,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		}
 		
 		// pointing positive
-		if (slice.getNormal()[axisTwo.ordinal()] > 0) {
+		if (slice.isFacingPositive(axisTwo)) {
 			// check axis one
 			if (RotationUtils.get(axisTwo, minVec) <= pointTwo)
 				return true;
@@ -811,11 +811,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		Vector3d sliceCorner = getSliceCorner(slice.start);
 		Vec3d temp = linePlaneIntersection(new Vec3d(sliceCorner.x / context.size, sliceCorner.y / context.size, sliceCorner.z / context.size), getSliceNormal(), vecA, vecB.subtract(vecA));
 		if (temp != null) {
-			boolean inside = false; /*
-			                         * temp.x >= LittleUtils.toGrid(minX) && temp.x < LittleUtils.toGrid(maxX) &&
-			                         * temp.y >= LittleUtils.toGrid(minY) && temp.y < LittleUtils.toGrid(maxY) &&
-			                         * temp.z >= LittleUtils.toGrid(minZ) && temp.z < LittleUtils.toGrid(maxZ);
-			                         */
+			boolean inside = false;
 			switch (diagonal.getAxis()) {
 			case X:
 				inside = intersectsWithYZ(context, temp);
@@ -827,8 +823,6 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 				inside = intersectsWithXY(context, temp);
 				break;
 			}
-			// if(temp != null && intersectsWithAxis(diagonal.getAxis(), temp) &&
-			// isClosest(vecA, collision, temp))
 			if (inside && isClosest(vecA, collision, temp)) {
 				collision = temp;
 				collided = diagonal;
@@ -889,17 +883,6 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		RotationUtils.setValue(end, RotationUtils.get(beforeOne, end) - getMin(beforeOne) * 2, beforeOne);
 		RotationUtils.setValue(end, RotationUtils.get(beforeTwo, end) - getMin(beforeTwo) * 2, beforeTwo);
 		
-		/*
-		 * startOne = startCorner.isFacingPositive(one) ==
-		 * slice.start.isFacingPositive(one) ? RotationUtils.get(one, start) :
-		 * RotationUtils.get(one, end); startTwo = startCorner.isFacingPositive(two) ==
-		 * slice.start.isFacingPositive(two) ? RotationUtils.get(two, start) :
-		 * RotationUtils.get(two, end); endOne = startCorner.isFacingPositive(one) ==
-		 * slice.start.isFacingPositive(one) ? RotationUtils.get(one, end) :
-		 * RotationUtils.get(one, start); endTwo = startCorner.isFacingPositive(two) ==
-		 * slice.start.isFacingPositive(two) ? RotationUtils.get(two, end) :
-		 * RotationUtils.get(two, start);
-		 */
 		startOne = (float) (slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end))) / 2F;
 		startTwo = (float) (slice.start.isFacingPositive(two) ? Math.max(RotationUtils.get(two, start), RotationUtils.get(two, end)) : Math.min(RotationUtils.get(two, start), RotationUtils.get(two, end))) / 2F;
 		endOne = (float) (!slice.start.isFacingPositive(one) ? Math.max(RotationUtils.get(one, start), RotationUtils.get(one, end)) : Math.min(RotationUtils.get(one, start), RotationUtils.get(one, end))) / 2F;
