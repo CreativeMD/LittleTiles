@@ -27,8 +27,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.selection.selector.AndSelector;
 import com.creativemd.littletiles.common.utils.selection.selector.AnySelector;
 import com.creativemd.littletiles.common.utils.selection.selector.BlockSelector;
+import com.creativemd.littletiles.common.utils.selection.selector.NoStructureSelector;
 import com.creativemd.littletiles.common.utils.selection.selector.StateSelector;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -138,6 +140,8 @@ public class SubGuiScrewdriver extends SubGui {
 			boolean meta = ((GuiCheckBox) get("meta")).value;
 			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new BlockSelector(filterBlock);
 		}
+		
+		selector = new AndSelector(new NoStructureSelector(), selector);
 		
 		LittleBoxes boxes = TileSelector.getAbsoluteBoxes(getPlayer().world, pos, pos2, selector);
 		

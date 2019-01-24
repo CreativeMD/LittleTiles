@@ -77,6 +77,7 @@ public abstract class TileSelector {
 		registerType("block", BlockSelector.class);
 		registerType("state", StateSelector.class);
 		registerType("color", ColorSelector.class);
+		registerType("nostructure", NoStructureSelector.class);
 	}
 	
 	public TileSelector() {
