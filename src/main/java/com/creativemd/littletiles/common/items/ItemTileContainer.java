@@ -13,12 +13,12 @@ import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.container.SubContainerTileContainer;
 import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
@@ -66,11 +66,7 @@ public class ItemTileContainer extends Item implements IGuiCreator {
 				continue;
 			if (i >= inventorySize)
 				break;
-			NBTTagCompound nbt = new NBTTagCompound();
-			nbt.setString("block", Block.REGISTRY.getNameForObject(ingredient.block).toString());
-			nbt.setInteger("meta", ingredient.meta);
-			nbt.setDouble("volume", ingredient.value);
-			list.appendTag(nbt);
+			list.appendTag(ingredient.writeToNBT(new NBTTagCompound()));
 			i++;
 		}
 		
@@ -87,11 +83,9 @@ public class ItemTileContainer extends Item implements IGuiCreator {
 		int size = Math.min(inventorySize, list.tagCount());
 		for (int i = 0; i < size; i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			Block block = Block.getBlockFromName(nbt.getString("block"));
-			if (block instanceof BlockAir)
-				continue;
-			if (nbt.getDouble("volume") > 0)
-				inventory.add(new BlockIngredient(block, nbt.getInteger("meta"), nbt.getDouble("volume")));
+			BlockIngredient ingredient = IngredientUtils.getBlockIngredient(nbt);
+			if (ingredient != null)
+				inventory.add(ingredient);
 		}
 		return inventory;
 	}

@@ -6,8 +6,8 @@ import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiProgressBar;
 import com.creativemd.littletiles.common.container.SubContainerTileContainer;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

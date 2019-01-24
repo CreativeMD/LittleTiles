@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.ingredients;
+package com.creativemd.littletiles.common.utils.ingredients;
 
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;

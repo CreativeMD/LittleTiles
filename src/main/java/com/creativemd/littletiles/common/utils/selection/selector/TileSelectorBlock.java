@@ -8,15 +8,15 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 
-public class BlockSelector extends TileSelector {
+public class TileSelectorBlock extends TileSelector {
 	
 	public Block block;
 	
-	public BlockSelector(Block block) {
+	public TileSelectorBlock(Block block) {
 		this.block = block;
 	}
 	
-	public BlockSelector() {
+	public TileSelectorBlock() {
 		
 	}
 	

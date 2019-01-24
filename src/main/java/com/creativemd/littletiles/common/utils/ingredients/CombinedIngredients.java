@@ -1,10 +1,10 @@
-package com.creativemd.littletiles.common.ingredients;
+package com.creativemd.littletiles.common.utils.ingredients;
 
 import java.util.List;
 
-import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
 
 public class CombinedIngredients {
 	

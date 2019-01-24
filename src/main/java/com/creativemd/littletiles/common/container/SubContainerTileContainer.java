@@ -8,13 +8,13 @@ import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerHeldItem;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -60,7 +60,7 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 				
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
 				
-				CombinedIngredients ingredients = LittleAction.getIngredientsOfStack(input);
+				CombinedIngredients ingredients = IngredientUtils.getIngredientsOfStack(input);
 				
 				boolean containedColor = false;
 				

@@ -1,10 +1,9 @@
-package com.creativemd.littletiles.common.ingredients;
+package com.creativemd.littletiles.common.utils.ingredients;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
@@ -21,7 +20,7 @@ public class BlockIngredient {
 	public int meta;
 	public double value;
 	
-	public BlockIngredient(Block block, int meta, double value) {
+	BlockIngredient(Block block, int meta, double value) {
 		this.block = block;
 		this.meta = meta;
 		this.value = value;
@@ -76,6 +75,13 @@ public class BlockIngredient {
 		return new BlockIngredient(this.block, this.meta, value);
 	}
 	
+	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
+		nbt.setString("block", Block.REGISTRY.getNameForObject(block).toString());
+		nbt.setInteger("meta", meta);
+		nbt.setDouble("volume", value);
+		return nbt;
+	}
+	
 	public static class BlockIngredients {
 		private List<BlockIngredient> content;
 		
@@ -116,7 +122,7 @@ public class BlockIngredient {
 		 *            to drain from. Will only take necessary count
 		 * @return left overs */
 		public BlockIngredient drainItemStack(ItemStack stack) {
-			BlockIngredient ingredient = LittleAction.getIngredientsOfStackSimple(stack);
+			BlockIngredient ingredient = IngredientUtils.getIngredientsOfStackSimple(stack);
 			
 			int indexOf = content.indexOf(ingredient);
 			if (indexOf != -1) {

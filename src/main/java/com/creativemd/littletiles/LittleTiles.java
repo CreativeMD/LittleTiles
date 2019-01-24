@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorBlock;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -108,6 +109,8 @@ import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientRule.BlockIngredientRuleFixedBlock;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
@@ -233,6 +236,11 @@ public class LittleTiles {
 		
 		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
 		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
+		
+		IngredientUtils.registerRule(new BlockSelectorBlock(flowingWater), new BlockIngredientRuleFixedBlock(transparentColoredBlock, BlockLTTransparentColored.EnumType.water.ordinal()));
+		IngredientUtils.registerRule(new BlockSelectorBlock(whiteFlowingWater), new BlockIngredientRuleFixedBlock(transparentColoredBlock, BlockLTTransparentColored.EnumType.white_water.ordinal()));
+		IngredientUtils.registerRule(new BlockSelectorBlock(flowingLava), new BlockIngredientRuleFixedBlock(coloredBlock, BlockLTColored.EnumType.lava.ordinal()));
+		IngredientUtils.registerRule(new BlockSelectorBlock(whiteFlowingLava), new BlockIngredientRuleFixedBlock(coloredBlock, BlockLTColored.EnumType.white_lava.ordinal()));
 		
 		LittleStructureRegistry.initStructures();
 	}

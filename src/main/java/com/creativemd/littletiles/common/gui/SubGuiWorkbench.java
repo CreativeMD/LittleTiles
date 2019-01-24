@@ -13,13 +13,13 @@ import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsExcept
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughColorException;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

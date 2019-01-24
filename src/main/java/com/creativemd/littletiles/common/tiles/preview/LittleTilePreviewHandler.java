@@ -3,9 +3,10 @@ package com.creativemd.littletiles.common.tiles.preview;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -79,7 +80,7 @@ public abstract class LittleTilePreviewHandler {
 		
 		@Override
 		public BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
-			return new BlockIngredient(getPreviewBlock(preview), getPreviewBlockMeta(preview), preview.getPercentVolume(context));
+			return IngredientUtils.getBlockIngredient(getPreviewBlock(preview), getPreviewBlockMeta(preview), preview.getPercentVolume(context));
 		}
 		
 		@Override

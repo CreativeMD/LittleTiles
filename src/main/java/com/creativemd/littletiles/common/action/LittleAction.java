@@ -13,13 +13,8 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
-import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.ingredients.BlockIngredient.BlockIngredients;
-import com.creativemd.littletiles.common.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
@@ -39,13 +34,15 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.CombinedIngredients;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.BlockGlass;
 import net.minecraft.block.BlockStainedGlass;
@@ -516,47 +513,6 @@ public abstract class LittleAction extends CreativeCorePacket {
 			return drainIngredients(player, ingredients, color);
 		}
 		return true;
-	}
-	
-	public static BlockIngredient getIngredientsOfStackSimple(ItemStack stack) {
-		Block block = Block.getBlockFromItem(stack.getItem());
-		
-		if (block != null && !(block instanceof BlockAir) && isBlockValid(block))
-			return new BlockIngredient(block, stack.getItemDamage(), 1);
-		return null;
-	}
-	
-	/** @return does not take care of stackSize */
-	public static CombinedIngredients getIngredientsOfStack(ItemStack stack) {
-		if (!stack.isEmpty()) {
-			ILittleTile tile = PlacementHelper.getLittleInterface(stack);
-			
-			if (tile != null && tile.hasLittlePreview(stack) && tile.containsIngredients(stack)) {
-				LittlePreviews tiles = tile.getLittlePreview(stack);
-				if (tiles != null) {
-					CombinedIngredients ingredients = new CombinedIngredients();
-					for (int i = 0; i < tiles.size(); i++) {
-						LittleTilePreview preview = tiles.get(i);
-						if (preview.canBeConvertedToBlockEntry()) {
-							ingredients.block.addIngredient(preview.getBlockIngredient(tiles.context));
-							ingredients.color.addColorUnit(ColorUnit.getColors(tiles.context, preview));
-						}
-					}
-					return ingredients;
-				}
-			}
-			
-			Block block = Block.getBlockFromItem(stack.getItem());
-			
-			if (block != null && !(block instanceof BlockAir)) {
-				if (isBlockValid(block)) {
-					CombinedIngredients ingredients = new CombinedIngredients();
-					ingredients.block.addIngredient(new BlockIngredient(block, stack.getItemDamage(), 1));
-					return ingredients;
-				}
-			}
-		}
-		return null;
 	}
 	
 	public static boolean canDrainIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
