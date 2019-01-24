@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.state.BlockStateBase;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
@@ -19,19 +20,21 @@ public class ConnectedTexturesModifier {
 	private static Class connectedProperties;
 	private static Method match;
 	private static Method matchMeta;
+	private static Method getBlockID;
 	
 	static {
 		try {
 			connectedProperties = Class.forName("net.optifine.ConnectedProperties");
 			match = ReflectionHelper.findMethod(connectedProperties, "matchesBlockId", "matchesBlockId", int.class);
 			matchMeta = ReflectionHelper.findMethod(connectedProperties, "matchesBlock", "matchesBlock", int.class, int.class);
+			getBlockID = ReflectionHelper.findMethod(BlockStateBase.class, "getBlockId", "getBlockId");
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 		
 	}
 	
-	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos) {
+	public static boolean matches(Object properties, IBlockAccess world, BlockPos pos, IBlockState state) {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
@@ -41,7 +44,7 @@ public class ConnectedTexturesModifier {
 				}
 				return false;
 			}
-			return (boolean) match.invoke(properties, Block.getStateId(world.getBlockState(pos)));
+			return (boolean) match.invoke(properties, (Integer) getBlockID.invoke(state));
 		} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
