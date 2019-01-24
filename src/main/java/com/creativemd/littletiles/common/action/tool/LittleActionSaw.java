@@ -60,12 +60,14 @@ public class LittleActionSaw extends LittleActionInteract {
 		facing = moving.sideHit;
 		if (tile.canSawResizeTile(facing, player)) {
 			LittleTileBox box;
-			oldBox = tile.box.copy();
+			
 			Axis axis = facing.getAxis();
 			
 			te.ensureMinContext(context);
 			if (context != te.getContext())
 				context = te.getContext();
+			
+			oldBox = tile.box.copy();
 			
 			boolean outside = false;
 			
@@ -215,6 +217,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if (tile.canSawResizeTile(facing, player)) {
 				tile.te.ensureMinContext(context);
+				
 				if (tile.getContext() != context) {
 					oldBox.convertTo(context, tile.getContext());
 					context = tile.getContext();
