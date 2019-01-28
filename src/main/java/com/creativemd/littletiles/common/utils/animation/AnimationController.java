@@ -33,6 +33,10 @@ public class AnimationController {
 		return this;
 	}
 	
+	public AnimationTimeline getAnimation() {
+		return animation;
+	}
+	
 	public AnimationState getCurrentState() {
 		return currentState;
 	}

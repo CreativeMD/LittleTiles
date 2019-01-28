@@ -117,12 +117,16 @@ public class LittleDoorHandler {
 	public void tick(WorldTickEvent event) {
 		if (event.side == side && event.phase == Phase.END) {
 			
+			World world = event.world;
 			openDoors.addAll(toBeAdded);
 			toBeAdded.clear();
 			
 			isTicking = true;
 			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
 				EntityAnimation door = (EntityAnimation) iterator.next();
+				
+				if (door.world != world)
+					continue;
 				
 				door.onUpdateForReal();
 				

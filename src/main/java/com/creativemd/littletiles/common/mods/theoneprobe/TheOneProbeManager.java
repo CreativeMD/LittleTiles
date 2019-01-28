@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.mods.theoneprobe;
 
 import mcjty.theoneprobe.api.ITheOneProbe;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class TheOneProbeManager {
@@ -17,6 +18,13 @@ public class TheOneProbeManager {
 	public static void init() {
 		if (!isInstalled())
 			return;
+		
+		initDirectly();
+		
+	}
+	
+	@Method(modid = modid)
+	private static void initDirectly() {
 		try {
 			ITheOneProbe theoneprobe = (ITheOneProbe) ReflectionHelper.findField(Class.forName("mcjty.theoneprobe.TheOneProbe"), "theOneProbeImp").get(null);
 			TheOneProbeInteractor interactor = new TheOneProbeInteractor();
@@ -25,6 +33,5 @@ public class TheOneProbeManager {
 		} catch (ClassNotFoundException | IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-		
 	}
 }
