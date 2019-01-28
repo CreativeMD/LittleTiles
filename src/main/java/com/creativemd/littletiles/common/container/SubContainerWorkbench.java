@@ -50,17 +50,23 @@ public class SubContainerWorkbench extends SubContainer {
 		if (!stack1.isEmpty()) {
 			if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
 				if (stack1.hasTagCompound() && !stack1.getTagCompound().hasKey("x")) {
-					LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
 					
-					try {
-						if (LittleAction.drainPreviews(player, tiles)) {
-							ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-							stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
-							if (!player.inventory.addItemStackToInventory(stack))
-								WorldUtils.dropItem(player, stack);
+					if (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced) {
+						if (stack2.hasTagCompound() && !stack2.getTagCompound().hasKey("x") && stack1.getTagCompound().hasKey("structure"))
+							stack2.getTagCompound().setTag("structure", stack1.getTagCompound().getTag("structure"));
+					} else {
+						LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
+						
+						try {
+							if (LittleAction.drainPreviews(player, tiles)) {
+								ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+								stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+								if (!player.inventory.addItemStackToInventory(stack))
+									WorldUtils.dropItem(player, stack);
+							}
+						} catch (NotEnoughIngredientsException e) {
+							e.printStackTrace();
 						}
-					} catch (NotEnoughIngredientsException e) {
-						e.printStackTrace();
 					}
 				}
 			} else if (ChiselsAndBitsManager.isChiselsAndBitsStructure(stack1)) {
