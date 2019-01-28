@@ -83,6 +83,7 @@ import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
+import com.creativemd.littletiles.common.mods.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleDoorPacket;
@@ -507,6 +508,8 @@ public class LittleTiles {
 		
 		if (Loader.isModLoaded("igcm"))
 			IGCMLoader.initIGCM();
+		
+		TheOneProbeManager.init();
 	}
 	
 	@EventHandler
