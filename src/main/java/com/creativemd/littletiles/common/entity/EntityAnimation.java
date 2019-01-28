@@ -39,6 +39,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.google.common.base.Predicate;
 
+import mcjty.theoneprobe.api.IEntityDisplayOverride;
+import mcjty.theoneprobe.api.IProbeHitEntityData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
@@ -54,10 +58,13 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.Optional.Interface;
+import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EntityAnimation extends Entity {
+@Interface(iface = "mcjty.theoneprobe.api.IEntityDisplayOverride", modid = "theoneprobe")
+public class EntityAnimation extends Entity implements IEntityDisplayOverride {
 	
 	protected static final Predicate<Entity> noAnimation = new Predicate<Entity>() {
 		
@@ -874,6 +881,12 @@ public class EntityAnimation extends Entity {
 		
 		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(), absolutePreviewPos.getZ() });
 		
+	}
+	
+	@Override
+	@Method(modid = "theoneprobe")
+	public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, Entity entity, IProbeHitEntityData data) {
+		return true;
 	}
 	
 }

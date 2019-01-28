@@ -40,6 +40,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
+import mcjty.theoneprobe.api.IBlockDisplayOverride;
+import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.ProbeMode;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.SoundType;
@@ -77,7 +81,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.chisel.ctm.api.IFacade;
 
 @Interface(iface = "team.chisel.ctm.api.IFacade", modid = "ctm")
-public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade {// ICustomCachedCreativeRendered {
+@Interface(iface = "mcjty.theoneprobe.api.IBlockDisplayOverride", modid = "theoneprobe")
+public class BlockTile extends BlockContainer implements ICreativeRendered, IFacade, IBlockDisplayOverride {// ICustomCachedCreativeRendered {
 	
 	public static class TEResult {
 		
@@ -1077,6 +1082,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 		}
 		return this.getDefaultState();
+	}
+	
+	@Override
+	@Method(modid = "theoneprobe")
+	public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState blockState, IProbeHitData data) {
+		return true;
 	}
 	
 }

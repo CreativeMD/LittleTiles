@@ -159,10 +159,10 @@ public class LittleTiles {
 		}
 	};
 	
-	public static BlockTile blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
-	public static BlockTile blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
-	public static BlockTile blockTileNoTickingRendered = (BlockTile) new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
-	public static BlockTile blockTileTickingRendered = (BlockTile) new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
+	public static Block blockTileNoTicking;
+	public static Block blockTileTicking;
+	public static Block blockTileNoTickingRendered;
+	public static Block blockTileTickingRendered;
 	
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
@@ -212,6 +212,11 @@ public class LittleTiles {
 			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
 		config.save();
 		proxy.loadSidePre();
+		
+		blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
+		blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
+		blockTileNoTickingRendered = (BlockTile) new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
+		blockTileTickingRendered = (BlockTile) new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
 		
 		hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
 		recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
