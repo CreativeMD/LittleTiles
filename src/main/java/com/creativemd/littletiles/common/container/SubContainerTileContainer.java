@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
 
 public class SubContainerTileContainer extends SubContainerHeldItem {
@@ -31,6 +33,8 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 	public SubContainerTileContainer(EntityPlayer player) {
 		super(player);
 	}
+	
+	private static Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, "colorValue", "field_193351_w");
 	
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event) {
@@ -84,21 +88,27 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 					
 					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
 				} else if (DyeUtils.isDye(input)) {
-					Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(input);
-					if (!optional.isPresent())
-						return;
-					ColorUnit color = ColorUnit.getColors(optional.get().getColorValue());
-					color.scale(2);
-					ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
-					if (result != null && result.equals(color))
-						return;
-					while (!input.isEmpty()) {
-						input.shrink(1);
-						if (ItemTileContainer.storeColor(stack, color, false) != null)
-							break;
+					try {
+						Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(input);
+						if (!optional.isPresent())
+							return;
+						ColorUnit color = ColorUnit.getColors(dyeColor.getInt(optional.get()));
+						
+						color.scale(2);
+						ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
+						if (result != null && result.equals(color))
+							return;
+						while (!input.isEmpty()) {
+							input.shrink(1);
+							if (ItemTileContainer.storeColor(stack, color, false) != null)
+								break;
+						}
+						
+						containedColor = true;
+						
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						e.printStackTrace();
 					}
-					
-					containedColor = true;
 					
 				}
 				
