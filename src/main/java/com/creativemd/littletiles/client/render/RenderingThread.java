@@ -46,51 +46,7 @@ public class RenderingThread extends Thread {
 	
 	private static final String[] fakeWorldMods = new String[] { "chisel" };
 	
-	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
-	public static HashMap<RenderChunk, AtomicInteger> chunks = new HashMap<>();
-	public static Minecraft mc = Minecraft.getMinecraft();
-	
-	public static int nearbyRenderDistance = 32 * 32;
-	
-	public static void addCoordToUpdate(TileEntityLittleTiles te, double distanceSq, boolean requiresUpdate) {
-		RenderingThread renderer = getNextThread();
-		if (!te.rendering.get()) {
-			te.rendering.set(true);
-			if (requiresUpdate) {
-				RenderChunk chunk = te.lastRenderedChunk;
-				if (chunk == null) {
-					chunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
-					te.lastRenderedChunk = chunk;
-				}
-				synchronized (chunks) {
-					AtomicInteger count = renderer.chunks.get(chunk);
-					if (count == null) {
-						count = new AtomicInteger(0);
-						renderer.chunks.put(chunk, count);
-					}
-					count.getAndIncrement();
-				}
-			}
-			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking(), te.isRendered()), te.getPos(), requiresUpdate));
-		}
-	}
-	
-	public static void addCoordToUpdate(TileEntityLittleTiles te) // , IBlockState state)
-	{
-		try {
-			if (!(te.getWorld() instanceof SubWorld))
-				addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
 	public static List<RenderingThread> threads;
-	
-	static {
-		initThreads(LittleTilesConfig.rendering.renderingThreadCount);
-	}
 	
 	private static int threadIndex;
 	
@@ -129,12 +85,60 @@ public class RenderingThread extends Thread {
 		threadIndex = 0;
 		threads = new ArrayList<>();
 		for (int i = 0; i < count; i++) {
-			threads.add(new RenderingThread());
+			threads.add(new RenderingThread(i));
 		}
 	}
 	
-	public RenderingThread() {
+	public static HashMap<RenderChunk, AtomicInteger> chunks = new HashMap<>();
+	public static Minecraft mc = Minecraft.getMinecraft();
+	
+	public static void addCoordToUpdate(TileEntityLittleTiles te, double distanceSq, boolean requiresUpdate) {
+		RenderingThread renderer = getNextThread();
+		if (!te.rendering.get()) {
+			te.rendering.set(true);
+			if (requiresUpdate) {
+				RenderChunk chunk = te.lastRenderedChunk;
+				if (chunk == null) {
+					chunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
+					te.lastRenderedChunk = chunk;
+				}
+				synchronized (chunks) {
+					AtomicInteger count = renderer.chunks.get(chunk);
+					if (count == null) {
+						count = new AtomicInteger(0);
+						renderer.chunks.put(chunk, count);
+					}
+					count.getAndIncrement();
+				}
+			}
+			renderer.updateCoords.add(new RenderingData(te, BlockTile.getState(te.isTicking(), te.isRendered()), te.getPos(), requiresUpdate));
+		}
+	}
+	
+	public static void addCoordToUpdate(TileEntityLittleTiles te) {
+		try {
+			if (!(te.getWorld() instanceof SubWorld))
+				addCoordToUpdate(te, mc.getRenderViewEntity().getDistanceSq(te.getPos()), true);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	static {
+		initThreads(LittleTilesConfig.rendering.renderingThreadCount);
+	}
+	
+	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
+	
+	final int index;
+	
+	public RenderingThread(int index) {
 		start();
+		this.index = index;
+	}
+	
+	public int getThreadIndex() {
+		return index;
 	}
 	
 	private final IBlockAccessFake fakeAccess = new IBlockAccessFake();

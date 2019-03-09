@@ -10,6 +10,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHel
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.profile.CommandOpenRenderProfiler;
 import com.creativemd.littletiles.client.render.OverlayRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
@@ -38,6 +39,7 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.MinecraftForge;
@@ -237,6 +239,8 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTickingRendered);
 		
 		LittleParticleType.initClient();
+		
+		ClientCommandHandler.instance.registerCommand(new CommandOpenRenderProfiler());
 	}
 	
 	@Override
