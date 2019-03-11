@@ -52,6 +52,9 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						isNextLabel = true;
 					}
 				}
+				
+				m = findMethod(classNode, "renderEntities", "(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;F)V");
+				m.instructions.insertBefore(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleDoorHandler", "renderTick", "()V", false));
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.entity.player.EntityPlayer") {

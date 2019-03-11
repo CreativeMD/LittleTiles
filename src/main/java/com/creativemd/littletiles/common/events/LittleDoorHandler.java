@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
-import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
@@ -32,7 +31,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
@@ -136,61 +134,58 @@ public class LittleDoorHandler {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public Render render;
+	public static RenderAnimation render;
 	
-	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void renderTick(RenderWorldLastEvent event) {
-		if (side.isClient()) {
-			if (render == null)
-				render = new RenderAnimation(Minecraft.getMinecraft().getRenderManager());
+	public static void renderTick() {
+		if (render == null)
+			render = new RenderAnimation(Minecraft.getMinecraft().getRenderManager());
+		
+		float partialTicks = TickUtils.getPartialTickTime();
+		
+		Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
+		if (renderViewEntity == null || client.openDoors.isEmpty())
+			return;
+		
+		double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * (double) partialTicks;
+		double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * (double) partialTicks;
+		double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * (double) partialTicks;
+		
+		ICamera camera = new Frustum();
+		camera.setPosition(camX, camY, camZ);
+		
+		for (EntityAnimation door : client.openDoors) {
 			
-			float partialTicks = event.getPartialTicks();
+			if (!render.shouldRender(door, camera, camX, camY, camZ) || door.isDead)
+				continue;
 			
-			Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
-			if (renderViewEntity == null || openDoors.isEmpty())
-				return;
-			double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * (double) partialTicks;
-			double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * (double) partialTicks;
-			double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * (double) partialTicks;
-			
-			ICamera camera = new Frustum();
-			camera.setPosition(camX, camY, camZ);
-			
-			for (EntityAnimation door : openDoors) {
-				
-				if (!render.shouldRender(door, camera, camX, camY, camZ) || door.isDead)
-					continue;
-				
-				if (door.ticksExisted == 0) {
-					door.lastTickPosX = door.posX;
-					door.lastTickPosY = door.posY;
-					door.lastTickPosZ = door.posZ;
-				}
-				
-				double d0 = door.lastTickPosX + (door.posX - door.lastTickPosX) * (double) partialTicks;
-				double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * (double) partialTicks;
-				double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * (double) partialTicks;
-				
-				float f = door.prevRotationYaw + (door.rotationYaw - door.prevRotationYaw) * partialTicks;
-				int i = door.getBrightnessForRender();
-				
-				if (door.isBurning()) {
-					i = 15728880;
-				}
-				
-				int j = i % 65536;
-				int k = i / 65536;
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
-				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-				try {
-					// render.setRenderOutlines(render.getRenderManager().renderOutlines);
-					render.doRender(door, d0 - TileEntityRendererDispatcher.staticPlayerX, d1 - TileEntityRendererDispatcher.staticPlayerY, d2 - TileEntityRendererDispatcher.staticPlayerZ, f, partialTicks);
-				} catch (Throwable throwable1) {
-					throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
-				}
+			if (door.ticksExisted == 0) {
+				door.lastTickPosX = door.posX;
+				door.lastTickPosY = door.posY;
+				door.lastTickPosZ = door.posZ;
 			}
 			
+			double d0 = door.lastTickPosX + (door.posX - door.lastTickPosX) * (double) partialTicks;
+			double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * (double) partialTicks;
+			double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * (double) partialTicks;
+			
+			float f = door.prevRotationYaw + (door.rotationYaw - door.prevRotationYaw) * partialTicks;
+			int i = door.getBrightnessForRender();
+			
+			if (door.isBurning()) {
+				i = 15728880;
+			}
+			
+			int j = i % 65536;
+			int k = i / 65536;
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
+			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+			try {
+				// render.setRenderOutlines(render.getRenderManager().renderOutlines);
+				render.doRender(door, d0 - TileEntityRendererDispatcher.staticPlayerX, d1 - TileEntityRendererDispatcher.staticPlayerY, d2 - TileEntityRendererDispatcher.staticPlayerZ, f, partialTicks);
+			} catch (Throwable throwable1) {
+				throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
+			}
 		}
 	}
 	

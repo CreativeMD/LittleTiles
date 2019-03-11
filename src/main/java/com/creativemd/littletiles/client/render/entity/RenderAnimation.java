@@ -42,6 +42,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
 
@@ -58,44 +59,49 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
+		boolean first = MinecraftForgeClient.getRenderPass() == 0;
+		
 		if (entity.isDead)
 			return;
 		
-		if (entity.renderChunks == null)
-			entity.createClient();
-		
-		/** ===Setting up finished render-data=== **/
-		
-		if (entity.renderQueue != null) {
-			for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
-				TileEntityLittleTiles te = iterator.next();
-				
-				if (!te.rendering.get()) {
-					if (te.getBuffer() == null) {
-						RenderingThread.addCoordToUpdate(te, 0, false);
-						continue;
+		if (first) {
+			
+			if (entity.renderChunks == null)
+				entity.createClient();
+			
+			/** ===Setting up finished render-data=== **/
+			
+			if (entity.renderQueue != null) {
+				for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
+					TileEntityLittleTiles te = iterator.next();
+					
+					if (!te.rendering.get()) {
+						if (te.getBuffer() == null) {
+							RenderingThread.addCoordToUpdate(te, 0, false);
+							continue;
+						}
+						BlockPos renderChunkPos = getRenderChunkPos(te.getPos());
+						LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
+						if (chunk == null) {
+							chunk = new LittleRenderChunk(renderChunkPos);
+							entity.renderChunks.put(renderChunkPos, chunk);
+						}
+						chunk.addRenderData(te);
+						iterator.remove();
 					}
-					BlockPos renderChunkPos = getRenderChunkPos(te.getPos());
-					LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
-					if (chunk == null) {
-						chunk = new LittleRenderChunk(renderChunkPos);
-						entity.renderChunks.put(renderChunkPos, chunk);
-					}
-					chunk.addRenderData(te);
-					iterator.remove();
 				}
 			}
-		}
-		
-		for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-			chunk.uploadBuffer();
-		}
-		
-		if (entity.renderQueue != null && entity.renderQueue.isEmpty()) {
+			
 			for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-				chunk.markCompleted();
+				chunk.uploadBuffer();
 			}
-			entity.renderQueue = null;
+			
+			if (entity.renderQueue != null && entity.renderQueue.isEmpty()) {
+				for (LittleRenderChunk chunk : entity.renderChunks.values()) {
+					chunk.markCompleted();
+				}
+				entity.renderQueue = null;
+			}
 		}
 		
 		/** ===Render static part=== **/
@@ -128,17 +134,19 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		float f1 = (float) mc.getRenderViewEntity().posY + mc.getRenderViewEntity().getEyeHeight();
 		float f2 = (float) mc.getRenderViewEntity().posZ;
 		
-		GlStateManager.disableAlpha();
-		renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
-		GlStateManager.enableAlpha();
-		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-		renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
-		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-		renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
-		this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
-		
-		renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
+		if (first) {
+			GlStateManager.disableAlpha();
+			renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
+			GlStateManager.enableAlpha();
+			mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+			renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
+			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+			renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
+		} else {
+			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+			renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
+		}
 		
 		for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
 			final VertexFormatElement.EnumUsage vertexformatelement$enumusage = vertexformatelement.getUsage();
@@ -158,6 +166,9 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				GlStateManager.resetColor();
 			}
 		}
+		
+		if (!first)
+			return;
 		
 		// Minecraft.getMinecraft().entityRenderer.disableLightmap();
 		
@@ -389,11 +400,16 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		Vector2d[] vectors;
 		
 		if (minOneOffset == maxOneOffset && minTwoOffset == maxTwoOffset)
-			vectors = new Vector2d[] { new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo) };
+			vectors = new Vector2d[] {
+			        new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo) };
 		else if (minOneOffset == maxOneOffset)
-			vectors = new Vector2d[] { new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo), new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo) };
+			vectors = new Vector2d[] {
+			        new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, minTwo - outerCornerTwo),
+			        new Vector2d((minOneOffset ? maxOne : minOne) - outerCornerOne, maxTwo - outerCornerTwo) };
 		else if (minTwoOffset == maxTwoOffset)
-			vectors = new Vector2d[] { new Vector2d(minOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo), new Vector2d(maxOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo) };
+			vectors = new Vector2d[] {
+			        new Vector2d(minOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo),
+			        new Vector2d(maxOne - outerCornerOne, (minTwoOffset ? maxTwo : minTwo) - outerCornerTwo) };
 		else
 			vectors = new Vector2d[] {};
 		
