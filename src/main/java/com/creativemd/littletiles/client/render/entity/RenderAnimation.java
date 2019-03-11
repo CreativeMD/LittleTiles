@@ -59,7 +59,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	public void doRender(EntityAnimation entity, double x, double y, double z, float entityYaw, float partialTicks) {
 		super.doRender(entity, x, y, z, entityYaw, partialTicks);
 		
-		boolean first = MinecraftForgeClient.getRenderPass() == 0;
+		boolean first = MinecraftForgeClient.getRenderPass() == 0 || MinecraftForgeClient.getRenderPass() == -1;
 		
 		if (entity.isDead)
 			return;

@@ -246,10 +246,14 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			context = door != null ? (door.offGrid != null ? door.offGrid : LittleGridContext.get()) : LittleGridContext.get();
 			parent.controls.add((GuiControl) new GuiTextfield("keyValue", "", 0, 75, 40, 10).setFloatOnly().setEnabled(false));
 			parent.controls.add(new GuiLTDistance("keyDistance", 0, 75, context, 0).setVisible(false));
+			
+			parent.controls.add(new GuiLabel("Position:", 90, 90));
+			parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
+			
 			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, LittleGridContext.get(stack.getTagCompound()), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null));
 			
 			parent.controls.add(new GuiLabel("Duration:", 90, 112));
-			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 140, 112, 40, 10).setNumbersOnly());
+			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 112, 40, 10).setNumbersOnly());
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -275,6 +279,10 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				
 				distance.setDistance(context, (int) selected.value);
 			}
+			
+			GuiTextfield position = (GuiTextfield) parent.get("keyPosition");
+			position.setEnabled(true);
+			position.text = "" + selected.tick;
 		}
 		
 		@CustomEventSubscribe
@@ -311,6 +319,20 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				} catch (NumberFormatException e) {
 					
 				}
+			} else if (event.source.is("keyPosition")) {
+				if (!selected.modifiable)
+					return;
+				
+				try {
+					GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
+					
+					int tick = selected.tick;
+					selected.tick = Integer.parseInt(((GuiTextfield) event.source).text);
+					if (tick != selected.tick)
+						timeline.adjustKeysPositionX();
+				} catch (NumberFormatException e) {
+					
+				}
 			} else if (event.source.is("duration_s")) {
 				try {
 					GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
@@ -326,6 +348,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		public void onKeyDeselected(KeyDeselectedEvent event) {
 			selected = null;
 			GuiTextfield textfield = (GuiTextfield) parent.get("keyValue");
+			textfield.setEnabled(false);
+			textfield.text = "";
+			textfield.setCursorPositionZero();
+			
+			textfield = (GuiTextfield) parent.get("keyPosition");
 			textfield.setEnabled(false);
 			textfield.text = "";
 			textfield.setCursorPositionZero();
