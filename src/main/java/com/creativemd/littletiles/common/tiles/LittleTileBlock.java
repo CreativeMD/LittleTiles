@@ -128,7 +128,7 @@ public class LittleTileBlock extends LittleTile {
 	
 	@SideOnly(Side.CLIENT)
 	public void updateTranslucent() {
-		translucent = block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT);
+		translucent = getBlockState().isTranslucent() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT);
 	}
 	
 	@Override
