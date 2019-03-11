@@ -292,7 +292,7 @@ public class LittleDoorHandler {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void tickClient(ClientTickEvent event) {
-		if (event.side == side && event.phase == Phase.END) {
+		if (event.side == side && event.phase == Phase.END && (!Minecraft.getMinecraft().isSingleplayer() || !Minecraft.getMinecraft().isGamePaused())) {
 			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
 				EntityAnimation door = (EntityAnimation) iterator.next();
 				if (door.isDead)
