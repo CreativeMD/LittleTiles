@@ -240,7 +240,6 @@ public class LittleEvent {
 	public void onInteract(RightClickBlock event) {
 		if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
 			event.setCanceled(true);
-			System.out.println("Canceled right click event");
 			return;
 		}
 		

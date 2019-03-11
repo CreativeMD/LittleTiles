@@ -74,10 +74,8 @@ public class DragShapeBox extends DragShape {
 		
 		GuiCheckBox box = (GuiCheckBox) gui.get("hollow");
 		nbt.setBoolean("hollow", box.value);
-		if (box.value) {
-			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-			nbt.setInteger("thickness", (int) slider.value);
-		}
+		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
+		nbt.setInteger("thickness", (int) slider.value);
 	}
 	
 	@Override

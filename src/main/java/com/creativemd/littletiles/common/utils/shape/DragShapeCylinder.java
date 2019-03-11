@@ -159,10 +159,8 @@ public class DragShapeCylinder extends DragShape {
 		
 		GuiCheckBox box = (GuiCheckBox) gui.get("hollow");
 		nbt.setBoolean("hollow", box.value);
-		if (box.value) {
-			GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-			nbt.setInteger("thickness", (int) slider.value);
-		}
+		GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
+		nbt.setInteger("thickness", (int) slider.value);
 		
 		GuiStateButton state = (GuiStateButton) gui.get("direction");
 		nbt.setInteger("direction", state.getState());
