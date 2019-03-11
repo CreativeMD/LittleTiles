@@ -18,7 +18,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
@@ -60,13 +60,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	
 	public boolean doneSomething;
 	
-	public CombinedIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context) {
+	public Ingredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
 		
 		if (previews == null)
 			previews = new LittleAbsolutePreviews(te.getPos(), context);
 		
-		CombinedIngredients ingredients = new CombinedIngredients();
+		Ingredients ingredients = new Ingredients();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();

@@ -5,8 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
@@ -20,18 +18,13 @@ public final class LittleStructureType {
 	public final String category;
 	public final Class<? extends LittleStructure> structureClass;
 	public final LittleStructureAttribute attribute;
-	public final LittleStructurePreviewHandler handler;
 	public final List<StructureTypeRelative> relatives;
 	
-	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleStructureAttribute attribute, @Nullable LittleStructurePreviewHandler handler) {
+	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleStructureAttribute attribute) {
 		this.id = id;
 		this.category = category;
 		this.structureClass = structureClass;
 		this.attribute = attribute;
-		if (handler == null)
-			this.handler = new LittleStructurePreviewHandler();
-		else
-			this.handler = handler;
 		
 		this.relatives = new ArrayList<>();
 		for (Field field : structureClass.getFields())

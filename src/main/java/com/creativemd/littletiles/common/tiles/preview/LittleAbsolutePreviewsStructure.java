@@ -3,8 +3,6 @@ package com.creativemd.littletiles.common.tiles.preview;
 import java.util.ArrayList;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructurePreviewHandler;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,7 +12,6 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	
 	public final NBTTagCompound nbt;
 	private LittleStructure structure;
-	private LittleStructurePreviewHandler handler;
 	
 	public LittleAbsolutePreviewsStructure(NBTTagCompound nbt, LittleAbsolutePreviews previews) {
 		super(previews);
@@ -53,13 +50,6 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	@Override
 	public NBTTagCompound getStructureData() {
 		return nbt;
-	}
-	
-	@Override
-	public LittleStructurePreviewHandler getStructureHandler() {
-		if (handler == null)
-			handler = LittleStructureRegistry.getStructureType(nbt.getString("id")).handler;
-		return handler;
 	}
 	
 	@Override

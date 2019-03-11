@@ -37,7 +37,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.utils.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
@@ -725,7 +725,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
-	public static boolean addIngredients(EntityPlayer player, CombinedIngredients ingredients) throws NotEnoughIngredientsException {
+	public static boolean addIngredients(EntityPlayer player, Ingredients ingredients) throws NotEnoughIngredientsException {
 		return addIngredients(player, ingredients.block, ingredients.color);
 	}
 	

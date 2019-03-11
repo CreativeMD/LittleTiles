@@ -10,7 +10,6 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructurePreviewHandler;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;
@@ -67,14 +66,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return null;
 	}
 	
-	public LittleStructurePreviewHandler getStructureHandler() {
-		return null;
-	}
-	
 	public LittleGridContext getMinContext() {
 		LittleGridContext context = this.context;
 		if (hasStructure())
-			context = LittleGridContext.max(this.context, getStructureHandler().getMinContext(this));
+			context = LittleGridContext.max(this.context, getStructure().getMinContext());
 		if (hasChildren())
 			for (LittlePreviews child : getChildren())
 				context = LittleGridContext.max(context, child.getMinContext());
@@ -106,12 +101,6 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		
 		if (hasStructure()) {
 			for (PlacePreviewTile placePreviewTile : getStructure().getSpecialTiles(this)) {
-				if (!fixed)
-					placePreviewTile.add(offset);
-				placePreviews.add(placePreviewTile);
-			}
-			
-			for (PlacePreviewTile placePreviewTile : getStructureHandler().getSpecialTiles(this)) {
 				if (!fixed)
 					placePreviewTile.add(offset);
 				placePreviews.add(placePreviewTile);
