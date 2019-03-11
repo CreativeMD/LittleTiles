@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -39,7 +40,7 @@ public class IngredientUtils {
 		return null;
 	}
 	
-	public static BlockIngredient getIngredientsOfStackSimple(ItemStack stack) {
+	public static BlockIngredient getBlockIngredientOfBlockStack(ItemStack stack) {
 		Block block = Block.getBlockFromItem(stack.getItem());
 		
 		if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(block))
@@ -47,31 +48,59 @@ public class IngredientUtils {
 		return null;
 	}
 	
+	private static void getIngredients(Ingredients ingredients, LittlePreviews previews) {
+		for (LittleTilePreview preview : previews) {
+			if (preview.canBeConvertedToBlockEntry()) {
+				ingredients.block.addIngredient(preview.getBlockIngredient(previews.context));
+				ingredients.color.addColorUnit(ColorUnit.getColors(previews.context, preview));
+			}
+		}
+		
+		if (previews.hasStructure())
+			previews.getStructure().addIngredients(ingredients);
+		
+		if (previews.hasChildren())
+			for (LittlePreviewsStructure child : previews.getChildren())
+				getIngredients(ingredients, child);
+	}
+	
+	public static Ingredients getIngredients(LittlePreviews previews) {
+		Ingredients ingredients = new Ingredients();
+		getIngredients(ingredients, previews);
+		return ingredients;
+	}
+	
+	private static void getIngredientsStructure(Ingredients ingredients, LittlePreviews previews) {
+		if (previews.hasStructure())
+			previews.getStructure().addIngredients(ingredients);
+		
+		if (previews.hasChildren())
+			for (LittlePreviewsStructure child : previews.getChildren())
+				getIngredientsStructure(ingredients, child);
+	}
+	
+	public static Ingredients getStructureIngredients(LittlePreviews previews) {
+		Ingredients ingredients = new Ingredients();
+		getIngredientsStructure(ingredients, previews);
+		return ingredients;
+	}
+	
 	/** @return does not take care of stackSize */
-	public static CombinedIngredients getIngredientsOfStack(ItemStack stack) {
+	public static Ingredients getIngredientsOfStack(ItemStack stack) {
 		if (!stack.isEmpty()) {
 			ILittleTile tile = PlacementHelper.getLittleInterface(stack);
 			
 			if (tile != null && tile.hasLittlePreview(stack) && tile.containsIngredients(stack)) {
-				LittlePreviews tiles = tile.getLittlePreview(stack);
-				if (tiles != null) {
-					CombinedIngredients ingredients = new CombinedIngredients();
-					for (int i = 0; i < tiles.size(); i++) {
-						LittleTilePreview preview = tiles.get(i);
-						if (preview.canBeConvertedToBlockEntry()) {
-							ingredients.block.addIngredient(preview.getBlockIngredient(tiles.context));
-							ingredients.color.addColorUnit(ColorUnit.getColors(tiles.context, preview));
-						}
-					}
-					return ingredients;
-				}
+				LittlePreviews previews = tile.getLittlePreview(stack);
+				if (previews != null)
+					return getIngredients(previews);
 			}
 			
 			Block block = Block.getBlockFromItem(stack.getItem());
 			
 			if (block != null && !(block instanceof BlockAir)) {
 				if (LittleAction.isBlockValid(block)) {
-					CombinedIngredients ingredients = new CombinedIngredients();
+					Ingredients ingredients = new Ingredients();
 					ingredients.block.addIngredient(getBlockIngredient(block, stack.getItemDamage(), 1));
 					return ingredients;
 				}

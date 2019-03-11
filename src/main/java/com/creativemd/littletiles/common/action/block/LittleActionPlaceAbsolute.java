@@ -13,9 +13,11 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
@@ -87,7 +89,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			if (placedTiles != null) {
 				boxes = placedTiles.placedBoxes;
 				
-				drainIngredientsAfterPlacing(player, placedTiles);
+				drainIngredientsAfterPlacing(player, placedTiles, previews);
 				
 				if (!player.world.isRemote) {
 					addTilesToInventoryOrDrop(player, unplaceableTiles);
@@ -115,11 +117,11 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	}
 	
 	protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException {
-		return canDrainPreviews(player, previews);
+		return canDrain(player, previews);
 	}
 	
-	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException {
-		drainPreviews(player, placedTiles.placedPreviews);
+	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
+		drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
 	}
 	
 	@Override
@@ -149,7 +151,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		}
 		
 		@Override
-		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles) throws LittleActionException {
+		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
 			drainPremadeItemStack(player, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id).stack);
 		}
 		

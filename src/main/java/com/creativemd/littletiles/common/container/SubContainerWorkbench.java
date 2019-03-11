@@ -58,7 +58,7 @@ public class SubContainerWorkbench extends SubContainer {
 						LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
 						
 						try {
-							if (LittleAction.drainPreviews(player, tiles)) {
+							if (LittleAction.drain(player, tiles)) {
 								ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 								stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
 								if (!player.inventory.addItemStackToInventory(stack))

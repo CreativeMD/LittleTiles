@@ -12,8 +12,9 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -128,7 +129,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					if (secondMode)
 						addIngredients(player, ingredients, unit);
 					else
-						drainIngredients(player, ingredients, unit);
+						drain(player, new Ingredients(unit, ingredients));
 					
 				}
 				
@@ -240,7 +241,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					if (oldBox.getVolume() < tile.box.getVolume())
 						addIngredients(player, ingredients, unit);
 					else
-						drainIngredients(player, ingredients, unit);
+						drain(player, new Ingredients(unit, ingredients));
 				}
 				
 				replacedBox = tile.box.copy();

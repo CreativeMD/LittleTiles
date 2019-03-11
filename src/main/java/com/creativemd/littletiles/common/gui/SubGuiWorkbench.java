@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughColorException;
+import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughStackException;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
@@ -19,7 +20,9 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -52,21 +55,15 @@ public class SubGuiWorkbench extends SubGui {
 						
 						EntityPlayer player = getPlayer();
 						
-						ColorUnit color = new ColorUnit();
-						BlockIngredients ingredients = new BlockIngredients();
-						for (LittleTilePreview preview : previews) {
-							if (preview.canBeConvertedToBlockEntry()) {
-								ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-								color.addColorUnit(ColorUnit.getColors(previews.context, preview));
-							}
-						}
+						Ingredients ingredients = IngredientUtils.getIngredients(previews);
+						
 						try {
-							if (LittleAction.drainIngredients(player, ingredients, color)) {
+							if (LittleAction.drain(player, ingredients)) {
 								sendPacketToServer(new NBTTagCompound());
 							}
 						} catch (NotEnoughIngredientsException e) {
 							if (e instanceof NotEnoughVolumeExcepion) {
-								for (BlockIngredient ingredient : ingredients.getIngredients()) {
+								for (BlockIngredient ingredient : ingredients.block.getIngredients()) {
 									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value * previews.context.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
 								}
 							} else if (e instanceof NotEnoughColorException) {
@@ -79,10 +76,15 @@ public class SubGuiWorkbench extends SubGui {
 									listBox.add(unit.getMagentaDescription(), ItemStack.EMPTY);
 								if (unit.YELLOW > 0)
 									listBox.add(unit.getYellowDescription(), ItemStack.EMPTY);
+							} else if (e instanceof NotEnoughStackException) {
+								for (StackIngredient stack : ingredients.getStacks()) {
+									listBox.add(stack.count + "", stack.stack);
+								}
 							} else {
 								label.caption = e.getLocalizedMessage();
 								label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
 							}
+							
 						}
 						
 					} else {

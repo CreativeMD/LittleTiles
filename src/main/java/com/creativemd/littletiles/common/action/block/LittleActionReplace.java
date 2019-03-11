@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
@@ -124,7 +125,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
 			toReplace.box = tile.box;
 			toBePlaced.addPreview(null, toReplace, te.getContext());
-			drainPreviews(player, toBePlaced);
+			drain(player, IngredientUtils.getIngredients(toBePlaced));
 			
 			List<PlacePreviewTile> previews = new ArrayList<>();
 			previews.add(toReplace.getPlaceableTile(null, true, null, null));

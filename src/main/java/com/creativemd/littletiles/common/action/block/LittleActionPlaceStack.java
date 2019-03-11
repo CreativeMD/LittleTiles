@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
@@ -159,7 +160,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			if (iTile.containsIngredients(stack))
 				stack.shrink(1);
 			else
-				canDrainPreviews(player, result.previews);
+				canDrain(player, result.previews);
 		}
 		
 		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
@@ -168,7 +169,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			boxes = placedTiles.placedBoxes;
 			
 			if (!iTile.containsIngredients(stack))
-				drainPreviews(player, placedTiles.placedPreviews);
+				drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
 			else if (!world.isRemote) {
 				addTilesToInventoryOrDrop(player, unplaceableTiles);
 				addTilesToInventoryOrDrop(player, removedTiles);

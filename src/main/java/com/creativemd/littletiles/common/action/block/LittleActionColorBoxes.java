@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
@@ -236,7 +237,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			ColorUnit toDrain = action(te, boxes, gained, true, context);
 			
 			if (addIngredients(player, null, gained, true)) {
-				drainIngredients(player, null, toDrain);
+				drain(player, new Ingredients(toDrain, null));
 				addIngredients(player, null, gained);
 				
 				action(te, boxes, gained, false, context);

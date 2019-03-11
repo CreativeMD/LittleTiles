@@ -40,6 +40,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
 
 import net.minecraft.block.state.IBlockState;
@@ -187,6 +188,10 @@ public abstract class LittleStructure {
 	
 	public boolean hasMainTile() {
 		return mainTile != null;
+	}
+	
+	public boolean isPlaced() {
+		return hasMainTile();
 	}
 	
 	public void combineTiles() {
@@ -393,7 +398,8 @@ public abstract class LittleStructure {
 				LittleTileIdentifierRelative coord = null;
 				if (nbt.hasKey("i" + i + "coX")) {
 					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
+					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] {
+					        pos.position.x, pos.position.y, pos.position.z });
 				} else {
 					coord = LittleTileIdentifierRelative.loadIdentifierOld("i" + i, nbt);
 				}
@@ -456,7 +462,7 @@ public abstract class LittleStructure {
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
 	
-	public void writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
+	public NBTTagCompound writeToNBTPreview(NBTTagCompound nbt, BlockPos newCenter) {
 		nbt.setString("id", type.id);
 		if (name != null)
 			nbt.setString("name", name);
@@ -478,6 +484,7 @@ public abstract class LittleStructure {
 		}
 		
 		writeToNBTExtra(nbt);
+		return nbt;
 	}
 	
 	public void writeToNBT(NBTTagCompound nbt) {
@@ -517,7 +524,8 @@ public abstract class LittleStructure {
 			for (Iterator<Entry<BlockPos, Integer>> iterator = positions.entrySet().iterator(); iterator.hasNext();) {
 				Entry<BlockPos, Integer> entry = iterator.next();
 				RelativeBlockPos pos = new RelativeBlockPos(mainTile.te, entry.getKey());
-				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue() }));
+				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(),
+				        pos.getRelativePos().getZ(), entry.getValue() }));
 			}
 			nbt.setTag("tiles", list);
 		}
@@ -611,6 +619,10 @@ public abstract class LittleStructure {
 				child.destroyStructure();
 			}
 		}
+	}
+	
+	public void addIngredients(Ingredients ingredients) {
+		
 	}
 	
 	public LittleGridContext getMinContext() {

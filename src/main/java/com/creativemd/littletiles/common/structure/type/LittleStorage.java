@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,6 +84,13 @@ public class LittleStorage extends LittleStructure {
 		if (!stack.isEmpty())
 			writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
 		return stack;
+	}
+	
+	@Override
+	public void addIngredients(Ingredients ingredients) {
+		super.addIngredients(ingredients);
+		if (inventory != null)
+			ingredients.addStack(inventory);
 	}
 	
 	public static int getSizeOfInventory(LittlePreviews previews) {

@@ -14,7 +14,7 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.utils.ingredients.CombinedIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -64,7 +64,7 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 				
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
 				
-				CombinedIngredients ingredients = IngredientUtils.getIngredientsOfStack(input);
+				Ingredients ingredients = IngredientUtils.getIngredientsOfStack(input);
 				
 				boolean containedColor = false;
 				

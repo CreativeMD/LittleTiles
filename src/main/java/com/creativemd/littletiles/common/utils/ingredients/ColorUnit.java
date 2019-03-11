@@ -130,12 +130,6 @@ public class ColorUnit {
 	
 	public static float dyeToBlockPercentage = 4096;
 	
-	/* public static ColorUnit getColors(int color) { double percent = (255 * 0.1 *
-	 * dyeToBlockPercentage)/ 3D; int maxPerColor = (int) (percent*255); int r =
-	 * (int) ((color >> 16 & 255) * percent); int g = (int) ((color >> 8 & 255) *
-	 * percent); int b = (int) ((color & 255) * percent); return new
-	 * ColorUnit(maxPerColor - r + maxPerColor - g + maxPerColor - b, r, g, b); } */
-	
 	public static ColorUnit getColors(LittleTilePreview preview, double volume) {
 		if (preview.hasColor()) {
 			ColorUnit color = getColors(preview.getColor());
@@ -150,16 +144,6 @@ public class ColorUnit {
 	}
 	
 	public static ColorUnit getColors(int color) {
-		/* if(ColorUtils.isWhite(color)) return new ColorUnit(); double percent = (255 *
-		 * 0.1 * dyeToBlockPercentage)/ 3D; int maxPerColor = (int)
-		 * Math.ceil(percent*255); int r = (int) ((color >> 16 & 255) * percent); int g
-		 * = (int) ((color >> 8 & 255) * percent); int b = (int) ((color & 255) *
-		 * percent); int lowest = Math.min(r, Math.min(g, b)); r -= lowest; g -= lowest;
-		 * b -= lowest; int remaining = maxPerColor - lowest;
-		 * 
-		 * return new ColorUnit(maxPerColor - lowest + remaining - r + remaining - g +
-		 * remaining - b, r, g, b); */
-		
 		float cmyk_scale = dyeToBlockPercentage;
 		
 		int r = color >> 16 & 255;

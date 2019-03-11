@@ -122,7 +122,7 @@ public class BlockIngredient {
 		 *            to drain from. Will only take necessary count
 		 * @return left overs */
 		public BlockIngredient drainItemStack(ItemStack stack) {
-			BlockIngredient ingredient = IngredientUtils.getIngredientsOfStackSimple(stack);
+			BlockIngredient ingredient = IngredientUtils.getBlockIngredientOfBlockStack(stack);
 			
 			int indexOf = content.indexOf(ingredient);
 			if (indexOf != -1) {
