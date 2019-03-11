@@ -354,8 +354,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 	}
 	
-	public static boolean cancelNext = false;
-	
 	@Override
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		ItemStack heldItem = playerIn.getHeldItem(hand);
@@ -363,36 +361,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return false;
 		if (worldIn.isRemote)
 			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, facing, hitX, hitY, hitZ);
-		if (cancelNext) {
-			cancelNext = false;
-			return true;
-		}
+		System.out.println("Something went wrong. Rightclick event not canceled!");
 		return false;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		TEResult result = loadTeAndTile(worldIn, pos, playerIn);
-		if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench)) {
-			// if(result.tile.onBlockActivated(worldIn, pos, state, playerIn, hand,
-			// heldItem, side, hitX, hitY, hitZ))
-			// {
+		if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench))
 			return new LittleActionActivated(pos, playerIn).execute();
-		}
 		return false;
 	}
-	
-	/* public int isProvidingWeakPower(IBlockAccess p_149709_1_, int p_149709_2_,
-	 * int p_149709_3_, int p_149709_4_, int p_149709_5_) { return 0; }
-	 * 
-	 * public boolean canProvidePower() { return false; }
-	 * 
-	 * public int isProvidingStrongPower(IBlockAccess p_149748_1_, int p_149748_2_,
-	 * int p_149748_3_, int p_149748_4_, int p_149748_5_) { return 0; } public
-	 * boolean hasComparatorInputOverride() { return false; }
-	 * 
-	 * public int getComparatorInputOverride(World p_149736_1_, int p_149736_2_, int
-	 * p_149736_3_, int p_149736_4_, int p_149736_5_) { return 0; } */
 	
 	@Override
 	public float getSlipperiness(IBlockState state, IBlockAccess world, BlockPos pos, @Nullable Entity entity) {
@@ -526,7 +505,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			
 			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
-				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
+				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] {
+				        Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
 		}
 		return true;
 	}

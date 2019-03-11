@@ -1,12 +1,10 @@
 package com.creativemd.littletiles.common.events;
 
 import java.lang.reflect.Field;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -196,17 +194,9 @@ public class LittleDoorHandler {
 		}
 	}
 	
-	public Queue<EntityPlayer> blockedPlayers = new ArrayDeque<>();
-	
 	@SubscribeEvent
 	public void rightClick(PlayerInteractEvent event) {
 		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific || event instanceof EntityInteract) {
-			if (blockedPlayers.contains(event.getEntityPlayer())) {
-				if (event instanceof RightClickBlock)
-					event.setCanceled(true);
-				blockedPlayers.remove(event.getEntityPlayer());
-			}
-			
 			if (!event.getWorld().isRemote)
 				return;
 			

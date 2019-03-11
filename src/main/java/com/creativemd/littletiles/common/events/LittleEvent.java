@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.common.events;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
@@ -89,8 +91,6 @@ public class LittleEvent {
 			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
-	
-	public static boolean cancelNext = false;
 	
 	public static ItemStack lastSelectedItem = null;
 	public static ISpecialBlockSelector blockSelector = null;
@@ -222,11 +222,25 @@ public class LittleEvent {
 			event.setNewSpeed(0);
 	}
 	
+	static List<EntityPlayer> blockTilePrevent = new ArrayList<>();
+	
+	public static void addBlockTilePrevent(EntityPlayer player) {
+		blockTilePrevent.add(player);
+	}
+	
+	public static boolean consumeBlockTilePrevent(EntityPlayer player) {
+		int index = blockTilePrevent.indexOf(player);
+		if (index == -1)
+			return false;
+		blockTilePrevent.remove(index);
+		return true;
+	}
+	
 	@SubscribeEvent
 	public void onInteract(RightClickBlock event) {
-		if (cancelNext) {
-			cancelNext = false;
+		if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
 			event.setCanceled(true);
+			System.out.println("Canceled right click event");
 			return;
 		}
 		
@@ -377,6 +391,8 @@ public class LittleEvent {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		
+		blockTilePrevent.remove(event.player);
 	}
 	
 	@SubscribeEvent

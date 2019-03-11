@@ -52,7 +52,6 @@ public class LittleEntityInteractPacket extends CreativeCorePacket {
 				if (animation.onRightClick(player)) {
 					for (EntityPlayer toPlayer : ((WorldServer) animation.world).getEntityTracker().getTrackingPlayers(animation))
 						PacketHandler.sendPacketToPlayer(new LittleEntityInteractPacket(uuid), (EntityPlayerMP) toPlayer);
-					LittleDoorHandler.server.blockedPlayers.add(player);
 				}
 				break;
 			}

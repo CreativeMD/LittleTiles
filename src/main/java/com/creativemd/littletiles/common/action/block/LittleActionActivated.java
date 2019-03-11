@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.action.block;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
-import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -27,18 +26,6 @@ public class LittleActionActivated extends LittleActionInteract {
 	}
 	
 	@Override
-	protected void onTileNotFound() throws LittleActionException {
-		LittleEvent.cancelNext = true;
-		BlockTile.cancelNext = true;
-	}
-	
-	@Override
-	protected void onTileEntityNotFound() throws LittleActionException {
-		LittleEvent.cancelNext = true;
-		BlockTile.cancelNext = true;
-	}
-	
-	@Override
 	public void writeBytes(ByteBuf buf) {
 		super.writeBytes(buf);
 		buf.writeBoolean(preventInteraction);
@@ -54,25 +41,18 @@ public class LittleActionActivated extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		if (tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this)) {
-			BlockTile.cancelNext = true;
+		if (tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this))
 			return true;
-		}
 		return false;
 	}
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if (preventInteraction) {
-			if (!player.world.isRemote) {
-				LittleEvent.cancelNext = true;
-			}
+		if (!player.world.isRemote) // Block server right click event
+			LittleEvent.addBlockTilePrevent(player);
+		if (preventInteraction)
 			return true;
-		}
-		boolean result = super.action(player);
-		if (!player.world.isRemote)
-			BlockTile.cancelNext = true;
-		return result;
+		return super.action(player);
 	}
 	
 	@Override
