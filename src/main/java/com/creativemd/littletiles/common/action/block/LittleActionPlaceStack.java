@@ -169,8 +169,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			
 			if (!iTile.containsIngredients(stack))
 				drainPreviews(player, placedTiles.placedPreviews);
-			
-			if (!world.isRemote) {
+			else if (!world.isRemote) {
 				addTilesToInventoryOrDrop(player, unplaceableTiles);
 				addTilesToInventoryOrDrop(player, removedTiles);
 			}
