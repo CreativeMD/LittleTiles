@@ -23,6 +23,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 
 public class OpenCommand extends CommandBase {
 	
@@ -63,7 +64,7 @@ public class OpenCommand extends CommandBase {
 			LittleStructure structure = animation.getParentStructure();
 			if (structure instanceof LittleDoorBase && checkStructureName(structure, args))
 				if (animation.onRightClick(null))
-					PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(animation.getUniqueID()));
+					PacketHandler.sendPacketToPlayers(new LittleEntityInteractPacket(animation.getUniqueID()), ((WorldServer) world).getEntityTracker().getTrackingPlayers(animation));
 		}
 		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
