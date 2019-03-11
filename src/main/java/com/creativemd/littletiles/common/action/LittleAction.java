@@ -502,7 +502,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static boolean canDrain(EntityPlayer player, Ingredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
-			List<ItemStack> usedBags = new ArrayList<>();
+			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
 			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
 			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
 			
@@ -523,7 +523,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			if (color != null)
 				throw new NotEnoughIngredientsException.NotEnoughColorException(color);
 			
-			if (toCheck != null && ingredients.hasStacks()) {
+			if (toCheck != null || ingredients.hasStacks()) {
 				List<ItemStack> inventory = InventoryUtils.copy(player.inventory);
 				
 				if (toCheck != null) {
@@ -546,9 +546,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					if (!toCheck.isEmpty())
 						throw new NotEnoughIngredientsException.NotEnoughVolumeExcepion(toCheck);
 					
-					addIngredients(usedBags, additionalIngredients, null); // Check whether there is space for the
-					                                                       // additional ingredients (drain from ordinary
-					                                                       // itemstacks)
+					addIngredients(usedBags, additionalIngredients, null); // Check whether there is space for the additional ingredients (drain from ordinary itemstacks)
 				}
 				
 				if (ingredients.hasStacks())
@@ -567,9 +565,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean drain(EntityPlayer player, Ingredients ingredients) throws NotEnoughIngredientsException {
-		if (needIngredients(player)) {
+		if (needIngredients(player) && canDrain(player, ingredients)) {
 			List<ItemStack> bags = getBags(player);
-			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
 			
 			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
 			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
@@ -582,7 +579,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					color = ItemTileContainer.drainColor(stack, color, false);
 			}
 			
-			if (toCheck != null && ingredients.hasStacks()) {
+			if (toCheck != null || ingredients.hasStacks()) {
 				List<ItemStack> inventory = InventoryUtils.asList(player.inventory);
 				
 				if (toCheck != null) {
@@ -605,9 +602,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 					if (!toCheck.isEmpty())
 						throw new NotEnoughIngredientsException.NotEnoughVolumeExcepion(toCheck);
 					
-					addIngredients(usedBags, additionalIngredients, null); // Check whether there is space for the
-					                                                       // additional ingredients (drain from ordinary
-					                                                       // itemstacks)
+					addIngredients(bags, additionalIngredients, null); // Check whether there is space for the
+					                                                   // additional ingredients (drain from ordinary
+					                                                   // itemstacks)
 				}
 				
 				if (ingredients.hasStacks())
@@ -735,7 +732,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean addIngredients(List<ItemStack> bags, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
-		if (store(bags, ingredients, unit, true))
+		if (store(bags, ingredients != null ? ingredients.copy() : null, unit != null ? unit.copy() : null, true))
 			store(bags, ingredients, unit, false);
 		
 		return true;
