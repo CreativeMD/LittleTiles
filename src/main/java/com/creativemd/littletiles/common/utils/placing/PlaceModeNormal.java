@@ -36,6 +36,8 @@ public class PlaceModeNormal extends PlacementMode {
 		List<LittleTile> tiles = new ArrayList<>();
 		if (!requiresCollisionTest || te.isSpaceForLittleTile(tile.box))
 			tiles.add(tile);
+		else if (this instanceof PlaceModeAll)
+			throw new RuntimeException("Something went wrong. There should be space for the tile!");
 		else
 			unplaceableTiles.add(tile);
 		return tiles;

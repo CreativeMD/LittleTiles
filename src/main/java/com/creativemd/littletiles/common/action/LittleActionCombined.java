@@ -41,7 +41,7 @@ public class LittleActionCombined extends LittleAction {
 			return true;
 		boolean success = false;
 		for (int i = 0; i < actions.length; i++) {
-			if (actions[i].action(player))
+			if (actions[i] != null && actions[i].action(player))
 				success = true;
 		}
 		return success;

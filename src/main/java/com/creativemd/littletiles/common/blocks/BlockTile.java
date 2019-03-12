@@ -361,7 +361,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return false;
 		if (worldIn.isRemote)
 			return onBlockActivatedClient(worldIn, pos, state, playerIn, hand, heldItem, facing, hitX, hitY, hitZ);
-		System.out.println("Something went wrong. Rightclick event not canceled!");
 		return false;
 	}
 	
