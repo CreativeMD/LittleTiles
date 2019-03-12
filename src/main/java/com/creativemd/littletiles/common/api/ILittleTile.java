@@ -32,12 +32,16 @@ public interface ILittleTile {
 	
 	public default void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
+		if (previews.isEmpty())
+			return;
 		previews.rotatePreviews(player.world, player, stack, rotation, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	
 	public default void flipLittlePreview(EntityPlayer player, ItemStack stack, Axis axis) {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
+		if (previews.isEmpty())
+			return;
 		previews.flipPreviews(player.world, player, stack, axis, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
