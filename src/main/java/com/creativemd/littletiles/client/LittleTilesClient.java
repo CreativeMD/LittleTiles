@@ -70,6 +70,8 @@ public class LittleTilesClient extends LittleTilesServer {
 	public static KeyBinding undo;
 	public static KeyBinding redo;
 	
+	public static TileEntityTilesRenderer tileEntityRenderer;
+	
 	@Override
 	public void loadSidePre() {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
@@ -245,9 +247,9 @@ public class LittleTilesClient extends LittleTilesServer {
 	
 	@Override
 	public void loadSide() {
-		TileEntityTilesRenderer renderer = new TileEntityTilesRenderer();
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesRendered.class, renderer);
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTickingRendered.class, renderer);
+		tileEntityRenderer = new TileEntityTilesRenderer();
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesRendered.class, tileEntityRenderer);
+		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityLittleTilesTickingRendered.class, tileEntityRenderer);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileNoTicking);
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTicking);
