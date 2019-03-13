@@ -39,10 +39,14 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 		ArrayList<String> tooltip = super.getTooltip();
 		BlockIngredient ingredient = ((SlotControlBlockIngredient) slot).ingredient;
 		if (ingredient != null) {
-			if (ingredient.value > 1)
-				tooltip.add("volume: " + ingredient.value + " blocks");
-			else
-				tooltip.add("volume: " + (double) (ingredient.value * LittleGridContext.get().maxTilesPerBlock) + " pixels");
+			int blocks = (int) ingredient.value;
+			double pixel = (ingredient.value - blocks) * LittleGridContext.get().maxTilesPerBlock;
+			String line = "volume: ";
+			if (blocks > 0)
+				line += blocks + " blocks ";
+			if (pixel > 0)
+				line += (Math.round(pixel * 100) / 100) + " pixel";
+			tooltip.add(line);
 		}
 		return tooltip;
 	}
