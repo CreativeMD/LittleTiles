@@ -61,7 +61,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			if (entity.renderChunks == null)
 				entity.createClient();
 			
-			/** ===Setting up finished render-data=== **/
+			// ===Setting up finished render-data=== 
 			
 			if (entity.renderQueue != null) {
 				for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
@@ -96,7 +96,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			}
 		}
 		
-		/** ===Render static part=== **/
+		// ===Render static part===
 		Vec3d rotation = entity.getRotationVector(partialTicks);
 		Vec3d offset = entity.getOffsetVector(partialTicks);
 		
@@ -135,8 +135,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
 			renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
-		} else {
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
+		} else {
 			renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
 		}
 		
@@ -159,45 +159,42 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			}
 		}
 		
+		GlStateManager.shadeModel(GL11.GL_FLAT);
+		
 		if (!first)
 			return;
 		
-		// Minecraft.getMinecraft().entityRenderer.disableLightmap();
-		
-		/** ===Render dynamic part=== **/
+		// ===Render dynamic part===
 		
 		GlStateManager.enableRescaleNormal();
-		
-		if (!entity.controller.isWaitingForRender()) {
-			// Setup OPENGL
-			for (Iterator<TileEntityLittleTiles> iterator = entity.blocks.iterator(); iterator.hasNext();) {
-				TileEntityLittleTiles te = iterator.next();
-				if (te.shouldRenderInPass(0)) {
-					GlStateManager.pushMatrix();
-					
-					BlockPos blockpos = te.getPos();
-					
-					BlockPos newpos = te.getPos().subtract(entity.center.baseOffset);
-					
-					GlStateManager.translate(x, y, z);
-					GlStateManager.translate(offset.x, offset.y, offset.z);
-					
-					GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
-					
-					GL11.glRotated(rotation.x, 1, 0, 0);
-					GL11.glRotated(rotation.y, 0, 1, 0);
-					GL11.glRotated(rotation.z, 0, 0, 1);
-					
-					GlStateManager.translate(-((double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), -((double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), -((double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
-					
-					GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
-					// Render TileEntity
-					
-					render(te, partialTicks, -1);
-					
-					GlStateManager.translate(-entity.center.inBlockOffset.getPosX() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosY() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosZ() - context.gridMCLength / 2);
-					GlStateManager.popMatrix();
-				}
+		// Setup OPENGL
+		for (Iterator<TileEntityLittleTiles> iterator = entity.blocks.iterator(); iterator.hasNext();) {
+			TileEntityLittleTiles te = iterator.next();
+			if (te.shouldRenderInPass(0)) {
+				GlStateManager.pushMatrix();
+				
+				BlockPos blockpos = te.getPos();
+				
+				BlockPos newpos = te.getPos().subtract(entity.center.baseOffset);
+				
+				GlStateManager.translate(x, y, z);
+				GlStateManager.translate(offset.x, offset.y, offset.z);
+				
+				GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
+				
+				GL11.glRotated(rotation.x, 1, 0, 0);
+				GL11.glRotated(rotation.y, 0, 1, 0);
+				GL11.glRotated(rotation.z, 0, 0, 1);
+				
+				GlStateManager.translate(-((double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), -((double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), -((double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
+				
+				GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
+				// Render TileEntity
+				
+				render(te, partialTicks, -1);
+				
+				GlStateManager.translate(-entity.center.inBlockOffset.getPosX() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosY() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosZ() - context.gridMCLength / 2);
+				GlStateManager.popMatrix();
 			}
 		}
 		
@@ -221,34 +218,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			GlStateManager.popMatrix();
 			
-			/*GlStateManager.pushMatrix();
-			
-			GlStateManager.translate(x, y, z);
-			GlStateManager.translate(offset.x, offset.y, offset.z);
-			GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
-			
-			GL11.glRotated(rotation.x, 1, 0, 0);
-			GL11.glRotated(rotation.y, 0, 1, 0);
-			GL11.glRotated(rotation.z, 0, 0, 1);
-			
-			GlStateManager.translate(entity.origin.offX(), entity.origin.offY(), entity.origin.offZ());
-			GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
-			
-			GlStateManager.translate(-x, -y, -z);
-			
-			AxisAlignedBB entityBB = entity.origin.getAxisAlignedBox(Minecraft.getMinecraft().player.getEntityBoundingBox());
-			
-			for (OrientatedBoundingBox bb : entity.worldCollisionBoxes) {
-				GlStateManager.pushMatrix();
-				boolean intersect = bb.intersects(entityBB);
-				RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z, bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ - entity.posZ + z, 1.0F, intersect ? 0.0F : 1.0F, intersect ? 0.0F : 1.0F, 1.0F);
-				GlStateManager.popMatrix();
-			}
-			
-			GlStateManager.popMatrix();
-			
-			renderTempShit(entity, x, y, z);*/
-			
 			GlStateManager.glLineWidth(2.0F);
 			GlStateManager.enableTexture2D();
 			GlStateManager.enableLighting();
@@ -257,7 +226,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GlStateManager.depthMask(true);
 			
 		}
-		
 	}
 	
 	public void render(TileEntityLittleTiles tileentityIn, float partialTicks, int destroyStage) {
@@ -276,6 +244,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	}
 	
 	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
+		
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 			ShadersRender.preRenderChunkLayer(layer);
 		
