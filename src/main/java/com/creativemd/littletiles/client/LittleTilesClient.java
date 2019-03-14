@@ -100,10 +100,6 @@ public class LittleTilesClient extends LittleTilesServer {
 	
 	@Override
 	public void loadSidePost() {
-		/* mc.getRenderItem().getItemModelMesher().register(LittleTiles.colorTube, new
-		 * ItemMeshDefinition() { public ModelResourceLocation
-		 * getModelLocation(ItemStack stack) { return new
-		 * ModelResourceLocation("LTChisel", "inventory"); } }); */
 		mc.getItemColors().registerItemColorHandler(new IItemColor() {
 			
 			@Override
@@ -121,7 +117,6 @@ public class LittleTilesClient extends LittleTilesServer {
 		MinecraftForge.EVENT_BUS.register(new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.client = new LittleDoorHandler(Side.CLIENT));
-		// MinecraftForge.EVENT_BUS.register(new RenderUploader());
 		
 		up = new ExtendedKeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
 		down = new ExtendedKeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
@@ -152,8 +147,6 @@ public class LittleTilesClient extends LittleTilesServer {
 			
 			@Override
 			public Entity apply(EntitySpawnMessage input) {
-				// entity = cls.getConstructor(World.class).newInstance(wc);
-				
 				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
 				EntityAnimation animation = null;
 				for (EntityAnimation entity : LittleDoorHandler.client.openDoors) {

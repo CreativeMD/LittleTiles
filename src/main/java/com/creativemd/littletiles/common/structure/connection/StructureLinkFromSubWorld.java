@@ -51,15 +51,15 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	@Override
 	protected void connect(World world, LittleTile mainTile) {
 		
-		this.structure = mainTile.connection.getStructureWithoutLoading();
+		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
-		IStructureChildConnector link = this.structure.children.get(childID);
+		IStructureChildConnector link = this.connectedStructure.children.get(childID);
 		if (link == null) {
 			new RuntimeException("Parent does not remember child! coord=" + this).printStackTrace();
 			return;
 		}
 		
-		link.setLoadedStructure(structure, structure.attribute);
+		link.setLoadedStructure(connectedStructure, connectedStructure.attribute);
 	}
 	
 	@Override

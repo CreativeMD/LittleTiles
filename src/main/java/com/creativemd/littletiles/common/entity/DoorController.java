@@ -9,7 +9,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -192,8 +191,8 @@ public class DoorController extends EntityAnimationController {
 		if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
 			if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
 				LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
-				newDoor.parent = new StructureLink(newDoor.getMainTile().te, parentStructure.getMainTile().te.getPos(), parentStructure.getMainTile().getContext(), parentStructure.getMainTile().getIdentifier(), parentStructure.attribute, newDoor, placedStructureParent.parent.getChildID(), true);
-				parentStructure.children.put(newDoor.parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, newDoor.getMainTile().te.getPos(), newDoor.getMainTile().getContext(), newDoor.getMainTile().getIdentifier(), newDoor.attribute, parentStructure, newDoor.parent.getChildID(), false));
+				newDoor.updateParentConnection(placedStructureParent.parent.getChildID(), parentStructure);
+				parentStructure.updateChildConnection(placedStructureParent.parent.getChildID(), placedStructureParent);
 			}
 		} else {
 			parent.isDead = true;

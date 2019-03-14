@@ -64,18 +64,21 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 	@Override
 	protected void connect(World world, LittleTile mainTile) {
 		
-		this.structure = mainTile.connection.getStructureWithoutLoading();
+		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
 		if (isChild) {
-			IStructureChildConnector link = this.structure.children.get(childID);
+			IStructureChildConnector link = this.connectedStructure.children.get(childID);
 			if (link == null) {
 				new RuntimeException("Parent does not remember child! coord=" + this).printStackTrace();
 				return;
 			}
 			
 			link.setLoadedStructure(parent, parent.attribute);
-		} else
-			this.structure.parent.setLoadedStructure(parent, parent.attribute); // Yeah it looks confusing ... it loads the parent for the child
+		} else {
+			if (this.connectedStructure.parent == null)
+				this.connectedStructure.updateParentConnection(childID, parent);
+			this.connectedStructure.parent.setLoadedStructure(parent, parent.attribute); // Yeah it looks confusing ... it loads the parent for the child
+		}
 	}
 	
 	@Override
@@ -108,11 +111,11 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 	
 	@Override
 	public void destroyStructure() {
-		if (structure.hasLoaded() && structure.loadChildren()) {
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.getEntrySet()) {
+		if (connectedStructure.hasLoaded() && connectedStructure.loadChildren()) {
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : connectedStructure.getEntrySet()) {
 				entry.getKey().removeTiles(entry.getValue());
 			}
-			for (IStructureChildConnector child : structure.children.values())
+			for (IStructureChildConnector child : connectedStructure.children.values())
 				child.destroyStructure();
 		}
 	}

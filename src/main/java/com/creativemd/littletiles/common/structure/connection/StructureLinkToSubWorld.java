@@ -62,9 +62,9 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	@Override
 	protected void connect(World world, LittleTile mainTile) {
 		
-		this.structure = mainTile.connection.getStructureWithoutLoading();
+		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
-		this.structure.parent.setLoadedStructure(parent, parent.attribute);
+		this.connectedStructure.parent.setLoadedStructure(parent, parent.attribute);
 	}
 	
 	@Override
@@ -89,12 +89,12 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
-		for (Entity entity : ((SubWorld) structure.getWorld()).parentWorld.getLoadedEntityList())
+		for (Entity entity : ((SubWorld) connectedStructure.getWorld()).parentWorld.getLoadedEntityList())
 			if (entity instanceof EntityAnimation && entity.getCachedUniqueIdString().equals(entityUUID)) {
 				entity.isDead = true;
 				break;
 			}
-		for (IStructureChildConnector child : structure.children.values())
+		for (IStructureChildConnector child : connectedStructure.children.values())
 			child.destroyStructure();
 	}
 	

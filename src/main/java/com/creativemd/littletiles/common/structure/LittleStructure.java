@@ -14,12 +14,15 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -114,8 +117,8 @@ public abstract class LittleStructure {
 			children = new LinkedHashMap<>();
 			for (int i = 0; i < tempChildren.size(); i++) {
 				LittleStructure child = tempChildren.get(i);
-				child.parent = new StructureLink(child.getMainTile().te, this.mainTile.te.getPos(), this.mainTile.getContext(), this.mainTile.getIdentifier(), this.attribute, child, i, true);
-				children.put(i, new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.attribute, this, i, false));
+				child.updateParentConnection(i, this);
+				this.updateChildConnection(i, child);
 				child.placedStructure(null);
 			}
 			tempChildren = null;
@@ -132,12 +135,14 @@ public abstract class LittleStructure {
 		
 		if (parent != null) {
 			LittleStructure parentStructure = parent.getStructure(getWorld());
-			parentStructure.children.put(parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, this.mainTile.te.getPos(), this.mainTile.getContext(), this.mainTile.getIdentifier(), this.attribute, parentStructure, parent.getChildID(), false));
+			parentStructure.updateChildConnection(parent.getChildID(), this);
+			this.updateParentConnection(parent.getChildID(), parentStructure);
 		}
 		
-		for (Entry<Integer, IStructureChildConnector> entry : children.entrySet()) {
-			LittleStructure child = entry.getValue().getStructure(getWorld());
-			entry.setValue(new StructureLink(child.getMainTile().te, this.mainTile.te.getPos(), this.mainTile.getContext(), this.mainTile.getIdentifier(), this.attribute, child, entry.getKey(), true));
+		for (IStructureChildConnector child : children.values()) {
+			LittleStructure childStructure = child.getStructure(getWorld());
+			childStructure.updateParentConnection(child.getChildID(), this);
+			this.updateChildConnection(child.getChildID(), childStructure);
 		}
 		
 		this.mainTile.connection = new StructureMainTile(mainTile, this);
@@ -315,6 +320,38 @@ public abstract class LittleStructure {
 				return true;
 		}
 		return false;
+	}
+	
+	public void updateChildConnection(int i, LittleStructure child) {
+		World world = getWorld();
+		World childWorld = child.getWorld();
+		
+		IStructureChildConnector<LittleStructure> connector;
+		if (childWorld == world)
+			connector = new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.attribute, this, i, false);
+		else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
+			connector = new StructureLinkToSubWorld(child.getMainTile(), child.attribute, this, i, ((SubWorld) childWorld).parent.getUniqueID().toString());
+		else
+			throw new RuntimeException("Invalid connection between to structures!");
+		
+		connector.setLoadedStructure(child, child.attribute);
+		children.put(i, connector);
+	}
+	
+	public void updateParentConnection(int i, LittleStructure parent) {
+		World world = getWorld();
+		World parentWorld = parent.getWorld();
+		
+		IStructureChildConnector<LittleStructure> connector;
+		if (parentWorld == world)
+			connector = new StructureLink(this.mainTile.te, parent.getMainTile().te.getPos(), parent.getMainTile().getContext(), parent.getMainTile().getIdentifier(), parent.attribute, this, i, true);
+		else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
+			connector = new StructureLinkFromSubWorld(parent.getMainTile(), parent.attribute, this, i);
+		else
+			throw new RuntimeException("Invalid connection between to structures!");
+		
+		connector.setLoadedStructure(parent, parent.attribute);
+		this.parent = connector;
 	}
 	
 	public boolean loadTiles() {

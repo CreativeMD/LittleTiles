@@ -16,7 +16,7 @@ import net.minecraft.world.chunk.Chunk;
 
 public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierStructureRelative implements IStructureConnector<T> {
 	
-	protected LittleStructure structure;
+	protected LittleStructure connectedStructure;
 	protected final T parent;
 	
 	public StructureLinkBaseRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
@@ -50,12 +50,12 @@ public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierS
 	
 	@Override
 	public LittleStructure getStructureWithoutLoading() {
-		return structure;
+		return connectedStructure;
 	}
 	
 	@Override
 	public boolean isConnected(World world) {
-		if (structure != null)
+		if (connectedStructure != null)
 			return true;
 		
 		if (world == null)
@@ -72,11 +72,11 @@ public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierS
 				}
 			}
 			
-			if (structure == null && !world.isRemote) {
+			if (connectedStructure == null && !world.isRemote) {
 				failedConnect(world);
 			}
 			
-			return structure != null;
+			return connectedStructure != null;
 		}
 		
 		return false;
@@ -86,19 +86,19 @@ public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierS
 	@Override
 	public LittleStructure getStructure(World world) {
 		if (isConnected(world))
-			return structure;
+			return connectedStructure;
 		return null;
 	}
 	
 	@Override
 	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute) {
-		this.structure = structure;
+		this.connectedStructure = structure;
 		this.attribute = attribute;
 	}
 	
 	@Override
 	public void reset() {
-		this.structure = null;
+		this.connectedStructure = null;
 	}
 	
 	@Override

@@ -21,8 +21,6 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -96,8 +94,8 @@ public abstract class LittleDoorBase extends LittleStructure {
 			
 			if (parent != null) {
 				LittleStructure parentStructure = parent.getStructure(world);
-				parentStructure.children.put(parent.getChildID(), new StructureLinkToSubWorld(newDoor.getMainTile(), newDoor.attribute, parentStructure, parent.getChildID(), uuid.toString()));
-				newDoor.parent = new StructureLinkFromSubWorld(parentStructure.getMainTile(), parentStructure.attribute, newDoor, parent.getChildID());
+				parentStructure.updateChildConnection(parent.getChildID(), newDoor);
+				newDoor.updateParentConnection(parent.getChildID(), parentStructure);
 			}
 			
 			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute);

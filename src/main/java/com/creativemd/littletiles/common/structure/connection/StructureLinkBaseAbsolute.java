@@ -16,7 +16,7 @@ import net.minecraft.world.chunk.Chunk;
 
 public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierStructureAbsolute implements IStructureConnector<T> {
 	
-	protected LittleStructure structure;
+	protected LittleStructure connectedStructure;
 	protected final T parent;
 	
 	public StructureLinkBaseAbsolute(LittleTile tile, LittleStructureAttribute attribute, T parent) {
@@ -50,7 +50,7 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	
 	@Override
 	public LittleStructure getStructureWithoutLoading() {
-		return structure;
+		return connectedStructure;
 	}
 	
 	protected World getWorld(World world) {
@@ -59,7 +59,7 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	
 	@Override
 	public boolean isConnected(World world) {
-		if (structure != null)
+		if (connectedStructure != null)
 			return true;
 		
 		world = getWorld(world);
@@ -78,11 +78,11 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 				}
 			}
 			
-			if (structure == null && !world.isRemote) {
+			if (connectedStructure == null && !world.isRemote) {
 				failedConnect(world);
 			}
 			
-			return structure != null;
+			return connectedStructure != null;
 		}
 		
 		return false;
@@ -92,19 +92,19 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	@Override
 	public LittleStructure getStructure(World world) {
 		if (isConnected(world))
-			return structure;
+			return connectedStructure;
 		return null;
 	}
 	
 	@Override
 	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute) {
-		this.structure = structure;
+		this.connectedStructure = structure;
 		this.attribute = attribute;
 	}
 	
 	@Override
 	public void reset() {
-		this.structure = null;
+		this.connectedStructure = null;
 	}
 	
 	@Override
