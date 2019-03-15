@@ -19,7 +19,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
-import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -182,7 +181,7 @@ public class LittleDoorHandler {
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			try {
 				// render.setRenderOutlines(render.getRenderManager().renderOutlines);
-				render.doRender(door, d0 - TileEntityRendererDispatcher.staticPlayerX, d1 - TileEntityRendererDispatcher.staticPlayerY, d2 - TileEntityRendererDispatcher.staticPlayerZ, f, partialTicks);
+				render.doRender(door, d0 - camX, d1 - camY, d2 - camZ, f, partialTicks);
 			} catch (Throwable throwable1) {
 				throw new ReportedException(CrashReport.makeCrashReport(throwable1, "Rendering entity in world"));
 			}
