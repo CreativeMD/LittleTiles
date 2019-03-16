@@ -180,6 +180,8 @@ public class DoorController extends EntityAnimationController {
 	public void place() {
 		
 		LittleStructure placedStructureParent = parent.getParentStructure();
+		if (placedStructureParent == null)
+			throw new RuntimeException("Failed to find parent structure of animation");
 		LittleAbsolutePreviewsStructure previews = parent.getAbsolutePreviews(placedStructureParent);
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();

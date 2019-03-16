@@ -759,7 +759,7 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public void setDead() {
-		if (!world.isRemote || !controller.isWaitingForRender())
+		if (!this.isDead && (!world.isRemote || controller == null || !controller.isWaitingForRender()))
 			this.isDead = true;
 	}
 	
@@ -872,7 +872,8 @@ public class EntityAnimation extends Entity {
 		
 		compound.setTag("tileEntity", list);
 		
-		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(), absolutePreviewPos.getZ() });
+		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(),
+		        absolutePreviewPos.getZ() });
 		
 	}
 	

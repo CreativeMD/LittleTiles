@@ -285,8 +285,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		
 		GlStateManager.enableDepth();
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
-		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
-		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
+		//mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
+		//mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableRescaleNormal();
 		GlStateManager.alphaFunc(516, 0.1F);
