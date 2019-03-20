@@ -92,13 +92,14 @@ public abstract class LittleDoorBase extends LittleStructure {
 			
 			LittleStructure newDoor = previews.getStructure();
 			
+			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute);
+			
 			if (parent != null) {
 				LittleStructure parentStructure = parent.getStructure(world);
 				parentStructure.updateChildConnection(parent.getChildID(), newDoor);
 				newDoor.updateParentConnection(parent.getChildID(), parentStructure);
 			}
 			
-			EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute);
 			world.spawnEntity(animation);
 			return true;
 		}

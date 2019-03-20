@@ -194,7 +194,7 @@ public class DoorController extends EntityAnimationController {
 			if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
 				LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
 				newDoor.updateParentConnection(placedStructureParent.parent.getChildID(), parentStructure);
-				parentStructure.updateChildConnection(placedStructureParent.parent.getChildID(), placedStructureParent);
+				parentStructure.updateChildConnection(placedStructureParent.parent.getChildID(), newDoor);
 			}
 		} else {
 			parent.isDead = true;
