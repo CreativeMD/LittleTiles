@@ -157,9 +157,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		ItemStack toPlace = stack.copy();
 		
 		if (needIngredients(player)) {
-			if (iTile.containsIngredients(stack))
-				stack.shrink(1);
-			else
+			if (!iTile.containsIngredients(stack))
 				canDrain(player, result.previews);
 		}
 		
@@ -168,12 +166,13 @@ public class LittleActionPlaceStack extends LittleAction {
 		if (placedTiles != null) {
 			boxes = placedTiles.placedBoxes;
 			
-			if (!iTile.containsIngredients(stack))
-				drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
-			else if (!world.isRemote) {
+			addTilesToInventoryOrDrop(player, removedTiles);
+			
+			if (iTile.containsIngredients(stack)) {
+				stack.shrink(1);
 				addTilesToInventoryOrDrop(player, unplaceableTiles);
-				addTilesToInventoryOrDrop(player, removedTiles);
-			}
+			} else
+				drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
 			
 			if (!removedTiles.isEmpty()) {
 				destroyed = new LittleAbsolutePreviews(position.pos, result.context);
