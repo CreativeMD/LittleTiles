@@ -166,13 +166,15 @@ public class LittleActionPlaceStack extends LittleAction {
 		if (placedTiles != null) {
 			boxes = placedTiles.placedBoxes;
 			
-			addTilesToInventoryOrDrop(player, removedTiles);
-			
-			if (iTile.containsIngredients(stack)) {
-				stack.shrink(1);
-				addTilesToInventoryOrDrop(player, unplaceableTiles);
-			} else
-				drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
+			if (needIngredients(player)) {
+				addTilesToInventoryOrDrop(player, removedTiles);
+				
+				if (iTile.containsIngredients(stack)) {
+					stack.shrink(1);
+					addTilesToInventoryOrDrop(player, unplaceableTiles);
+				} else
+					drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
+			}
 			
 			if (!removedTiles.isEmpty()) {
 				destroyed = new LittleAbsolutePreviews(position.pos, result.context);
@@ -400,7 +402,9 @@ public class LittleActionPlaceStack extends LittleAction {
 					// tiles.convertToSmallest();
 				} else {
 					IBlockState state = world.getBlockState(pos);
-					if (!(state.getBlock() instanceof BlockTile) && !state.getMaterial().isReplaceable())
+					if (state.getMaterial().isReplaceable())
+						return false;
+					if (!(state.getBlock() instanceof BlockTile))
 						if (mode.checkAll() || !(isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)))
 							return false;
 				}
