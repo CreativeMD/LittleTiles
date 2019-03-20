@@ -710,8 +710,33 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			return new SubGuiGrabber(this, stack, 140, 140, context) {
 				
 				@Override
-				public void saveConfiguration() {
+				public void createControls() {
+					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					
+					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
+					selector.setSelectedForce(preview.getBlockStack());
+					controls.add(selector);
+					super.createControls();
+				}
+				
+				public LittleTilePreview getPreview(LittleGridContext context) {
+					GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
+					ItemStack selected = selector.getSelected();
+					
+					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
+						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+						return tile.getPreviewTile();
+					} else
+						return ItemLittleGrabber.SimpleMode.getPreview(stack);
+				}
+				
+				@Override
+				public void saveConfiguration() {
+					LittleTilePreview preview = getPreview(context);
+					preview.box.set(0, 0, 0, 1, 1, 1);
+					setPreview(stack, preview);
+					context.set(stack.getTagCompound());
 				}
 			};
 		}
