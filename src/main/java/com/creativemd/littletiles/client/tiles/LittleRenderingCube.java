@@ -24,7 +24,7 @@ public class LittleRenderingCube extends RenderCubeObject {
 	}
 	
 	public void renderCubeLines(double x, double y, double z, float red, float green, float blue, float alpha) {
-		RenderGlobal.drawBoundingBox(minX + x, minY + y, minZ + z, maxX + x, maxY + y, maxZ + z, red, green, blue, alpha);
+		RenderGlobal.drawBoundingBox(minX + x - 0.001, minY + y - 0.001, minZ + z - 0.001, maxX + 0.001 + x, maxY + y + 0.001, maxZ + z + 0.001, red, green, blue, alpha);
 	}
 	
 	public void renderCubePreview(double x, double y, double z, ILittleTile iTile) {
