@@ -20,15 +20,17 @@ import net.minecraft.item.ItemStack;
 public abstract class SubGuiGridSelector extends SubGuiConfigure {
 	
 	public LittleGridContext context;
+	public boolean activeFilter;
 	public TileSelector selector;
 	
-	public SubGuiGridSelector(ItemStack stack, LittleGridContext context, TileSelector selector) {
+	public SubGuiGridSelector(ItemStack stack, LittleGridContext context, boolean activeFilter, TileSelector selector) {
 		super(200, 140, stack);
 		this.context = context;
+		this.activeFilter = activeFilter;
 		this.selector = selector;
 	}
 	
-	public abstract void saveConfiguration(LittleGridContext context, TileSelector selector);
+	public abstract void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector);
 	
 	@Override
 	public void saveConfiguration() {
@@ -39,16 +41,14 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 			context = LittleGridContext.get();
 		}
 		
-		if (((GuiCheckBox) get("any")).value)
-			selector = null;
-		else {
-			GuiStackSelectorAll filter = (GuiStackSelectorAll) get("filter");
-			ItemStack stackFilter = filter.getSelected();
-			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
-			boolean meta = ((GuiCheckBox) get("meta")).value;
-			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new TileSelectorBlock(filterBlock);
-		}
-		saveConfiguration(context, selector);
+		activeFilter = !((GuiCheckBox) get("any")).value;
+		GuiStackSelectorAll filter = (GuiStackSelectorAll) get("filter");
+		ItemStack stackFilter = filter.getSelected();
+		Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
+		boolean meta = ((GuiCheckBox) get("meta")).value;
+		selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new TileSelectorBlock(filterBlock);
+		
+		saveConfiguration(context, activeFilter, selector);
 	}
 	
 	@Override
@@ -57,7 +57,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		contextBox.select(ItemMultiTiles.currentContext.size + "");
 		controls.add(contextBox);
 		
-		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector));
+		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector || !activeFilter));
 		
 		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), true);
 		if (selector instanceof TileSelectorBlock) {

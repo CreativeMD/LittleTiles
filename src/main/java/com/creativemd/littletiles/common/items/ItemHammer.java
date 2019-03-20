@@ -40,7 +40,21 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemHammer extends Item implements ISpecialBlockSelector {
 	
-	public static TileSelector currentFilter = null;
+	private static boolean activeFilter = false;
+	private static TileSelector currentFilter = null;
+	
+	public static boolean isFiltered() {
+		return activeFilter;
+	}
+	
+	public static void setFilter(boolean active, TileSelector filter) {
+		activeFilter = active;
+		currentFilter = filter;
+	}
+	
+	public static TileSelector getFilter() {
+		return currentFilter;
+	}
 	
 	public ItemHammer() {
 		setCreativeTab(LittleTiles.littleTab);
@@ -78,8 +92,8 @@ public class ItemHammer extends Item implements ISpecialBlockSelector {
 	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
-			if (currentFilter != null)
-				new LittleActionDestroyBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), currentFilter).execute();
+			if (isFiltered())
+				new LittleActionDestroyBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
 			else
 				new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
@@ -133,12 +147,12 @@ public class ItemHammer extends Item implements ISpecialBlockSelector {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
+		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, isFiltered(), getFilter()) {
 			
 			@Override
-			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
+			public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+				setFilter(activeFilter, selector);
 				ItemMultiTiles.currentContext = context;
-				currentFilter = selector;
 			}
 		};
 	}

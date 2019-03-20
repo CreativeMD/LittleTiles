@@ -48,8 +48,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ItemColorTube extends Item implements ISpecialBlockSelector {
 	
-	public static TileSelector currentFilter = null;
-	
 	public ItemColorTube() {
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
@@ -155,8 +153,8 @@ public class ItemColorTube extends Item implements ISpecialBlockSelector {
 			else
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		} else if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
-			if (currentFilter != null)
-				new LittleActionColorBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, currentFilter).execute();
+			if (ItemHammer.isFiltered())
+				new LittleActionColorBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemHammer.getFilter()).execute();
 			else
 				new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
 		}
@@ -185,12 +183,12 @@ public class ItemColorTube extends Item implements ISpecialBlockSelector {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
-		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, currentFilter) {
+		return new SubGuiGridSelector(stack, ItemMultiTiles.currentContext, ItemHammer.isFiltered(), ItemHammer.getFilter()) {
 			
 			@Override
-			public void saveConfiguration(LittleGridContext context, TileSelector selector) {
+			public void saveConfiguration(LittleGridContext context, boolean activeFilter, TileSelector selector) {
+				ItemHammer.setFilter(activeFilter, selector);
 				ItemMultiTiles.currentContext = context;
-				currentFilter = selector;
 			}
 		};
 	}
