@@ -223,7 +223,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	
 	protected boolean intersectsWithBetweenSliceAndBox(LittleTileBox box) {
 		if (box instanceof LittleTileSlicedOrdinaryBox)
-			return intersectsWithBetweenSliceAndBoxInternally(box) || ((LittleTileSlicedOrdinaryBox) box).intersectsWithBetweenSliceAndBoxInternally(this);
+			return intersectsWithBetweenSliceAndBoxInternally(box) && ((LittleTileSlicedOrdinaryBox) box).intersectsWithBetweenSliceAndBoxInternally(this);
 		return intersectsWithBetweenSliceAndBoxInternally(box);
 	}
 	
