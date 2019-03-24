@@ -130,7 +130,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
 	@Override
 	public int[] getArray() {
-		return new int[] { minX, minY, minZ, maxX, maxY, maxZ, slice.getSliceID(), Float.floatToIntBits(startOne), Float.floatToIntBits(startTwo), Float.floatToIntBits(endOne), Float.floatToIntBits(endTwo) };
+		return new int[] { minX, minY, minZ, maxX, maxY, maxZ, slice.getSliceID(), Float.floatToIntBits(startOne),
+		        Float.floatToIntBits(startTwo), Float.floatToIntBits(endOne), Float.floatToIntBits(endTwo) };
 	}
 	
 	// ================Size & Volume================
@@ -971,6 +972,9 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	@Override
 	public LittleTileBox shrink(EnumFacing direction, boolean toLimit) {
 		LittleTileSlicedBox box = (LittleTileSlicedBox) super.shrink(direction, toLimit);
+		
+		if (box == null)
+			return null;
 		
 		double delta = (double) box.getSize(direction.getAxis()) / (double) getSize(direction.getAxis());
 		if (direction.getAxis() == RotationUtils.getDifferentAxisFirst(slice.axis)) {
