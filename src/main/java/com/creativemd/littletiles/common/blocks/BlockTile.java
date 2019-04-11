@@ -1039,6 +1039,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
+	public float getBlockLiquidHeight(World world, BlockPos pos, IBlockState state, Material material) {
+		float height = 0;
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if (te != null)
+			for (LittleTile tile : te.getTiles())
+				if (tile.isMaterial(material))
+					height = Math.max(height, (float) te.getContext().toVanillaGrid(tile.getMaxY()));
+		return height;
+	}
+	
+	@Override
 	@Method(modid = "ctm")
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side) {
 		return world.getBlockState(pos);
