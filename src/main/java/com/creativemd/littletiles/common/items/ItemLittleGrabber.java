@@ -123,7 +123,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
 		
 		if (cameraTransformType == TransformType.GUI) {
-			GlStateManager.scale(0.9, 0.9, 0.9);
+			GlStateManager.translate(0.1, 0.1, 0);
+			GlStateManager.scale(0.7, 0.7, 0.7);
 			
 			GrabberMode mode = getMode(stack);
 			if (mode.renderBlockSeparately(stack)) {

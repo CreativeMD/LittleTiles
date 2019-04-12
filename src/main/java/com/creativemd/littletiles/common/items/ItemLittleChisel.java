@@ -168,7 +168,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
 		
 		if (cameraTransformType == TransformType.GUI) {
-			GlStateManager.scale(0.9, 0.9, 0.9);
+			GlStateManager.translate(0.1, 0.1, 0);
+			GlStateManager.scale(0.7, 0.7, 0.7);
 			
 			LittleTilePreview preview = getPreview(stack);
 			ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
