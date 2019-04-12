@@ -739,7 +739,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					LittleTilePreview preview = getPreview(context);
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
-					preview.box.set(0, 0, 0, 1, 1, 1);
+					if (stack.getTagCompound().hasKey("preview")) {
+						LittleTilePreview oldPreview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
+						if (oldPreview != null)
+							preview.box = oldPreview.box;
+					}
 					setPreview(stack, preview);
 					context.set(stack.getTagCompound());
 				}
