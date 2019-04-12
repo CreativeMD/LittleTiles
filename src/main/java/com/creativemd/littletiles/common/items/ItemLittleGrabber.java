@@ -713,6 +713,9 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				public void createControls() {
 					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					
+					Color color = ColorUtils.IntToRGBA(preview.getColor());
+					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
+					
 					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
 					selector.setSelectedForce(preview.getBlockStack());
 					controls.add(selector);
@@ -734,6 +737,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				@Override
 				public void saveConfiguration() {
 					LittleTilePreview preview = getPreview(context);
+					GuiColorPicker picker = (GuiColorPicker) get("picker");
+					preview.setColor(ColorUtils.RGBAToInt(picker.color));
 					preview.box.set(0, 0, 0, 1, 1, 1);
 					setPreview(stack, preview);
 					context.set(stack.getTagCompound());
