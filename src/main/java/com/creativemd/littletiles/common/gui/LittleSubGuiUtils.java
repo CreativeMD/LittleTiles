@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
 
@@ -16,6 +17,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 
 public class LittleSubGuiUtils {
 	
@@ -49,7 +53,18 @@ public class LittleSubGuiUtils {
 			
 			List<ItemStack> newStacks = new ArrayList<>();
 			for (BlockIngredient ingredient : ingredients.getIngredients()) {
-				newStacks.add(ingredient.getItemStack());
+				ItemStack stack = ingredient.getItemStack();
+				
+				stack.setCount(Math.max(1, (int) ingredient.value));
+				
+				NBTTagCompound display = new NBTTagCompound();
+				NBTTagList list = new NBTTagList();
+				int blocks = (int) ingredient.value;
+				double pixel = (ingredient.value - blocks) * LittleGridContext.get().maxTilesPerBlock;
+				list.appendTag(new NBTTagString((blocks > 0 ? blocks + " blocks " : "") + (pixel > 0 ? (Math.round(pixel * 100) / 100) + " pixel" : "")));
+				display.setTag("Lore", list);
+				stack.setTagInfo("display", display);
+				newStacks.add(stack);
 			}
 			stacks.add("selector.ingredients", newStacks);
 			return stacks;
