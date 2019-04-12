@@ -773,6 +773,17 @@ public class EntityAnimation extends Entity {
 		return controller.onRightClick();
 	}
 	
+	@Override
+	public boolean isBurning() {
+		return false;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean canRenderOnFire() {
+		return false;
+	}
+	
 	// ================Saving & Loading================
 	
 	public LittleAbsolutePreviewsStructure getAbsolutePreviews(LittleStructure parent) {
