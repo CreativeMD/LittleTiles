@@ -2,28 +2,34 @@ package com.creativemd.littletiles.common.utils.animation;
 
 import java.util.HashMap;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 
 public class AnimationController {
 	
-	protected HashMap<String, AnimationState> states = new HashMap<>();
+	protected HashMap<String, AnimationControllerState> states = new HashMap<>();
 	protected HashMap<String, AnimationTimeline> stateTransition = new HashMap<>();
-	protected AnimationState currentState;
-	protected AnimationState aimedState;
+	protected AnimationControllerState currentState;
+	protected AnimationControllerState aimedState;
+	
+	protected int tick;
+	protected AnimationState tickingState;
 	protected AnimationTimeline animation;
 	
-	public AnimationController addStateAndSelect(AnimationState state) {
-		states.put(state.name, state);
-		currentState = state;
+	public AnimationController addStateAndSelect(String name, AnimationState state) {
+		AnimationControllerState controllerState = new AnimationControllerState(name, state);
+		states.put(name, controllerState);
+		currentState = controllerState;
 		return this;
 	}
 	
-	public AnimationController addState(AnimationState state) {
-		states.put(state.name, state);
+	public AnimationController addState(String name, AnimationState state) {
+		states.put(name, new AnimationControllerState(name, state));
 		return this;
 	}
 	
-	public AnimationController generateAllTransistions(long duration) {
+	public AnimationController generateAllTransistions(int duration) {
 		for (String key : states.keySet()) {
 			for (String key2 : states.keySet()) {
 				if (!key.equals(key2))
@@ -37,42 +43,44 @@ public class AnimationController {
 		return animation;
 	}
 	
-	public AnimationState getCurrentState() {
+	public AnimationControllerState getCurrentState() {
 		return currentState;
 	}
 	
-	public AnimationState getAimedState() {
+	public AnimationControllerState getAimedState() {
 		return aimedState;
 	}
 	
-	public AnimationController generateTransition(String from, String to, long duration) {
-		AnimationState fromState = states.get(from);
+	public AnimationController generateTransition(String from, String to, int duration) {
+		AnimationControllerState fromState = states.get(from);
 		if (fromState == null)
 			throw new RuntimeException("State '" + from + "' does not exist");
 		
-		AnimationState toState = states.get(to);
+		AnimationControllerState toState = states.get(to);
 		if (toState == null)
 			throw new RuntimeException("State '" + to + "' does not exist");
 		
-		PairList<Long, Animation> animations = new PairList<>();
-		
-		if (fromState.offset != null)
-			if (toState.offset != null)
-				animations.add(0L, fromState.offset.createAnimationTo(toState.offset, duration));
+		PairList<AnimationKey, ValueTimeline> values = new PairList<>();
+		for (Pair<AnimationKey, Double> pair : fromState.state.getValues()) {
+			LinearTimeline timeline = new LinearTimeline();
+			timeline.points.add(0, pair.value);
+			if (toState.state.getValues().containsKey(pair.key))
+				timeline.points.add(duration, toState.state.getValues().getValue(pair.key));
 			else
-				animations.add(0L, fromState.offset.createAnimationToZero(duration));
-		else if (toState.offset != null)
-			animations.add(0L, toState.offset.createAnimationFromZero(duration));
+				timeline.points.add(duration, pair.key.getDefault());
+			values.add(pair.key, timeline);
+		}
 		
-		if (fromState.rotation != null)
-			if (toState.rotation != null)
-				animations.add(0L, fromState.rotation.createAnimationTo(toState.rotation, duration));
-			else
-				animations.add(0L, fromState.rotation.createAnimationToZero(duration));
-		else if (toState.rotation != null)
-			animations.add(0L, toState.rotation.createAnimationFromZero(duration));
+		for (Pair<AnimationKey, Double> pair : toState.state.getValues()) {
+			if (values.containsKey(pair.key))
+				continue;
+			LinearTimeline timeline = new LinearTimeline();
+			timeline.points.add(0, pair.key.getDefault());
+			timeline.points.add(duration, pair.value);
+			values.add(pair.key, timeline);
+		}
 		
-		stateTransition.put(from + ":" + to, new AnimationTimeline(duration, animations));
+		stateTransition.put(from + ":" + to, new AnimationTimeline(duration, values));
 		
 		return this;
 	}
@@ -95,7 +103,7 @@ public class AnimationController {
 		return aimedState != null;
 	}
 	
-	public AnimationState getState(String key) {
+	public AnimationControllerState getState(String key) {
 		return states.get(key);
 	}
 	
@@ -104,10 +112,12 @@ public class AnimationController {
 	}
 	
 	public void startTransition(String key) {
-		AnimationState state = states.get(key);
+		AnimationControllerState state = states.get(key);
 		if (state == null)
 			throw new RuntimeException("State '" + key + "' does not exist");
 		
+		tick = 0;
+		tickingState = new AnimationState();
 		aimedState = state;
 		animation = stateTransition.get(currentState.name + ":" + aimedState.name);
 		if (animation == null)
@@ -118,16 +128,42 @@ public class AnimationController {
 		currentState = aimedState;
 		animation = null;
 		aimedState = null;
+		tickingState = null;
 	}
 	
 	public AnimationState tick() {
 		if (isChanging()) {
-			if (animation.tick(this))
-				return animation.currentState;
+			tick++;
+			if (animation.tick(tick, tickingState))
+				return tickingState;
 			else
 				endTransition();
 		}
-		return currentState;
+		return currentState.state;
+	}
+	
+	public static class AnimationControllerState {
+		
+		public String name;
+		public AnimationState state;
+		
+		public AnimationControllerState(String name, AnimationState state) {
+			this.name = name;
+			this.state = state;
+		}
+		
+		@Override
+		public int hashCode() {
+			return name.hashCode();
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (obj instanceof AnimationControllerState)
+				return name.equals(((AnimationControllerState) obj).name);
+			return false;
+		}
+		
 	}
 	
 }

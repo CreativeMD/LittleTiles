@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 public class LittleStructureRegistry {
 	
@@ -57,23 +58,23 @@ public class LittleStructureRegistry {
 		return null;
 	}
 	
-	public static LittleStructureGuiParser getParser(GuiParent parent, Class<? extends LittleStructureGuiParser> clazz) {
+	public static LittleStructureGuiParser getParser(GuiParent parent, AnimationGuiHandler handler, Class<? extends LittleStructureGuiParser> clazz) {
 		try {
 			if (clazz == null)
 				return null;
-			return clazz.getConstructor(GuiParent.class).newInstance(parent);
+			return clazz.getConstructor(GuiParent.class, AnimationGuiHandler.class).newInstance(parent, handler);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}
 	}
 	
-	public static LittleStructureGuiParser getParser(GuiParent parent, String id) {
+	public static LittleStructureGuiParser getParser(GuiParent parent, AnimationGuiHandler handler, String id) {
 		try {
 			Class<? extends LittleStructureGuiParser> clazz = getParserClass(id);
 			if (clazz == null)
 				return null;
-			return clazz.getConstructor(GuiParent.class).newInstance(parent);
+			return clazz.getConstructor(GuiParent.class, AnimationGuiHandler.class).newInstance(parent, handler);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;

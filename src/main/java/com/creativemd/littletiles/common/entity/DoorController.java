@@ -36,10 +36,10 @@ public class DoorController extends EntityAnimationController {
 	protected static final int waitTimeRender = 200;
 	protected Boolean placed = null;
 	
-	public String openedState;
-	public String closedState;
+	public static final String openedState = "opened";
+	public static final String closedState = "closed";
 	public Boolean turnBack;
-	public long duration;
+	public int duration;
 	public EntityPlayer activator;
 	
 	protected boolean modifiedTransition;
@@ -51,14 +51,12 @@ public class DoorController extends EntityAnimationController {
 		
 	}
 	
-	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, long duration) {
-		this.openedState = opened != null ? opened.name : null;
-		this.closedState = closed.name;
+	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration) {
 		this.turnBack = turnBack;
 		this.duration = duration;
 		
-		addState(opened);
-		addStateAndSelect(closed);
+		addState(openedState, opened);
+		addStateAndSelect(closedState, closed);
 		
 		generateAllTransistions(duration);
 		modifiedTransition = false;
@@ -66,14 +64,12 @@ public class DoorController extends EntityAnimationController {
 		startTransition(openedState);
 	}
 	
-	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, long duration, AnimationTimeline open, AnimationTimeline close) {
-		this.openedState = opened != null ? opened.name : null;
-		this.closedState = closed.name;
+	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration, AnimationTimeline open, AnimationTimeline close) {
 		this.turnBack = turnBack;
 		this.duration = duration;
 		
-		addState(opened);
-		addStateAndSelect(closed);
+		addState(openedState, opened);
+		addStateAndSelect(closedState, closed);
 		
 		addTransition("closed", "opened", open);
 		addTransition("opened", "closed", close);
@@ -87,8 +83,8 @@ public class DoorController extends EntityAnimationController {
 		return super.addTransition(from, to, animation);
 	}
 	
-	public DoorController(AnimationState opened, Boolean turnBack, long duration) {
-		this(new AnimationState("closed", null, null), opened, turnBack, duration);
+	public DoorController(AnimationState opened, Boolean turnBack, int duration) {
+		this(new AnimationState(), opened, turnBack, duration);
 	}
 	
 	@Override
@@ -223,14 +219,14 @@ public class DoorController extends EntityAnimationController {
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		nbt.setTag("closed", getState(closedState).writeToNBT(new NBTTagCompound()));
-		nbt.setTag("opened", getState(openedState).writeToNBT(new NBTTagCompound()));
+		nbt.setTag("closed", getState(closedState).state.writeToNBT(new NBTTagCompound()));
+		nbt.setTag("opened", getState(openedState).state.writeToNBT(new NBTTagCompound()));
 		
 		nbt.setBoolean("isOpen", currentState.name.equals(openedState));
 		if (isChanging())
-			nbt.setLong("tick", animation.progress());
+			nbt.setInteger("tick", this.tick);
 		
-		nbt.setLong("duration", duration);
+		nbt.setInteger("duration", duration);
 		nbt.setByte("turnBack", (byte) (turnBack == null ? 0 : (turnBack ? 1 : -1)));
 		
 		if (modifiedTransition) {
@@ -246,15 +242,10 @@ public class DoorController extends EntityAnimationController {
 	
 	@Override
 	protected void readFromNBT(NBTTagCompound nbt) {
-		AnimationState closed = new AnimationState(nbt.getCompoundTag("closed"));
-		closedState = closed.name;
-		addState(closed);
+		addState(closedState, new AnimationState(nbt.getCompoundTag("closed")));
+		addState(openedState, new AnimationState(nbt.getCompoundTag("opened")));
 		
-		AnimationState opened = new AnimationState(nbt.getCompoundTag("opened"));
-		openedState = opened.name;
-		addState(opened);
-		
-		duration = nbt.getLong("duration");
+		duration = nbt.getInteger("duration");
 		if (nbt.hasKey("transitions")) {
 			NBTTagList list = nbt.getTagList("transitions", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
@@ -267,13 +258,13 @@ public class DoorController extends EntityAnimationController {
 		
 		boolean isOpen = nbt.getBoolean("isOpen");
 		if (!isOpen)
-			currentState = closed;
+			currentState = getState(closedState);
 		else
-			currentState = opened;
+			currentState = getState(closedState);
 		
 		if (nbt.hasKey("tick")) {
 			startTransition(isOpen ? closedState : openedState);
-			animation.setProgress(nbt.getLong("tick"));
+			this.tick = nbt.getInteger("tick");
 		}
 		
 		byte turnBackData = nbt.getByte("turnBack");

@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
@@ -80,8 +81,8 @@ public class LittleLadder extends LittleStructure {
 	
 	public static class LittleLadderParser extends LittleStructureGuiParser {
 		
-		public LittleLadderParser(GuiParent parent) {
-			super(parent);
+		public LittleLadderParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override

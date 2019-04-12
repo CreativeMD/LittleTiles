@@ -1,56 +1,74 @@
 package com.creativemd.littletiles.common.utils.animation;
 
-import com.creativemd.littletiles.common.utils.animation.transformation.OffsetTransformation;
-import com.creativemd.littletiles.common.utils.animation.transformation.RotationTransformation;
+import java.util.Set;
+
+import javax.vecmath.Vector3d;
+
+import com.creativemd.creativecore.common.utils.type.Pair;
+import com.creativemd.creativecore.common.utils.type.PairList;
 
 import net.minecraft.nbt.NBTTagCompound;
 
 public class AnimationState {
 	
-	public final String name;
-	public final RotationTransformation rotation;
-	public final OffsetTransformation offset;
+	private PairList<AnimationKey, Double> values = new PairList<>();
 	
-	public AnimationState(NBTTagCompound nbt) {
-		this.name = nbt.getString("name");
-		if (nbt.hasKey("rotX"))
-			rotation = new RotationTransformation(nbt.getDouble("rotX"), nbt.getDouble("rotY"), nbt.getDouble("rotZ"));
-		else
-			rotation = null;
-		if (nbt.hasKey("offX"))
-			offset = new OffsetTransformation(nbt.getDouble("offX"), nbt.getDouble("offY"), nbt.getDouble("offZ"));
-		else
-			offset = null;
+	public double get(AnimationKey key) {
+		Double value = values.getValue(key);
+		if (value == null)
+			return key.getDefault();
+		return value;
 	}
 	
-	public AnimationState(String name, RotationTransformation rotation, OffsetTransformation offset) {
-		this.name = name;
-		this.rotation = rotation;
-		this.offset = offset;
+	public AnimationState set(AnimationKey key, double value) {
+		Pair<AnimationKey, Double> pair = values.getPair(key);
+		if (pair != null)
+			pair.setValue(value);
+		else
+			values.add(key, value);
+		return this;
+	}
+	
+	public AnimationState(NBTTagCompound nbt) {
+		for (AnimationKey key : AnimationKey.getKeys())
+			if (nbt.hasKey(key.name))
+				values.add(key, nbt.getDouble(key.name));
+	}
+	
+	public AnimationState() {
+		
+	}
+	
+	public Vector3d getRotation() {
+		return new Vector3d(get(AnimationKey.rotX), get(AnimationKey.rotY), get(AnimationKey.rotZ));
+	}
+	
+	public Vector3d getOffset() {
+		return new Vector3d(get(AnimationKey.offX), get(AnimationKey.offY), get(AnimationKey.offZ));
+	}
+	
+	public void clear() {
+		values.clear();
+	}
+	
+	public Set<AnimationKey> keys() {
+		return values.keys();
+	}
+	
+	public PairList<AnimationKey, Double> getValues() {
+		return values;
 	}
 	
 	public boolean isAligned() {
-		return (rotation == null || rotation.isAligned()) && (offset == null || offset.isAligned());
-	}
-	
-	public AnimationState copy() {
-		return new AnimationState(name, (RotationTransformation) (rotation != null ? rotation.copy() : null), (OffsetTransformation) (offset != null ? offset.copy() : null));
+		for (Pair<AnimationKey, Double> pair : values)
+			if (!pair.key.isAligned(pair.value))
+				return false;
+		return true;
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-		nbt.setString("name", name);
-		
-		if (rotation != null) {
-			nbt.setDouble("rotX", rotation.x);
-			nbt.setDouble("rotY", rotation.y);
-			nbt.setDouble("rotZ", rotation.z);
-		}
-		
-		if (offset != null) {
-			nbt.setDouble("offX", offset.x);
-			nbt.setDouble("offY", offset.y);
-			nbt.setDouble("offZ", offset.z);
-		}
+		for (Pair<AnimationKey, Double> pair : values)
+			nbt.setDouble(pair.key.name, pair.value);
 		return nbt;
 	}
 }

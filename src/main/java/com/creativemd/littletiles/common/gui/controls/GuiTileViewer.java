@@ -7,13 +7,16 @@ import org.lwjgl.input.Keyboard;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlEvent;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
@@ -75,6 +78,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	public void setAxis(LittleTileBox box, LittleGridContext context) {
 		this.box = box;
 		this.axisContext = context;
+		raiseEvent(new GuiTileViewerAxisChangedEvent(this));
 	}
 	
 	public boolean isEven() {
@@ -97,6 +101,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			box.minY += 1;
 			box.minZ += 1;
 		}
+		raiseEvent(new GuiTileViewerAxisChangedEvent(this));
 	}
 	
 	public boolean grabbed = false;
@@ -128,7 +133,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.viewDirection = facing;
 		updateNormalAxis();
 		
-		switch (facing) {
+		switch (facing.getOpposite()) {
 		case EAST:
 			rotX.set(0);
 			rotY.set(-90);
@@ -167,17 +172,17 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		transform(vec);
 		
 		if (vec.x != 0)
-			if (vec.x > 0)
+			if (vec.x < 0)
 				xFacing = EnumFacing.EAST;
 			else
 				xFacing = EnumFacing.WEST;
 		else if (vec.y != 0)
-			if (vec.y > 0)
+			if (vec.y < 0)
 				yFacing = EnumFacing.EAST;
 			else
 				yFacing = EnumFacing.WEST;
 		else if (vec.z != 0)
-			if (vec.z > 0)
+			if (vec.z < 0)
 				zFacing = EnumFacing.EAST;
 			else
 				zFacing = EnumFacing.WEST;
@@ -188,17 +193,17 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		transform(vec);
 		
 		if (vec.x != 0)
-			if (vec.x > 0)
+			if (vec.x < 0)
 				xFacing = EnumFacing.UP;
 			else
 				xFacing = EnumFacing.DOWN;
 		else if (vec.y != 0)
-			if (vec.y > 0)
+			if (vec.y < 0)
 				yFacing = EnumFacing.UP;
 			else
 				yFacing = EnumFacing.DOWN;
 		else if (vec.z != 0)
-			if (vec.z > 0)
+			if (vec.z < 0)
 				zFacing = EnumFacing.UP;
 			else
 				zFacing = EnumFacing.DOWN;
@@ -209,17 +214,17 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		transform(vec);
 		
 		if (vec.x != 0)
-			if (vec.x > 0)
+			if (vec.x < 0)
 				xFacing = EnumFacing.SOUTH;
 			else
 				xFacing = EnumFacing.NORTH;
 		else if (vec.y != 0)
-			if (vec.y > 0)
+			if (vec.y < 0)
 				yFacing = EnumFacing.SOUTH;
 			else
 				yFacing = EnumFacing.NORTH;
 		else if (vec.z != 0)
-			if (vec.z > 0)
+			if (vec.z < 0)
 				zFacing = EnumFacing.SOUTH;
 			else
 				zFacing = EnumFacing.NORTH;
@@ -271,9 +276,9 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		
 		GlStateManager.pushMatrix();
 		
-		GlStateManager.translate(this.width / 2 + offsetX.current(), this.height / 2 + offsetY.current(), 0);
-		GlStateManager.scale(this.scale.current(), this.scale.current(), this.scale.current());
-		GlStateManager.translate(-offsetX.current() * 2, -offsetY.current() * 2, 0);
+		GlStateManager.translate(this.width / 2 - offsetX.current(), this.height / 2 - offsetY.current(), 0);
+		GlStateManager.scale(-this.scale.current(), -this.scale.current(), -this.scale.current());
+		GlStateManager.translate(offsetX.current() * 2, offsetY.current() * 2, 0);
 		
 		GlStateManager.rotate((float) rotX.current(), 1, 0, 0);
 		GlStateManager.rotate((float) rotY.current(), 0, 1, 0);
@@ -293,7 +298,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		
-		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, 1.0F);
+		GlStateManager.translate(animation.center.baseOffset.getX(), animation.center.baseOffset.getY() - 75, animation.center.baseOffset.getZ());
+		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
 		
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
 		GlStateManager.disableBlend();
@@ -435,6 +441,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		default:
 			break;
 		}
+		raiseEvent(new GuiTileViewerAxisChangedEvent(this));
 	}
 	
 	@Override
@@ -534,5 +541,18 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.size = previews.getSize();
 		this.min = previews.getMinVec();
 		updateNormalAxis();
+	}
+	
+	public static class GuiTileViewerAxisChangedEvent extends GuiControlEvent {
+		
+		public GuiTileViewerAxisChangedEvent(GuiControl source) {
+			super(source);
+		}
+		
+		@Override
+		public boolean isCancelable() {
+			return false;
+		}
+		
 	}
 }

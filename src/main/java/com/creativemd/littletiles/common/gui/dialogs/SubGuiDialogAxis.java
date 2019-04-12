@@ -11,10 +11,13 @@ import com.creativemd.creativecore.common.gui.mc.ContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
+import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
 import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
+import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -22,16 +25,19 @@ import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SubGuiDialogAxis extends SubGui {
 	
 	public final GuiAxisButton activator;
+	public final AnimationGuiHandler handler;
 	
-	public SubGuiDialogAxis(GuiAxisButton activator) {
+	public SubGuiDialogAxis(GuiAxisButton activator, AnimationGuiHandler handler) {
 		super(160, 130);
 		this.activator = activator;
+		this.handler = handler;
 	}
 	
 	@Override
@@ -122,6 +128,13 @@ public class SubGuiDialogAxis extends SubGui {
 	
 	@CustomEventSubscribe
 	@SideOnly(Side.CLIENT)
+	public void onAxisChanged(GuiTileViewerAxisChangedEvent event) {
+		GuiTileViewer viewer = (GuiTileViewer) event.source;
+		handler.setCenter(new StructureAbsolute(new BlockPos(0, 75, 0), viewer.getBox().copy(), viewer.getAxisContext()));
+	}
+	
+	@CustomEventSubscribe
+	@SideOnly(Side.CLIENT)
 	public void onButtonClicked(GuiControlClickEvent event) {
 		GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
 		if (event.source.is("even")) {
@@ -169,19 +182,21 @@ public class SubGuiDialogAxis extends SubGui {
 		public GuiTileViewer viewer;
 		public LittleAdvancedDoor door;
 		public LittleGridContext stackContext;
+		public AnimationGuiHandler handler;
 		
-		public GuiAxisButton(String name, String caption, int x, int y, int width, int height, LittleGridContext context, LittleAdvancedDoor door) {
+		public GuiAxisButton(String name, String caption, int x, int y, int width, int height, LittleGridContext context, LittleAdvancedDoor door, AnimationGuiHandler handler) {
 			super(name, caption, x, y, width, height);
 			setEnabled(false);
 			this.stackContext = context;
 			this.door = door;
+			this.handler = handler;
 		}
 		
 		@Override
 		public void onClicked(int x, int y, int button) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setBoolean("dialog", true);
-			SubGuiDialogAxis dialog = new SubGuiDialogAxis(this);
+			SubGuiDialogAxis dialog = new SubGuiDialogAxis(this, handler);
 			dialog.gui = getParent().getOrigin().gui;
 			dialog.gui.addLayer(dialog);
 			dialog.container = new SubContainerEmpty(getPlayer());
@@ -212,6 +227,8 @@ public class SubGuiDialogAxis extends SubGui {
 			viewer.visibleAxis = true;
 			viewer.onLoaded(animation, entireBox, axisContext, box, previews);
 			setEnabled(true);
+			
+			handler.setCenter(new StructureAbsolute(new BlockPos(0, 75, 0), viewer.getBox().copy(), viewer.getAxisContext()));
 		}
 		
 	}

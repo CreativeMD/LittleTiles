@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxCategory;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
@@ -36,6 +37,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -48,7 +50,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
-public class SubGuiRecipe extends SubGuiConfigure {
+public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	
 	public LittleStructure structure;
 	public LittleStructureGuiParser parser;
@@ -63,9 +65,17 @@ public class SubGuiRecipe extends SubGuiConfigure {
 	public AxisAlignedBB box;
 	public LittlePreviews previews;
 	
+	public AnimationGuiHandler handler = new AnimationGuiHandler(this);
+	
 	public SubGuiRecipe(ItemStack stack) {
 		super(350, 200, stack);
 		loadingThread = new LoadingThread();
+	}
+	
+	@Override
+	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
+		onLoaded(this, animation, entireBox, context, box);
+		
 	}
 	
 	public void onLoaded(GuiParent parent, EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box) {
@@ -75,8 +85,6 @@ public class SubGuiRecipe extends SubGuiConfigure {
 			if (control instanceof GuiParent)
 				onLoaded((GuiParent) control, animation, entireBox, context, box);
 		}
-		if (parser != null)
-			parser.onLoaded(animation, entireBox, context, box);
 	}
 	
 	@Override
@@ -84,8 +92,12 @@ public class SubGuiRecipe extends SubGuiConfigure {
 		super.onTick();
 		if (loadingThread == null && !loaded) {
 			onLoaded(this, animation, entireBox, context, box);
+			if (parser != null)
+				parser.onLoaded(animation, entireBox, context, box, previews);
 			loaded = true;
 		}
+		if (animation != null)
+			handler.tick(animation);
 	}
 	
 	@Override
@@ -125,6 +137,27 @@ public class SubGuiRecipe extends SubGuiConfigure {
 		int size = previews.totalSize();
 		controls.add(new GuiLabel("tiles", previews.totalSize() + " " + translate(size == 1 ? "selection.structure.tile" : "selection.structure.tiles"), 208, 158));
 		controls.add(new GuiAnimationViewer("renderer", 208, 30, 136, 135));
+		controls.add(new GuiIconButton("play", 248, 172, 10) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				handler.play();
+			}
+		});
+		controls.add(new GuiIconButton("pause", 268, 172, 9) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				handler.pause();
+			}
+		});
+		controls.add(new GuiIconButton("stop", 288, 172, 11) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				handler.stop();
+			}
+		});
 		controls.add(new GuiPanel("panel", 0, 30, 200, 135));
 		controls.add(comboBox);
 		controls.add(new GuiButton("save", 150, 176, 40) {
@@ -169,7 +202,7 @@ public class SubGuiRecipe extends SubGuiConfigure {
 		if (saved != null && !selected.key.equals("structure." + saved.type.id + ".name"))
 			saved = null;
 		
-		parser = LittleStructureRegistry.getParser(panel, selected.value);
+		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
 		if (parser != null) {
 			parser.createControls(stack, saved);
 			panel.refreshControls();
@@ -249,7 +282,8 @@ public class SubGuiRecipe extends SubGuiConfigure {
 					public boolean onRightClick() {
 						return false;
 					}
-				}.addStateAndSelect(new AnimationState("nothing", null, null)), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context)) {
+				}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context)) {
+					
 					@Override
 					public boolean shouldAddDoor() {
 						return false;

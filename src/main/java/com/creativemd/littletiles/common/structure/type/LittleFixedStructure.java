@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,8 +27,8 @@ public class LittleFixedStructure extends LittleStructure {
 	
 	public static class LittleFixedStructureParser extends LittleStructureGuiParser {
 		
-		public LittleFixedStructureParser(GuiParent parent) {
-			super(parent);
+		public LittleFixedStructureParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override

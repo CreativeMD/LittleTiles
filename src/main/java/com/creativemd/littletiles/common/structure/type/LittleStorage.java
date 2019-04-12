@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 
@@ -112,8 +113,8 @@ public class LittleStorage extends LittleStructure {
 	
 	public static class LittleStorageParser extends LittleStructureGuiParser {
 		
-		public LittleStorageParser(GuiParent parent) {
-			super(parent);
+		public LittleStorageParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override

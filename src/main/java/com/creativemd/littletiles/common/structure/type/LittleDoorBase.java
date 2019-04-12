@@ -11,8 +11,10 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
@@ -34,8 +36,11 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -177,16 +182,24 @@ public abstract class LittleDoorBase extends LittleStructure {
 	
 	public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {
 		
-		public LittleDoorBaseParser(GuiParent parent) {
-			super(parent);
+		public LittleDoorBaseParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
+		}
+		
+		@SideOnly(Side.CLIENT)
+		@CustomEventSubscribe
+		public void onChanged(GuiControlChangedEvent event) {
+			if (event.source.is("duration_s"))
+				updateTimeline();
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			
 			parent.controls.add(new GuiLabel("Duration:", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
+			
+			updateTimeline();
 		}
 		
 		@Override
@@ -198,6 +211,16 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		@SideOnly(Side.CLIENT)
 		public abstract LittleDoorBase parseStructure(int duration);
+		
+		@SideOnly(Side.CLIENT)
+		public abstract void populateTimeline(AnimationTimeline timeline);
+		
+		public void updateTimeline() {
+			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
+			AnimationTimeline timeline = new AnimationTimeline((int) slider.value, new PairList<>());
+			populateTimeline(timeline);
+			handler.setTimeline(timeline);
+		}
 		
 	}
 }

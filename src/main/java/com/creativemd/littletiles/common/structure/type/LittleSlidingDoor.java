@@ -20,13 +20,17 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
-import com.creativemd.littletiles.common.utils.animation.transformation.OffsetTransformation;
+import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -87,7 +91,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		previews.movePreviews(world, player, null, previews.context, offset.vec);
 		
-		return place(world, player, previews, new DoorController(new AnimationState("closed", null, new OffsetTransformation(moveDirection, moveContext, -moveDistance)), new AnimationState("opened", null, null), true, duration), uuid, absolute);
+		return place(world, player, previews, new DoorController(new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration), uuid, absolute);
 	}
 	
 	@Override
@@ -113,8 +117,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	public static class LittleSlidingDoorParser extends LittleDoorBaseParser {
 		
-		public LittleSlidingDoorParser(GuiParent parent) {
-			super(parent);
+		public LittleSlidingDoorParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -124,7 +128,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 				EnumFacing direction = EnumFacing.getFront(((GuiStateButton) event.source).getState());
 				GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
-				updateDirection(viewer, direction, relativeDirection);
+				updateButtonDirection(viewer, direction, relativeDirection);
 			}
 		}
 		
@@ -148,6 +152,12 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				else
 					newDirection = EnumFacing.NORTH;
 			relativeDirection.setDirection(newDirection);
+		}
+		
+		@SideOnly(Side.CLIENT)
+		public void updateButtonDirection(GuiTileViewer viewer, EnumFacing direction, GuiDirectionIndicator relativeDirection) {
+			updateDirection(viewer, direction, relativeDirection);
+			updateTimeline();
 		}
 		
 		@Override
@@ -209,7 +219,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 						break;
 					}
 					
-					updateDirection(viewer, direction, relativeDirection);
+					updateButtonDirection(viewer, direction, relativeDirection);
 				}
 			}.setCustomTooltip("change view"));
 			parent.addControl(new GuiIconButton("flip view", 60, 107, 4) {
@@ -242,15 +252,23 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box) {
-			super.onLoaded(animation, entireBox, context, box);
+		public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
+			super.onLoaded(animation, entireBox, context, box, previews);
 			
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
 			
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
 			
-			updateDirection(viewer, direction, relativeDirection);
+			updateButtonDirection(viewer, direction, relativeDirection);
+		}
+		
+		@Override
+		public void populateTimeline(AnimationTimeline timeline) {
+			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
+			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
+			
+			timeline.values.add(AnimationKey.getOffset(direction.getAxis()), new LinearTimeline().addPoint(0, 0D).addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
 		}
 	}
 	

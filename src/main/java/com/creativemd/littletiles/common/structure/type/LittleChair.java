@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -54,8 +55,8 @@ public class LittleChair extends LittleStructure {
 	
 	public static class LittleChairParser extends LittleStructureGuiParser {
 		
-		public LittleChairParser(GuiParent parent) {
-			super(parent);
+		public LittleChairParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override

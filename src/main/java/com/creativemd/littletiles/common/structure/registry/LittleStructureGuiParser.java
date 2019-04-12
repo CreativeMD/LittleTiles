@@ -4,8 +4,11 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
@@ -13,12 +16,14 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleStructureGuiParser {
+public abstract class LittleStructureGuiParser implements IAnimationControl {
 	
 	public final GuiParent parent;
+	public final AnimationGuiHandler handler;
 	
-	public LittleStructureGuiParser(GuiParent parent) {
+	public LittleStructureGuiParser(GuiParent parent, AnimationGuiHandler handler) {
 		this.parent = parent;
+		this.handler = handler;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -34,8 +39,9 @@ public abstract class LittleStructureGuiParser {
 		return (T) type.createStructure();
 	}
 	
+	@Override
 	@SideOnly(Side.CLIENT)
-	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box) {
+	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
 		
 	}
 	

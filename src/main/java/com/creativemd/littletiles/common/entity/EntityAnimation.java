@@ -643,32 +643,9 @@ public class EntityAnimation extends Entity {
 	
 	public void onTick() {
 		AnimationState state = controller.tick();
-		double moveX;
-		double moveY;
-		double moveZ;
-		if (state.offset != null) {
-			moveX = state.offset.x;
-			moveY = state.offset.y;
-			moveZ = state.offset.z;
-		} else {
-			moveX = 0;
-			moveY = 0;
-			moveZ = 0;
-		}
-		
-		double rotateX;
-		double rotateY;
-		double rotateZ;
-		if (state.rotation != null) {
-			rotateX = state.rotation.x;
-			rotateY = state.rotation.y;
-			rotateZ = state.rotation.z;
-		} else {
-			rotateX = 0;
-			rotateY = 0;
-			rotateZ = 0;
-		}
-		moveAndRotateAnimation(moveX - worldOffsetX, moveY - worldOffsetY, moveZ - worldOffsetZ, rotateX - worldRotX, rotateY - worldRotY, rotateZ - worldRotZ);
+		Vector3d offset = state.getOffset();
+		Vector3d rotation = state.getRotation();
+		moveAndRotateAnimation(offset.x - worldOffsetX, offset.y - worldOffsetY, offset.z - worldOffsetZ, rotation.x - worldRotX, rotation.y - worldRotY, rotation.z - worldRotZ);
 	}
 	
 	public void onPostTick() {

@@ -27,6 +27,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -290,8 +291,8 @@ public class LittleBed extends LittleStructure {
 	
 	public static class LittleBedParser extends LittleStructureGuiParser {
 		
-		public LittleBedParser(GuiParent parent) {
-			super(parent);
+		public LittleBedParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@SideOnly(Side.CLIENT)

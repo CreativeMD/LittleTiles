@@ -31,12 +31,12 @@ import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotatio
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.utils.animation.Animation;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.utils.animation.TimestampAnimation;
-import com.creativemd.littletiles.common.utils.animation.transformation.OffsetTransformation;
-import com.creativemd.littletiles.common.utils.animation.transformation.RotationTransformation;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -59,11 +59,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		return list;
 	}
 	
-	public static PairList<Integer, Integer> loadPairListInteger(int[] array) {
-		PairList<Integer, Integer> list = new PairList<>();
+	public static PairList<Integer, Double> loadPairListInteger(int[] array) {
+		PairList<Integer, Double> list = new PairList<>();
 		int i = 0;
 		while (i < array.length) {
-			list.add(array[i], array[i + 1]);
+			list.add(array[i], (double) array[i + 1]);
 			i += 2;
 		}
 		return list;
@@ -138,56 +138,78 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	@LTStructureAnnotation(color = ColorUtils.RED)
 	public StructureRelative axisCenter;
 	
-	public PairList<Integer, Double> rotX;
-	public PairList<Integer, Double> rotY;
-	public PairList<Integer, Double> rotZ;
+	public ValueTimeline rotX;
+	public ValueTimeline rotY;
+	public ValueTimeline rotZ;
 	
 	public LittleGridContext offGrid;
-	public PairList<Integer, Integer> offX;
-	public PairList<Integer, Integer> offY;
-	public PairList<Integer, Integer> offZ;
+	public ValueTimeline offX;
+	public ValueTimeline offY;
+	public ValueTimeline offZ;
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
 		
+		NBTTagCompound animation = new NBTTagCompound();
 		if (rotX != null)
-			nbt.setIntArray("rotX", savePairListDouble(rotX));
+			animation.setIntArray("rotX", rotX.write());
 		if (rotY != null)
-			nbt.setIntArray("rotY", savePairListDouble(rotY));
+			animation.setIntArray("rotY", rotY.write());
 		if (rotZ != null)
-			nbt.setIntArray("rotZ", savePairListDouble(rotZ));
+			animation.setIntArray("rotZ", rotZ.write());
 		
 		if (offGrid != null) {
-			nbt.setInteger("offGrid", offGrid.size);
+			animation.setInteger("offGrid", offGrid.size);
 			if (offX != null)
-				nbt.setIntArray("offX", savePairListInteger(offX));
+				animation.setIntArray("offX", offX.write());
 			if (offY != null)
-				nbt.setIntArray("offY", savePairListInteger(offY));
+				animation.setIntArray("offY", offY.write());
 			if (offZ != null)
-				nbt.setIntArray("offZ", savePairListInteger(offZ));
+				animation.setIntArray("offZ", offZ.write());
 		}
+		nbt.setTag("animation", animation);
 	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
 		
-		if (nbt.hasKey("rotX"))
-			rotX = loadPairListDouble(nbt.getIntArray("rotX"));
-		if (nbt.hasKey("rotY"))
-			rotY = loadPairListDouble(nbt.getIntArray("rotY"));
-		if (nbt.hasKey("rotZ"))
-			rotZ = loadPairListDouble(nbt.getIntArray("rotZ"));
-		
-		if (nbt.hasKey("offGrid")) {
-			offGrid = LittleGridContext.get(nbt.getInteger("offGrid"));
-			if (nbt.hasKey("offX"))
-				offX = loadPairListInteger(nbt.getIntArray("offX"));
-			if (nbt.hasKey("offY"))
-				offY = loadPairListInteger(nbt.getIntArray("offY"));
-			if (nbt.hasKey("offZ"))
-				offZ = loadPairListInteger(nbt.getIntArray("offZ"));
+		if (nbt.hasKey("animation")) {
+			NBTTagCompound animation = nbt.getCompoundTag("animation");
+			if (animation.hasKey("rotX"))
+				rotX = ValueTimeline.read(animation.getIntArray("rotX"));
+			if (animation.hasKey("rotY"))
+				rotY = ValueTimeline.read(animation.getIntArray("rotY"));
+			if (animation.hasKey("rotZ"))
+				rotZ = ValueTimeline.read(animation.getIntArray("rotZ"));
+			
+			if (animation.hasKey("offGrid")) {
+				offGrid = LittleGridContext.get(animation.getInteger("offGrid"));
+				if (animation.hasKey("offX"))
+					offX = ValueTimeline.read(animation.getIntArray("offX"));
+				if (animation.hasKey("offY"))
+					offY = ValueTimeline.read(animation.getIntArray("offY"));
+				if (animation.hasKey("offZ"))
+					offZ = ValueTimeline.read(animation.getIntArray("offZ"));
+			}
+		} else { // before pre132
+			if (nbt.hasKey("rotX"))
+				rotX = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotX")));
+			if (nbt.hasKey("rotY"))
+				rotY = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotY")));
+			if (nbt.hasKey("rotZ"))
+				rotZ = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotZ")));
+			
+			if (nbt.hasKey("offGrid")) {
+				offGrid = LittleGridContext.get(nbt.getInteger("offGrid"));
+				if (nbt.hasKey("offX"))
+					offX = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offX")));
+				if (nbt.hasKey("offY"))
+					offY = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offY")));
+				if (nbt.hasKey("offZ"))
+					offZ = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offZ")));
+			}
 		}
 	}
 	
@@ -200,16 +222,44 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		else if (newDoor.axisCenter.getContext().size < previews.context.size)
 			newDoor.axisCenter.convertTo(previews.context);
 		
-		RotationTransformation rotation = rotX != null || rotY != null || rotZ != null ? new RotationTransformation(rotX != null ? rotX.getLast().value : 0, rotY != null ? rotY.getLast().value : 0, rotZ != null ? rotZ.getLast().value : 0) : null;
-		OffsetTransformation offset = offX != null || offY != null || offZ != null ? new OffsetTransformation(offX != null ? offX.getLast().value * offGrid.gridMCLength : 0, offY != null ? offY.getLast().value * offGrid.gridMCLength : 0, offZ != null ? offZ.getLast().value * offGrid.gridMCLength : 0) : null;
+		int duration = newDoor.duration;
 		
-		PairList<Long, Animation> open = new PairList<>();
-		open.add(0L, new TimestampAnimation(duration, interpolateToDouble(offX), interpolateToDouble(offY), interpolateToDouble(offZ), rotX, rotY, rotZ));
+		PairList<AnimationKey, ValueTimeline> open = new PairList<>();
+		PairList<AnimationKey, ValueTimeline> close = new PairList<>();
 		
-		PairList<Long, Animation> close = new PairList<>();
-		close.add(0L, new TimestampAnimation(duration, invert(interpolateToDouble(offX)), invert(interpolateToDouble(offY)), invert(interpolateToDouble(offZ)), invert(rotX), invert(rotY), invert(rotZ)));
+		AnimationState opened = new AnimationState();
+		if (offX != null) {
+			opened.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.last()));
+			open.add(AnimationKey.offX, offX.copy().factor(offGrid.gridMCLength));
+			close.add(AnimationKey.offX, offX.invert(duration).factor(offGrid.gridMCLength));
+		}
+		if (offY != null) {
+			opened.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.last()));
+			open.add(AnimationKey.offY, offY.copy().factor(offGrid.gridMCLength));
+			close.add(AnimationKey.offY, offY.invert(duration).factor(offGrid.gridMCLength));
+		}
+		if (offZ != null) {
+			opened.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.last()));
+			open.add(AnimationKey.offZ, offZ.copy().factor(offGrid.gridMCLength));
+			close.add(AnimationKey.offZ, offZ.invert(duration).factor(offGrid.gridMCLength));
+		}
+		if (rotX != null) {
+			opened.set(AnimationKey.rotX, rotX.last());
+			open.add(AnimationKey.rotX, rotX);
+			close.add(AnimationKey.rotX, rotX.invert(duration));
+		}
+		if (rotY != null) {
+			opened.set(AnimationKey.rotY, rotY.last());
+			open.add(AnimationKey.rotY, rotY);
+			close.add(AnimationKey.rotY, rotY.invert(duration));
+		}
+		if (rotZ != null) {
+			opened.set(AnimationKey.rotZ, rotZ.last());
+			open.add(AnimationKey.rotZ, rotZ);
+			close.add(AnimationKey.rotZ, rotZ.invert(duration));
+		}
 		
-		DoorController controller = new DoorController(new AnimationState("closed", null, null), new AnimationState("opened", rotation, offset), false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
+		DoorController controller = new DoorController(new AnimationState(), opened, false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
 		
 		return place(world, player, previews, controller, uuid, absolute);
 	}
@@ -225,8 +275,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		public LittleGridContext context;
 		
-		public LittleAdvancedDoorParser(GuiParent parent) {
-			super(parent);
+		public LittleAdvancedDoorParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override
@@ -234,13 +284,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		public void createControls(ItemStack stack, LittleStructure structure) {
 			LittleAdvancedDoor door = structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null;
 			List<TimelineChannel> channels = new ArrayList<>();
-			channels.add(new TimelineChannelDouble("rot X").addKeyFixed(0, 0D).addKeys(door != null ? door.rotX : null));
-			channels.add(new TimelineChannelDouble("rot Y").addKeyFixed(0, 0D).addKeys(door != null ? door.rotY : null));
-			channels.add(new TimelineChannelDouble("rot Z").addKeyFixed(0, 0D).addKeys(door != null ? door.rotZ : null));
-			channels.add(new TimelineChannelInteger("off X").addKeyFixed(0, 0).addKeys(door != null ? door.offX : null));
-			channels.add(new TimelineChannelInteger("off Y").addKeyFixed(0, 0).addKeys(door != null ? door.offY : null));
-			channels.add(new TimelineChannelInteger("off Z").addKeyFixed(0, 0).addKeys(door != null ? door.offZ : null));
-			parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 50, channels).setSidebarWidth(30));
+			channels.add(new TimelineChannelDouble("rot X").addKeyFixed(0, 0D).addKeys(door != null && door.rotX != null ? door.rotX.getPointsCopy() : null));
+			channels.add(new TimelineChannelDouble("rot Y").addKeyFixed(0, 0D).addKeys(door != null && door.rotY != null ? door.rotY.getPointsCopy() : null));
+			channels.add(new TimelineChannelDouble("rot Z").addKeyFixed(0, 0D).addKeys(door != null && door.rotZ != null ? door.rotZ.getPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off X").addKeyFixed(0, 0).addKeys(door != null && door.offX != null ? door.offX.getRoundedPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off Y").addKeyFixed(0, 0).addKeys(door != null && door.offY != null ? door.offY.getRoundedPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off Z").addKeyFixed(0, 0).addKeys(door != null && door.offZ != null ? door.offZ.getRoundedPointsCopy() : null));
+			parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 50, channels, handler).setSidebarWidth(30));
 			parent.controls.add(new GuiLabel("tick", "0", 150, 75));
 			
 			context = door != null ? (door.offGrid != null ? door.offGrid : LittleGridContext.get()) : LittleGridContext.get();
@@ -250,10 +300,43 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiLabel("Position:", 90, 90));
 			parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
 			
-			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, LittleGridContext.get(stack.getTagCompound()), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null));
+			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, LittleGridContext.get(stack.getTagCompound()), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
 			parent.controls.add(new GuiLabel("Duration:", 90, 112));
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 112, 40, 10).setNumbersOnly());
+			
+			updateTimeline();
+		}
+		
+		public void updateTimeline() {
+			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
+			AnimationTimeline animation = new AnimationTimeline(timeline.getDuration(), new PairList<>());
+			
+			ValueTimeline rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
+			if (rotX != null)
+				animation.values.add(AnimationKey.rotX, rotX);
+			
+			ValueTimeline rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());
+			if (rotY != null)
+				animation.values.add(AnimationKey.rotY, rotY);
+			
+			ValueTimeline rotZ = ValueTimeline.create(0, timeline.channels.get(2).getPairs());
+			if (rotZ != null)
+				animation.values.add(AnimationKey.rotZ, rotZ);
+			
+			ValueTimeline offX = ValueTimeline.create(0, timeline.channels.get(3).getPairs());
+			if (offX != null)
+				animation.values.add(AnimationKey.offX, offX.factor(context.gridMCLength));
+			
+			ValueTimeline offY = ValueTimeline.create(0, timeline.channels.get(4).getPairs());
+			if (offY != null)
+				animation.values.add(AnimationKey.offY, offY.factor(context.gridMCLength));
+			
+			ValueTimeline offZ = ValueTimeline.create(0, timeline.channels.get(5).getPairs());
+			if (offZ != null)
+				animation.values.add(AnimationKey.offZ, offZ.factor(context.gridMCLength));
+			
+			handler.setTimeline(animation);
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -287,7 +370,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		@CustomEventSubscribe
 		@SideOnly(Side.CLIENT)
-		public void onTextfieldChanges(GuiControlChangedEvent event) {
+		public void onChange(GuiControlChangedEvent event) {
 			if (event.source.is("keyDistance")) {
 				
 				if (!selected.modifiable)
@@ -340,7 +423,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				} catch (NumberFormatException e) {
 					
 				}
-			}
+			} else if (event.source.is("timeline"))
+				updateTimeline();
 		}
 		
 		@CustomEventSubscribe
@@ -360,6 +444,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			GuiLTDistance distance = (GuiLTDistance) parent.get("keyDistance");
 			distance.setEnabled(false);
 			distance.resetTextfield();
+			
+			updateTimeline();
 		}
 		
 		@CustomEventSubscribe
@@ -379,12 +465,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			door.duration = timeline.getDuration();
-			door.rotX = timeline.channels.get(0).getPairs();
-			door.rotY = timeline.channels.get(1).getPairs();
-			door.rotZ = timeline.channels.get(2).getPairs();
-			door.offX = timeline.channels.get(3).getPairs();
-			door.offY = timeline.channels.get(4).getPairs();
-			door.offZ = timeline.channels.get(5).getPairs();
+			
+			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
+			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());
+			door.rotZ = ValueTimeline.create(0, timeline.channels.get(2).getPairs());
+			door.offX = ValueTimeline.create(0, timeline.channels.get(3).getPairs());
+			door.offY = ValueTimeline.create(0, timeline.channels.get(4).getPairs());
+			door.offZ = ValueTimeline.create(0, timeline.channels.get(5).getPairs());
 			door.offGrid = context;
 			return door;
 		}

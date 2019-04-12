@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
@@ -23,6 +24,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
+import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
@@ -36,8 +38,11 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
-import com.creativemd.littletiles.common.utils.animation.transformation.RotationTransformation;
+import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -47,6 +52,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -246,7 +252,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void writeToNBT(String name, NBTTagCompound nbt) {
-			nbt.setIntArray(name, new int[] { vec.x, vec.y, vec.z, context.size, additional.x, additional.y, additional.z });
+			nbt.setIntArray(name, new int[] { vec.x, vec.y, vec.z, context.size, additional.x, additional.y,
+			        additional.z });
 		}
 		
 		@Override
@@ -257,8 +264,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 	
 	public static class LittleAxisDoorParser extends LittleDoorBaseParser {
 		
-		public LittleAxisDoorParser(GuiParent parent) {
-			super(parent);
+		public LittleAxisDoorParser(GuiParent parent, AnimationGuiHandler handler) {
+			super(parent, handler);
 		}
 		
 		@Override
@@ -279,7 +286,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			super.createControls(stack, structure);
 			LittleAxisDoor door = null;
 			if (structure instanceof LittleAxisDoor)
 				door = (LittleAxisDoor) structure;
@@ -288,7 +294,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleGridContext axisContext = stackContext;
 			
 			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
-			
+			parent.addControl(viewer);
 			boolean even = false;
 			AxisDoorRotation doorRotation;
 			if (door != null) {
@@ -308,7 +314,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 				doorRotation = new PlayerOrientatedRotation();
 			}
 			viewer.visibleAxis = true;
-			parent.addControl(viewer);
 			
 			parent.addControl(new GuiTabStateButton("doorRotation", rotationTypes.indexOf(doorRotation.getClass()), 110, 0, 12, rotationTypeNames.toArray(new String[0])));
 			
@@ -340,6 +345,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 					default:
 						break;
 					}
+					updateTimeline();
 				}
 			}.setCustomTooltip("change view"));
 			parent.addControl(new GuiIconButton("flip view", 60, 107, 4) {
@@ -388,25 +394,32 @@ public class LittleAxisDoor extends LittleDoorBase {
 			parent.controls.add(contextBox);
 			
 			doorRotation.onSelected(viewer, typePanel);
+			
+			super.createControls(stack, structure);
+			
+			onAxisChanged(new GuiTileViewerAxisChangedEvent(viewer));
 		}
 		
 		@CustomEventSubscribe
 		@SideOnly(Side.CLIENT)
-		public void onButtonClicked(GuiControlClickEvent event) {
-			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-			if (event.source.is("even")) {
-				viewer.setEven(((GuiCheckBox) event.source).value);
-			}
+		public void onAxisChanged(GuiTileViewerAxisChangedEvent event) {
+			GuiTileViewer viewer = (GuiTileViewer) event.source;
+			handler.setCenter(new StructureAbsolute(new BlockPos(0, 75, 0), viewer.getBox().copy(), viewer.getAxisContext()));
 		}
 		
+		@Override
 		@CustomEventSubscribe
 		@SideOnly(Side.CLIENT)
-		public void onStateChange(GuiControlChangedEvent event) {
-			if (event.source.is("doorRotation")) {
-				AxisDoorRotation rotation = createRotation(((GuiTabStateButton) event.source).getState());
+		public void onChanged(GuiControlChangedEvent event) {
+			super.onChanged(event);
+			AxisDoorRotation rotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
+			if (rotation.shouldUpdateTimeline((GuiControl) event.source))
+				updateTimeline();
+			else if (event.source.is("doorRotation")) {
 				GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
 				typePanel.controls.clear();
 				rotation.onSelected((GuiTileViewer) parent.get("tileviewer"), typePanel);
+				updateTimeline();
 			} else if (event.source.is("grid")) {
 				GuiStateButton contextBox = (GuiStateButton) event.source;
 				LittleGridContext context;
@@ -437,6 +450,26 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 				viewer.setAxis(box, context);
 			}
+		}
+		
+		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
+		public void onButtonClicked(GuiControlClickEvent event) {
+			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
+			if (event.source.is("even")) {
+				viewer.setEven(((GuiCheckBox) event.source).value);
+			}
+		}
+		
+		@Override
+		public void populateTimeline(AnimationTimeline timeline) {
+			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+			GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
+			
+			AxisDoorRotation doorRotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
+			doorRotation.parseGui(viewer, typePanel);
+			
+			doorRotation.populateTimeline(timeline, timeline.duration, AnimationKey.getRotation(viewer.getAxis()));
 		}
 		
 	}
@@ -506,10 +539,15 @@ public class LittleAxisDoor extends LittleDoorBase {
 		protected abstract DoorController createController(Rotation rotation, LittleAxisDoor door);
 		
 		@SideOnly(Side.CLIENT)
+		public abstract boolean shouldUpdateTimeline(GuiControl control);
+		
+		@SideOnly(Side.CLIENT)
 		protected abstract void onSelected(GuiTileViewer viewer, GuiParent parent);
 		
 		@SideOnly(Side.CLIENT)
 		protected abstract void parseGui(GuiTileViewer viewer, GuiParent parent);
+		
+		public abstract void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key);
 		
 	}
 	
@@ -575,28 +613,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
-			RotationTransformation transformation = new RotationTransformation(0, 0, 0);
-			switch (rotation) {
-			case X_CLOCKWISE:
-				transformation.x = -90;
-				break;
-			case X_COUNTER_CLOCKWISE:
-				transformation.x = 90;
-				break;
-			case Y_CLOCKWISE:
-				transformation.y = -90;
-				break;
-			case Y_COUNTER_CLOCKWISE:
-				transformation.y = 90;
-				break;
-			case Z_CLOCKWISE:
-				transformation.z = -90;
-				break;
-			case Z_COUNTER_CLOCKWISE:
-				transformation.z = 90;
-				break;
-			}
-			return new DoorController(new AnimationState("closed", transformation, null), new AnimationState("opened", null, null), true, door.duration);
+			return new DoorController(new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration);
 		}
 		
 		@Override
@@ -623,8 +640,19 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean shouldUpdateTimeline(GuiControl control) {
+			return false;
+		}
+		
+		@Override
 		protected boolean shouldRotatePreviews(LittleAxisDoor door) {
 			return true;
+		}
+		
+		@Override
+		public void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key) {
+			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, 90D));
 		}
 		
 	}
@@ -671,7 +699,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
-			return new DoorController(new AnimationState("opened", new RotationTransformation(Rotation.getRotation(door.axis, degree > 0), Math.abs(degree)), null), false, door.duration);
+			return new DoorController(new AnimationState().set(AnimationKey.getRotation(door.axis), degree), false, door.duration);
 		}
 		
 		@Override
@@ -697,8 +725,20 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
+		@SideOnly(Side.CLIENT)
+		public boolean shouldUpdateTimeline(GuiControl control) {
+			return control.is("degree");
+		}
+		
+		@Override
 		protected boolean shouldRotatePreviews(LittleAxisDoor door) {
 			return false;
+		}
+		
+		@Override
+		public void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key) {
+			timeline.duration = duration * 2;
+			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, degree).addPoint(duration * 2, 0D));
 		}
 		
 	}
