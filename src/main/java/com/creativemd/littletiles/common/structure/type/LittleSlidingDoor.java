@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
@@ -130,6 +131,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");
 				updateButtonDirection(viewer, direction, relativeDirection);
 			}
+		}
+		
+		@CustomEventSubscribe
+		@SideOnly(Side.CLIENT)
+		public void onChanged(GuiControlChangedEvent event) {
+			if (event.source.is("distance"))
+				updateTimeline();
 		}
 		
 		@SideOnly(Side.CLIENT)

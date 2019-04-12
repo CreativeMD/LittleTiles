@@ -204,6 +204,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		
 		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
 		if (parser != null) {
+			handler.setTimeline(null);
 			parser.createControls(stack, saved);
 			panel.refreshControls();
 			addListener(parser);
