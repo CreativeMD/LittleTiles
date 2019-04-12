@@ -28,7 +28,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 			} else {
 				stack = stack.copy();
 				stack.setCount(1);
-				new LittleTileSize(LittleGridContext.get().size / 4 * 3, LittleGridContext.get().size / 4 * 3, LittleGridContext.get().size / 4 * 3).writeToNBT("size", stack.getTagCompound());
+				new LittleTileSize(LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size).writeToNBT("size", stack.getTagCompound());
 			}
 		}
 		return stack;
