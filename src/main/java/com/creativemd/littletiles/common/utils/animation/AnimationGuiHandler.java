@@ -59,6 +59,9 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	}
 	
 	public void tick(EntityAnimation animation) {
+		if (timeline == null)
+			return;
+		
 		if (playing) {
 			if (tick > timeline.duration) {
 				if (loop)
