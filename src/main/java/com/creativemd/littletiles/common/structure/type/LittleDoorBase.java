@@ -8,7 +8,9 @@ import java.util.UUID;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
@@ -61,6 +63,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 	}
 	
 	public int duration = 50;
+	public boolean stayAnimated = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -68,11 +71,14 @@ public abstract class LittleDoorBase extends LittleStructure {
 			duration = nbt.getInteger("duration");
 		else
 			duration = 50;
+		stayAnimated = nbt.getBoolean("stayAnimated");
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setInteger("duration", duration);
+		if (stayAnimated)
+			nbt.setBoolean("stayAnimated", stayAnimated);
 	}
 	
 	public boolean place(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, StructureAbsolute absolute) {
@@ -196,7 +202,8 @@ public abstract class LittleDoorBase extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(ItemStack stack, LittleStructure structure) {
-			parent.controls.add(new GuiLabel("Duration:", 90, 122));
+			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
+			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
 			
 			updateTimeline();
@@ -206,11 +213,12 @@ public abstract class LittleDoorBase extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public LittleDoorBase parseStructure(ItemStack stack) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-			return parseStructure((int) slider.value);
+			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
+			return parseStructure((int) slider.value, checkBox.value);
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public abstract LittleDoorBase parseStructure(int duration);
+		public abstract LittleDoorBase parseStructure(int duration, boolean stayAnimated);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract void populateTimeline(AnimationTimeline timeline);

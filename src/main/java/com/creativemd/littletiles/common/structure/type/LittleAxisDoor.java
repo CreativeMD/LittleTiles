@@ -270,7 +270,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleAxisDoor parseStructure(int duration) {
+		public LittleAxisDoor parseStructure(int duration, boolean stayAnimated) {
 			LittleAxisDoor door = createStructure(LittleAxisDoor.class);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
@@ -280,6 +280,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			door.doorRotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
 			door.doorRotation.parseGui(viewer, typePanel);
 			door.duration = duration;
+			door.stayAnimated = stayAnimated;
 			return door;
 		}
 		
@@ -613,6 +614,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
+			if (door.stayAnimated)
+				return new DoorController(new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration);
 			return new DoorController(new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration);
 		}
 		
@@ -647,7 +650,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected boolean shouldRotatePreviews(LittleAxisDoor door) {
-			return true;
+			return !door.stayAnimated;
 		}
 		
 		@Override
@@ -699,7 +702,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
-			return new DoorController(new AnimationState().set(AnimationKey.getRotation(door.axis), degree), false, door.duration);
+			return new DoorController(new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration);
 		}
 		
 		@Override

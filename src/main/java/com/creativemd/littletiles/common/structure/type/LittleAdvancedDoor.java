@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline;
@@ -259,7 +261,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		DoorController controller = new DoorController(new AnimationState(), opened, false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
+		DoorController controller = new DoorController(new AnimationState(), opened, stayAnimated ? null : false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
 		
 		return place(world, player, previews, controller, uuid, absolute);
 	}
@@ -302,8 +304,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, LittleGridContext.get(stack.getTagCompound()), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
-			parent.controls.add(new GuiLabel("Duration:", 90, 112));
-			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 112, 40, 10).setNumbersOnly());
+			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
+			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
+			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 10).setNumbersOnly());
 			
 			updateTimeline();
 		}
@@ -465,6 +468,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			door.duration = timeline.getDuration();
+			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
+			door.stayAnimated = checkBox.value;
 			
 			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
 			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());

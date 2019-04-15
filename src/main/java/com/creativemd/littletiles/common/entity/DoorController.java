@@ -114,7 +114,7 @@ public class DoorController extends EntityAnimationController {
 			return false;
 		
 		boolean isOpen = currentState.name.equals(openedState);
-		if (!isChanging() && isOpen ? closedState != null : openedState != null) {
+		if (!isChanging()) {
 			startTransition(isOpen ? closedState : openedState);
 			return true;
 		}

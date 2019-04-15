@@ -77,7 +77,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		offsetVec.scale(moveDistance);
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
 		
-		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)));
+		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(stayAnimated ? getMainTile().te.getPos() : getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)));
 		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
 		structure.duration = duration;
 		structure.moveDirection = moveDirection.getOpposite();
@@ -90,9 +90,16 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		else if (offset.context.size < previews.context.size)
 			offset.convertTo(previews.context);
 		
-		previews.movePreviews(world, player, null, previews.context, offset.vec);
+		if (!stayAnimated)
+			previews.movePreviews(world, player, null, previews.context, offset.vec);
 		
-		return place(world, player, previews, new DoorController(new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration), uuid, absolute);
+		DoorController controller;
+		if (stayAnimated)
+			controller = new DoorController(new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration);
+		else
+			controller = new DoorController(new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration);
+		
+		return place(world, player, previews, controller, uuid, absolute);
 	}
 	
 	@Override
@@ -245,7 +252,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleSlidingDoor parseStructure(int duration) {
+		public LittleSlidingDoor parseStructure(int duration, boolean stayAnimated) {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
 			
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
@@ -255,6 +262,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			door.moveDirection = direction;
 			door.moveDistance = distance.getDistance();
 			door.moveContext = distance.getDistanceContext();
+			door.stayAnimated = stayAnimated;
 			return door;
 		}
 		
