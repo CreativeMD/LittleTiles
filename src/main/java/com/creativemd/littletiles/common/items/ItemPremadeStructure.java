@@ -57,7 +57,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		if (stack == null)
 			return null;
-		return ItemModelCache.getCache(stack, facing);
+		return ItemModelCache.requestCache(stack, facing);
 	}
 	
 	@Override

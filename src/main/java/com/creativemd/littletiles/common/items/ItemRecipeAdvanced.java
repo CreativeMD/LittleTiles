@@ -13,8 +13,8 @@ import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
-import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.common.gui.SubGuiRecipe;
+import com.creativemd.littletiles.common.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
@@ -162,7 +162,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
-		return ItemModelCache.getCache(stack, facing);
+		return ItemModelCache.requestCache(stack, facing);
 	}
 	
 	@Override

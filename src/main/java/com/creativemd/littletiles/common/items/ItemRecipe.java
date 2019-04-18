@@ -224,6 +224,6 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
-		return ItemModelCache.getCache(stack, facing);
+		return ItemModelCache.requestCache(stack, facing);
 	}
 }

@@ -472,7 +472,7 @@ public class LittleEvent {
 		if (event.phase == Phase.END) {
 			Minecraft mc = Minecraft.getMinecraft();
 			
-			ItemModelCache.tick();
+			ItemModelCache.tick(mc.world);
 			
 			if (leftClicked && !mc.gameSettings.keyBindAttack.isKeyDown()) {
 				leftClicked = false;
