@@ -642,6 +642,8 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void onTick() {
+		if (controller == null)
+			return;
 		AnimationState state = controller.tick();
 		Vector3d offset = state.getOffset();
 		Vector3d rotation = state.getRotation();
