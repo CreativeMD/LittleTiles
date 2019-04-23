@@ -362,7 +362,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
 		
 		NBTTagList children = new NBTTagList();
-		for (LittlePreviewsStructure child : previews.getChildren()) {
+		for (LittlePreviews child : previews.getChildren()) {
 			children.appendTag(LittleTilePreview.saveChildPreviews(child));
 		}
 		nbt.setTag("children", children);

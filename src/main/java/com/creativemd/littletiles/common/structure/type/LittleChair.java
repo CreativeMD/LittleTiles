@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
@@ -61,13 +62,13 @@ public class LittleChair extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleStructure parseStructure(ItemStack stack) {
+		public LittleStructure parseStructure(LittlePreviews previews) {
 			return createStructure(LittleChair.class);
 		}
 	}

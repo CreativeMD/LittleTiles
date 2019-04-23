@@ -10,22 +10,21 @@ import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.Vec3d;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
 	
 	public EntityAnimation animation;
-	public AxisAlignedBB box;
+	public LittleGridContext context;
+	public LittleTileVec min;
 	
 	public SmoothValue rotX = new SmoothValue(200);
 	public SmoothValue rotY = new SmoothValue(200);
@@ -95,7 +94,6 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		rotZ.tick();
 		distance.tick();
 		
-		Vec3d center = box.getCenter();
 		GlStateManager.disableDepth();
 		
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -131,6 +129,8 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		GL11.glRotated(rotY.current(), 0, 1, 0);
 		GL11.glRotated(rotZ.current(), 0, 0, 1);
 		
+		GlStateManager.translate(-min.getPosX(context), -min.getPosY(context), -min.getPosZ(context));
+		
 		GlStateManager.translate(-rotationCenter.x, -rotationCenter.y, -rotationCenter.z);
 		
 		GlStateManager.pushMatrix();
@@ -162,9 +162,10 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 	}
 	
 	@Override
-	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
-		this.animation = animation;
-		this.distance.setStart(context.toVanillaGrid(entireBox.getLongestSide()) / 2D + 2);
-		this.box = box;
+	public void onLoaded(AnimationPreview animationPreview) {
+		this.animation = animationPreview.animation;
+		this.distance.setStart(animationPreview.context.toVanillaGrid(animationPreview.entireBox.getLongestSide()) / 2D + 2);
+		this.context = animationPreview.context;
+		this.min = animationPreview.entireBox.getMinVec();
 	}
 }

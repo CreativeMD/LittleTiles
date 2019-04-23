@@ -9,13 +9,12 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.gui.mc.ContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
 import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -24,7 +23,6 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -206,7 +204,7 @@ public class SubGuiDialogAxis extends SubGui {
 		}
 		
 		@Override
-		public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
+		public void onLoaded(AnimationPreview animationPreview) {
 			LittleGridContext axisContext = stackContext;
 			
 			viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
@@ -225,7 +223,7 @@ public class SubGuiDialogAxis extends SubGui {
 				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
 			}
 			viewer.visibleAxis = true;
-			viewer.onLoaded(animation, entireBox, axisContext, box, previews);
+			viewer.onLoaded(animationPreview);
 			setEnabled(true);
 			
 			handler.setCenter(new StructureAbsolute(new BlockPos(0, 75, 0), viewer.getBox().copy(), viewer.getAxisContext()));

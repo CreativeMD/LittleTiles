@@ -7,12 +7,12 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -86,12 +86,12 @@ public class LittleLadder extends LittleStructure {
 		}
 		
 		@Override
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			
 		}
 		
 		@Override
-		public LittleLadder parseStructure(ItemStack stack) {
+		public LittleLadder parseStructure(LittlePreviews previews) {
 			return createStructure(LittleLadder.class);
 		}
 	}

@@ -1,12 +1,10 @@
 package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.UUID;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
+import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBoxCategory;
@@ -14,41 +12,26 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
+import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemComboBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.creativecore.common.world.FakeWorld;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.entity.EntityAnimationController;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.gui.controls.GuiAnimationViewer;
 import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
-import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.utils.animation.AnimationState;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 
 public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	
@@ -56,48 +39,100 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	public LittleStructureGuiParser parser;
 	public PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables;
 	
+	public AnimationPreview animationPreview;
+	public StructureHolder selected;
 	protected LoadingThread loadingThread;
 	
-	public boolean loaded = false;
-	public EntityAnimation animation = null;
-	public LittleTileBox entireBox;
-	public LittleGridContext context;
-	public AxisAlignedBB box;
+	public List<StructureHolder> hierarchy;
+	public List<ItemStack> hierarchyStacks;
+	public List<String> hierarchyNames;
 	public LittlePreviews previews;
 	
 	public AnimationGuiHandler handler = new AnimationGuiHandler(this);
 	
 	public SubGuiRecipe(ItemStack stack) {
 		super(350, 200, stack);
-		loadingThread = new LoadingThread();
+		
+		PairList<String, Class<? extends LittleStructureGuiParser>> noneCategory = new PairList<>();
+		noneCategory.add("structure.none.name", null);
+		craftables = new PairList<>(LittleStructureRegistry.getCraftables());
+		craftables.add(0, new Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>>("", noneCategory));
+		
+		previews = LittleTilePreview.getPreview(stack);
+		
+		hierarchy = new ArrayList<>();
+		hierarchyStacks = new ArrayList<>();
+		hierarchyNames = new ArrayList<>();
+		
+		addPreviews(previews, hierarchy, hierarchyStacks, hierarchyNames, "", null, -1);
+	}
+	
+	protected static void addPreviews(LittlePreviews previews, List<StructureHolder> hierarchy, List<ItemStack> stacks, List<String> lines, String prefix, LittlePreviews parent, int childId) {
+		StructureHolder holder = new StructureHolder(parent, childId, hierarchy.size());
+		holder.previews = previews;
+		holder.prefix = prefix;
+		lines.add(holder.getDisplayName());
+		
+		ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+		LittlePreviews newPreviews = new LittlePreviews(previews.context);
+		int minX = Integer.MAX_VALUE;
+		int minY = Integer.MAX_VALUE;
+		int minZ = Integer.MAX_VALUE;
+		for (LittleTilePreview preview : previews) {
+			
+			newPreviews.addWithoutCheckingPreview(preview.copy());
+			minX = Math.min(minX, preview.box.minX);
+			minY = Math.min(minY, preview.box.minY);
+			minZ = Math.min(minZ, preview.box.minZ);
+			minX = Math.min(minX, preview.box.maxX);
+			minY = Math.min(minY, preview.box.maxY);
+			minZ = Math.min(minZ, preview.box.maxZ);
+		}
+		
+		for (LittleTilePreview preview : newPreviews) {
+			preview.box.sub(minX, minY, minZ);
+		}
+		LittleTilePreview.savePreview(newPreviews, stack);
+		stacks.add(stack);
+		holder.explicit = stack;
+		hierarchy.add(holder);
+		
+		if (previews.hasChildren()) {
+			int i = 0;
+			for (LittlePreviews child : previews.getChildren()) {
+				addPreviews(child, hierarchy, stacks, lines, prefix + "-", previews, i);
+				i++;
+			}
+		}
 	}
 	
 	@Override
-	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
-		onLoaded(this, animation, entireBox, context, box);
+	public void onLoaded(AnimationPreview animationPreview) {
+		onLoaded(this, animationPreview);
 		
 	}
 	
-	public void onLoaded(GuiParent parent, EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box) {
+	public void onLoaded(GuiParent parent, AnimationPreview animationPreview) {
 		for (GuiControl control : parent.controls) {
 			if (control instanceof IAnimationControl)
-				((IAnimationControl) control).onLoaded(animation, entireBox, context, box, previews);
+				((IAnimationControl) control).onLoaded(animationPreview);
 			if (control instanceof GuiParent)
-				onLoaded((GuiParent) control, animation, entireBox, context, box);
+				onLoaded((GuiParent) control, animationPreview);
 		}
 	}
 	
 	@Override
 	public void onTick() {
 		super.onTick();
-		if (loadingThread == null && !loaded) {
-			onLoaded(this, animation, entireBox, context, box);
+		if (loadingThread != null && loadingThread.result != null) {
+			animationPreview = loadingThread.result;
+			loadingThread = null;
+			onLoaded(animationPreview);
 			if (parser != null)
-				parser.onLoaded(animation, entireBox, context, box, previews);
-			loaded = true;
+				parser.onLoaded(animationPreview);
 		}
-		if (animation != null)
-			handler.tick(animation);
+		if (animationPreview != null)
+			handler.tick(animationPreview.animation);
 	}
 	
 	@Override
@@ -107,6 +142,8 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	
 	@Override
 	public void createControls() {
+		controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 80, craftables));
+		
 		controls.add(new GuiButton("clear", translate("selection.clear"), 105, 176, 38) {
 			
 			@Override
@@ -115,27 +152,9 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 			}
 		});
 		
-		PairList<String, Class<? extends LittleStructureGuiParser>> noneCategory = new PairList<>();
-		noneCategory.add("structure.none.name", null);
-		craftables = new PairList<>(LittleStructureRegistry.getCraftables());
-		craftables.add(0, new Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>>("", noneCategory));
-		GuiComboBoxCategory comboBox = new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 80, craftables);
-		LittlePreviews previews = LittleTilePreview.getPreview(stack);
-		LittleStructure structure = previews.getStructure();
-		if (structure != null) {
-			this.structure = structure;
-			int index = 0;
-			for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
-				int currentIndex = category.value.indexOfKey("structure." + structure.type.id + ".name");
-				if (currentIndex != -1) {
-					comboBox.select(currentIndex + index);
-					break;
-				}
-				index += category.value.size();
-			}
-		}
-		int size = previews.totalSize();
-		controls.add(new GuiLabel("tiles", previews.totalSize() + " " + translate(size == 1 ? "selection.structure.tile" : "selection.structure.tiles"), 208, 158));
+		controls.add(new GuiLabel("tilescount", "", 208, 158));
+		
+		controls.add(new GuiItemComboBox("hierarchy", 100, 5, 200, hierarchyNames, hierarchyStacks));
 		controls.add(new GuiAnimationViewer("renderer", 208, 30, 136, 135));
 		controls.add(new GuiIconButton("play", 248, 172, 10) {
 			
@@ -159,23 +178,14 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 			}
 		});
 		controls.add(new GuiPanel("panel", 0, 30, 200, 135));
-		controls.add(comboBox);
+		
 		controls.add(new GuiButton("save", 150, 176, 40) {
 			@Override
 			public void onClicked(int x, int y, int button) {
-				if (SubGuiRecipe.this.parser != null) {
-					GuiTextfield textfield = (GuiTextfield) get("name");
-					LittleStructure structure = SubGuiRecipe.this.parser.parseStructure(stack);
-					if (structure != null) {
-						structure.name = textfield.text.isEmpty() ? null : textfield.text;
-						NBTTagCompound structureNBT = new NBTTagCompound();
-						structure.writeToNBT(structureNBT);
-						stack.getTagCompound().setTag("structure", structureNBT);
-					} else
-						stack.getTagCompound().removeTag("structure");
-					
-				} else
-					stack.getTagCompound().removeTag("structure");
+				savePreview();
+				
+				stack.setTagCompound(new NBTTagCompound());
+				LittleTilePreview.savePreview(previews, stack);
 				
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("set_structure", true);
@@ -184,11 +194,47 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 				closeGui();
 			}
 		});
-		controls.add(new GuiTextfield("name", (structure != null && structure.name != null) ? structure.name : "", 2, 176, 95, 14).setCustomTooltip(translate("selection.structure.name")));
-		onChanged();
+		controls.add(new GuiTextfield("name", "", 2, 176, 95, 14).setCustomTooltip(translate("selection.structure.name")));
+		
+		loadStack(hierarchy.get(0));
 	}
 	
-	public void onChanged() {
+	public void loadStack(StructureHolder holder) {
+		this.selected = holder;
+		animationPreview = null;
+		
+		LittlePreviews previews = holder.previews;
+		
+		LittleStructure structure = previews.getStructure();
+		
+		GuiComboBoxCategory comboBox = (GuiComboBoxCategory) get("types");
+		this.structure = structure;
+		int index = 0;
+		for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
+			int currentIndex = category.value.indexOfKey("structure." + (structure != null ? structure.type.id : "none") + ".name");
+			if (currentIndex != -1) {
+				comboBox.select(currentIndex + index);
+				break;
+			}
+			index += category.value.size();
+		}
+		
+		GuiTextfield textfield = (GuiTextfield) get("name");
+		textfield.text = (structure != null && structure.name != null) ? structure.name : "";
+		textfield.setCursorPositionZero();
+		
+		int size = previews.totalSize();
+		GuiLabel label = ((GuiLabel) get("tilescount"));
+		label.caption = size + " " + translate(size == 1 ? "selection.structure.tile" : "selection.structure.tiles");
+		label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
+		if (loadingThread != null && loadingThread.isAlive())
+			loadingThread.stop();
+		loadingThread = new LoadingThread(previews);
+		
+		onStructureSelectorChanged();
+	}
+	
+	public void onStructureSelectorChanged() {
 		GuiPanel panel = (GuiPanel) get("panel");
 		panel.controls.clear();
 		
@@ -205,11 +251,11 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
 		if (parser != null) {
 			handler.setTimeline(null);
-			parser.createControls(stack, saved);
+			parser.createControls(this.selected.previews, saved);
 			panel.refreshControls();
 			addListener(parser);
-			if (loaded) {
-				onLoaded(panel, animation, entireBox, context, box);
+			if (animationPreview != null) {
+				onLoaded(panel, animationPreview);
 			}
 		} else
 			parser = null;
@@ -217,10 +263,41 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		get("name").setEnabled(parser != null);
 	}
 	
+	public void savePreview() {
+		LittleStructure structure = null;
+		LittlePreviews oldPreviews = selected.previews;
+		if (SubGuiRecipe.this.parser != null) {
+			GuiTextfield textfield = (GuiTextfield) get("name");
+			structure = SubGuiRecipe.this.parser.parseStructure(oldPreviews);
+			if (structure != null)
+				structure.name = textfield.text.isEmpty() ? null : textfield.text;
+			
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			structure.writeToNBT(structureNBT);
+			selected.previews = new LittlePreviewsStructure(structureNBT, oldPreviews.context);
+		} else
+			selected.previews = new LittlePreviews(oldPreviews.context);
+		
+		selected.previews.assign(oldPreviews);
+		if (selected.parent != null)
+			selected.parent.updateChild(selected.childId, selected.previews);
+		else
+			previews = selected.previews;
+		
+		hierarchyNames.set(selected.index, selected.getDisplayName());
+	}
+	
 	@CustomEventSubscribe
 	public void onComboChange(GuiControlChangedEvent event) {
 		if (event.source.is("types"))
-			onChanged();
+			onStructureSelectorChanged();
+		else if (event.source.is("hierarchy")) {
+			int index = ((GuiItemComboBox) event.source).index;
+			if (index != selected.index) {
+				savePreview();
+				loadStack(hierarchy.get(index));
+			}
+		}
 	}
 	
 	@Override
@@ -237,62 +314,50 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		stack.setTagCompound(nbt);
 	}
 	
-	public class LoadingThread extends Thread {
+	public static class LoadingThread extends Thread {
 		
-		public LoadingThread() {
+		public final LittlePreviews previews;
+		public AnimationPreview result;
+		
+		public LoadingThread(LittlePreviews previews) {
 			start();
+			this.previews = previews;
 		}
 		
 		@Override
 		public void run() {
-			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-			if (stack.getItem() instanceof ItemRecipe || (iTile != null && iTile.hasLittlePreview(stack))) {
-				previews = iTile != null ? iTile.getLittlePreview(stack) : LittleTilePreview.getPreview(stack);
-				BlockPos pos = new BlockPos(0, 75, 0);
-				FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
+			result = new AnimationPreview(previews);
+		}
+		
+	}
+	
+	public static class StructureHolder {
+		
+		public final LittlePreviews parent;
+		public final int childId;
+		public final int index;
+		public String prefix;
+		public ItemStack explicit;
+		public LittlePreviews previews;
+		
+		public StructureHolder(LittlePreviews parent, int childId, int index) {
+			this.parent = parent;
+			this.childId = childId;
+			this.index = index;
+		}
+		
+		public String getDisplayName() {
+			String name = previews.getStructureName();
+			if (name == null)
+				if (previews.hasStructure())
+					name = previews.getStructureId();
+				else
+					name = "none";
 				
-				List<PlacePreviewTile> placePreviews = new ArrayList<>();
-				previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
-				
-				HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, pos);
-				ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
-				LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, pos, null, null, null, null);
-				for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
-					TileEntity te = (TileEntity) iterator.next();
-					if (te instanceof TileEntityLittleTiles)
-						blocks.add((TileEntityLittleTiles) te);
-				}
-				
-				entireBox = previews.getSurroundingBox();
-				context = previews.context;
-				box = entireBox.getBox(context);
-				
-				animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
-					
-					@Override
-					protected void writeToNBTExtra(NBTTagCompound nbt) {
-						
-					}
-					
-					@Override
-					protected void readFromNBT(NBTTagCompound nbt) {
-						
-					}
-					
-					@Override
-					public boolean onRightClick() {
-						return false;
-					}
-				}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context)) {
-					
-					@Override
-					public boolean shouldAddDoor() {
-						return false;
-					}
-				};
-			}
+			if (parent != null)
+				name += " " + childId;
 			
-			loadingThread = null;
+			return prefix + name;
 		}
 		
 	}

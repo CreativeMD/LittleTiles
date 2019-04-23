@@ -34,7 +34,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	protected List<LittleTilePreview> previews;
 	public LittleGridContext context;
 	
-	protected List<LittlePreviewsStructure> children = new ArrayList<>();
+	protected List<LittlePreviews> children = new ArrayList<>();
 	
 	public LittlePreviews(LittleGridContext context) {
 		this.context = context;
@@ -44,6 +44,12 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	protected LittlePreviews(LittlePreviews previews) {
 		this.previews = new ArrayList<>(previews.previews);
 		this.context = previews.context;
+	}
+	
+	public void assign(LittlePreviews previews) {
+		this.context = previews.context;
+		this.previews = previews.previews;
+		this.children = previews.children;
 	}
 	
 	public boolean isAbsolute() {
@@ -58,12 +64,34 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return false;
 	}
 	
+	public void deleteCachedStructure() {
+		if (hasChildren())
+			for (LittlePreviews child : getChildren())
+				child.deleteCachedStructure();
+	}
+	
 	public LittleStructure getStructure() {
 		return null;
 	}
 	
 	public NBTTagCompound getStructureData() {
 		return null;
+	}
+	
+	public String getStructureName() {
+		if (!hasStructure())
+			return null;
+		
+		NBTTagCompound nbt = getStructureData();
+		return nbt.hasKey("name") ? nbt.getString("name") : null;
+	}
+	
+	public String getStructureId() {
+		if (!hasStructure())
+			return null;
+		
+		NBTTagCompound nbt = getStructureData();
+		return nbt.getString("id");
 	}
 	
 	public LittleGridContext getMinContext() {
@@ -80,11 +108,15 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return !children.isEmpty();
 	}
 	
-	public List<LittlePreviewsStructure> getChildren() {
+	public List<LittlePreviews> getChildren() {
 		return children;
 	}
 	
-	public void addChild(LittlePreviewsStructure child) {
+	public void updateChild(int index, LittlePreviews child) {
+		children.set(index, child);
+	}
+	
+	public void addChild(LittlePreviews child) {
 		if (child.isAbsolute())
 			throw new RuntimeException("Absolute previews cannot be added as a child!");
 		children.add((LittlePreviewsStructure) child);
@@ -128,7 +160,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		if (hasChildren())
-			for (LittlePreviewsStructure child : children) {
+			for (LittlePreviews child : children) {
 				child.movePreviews(world, player, stack, context, offset);
 			}
 	}
@@ -143,7 +175,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		if (hasChildren())
-			for (LittlePreviewsStructure child : children) {
+			for (LittlePreviews child : children) {
 				child.flipPreviews(world, player, stack, axis, doubledCenter);
 			}
 	}
@@ -158,7 +190,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 		
 		if (hasChildren())
-			for (LittlePreviewsStructure child : children) {
+			for (LittlePreviews child : children) {
 				child.rotatePreviews(world, player, stack, rotation, doubledCenter);
 			}
 	}

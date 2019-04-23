@@ -12,8 +12,8 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.DoorController;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.common.gui.controls.GuiLTDistance;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
@@ -22,8 +22,6 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
@@ -40,7 +38,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -177,19 +174,19 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, @Nullable LittleStructure structure) {
+		public void createControls(LittlePreviews previews, @Nullable LittleStructure structure) {
 			LittleSlidingDoor door = null;
 			if (structure instanceof LittleSlidingDoor)
 				door = (LittleSlidingDoor) structure;
 			
-			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleTileSize size = previews.getSize();
 			
 			int index = EnumFacing.UP.ordinal();
 			if (door != null)
 				index = door.moveDirection.ordinal();
 			EnumFacing direction = EnumFacing.getFront(index);
 			
-			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
+			LittleGridContext context = previews.context;
 			
 			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, context);
 			viewer.visibleAxis = false;
@@ -246,7 +243,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				}
 			}.setCustomTooltip("flip view"));
 			
-			super.createControls(stack, structure);
+			super.createControls(previews, structure);
 			
 		}
 		
@@ -268,8 +265,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
-			super.onLoaded(animation, entireBox, context, box, previews);
+		public void onLoaded(AnimationPreview animationPreview) {
+			super.onLoaded(animationPreview);
 			
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			GuiDirectionIndicator relativeDirection = (GuiDirectionIndicator) parent.get("relativeDirection");

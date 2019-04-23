@@ -6,7 +6,6 @@ import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -60,7 +59,7 @@ public class IngredientUtils {
 			previews.getStructure().addIngredients(ingredients);
 		
 		if (previews.hasChildren())
-			for (LittlePreviewsStructure child : previews.getChildren())
+			for (LittlePreviews child : previews.getChildren())
 				getIngredients(ingredients, child);
 	}
 	
@@ -75,7 +74,7 @@ public class IngredientUtils {
 			previews.getStructure().addIngredients(ingredients);
 		
 		if (previews.hasChildren())
-			for (LittlePreviewsStructure child : previews.getChildren())
+			for (LittlePreviews child : previews.getChildren())
 				getIngredientsStructure(ingredients, child);
 	}
 	

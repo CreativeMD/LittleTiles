@@ -36,11 +36,17 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	}
 	
 	@Override
+	public void deleteCachedStructure() {
+		super.deleteCachedStructure();
+		structure = null;
+	}
+	
+	@Override
 	public LittleStructure getStructure() {
 		if (structure == null) {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);
 			structure.tempChildren = new ArrayList<>();
-			for (LittlePreviewsStructure child : getChildren()) {
+			for (LittlePreviews child : getChildren()) {
 				structure.tempChildren.add(child.getStructure());
 			}
 		}
@@ -58,7 +64,7 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 		for (LittleTilePreview preview : this.previews) {
 			previews.previews.add(preview.copy());
 		}
-		for (LittlePreviewsStructure child : this.children) {
+		for (LittlePreviews child : this.children) {
 			previews.children.add(child.copy());
 		}
 		return previews;

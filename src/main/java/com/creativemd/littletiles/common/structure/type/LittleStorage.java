@@ -16,7 +16,6 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
@@ -118,8 +117,8 @@ public class LittleStorage extends LittleStructure {
 		}
 		
 		@Override
-		public void createControls(ItemStack stack, LittleStructure structure) {
-			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(LittleTilePreview.getPreview(stack)), 5, 0));
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
+			parent.controls.add(new GuiLabel("space: " + getSizeOfInventory(previews), 5, 0));
 			boolean invisible = false;
 			if (structure instanceof LittleStorage)
 				invisible = ((LittleStorage) structure).invisibleStorageTiles;
@@ -127,16 +126,14 @@ public class LittleStorage extends LittleStructure {
 		}
 		
 		@Override
-		public LittleStorage parseStructure(ItemStack stack) {
+		public LittleStorage parseStructure(LittlePreviews previews) {
 			
 			LittleStorage storage = createStructure(LittleStorage.class);
 			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
-			LittlePreviews previews = LittleTilePreview.getPreview(stack);
 			for (int i = 0; i < previews.size(); i++) {
 				if (previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
 					previews.get(i).setInvisibile(storage.invisibleStorageTiles);
 			}
-			LittleTilePreview.savePreview(previews, stack);
 			storage.inventorySize = getSizeOfInventory(previews);
 			storage.stackSizeLimit = maxSlotStackSize;
 			storage.updateNumberOfSlots();

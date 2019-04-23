@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -18,7 +17,7 @@ public class SubContainerRecipe extends SubContainerConfigure {
 	public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {
 		previews.context = context;
 		if (previews.hasChildren())
-			for (LittlePreviewsStructure child : previews.getChildren())
+			for (LittlePreviews child : previews.getChildren())
 				setLittlePreviewsContextSecretly(child, context);
 	}
 	

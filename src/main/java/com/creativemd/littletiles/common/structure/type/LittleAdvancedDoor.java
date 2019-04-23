@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
 import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -19,6 +21,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.timeline.TimelineChan
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.TimelineChannel.TimelineChannelInteger;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiToolTipEvent;
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
@@ -33,6 +36,8 @@ import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotatio
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -45,6 +50,7 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -216,6 +222,64 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
+	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		super.onFlip(world, player, stack, context, axis, doubledCenter);
+		
+		switch (axis) {
+		case X:
+			if (rotX != null)
+				rotX.flip();
+			if (offX != null)
+				offX.flip();
+			break;
+		case Y:
+			if (rotY != null)
+				rotY.flip();
+			if (offY != null)
+				offY.flip();
+			break;
+		case Z:
+			if (rotZ != null)
+				rotZ.flip();
+			if (offZ != null)
+				offZ.flip();
+			break;
+		}
+	}
+	
+	@Override
+	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+		super.onRotate(world, player, stack, context, rotation, doubledCenter);
+		ValueTimeline rotX = this.rotX;
+		ValueTimeline rotY = this.rotY;
+		ValueTimeline rotZ = this.rotZ;
+		
+		this.rotX = rotation.getX(rotX, rotY, rotZ);
+		if (rotation.negativeX() && this.rotX != null)
+			this.rotX.flip();
+		this.rotY = rotation.getY(rotX, rotY, rotZ);
+		if (rotation.negativeY() && this.rotY != null)
+			this.rotY.flip();
+		this.rotZ = rotation.getZ(rotX, rotY, rotZ);
+		if (rotation.negativeZ() && this.rotZ != null)
+			this.rotZ.flip();
+		
+		ValueTimeline offX = this.offX;
+		ValueTimeline offY = this.offY;
+		ValueTimeline offZ = this.offZ;
+		
+		this.offX = rotation.getX(offX, offY, offZ);
+		if (rotation.negativeX() && this.offX != null)
+			this.offX.flip();
+		this.offY = rotation.getY(offX, offY, offZ);
+		if (rotation.negativeY() && this.offY != null)
+			this.offY.flip();
+		this.offZ = rotation.getZ(offX, offY, offZ);
+		if (rotation.negativeZ() && this.offZ != null)
+			this.offZ.flip();
+	}
+	
+	@Override
 	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, StructureAbsolute absolute) {
 		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
@@ -283,7 +347,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			LittleAdvancedDoor door = structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null;
 			List<TimelineChannel> channels = new ArrayList<>();
 			channels.add(new TimelineChannelDouble("rot X").addKeyFixed(0, 0D).addKeys(door != null && door.rotX != null ? door.rotX.getPointsCopy() : null));
@@ -302,7 +366,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiLabel("Position:", 90, 90));
 			parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
 			
-			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, LittleGridContext.get(stack.getTagCompound()), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
+			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, previews.context, structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
@@ -462,7 +526,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleStructure parseStructure(ItemStack stack) {
+		public LittleStructure parseStructure(LittlePreviews previews) {
 			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class);
 			GuiTileViewer viewer = ((GuiAxisButton) parent.get("axis")).viewer;
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());

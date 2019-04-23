@@ -143,6 +143,12 @@ public abstract class ValueTimeline {
 		return read(write());
 	}
 	
+	public void flip() {
+		for (Pair<Integer, Double> pair : points) {
+			pair.value = -pair.value;
+		}
+	}
+	
 	public ValueTimeline invert(int duration) {
 		try {
 			ValueTimeline timeline = getClass().getConstructor().newInstance();

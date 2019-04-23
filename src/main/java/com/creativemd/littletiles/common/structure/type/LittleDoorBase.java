@@ -37,6 +37,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
@@ -201,7 +202,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
@@ -211,7 +212,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleDoorBase parseStructure(ItemStack stack) {
+		public LittleDoorBase parseStructure(LittlePreviews previews) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
 			return parseStructure((int) slider.value, checkBox.value);

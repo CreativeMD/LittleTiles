@@ -23,7 +23,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -308,12 +308,12 @@ public class LittleBed extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, LittleGridContext.get(stack.getTagCompound()));
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, previews.context);
 			tile.setViewDirection(EnumFacing.UP);
 			parent.addControl(tile);
 			
-			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleTileSize size = previews.getSize();
 			int index = EnumFacing.EAST.getHorizontalIndex();
 			if (size.sizeX < size.sizeZ)
 				index = EnumFacing.SOUTH.getHorizontalIndex();
@@ -328,7 +328,7 @@ public class LittleBed extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleBed parseStructure(ItemStack stack) {
+		public LittleBed parseStructure(LittlePreviews previews) {
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
 			LittleBed bed = createStructure(LittleBed.class);
 			bed.direction = direction;

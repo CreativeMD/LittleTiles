@@ -17,9 +17,9 @@ import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -32,7 +32,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
@@ -76,7 +75,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	}
 	
 	public void setAxis(LittleTileBox box, LittleGridContext context) {
-		this.box = box;
+		this.box = box.copy();
 		this.axisContext = context;
 		raiseEvent(new GuiTileViewerAxisChangedEvent(this));
 	}
@@ -315,9 +314,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		if (visibleAxis) {
 			
 			GlStateManager.pushMatrix();
-			
 			//GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
-			
 			CubeObject cube = new CubeObject(box.getBox(axisContext));
 			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
 			normalCube.minX += axisContext.gridMCLength / 3;
@@ -536,10 +533,11 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	}
 	
 	@Override
-	public void onLoaded(EntityAnimation animation, LittleTileBox entireBox, LittleGridContext context, AxisAlignedBB box, LittlePreviews previews) {
-		this.animation = animation;
-		this.size = previews.getSize();
-		this.min = previews.getMinVec();
+	public void onLoaded(AnimationPreview animationPreview) {
+		this.animation = animationPreview.animation;
+		this.size = animationPreview.previews.getSize();
+		this.min = animationPreview.previews.getMinVec();
+		this.context = animationPreview.previews.context;
 		updateNormalAxis();
 	}
 	

@@ -28,11 +28,17 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	}
 	
 	@Override
+	public void deleteCachedStructure() {
+		super.deleteCachedStructure();
+		structure = null;
+	}
+	
+	@Override
 	public LittleStructure getStructure() {
 		if (structure == null) {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);
 			structure.tempChildren = new ArrayList<>();
-			for (LittlePreviewsStructure child : getChildren()) {
+			for (LittlePreviews child : getChildren()) {
 				structure.tempChildren.add(child.getStructure());
 			}
 		}

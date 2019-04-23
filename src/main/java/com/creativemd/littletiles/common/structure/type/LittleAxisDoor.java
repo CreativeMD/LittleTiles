@@ -22,6 +22,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
@@ -286,12 +287,12 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			LittleAxisDoor door = null;
 			if (structure instanceof LittleAxisDoor)
 				door = (LittleAxisDoor) structure;
 			
-			LittleGridContext stackContext = LittleGridContext.get(stack.getTagCompound());
+			LittleGridContext stackContext = previews.context;
 			LittleGridContext axisContext = stackContext;
 			
 			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
@@ -396,9 +397,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			
 			doorRotation.onSelected(viewer, typePanel);
 			
-			super.createControls(stack, structure);
-			
-			onAxisChanged(new GuiTileViewerAxisChangedEvent(viewer));
+			super.createControls(previews, structure);
 		}
 		
 		@CustomEventSubscribe
@@ -473,6 +472,12 @@ public class LittleAxisDoor extends LittleDoorBase {
 			doorRotation.populateTimeline(timeline, timeline.duration, AnimationKey.getRotation(viewer.getAxis()));
 		}
 		
+		@Override
+		public void onLoaded(AnimationPreview animationPreview) {
+			super.onLoaded(animationPreview);
+			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
+			onAxisChanged(new GuiTileViewerAxisChangedEvent(viewer));
+		}
 	}
 	
 	private static List<Class<? extends AxisDoorRotation>> rotationTypes = new ArrayList<>();

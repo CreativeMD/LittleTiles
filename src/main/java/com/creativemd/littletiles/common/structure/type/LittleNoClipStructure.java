@@ -5,11 +5,11 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -53,7 +53,7 @@ public class LittleNoClipStructure extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public void createControls(ItemStack stack, LittleStructure structure) {
+		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			boolean slowness = true;
 			if (structure instanceof LittleNoClipStructure)
 				slowness = ((LittleNoClipStructure) structure).web;
@@ -62,7 +62,7 @@ public class LittleNoClipStructure extends LittleStructure {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleNoClipStructure parseStructure(ItemStack stack) {
+		public LittleNoClipStructure parseStructure(LittlePreviews previews) {
 			LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class);
 			structure.web = ((GuiCheckBox) parent.get("web")).value;
 			
