@@ -164,7 +164,7 @@ public class AnimationTimeline {
 			valueNBT.setIntArray("data", pair.value.write());
 			list.appendTag(valueNBT);
 		}
-		nbt.setTag("animations", list);
+		nbt.setTag("values", list);
 		return nbt;
 	}
 }
