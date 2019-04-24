@@ -126,6 +126,10 @@ public class LittleEvent {
 		if (event.getWorld().isRemote) {
 			if (!leftClicked) {
 				ItemStack stack = event.getItemStack();
+				
+				if (event.getHitVec() == null)
+					return;
+				
 				RayTraceResult ray = new RayTraceResult(event.getHitVec(), event.getFace(), event.getPos());
 				if (lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem()) {
 					if (blockSelector != null) {
