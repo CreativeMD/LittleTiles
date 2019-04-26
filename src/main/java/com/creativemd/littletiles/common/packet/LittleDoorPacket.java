@@ -3,9 +3,10 @@ package com.creativemd.littletiles.common.packet;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.ILittleDoor;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 
@@ -46,8 +47,8 @@ public class LittleDoorPacket extends CreativeCorePacket {
 		LittleTile tile;
 		try {
 			tile = LittleAction.getTile(player.world, coord);
-			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoorBase)
-				((LittleDoorBase) tile.connection.getStructureWithoutLoading()).openDoor(player.world, player, uuid);
+			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof ILittleDoor)
+				((ILittleDoor) tile.connection.getStructureWithoutLoading()).openDoor(player.world, player, new UUIDSupplier(uuid));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}
@@ -58,8 +59,8 @@ public class LittleDoorPacket extends CreativeCorePacket {
 		LittleTile tile;
 		try {
 			tile = LittleAction.getTile(player.world, coord);
-			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoorBase)
-				((LittleDoorBase) tile.connection.getStructureWithoutLoading()).openDoor(player.world, player, uuid);
+			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof ILittleDoor)
+				((ILittleDoor) tile.connection.getStructureWithoutLoading()).openDoor(player.world, player, new UUIDSupplier(uuid));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}

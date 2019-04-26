@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
@@ -31,6 +32,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor.LittleAdvancedDoorParser;
 import com.creativemd.littletiles.common.structure.type.LittleAxisDoor.LittleAxisDoorParser;
+import com.creativemd.littletiles.common.structure.type.LittleDoorActivator.LittleDoorActivatorParser;
 import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -57,7 +59,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class LittleDoorBase extends LittleStructure {
+public abstract class LittleDoorBase extends LittleStructure implements ILittleDoor {
 	
 	public LittleDoorBase(LittleStructureType type) {
 		super(type);
@@ -134,12 +136,13 @@ public abstract class LittleDoorBase extends LittleStructure {
 		if (world.isRemote)
 			PacketHandler.sendPacketToServer(new LittleDoorPacket(tile != null ? tile : getMainTile(), uuid));
 		
-		openDoor(world, player, uuid);
+		openDoor(world, player, new UUIDSupplier(uuid));
 		
 		return true;
 	}
 	
-	public void openDoor(World world, @Nullable EntityPlayer player, UUID uuid) {
+	@Override
+	public void openDoor(World world, @Nullable EntityPlayer player, UUIDSupplier uuid) {
 		HashMapList<TileEntityLittleTiles, LittleTile> tempTiles = getAllTiles(new HashMapList<>());
 		HashMap<TileEntityLittleTiles, LittleGridContext> tempContext = new HashMap<>();
 		
@@ -155,7 +158,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 			entry.getKey().preventUpdate = false;
 		}
 		
-		if (tryToPlacePreviews(world, player, uuid, absolute)) {
+		if (tryToPlacePreviews(world, player, uuid.next(), absolute)) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tempTiles.entrySet()) {
 				entry.getKey().updateTiles();
 			}
@@ -185,6 +188,7 @@ public abstract class LittleDoorBase extends LittleStructure {
 		LittleStructureRegistry.registerStructureType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE, LittleAxisDoorParser.class);
 		LittleStructureRegistry.registerStructureType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE, LittleSlidingDoorParser.class);
 		LittleStructureRegistry.registerStructureType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE, LittleAdvancedDoorParser.class);
+		LittleStructureRegistry.registerStructureType("doorActivator", "door", LittleDoorActivator.class, LittleStructureAttribute.NONE, LittleDoorActivatorParser.class);
 	}
 	
 	public static abstract class LittleDoorBaseParser extends LittleStructureGuiParser {
