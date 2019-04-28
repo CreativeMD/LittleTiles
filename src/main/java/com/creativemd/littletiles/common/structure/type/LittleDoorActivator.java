@@ -94,10 +94,10 @@ public class LittleDoorActivator extends LittleStructure implements ILittleDoor 
 	public void openDoor(World world, @Nullable EntityPlayer player, UUIDSupplier uuid) {
 		for (Pair<Integer, Integer> pair : childActivation) {
 			IStructureChildConnector child = children.get(pair.key);
-			if (child == null)
+			if (child == null || child.isLinkToAnotherWorld())
 				continue;
 			LittleStructure childStructure = child.getStructure(world);
-			if (childStructure == null && !(childStructure instanceof ILittleDoor))
+			if (childStructure == null || !(childStructure instanceof ILittleDoor))
 				continue;
 			
 			((ILittleDoor) childStructure).openDoor(world, player, uuid);

@@ -61,8 +61,7 @@ public class OpenCommand extends CommandBase {
 		World world = sender.getEntityWorld();
 		
 		for (EntityAnimation animation : LittleDoorHandler.server.findDoors(world, blockpos)) {
-			LittleStructure structure = animation.getParentStructure();
-			if (structure instanceof LittleDoorBase && checkStructureName(structure, args))
+			if (animation.structure instanceof LittleDoorBase && checkStructureName(animation.structure, args))
 				if (animation.onRightClick(null))
 					PacketHandler.sendPacketToPlayers(new LittleEntityInteractPacket(animation.getUniqueID()), ((WorldServer) world).getEntityTracker().getTrackingPlayers(animation));
 		}

@@ -174,11 +174,7 @@ public class DoorController extends EntityAnimationController {
 	}
 	
 	public void place() {
-		
-		LittleStructure placedStructureParent = parent.getParentStructure();
-		if (placedStructureParent == null)
-			throw new RuntimeException("Failed to find parent structure of animation");
-		LittleAbsolutePreviewsStructure previews = parent.getAbsolutePreviews(placedStructureParent);
+		LittleAbsolutePreviewsStructure previews = parent.getAbsolutePreviews();
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
@@ -187,15 +183,15 @@ public class DoorController extends EntityAnimationController {
 		World world = parent.world;
 		
 		if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
-			if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
-				LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
-				newDoor.updateParentConnection(placedStructureParent.parent.getChildID(), parentStructure);
-				parentStructure.updateChildConnection(placedStructureParent.parent.getChildID(), newDoor);
+			if (parent.structure.parent != null && parent.structure.parent.isConnected(world)) {
+				LittleStructure parentStructure = parent.structure.parent.getStructureWithoutLoading();
+				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
+				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
 		} else {
 			parent.isDead = true;
 			if (!world.isRemote)
-				WorldUtils.dropItem(world, placedStructureParent.getStructureDrop(), parent.center.baseOffset);
+				WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
 			return;
 		}
 		

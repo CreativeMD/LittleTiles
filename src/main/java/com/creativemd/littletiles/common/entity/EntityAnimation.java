@@ -25,6 +25,8 @@ import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
+import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
@@ -34,6 +36,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -74,7 +77,7 @@ public class EntityAnimation extends Entity {
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center) {
+	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LittleTileIdentifierStructureAbsolute identifier) {
 		this(world);
 		
 		this.controller = controller;
@@ -87,6 +90,13 @@ public class EntityAnimation extends Entity {
 		
 		this.fakeWorld = fakeWorld;
 		this.fakeWorld.parent = this;
+		
+		this.structureIdentifier = identifier;
+		try {
+			this.structure = LittleAction.getTile(fakeWorld, identifier).connection.getStructureWithoutLoading();
+		} catch (LittleActionException e) {
+			throw new RuntimeException(e);
+		}
 		
 		setCenter(center);
 		
@@ -177,6 +187,8 @@ public class EntityAnimation extends Entity {
 		setCenter(new StructureAbsolute(axis, additional));
 	}
 	
+	public LittleStructure structure;
+	public LittleTileIdentifierStructureAbsolute structureIdentifier;
 	public StructureAbsolute center;
 	public BlockPos absolutePreviewPos;
 	
@@ -788,11 +800,12 @@ public class EntityAnimation extends Entity {
 	
 	// ================Saving & Loading================
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviews(LittleStructure parent) {
-		return parent.getAbsolutePreviews(absolutePreviewPos);
+	public LittleAbsolutePreviewsStructure getAbsolutePreviews() {
+		return structure.getAbsolutePreviews(absolutePreviewPos);
 	}
 	
-	public LittleStructure getParentStructure() {
+	@Deprecated
+	private LittleStructure searchForParent() {
 		for (TileEntityLittleTiles te : blocks) {
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
@@ -803,7 +816,7 @@ public class EntityAnimation extends Entity {
 				}
 			}
 		}
-		return null;
+		throw new RuntimeException("Could not find parent structure!");
 	}
 	
 	@Override
@@ -839,6 +852,18 @@ public class EntityAnimation extends Entity {
 		else
 			absolutePreviewPos = center.baseOffset;
 		
+		if (compound.hasKey("identifier")) {
+			structureIdentifier = new LittleTileIdentifierStructureAbsolute(compound.getCompoundTag("identifier"));
+			try {
+				this.structure = LittleAction.getTile(fakeWorld, structureIdentifier).connection.getStructureWithoutLoading();
+			} catch (LittleActionException e) {
+				throw new RuntimeException(e);
+			}
+		} else {
+			structure = searchForParent();
+			structureIdentifier = structure.getAbsoluteIdentifier();
+		}
+		
 		controller = EntityAnimationController.parseController(this, compound.getCompoundTag("controller"));
 		
 		updateWorldCollision();
@@ -864,6 +889,8 @@ public class EntityAnimation extends Entity {
 		
 		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(),
 		        absolutePreviewPos.getZ() });
+		
+		compound.setTag("identifier", structureIdentifier.writeToNBT(new NBTTagCompound()));
 		
 	}
 	

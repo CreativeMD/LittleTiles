@@ -37,6 +37,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -855,6 +856,10 @@ public abstract class LittleStructure {
 	 * @return */
 	public String getStructureDropIdentifier() {
 		return null;
+	}
+	
+	public LittleTileIdentifierStructureAbsolute getAbsoluteIdentifier() {
+		return new LittleTileIdentifierStructureAbsolute(mainTile, attribute);
 	}
 	
 }

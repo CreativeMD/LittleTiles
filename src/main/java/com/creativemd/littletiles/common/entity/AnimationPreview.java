@@ -8,6 +8,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -45,7 +46,8 @@ public class AnimationPreview {
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, pos);
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		
-		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, pos, null, null, null, null);
+		LittleStructure structure = previews.getStructure();
+		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, null);
 		for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 			TileEntity te = (TileEntity) iterator.next();
 			if (te instanceof TileEntityLittleTiles)
@@ -72,7 +74,7 @@ public class AnimationPreview {
 			public boolean onRightClick() {
 				return false;
 			}
-		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context)) {
+		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure.getAbsoluteIdentifier()) {
 			
 			@Override
 			public boolean shouldAddDoor() {
