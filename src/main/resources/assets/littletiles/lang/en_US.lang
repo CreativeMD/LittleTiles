@@ -44,6 +44,12 @@ key.little.flip=Flip Preview
 key.little.mark=Mark Preview
 key.little.config.item=Configure Tool
 key.little.config=Configure Advanced
+key.rotatedown=Rotate down
+key.rotateleft=Rotate left
+key.rotateright=Rotate right
+key.rotateup=Rotate up
+key.little.redo=Redo
+key.little.undo=Undo
 
 itemGroup.littletiles=LittleTiles
 
