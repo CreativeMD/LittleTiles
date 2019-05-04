@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -36,6 +37,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult.Type;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
@@ -277,7 +279,18 @@ public class PreviewRenderer {
 						PlacePreviewTile preview = result.placePreviews.get(i);
 						List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 						for (LittleRenderingCube cube : cubes) {
-							cube.renderCubeLines(-d0, -d1, -d2, 0.0F, 0.0F, 0.0F, 0.4F);
+							Vec3d color = ColorUtils.IntToVec(cube.color);
+							float red;
+							float green;
+							float blue;
+							if (color.x == 1 && color.y == 1 && color.z == 1)
+								red = green = blue = 0;
+							else {
+								red = (float) color.x;
+								green = (float) color.y;
+								blue = (float) color.z;
+							}
+							cube.renderCubeLines(-d0, -d1, -d2, red, green, blue, 0.4F);
 						}
 					}
 					
