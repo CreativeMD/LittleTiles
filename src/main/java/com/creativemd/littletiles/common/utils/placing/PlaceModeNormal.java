@@ -13,8 +13,8 @@ import net.minecraft.util.math.BlockPos;
 
 public class PlaceModeNormal extends PlacementMode {
 	
-	public PlaceModeNormal(String name, PreviewMode mode) {
-		super(name, mode);
+	public PlaceModeNormal(String name, PreviewMode mode, boolean placeInside) {
+		super(name, mode, placeInside);
 	}
 	
 	@Override

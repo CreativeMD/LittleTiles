@@ -103,7 +103,7 @@ public class PreviewRenderer {
 				
 				PlacementMode mode = iTile.getPlacementMode(stack);
 				
-				if (mode.mode == PreviewMode.PREVIEWS) {
+				if (mode.getPreviewMode() == PreviewMode.PREVIEWS) {
 					GL11.glEnable(GL11.GL_BLEND);
 					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 					GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
@@ -242,7 +242,7 @@ public class PreviewRenderer {
 			
 			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 			PlacementMode mode = iTile.getPlacementMode(stack);
-			if (mode.mode == PreviewMode.LINES) {
+			if (mode.getPreviewMode() == PreviewMode.LINES) {
 				BlockPos pos = event.getTarget().getBlockPos();
 				IBlockState state = world.getBlockState(pos);
 				

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
+import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
@@ -21,7 +22,7 @@ public abstract class PlacementMode {
 	
 	/** Tries to place all tiles, fails if the main block pos (the player aimed at)
 	 * cannot be placed entirely. **/
-	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS);
+	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS, false);
 	
 	/** Tries to fill in the tiles where it is possible. **/
 	public static PlacementMode fill = new PlaceModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
@@ -67,13 +68,20 @@ public abstract class PlacementMode {
 	}
 	
 	public final String name;
+	public final boolean placeInside;
+	private final PreviewMode mode;
 	
-	public final PreviewMode mode;
-	
-	public PlacementMode(String name, PreviewMode mode) {
+	public PlacementMode(String name, PreviewMode mode, boolean placeInside) {
 		this.name = name;
 		this.mode = mode;
+		this.placeInside = placeInside;
 		this.modes.put(name, this);
+	}
+	
+	public PreviewMode getPreviewMode() {
+		if (LittleTilesConfig.rendering.previewLines)
+			return PreviewMode.LINES;
+		return mode;
 	}
 	
 	public abstract List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos);

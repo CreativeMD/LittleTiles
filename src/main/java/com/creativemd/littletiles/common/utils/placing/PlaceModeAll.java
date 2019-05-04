@@ -12,7 +12,7 @@ import net.minecraft.util.math.BlockPos;
 public class PlaceModeAll extends PlaceModeNormal {
 	
 	public PlaceModeAll(String name, PreviewMode mode) {
-		super(name, mode);
+		super(name, mode, false);
 	}
 	
 	@Override

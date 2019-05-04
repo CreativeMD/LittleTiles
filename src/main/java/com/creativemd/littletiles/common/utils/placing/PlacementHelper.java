@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode.PreviewMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -322,7 +321,7 @@ public class PlacementHelper {
 					Block block = world.getBlockState(position.pos).getBlock();
 					if (block.isReplaceable(world, position.pos) || block instanceof BlockTile) {
 						canBePlaceFixed = true;
-						if (mode.mode == PreviewMode.PREVIEWS) {
+						if (!mode.placeInside) {
 							TileEntity te = world.getTileEntity(position.pos);
 							if (te instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
@@ -366,7 +365,7 @@ public class PlacementHelper {
 			
 			result.placedFixed = canBePlaceFixed;
 			
-			if ((canBePlaceFixed || (fixed && result.singleMode)) && mode.mode == PreviewMode.LINES)
+			if ((canBePlaceFixed || (fixed && result.singleMode)) && mode.placeInside)
 				if (position.contextVec.vec.get(position.facing.getAxis()) % context.size == 0)
 					offset.contextVec.vec.add(position.facing.getOpposite());
 				
@@ -384,7 +383,7 @@ public class PlacementHelper {
 			LittleTileVec center = size.calculateCenter();
 			LittleTileVec centerInv = size.calculateInvertedCenter();
 			
-			if (mode.mode == PreviewMode.LINES)
+			if (mode.placeInside)
 				facing = facing.getOpposite();
 			
 			// Make hit the center of the Box

@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos;
 public class PlaceModeFill extends PlacementMode {
 	
 	public PlaceModeFill(String name, PreviewMode mode) {
-		super(name, mode);
+		super(name, mode, false);
 	}
 	
 	@Override
