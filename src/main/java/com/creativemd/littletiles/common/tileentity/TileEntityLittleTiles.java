@@ -9,12 +9,14 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.RenderCubeLayerCache;
@@ -588,9 +590,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return box.cutOut(cutting, cutout);
 	}
 	
-	public boolean isSpaceForLittleTileStructure(LittleTileBox box) {
+	public boolean isSpaceForLittleTileStructure(LittleTileBox box, Predicate<LittleTile> predicate) {
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
+			if (predicate != null && !predicate.test(tile))
+				continue;
 			if ((tile.isChildOfStructure() || !tile.canBeSplitted()) && tile.intersectsWith(box))
 				return false;
 			
@@ -598,9 +602,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public boolean isSpaceForLittleTile(LittleTileBox box) {
+	public boolean isSpaceForLittleTileStructure(LittleTileBox box) {
+		return isSpaceForLittleTileStructure(box, null);
+	}
+	
+	public boolean isSpaceForLittleTile(LittleTileBox box, Predicate<LittleTile> predicate) {
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
+			if (predicate != null && !predicate.test(tile))
+				continue;
 			if (tile.intersectsWith(box))
 				return false;
 			
@@ -608,7 +618,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public boolean isSpaceForLittleTile(LittleTileBox box, LittleTile ignoreTile) {
+	public boolean isSpaceForLittleTile(LittleTileBox box) {
+		return isSpaceForLittleTile(box, null);
+	}
+	
+	public boolean isSpaceForLittleTileIgnore(LittleTileBox box, LittleTile ignoreTile) {
 		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (ignoreTile != tile && tile.intersectsWith(box))
@@ -815,6 +829,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(partialTickTime);
 		Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+		
+		if (world != player.world && world instanceof CreativeWorld) {
+			pos = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(pos);
+			vec32 = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(vec32);
+		}
+		
 		return getFocusedTile(pos, vec32);
 	}
 	
