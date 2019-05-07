@@ -7,16 +7,24 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
+import org.lwjgl.opengl.GL11;
+
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 
+import net.minecraft.block.material.Material;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.crash.CrashReport;
@@ -28,8 +36,11 @@ import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.DrawBlockHighlightEvent;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
@@ -39,6 +50,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -326,6 +338,148 @@ public class LittleDoorHandler {
 					event.getCollisionBoxesList().add(bb);
 			}
 		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private EntityPlayer lastPlayerRayTraceResult;
+	@SideOnly(Side.CLIENT)
+	private RayTraceResult lastRayTraceResult;
+	@SideOnly(Side.CLIENT)
+	private CreativeWorld lastWorldRayTraceResult;
+	
+	@SideOnly(Side.CLIENT)
+	public RayTraceResult getRayTraceResult(EntityPlayer player, float partialTicks, @Nullable RayTraceResult target) {
+		if (lastPlayerRayTraceResult == player)
+			return lastRayTraceResult;
+		
+		Vec3d pos = player.getPositionEyes(partialTicks);
+		double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
+		Vec3d look = player.getLook(partialTicks);
+		look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+		
+		AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
+		World world = player.world;
+		
+		RayTraceResult result = target;
+		double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
+		for (EntityAnimation animation : findDoors(world, box)) {
+			RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin.transformPointToFakeWorld(look), pos, look);
+			if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+				continue;
+			double tempDistance = pos.distanceTo(tempResult.hitVec);
+			if (result == null || tempDistance < distance) {
+				result = tempResult;
+				distance = tempDistance;
+			}
+		}
+		
+		lastPlayerRayTraceResult = player;
+		if (result == target)
+			result = null;
+		lastRayTraceResult = result;
+		lastWorldRayTraceResult = result != null ? (CreativeWorld) result.hitInfo : null;
+		return result;
+	}
+	
+	@SubscribeEvent
+	@SideOnly(Side.CLIENT)
+	public void renderLast(RenderWorldLastEvent event) {
+		Minecraft mc = Minecraft.getMinecraft();
+		EntityPlayer player = mc.player;
+		float partialTicks = event.getPartialTicks();
+		
+		lastPlayerRayTraceResult = null;
+		lastRayTraceResult = null;
+		lastWorldRayTraceResult = null;
+		
+		RayTraceResult result = getRayTraceResult(player, event.getPartialTicks(), (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null);
+		
+		if (result == null)
+			return;
+		
+		GlStateManager.enableBlend();
+		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		GlStateManager.glLineWidth(2.0F);
+		GlStateManager.disableTexture2D();
+		GlStateManager.depthMask(false);
+		GlStateManager.enableRescaleNormal();
+		
+		BlockPos blockpos = result.getBlockPos();
+		IBlockState iblockstate = lastWorldRayTraceResult.getBlockState(blockpos);
+		
+		if (iblockstate.getMaterial() != Material.AIR && lastWorldRayTraceResult.getWorldBorder().contains(blockpos)) {
+			
+			EntityAnimation entity = (EntityAnimation) lastWorldRayTraceResult.parent;
+			GlStateManager.pushMatrix();
+			
+			Entity renderViewEntity = mc.getRenderViewEntity();
+			
+			double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * (double) partialTicks;
+			double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * (double) partialTicks;
+			double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * (double) partialTicks;
+			
+			Vec3d rotation = entity.getRotationVector(partialTicks);
+			Vec3d offset = entity.getOffsetVector(partialTicks);
+			
+			GlStateManager.translate(-camX, -camY, -camZ);
+			GlStateManager.translate(offset.x, offset.y, offset.z);
+			
+			GlStateManager.translate(entity.center.rotationCenter.x, entity.center.rotationCenter.y, entity.center.rotationCenter.z);
+			
+			GL11.glRotated(rotation.x, 1, 0, 0);
+			GL11.glRotated(rotation.y, 0, 1, 0);
+			GL11.glRotated(rotation.z, 0, 0, 1);
+			
+			GlStateManager.translate(-entity.center.rotationCenter.x, -entity.center.rotationCenter.y, -entity.center.rotationCenter.z);
+			
+			RenderGlobal.drawSelectionBoundingBox(iblockstate.getSelectedBoundingBox(lastWorldRayTraceResult, blockpos).grow(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
+			GlStateManager.popMatrix();
+		}
+		
+		GlStateManager.depthMask(true);
+		GlStateManager.enableTexture2D();
+		GlStateManager.disableBlend();
+	}
+	
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	@SideOnly(Side.CLIENT)
+	public void drawHighlight(DrawBlockHighlightEvent event) {
+		if (getRayTraceResult(lastPlayerRayTraceResult, event.getPartialTicks(), event.getTarget()) != null)
+			event.setCanceled(true);
+	}
+	
+	public static RayTraceResult getTarget(CreativeWorld world, Vec3d pos, Vec3d look, Vec3d originalPos, Vec3d originalLook) {
+		RayTraceResult result = null;
+		double distance = 0;
+		if (!world.loadedEntityList.isEmpty()) {
+			for (Entity entity : world.loadedEntityList) {
+				if (entity instanceof EntityAnimation) {
+					EntityAnimation animation = (EntityAnimation) entity;
+					
+					Vec3d newPos = animation.origin.transformPointToFakeWorld(originalPos);
+					Vec3d newLook = animation.origin.transformPointToFakeWorld(originalLook);
+					
+					if (animation.worldBoundingBox.intersects(new AxisAlignedBB(newPos, newLook))) {
+						RayTraceResult tempResult = getTarget(animation.fakeWorld, newPos, newLook, originalPos, originalLook);
+						if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+							continue;
+						double tempDistance = newPos.distanceTo(tempResult.hitVec);
+						if (result == null || tempDistance < distance) {
+							result = tempResult;
+							distance = tempDistance;
+						}
+					}
+				}
+			}
+		}
+		
+		RayTraceResult tempResult = world.rayTraceBlocks(pos, look);
+		if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+			return result;
+		tempResult.hitInfo = world;
+		if (result == null || pos.distanceTo(tempResult.hitVec) < distance)
+			return tempResult;
+		return result;
 	}
 	
 	private static Field wasPushedByDoor = ReflectionHelper.findField(EntityPlayerMP.class, "wasPushedByDoor");
