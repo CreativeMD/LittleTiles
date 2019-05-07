@@ -14,7 +14,7 @@ import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
 import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
-import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;

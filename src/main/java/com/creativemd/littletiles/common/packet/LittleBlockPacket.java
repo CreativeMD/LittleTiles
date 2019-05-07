@@ -139,7 +139,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 			LittleTile tile = te.getFocusedTile(pos, look);
 			
 			if (!LittleAction.isAllowedToInteract(player, blockPos, action.rightClick, EnumFacing.EAST)) {
-				LittleAction.sendBlockResetToClient((EntityPlayerMP) player, blockPos, te);
+				LittleAction.sendBlockResetToClient((EntityPlayerMP) player, te);
 				return;
 			}
 			

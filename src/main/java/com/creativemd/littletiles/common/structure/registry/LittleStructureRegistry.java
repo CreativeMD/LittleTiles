@@ -13,7 +13,6 @@ import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.structure.type.LittleBed.LittleBedParser;
 import com.creativemd.littletiles.common.structure.type.LittleChair;
 import com.creativemd.littletiles.common.structure.type.LittleChair.LittleChairParser;
-import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure.LittleFixedStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleLadder;
@@ -22,6 +21,7 @@ import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure;
 import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.LittleNoClipStructureParser;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 public class LittleStructureRegistry {

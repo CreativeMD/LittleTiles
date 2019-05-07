@@ -29,6 +29,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -168,8 +169,11 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		GlStateManager.enableRescaleNormal();
 		// Setup OPENGL
-		for (Iterator<TileEntityLittleTiles> iterator = entity.blocks.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
+		for (Iterator<TileEntity> iterator = entity.fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
+			TileEntity tileEntity = iterator.next();
+			if (!(tileEntity instanceof TileEntityLittleTiles))
+				continue;
+			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			if (te.shouldRenderInPass(0)) {
 				GlStateManager.pushMatrix();
 				

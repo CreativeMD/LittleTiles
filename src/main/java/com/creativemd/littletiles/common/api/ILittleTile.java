@@ -34,7 +34,7 @@ public interface ILittleTile {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		if (previews.isEmpty())
 			return;
-		previews.rotatePreviews(player.world, player, stack, rotation, previews.context.rotationCenter);
+		previews.rotatePreviews(rotation, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	
@@ -42,7 +42,7 @@ public interface ILittleTile {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		if (previews.isEmpty())
 			return;
-		previews.flipPreviews(player.world, player, stack, axis, previews.context.rotationCenter);
+		previews.flipPreviews(axis, previews.context.rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	

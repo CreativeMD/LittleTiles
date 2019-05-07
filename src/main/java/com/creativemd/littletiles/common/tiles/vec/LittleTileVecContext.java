@@ -13,6 +13,10 @@ public class LittleTileVecContext {
 	public LittleTileVec vec;
 	public LittleGridContext context;
 	
+	public LittleTileVecContext() {
+		this(LittleGridContext.getMin(), new LittleTileVec(0, 0, 0));
+	}
+	
 	public LittleTileVecContext(String name, NBTTagCompound nbt) {
 		loadFromNBT(name, nbt);
 	}

@@ -246,6 +246,13 @@ public abstract class LittleStructure {
 		return tiles.contains(tile.te, tile);
 	}
 	
+	public Set<TileEntityLittleTiles> blocks() {
+		if (tiles == null)
+			if (!loadTiles())
+				return Collections.EMPTY_SET;
+		return tiles.keySet();
+	}
+	
 	public HashMapList<TileEntityLittleTiles, LittleTile> copyOfTiles() {
 		if (tiles == null)
 			if (!loadTiles())
@@ -777,7 +784,7 @@ public abstract class LittleStructure {
 	
 	// ====================SORTING====================
 	
-	public void onMove(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, LittleTileVec offset) {
+	public void onMove(LittleGridContext context, LittleTileVec offset) {
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
 			if (relativeST == null)
@@ -786,7 +793,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
 			if (relativeST == null)
@@ -795,7 +802,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
 			if (relativeST == null)
@@ -860,6 +867,12 @@ public abstract class LittleStructure {
 	
 	public LittleTileIdentifierStructureAbsolute getAbsoluteIdentifier() {
 		return new LittleTileIdentifierStructureAbsolute(mainTile, attribute);
+	}
+	
+	public boolean isChildOf(LittleStructure structure) {
+		if (parent != null && parent.isConnected(getWorld()))
+			return structure == parent.getStructureWithoutLoading() || parent.getStructureWithoutLoading().isChildOf(structure);
+		return false;
 	}
 	
 }

@@ -31,6 +31,10 @@ public abstract class EntityAnimationController extends AnimationController {
 	
 	public EntityAnimation parent;
 	
+	public void setParent(EntityAnimation parent) {
+		this.parent = parent;
+	}
+	
 	public abstract boolean onRightClick();
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
@@ -68,7 +72,7 @@ public abstract class EntityAnimationController extends AnimationController {
 		
 		try {
 			EntityAnimationController controller = controllerType.getConstructor().newInstance();
-			controller.parent = animation;
+			controller.setParent(animation);
 			controller.readFromNBT(nbt);
 			return controller;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {

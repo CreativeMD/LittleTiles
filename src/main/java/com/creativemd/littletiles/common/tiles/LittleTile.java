@@ -320,6 +320,12 @@ public abstract class LittleTile implements ICombinable {
 		return connection != null;
 	}
 	
+	public boolean isChildOfStructure(LittleStructure structure) {
+		if (isChildOfStructure() && connection.isConnected(te.getWorld()))
+			return connection.getStructureWithoutLoading() == structure || connection.getStructureWithoutLoading().isChildOf(structure);
+		return false;
+	}
+	
 	@Override
 	public boolean canCombine(ICombinable combinable) {
 		return canBeSplitted() && ((LittleTile) combinable).canBeSplitted() && this.canBeCombined((LittleTile) combinable) && ((LittleTile) combinable).canBeCombined(this);
@@ -511,7 +517,8 @@ public abstract class LittleTile implements ICombinable {
 				} else {
 					if (nbt.hasKey("coX")) {
 						LittleTilePosition pos = new LittleTilePosition(nbt);
-						connection = new StructureLinkTile(te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE, this);
+						connection = new StructureLinkTile(te, pos.coord, LittleGridContext.get(), new int[] {
+						        pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE, this);
 						System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + connection);
 					} else
 						connection = new StructureLinkTile(nbt, this);

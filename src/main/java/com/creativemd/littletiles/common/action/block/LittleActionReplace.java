@@ -74,7 +74,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
-				sendBlockResetToClient((EntityPlayerMP) player, pos, te);
+				sendBlockResetToClient((EntityPlayerMP) player, te);
 				return false;
 			}
 		}

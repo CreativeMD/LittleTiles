@@ -1,10 +1,7 @@
-package com.creativemd.littletiles.common.structure.type;
+package com.creativemd.littletiles.common.structure.type.door;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.GuiControl;
@@ -38,6 +35,7 @@ import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -48,10 +46,8 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -222,8 +218,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onFlip(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
-		super.onFlip(world, player, stack, context, axis, doubledCenter);
+	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		super.onFlip(context, axis, doubledCenter);
 		
 		switch (axis) {
 		case X:
@@ -248,8 +244,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onRotate(World world, @Nullable EntityPlayer player, @Nullable ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
-		super.onRotate(world, player, stack, context, rotation, doubledCenter);
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+		super.onRotate(context, rotation, doubledCenter);
 		ValueTimeline rotX = this.rotX;
 		ValueTimeline rotY = this.rotY;
 		ValueTimeline rotZ = this.rotZ;
@@ -280,14 +276,23 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, StructureAbsolute absolute) {
-		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
+	public DoorTransformation[] getDoorTransformations(EntityPlayer player) {
+		return new DoorTransformation[] {
+		        new DoorTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+	}
+	
+	@Override
+	public void transformPreview(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		if (newDoor.axisCenter.getContext().size > previews.context.size)
 			previews.convertTo(newDoor.axisCenter.getContext());
 		else if (newDoor.axisCenter.getContext().size < previews.context.size)
 			newDoor.axisCenter.convertTo(previews.context);
-		
+	}
+	
+	@Override
+	public DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		int duration = newDoor.duration;
 		
 		PairList<AnimationKey, ValueTimeline> open = new PairList<>();
@@ -325,9 +330,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		DoorController controller = new DoorController(new AnimationState(), opened, stayAnimated ? null : false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
-		
-		return place(world, player, previews, controller, uuid, absolute);
+		return new DoorController(new AnimationState(), opened, stayAnimated ? null : false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
 	}
 	
 	@Override

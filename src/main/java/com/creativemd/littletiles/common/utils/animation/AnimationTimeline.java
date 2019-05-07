@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.utils.animation;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.littletiles.common.structure.type.LittleAdvancedDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 
 import net.minecraft.nbt.NBTTagCompound;

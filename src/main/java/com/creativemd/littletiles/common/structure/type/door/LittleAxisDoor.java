@@ -1,11 +1,11 @@
-package com.creativemd.littletiles.common.structure.type;
+package com.creativemd.littletiles.common.structure.type.door;
 
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
@@ -49,14 +49,12 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -126,39 +124,43 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
-		super.onFlip(world, player, stack, context, axis, doubledCenter);
+	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+		super.onFlip(context, axis, doubledCenter);
 		doorRotation.flip(this, axis);
 	}
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
-		super.onRotate(world, player, stack, context, rotation, doubledCenter);
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+		super.onRotate(context, rotation, doubledCenter);
 		this.axis = RotationUtils.rotate(axis, rotation);
 		doorRotation.rotate(this, rotation);
 	}
 	
 	@Override
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, UUID uuid, StructureAbsolute absolute) {
-		LittleAbsolutePreviewsStructure previews = getAbsolutePreviews(getMainTile().te.getPos());
-		Rotation rotation = player != null ? doorRotation.getRotation(player, this, absolute) : doorRotation.getDefaultRotation(this, absolute);
-		
-		if (tryToPlacePreviews(world, player, previews.copy(), rotation, uuid, absolute))
-			return true;
-		return doorRotation.tryOpposite() && tryToPlacePreviews(world, player, previews, rotation.getOpposite(), uuid, absolute);
+	public DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+		return doorRotation.createController(transformation.getRotation(axis), this);
 	}
 	
-	public boolean tryToPlacePreviews(World world, EntityPlayer player, LittleAbsolutePreviewsStructure previews, Rotation rotation, UUID uuid, StructureAbsolute absolute) {
+	@Override
+	public DoorTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
+		StructureAbsolute absolute = getAbsoluteAxis();
+		Rotation rotation = player != null ? doorRotation.getRotation(player, this, absolute) : doorRotation.getDefaultRotation(this, absolute);
+		
+		if (doorRotation.tryOpposite())
+			return new DoorTransformation[] { new DoorTransformation(getMainTile().te.getPos(), rotation),
+			        new DoorTransformation(getMainTile().te.getPos(), rotation.getOpposite()) };
+		return new DoorTransformation[] { new DoorTransformation(getMainTile().te.getPos(), rotation) };
+	}
+	
+	@Override
+	public void transformPreview(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
 		LittleAxisDoor newDoor = (LittleAxisDoor) previews.getStructure();
 		if (newDoor.axisCenter.getContext().size > previews.context.size)
 			previews.convertTo(newDoor.axisCenter.getContext());
 		else if (newDoor.axisCenter.getContext().size < previews.context.size)
 			newDoor.axisCenter.convertTo(previews.context);
 		
-		if (doorRotation.shouldRotatePreviews(this))
-			previews.rotatePreviews(world, player, null, rotation, newDoor.axisCenter.getDoubledCenterVec());
-		
-		return place(world, player, previews, doorRotation.createController(rotation, this), uuid, absolute);
+		transformation.doubledRotationCenter = newDoor.axisCenter.getDoubledCenterVec();
 	}
 	
 	@Deprecated

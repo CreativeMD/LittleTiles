@@ -17,9 +17,9 @@ import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
-import com.creativemd.creativecore.common.utils.math.vec.VecOrigin;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -95,8 +95,8 @@ public abstract class EntityOldAnimation extends Entity {
 		this.rotationCenter = new Vector3d(axis.getPosX() + additionalAxis.getPosX(axis.getContext()) / 2, axis.getPosY() + additionalAxis.getPosY(axis.getContext()) / 2, axis.getPosZ() + additionalAxis.getPosZ(axis.getContext()) / 2);
 		this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX() + additionalAxis.getPosX(inBlockCenter.context) / 2, inBlockCenter.getPosY() + additionalAxis.getPosY(inBlockCenter.context) / 2, inBlockCenter.getPosZ() + additionalAxis.getPosZ(inBlockCenter.context) / 2);
 		
-		this.origin = new VecOrigin(rotationCenter);
-		this.fakeWorld.setOrigin(origin);
+		this.fakeWorld.setOrigin(rotationCenter);
+		this.origin = this.fakeWorld.getOrigin();
 	}
 	
 	public static BlockPos getRenderChunkPos(BlockPos blockPos) {
@@ -135,7 +135,7 @@ public abstract class EntityOldAnimation extends Entity {
 	// ================World Data================
 	
 	public CreativeWorld fakeWorld;
-	public VecOrigin origin;
+	public IVecOrigin origin;
 	public LittleAbsolutePreviewsStructure previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	

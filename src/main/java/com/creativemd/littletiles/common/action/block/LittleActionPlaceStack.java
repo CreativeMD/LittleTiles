@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -105,7 +106,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		ItemStack stack = player.getHeldItemMainhand();
 		
 		if (!isAllowedToInteract(player, position.pos, true, EnumFacing.EAST)) {
-			sendBlockResetToClient((EntityPlayerMP) player, position.pos, null);
+			sendBlockResetToClient((EntityPlayerMP) player, position.pos);
 			return false;
 		}
 		
@@ -324,7 +325,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
 				for (BlockPos snapPos : splitted.keySet())
-					sendBlockResetToClient((EntityPlayerMP) player, pos, null);
+					sendBlockResetToClient((EntityPlayerMP) player, pos);
 				return null;
 			}
 		}
@@ -355,9 +356,13 @@ public class LittleActionPlaceStack extends LittleAction {
 	}
 	
 	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode) {
+		return canPlaceTiles(player, world, splitted, coordsToCheck, mode, null);
+	}
+	
+	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode, Predicate<LittleTile> predicate) {
 		for (BlockPos pos : splitted.keySet()) {
 			if (!isAllowedToInteract(player, pos, true, EnumFacing.EAST)) {
-				sendBlockResetToClient((EntityPlayerMP) player, pos, null);
+				sendBlockResetToClient((EntityPlayerMP) player, pos);
 				return false;
 			}
 		}
@@ -388,12 +393,12 @@ public class LittleActionPlaceStack extends LittleAction {
 					for (int j = 0; j < tiles.size(); j++)
 						if (tiles.get(j).needsCollisionTest())
 							if (mode.checkAll()) {
-								if (!te.isSpaceForLittleTile(tiles.get(j).box)) {
+								if (!te.isSpaceForLittleTile(tiles.get(j).box, predicate)) {
 									if (te.getContext() != contextBefore)
 										te.convertTo(contextBefore);
 									return false;
 								}
-							} else if (!te.isSpaceForLittleTileStructure(tiles.get(j).box)) {
+							} else if (!te.isSpaceForLittleTileStructure(tiles.get(j).box, predicate)) {
 								if (te.getContext() != contextBefore)
 									te.convertTo(contextBefore);
 								return false;

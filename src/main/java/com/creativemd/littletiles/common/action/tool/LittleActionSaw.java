@@ -101,13 +101,13 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				if (toLimit) {
 					LittleTileBox before = null;
-					while (!box.isFaceAtEdge(te.getContext(), facing) && te.isSpaceForLittleTile(box, tile)) {
+					while (!box.isFaceAtEdge(te.getContext(), facing) && te.isSpaceForLittleTileIgnore(box, tile)) {
 						before = box;
 						box = box.grow(facing);
 					}
-					if (!te.isSpaceForLittleTile(box, tile))
+					if (!te.isSpaceForLittleTileIgnore(box, tile))
 						box = before;
-				} else if (!te.isSpaceForLittleTile(box, tile))
+				} else if (!te.isSpaceForLittleTileIgnore(box, tile))
 					box = null;
 			}
 			

@@ -65,7 +65,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			LittleTile tile = te.getFocusedTile(pos, look);
 			
 			if (!isAllowedToInteract(player, blockPos, isRightClick(), EnumFacing.EAST)) {
-				sendBlockResetToClient((EntityPlayerMP) player, blockPos, te);
+				sendBlockResetToClient((EntityPlayerMP) player, te);
 				return false;
 			}
 			

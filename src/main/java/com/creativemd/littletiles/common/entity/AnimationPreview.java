@@ -74,7 +74,7 @@ public class AnimationPreview {
 			public boolean onRightClick() {
 				return false;
 			}
-		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure.getAbsoluteIdentifier()) {
+		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure == null ? null : structure.getAbsoluteIdentifier()) {
 			
 			@Override
 			public boolean shouldAddDoor() {

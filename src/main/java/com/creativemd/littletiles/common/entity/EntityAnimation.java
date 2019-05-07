@@ -17,9 +17,9 @@ import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
-import com.creativemd.creativecore.common.utils.math.vec.VecOrigin;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -43,6 +43,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityList;
 import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -80,8 +81,18 @@ public class EntityAnimation extends Entity {
 	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LittleTileIdentifierStructureAbsolute identifier) {
 		this(world);
 		
+		this.structureIdentifier = identifier;
+		try {
+			if (identifier == null)
+				this.structure = null;
+			else
+				this.structure = LittleAction.getTile(fakeWorld, identifier).connection.getStructureWithoutLoading();
+		} catch (LittleActionException e) {
+			throw new RuntimeException(e);
+		}
+		
 		this.controller = controller;
-		this.controller.parent = this;
+		this.controller.setParent(this);
 		
 		this.absolutePreviewPos = absolutePreviewPos;
 		
@@ -91,16 +102,8 @@ public class EntityAnimation extends Entity {
 		this.fakeWorld = fakeWorld;
 		this.fakeWorld.parent = this;
 		
-		this.structureIdentifier = identifier;
-		try {
-			this.structure = LittleAction.getTile(fakeWorld, identifier).connection.getStructureWithoutLoading();
-		} catch (LittleActionException e) {
-			throw new RuntimeException(e);
-		}
-		
 		setCenter(center);
 		
-		reloadWorldBlocks();
 		updateWorldCollision();
 		
 		setPosition(center.baseOffset.getX(), center.baseOffset.getY(), center.baseOffset.getZ());
@@ -123,6 +126,12 @@ public class EntityAnimation extends Entity {
 		return true;
 	}
 	
+	public World getRealWorld() {
+		if (world instanceof SubWorld)
+			return ((SubWorld) world).getParent();
+		return world;
+	}
+	
 	public void addDoor() {
 		if (!shouldAddDoor())
 			return;
@@ -130,13 +139,6 @@ public class EntityAnimation extends Entity {
 			LittleDoorHandler.getHandler(world).createDoor(this);
 			addedDoor = true;
 		}
-	}
-	
-	public void reloadWorldBlocks() {
-		blocks = new ArrayList<>();
-		for (TileEntity te : fakeWorld.loadedTileEntityList)
-			if (te instanceof TileEntityLittleTiles)
-				blocks.add((TileEntityLittleTiles) te);
 	}
 	
 	@Override
@@ -147,9 +149,8 @@ public class EntityAnimation extends Entity {
 	// ================World Data================
 	
 	public CreativeWorld fakeWorld;
-	public VecOrigin origin;
+	public IVecOrigin origin;
 	public EntityAnimationController controller;
-	public List<TileEntityLittleTiles> blocks;
 	
 	public double prevWorldRotX;
 	public double prevWorldRotY;
@@ -179,8 +180,9 @@ public class EntityAnimation extends Entity {
 	
 	public void setCenter(StructureAbsolute center) {
 		this.center = center;
-		this.origin = new VecOrigin(center.rotationCenter);
-		this.fakeWorld.setOrigin(origin);
+		this.fakeWorld.setOrigin(center.rotationCenter);
+		this.origin = this.fakeWorld.getOrigin();
+		
 	}
 	
 	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
@@ -219,32 +221,35 @@ public class EntityAnimation extends Entity {
 		
 		worldCollisionBoxes = new ArrayList<>();
 		
-		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
+		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
+			TileEntity tileEntity = iterator.next();
 			
-			onScanningTE(te);
-			AxisAlignedBB bb = te.getSelectionBox();
-			minX = Math.min(minX, bb.minX);
-			minY = Math.min(minY, bb.minY);
-			minZ = Math.min(minZ, bb.minZ);
-			maxX = Math.max(maxX, bb.maxX);
-			maxY = Math.max(maxY, bb.maxY);
-			maxZ = Math.max(maxZ, bb.maxZ);
-			
-			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
-			
-			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
-				LittleTile tile = iterator2.next();
-				List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
-				for (LittleTileBox box : tileBoxes) {
-					boxes.add(box.getBox(te.getContext(), te.getPos()));
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+				onScanningTE(te);
+				AxisAlignedBB bb = te.getSelectionBox();
+				minX = Math.min(minX, bb.minX);
+				minY = Math.min(minY, bb.minY);
+				minZ = Math.min(minZ, bb.minZ);
+				maxX = Math.max(maxX, bb.maxX);
+				maxY = Math.max(maxY, bb.maxY);
+				maxZ = Math.max(maxZ, bb.maxZ);
+				
+				ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
+				
+				for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
+					LittleTile tile = iterator2.next();
+					List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
+					for (LittleTileBox box : tileBoxes) {
+						boxes.add(box.getBox(te.getContext(), te.getPos()));
+					}
 				}
-			}
-			
-			// BoxUtils.compressBoxes(boxes, 0.0F);
-			
-			for (AxisAlignedBB box : boxes) {
-				worldCollisionBoxes.add(new OrientatedBoundingBox(origin, box));
+				
+				// BoxUtils.compressBoxes(boxes, 0.0F);
+				
+				for (AxisAlignedBB box : boxes) {
+					worldCollisionBoxes.add(new OrientatedBoundingBox(origin, box));
+				}
 			}
 		}
 		
@@ -281,6 +286,8 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
+		World world = getRealWorld();
+		
 		boolean moved = false;
 		if (!preventPush) {
 			// Create rotation matrix to transform to caclulate surrounding box
@@ -595,7 +602,7 @@ public class EntityAnimation extends Entity {
 	public LinkedHashMap<BlockPos, LittleRenderChunk> renderChunks;
 	
 	@SideOnly(Side.CLIENT)
-	public ArrayList<TileEntityLittleTiles> renderQueue;
+	public List<TileEntityLittleTiles> renderQueue;
 	
 	@SideOnly(Side.CLIENT)
 	public void unloadRenderCache() {
@@ -611,9 +618,13 @@ public class EntityAnimation extends Entity {
 	
 	@SideOnly(Side.CLIENT)
 	public void createClient() {
-		if (blocks != null) {
+		if (fakeWorld != null) {
 			this.renderChunks = new LinkedHashMap<>();
-			this.renderQueue = new ArrayList<>(blocks);
+			this.renderQueue = new ArrayList<>();
+			for (TileEntity te : fakeWorld.loadedTileEntityList) {
+				if (te instanceof TileEntityLittleTiles)
+					renderQueue.add((TileEntityLittleTiles) te);
+			}
 		}
 	}
 	
@@ -663,7 +674,7 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void onPostTick() {
-		
+		fakeWorld.loadedEntityList.removeIf((Entity x) -> x.isDead);
 	}
 	
 	public boolean addedDoor;
@@ -674,10 +685,10 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void onUpdateForReal() {
-		if (blocks == null && !world.isRemote)
+		if (fakeWorld == null && !world.isRemote)
 			isDead = true;
 		
-		if (blocks == null)
+		if (fakeWorld == null)
 			return;
 		
 		if (collisionBoxWorker != null) {
@@ -705,9 +716,10 @@ public class EntityAnimation extends Entity {
 		
 		updateBoundingBox();
 		
-		for (TileEntityLittleTiles te : blocks) {
-			if (te.getUpdateTiles() != null && !te.getUpdateTiles().isEmpty())
-				for (LittleTile tile : te.getUpdateTiles())
+		for (TileEntity te : fakeWorld.loadedTileEntityList) {
+			List<LittleTile> updateTiles = ((TileEntityLittleTiles) te).getUpdateTiles();
+			if (updateTiles != null && !updateTiles.isEmpty())
+				for (LittleTile tile : updateTiles)
 					tile.updateEntity();
 		}
 		
@@ -806,13 +818,15 @@ public class EntityAnimation extends Entity {
 	
 	@Deprecated
 	private LittleStructure searchForParent() {
-		for (TileEntityLittleTiles te : blocks) {
-			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = iterator.next();
-				if (!tile.connection.isLink()) {
-					LittleStructure structure = tile.connection.getStructureWithoutLoading();
-					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
-						return structure;
+		for (TileEntity te : fakeWorld.loadedTileEntityList) {
+			if (te instanceof TileEntityLittleTiles) {
+				for (Iterator<LittleTile> iterator = ((TileEntityLittleTiles) te).getTiles().iterator(); iterator.hasNext();) {
+					LittleTile tile = iterator.next();
+					if (!tile.connection.isLink()) {
+						LittleStructure structure = tile.connection.getStructureWithoutLoading();
+						if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
+							return structure;
+					}
 				}
 			}
 		}
@@ -822,18 +836,17 @@ public class EntityAnimation extends Entity {
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote);
+		this.fakeWorld.parent = this;
 		if (compound.hasKey("axis"))
 			setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		else
 			setCenter(new StructureAbsolute("center", compound));
-		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
-		blocks = new ArrayList<>();
+		NBTTagList list = compound.getTagList("tileEntity", 10);
 		LittleStructure parent = null;
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
 			te.setWorld(fakeWorld);
-			blocks.add(te);
 			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = iterator.next();
 				if (!tile.connection.isLink()) {
@@ -866,6 +879,13 @@ public class EntityAnimation extends Entity {
 		
 		controller = EntityAnimationController.parseController(this, compound.getCompoundTag("controller"));
 		
+		if (compound.hasKey("subEntities")) {
+			NBTTagList subEntities = compound.getTagList("subEntities", 10);
+			for (int i = 0; i < subEntities.tagCount(); i++) {
+				fakeWorld.spawnEntity(EntityList.createEntityFromNBT(subEntities.getCompoundTagAt(i), fakeWorld));
+			}
+		}
+		
 		updateWorldCollision();
 		updateBoundingBox();
 	}
@@ -878,9 +898,10 @@ public class EntityAnimation extends Entity {
 		
 		NBTTagList list = new NBTTagList();
 		
-		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles te = iterator.next();
-			list.appendTag(te.writeToNBT(new NBTTagCompound()));
+		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
+			TileEntity te = iterator.next();
+			if (te instanceof TileEntityLittleTiles)
+				list.appendTag(te.writeToNBT(new NBTTagCompound()));
 		}
 		
 		compound.setTag("controller", controller.writeToNBT(new NBTTagCompound()));
@@ -891,6 +912,13 @@ public class EntityAnimation extends Entity {
 		        absolutePreviewPos.getZ() });
 		
 		compound.setTag("identifier", structureIdentifier.writeToNBT(new NBTTagCompound()));
+		
+		if (!fakeWorld.loadedEntityList.isEmpty()) {
+			NBTTagList subEntities = new NBTTagList();
+			for (Entity entity : fakeWorld.loadedEntityList)
+				subEntities.appendTag(entity.writeToNBT(new NBTTagCompound()));
+			compound.setTag("subEntities", subEntities);
+		}
 		
 	}
 	

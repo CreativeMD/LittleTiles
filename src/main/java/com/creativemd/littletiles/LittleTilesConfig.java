@@ -134,6 +134,10 @@ public class LittleTilesConfig {
 		@Config.Comment("Whether a tile of structure should render its own selection box or that of the entire structure")
 		public boolean highlightStructureBox = true;
 		
+		@Config.Name("previewLines")
+		@Config.LangKey("config.littletiles.previewLines")
+		@Config.Comment("When set to true lines will be used to render the preview")
+		public boolean previewLines = false;
 	}
 	
 	@SubscribeEvent

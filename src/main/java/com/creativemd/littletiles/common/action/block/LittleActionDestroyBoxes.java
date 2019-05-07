@@ -156,7 +156,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				BreakEvent event = new BreakEvent(world, tileEntity.getPos(), ((TileEntityLittleTiles) tileEntity).getBlockTileState(), player);
 				MinecraftForge.EVENT_BUS.post(event);
 				if (event.isCanceled()) {
-					sendBlockResetToClient((EntityPlayerMP) player, pos, (TileEntityLittleTiles) tileEntity);
+					sendBlockResetToClient((EntityPlayerMP) player, (TileEntityLittleTiles) tileEntity);
 					return;
 				}
 			}

@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -163,8 +164,23 @@ public class DoorController extends EntityAnimationController {
 	}
 	
 	@Override
+	public void startTransition(String key) {
+		super.startTransition(key);
+		if (parent != null)
+			((LittleDoor) parent.structure).setInMotion(true);
+	}
+	
+	@Override
+	public void setParent(EntityAnimation parent) {
+		super.setParent(parent);
+		if (isChanging())
+			((LittleDoor) parent.structure).setInMotion(true);
+	}
+	
+	@Override
 	public void endTransition() {
 		super.endTransition();
+		((LittleDoor) parent.structure).setInMotion(false);
 		if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
 			if (isWaitingForApprove)
 				placed = false;
@@ -253,8 +269,8 @@ public class DoorController extends EntityAnimationController {
 			generateAllTransistions(duration);
 		
 		boolean isOpen = nbt.getBoolean("isOpen");
-		if (!isOpen)
-			currentState = getState(closedState);
+		if (isOpen)
+			currentState = getState(openedState);
 		else
 			currentState = getState(closedState);
 		

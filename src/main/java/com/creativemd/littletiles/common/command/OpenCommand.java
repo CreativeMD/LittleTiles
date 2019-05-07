@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -82,7 +82,7 @@ public class OpenCommand extends CommandBase {
 			}
 			
 			for (LittleDoorBase door : doors) {
-				door.activate(world, null, blockpos, null);
+				door.activate(null, blockpos, null);
 			}
 		}
 		

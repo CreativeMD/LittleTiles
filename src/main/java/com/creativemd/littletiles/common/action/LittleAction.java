@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -20,6 +21,8 @@ import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -277,10 +280,22 @@ public abstract class LittleAction extends CreativeCorePacket {
 	private static Method WorldEditEvent = loadWorldEditEvent();
 	private static Object worldEditInstance = null;
 	
-	public static void sendBlockResetToClient(EntityPlayerMP player, BlockPos pos, TileEntityLittleTiles te) {
+	public static void sendBlockResetToClient(EntityPlayerMP player, BlockPos pos) {
 		player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+	}
+	
+	public static void sendBlockResetToClient(EntityPlayerMP player, TileEntityLittleTiles te) {
+		player.connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
 		if (te != null)
 			player.connection.sendPacket(te.getUpdatePacket());
+	}
+	
+	public static void sendBlockResetToClient(EntityPlayerMP player, Set<TileEntityLittleTiles> tileEntities) {
+		PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(tileEntities), player);
+	}
+	
+	public static void sendBlockResetToClient(EntityPlayerMP player, LittleStructure structure) {
+		sendBlockResetToClient(player, structure.blocks());
 	}
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing) {

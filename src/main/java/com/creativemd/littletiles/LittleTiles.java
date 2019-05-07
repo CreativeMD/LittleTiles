@@ -88,6 +88,7 @@ import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.mods.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
+import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
@@ -492,6 +493,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
 		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "Selection");
+		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		

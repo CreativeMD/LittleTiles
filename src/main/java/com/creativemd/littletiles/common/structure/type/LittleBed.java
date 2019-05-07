@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.type.LittleSlidingDoor.LittleSlidingDoorParser;
+import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
@@ -279,13 +279,13 @@ public class LittleBed extends LittleStructure {
 	}
 	
 	@Override
-	public void onFlip(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		if (axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
 	}
 	
 	@Override
-	public void onRotate(World world, EntityPlayer player, ItemStack stack, LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		this.direction = RotationUtils.rotate(this.direction, rotation);
 	}
 	
