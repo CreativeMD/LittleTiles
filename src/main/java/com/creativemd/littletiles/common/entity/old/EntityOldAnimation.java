@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
@@ -23,7 +22,6 @@ import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLooku
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.AABBCombiner;
@@ -181,7 +179,6 @@ public abstract class EntityOldAnimation extends Entity {
 		for (Iterator<TileEntityLittleTiles> iterator = blocks.iterator(); iterator.hasNext();) {
 			TileEntityLittleTiles te = iterator.next();
 			
-			onScanningTE(te);
 			AxisAlignedBB bb = te.getSelectionBox();
 			minX = Math.min(minX, bb.minX);
 			minY = Math.min(minY, bb.minY);
@@ -630,18 +627,6 @@ public abstract class EntityOldAnimation extends Entity {
 		if (blocks != null) {
 			this.renderChunks = new LinkedHashMap<>();
 			this.renderQueue = new ArrayList<>(blocks);
-		}
-	}
-	
-	// ================Events================
-	
-	public void onScanningTE(TileEntityLittleTiles te) {
-		te.setLoaded();
-		if (world.isRemote) {
-			if (te.rendering == null)
-				te.rendering = new AtomicBoolean(false);
-			
-			RenderingThread.addCoordToUpdate(te, 0, false);
 		}
 	}
 	

@@ -88,6 +88,10 @@ public class BlockLayerRenderBuffer {
 		}
 	}
 	
+	public boolean isEmpty() {
+		return solid == null && cutout_mipped == null && cutout == null && translucent == null;
+	}
+	
 	public void clear() {
 		solid = null;
 		cutout_mipped = null;

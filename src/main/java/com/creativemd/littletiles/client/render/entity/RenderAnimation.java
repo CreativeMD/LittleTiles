@@ -10,7 +10,7 @@ import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -57,43 +57,13 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		if (entity.isDead)
 			return;
 		
+		LittleRenderChunkSuppilier suppilier = entity.getRenderChunkSuppilier();
+		
 		if (first) {
-			
-			if (entity.renderChunks == null)
-				entity.createClient();
-			
-			// ===Setting up finished render-data=== 
-			
-			if (entity.renderQueue != null) {
-				for (Iterator<TileEntityLittleTiles> iterator = entity.renderQueue.iterator(); iterator.hasNext();) {
-					TileEntityLittleTiles te = iterator.next();
-					
-					if (!te.rendering.get()) {
-						if (te.getBuffer() == null) {
-							RenderingThread.addCoordToUpdate(te, 0, false);
-							continue;
-						}
-						BlockPos renderChunkPos = getRenderChunkPos(te.getPos());
-						LittleRenderChunk chunk = entity.renderChunks.get(renderChunkPos);
-						if (chunk == null) {
-							chunk = new LittleRenderChunk(renderChunkPos);
-							entity.renderChunks.put(renderChunkPos, chunk);
-						}
-						chunk.addRenderData(te);
-						iterator.remove();
-					}
+			synchronized (suppilier.renderChunks) {
+				for (LittleRenderChunk chunk : suppilier.renderChunks.values()) {
+					chunk.uploadBuffer();
 				}
-			}
-			
-			for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-				chunk.uploadBuffer();
-			}
-			
-			if (entity.renderQueue != null && entity.renderQueue.isEmpty()) {
-				for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-					chunk.markCompleted();
-				}
-				entity.renderQueue = null;
 			}
 		}
 		
@@ -129,16 +99,16 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		if (first) {
 			GlStateManager.disableAlpha();
-			renderBlockLayer(BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
 			GlStateManager.enableAlpha();
 			mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-			renderBlockLayer(BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-			renderBlockLayer(BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 		} else {
-			renderBlockLayer(BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
 		}
 		
 		for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
@@ -247,71 +217,73 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		}
 	}
 	
-	public void renderBlockLayer(BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
+	public void renderBlockLayer(LittleRenderChunkSuppilier suppilier, BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
 		
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 			ShadersRender.preRenderChunkLayer(layer);
 		
-		for (LittleRenderChunk chunk : entity.renderChunks.values()) {
-			
-			if (layer == BlockRenderLayer.TRANSLUCENT)
-				chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
-			
-			VertexBuffer buffer = chunk.getLayerBuffer(layer);
-			
-			if (buffer == null)
-				continue;
-			
-			// Render buffer
-			GlStateManager.pushMatrix();
-			
-			mc.entityRenderer.enableLightmap();
-			
-			double posX = (chunk.pos.getX() - entity.center.chunkOffset.getX()) * 16 - entity.center.inChunkOffset.getX();
-			double posY = (chunk.pos.getY() - entity.center.chunkOffset.getY()) * 16 - entity.center.inChunkOffset.getY();
-			double posZ = (chunk.pos.getZ() - entity.center.chunkOffset.getZ()) * 16 - entity.center.inChunkOffset.getZ();
-			
-			GlStateManager.translate(x, y, z);
-			GlStateManager.translate(offset.x, offset.y, offset.z);
-			
-			GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
-			
-			GL11.glRotated(rotation.x, 1, 0, 0);
-			GL11.glRotated(rotation.y, 0, 1, 0);
-			GL11.glRotated(rotation.z, 0, 0, 1);
-			
-			GlStateManager.translate(posX, posY, posZ);
-			
-			if (layer == BlockRenderLayer.TRANSLUCENT) {
-				GlStateManager.enableBlend();
-				GlStateManager.disableAlpha();
-			} else {
-				GlStateManager.disableBlend();
-				GlStateManager.enableAlpha();
+		synchronized (suppilier.renderChunks) {
+			for (LittleRenderChunk chunk : suppilier.renderChunks.values()) {
+				
+				if (layer == BlockRenderLayer.TRANSLUCENT)
+					chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
+				
+				VertexBuffer buffer = chunk.getLayerBuffer(layer);
+				
+				if (buffer == null)
+					continue;
+				
+				// Render buffer
+				GlStateManager.pushMatrix();
+				
+				mc.entityRenderer.enableLightmap();
+				
+				double posX = (chunk.pos.getX() - entity.center.chunkOffset.getX()) * 16 - entity.center.inChunkOffset.getX();
+				double posY = (chunk.pos.getY() - entity.center.chunkOffset.getY()) * 16 - entity.center.inChunkOffset.getY();
+				double posZ = (chunk.pos.getZ() - entity.center.chunkOffset.getZ()) * 16 - entity.center.inChunkOffset.getZ();
+				
+				GlStateManager.translate(x, y, z);
+				GlStateManager.translate(offset.x, offset.y, offset.z);
+				
+				GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
+				
+				GL11.glRotated(rotation.x, 1, 0, 0);
+				GL11.glRotated(rotation.y, 0, 1, 0);
+				GL11.glRotated(rotation.z, 0, 0, 1);
+				
+				GlStateManager.translate(posX, posY, posZ);
+				
+				if (layer == BlockRenderLayer.TRANSLUCENT) {
+					GlStateManager.enableBlend();
+					GlStateManager.disableAlpha();
+				} else {
+					GlStateManager.disableBlend();
+					GlStateManager.enableAlpha();
+				}
+				
+				GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
+				
+				buffer.bindBuffer();
+				
+				if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
+					ShadersRender.setupArrayPointersVbo();
+				else {
+					GlStateManager.glVertexPointer(3, 5126, 28, 0);
+					GlStateManager.glColorPointer(4, 5121, 28, 12);
+					GlStateManager.glTexCoordPointer(2, 5126, 28, 16);
+					OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
+					GlStateManager.glTexCoordPointer(2, 5122, 28, 24);
+					OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+				}
+				
+				buffer.drawArrays(GL11.GL_QUADS);
+				buffer.unbindBuffer();
+				
+				mc.entityRenderer.disableLightmap();
+				
+				GlStateManager.popMatrix();
+				
 			}
-			
-			GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
-			
-			buffer.bindBuffer();
-			
-			if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-				ShadersRender.setupArrayPointersVbo();
-			else {
-				GlStateManager.glVertexPointer(3, 5126, 28, 0);
-				GlStateManager.glColorPointer(4, 5121, 28, 12);
-				GlStateManager.glTexCoordPointer(2, 5126, 28, 16);
-				OpenGlHelper.setClientActiveTexture(OpenGlHelper.lightmapTexUnit);
-				GlStateManager.glTexCoordPointer(2, 5122, 28, 24);
-				OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-			}
-			
-			buffer.drawArrays(GL11.GL_QUADS);
-			buffer.unbindBuffer();
-			
-			mc.entityRenderer.disableLightmap();
-			
-			GlStateManager.popMatrix();
-			
 		}
 		
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())

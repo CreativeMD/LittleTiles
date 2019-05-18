@@ -143,7 +143,7 @@ public class DoorController extends EntityAnimationController {
 				}
 				
 				if (waitingForRender.size() == 0 || ticksToWait < 0) {
-					parent.unloadRenderCache();
+					parent.getRenderChunkSuppilier().unloadRenderCache();
 					parent.isDead = true;
 				} else
 					parent.isDead = false;

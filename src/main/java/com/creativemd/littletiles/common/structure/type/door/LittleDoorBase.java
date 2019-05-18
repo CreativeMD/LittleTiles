@@ -19,6 +19,7 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.SubWorld;
+import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -131,6 +132,7 @@ public abstract class LittleDoorBase extends LittleDoor {
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
+		fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
 		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
 		

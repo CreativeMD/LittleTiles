@@ -2,10 +2,8 @@ package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Matrix3d;
@@ -23,8 +21,7 @@ import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLooku
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.client.render.RenderingThread;
-import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
+import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -226,7 +223,6 @@ public class EntityAnimation extends Entity {
 			
 			if (tileEntity instanceof TileEntityLittleTiles) {
 				TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-				onScanningTE(te);
 				AxisAlignedBB bb = te.getSelectionBox();
 				minX = Math.min(minX, bb.minX);
 				minY = Math.min(minY, bb.minY);
@@ -599,45 +595,15 @@ public class EntityAnimation extends Entity {
 	// ================Rendering================
 	
 	@SideOnly(Side.CLIENT)
-	public LinkedHashMap<BlockPos, LittleRenderChunk> renderChunks;
-	
-	@SideOnly(Side.CLIENT)
-	public List<TileEntityLittleTiles> renderQueue;
-	
-	@SideOnly(Side.CLIENT)
-	public void unloadRenderCache() {
-		if (renderChunks == null)
-			return;
-		for (LittleRenderChunk chunk : renderChunks.values()) {
-			chunk.unload();
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
 	public boolean spawnedInWorld;
 	
 	@SideOnly(Side.CLIENT)
 	public void createClient() {
-		if (fakeWorld != null) {
-			this.renderChunks = new LinkedHashMap<>();
-			this.renderQueue = new ArrayList<>();
-			for (TileEntity te : fakeWorld.loadedTileEntityList) {
-				if (te instanceof TileEntityLittleTiles)
-					renderQueue.add((TileEntityLittleTiles) te);
-			}
-		}
+		
 	}
 	
-	// ================Events================
-	
-	public void onScanningTE(TileEntityLittleTiles te) {
-		te.setLoaded();
-		if (world.isRemote) {
-			if (te.rendering == null)
-				te.rendering = new AtomicBoolean(false);
-			
-			RenderingThread.addCoordToUpdate(te, 0, false);
-		}
+	public LittleRenderChunkSuppilier getRenderChunkSuppilier() {
+		return (LittleRenderChunkSuppilier) fakeWorld.renderChunkSupplier;
 	}
 	
 	// ================Ticking================
@@ -837,6 +803,9 @@ public class EntityAnimation extends Entity {
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote);
 		this.fakeWorld.parent = this;
+		if (world.isRemote)
+			this.fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		
 		if (compound.hasKey("axis"))
 			setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		else

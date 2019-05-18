@@ -362,7 +362,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void updateCustomRenderer() {
 		updateRenderBoundingBox();
 		updateRenderDistance();
-		getCubeCache().clearCache();
+		if (rendering == null || !rendering.get())
+			getCubeCache().clearCache();
 		// getBuffer().clear();
 		addToRenderUpdate();
 		
@@ -1057,5 +1058,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				return new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build();
 		}
 		return null;
+	}
+	
+	@Override
+	public int hashCode() {
+		return pos.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		return obj instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) obj).pos.equals(pos);
+	}
+	
+	public boolean isEmpty() {
+		return tiles.isEmpty();
 	}
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
+import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
@@ -37,6 +38,7 @@ public class AnimationPreview {
 		this.previews = previews;
 		BlockPos pos = new BlockPos(0, 75, 0);
 		FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
+		fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
