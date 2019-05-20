@@ -14,8 +14,8 @@ import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
+import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,8 +30,11 @@ import net.minecraftforge.oredict.DyeUtils;
 
 public class SubContainerTileContainer extends SubContainerHeldItem {
 	
-	public SubContainerTileContainer(EntityPlayer player) {
-		super(player);
+	public ItemStack stack;
+	
+	public SubContainerTileContainer(EntityPlayer player, ItemStack stack, int index) {
+		super(player, stack, index);
+		this.stack = stack;
 	}
 	
 	private static Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, "colorValue", "field_193351_w");
@@ -176,7 +179,6 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 	
 	@Override
 	public void onClosed() {
-		player.inventory.mainInventory.set(currentIndex, stack);
 		ItemStack stack = ((SlotControl) get("input0")).slot.getStack();
 		if (!stack.isEmpty())
 			WorldUtils.dropItem(player, stack);
