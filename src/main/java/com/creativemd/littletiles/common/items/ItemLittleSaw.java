@@ -44,7 +44,7 @@ public class ItemLittleSaw extends Item {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			if (world.isRemote) {
-				new LittleActionSaw(pos, player, GuiContainer.isCtrlKeyDown(), LittleGridContext.get()).execute();
+				new LittleActionSaw(world, pos, player, GuiContainer.isCtrlKeyDown(), LittleGridContext.get()).execute();
 			}
 			return EnumActionResult.SUCCESS;
 		}

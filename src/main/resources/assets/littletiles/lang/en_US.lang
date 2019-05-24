@@ -60,6 +60,7 @@ grabber.mode.replace=Replace Mode
 action.tile.notthere=Tile is missing
 action.tile.notfound=Tile not found
 action.tileentity.notfound=TileEntity not found
+action.entity.notfound=Entity not found
 action.structure.notloaded=Structure is not loaded
 action.revert.notavailable=Action cannot be reverted
 

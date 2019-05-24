@@ -44,4 +44,12 @@ public class LittleActionException extends Exception {
 		}
 		
 	}
+	
+	public static class EntityNotFoundException extends LittleActionException {
+		
+		public EntityNotFoundException() {
+			super("action.entity.notfound");
+		}
+		
+	}
 }

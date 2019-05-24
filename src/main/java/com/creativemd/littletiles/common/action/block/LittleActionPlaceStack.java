@@ -104,9 +104,10 @@ public class LittleActionPlaceStack extends LittleAction {
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		ItemStack stack = player.getHeldItemMainhand();
+		World world = player.world;
 		
-		if (!isAllowedToInteract(player, position.pos, true, EnumFacing.EAST)) {
-			sendBlockResetToClient((EntityPlayerMP) player, position.pos);
+		if (!isAllowedToInteract(world, player, position.pos, true, EnumFacing.EAST)) {
+			sendBlockResetToClient(world, (EntityPlayerMP) player, position.pos);
 			return false;
 		}
 		
@@ -325,7 +326,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
 				for (BlockPos snapPos : splitted.keySet())
-					sendBlockResetToClient((EntityPlayerMP) player, pos);
+					sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
 				return null;
 			}
 		}
@@ -361,8 +362,8 @@ public class LittleActionPlaceStack extends LittleAction {
 	
 	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode, Predicate<LittleTile> predicate) {
 		for (BlockPos pos : splitted.keySet()) {
-			if (!isAllowedToInteract(player, pos, true, EnumFacing.EAST)) {
-				sendBlockResetToClient((EntityPlayerMP) player, pos);
+			if (!isAllowedToInteract(world, player, pos, true, EnumFacing.EAST)) {
+				sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
 				return false;
 			}
 		}

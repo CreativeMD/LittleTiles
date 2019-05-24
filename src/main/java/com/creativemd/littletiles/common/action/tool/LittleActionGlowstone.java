@@ -20,8 +20,8 @@ import net.minecraft.world.World;
 
 public class LittleActionGlowstone extends LittleActionInteract {
 	
-	public LittleActionGlowstone(BlockPos blockPos, EntityPlayer player) {
-		super(blockPos, player);
+	public LittleActionGlowstone(World world, BlockPos blockPos, EntityPlayer player) {
+		super(world, blockPos, player);
 	}
 	
 	public LittleActionGlowstone() {

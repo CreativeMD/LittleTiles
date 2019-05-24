@@ -187,25 +187,25 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void onClickAir(EntityPlayer player, ItemStack stack) {
-		getMode(stack).onClickBlock(player, stack, null);
+		getMode(stack).onClickBlock(null, player, stack, null);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-		getMode(stack).onClickBlock(player, stack, result);
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+		getMode(stack).onClickBlock(world, player, stack, result);
 		return true;
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-		return getMode(stack).onRightClick(player, stack, result);
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+		return getMode(stack).onRightClick(world, player, stack, result);
 	}
 	
 	@Override
-	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
-		return getMode(stack).onMouseWheelClickBlock(player, stack, result);
+	public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+		return getMode(stack).onMouseWheelClickBlock(world, player, stack, result);
 	}
 	
 	@Override
@@ -308,17 +308,17 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public void onClickBlock(EntityPlayer player, ItemStack stack, @Nullable RayTraceResult result) {
+		public void onClickBlock(@Nullable World world, EntityPlayer player, ItemStack stack, @Nullable RayTraceResult result) {
 			
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+		public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 			return true;
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public abstract boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result);
+		public abstract boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract List<RenderCubeObject> getRenderingCubes(ItemStack stack);
@@ -353,15 +353,15 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
-			IBlockState state = player.world.getBlockState(result.getBlockPos());
+		public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+			IBlockState state = world.getBlockState(result.getBlockPos());
 			if (LittleAction.isBlockValid(state.getBlock())) {
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
 				return true;
 			} else if (state.getBlock() instanceof BlockTile) {
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
 				return true;
 			}
 			return false;
@@ -581,13 +581,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
-			IBlockState state = player.world.getBlockState(result.getBlockPos());
+		public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
+			IBlockState state = world.getBlockState(result.getBlockPos());
 			if (state.getBlock() instanceof BlockTile) {
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("secondMode", LittleAction.isUsingSecondMode(player));
 				// nbt.setBoolean("add", GuiScreen.isCtrlKeyDown());
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.GRABBER, nbt));
 				return true;
 			}
 			return false;
@@ -762,9 +762,9 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@Override
-		public boolean onRightClick(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+		public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 			if (PlacementHelper.canBlockBeUsed(player.world, result.getBlockPos()))
-				new LittleActionReplace(result.getBlockPos(), player, getPreview(stack)).execute();
+				new LittleActionReplace(world, result.getBlockPos(), player, getPreview(stack)).execute();
 			return false;
 		}
 		

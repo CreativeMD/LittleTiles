@@ -172,7 +172,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
@@ -181,7 +181,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@Override
-	public boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onLeftClick(player, stack, result.getBlockPos());

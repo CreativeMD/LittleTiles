@@ -368,7 +368,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public boolean onBlockActivatedClient(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		TEResult result = loadTeAndTile(worldIn, pos, playerIn);
 		if (result.isComplete() && !(playerIn.getHeldItemMainhand().getItem() instanceof ItemLittleWrench))
-			return new LittleActionActivated(pos, playerIn).execute();
+			return new LittleActionActivated(worldIn, pos, playerIn).execute();
 		return false;
 	}
 	
@@ -445,7 +445,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public boolean removedByPlayerClient(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 		TEResult result = loadTeAndTile(world, pos, player, 1.0F);
 		if (result.isComplete())
-			return new LittleActionDestroy(pos, player).execute();
+			return new LittleActionDestroy(world, pos, player).execute();
 		System.out.println("Somehow missed all tiles");
 		return false;
 	}

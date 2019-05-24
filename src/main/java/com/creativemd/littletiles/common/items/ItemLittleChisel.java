@@ -318,7 +318,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		if (ItemLittleChisel.min == null) {
 			ItemLittleChisel.min = getPosition(position, result, currentMode);
 		} else if (LittleAction.isUsingSecondMode(player)) {
@@ -335,13 +335,13 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+	public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 		IBlockState state = player.world.getBlockState(result.getBlockPos());
 		if (LittleAction.isBlockValid(state.getBlock())) {
 			PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
 			return true;
 		} else if (state.getBlock() instanceof BlockTile) {
-			PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));
+			PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.CHISEL, new NBTTagCompound()));
 			return true;
 		}
 		return false;

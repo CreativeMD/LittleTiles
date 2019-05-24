@@ -30,8 +30,8 @@ public class LittleActionSaw extends LittleActionInteract {
 	public boolean toLimit;
 	public LittleGridContext context;
 	
-	public LittleActionSaw(BlockPos blockPos, EntityPlayer player, boolean toLimit, LittleGridContext context) {
-		super(blockPos, player);
+	public LittleActionSaw(World world, BlockPos blockPos, EntityPlayer player, boolean toLimit, LittleGridContext context) {
+		super(world, blockPos, player);
 		this.toLimit = toLimit;
 		this.context = context;
 	}

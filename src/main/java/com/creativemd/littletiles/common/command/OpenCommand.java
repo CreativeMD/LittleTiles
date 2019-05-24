@@ -6,10 +6,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
-import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,7 +21,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 
 public class OpenCommand extends CommandBase {
 	
@@ -62,8 +59,7 @@ public class OpenCommand extends CommandBase {
 		
 		for (EntityAnimation animation : LittleDoorHandler.server.findDoors(world, blockpos)) {
 			if (animation.structure instanceof LittleDoorBase && checkStructureName(animation.structure, args))
-				if (animation.onRightClick(null))
-					PacketHandler.sendPacketToPlayers(new LittleEntityInteractPacket(animation.getUniqueID()), ((WorldServer) world).getEntityTracker().getTrackingPlayers(animation));
+				((LittleDoorBase) animation.structure).activate(null, animation.structure.getMainTile().te.getPos(), animation.structure.getMainTile());
 		}
 		
 		TileEntity tileEntity = world.getTileEntity(blockpos);

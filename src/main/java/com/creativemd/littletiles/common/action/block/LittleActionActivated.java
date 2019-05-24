@@ -17,8 +17,8 @@ import net.minecraft.world.World;
 
 public class LittleActionActivated extends LittleActionInteract {
 	
-	public LittleActionActivated(BlockPos blockPos, EntityPlayer player) {
-		super(blockPos, player);
+	public LittleActionActivated(World world, BlockPos blockPos, EntityPlayer player) {
+		super(world, blockPos, player);
 	}
 	
 	public LittleActionActivated() {

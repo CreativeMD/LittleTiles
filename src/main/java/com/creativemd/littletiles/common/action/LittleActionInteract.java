@@ -1,5 +1,10 @@
 package com.creativemd.littletiles.common.action;
 
+import java.util.UUID;
+
+import com.creativemd.creativecore.common.world.CreativeWorld;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -21,8 +26,9 @@ public abstract class LittleActionInteract extends LittleAction {
 	public Vec3d pos;
 	public Vec3d look;
 	public boolean secondMode;
+	public UUID uuid;
 	
-	public LittleActionInteract(BlockPos blockPos, EntityPlayer player) {
+	public LittleActionInteract(World world, BlockPos blockPos, EntityPlayer player) {
 		super();
 		this.blockPos = blockPos;
 		this.pos = player.getPositionEyes(1.0F);
@@ -30,6 +36,8 @@ public abstract class LittleActionInteract extends LittleAction {
 		Vec3d look = player.getLook(1.0F);
 		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.secondMode = isUsingSecondMode(player);
+		if (world instanceof CreativeWorld)
+			uuid = ((CreativeWorld) world).parent.getUniqueID();
 	}
 	
 	public LittleActionInteract() {
@@ -42,6 +50,12 @@ public abstract class LittleActionInteract extends LittleAction {
 		writeVec3d(pos, buf);
 		writeVec3d(look, buf);
 		buf.writeBoolean(secondMode);
+		
+		if (uuid != null) {
+			buf.writeBoolean(true);
+			writeString(buf, uuid.toString());
+		} else
+			buf.writeBoolean(false);
 	}
 	
 	@Override
@@ -50,6 +64,10 @@ public abstract class LittleActionInteract extends LittleAction {
 		pos = readVec3d(buf);
 		look = readVec3d(buf);
 		secondMode = buf.readBoolean();
+		if (buf.readBoolean())
+			uuid = UUID.fromString(readString(buf));
+		else
+			uuid = null;
 	}
 	
 	protected abstract boolean isRightClick();
@@ -58,14 +76,30 @@ public abstract class LittleActionInteract extends LittleAction {
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		TileEntity tileEntity = player.world.getTileEntity(blockPos);
 		World world = player.world;
+		
+		if (uuid != null) {
+			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+			if (animation == null)
+				onEntityNotFound();
+			
+			if (!isAllowedToInteract(player, animation, isRightClick())) {
+				sendEntityResetToClient((EntityPlayerMP) player, animation);
+				return false;
+			}
+			
+			world = animation.fakeWorld;
+			pos = animation.origin.transformPointToFakeWorld(pos);
+			look = animation.origin.transformPointToFakeWorld(look);
+		}
+		
+		TileEntity tileEntity = world.getTileEntity(blockPos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
 			
-			if (!isAllowedToInteract(player, blockPos, isRightClick(), EnumFacing.EAST)) {
-				sendBlockResetToClient((EntityPlayerMP) player, te);
+			if (!isAllowedToInteract(world, player, blockPos, isRightClick(), EnumFacing.EAST)) {
+				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return false;
 			}
 			
@@ -83,6 +117,10 @@ public abstract class LittleActionInteract extends LittleAction {
 	
 	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile) {
 		return te.rayTrace(pos, look);
+	}
+	
+	protected void onEntityNotFound() throws LittleActionException {
+		throw new LittleActionException.EntityNotFoundException();
 	}
 	
 	protected void onTileNotFound() throws LittleActionException {

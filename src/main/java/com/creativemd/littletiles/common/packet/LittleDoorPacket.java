@@ -18,6 +18,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -69,13 +70,14 @@ public class LittleDoorPacket extends CreativeCorePacket {
 	public void executeServer(EntityPlayer player) {
 		LittleTile tile;
 		try {
-			tile = LittleAction.getTile(player.world, coord);
+			World world = player.world;
+			tile = LittleAction.getTile(world, coord);
 			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
 				LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
 				DoorOpeningResult doorResult = door.canOpenDoor(player);
 				if (doorResult == null) {
 					PacketHandler.sendPacketToPlayer(this, (EntityPlayerMP) player);
-					LittleAction.sendBlockResetToClient((EntityPlayerMP) player, door);
+					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
 					return;
 				}
 				EntityAnimation animation = door.openDoor(player, new UUIDSupplier(uuid), doorResult);

@@ -1,9 +1,14 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.util.UUID;
+
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
@@ -86,17 +91,19 @@ public class LittleBlockPacket extends CreativeCorePacket {
 	public Vec3d pos;
 	public Vec3d look;
 	public BlockPacketAction action;
+	public World world;
 	public NBTTagCompound nbt;
+	public UUID uuid;
 	
 	public LittleBlockPacket() {
 		
 	}
 	
-	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action) {
-		this(blockPos, player, action, new NBTTagCompound());
+	public LittleBlockPacket(World world, BlockPos blockPos, EntityPlayer player, BlockPacketAction action) {
+		this(world, blockPos, player, action, new NBTTagCompound());
 	}
 	
-	public LittleBlockPacket(BlockPos blockPos, EntityPlayer player, BlockPacketAction action, NBTTagCompound nbt) {
+	public LittleBlockPacket(World world, BlockPos blockPos, EntityPlayer player, BlockPacketAction action, NBTTagCompound nbt) {
 		this.blockPos = blockPos;
 		this.action = action;
 		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
@@ -104,6 +111,8 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.nbt = nbt;
+		if (world instanceof CreativeWorld)
+			uuid = ((CreativeWorld) world).parent.getUniqueID();
 	}
 	
 	@Override
@@ -113,6 +122,11 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		writeVec3d(look, buf);
 		buf.writeInt(action.ordinal());
 		writeNBT(buf, nbt);
+		if (uuid != null) {
+			buf.writeBoolean(true);
+			writeString(buf, uuid.toString());
+		} else
+			buf.writeBoolean(false);
 	}
 	
 	@Override
@@ -122,6 +136,10 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		look = readVec3d(buf);
 		action = BlockPacketAction.values()[buf.readInt()];
 		nbt = readNBT(buf);
+		if (buf.readBoolean())
+			uuid = UUID.fromString(readString(buf));
+		else
+			uuid = null;
 	}
 	
 	@Override
@@ -132,14 +150,31 @@ public class LittleBlockPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeServer(EntityPlayer player) {
-		TileEntity tileEntity = player.world.getTileEntity(blockPos);
+		
 		World world = player.world;
+		
+		if (uuid != null) {
+			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+			if (animation == null)
+				return;
+			
+			if (!LittleAction.isAllowedToInteract(player, animation, action.rightClick)) {
+				LittleAction.sendEntityResetToClient((EntityPlayerMP) player, animation);
+				return;
+			}
+			
+			world = animation.fakeWorld;
+			pos = animation.origin.transformPointToFakeWorld(pos);
+			look = animation.origin.transformPointToFakeWorld(look);
+		}
+		
+		TileEntity tileEntity = world.getTileEntity(blockPos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			LittleTile tile = te.getFocusedTile(pos, look);
 			
-			if (!LittleAction.isAllowedToInteract(player, blockPos, action.rightClick, EnumFacing.EAST)) {
-				LittleAction.sendBlockResetToClient((EntityPlayerMP) player, te);
+			if (!LittleAction.isAllowedToInteract(world, player, blockPos, action.rightClick, EnumFacing.EAST)) {
+				LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return;
 			}
 			

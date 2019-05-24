@@ -15,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -59,7 +60,7 @@ public interface ILittleTile {
 	
 	/** @return Whether it should try to place it or not. */
 	@SideOnly(Side.CLIENT)
-	public default boolean onRightClick(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public default boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		return true;
 	}
 	
@@ -74,12 +75,12 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default boolean onClickBlock(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public default boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
 		return false;
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default boolean onMouseWheelClickBlock(EntityPlayer player, ItemStack stack, RayTraceResult result) {
+	public default boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 		return false;
 	}
 	

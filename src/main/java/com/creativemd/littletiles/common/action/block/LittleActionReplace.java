@@ -36,8 +36,8 @@ public class LittleActionReplace extends LittleActionInteract {
 	
 	public LittleTilePreview toReplace;
 	
-	public LittleActionReplace(BlockPos blockPos, EntityPlayer player, LittleTilePreview toReplace) {
-		super(blockPos, player);
+	public LittleActionReplace(World world, BlockPos blockPos, EntityPlayer player, LittleTilePreview toReplace) {
+		super(world, blockPos, player);
 		this.toReplace = toReplace;
 	}
 	
@@ -74,7 +74,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
-				sendBlockResetToClient((EntityPlayerMP) player, te);
+				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return false;
 			}
 		}

@@ -149,7 +149,7 @@ public class ItemColorTube extends Item implements ISpecialBlockSelector {
 				return true;
 			TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
 			if (tileEntity instanceof TileEntityLittleTiles)
-				PacketHandler.sendPacketToServer(new LittleBlockPacket(result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.COLOR_TUBE, new NBTTagCompound()));
 			else
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		} else if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {

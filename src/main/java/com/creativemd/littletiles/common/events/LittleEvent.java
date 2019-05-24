@@ -105,7 +105,7 @@ public class LittleEvent {
 			ItemStack stack = player.getHeldItemMainhand();
 			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 			if (iTile != null)
-				return iTile.onMouseWheelClickBlock(player, stack, result);
+				return iTile.onMouseWheelClickBlock(world, player, stack, result);
 		}
 		return false;
 	}
@@ -156,7 +156,7 @@ public class LittleEvent {
 				iLittleTile = PlacementHelper.getLittleInterface(stack);
 				
 				if (iLittleTile != null) {
-					if (iLittleTile.onClickBlock(event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray))
+					if (iLittleTile.onClickBlock(event.getWorld(), event.getEntityPlayer(), stack, getPosition(event.getWorld(), iLittleTile, stack, ray), ray))
 						event.setCanceled(true);
 					lastSelectedItem = stack;
 				}
@@ -251,7 +251,7 @@ public class LittleEvent {
 		if (event.getWorld().isRemote && event.getHand() == EnumHand.MAIN_HAND && stack.getItem() == Items.GLOWSTONE_DUST && event.getEntityPlayer().isSneaking()) {
 			BlockTile.TEResult te = BlockTile.loadTeAndTile(event.getEntityPlayer().world, event.getPos(), event.getEntityPlayer());
 			if (te.isComplete()) {
-				new LittleActionGlowstone(event.getPos(), event.getEntityPlayer()).execute();
+				new LittleActionGlowstone(event.getWorld(), event.getPos(), event.getEntityPlayer()).execute();
 				event.setCanceled(true);
 			}
 		}
@@ -273,7 +273,7 @@ public class LittleEvent {
 	@SideOnly(Side.CLIENT)
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
 		PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
-		if (iTile.onRightClick(player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver)) {
+		if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver)) {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos, facing, stack)) {
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
 				new LittleActionPlaceStack(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();

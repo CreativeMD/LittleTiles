@@ -32,8 +32,8 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionDestroy extends LittleActionInteract {
 	
-	public LittleActionDestroy(BlockPos blockPos, EntityPlayer player) {
-		super(blockPos, player);
+	public LittleActionDestroy(World world, BlockPos blockPos, EntityPlayer player) {
+		super(world, blockPos, player);
 	}
 	
 	public LittleActionDestroy() {
@@ -63,7 +63,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
 			MinecraftForge.EVENT_BUS.post(event);
 			if (event.isCanceled()) {
-				sendBlockResetToClient((EntityPlayerMP) player, te);
+				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return false;
 			}
 		}

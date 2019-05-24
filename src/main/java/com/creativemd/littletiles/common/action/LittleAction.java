@@ -13,15 +13,18 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemTileContainer;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -280,25 +283,43 @@ public abstract class LittleAction extends CreativeCorePacket {
 	private static Method WorldEditEvent = loadWorldEditEvent();
 	private static Object worldEditInstance = null;
 	
-	public static void sendBlockResetToClient(EntityPlayerMP player, BlockPos pos) {
-		player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
+	public static void sendEntityResetToClient(EntityPlayerMP player, EntityAnimation animation) {
+		//tobedone
 	}
 	
-	public static void sendBlockResetToClient(EntityPlayerMP player, TileEntityLittleTiles te) {
-		player.connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
-		if (te != null)
-			player.connection.sendPacket(te.getUpdatePacket());
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, BlockPos pos) {
+		if (world instanceof CreativeWorld)
+			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, pos, null), player);
+		else
+			player.connection.sendPacket(new SPacketBlockChange(player.world, pos));
 	}
 	
-	public static void sendBlockResetToClient(EntityPlayerMP player, Set<TileEntityLittleTiles> tileEntities) {
-		PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(tileEntities), player);
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, TileEntityLittleTiles te) {
+		if (world instanceof CreativeWorld)
+			PacketHandler.sendPacketToPlayer(new LittleBlockUpdatePacket(world, te.getPos(), te), player);
+		else {
+			player.connection.sendPacket(new SPacketBlockChange(player.world, te.getPos()));
+			if (te != null)
+				player.connection.sendPacket(te.getUpdatePacket());
+		}
 	}
 	
-	public static void sendBlockResetToClient(EntityPlayerMP player, LittleStructure structure) {
-		sendBlockResetToClient(player, structure.blocks());
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Set<TileEntityLittleTiles> tileEntities) {
+		PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), player);
 	}
 	
-	public static boolean isAllowedToInteract(EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing) {
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, LittleStructure structure) {
+		sendBlockResetToClient(world, player, structure.blocks());
+	}
+	
+	public static boolean isAllowedToInteract(EntityPlayer player, EntityAnimation animation, boolean rightClick) {
+		if (player.isSpectator() || (!rightClick && (PlayerUtils.isAdventure(player) || !player.isAllowEdit())))
+			return false;
+		
+		return true;
+	}
+	
+	public static boolean isAllowedToInteract(World world, EntityPlayer player, BlockPos pos, boolean rightClick, EnumFacing facing) {
 		if (player == null || player.world.isRemote)
 			return true;
 		

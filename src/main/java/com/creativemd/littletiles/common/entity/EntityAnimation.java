@@ -37,8 +37,10 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructure
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
+import com.creativemd.littletiles.common.utils.vec.LittleRayTraceResult;
 import com.google.common.base.Predicate;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.MoverType;
@@ -53,6 +55,7 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -757,12 +760,58 @@ public class EntityAnimation extends Entity {
 		return true;
 	}
 	
-	public boolean onRightClick(@Nullable EntityPlayer player) {
+	public LittleRayTraceResult getRayTraceResult(Vec3d pos, Vec3d look) {
+		return getTarget(fakeWorld, origin.transformPointToFakeWorld(pos), origin.transformPointToFakeWorld(look), pos, look);
+	}
+	
+	private static LittleRayTraceResult getTarget(CreativeWorld world, Vec3d pos, Vec3d look, Vec3d originalPos, Vec3d originalLook) {
+		LittleRayTraceResult result = null;
+		double distance = 0;
+		if (!world.loadedEntityList.isEmpty()) {
+			for (Entity entity : world.loadedEntityList) {
+				if (entity instanceof EntityAnimation) {
+					EntityAnimation animation = (EntityAnimation) entity;
+					
+					Vec3d newPos = animation.origin.transformPointToFakeWorld(originalPos);
+					Vec3d newLook = animation.origin.transformPointToFakeWorld(originalLook);
+					
+					if (animation.worldBoundingBox.intersects(new AxisAlignedBB(newPos, newLook))) {
+						LittleRayTraceResult tempResult = getTarget(animation.fakeWorld, newPos, newLook, originalPos, originalLook);
+						if (tempResult == null)
+							continue;
+						double tempDistance = newPos.distanceTo(tempResult.getHitVec());
+						if (result == null || tempDistance < distance) {
+							result = tempResult;
+							distance = tempDistance;
+						}
+					}
+				}
+			}
+		}
+		
+		RayTraceResult tempResult = world.rayTraceBlocks(pos, look);
+		if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+			return result;
+		tempResult.hitInfo = world;
+		if (result == null || pos.distanceTo(tempResult.hitVec) < distance)
+			return new LittleRayTraceResult(tempResult, world);
+		return result;
+	}
+	
+	public boolean onRightClick(@Nullable EntityPlayer player, Vec3d pos, Vec3d look) {
 		if (player != null && player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 			ItemLittleWrench.rightClickAnimation(this, player);
 			return true;
 		}
-		return controller.onRightClick();
+		
+		LittleRayTraceResult result = getRayTraceResult(pos, look);
+		if (result == null)
+			return false;
+		
+		TileEntity te = result.world.getTileEntity(result.getBlockPos());
+		IBlockState state = result.world.getBlockState(result.getBlockPos());
+		Vec3d hit = result.getHitVec();
+		return state.getBlock().onBlockActivated(fakeWorld, result.getBlockPos(), state, player, EnumHand.MAIN_HAND, result.result.sideHit, (float) hit.x, (float) hit.y, (float) hit.z);
 	}
 	
 	@Override

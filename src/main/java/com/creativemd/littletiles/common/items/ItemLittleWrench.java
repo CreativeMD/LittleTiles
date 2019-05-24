@@ -53,7 +53,7 @@ public class ItemLittleWrench extends Item {
 				if (result.isComplete() && result.tile.isChildOfStructure())
 					LittleGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.tile);
 				else
-					PacketHandler.sendPacketToServer(new LittleBlockPacket(pos, player, BlockPacketAction.WRENCH));
+					PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
 			}
 			return EnumActionResult.SUCCESS;
 		}

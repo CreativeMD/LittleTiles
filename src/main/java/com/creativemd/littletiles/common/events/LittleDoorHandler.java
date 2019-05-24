@@ -11,13 +11,11 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleEntityInteractPacket;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -107,9 +105,15 @@ public class LittleDoorHandler {
 	}
 	
 	public EntityAnimation findDoor(UUID uuid) {
-		for (EntityAnimation animation : openDoors)
+		for (EntityAnimation animation : openDoors) {
 			if (animation.getUniqueID().equals(uuid))
 				return animation;
+			if (animation.fakeWorld.loadedEntityList.isEmpty())
+				continue;
+			for (Entity entity : animation.fakeWorld.loadedEntityList)
+				if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
+					return (EntityAnimation) entity;
+		}
 		return null;
 	}
 	
@@ -225,7 +229,7 @@ public class LittleDoorHandler {
 				d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
 			}
 			
-			Vec3d vec3d1 = entity.getLook(1.0F);
+			Vec3d vec3d1 = entity.getLook(TickUtils.getPartialTickTime());
 			Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
 			EntityAnimation pointedEntity = null;
 			Vec3d vec3d3 = null;
@@ -276,8 +280,7 @@ public class LittleDoorHandler {
 				pointedEntity = (EntityAnimation) selectedEntity;
 			
 			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null || selectedEntity == pointedEntity)) {
-				if (pointedEntity.onRightClick(entity))
-					PacketHandler.sendPacketToServer(new LittleEntityInteractPacket(pointedEntity.getUniqueID()));
+				pointedEntity.onRightClick(entity, vec3d, vec3d2);
 				
 				if (event instanceof RightClickBlock)
 					event.setCanceled(true);
