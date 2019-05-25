@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleDoorPacket extends CreativeCorePacket {
 	
 	public LittleTileIdentifierAbsolute coord;
+	public UUID worldUUID;
 	public UUID uuid;
 	public DoorOpeningResult result;
 	
@@ -32,6 +34,8 @@ public class LittleDoorPacket extends CreativeCorePacket {
 		this.coord = new LittleTileIdentifierAbsolute(tile);
 		this.uuid = uuid;
 		this.result = result;
+		if (tile.te.getWorld() instanceof CreativeWorld)
+			this.worldUUID = ((CreativeWorld) tile.te.getWorld()).parent.getUniqueID();
 	}
 	
 	public LittleDoorPacket() {
@@ -45,6 +49,12 @@ public class LittleDoorPacket extends CreativeCorePacket {
 		buf.writeBoolean(result.nbt != null);
 		if (result.nbt != null)
 			writeNBT(buf, result.nbt);
+		
+		if (worldUUID != null) {
+			buf.writeBoolean(true);
+			writeString(buf, worldUUID.toString());
+		} else
+			buf.writeBoolean(false);
 	}
 	
 	@Override
@@ -55,6 +65,11 @@ public class LittleDoorPacket extends CreativeCorePacket {
 			result = new DoorOpeningResult(readNBT(buf));
 		else
 			result = LittleDoor.EMPTY_OPENING_RESULT;
+		
+		if (buf.readBoolean())
+			worldUUID = UUID.fromString(readString(buf));
+		else
+			worldUUID = null;
 	}
 	
 	@Override
@@ -71,6 +86,15 @@ public class LittleDoorPacket extends CreativeCorePacket {
 		LittleTile tile;
 		try {
 			World world = player.world;
+			
+			if (worldUUID != null) {
+				EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(worldUUID);
+				if (animation == null)
+					return;
+				
+				world = animation.fakeWorld;
+			}
+			
 			tile = LittleAction.getTile(world, coord);
 			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
 				LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();

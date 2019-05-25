@@ -61,7 +61,7 @@ public class ItemLittleWrench extends Item {
 	}
 	
 	public static void rightClickAnimation(EntityAnimation animation, EntityPlayer player) {
-		if (!player.world.isRemote) {
+		if (player.world.isRemote) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			nbt.setString("uuid", animation.getCachedUniqueIdString());
 			GuiHandler.openGui("diagnose", nbt, player);

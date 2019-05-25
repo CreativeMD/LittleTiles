@@ -81,8 +81,7 @@ public class LittleRenderChunk {
 						queuedBuffers[i] = new ArrayList<>();
 					
 					queuedBuffers[i].add(tempBuffer);
-				} else if (layer == BlockRenderLayer.SOLID)
-					System.out.println("Skipped tileEntity because of empty buffer!");
+				}
 			}
 		}
 	}
@@ -127,7 +126,6 @@ public class LittleRenderChunk {
 					BufferBuilderUtils.addBuffer(tempBuffer, teBuffer);
 				}
 				
-				System.out.println("Adding " + queuedBuffers[i].size() + " tileEntities to buffer!");
 				queuedBuffers[i].clear();
 				bufferChanged[i] = true;
 			}
@@ -138,7 +136,6 @@ public class LittleRenderChunk {
 	public void uploadBuffer() {
 		synchronized (tileEntities) {
 			if (modified) {
-				System.out.println("Chunk has been marked as modified and contains " + tileEntities.size() + " tileEntities!");
 				for (int i = 0; i < vertexBuffers.length; i++) {
 					if (vertexBuffers[i] != null)
 						vertexBuffers[i].deleteGlBuffers();
@@ -162,7 +159,6 @@ public class LittleRenderChunk {
 					if (vertexBuffers[i] != null)
 						vertexBuffers[i].deleteGlBuffers();
 					
-					System.out.println("Uploading " + tileEntities.size() + " tileEntities!");
 					vertexBuffers[i] = new VertexBuffer(DefaultVertexFormats.BLOCK);
 					vertexBuffers[i].bufferData(tempBuffers[i].getByteBuffer());
 					

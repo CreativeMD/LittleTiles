@@ -109,8 +109,7 @@ public class DoorController extends EntityAnimationController {
 		return waitingForRender != null;
 	}
 	
-	@Override
-	public boolean onRightClick() {
+	public boolean activate() {
 		if (placed != null)
 			return false;
 		
@@ -167,20 +166,20 @@ public class DoorController extends EntityAnimationController {
 	public void startTransition(String key) {
 		super.startTransition(key);
 		if (parent != null)
-			((LittleDoor) parent.structure).setInMotion(true);
+			((LittleDoor) parent.structure).setAnimation(parent);
 	}
 	
 	@Override
 	public void setParent(EntityAnimation parent) {
 		super.setParent(parent);
 		if (isChanging())
-			((LittleDoor) parent.structure).setInMotion(true);
+			((LittleDoor) parent.structure).setAnimation(parent);
 	}
 	
 	@Override
 	public void endTransition() {
 		super.endTransition();
-		((LittleDoor) parent.structure).setInMotion(false);
+		((LittleDoor) parent.structure).setAnimation(parent);
 		if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
 			if (isWaitingForApprove)
 				placed = false;

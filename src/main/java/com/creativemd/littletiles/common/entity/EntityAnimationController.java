@@ -35,8 +35,6 @@ public abstract class EntityAnimationController extends AnimationController {
 		this.parent = parent;
 	}
 	
-	public abstract boolean onRightClick();
-	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt.setString("id", controllerTypesInv.get(this.getClass()));
 		writeToNBTExtra(nbt);

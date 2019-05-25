@@ -72,6 +72,9 @@ exception.ingredient.stack=Missing
 exception.permission.edit=You are not allowed to edit more than %s blocks
 exception.permission.place.color=You are not allowed to place something with alpha below %s
 exception.permission.place=You are not allowed to place more than %s blocks
+exception.door.notloaded=Cannot interact with door (not all tiles are loaded)
+exception.door.brokenparent=Cannot interact with door (broken connection to parent)
+exception.door.brokenchild=Cannot interact with door (broken connection to child)
 
 color.unit.black=black
 color.unit.cyan=cyan

@@ -75,7 +75,7 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 		World world = player.world;
 		
 		if (uuid != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+			EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(uuid);
 			if (animation == null)
 				return;
 			

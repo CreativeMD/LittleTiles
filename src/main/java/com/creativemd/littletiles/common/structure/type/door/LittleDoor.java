@@ -70,8 +70,18 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public boolean activate(@Nullable EntityPlayer player, BlockPos pos, @Nullable LittleTile tile) {
-		if (!hasLoaded() || !loadChildren() || !loadParent()) {
-			player.sendStatusMessage(new TextComponentTranslation("Cannot interact with door! Not all tiles are loaded!"), true);
+		if (!hasLoaded()) {
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
+			return false;
+		}
+		
+		if (!loadChildren()) {
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
+			return false;
+		}
+		
+		if (!loadParent()) {
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
 			return false;
 		}
 		
@@ -122,7 +132,7 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public DoorOpeningResult canOpenDoor(@Nullable EntityPlayer player) {
-		if (inMotion)
+		if (isInMotion())
 			return null;
 		
 		List<LittleDoor> doors = collectDoorChildren();
@@ -157,14 +167,26 @@ public abstract class LittleDoor extends LittleStructure {
 		return null;
 	}
 	
-	public boolean inMotion;
+	public EntityAnimation animation;
 	
-	public void setInMotion(boolean value) {
-		this.inMotion = value;
+	public void setAnimation(EntityAnimation animation) {
+		this.animation = animation;
 	}
 	
 	public boolean isInMotion() {
-		return inMotion;
+		if (animation != null && animation.controller.isChanging())
+			return true;
+		
+		if (childActivation != null && !childActivation.isEmpty())
+			for (LittleDoor door : collectDoorChildren())
+				if (door.isInMotion())
+					return true;
+				
+		return false;
+	}
+	
+	public boolean isAnimated() {
+		return animation != null;
 	}
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);

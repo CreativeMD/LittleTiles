@@ -64,7 +64,6 @@ public abstract class LittleDoorBase extends LittleDoor {
 	
 	public int duration = 50;
 	public boolean stayAnimated = false;
-	public boolean inMotion = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -102,7 +101,10 @@ public abstract class LittleDoorBase extends LittleDoor {
 		if (result == null)
 			return null;
 		
-		DoorTransformation[] transformations = getDoorTransformations(player);
+		if (isAnimated()) // No transformations done if the door is already an animation
+			return result;
+		
+		DoorTransformation[] transformations = getDoorTransformations(player); // Only done if the door is placed down
 		for (DoorTransformation transformation : transformations) {
 			List<PlacePreviewTile> placePreviews = new ArrayList<>();
 			
@@ -162,6 +164,11 @@ public abstract class LittleDoorBase extends LittleDoor {
 	
 	@Override
 	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
+		if (isAnimated()) {
+			((DoorController) animation.controller).activate();
+			return animation;
+		}
+		
 		DoorTransformation transform;
 		if (!result.isEmpty() && result.nbt.hasKey("transform"))
 			transform = new DoorTransformation(result.nbt.getIntArray("transform"));
@@ -179,16 +186,6 @@ public abstract class LittleDoorBase extends LittleDoor {
 	}
 	
 	public abstract DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation);
-	
-	@Override
-	public void setInMotion(boolean value) {
-		inMotion = value;
-	}
-	
-	@Override
-	public boolean isInMotion() {
-		return inMotion;
-	}
 	
 	public abstract StructureAbsolute getAbsoluteAxis();
 	
