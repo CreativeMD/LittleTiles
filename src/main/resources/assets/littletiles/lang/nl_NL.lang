@@ -2,7 +2,7 @@ item.LTHammer.name=Little Hamer
 item.LTMultiTiles.name=Multi-Tile-Bouwwerk
 item.LTRecipe.name=Little Recept
 item.LTSaw.name=Little Zaag
-item.LTContainer.name=Little Container
+item.LTContainer.name=Little Zak
 item.LTWrench.name=Little Moersleutel
 item.LTChisel.name=Little Beitel
 item.LTScrewdriver.name=Little Schroevendraaier
@@ -10,6 +10,7 @@ item.LTRubberMallet.name=Little Rubberen Hammer
 item.LTColorTube.name=Little Verf Kwast
 item.LTUtilityKnife.name=Little Zakmes
 item.LTGrabber.name=Little Handschoen
+item.LTRecipeAdvanced.name=Geavanceerd Recept
 
 tile.LTParticleBlock.name=Little Deeltjes Blok
 tile.LTColoredBlock.clean.name=Gekleurde Blok Egaal
@@ -33,10 +34,21 @@ tile.LTTransparentColoredBlock.thin.name=Gekleurde Blok Dun
 tile.LTTransparentColoredBlock.thinner.name=Gekleurde Blok Dunner
 tile.LTTransparentColoredBlock.thinnest.name=Gekleurde Blok Dunst
 tile.LTTransparentColoredBlock.water.name=Water
+tile.LTTransparentColoredBlock.white_water.name=Wit Water
 
 tile.LTStorageBlockTile.name=Little Opslag Blok
 
 key.categories.littletiles=LittleTiles Instellingen
+key.little.flip=Keer Preview om
+key.little.mark=Markeer Preview
+key.little.config.item=Configureer Gereedschap
+key.little.config=Configureer Geavanceerd
+key.rotatedown=Roteer omlaag
+key.rotateleft=Roteer naar links
+key.rotateright=Roteer naar rechts
+key.rotateup=Roteer omhoog
+key.little.redo=Opnieuw doen
+key.little.undo=Ongedaan maken
 
 itemGroup.littletiles=LittleTiles
 
@@ -47,6 +59,7 @@ grabber.mode.replace=Vervang Modus
 action.tile.notthere=Tile ontbreekt
 action.tile.notfound=Tile niet gevonden
 action.tileentity.notfound=TileEntity niet gevonden
+action.entity.notfound=Entity niet gevonden
 action.structure.notloaded=Constructie is niet geladen
 action.revert.notavailable=Actie kan niet ongedaan worden gemaakt
 
@@ -56,11 +69,76 @@ exception.ingredient.space.volume=Niet genoeg ruimte voor materiaal
 exception.ingredient.space.color=Niet genoeg ruimte voor kleur
 exception.ingredient.stack=Ontbrekend
 exception.permission.edit=Je mag niet meer dan %s blokken weizigen
+exception.permission.place.color=Je mag niets plaatsen met doorzichtigheid(alpha) lager dan %s
 exception.permission.place=Je mag niet meer dan %s blokken plaatsen
+exception.door.notloaded=Kan de deur niet gebruiken (niet alle tiles zijn geladen)
+exception.door.brokenparent=Kan de deur niet gebruiken (onderbroken connectie met ouder)
+exception.door.brokenchild=Kan de deur niet gebruiken (onderbroken connectie met kind)
 
 color.unit.black=zwart
 color.unit.red=rood
 color.unit.green=groen
 color.unit.blue=blauw
+color.unit.cyan=cyaan
+color.unit.magenta=magenta
+color.unit.yellow=geel
 color.unit.single=unit
 color.unit.multiple=units
+
+selector.ingredients=Ingrediënten
+
+placement.mode.default=Standaard Modus
+placement.mode.default.tooltip=Kan alleen geplaats worden als er plek is voor alle tiles in het beoogde blok.
+placement.mode.placestructure=Kan bouwwerk plaatsen
+placement.mode.fill=Vulmodus
+placement.mode.fill.tooltip=Probeerd de ruimte te vullen maar laat de overlappende ruimtes intact.
+placement.mode.all=Alle modus
+placement.mode.all.tooltip=Kan alleen plaatsen als er genoeg plek is voor alle tiles.
+placement.mode.overwrite=Overschrijfmodus
+placement.mode.overwrite.tooltip=Zal alle tiles plaatsen en overlappende ruimte verwijderen.\nDit kan geen bouwwerk-tiles verwijderen.
+placement.mode.replace=Vervangmodus
+placement.mode.replace.tooltip=Zal alleen tiles plaatsen in de overlappende ruimte.\nDit kan geen bouwwerk-tiles verwijderen.
+
+markmode.gui.allowlowresolution=Lage resolutie
+markmode.gui.switchpos=Verwissel positie
+
+commands.open.usage=Opent alle deuren op de gegeven coördinaten
+commands.open.notloaded=Bouwwerk is niet geladen
+
+item.LTPremade.workbench.name=Little Werkbank
+item.LTPremade.importer.name=Little Importeerder
+item.LTPremade.exporter.name=Little Exporteerder
+
+selection.clear=verwijder alles
+selection.dialog.clear=Wil je werkelijk alle inhoud verwijdern?
+selection.structure.name=bouwwerk naam
+selection.structure.tiles=tiles
+selection.structure.tile=tile
+selection.include.vanilla=Gewone Blokken
+selection.include.cb=C&B Blokken
+selection.include.lt=LittleTiles Blokken
+selection.include.structure=Onthoud Bouwwerken
+selection.mode.area.pos.first=Eerste positie geselecteerd [%s,%s,%s]
+selection.mode.area.pos.second=Tweede positie geselecteerd [%s,%s,%s]
+selection.save=Opslaan
+selection.scale=Schaal
+mode.selection.area=Gebied
+
+structure.none.name=Geen
+structure.fixed.name=Gefixeerd
+structure.chair.name=Stoel
+structure.ladder.name=Ladder
+structure.bed.name=Bed
+structure.storage.name=Opslag
+structure.noclip.name=No-clip
+structure.door.name=Aslijn Deur
+structure.slidingDoor.name=schuif Deur
+structure.advancedDoor.name=Geavanceerde Deur
+
+structure.category.simple=Simpel
+structure.category.door=Deuren
+
+gui.door.duration=Duur
+gui.door.stayAnimated=Blijf bewegen
+gui.door.stayAnimatedTooltip=Gebruik allen als het nodig is, het wil je FPS beïnvloeden
+gui.structure.hierarchy=Hiërarchie
