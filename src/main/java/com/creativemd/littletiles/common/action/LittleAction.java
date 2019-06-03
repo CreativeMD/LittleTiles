@@ -224,7 +224,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			return false;
 		if (!SpecialServerConfig.editUnbreakable)
 			return state.getBlock().getBlockHardness(state, world, pos) > 0;
-		return true;
+		return SpecialServerConfig.canEditBlock(player, state, pos);
 	}
 	
 	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert) {

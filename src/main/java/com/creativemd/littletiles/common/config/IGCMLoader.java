@@ -69,11 +69,14 @@ public class IGCMLoader {
 						SpecialServerConfig.maxPlaceBlocks = (Integer) getValue("maxPlaceBlocks");
 						SpecialServerConfig.minimumTransparency = (Integer) getValue("minimumTransparency");
 						SpecialServerConfig.storagePerPixel = (Float) getValue("storagePerPixel");
+						SpecialServerConfig.highestHarvestTierSurvival = (Integer) getValue("highestHarvestTierSurvival");
 					}
 					
 					@Override
 					public void createChildren() {
 						registerElement("strictMining", new BooleanSegment("Strict Mininig in Survival", false).setToolTip("If you can edit a vanilla block in survival directly (hammer/ paint brush)."));
+						registerElement("highestHarvestTierSurvival", new BooleanSegment("Harvest Level in Survival", false).setToolTip("0: any, 1: stone, 2: iron, 3: dimanond."));
+						
 						registerElement("editUnbreakable", new BooleanSegment("Edit Unbreakable Blocks", false).setToolTip("If you can edit an unbreakable block (bedrock) in survival."));
 						registerElement("limitEditBlocksSurvival", new BooleanSegment("Limit Edit/Remove Range", false).setToolTip("If the amount a player can destroy or paint at once should be limited in survival."));
 						registerElement("maxEditBlocks", new IntegerSegment("Max Edit/Remove Range", 10, 1, Integer.MAX_VALUE).setToolTip("Only affects the range if edit/remove limitation is enabled."));

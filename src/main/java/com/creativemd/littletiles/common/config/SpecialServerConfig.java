@@ -2,7 +2,9 @@ package com.creativemd.littletiles.common.config;
 
 import com.creativemd.littletiles.common.action.LittleActionException;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;
 
 public class SpecialServerConfig {
@@ -11,6 +13,8 @@ public class SpecialServerConfig {
 	
 	public static boolean limitEditBlocksSurvival = false;
 	public static int maxEditBlocks = 10;
+	
+	public static int highestHarvestTierSurvival = 10;
 	
 	public static boolean editUnbreakable = false;
 	
@@ -37,6 +41,12 @@ public class SpecialServerConfig {
 		if (limitPlaceBlocksSurvival)
 			return !player.isCreative();
 		return false;
+	}
+	
+	public static boolean canEditBlock(EntityPlayer player, IBlockState state, BlockPos pos) {
+		if (!player.isCreative())
+			return state.getBlock().getHarvestLevel(state) > highestHarvestTierSurvival;
+		return true;
 	}
 	
 	public static boolean isTransparencyRestricted(EntityPlayer player) {
