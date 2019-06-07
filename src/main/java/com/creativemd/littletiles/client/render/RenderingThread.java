@@ -81,7 +81,7 @@ public class RenderingThread extends Thread {
 					}
 				}
 				while (thread.updateCoords.size() > 0)
-					thread.updateCoords.poll().te.rendering.set(false);
+					thread.updateCoords.poll().te.resetRenderingState();
 			}
 		}
 		threadIndex = 0;
@@ -100,38 +100,36 @@ public class RenderingThread extends Thread {
 		if (te.isEmpty()) {
 			if (te.getWorld() instanceof IOrientatedWorld)
 				RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).deleteRenderData(te);
+			te.setBuffer(new BlockLayerRenderBuffer());
+			te.inRenderingQueue.set(false);
 			return;
 		}
 		
-		if (!te.rendering.get()) {
-			te.rendering.set(true);
-			
-			Object chunk;
-			if (te.getWorld() instanceof IOrientatedWorld) {
-				chunk = RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos());
-			} else {
-				chunk = te.lastRenderedChunk;
-				if (chunk == null) {
-					te.lastRenderedChunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
-					chunk = te.lastRenderedChunk;
-				}
-			}
-			
+		Object chunk;
+		if (te.getWorld() instanceof IOrientatedWorld) {
+			chunk = RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos());
+		} else {
+			chunk = te.lastRenderedChunk;
 			if (chunk == null) {
-				System.out.println("Invalid tileentity with no rendering chunk! pos: " + te.getPos() + ", world: " + te.getWorld());
-				return;
+				te.lastRenderedChunk = RenderUploader.getRenderChunk(RenderUploader.getViewFrustum(), te.getPos());
+				chunk = te.lastRenderedChunk;
 			}
-			
-			synchronized (chunks) {
-				AtomicInteger count = renderer.chunks.get(chunk);
-				if (count == null) {
-					count = new AtomicInteger(0);
-					renderer.chunks.put(chunk, count);
-				}
-				count.getAndIncrement();
-			}
-			renderer.updateCoords.add(new RenderingData(te, chunk));
 		}
+		
+		if (chunk == null) {
+			System.out.println("Invalid tileentity with no rendering chunk! pos: " + te.getPos() + ", world: " + te.getWorld());
+			return;
+		}
+		
+		synchronized (chunks) {
+			AtomicInteger count = renderer.chunks.get(chunk);
+			if (count == null) {
+				count = new AtomicInteger(0);
+				renderer.chunks.put(chunk, count);
+			}
+			count.getAndIncrement();
+		}
+		renderer.updateCoords.add(new RenderingData(te, chunk));
 	}
 	
 	static {
@@ -163,6 +161,7 @@ public class RenderingThread extends Thread {
 				RenderingData data = updateCoords.poll();
 				
 				try {
+					data.te.buildingCache.set(true);
 					BlockPos pos = data.te.getPos();
 					RenderCubeLayerCache cubeCache = data.te.getCubeCache();
 					
@@ -309,7 +308,8 @@ public class RenderingThread extends Thread {
 							}
 							
 							layerBuffer.setFinishedDrawing();
-							setRendered(data, layerBuffer);
+							if (!setRendered(data, layerBuffer))
+								updateCoords.add(data);
 							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
@@ -371,24 +371,28 @@ public class RenderingThread extends Thread {
 		}
 	}
 	
-	public synchronized void setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
+	public synchronized boolean setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
 		TileEntityLittleTiles te = data.te;
-		te.rendering.set(false);
-		
 		te.setBuffer(buffer);
+		
+		if (te.rebuildRenderingCache) {
+			te.rebuildRenderingCache = false;
+			te.buildingCache.set(false);
+			return false;
+		}
+		
+		te.inRenderingQueue.set(false);
+		te.buildingCache.set(false);
 		
 		synchronized (chunks) {
 			AtomicInteger count = chunks.get(data.chunk);
 			if (count != null)
 				count.getAndDecrement();
 			
-			boolean uploadDirectly = te.getBuffer() == null;
-			uploadDirectly = false;
-			if (buffer.isEmpty())
-				System.out.println("Setting empty buffer for no reason!");
-			te.setBuffer(buffer);
 			if (data.subWorld)
 				((LittleRenderChunk) data.chunk).addRenderData(te);
+			
+			te.clearWaitingAnimations();
 			
 			if (count == null || count.intValue() <= 0) {
 				chunks.remove(data.chunk);
@@ -408,6 +412,8 @@ public class RenderingThread extends Thread {
 			if (finished)
 				chunks.clear();
 		}
+		
+		return true;
 		
 	}
 	

@@ -50,11 +50,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -298,8 +296,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		world.checkLight(getPos());
 	}
 	
-	private static Field processingLoadedTiles = ReflectionHelper.findField(World.class, "processingLoadedTiles", "field_147481_N");
-	
 	@SideOnly(Side.CLIENT)
 	private void clientCustomUpdate(Runnable run) {
 		Minecraft.getMinecraft().addScheduledTask(run);
@@ -362,7 +358,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void updateCustomRenderer() {
 		updateRenderBoundingBox();
 		updateRenderDistance();
-		if (rendering == null || !rendering.get())
+		if (inRenderingQueue == null || !inRenderingQueue.get())
 			getCubeCache().clearCache();
 		// getBuffer().clear();
 		addToRenderUpdate();
@@ -372,23 +368,36 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@SideOnly(Side.CLIENT)
 	public void onNeighBorChangedClient() {
-		// getBuffer().clear();
-		
 		addToRenderUpdate();
 		hasNeighborChanged = true;
-		
-		// updateRender();
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public AtomicBoolean rendering;
+	public AtomicBoolean inRenderingQueue;
+	
+	@SideOnly(Side.CLIENT)
+	public AtomicBoolean buildingCache;
+	
+	@SideOnly(Side.CLIENT)
+	public boolean rebuildRenderingCache;
 	
 	@SideOnly(Side.CLIENT)
 	public void addToRenderUpdate() {
-		if (rendering == null)
-			rendering = new AtomicBoolean(false);
-		if (!rendering.get())
+		if (inRenderingQueue == null) {
+			inRenderingQueue = new AtomicBoolean();
+			buildingCache = new AtomicBoolean();
+		}
+		
+		if (inRenderingQueue.compareAndSet(false, true))
 			RenderingThread.addCoordToUpdate(this);
+		else if (buildingCache.get())
+			rebuildRenderingCache = true;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public void resetRenderingState() {
+		inRenderingQueue.set(false);
+		buildingCache.set(false);
 	}
 	
 	/** Tries to convert the TileEntity to a vanilla block
