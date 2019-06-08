@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.structure.connection;
 
+import javax.vecmath.Vector3f;
+
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -13,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
+import net.minecraftforge.common.model.ITransformation;
 
 public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierStructureRelative implements IStructureConnector<T> {
 	
@@ -114,6 +117,18 @@ public abstract class StructureLinkBaseRelative<T> extends LittleTileIdentifierS
 	@Override
 	public LittleStructureAttribute getAttribute() {
 		return attribute;
+	}
+	
+	@Override
+	public void transform(ITransformation transformation) {
+		Vector3f pos = new Vector3f(coord.getX(), coord.getY(), coord.getZ());
+		transformation.getMatrix().transform(pos);
+		this.coord = new BlockPos(pos.x, pos.y, pos.z);
+		Vector3f vec = new Vector3f(identifier[0], identifier[1], identifier[2]);
+		transformation.getMatrix().transform(vec);
+		this.identifier[0] = (int) vec.x;
+		this.identifier[1] = (int) vec.y;
+		this.identifier[2] = (int) vec.z;
 	}
 	
 }

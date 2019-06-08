@@ -1,13 +1,15 @@
 package com.creativemd.littletiles.common.structure.connection;
 
+import java.util.UUID;
+
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -15,22 +17,22 @@ import net.minecraft.world.World;
 
 public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStructure> implements IStructureChildConnector<LittleStructure> {
 	
-	public final String entityUUID;
+	public final UUID entityUUID;
 	public final int childID;
 	
-	public StructureLinkToSubWorld(LittleTile tile, LittleStructureAttribute attribute, LittleStructure parent, int childID, String entityUUID) {
+	public StructureLinkToSubWorld(LittleTile tile, LittleStructureAttribute attribute, LittleStructure parent, int childID, UUID entityUUID) {
 		super(tile, attribute, parent);
 		this.childID = childID;
 		this.entityUUID = entityUUID;
 	}
 	
-	public StructureLinkToSubWorld(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, String entityUUID) {
+	public StructureLinkToSubWorld(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, UUID entityUUID) {
 		super(te, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.entityUUID = entityUUID;
 	}
 	
-	public StructureLinkToSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, String entityUUID) {
+	public StructureLinkToSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, UUID entityUUID) {
 		super(pos, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.entityUUID = entityUUID;
@@ -39,23 +41,22 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	public StructureLinkToSubWorld(NBTTagCompound nbt, LittleStructure parent) {
 		super(nbt, parent);
 		this.childID = nbt.getInteger("childID");
-		this.entityUUID = nbt.getString("entity");
+		this.entityUUID = UUID.fromString(nbt.getString("entity"));
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt = super.writeToNBT(nbt);
 		nbt.setInteger("childID", childID);
-		nbt.setString("entity", entityUUID);
+		nbt.setString("entity", entityUUID.toString());
 		return nbt;
 	}
 	
 	@Override
 	protected World getWorld(World world) {
-		for (Entity entity : world.getLoadedEntityList()) {
-			if (entity instanceof EntityAnimation && entity.getCachedUniqueIdString().equals(entityUUID))
-				return ((EntityAnimation) entity).fakeWorld;
-		}
+		EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(entityUUID);
+		if (animation != null)
+			return animation.fakeWorld;
 		return null;
 	}
 	
@@ -89,11 +90,9 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
-		for (Entity entity : ((SubWorld) connectedStructure.getWorld()).parentWorld.getLoadedEntityList())
-			if (entity instanceof EntityAnimation && entity.getCachedUniqueIdString().equals(entityUUID)) {
-				entity.isDead = true;
-				break;
-			}
+		EntityAnimation animation = LittleDoorHandler.getHandler((SubWorld) connectedStructure.getWorld()).findDoor(entityUUID);
+		if (animation != null)
+			animation.isDead = true;
 		for (IStructureChildConnector child : connectedStructure.children.values())
 			child.destroyStructure();
 	}
@@ -102,4 +101,5 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	public boolean isLinkToAnotherWorld() {
 		return true;
 	}
+	
 }
