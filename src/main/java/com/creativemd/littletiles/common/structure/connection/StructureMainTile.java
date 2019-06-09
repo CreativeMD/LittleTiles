@@ -6,7 +6,6 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.ITransformation;
 
 public class StructureMainTile implements IStructureConnector<LittleTile> {
 	
@@ -66,11 +65,6 @@ public class StructureMainTile implements IStructureConnector<LittleTile> {
 	@Override
 	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute) {
 		new RuntimeException("Cannot set structure of main tile!").printStackTrace();
-	}
-	
-	@Override
-	public void transform(ITransformation transformation) {
-		
 	}
 	
 }

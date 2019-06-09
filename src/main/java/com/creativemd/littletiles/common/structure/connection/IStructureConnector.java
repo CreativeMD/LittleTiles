@@ -6,7 +6,6 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.model.ITransformation;
 
 public interface IStructureConnector<T> {
 	
@@ -33,7 +32,5 @@ public interface IStructureConnector<T> {
 	public void reset();
 	
 	public IStructureConnector copy(T parent);
-	
-	public void transform(ITransformation transformation);
 	
 }
