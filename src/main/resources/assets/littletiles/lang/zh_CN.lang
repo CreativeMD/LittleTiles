@@ -60,6 +60,7 @@ grabber.mode.replace=替换模式
 action.tile.notthere=方块丢失
 action.tile.notfound=未找到方块结构
 action.tileentity.notfound=未找到方块实体
+action.entity.notfound=未找到实体
 action.structure.notloaded=结构尚未加载
 action.revert.notavailable=行为无法复原
 
@@ -71,6 +72,9 @@ exception.ingredient.stack=丢失
 exception.permission.edit=不允许编辑超过%s的方块
 exception.permission.place.color=没有权限放置透明度低于%s的方块
 exception.permission.place=不能放置%s以上的方块
+exception.door.notloaded=无法与门互动（并非所有瓷砖都已加载）
+exception.door.brokenparent=无法与门互动（已断开与父级的连接）
+exception.door.brokenchild=无法与门互动（已断开与子级的连接）
 
 color.unit.black=黑色
 color.unit.cyan=青色
