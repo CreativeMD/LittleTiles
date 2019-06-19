@@ -22,9 +22,11 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiLTDistance;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
+import com.creativemd.littletiles.common.gui.dialogs.SubGuiActivateChildren.GuiActivateChildButton;
 import com.creativemd.littletiles.common.gui.dialogs.SubGuiDialogAxis.GuiAxisButton;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -291,7 +293,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		int duration = newDoor.duration;
 		
@@ -330,7 +332,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		return new DoorController(new AnimationState(), opened, stayAnimated ? null : false, duration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
+		return new DoorController(result, supplier, new AnimationState(), opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
 	}
 	
 	@Override
@@ -374,12 +376,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 10).setNumbersOnly());
-			
+			parent.controls.add(new GuiActivateChildButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
 		}
 		
 		public void updateTimeline() {
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
+			GuiActivateChildButton children = (GuiActivateChildButton) parent.get("children_activate");
 			AnimationTimeline animation = new AnimationTimeline(timeline.getDuration(), new PairList<>());
 			
 			ValueTimeline rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
@@ -406,7 +409,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			if (offZ != null)
 				animation.values.add(AnimationKey.offZ, offZ.factor(context.gridMCLength));
 			
-			handler.setTimeline(animation);
+			handler.setTimeline(animation, children.childActivation);
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -493,7 +496,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				} catch (NumberFormatException e) {
 					
 				}
-			} else if (event.source.is("timeline"))
+			} else if (event.source.is("timeline") || event.source.is("children_activate"))
 				updateTimeline();
 		}
 		
@@ -532,11 +535,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		public LittleStructure parseStructure(LittlePreviews previews) {
 			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class);
 			GuiTileViewer viewer = ((GuiAxisButton) parent.get("axis")).viewer;
+			GuiActivateChildButton children = (GuiActivateChildButton) parent.get("children_activate");
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			door.duration = timeline.getDuration();
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
 			door.stayAnimated = checkBox.value;
+			door.childActivation = children.childActivation;
 			
 			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
 			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());

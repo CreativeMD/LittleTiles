@@ -338,7 +338,7 @@ public abstract class LittleStructure {
 		if (childWorld == world)
 			connector = new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.attribute, this, i, false);
 		else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-			connector = new StructureLinkToSubWorld(child.getMainTile(), child.attribute, this, i, ((SubWorld) childWorld).parent.getUniqueID().toString());
+			connector = new StructureLinkToSubWorld(child.getMainTile(), child.attribute, this, i, ((SubWorld) childWorld).parent.getUniqueID());
 		else
 			throw new RuntimeException("Invalid connection between to structures!");
 		
@@ -685,6 +685,27 @@ public abstract class LittleStructure {
 		return context;
 	}
 	
+	public LittlePreviewsStructure getPreviewsSameWorld(BlockPos pos) {
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		this.writeToNBTPreview(structureNBT, pos);
+		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
+		
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			LittleTile tile = iterator.next();
+			LittleTilePreview preview = previews.addTile(tile);
+			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
+		}
+		
+		for (IStructureChildConnector child : children.values()) {
+			if (!child.isLinkToAnotherWorld())
+				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
+		}
+		
+		previews.convertToSmallest();
+		previews.ensureContext(getMinContext());
+		return previews;
+	}
+	
 	public LittlePreviewsStructure getPreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
@@ -698,6 +719,25 @@ public abstract class LittleStructure {
 		
 		for (IStructureChildConnector child : children.values()) {
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
+		}
+		
+		previews.convertToSmallest();
+		previews.ensureContext(getMinContext());
+		return previews;
+	}
+	
+	public LittleAbsolutePreviewsStructure getAbsolutePreviewsSameWorld(BlockPos pos) {
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		this.writeToNBTPreview(structureNBT, pos);
+		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
+		
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+			previews.addTile(iterator.next());
+		}
+		
+		for (IStructureChildConnector child : children.values()) {
+			if (!child.isLinkToAnotherWorld())
+				previews.addChild(child.getStructure(getWorld()).getPreviewsSameWorld(pos));
 		}
 		
 		previews.convertToSmallest();

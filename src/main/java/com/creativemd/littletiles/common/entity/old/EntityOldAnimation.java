@@ -262,7 +262,7 @@ public abstract class EntityOldAnimation extends Entity {
 			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
 			
 			if (rotationX != null || rotationY != null || rotationZ != null || translation != null) {
-				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
+				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 				
 				noCollision = true;
 				
@@ -276,7 +276,7 @@ public abstract class EntityOldAnimation extends Entity {
 							box.buildCache();
 						box.cache.reset();
 						
-						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
+						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
 					}
 					
 					// PHASE TWO

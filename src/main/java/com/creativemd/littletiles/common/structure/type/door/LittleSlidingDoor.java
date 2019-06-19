@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiDirectionIndicator;
@@ -64,10 +65,10 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
 		if (stayAnimated)
-			return new DoorController(new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration);
-		return new DoorController(new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration);
+			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration);
+		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration);
 	}
 	
 	@Override
@@ -238,17 +239,15 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleSlidingDoor parseStructure(int duration, boolean stayAnimated) {
+		public LittleSlidingDoor parseStructure() {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
 			
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
 			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class);
-			door.duration = duration;
 			door.moveDirection = direction;
 			door.moveDistance = distance.getDistance();
 			door.moveContext = distance.getDistanceContext();
-			door.stayAnimated = stayAnimated;
 			return door;
 		}
 		

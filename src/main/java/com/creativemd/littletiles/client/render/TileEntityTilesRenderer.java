@@ -49,18 +49,6 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 	@Override
 	public void render(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
-		/*
-		 * AxisAlignedBB box = te.getRenderBoundingBox(); double sizeX =
-		 * box.maxX-box.minX; double sizeY = box.maxY-box.minY; double sizeZ =
-		 * box.maxZ-box.minZ;
-		 * RenderHelper3D.renderBlock(box.minX-TileEntityRendererDispatcher.
-		 * staticPlayerX, box.minY-TileEntityRendererDispatcher.staticPlayerY,
-		 * box.minZ-TileEntityRendererDispatcher.staticPlayerZ, sizeX, sizeY, sizeZ, 0,
-		 * 0, 0, 1, 1, 1, 1);
-		 */
-		// renderDebugBoundingBox(te.getRenderBoundingBox(), x-te.getPos().getX(),
-		// y-te.getPos().getY(), z-te.getPos().getZ());
-		// Render.renderOffsetAABB(te.getRenderBoundingBox(), x*2, y*2, z*2);
 		
 		for (LittleTile tile : te.getRenderTiles()) {
 			tile.renderTick(x, y, z, partialTicks);

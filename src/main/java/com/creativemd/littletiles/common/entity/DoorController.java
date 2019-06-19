@@ -4,12 +4,16 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -19,12 +23,14 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -41,7 +47,10 @@ public class DoorController extends EntityAnimationController {
 	public static final String closedState = "closed";
 	public Boolean turnBack;
 	public int duration;
+	public int completeDuration;
 	public EntityPlayer activator;
+	public DoorOpeningResult result;
+	public UUIDSupplier supplier;
 	
 	protected boolean modifiedTransition;
 	
@@ -52,9 +61,13 @@ public class DoorController extends EntityAnimationController {
 		
 	}
 	
-	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration) {
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration) {
+		this.result = result;
+		this.supplier = supplier;
+		
 		this.turnBack = turnBack;
 		this.duration = duration;
+		this.completeDuration = completeDuration;
 		
 		addState(openedState, opened);
 		addStateAndSelect(closedState, closed);
@@ -62,12 +75,17 @@ public class DoorController extends EntityAnimationController {
 		generateAllTransistions(duration);
 		modifiedTransition = false;
 		
+		stretchTransitions();
 		startTransition(openedState);
 	}
 	
-	public DoorController(AnimationState closed, AnimationState opened, Boolean turnBack, int duration, AnimationTimeline open, AnimationTimeline close) {
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close) {
+		this.result = result;
+		this.supplier = supplier;
+		
 		this.turnBack = turnBack;
 		this.duration = duration;
+		this.completeDuration = completeDuration;
 		
 		addState(openedState, opened);
 		addStateAndSelect(closedState, closed);
@@ -75,6 +93,7 @@ public class DoorController extends EntityAnimationController {
 		addTransition("closed", "opened", open);
 		addTransition("opened", "closed", close);
 		
+		stretchTransitions();
 		startTransition(openedState);
 	}
 	
@@ -84,8 +103,15 @@ public class DoorController extends EntityAnimationController {
 		return super.addTransition(from, to, animation);
 	}
 	
-	public DoorController(AnimationState opened, Boolean turnBack, int duration) {
-		this(new AnimationState(), opened, turnBack, duration);
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration) {
+		this(result, supplier, new AnimationState(), opened, turnBack, duration, completeDuration);
+	}
+	
+	protected void stretchTransitions() {
+		completeDuration = Math.max(completeDuration, duration);
+		for (AnimationTimeline timeline : stateTransition.values()) {
+			timeline.duration = completeDuration;
+		}
 	}
 	
 	@Override
@@ -100,7 +126,9 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void removeWaitingTe(TileEntityLittleTiles te) {
-		waitingForRender.remove(te);
+		synchronized (waitingForRender) {
+			waitingForRender.remove(te);
+		}
 	}
 	
 	@Override
@@ -128,17 +156,19 @@ public class DoorController extends EntityAnimationController {
 				ticksToWait--;
 				
 				if (ticksToWait % 10 == 0) {
-					List<TileEntityLittleTiles> tileEntities = null;
-					for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
-						TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
-						if (te != te.getWorld().getTileEntity(te.getPos())) {
-							if (tileEntities == null)
-								tileEntities = new ArrayList<>();
-							tileEntities.add(te);
+					synchronized (waitingForRender) {
+						List<TileEntityLittleTiles> tileEntities = null;
+						for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
+							TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
+							if (te != te.getWorld().getTileEntity(te.getPos())) {
+								if (tileEntities == null)
+									tileEntities = new ArrayList<>();
+								tileEntities.add(te);
+							}
 						}
+						if (tileEntities != null)
+							waitingForRender.removeAll(tileEntities);
 					}
-					if (tileEntities != null)
-						waitingForRender.removeAll(tileEntities);
 				}
 				
 				if (waitingForRender.size() == 0 || ticksToWait < 0) {
@@ -159,7 +189,14 @@ public class DoorController extends EntityAnimationController {
 					place();
 			}
 		}
-		return super.tick();
+		
+		if (!parent.structure.loadChildren())
+			return currentState.state;
+		
+		((LittleDoor) parent.structure).beforeTick(parent, tick);
+		AnimationState state = super.tick();
+		((LittleDoor) parent.structure).afterTick(parent, tick);
+		return state;
 	}
 	
 	@Override
@@ -189,19 +226,54 @@ public class DoorController extends EntityAnimationController {
 	}
 	
 	public void place() {
+		if (!parent.structure.hasLoaded()) {
+			System.out.println(new TextComponentTranslation("exception.door.notloaded").getFormattedText());
+			return;
+		}
+		
+		if (!parent.structure.loadChildren()) {
+			System.out.println(new TextComponentTranslation("exception.door.brokenparent").getFormattedText());
+			return;
+		}
+		
+		if (!parent.structure.loadParent()) {
+			System.out.println(new TextComponentTranslation("exception.door.brokenchild").getFormattedText());
+			return;
+		}
+		
+		World world = parent.world;
+		
+		if (world.isRemote)
+			waitingForRender = new ArrayList<>();
+		
 		LittleAbsolutePreviewsStructure previews = parent.getAbsolutePreviews();
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
 		LittleStructure newDoor = previews.getStructure();
-		World world = parent.world;
 		
 		if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
 			if (parent.structure.parent != null && parent.structure.parent.isConnected(world)) {
 				LittleStructure parentStructure = parent.structure.parent.getStructureWithoutLoading();
 				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
+			}
+			
+			if (parent.structure.loadChildren()) {
+				for (IStructureChildConnector child : parent.structure.children.values()) {
+					LittleStructure childStructure = child.getStructure(parent.fakeWorld);
+					World childWorld = childStructure.getWorld();
+					if (childWorld instanceof SubWorld) {
+						Entity entity = ((SubWorld) childWorld).parent;
+						parent.fakeWorld.loadedEntityList.remove(entity);
+						if (entity instanceof EntityAnimation)
+							((EntityAnimation) entity).setParentWorld(parent.fakeWorld.getParent());
+						else
+							entity.world = parent.fakeWorld.getParent();
+						parent.fakeWorld.getParent().spawnEntity(entity);
+					}
+				}
 			}
 		} else {
 			parent.isDead = true;
@@ -213,13 +285,14 @@ public class DoorController extends EntityAnimationController {
 		if (!world.isRemote)
 			parent.isDead = true;
 		else {
-			waitingForRender = new CopyOnWriteArrayList<>();
-			ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
-			for (int i = 0; i < coordsToCheck.size(); i++) {
-				TileEntity te = world.getTileEntity(coordsToCheck.get(i));
-				if (te instanceof TileEntityLittleTiles) {
-					((TileEntityLittleTiles) te).addWaitingAnimation(parent);
-					waitingForRender.add((TileEntityLittleTiles) te);
+			synchronized (waitingForRender) {
+				ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
+				for (int i = 0; i < coordsToCheck.size(); i++) {
+					TileEntity te = world.getTileEntity(coordsToCheck.get(i));
+					if (te instanceof TileEntityLittleTiles) {
+						((TileEntityLittleTiles) te).addWaitingAnimation(parent);
+						waitingForRender.add((TileEntityLittleTiles) te);
+					}
 				}
 			}
 			ticksToWait = waitTimeRender;
@@ -233,11 +306,17 @@ public class DoorController extends EntityAnimationController {
 		nbt.setTag("closed", getState(closedState).state.writeToNBT(new NBTTagCompound()));
 		nbt.setTag("opened", getState(openedState).state.writeToNBT(new NBTTagCompound()));
 		
+		if (!result.isEmpty())
+			nbt.setTag("result", result.nbt);
+		nbt.setString("originaluuid", supplier.original().toString());
+		nbt.setString("uuid", supplier.uuid.toString());
+		
 		nbt.setBoolean("isOpen", currentState.name.equals(openedState));
 		if (isChanging())
 			nbt.setInteger("tick", this.tick);
 		
 		nbt.setInteger("duration", duration);
+		nbt.setInteger("completeDuration", completeDuration);
 		nbt.setByte("turnBack", (byte) (turnBack == null ? 0 : (turnBack ? 1 : -1)));
 		
 		if (modifiedTransition) {
@@ -256,7 +335,14 @@ public class DoorController extends EntityAnimationController {
 		addState(closedState, new AnimationState(nbt.getCompoundTag("closed")));
 		addState(openedState, new AnimationState(nbt.getCompoundTag("opened")));
 		
+		if (nbt.hasKey("result"))
+			result = new DoorOpeningResult(nbt.getCompoundTag("result"));
+		else
+			result = LittleDoor.EMPTY_OPENING_RESULT;
+		supplier = new UUIDSupplier(UUID.fromString(nbt.getString("originaluuid")), UUID.fromString(nbt.getString("uuid")));
+		
 		duration = nbt.getInteger("duration");
+		completeDuration = nbt.getInteger("completeDuration");
 		if (nbt.hasKey("transitions")) {
 			NBTTagList list = nbt.getTagList("transitions", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
@@ -264,8 +350,10 @@ public class DoorController extends EntityAnimationController {
 				addTransition(transitionNBT.getString("key"), new AnimationTimeline(transitionNBT));
 			}
 			modifiedTransition = true;
-		} else
+		} else {
 			generateAllTransistions(duration);
+			stretchTransitions();
+		}
 		
 		boolean isOpen = nbt.getBoolean("isOpen");
 		if (isOpen)

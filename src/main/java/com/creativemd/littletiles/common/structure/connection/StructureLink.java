@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.structure.connection;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -118,5 +119,10 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 			for (IStructureChildConnector child : connectedStructure.children.values())
 				child.destroyStructure();
 		}
+	}
+	
+	@Override
+	public EntityAnimation getAnimation() {
+		return null;
 	}
 }

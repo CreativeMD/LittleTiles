@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
+import javax.vecmath.Vector3d;
+
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
@@ -134,6 +136,10 @@ public class LittleTileVec implements IVecInt {
 	
 	public Vec3d getVec(LittleGridContext context) {
 		return new Vec3d(context.toVanillaGrid(x), context.toVanillaGrid(y), context.toVanillaGrid(z));
+	}
+	
+	public Vector3d getVector(LittleGridContext context) {
+		return new Vector3d(context.toVanillaGrid(x), context.toVanillaGrid(y), context.toVanillaGrid(z));
 	}
 	
 	public double getPosX(LittleGridContext context) {

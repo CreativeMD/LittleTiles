@@ -9,6 +9,8 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.gui.mc.ContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
+import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
@@ -188,6 +190,23 @@ public class SubGuiDialogAxis extends SubGui {
 			this.stackContext = context;
 			this.door = door;
 			this.handler = handler;
+			
+			LittleGridContext axisContext = stackContext;
+			viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
+			
+			boolean even = false;
+			if (door != null) {
+				even = door.axisCenter.isEven();
+				viewer.setEven(even);
+				
+				door.axisCenter.convertToSmallest();
+				axisContext = door.axisCenter.getContext();
+				viewer.setAxis(door.axisCenter.getBox(), axisContext);
+				
+			} else {
+				viewer.setEven(false);
+				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
+			}
 		}
 		
 		@Override
@@ -196,6 +215,7 @@ public class SubGuiDialogAxis extends SubGui {
 			nbt.setBoolean("dialog", true);
 			SubGuiDialogAxis dialog = new SubGuiDialogAxis(this, handler);
 			dialog.gui = getParent().getOrigin().gui;
+			PacketHandler.sendPacketToServer(new GuiLayerPacket(nbt, dialog.gui.getLayers().size() - 1, false));
 			dialog.gui.addLayer(dialog);
 			dialog.container = new SubContainerEmpty(getPlayer());
 			((ContainerSub) dialog.gui.inventorySlots).layers.add(dialog.container);
@@ -205,23 +225,7 @@ public class SubGuiDialogAxis extends SubGui {
 		
 		@Override
 		public void onLoaded(AnimationPreview animationPreview) {
-			LittleGridContext axisContext = stackContext;
 			
-			viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, stackContext);
-			
-			boolean even = false;
-			if (door != null) {
-				even = door.axisCenter.isEven();
-				viewer.setEven(even);
-				
-				axisContext = door.axisCenter.getContext();
-				door.axisCenter.convertToSmallest();
-				viewer.setAxis(door.axisCenter.getBox(), axisContext);
-				
-			} else {
-				viewer.setEven(false);
-				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
-			}
 			viewer.visibleAxis = true;
 			viewer.onLoaded(animationPreview);
 			setEnabled(true);

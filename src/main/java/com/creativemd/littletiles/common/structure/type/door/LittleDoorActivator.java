@@ -6,12 +6,16 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+
+import net.minecraft.entity.player.EntityPlayer;
 
 public class LittleDoorActivator extends LittleDoor {
 	
@@ -65,6 +69,12 @@ public class LittleDoorActivator extends LittleDoor {
 			return activator;
 		}
 		
+	}
+	
+	@Override
+	public EntityAnimation openDoor(EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

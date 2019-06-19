@@ -57,13 +57,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				animation.onUpdateForReal();
 				animation.preventPush = false;
 				
-				animation.prevWorldOffsetX = animation.worldOffsetX;
-				animation.prevWorldOffsetY = animation.worldOffsetY;
-				animation.prevWorldOffsetZ = animation.worldOffsetZ;
-				
-				animation.prevWorldRotX = animation.worldRotX;
-				animation.prevWorldRotY = animation.worldRotY;
-				animation.prevWorldRotZ = animation.worldRotZ;
+				animation.origin.tick();
 				return;
 			}
 		}

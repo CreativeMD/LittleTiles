@@ -102,4 +102,9 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 		return true;
 	}
 	
+	@Override
+	public EntityAnimation getAnimation() {
+		return null;
+	}
+	
 }

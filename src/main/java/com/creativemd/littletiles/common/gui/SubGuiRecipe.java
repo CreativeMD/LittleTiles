@@ -48,7 +48,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	public List<String> hierarchyNames;
 	public LittlePreviews previews;
 	
-	public AnimationGuiHandler handler = new AnimationGuiHandler(this);
+	public AnimationGuiHandler handler = new AnimationGuiHandler();
 	
 	public SubGuiRecipe(ItemStack stack) {
 		super(350, 200, stack);
@@ -132,7 +132,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 				parser.onLoaded(animationPreview);
 		}
 		if (animationPreview != null)
-			handler.tick(animationPreview.animation);
+			handler.tick(animationPreview.previews, animationPreview.animation);
 	}
 	
 	@Override
@@ -250,7 +250,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		
 		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
 		if (parser != null) {
-			handler.setTimeline(null);
+			handler.setTimeline(null, null);
 			parser.createControls(this.selected.previews, saved);
 			panel.refreshControls();
 			addListener(parser);

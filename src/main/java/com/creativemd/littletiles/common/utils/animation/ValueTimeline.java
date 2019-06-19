@@ -209,4 +209,10 @@ public abstract class ValueTimeline {
 		
 	}
 	
+	public void offset(int offset) {
+		PairList<Integer, Double> newPoints = new PairList<>();
+		for (Pair<Integer, Double> point : points)
+			newPoints.add(point.key + offset, point.value);
+	}
+	
 }

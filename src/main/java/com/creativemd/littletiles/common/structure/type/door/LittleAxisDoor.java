@@ -22,6 +22,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.gui.controls.GuiTileViewer;
@@ -137,19 +138,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
-		return doorRotation.createController(transformation.getRotation(axis), this);
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
+		return doorRotation.createController(result, supplier, transformation.getRotation(axis), this, completeDuration);
 	}
 	
 	@Override
 	public DoorTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
-		StructureAbsolute absolute = getAbsoluteAxis();
-		Rotation rotation = player != null ? doorRotation.getRotation(player, this, absolute) : doorRotation.getDefaultRotation(this, absolute);
-		
-		if (doorRotation.tryOpposite())
-			return new DoorTransformation[] { new DoorTransformation(getMainTile().te.getPos(), rotation),
-			        new DoorTransformation(getMainTile().te.getPos(), rotation.getOpposite()) };
-		return new DoorTransformation[] { new DoorTransformation(getMainTile().te.getPos(), rotation) };
+		return doorRotation.getDoorTransformations(this, player);
 	}
 	
 	@Override
@@ -273,7 +268,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public LittleAxisDoor parseStructure(int duration, boolean stayAnimated) {
+		public LittleAxisDoor parseStructure() {
 			LittleAxisDoor door = createStructure(LittleAxisDoor.class);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
@@ -282,8 +277,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 			GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
 			door.doorRotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
 			door.doorRotation.parseGui(viewer, typePanel);
-			door.duration = duration;
-			door.stayAnimated = stayAnimated;
 			return door;
 		}
 		
@@ -305,9 +298,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 				even = door.axisCenter.isEven();
 				viewer.setEven(even);
 				
+				door.axisCenter.convertToSmallest();
 				axisContext = door.axisCenter.getContext();
 				viewer.setViewAxis(door.axis);
-				door.axisCenter.convertToSmallest();
 				viewer.setAxis(door.axisCenter.getBox(), axisContext);
 				
 				doorRotation = door.doorRotation;
@@ -321,7 +314,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			
 			parent.addControl(new GuiTabStateButton("doorRotation", rotationTypes.indexOf(doorRotation.getClass()), 110, 0, 12, rotationTypeNames.toArray(new String[0])));
 			
-			GuiPanel typePanel = new GuiPanel("typePanel", 110, 20, 80, 40);
+			GuiPanel typePanel = new GuiPanel("typePanel", 110, 20, 80, 25);
 			parent.addControl(typePanel);
 			parent.addControl(new GuiIconButton("reset view", 20, 107, 8) {
 				
@@ -360,7 +353,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			}.setCustomTooltip("flip view"));
 			
-			parent.addControl(new GuiIconButton("up", 124, 83, 1) {
+			parent.addControl(new GuiIconButton("up", 124, 63, 1) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -368,7 +361,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("right", 141, 100, 0) {
+			parent.addControl(new GuiIconButton("right", 141, 80, 0) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -376,7 +369,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("left", 107, 100, 2) {
+			parent.addControl(new GuiIconButton("left", 107, 80, 2) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -384,7 +377,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("down", 124, 100, 3) {
+			parent.addControl(new GuiIconButton("down", 124, 80, 3) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -392,9 +385,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.controls.add(new GuiCheckBox("even", 147, 80, even));
+			parent.controls.add(new GuiCheckBox("even", 147, 60, even));
 			
-			GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 100, 20, 12, LittleGridContext.getNames().toArray(new String[0]));
+			GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 80, 20, 12, LittleGridContext.getNames().toArray(new String[0]));
 			parent.controls.add(contextBox);
 			
 			doorRotation.onSelected(viewer, typePanel);
@@ -536,15 +529,11 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract void flip(LittleAxisDoor door, Axis axis);
 		
-		protected abstract boolean tryOpposite();
-		
-		protected abstract Rotation getRotation(EntityPlayer player, LittleAxisDoor door, StructureAbsolute absolute);
-		
-		protected abstract Rotation getDefaultRotation(LittleAxisDoor door, StructureAbsolute absolute);
-		
 		protected abstract boolean shouldRotatePreviews(LittleAxisDoor door);
 		
-		protected abstract DoorController createController(Rotation rotation, LittleAxisDoor door);
+		protected abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration);
+		
+		protected abstract DoorTransformation[] getDoorTransformations(LittleAxisDoor door, @Nullable EntityPlayer player);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract boolean shouldUpdateTimeline(GuiControl control);
@@ -583,12 +572,6 @@ public class LittleAxisDoor extends LittleDoorBase {
 			
 		}
 		
-		@Override
-		protected boolean tryOpposite() {
-			return true;
-		}
-		
-		@Override
 		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, StructureAbsolute absolute) {
 			Vector3d axisVec = absolute.getCenter();
 			Vec3d playerVec = player.getPositionVector();
@@ -614,16 +597,15 @@ public class LittleAxisDoor extends LittleDoorBase {
 			return Rotation.getRotation(door.axis, toTheSide == clockwise);
 		}
 		
-		@Override
 		protected Rotation getDefaultRotation(LittleAxisDoor door, StructureAbsolute absolute) {
 			return Rotation.getRotation(door.axis, true);
 		}
 		
 		@Override
-		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
+		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration) {
 			if (door.stayAnimated)
-				return new DoorController(new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration);
-			return new DoorController(new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration);
+				return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration);
+			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration, completeDuration);
 		}
 		
 		@Override
@@ -665,6 +647,14 @@ public class LittleAxisDoor extends LittleDoorBase {
 			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, 90D));
 		}
 		
+		@Override
+		protected DoorTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
+			StructureAbsolute absolute = door.getAbsoluteAxis();
+			Rotation rotation = player != null ? getRotation(player, door, absolute) : getDefaultRotation(door, absolute);
+			return new DoorTransformation[] { new DoorTransformation(door.getMainTile().te.getPos(), rotation),
+			        new DoorTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
+		}
+		
 	}
 	
 	public static class FixedRotation extends AxisDoorRotation {
@@ -693,23 +683,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected boolean tryOpposite() {
-			return false;
-		}
-		
-		@Override
-		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, StructureAbsolute absolute) {
-			return getDefaultRotation(door, absolute);
-		}
-		
-		@Override
-		protected Rotation getDefaultRotation(LittleAxisDoor door, StructureAbsolute absolute) {
-			return Rotation.getRotation(door.axis, degree > 0);
-		}
-		
-		@Override
-		protected DoorController createController(Rotation rotation, LittleAxisDoor door) {
-			return new DoorController(new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration);
+		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration) {
+			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration);
 		}
 		
 		@Override
@@ -747,8 +722,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key) {
-			timeline.duration = duration * 2;
-			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, degree).addPoint(duration * 2, 0D));
+			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, degree));
+		}
+		
+		@Override
+		protected DoorTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
+			return new DoorTransformation[] {
+			        new DoorTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 		}
 		
 	}

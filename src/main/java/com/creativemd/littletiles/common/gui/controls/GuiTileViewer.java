@@ -28,6 +28,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -297,7 +298,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		
-		GlStateManager.translate(animation.center.baseOffset.getX(), animation.center.baseOffset.getY() - 75, animation.center.baseOffset.getZ());
+		GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
+		GlStateManager.translate(0, -75, 0);
 		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
 		
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);

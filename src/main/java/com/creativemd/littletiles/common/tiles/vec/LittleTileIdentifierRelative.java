@@ -11,9 +11,9 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleTileIdentifierRelative {
 	
-	protected final BlockPos coord;
-	public final LittleGridContext context;
-	public final int[] identifier;
+	public BlockPos coord;
+	public LittleGridContext context;
+	public int[] identifier;
 	
 	public LittleTileIdentifierRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier) {
 		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, context, identifier);

@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -114,6 +115,34 @@ public abstract class LittleDoor extends LittleStructure {
 		return true;
 	}
 	
+	public void beforeTick(EntityAnimation animation, int tick) {
+		if (tick == 0) {
+			DoorController controller = (DoorController) animation.controller;
+			for (LittleDoor door : collectDoorChildren()) {
+				DoorOpeningResult result;
+				if (controller.result.isEmpty() || !controller.result.nbt.hasKey("c" + door.parent.getChildID()))
+					result = EMPTY_OPENING_RESULT;
+				else
+					result = new DoorOpeningResult(controller.result.nbt.getCompoundTag("c" + door.parent.getChildID()));
+				EntityAnimation childAnimation = door.openDoor(null, controller.supplier, result);
+				if (childAnimation != null)
+					childAnimation.controller.onServerApproves();
+			}
+		}
+	}
+	
+	public void afterTick(EntityAnimation animation, int tick) {
+		
+	}
+	
+	public int getCompleteDuration() {
+		int duration = 0;
+		for (LittleDoor door : collectDoorChildren()) {
+			duration = Math.max(duration, childActivation.getValue(door.parent.getChildID()) + door.getCompleteDuration());
+		}
+		return duration;
+	}
+	
 	public List<LittleDoor> collectDoorChildren() {
 		List<LittleDoor> doors = new ArrayList<>();
 		for (Pair<Integer, Integer> pair : childActivation) {
@@ -160,12 +189,7 @@ public abstract class LittleDoor extends LittleStructure {
 		return new DoorOpeningResult(nbt);
 	}
 	
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
-		for (LittleDoor door : collectDoorChildren()) {
-			door.openDoor(player, uuid, result);
-		}
-		return null;
-	}
+	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result);
 	
 	public EntityAnimation animation;
 	

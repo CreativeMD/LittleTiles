@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tiles.vec;
 
 import java.security.InvalidParameterException;
 
+import javax.vecmath.Vector3d;
+
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -104,6 +106,10 @@ public class LittleTileVecContext {
 	
 	public Vec3d getVec() {
 		return vec.getVec(context);
+	}
+	
+	public Vector3d getVector() {
+		return vec.getVector(context);
 	}
 	
 	public LittleTileVec getVec(LittleGridContext context) {

@@ -113,17 +113,11 @@ public class EntityAnimation extends Entity {
 		onUpdateForReal();
 		preventPush = false;
 		
-		prevWorldOffsetX = worldOffsetX;
-		prevWorldOffsetY = worldOffsetY;
-		prevWorldOffsetZ = worldOffsetZ;
-		
-		prevWorldRotX = worldRotX;
-		prevWorldRotY = worldRotY;
-		prevWorldRotZ = worldRotZ;
+		origin.tick();
 	}
 	
 	public boolean shouldAddDoor() {
-		return true;
+		return !(world instanceof FakeWorld) && !(world instanceof SubWorld && ((SubWorld) world).getRealWorld() instanceof FakeWorld);
 	}
 	
 	public World getRealWorld() {
@@ -152,30 +146,6 @@ public class EntityAnimation extends Entity {
 	public IVecOrigin origin;
 	public EntityAnimationController controller;
 	
-	public double prevWorldRotX;
-	public double prevWorldRotY;
-	public double prevWorldRotZ;
-	
-	public double worldRotX;
-	public double worldRotY;
-	public double worldRotZ;
-	
-	public double prevWorldOffsetX;
-	public double prevWorldOffsetY;
-	public double prevWorldOffsetZ;
-	
-	public double worldOffsetX;
-	public double worldOffsetY;
-	public double worldOffsetZ;
-	
-	public Vec3d getRotationVector(float partialTicks) {
-		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double) partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double) partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double) partialTicks);
-	}
-	
-	public Vec3d getOffsetVector(float partialTicks) {
-		return new Vec3d(this.prevWorldOffsetX + (this.worldOffsetX - this.prevWorldOffsetX) * (double) partialTicks, this.prevWorldOffsetY + (this.worldOffsetY - this.prevWorldOffsetY) * (double) partialTicks, this.prevWorldOffsetZ + (this.worldOffsetZ - this.prevWorldOffsetZ) * (double) partialTicks);
-	}
-	
 	// ================Axis================
 	
 	public void setCenter(StructureAbsolute center) {
@@ -187,6 +157,14 @@ public class EntityAnimation extends Entity {
 	
 	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
 		setCenter(new StructureAbsolute(axis, additional));
+	}
+	
+	public void setParentWorld(World world) {
+		this.world = world;
+		if (fakeWorld instanceof SubWorld)
+			((SubWorld) fakeWorld).parentWorld = world;
+		this.fakeWorld.setOrigin(center.rotationCenter);
+		this.origin = this.fakeWorld.getOrigin();
 	}
 	
 	public LittleStructure structure;
@@ -271,19 +249,6 @@ public class EntityAnimation extends Entity {
 		return par1;
 	}
 	
-	public double getRot(Axis axis) {
-		switch (axis) {
-		case X:
-			return worldRotX;
-		case Y:
-			return worldRotY;
-		case Z:
-			return worldRotZ;
-		default:
-			return 0;
-		}
-	}
-	
 	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
 		World world = getRealWorld();
 		
@@ -296,7 +261,7 @@ public class EntityAnimation extends Entity {
 			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
 			
 			if (rotationX != null || rotationY != null || rotationZ != null || translation != null) {
-				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, center.rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
+				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
 				
 				noCollision = true;
 				
@@ -310,7 +275,7 @@ public class EntityAnimation extends Entity {
 							box.buildCache();
 						box.cache.reset();
 						
-						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, center.rotationCenter, origin.rotation(), origin.translation(), rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
+						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
 					}
 					
 					// PHASE TWO
@@ -372,15 +337,13 @@ public class EntityAnimation extends Entity {
 						}
 					}
 					
-					worldOffsetX += x;
-					worldOffsetY += y;
-					worldOffsetZ += z;
+					origin.offX(origin.offX() + x);
+					origin.offY(origin.offY() + y);
+					origin.offZ(origin.offZ() + z);
 					
-					worldRotX += rotX;
-					worldRotY += rotY;
-					worldRotZ += rotZ;
-					
-					updateOrigin();
+					origin.rotX(origin.rotX() + rotX);
+					origin.rotY(origin.rotY() + rotY);
+					origin.rotZ(origin.rotZ() + rotZ);
 					moved = true;
 					
 					// PHASE THREE
@@ -583,15 +546,13 @@ public class EntityAnimation extends Entity {
 		}
 		
 		if (!moved) {
-			worldOffsetX += x;
-			worldOffsetY += y;
-			worldOffsetZ += z;
+			origin.offX(origin.offX() + x);
+			origin.offY(origin.offY() + y);
+			origin.offZ(origin.offZ() + z);
 			
-			worldRotX += rotX;
-			worldRotY += rotY;
-			worldRotZ += rotZ;
-			
-			updateOrigin();
+			origin.rotX(origin.rotX() + rotX);
+			origin.rotY(origin.rotY() + rotY);
+			origin.rotZ(origin.rotZ() + rotZ);
 		}
 	}
 	
@@ -621,16 +582,8 @@ public class EntityAnimation extends Entity {
 		if (worldBoundingBox == null || fakeWorld == null)
 			return;
 		
-		boolean rotated = prevWorldRotX != worldRotX || prevWorldRotY != worldRotY || prevPosZ != worldRotZ;
-		boolean moved = prevWorldOffsetX != worldOffsetX || prevWorldOffsetY != worldOffsetY || prevWorldOffsetZ != worldOffsetZ;
-		
-		if (rotated || moved)
+		if (origin.hasChanged())
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
-	}
-	
-	public void updateOrigin() {
-		origin.off(worldOffsetX, worldOffsetY, worldOffsetZ);
-		origin.rot(worldRotX, worldRotY, worldRotZ);
 	}
 	
 	public void onTick() {
@@ -639,7 +592,7 @@ public class EntityAnimation extends Entity {
 		AnimationState state = controller.tick();
 		Vector3d offset = state.getOffset();
 		Vector3d rotation = state.getRotation();
-		moveAndRotateAnimation(offset.x - worldOffsetX, offset.y - worldOffsetY, offset.z - worldOffsetZ, rotation.x - worldRotX, rotation.y - worldRotY, rotation.z - worldRotZ);
+		moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ());
 	}
 	
 	public void onPostTick() {
@@ -667,21 +620,18 @@ public class EntityAnimation extends Entity {
 				collisionBoxWorker = null;
 		}
 		
-		prevWorldRotX = worldRotX;
-		prevWorldRotY = worldRotY;
-		prevWorldRotZ = worldRotZ;
-		
-		prevWorldOffsetX = worldOffsetX;
-		prevWorldOffsetY = worldOffsetY;
-		prevWorldOffsetZ = worldOffsetZ;
+		origin.tick();
 		
 		handleForces();
 		
 		super.onUpdate();
 		
-		onTick();
+		for (Entity entity : fakeWorld.loadedEntityList) {
+			if (entity instanceof EntityAnimation)
+				((EntityAnimation) entity).onUpdateForReal();
+		}
 		
-		onPostTick();
+		onTick();
 		
 		updateBoundingBox();
 		
@@ -692,6 +642,7 @@ public class EntityAnimation extends Entity {
 					tile.updateEntity();
 		}
 		
+		onPostTick();
 	}
 	
 	// ================Overridden================

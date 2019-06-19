@@ -1,20 +1,56 @@
 package com.creativemd.littletiles.common.utils.animation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
+import com.creativemd.creativecore.common.utils.type.Pair;
+import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
+import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 
 public class AnimationGuiHandler implements IAnimationHandler {
 	
-	private IAnimationControl parent;
+	public double offX;
+	public double offY;
+	public double offZ;
+	public double rotX;
+	public double rotY;
+	public double rotZ;
 	
-	public AnimationGuiHandler(IAnimationControl parent) {
-		this.parent = parent;
+	public int offset;
+	
+	public AnimationGuiHandler(int offset, AnimationGuiHandler copy) {
+		this.offset = offset;
+		this.lastTick = copy.lastTick;
+		this.loop = copy.loop;
+		this.playing = copy.playing;
+		this.tick = copy.tick;
 	}
 	
+	public AnimationGuiHandler() {
+		
+	}
+	
+	public void takeInitialState(EntityAnimation animation) {
+		this.offX = animation.origin.offX();
+		this.offY = animation.origin.offY();
+		this.offZ = animation.origin.offZ();
+		this.rotX = animation.origin.rotX();
+		this.rotY = animation.origin.rotY();
+		this.rotZ = animation.origin.rotZ();
+	}
+	
+	private int setDuration = 0;
 	private int lastTick = -1;
 	private StructureAbsolute center = null;
 	private boolean loop = true;
@@ -23,6 +59,10 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	private AnimationTimeline timeline;
 	private AnimationState state = new AnimationState();
 	
+	private List<AnimationGuiHolder> subHolders = new ArrayList<>();
+	private PairList<Integer, Integer> childActivation;
+	private boolean childrenChanged = false;
+	
 	public void setCenter(StructureAbsolute center) {
 		this.center = center;
 	}
@@ -30,27 +70,37 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	@Override
 	public void loop(boolean loop) {
 		this.loop = loop;
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.loop(loop);
 	}
 	
 	@Override
 	public void play() {
 		playing = true;
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.play();
 	}
 	
 	@Override
 	public void pause() {
 		playing = false;
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.pause();
 	}
 	
 	@Override
 	public void stop() {
 		playing = false;
 		set(0);
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.stop();
 	}
 	
 	@Override
 	public void set(int tick) {
 		this.tick = tick;
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.set(tick);
 	}
 	
 	@Override
@@ -58,7 +108,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		return tick;
 	}
 	
-	public void tick(EntityAnimation animation) {
+	public void tick(LittlePreviews previews, EntityAnimation animation) {
 		if (timeline == null)
 			return;
 		
@@ -75,16 +125,47 @@ public class AnimationGuiHandler implements IAnimationHandler {
 			center = null;
 		}
 		
+		boolean hasChanged = false;
+		if (childrenChanged) {
+			subHolders.clear();
+			if (childActivation != null) {
+				for (Pair<Integer, Integer> pair : childActivation) {
+					IStructureChildConnector connector = animation.structure.children.get(pair.key);
+					if (connector != null && connector.isConnected(animation.world) && connector.getStructureWithoutLoading() instanceof LittleDoor) {
+						LittleDoor child = (LittleDoor) connector.getStructureWithoutLoading();
+						EntityAnimation childAnimation;
+						if (!connector.isLinkToAnotherWorld())
+							childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT);
+						else
+							childAnimation = connector.getAnimation();
+						GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
+						};
+						AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(pair.key), new AnimationGuiHandler(pair.value, this), childAnimation);
+						holder.handler.takeInitialState(childAnimation);
+						LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
+						parser.createControls(holder.previews, child);
+						if (holder.handler.timeline != null) {
+							holder.handler.timeline.offset(pair.value);
+							subHolders.add(holder);
+						}
+					}
+				}
+			}
+			hasChanged = true;
+			childrenChanged = false;
+		}
+		
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.tick(holder.previews, holder.animation);
+		
+		if (hasChanged)
+			updateTimeline();
+		
 		updateTick(animation);
 	}
 	
 	public void updateTick(EntityAnimation animation) {
-		animation.prevWorldOffsetX = animation.worldOffsetX;
-		animation.prevWorldOffsetY = animation.worldOffsetY;
-		animation.prevWorldOffsetZ = animation.worldOffsetZ;
-		animation.prevWorldRotX = animation.worldRotX;
-		animation.prevWorldRotY = animation.worldRotY;
-		animation.prevWorldRotZ = animation.worldRotZ;
+		animation.origin.tick();
 		
 		if (tick == lastTick)
 			return;
@@ -98,12 +179,52 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		Vector3d offset = state.getOffset();
 		Vector3d rotation = state.getRotation();
 		
-		animation.moveAndRotateAnimation(offset.x - animation.worldOffsetX, offset.y - animation.worldOffsetY, offset.z - animation.worldOffsetZ, rotation.x - animation.worldRotX, rotation.y - animation.worldRotY, rotation.z - animation.worldRotZ);
+		animation.moveAndRotateAnimation(offset.x - animation.origin.offX() + offX, offset.y - animation.origin.offY() + offY, offset.z - animation.origin.offZ() + offZ, rotation.x - animation.origin.rotX() + rotX, rotation.y - animation.origin.rotY() + -rotY, rotation.z - animation.origin.rotZ() + rotZ);
 	}
 	
-	public void setTimeline(AnimationTimeline timeline) {
+	public int getMaxDuration() {
+		int duration = setDuration;
+		for (AnimationGuiHolder holder : subHolders)
+			duration = Math.max(holder.handler.getMaxDuration(), duration);
+		return duration;
+	}
+	
+	public void updateTimeline() {
+		syncTimelineDuration(getMaxDuration());
+	}
+	
+	public void syncTimelineDuration(int duration) {
+		this.timeline.duration = duration;
+		for (AnimationGuiHolder holder : subHolders)
+			holder.handler.syncTimelineDuration(duration);
+	}
+	
+	public void setTimeline(AnimationTimeline timeline, PairList<Integer, Integer> children) {
 		this.timeline = timeline;
+		if (this.timeline != null) {
+			this.setDuration = this.timeline.duration;
+			this.timeline.offset(offset);
+			updateTimeline();
+		} else
+			setDuration = 0;
 		state.clear();
+		
+		if (this.childActivation == null || children == null) {
+			this.childActivation = children == null ? null : new PairList<>(children);
+			this.childrenChanged = true;
+		}
 	}
 	
+	private static class AnimationGuiHolder {
+		
+		public final LittlePreviews previews;
+		public final AnimationGuiHandler handler;
+		public final EntityAnimation animation;
+		
+		public AnimationGuiHolder(LittlePreviews previews, AnimationGuiHandler handler, EntityAnimation animation) {
+			this.previews = previews;
+			this.handler = handler;
+			this.animation = animation;
+		}
+	}
 }

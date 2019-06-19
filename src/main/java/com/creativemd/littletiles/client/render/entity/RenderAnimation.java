@@ -2,13 +2,9 @@ package com.creativemd.littletiles.client.render.entity;
 
 import java.util.Iterator;
 
-import javax.vecmath.Matrix3d;
-
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
-import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -19,7 +15,6 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
@@ -29,12 +24,11 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormatElement;
+import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.optifine.shaders.ShadersRender;
@@ -67,9 +61,9 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			}
 		}
 		
-		// ===Render static part===
-		Vec3d rotation = entity.getRotationVector(partialTicks);
-		Vec3d offset = entity.getOffsetVector(partialTicks);
+		GlStateManager.pushMatrix();
+		
+		entity.origin.setupRendering(entity, partialTicks);
 		
 		LittleGridContext context = entity.center.inBlockOffset.context;
 		
@@ -99,16 +93,16 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		if (first) {
 			GlStateManager.disableAlpha();
-			renderBlockLayer(suppilier, BlockRenderLayer.SOLID, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.SOLID, entity, f, f1, f2);
 			GlStateManager.enableAlpha();
 			mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, this.mc.gameSettings.mipmapLevels > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
-			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT_MIPPED, entity, f, f1, f2);
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, false);
-			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.CUTOUT, entity, f, f1, f2);
 			this.mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 		} else {
-			renderBlockLayer(suppilier, BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2, x, y, z, offset, rotation);
+			renderBlockLayer(suppilier, BlockRenderLayer.TRANSLUCENT, entity, f, f1, f2);
 		}
 		
 		for (final VertexFormatElement vertexformatelement : DefaultVertexFormats.BLOCK.getElements()) {
@@ -132,8 +126,10 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		GlStateManager.shadeModel(GL11.GL_FLAT);
 		
-		if (!first)
+		if (!first) {
+			GlStateManager.popMatrix();
 			return;
+		}
 		
 		// ===Render dynamic part===
 		
@@ -147,34 +143,28 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			if (te.shouldRenderInPass(0)) {
 				GlStateManager.pushMatrix();
 				
-				BlockPos blockpos = te.getPos();
+				GlStateManager.translate(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ());
 				
-				BlockPos newpos = te.getPos().subtract(entity.center.baseOffset);
-				
-				GlStateManager.translate(x, y, z);
-				GlStateManager.translate(offset.x, offset.y, offset.z);
-				
-				GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
-				
-				GL11.glRotated(rotation.x, 1, 0, 0);
-				GL11.glRotated(rotation.y, 0, 1, 0);
-				GL11.glRotated(rotation.z, 0, 0, 1);
-				
-				GlStateManager.translate(-((double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX) + newpos.getX(), -((double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY) + newpos.getY(), -((double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ) + newpos.getZ());
-				
-				GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
 				// Render TileEntity
-				
 				render(te, partialTicks, -1);
 				
-				GlStateManager.translate(-entity.center.inBlockOffset.getPosX() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosY() - context.gridMCLength / 2, -entity.center.inBlockOffset.getPosZ() - context.gridMCLength / 2);
 				GlStateManager.popMatrix();
 			}
 		}
 		
+		GlStateManager.popMatrix();
+		
 		RenderHelper.enableStandardItemLighting();
 		
-		if (mc.getRenderManager().isDebugBoundingBox() && !mc.isReducedDebug()) {
+		if (!entity.shouldAddDoor()) {
+			for (Entity child : entity.fakeWorld.loadedEntityList) {
+				if (child instanceof EntityAnimation)
+					doRender((EntityAnimation) child, x + (entity.posX - child.posX), y + (entity.posY - child.posY), z + (entity.posZ - child.posZ), entityYaw, partialTicks);
+				//doRender((EntityAnimation) child, x, y, z, entityYaw, partialTicks);
+			}
+		}
+		
+		/*if (mc.getRenderManager().isDebugBoundingBox() && !mc.isReducedDebug()) {
 			GlStateManager.depthMask(false);
 			GlStateManager.disableTexture2D();
 			GlStateManager.disableLighting();
@@ -187,7 +177,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			
 			double rotY = entity.worldRotY - entity.prevWorldRotY;
 			Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
-			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.center.rotationCenter, entity.origin.rotation(), entity.origin.translation(), null, 0, rotationY, rotY, null, 0, null);
+			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.origin, null, 0, rotationY, rotY, null, 0, null);
 			RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z, moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
 			
 			GlStateManager.popMatrix();
@@ -199,7 +189,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GlStateManager.disableBlend();
 			GlStateManager.depthMask(true);
 			
-		}
+		}*/
 	}
 	
 	public void render(TileEntityLittleTiles tileentityIn, float partialTicks, int destroyStage) {
@@ -213,11 +203,11 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 			BlockPos blockpos = tileentityIn.getPos();
-			LittleTilesClient.tileEntityRenderer.render(tileentityIn, (double) blockpos.getX() - TileEntityRendererDispatcher.staticPlayerX, (double) blockpos.getY() - TileEntityRendererDispatcher.staticPlayerY, (double) blockpos.getZ() - TileEntityRendererDispatcher.staticPlayerZ, partialTicks, destroyStage, 1.0F);
+			LittleTilesClient.tileEntityRenderer.render(tileentityIn, 0, 0, 0, partialTicks, destroyStage, 1.0F);
 		}
 	}
 	
-	public void renderBlockLayer(LittleRenderChunkSuppilier suppilier, BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2, double x, double y, double z, Vec3d offset, Vec3d rotation) {
+	public void renderBlockLayer(LittleRenderChunkSuppilier suppilier, BlockRenderLayer layer, EntityAnimation entity, float f, float f1, float f2) {
 		
 		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 			ShadersRender.preRenderChunkLayer(layer);
@@ -238,20 +228,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				
 				mc.entityRenderer.enableLightmap();
 				
-				double posX = (chunk.pos.getX() - entity.center.chunkOffset.getX()) * 16 - entity.center.inChunkOffset.getX();
-				double posY = (chunk.pos.getY() - entity.center.chunkOffset.getY()) * 16 - entity.center.inChunkOffset.getY();
-				double posZ = (chunk.pos.getZ() - entity.center.chunkOffset.getZ()) * 16 - entity.center.inChunkOffset.getZ();
-				
-				GlStateManager.translate(x, y, z);
-				GlStateManager.translate(offset.x, offset.y, offset.z);
-				
-				GlStateManager.translate(entity.center.rotationCenterInsideBlock.x, entity.center.rotationCenterInsideBlock.y, entity.center.rotationCenterInsideBlock.z);
-				
-				GL11.glRotated(rotation.x, 1, 0, 0);
-				GL11.glRotated(rotation.y, 0, 1, 0);
-				GL11.glRotated(rotation.z, 0, 0, 1);
-				
-				GlStateManager.translate(posX, posY, posZ);
+				GlStateManager.translate(chunk.pos.getX() * 16, chunk.pos.getY() * 16, chunk.pos.getZ() * 16);
 				
 				if (layer == BlockRenderLayer.TRANSLUCENT) {
 					GlStateManager.enableBlend();
@@ -260,8 +237,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 					GlStateManager.disableBlend();
 					GlStateManager.enableAlpha();
 				}
-				
-				GlStateManager.translate(-entity.center.rotationCenterInsideBlock.x, -entity.center.rotationCenterInsideBlock.y, -entity.center.rotationCenterInsideBlock.z);
 				
 				buffer.bindBuffer();
 				

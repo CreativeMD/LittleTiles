@@ -139,4 +139,5 @@ structure.category.door=Doors
 gui.door.duration=Duration
 gui.door.stayAnimated=Stay Animated
 gui.door.stayAnimatedTooltip=Only use if necessary, it will affect your FPS
+gui.door.children=Children
 gui.structure.hierarchy=Hierarchy

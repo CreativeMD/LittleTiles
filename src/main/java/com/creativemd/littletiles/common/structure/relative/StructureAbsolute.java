@@ -32,7 +32,7 @@ public class StructureAbsolute extends StructureRelative {
 		BlockPos minPosOffset = minVec.getBlockPos();
 		sub(minPosOffset);
 		
-		this.inBlockOffset = getMinVec();
+		this.inBlockOffset = minVec;
 		
 		this.baseOffset = pos.add(minPosOffset);
 		

@@ -3,13 +3,11 @@ package com.creativemd.littletiles.common.events;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
-
-import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
@@ -76,7 +74,7 @@ public class LittleDoorHandler {
 	
 	protected List<EntityAnimation> toBeAdded = new ArrayList<>();
 	protected boolean isTicking = false;
-	public List<EntityAnimation> openDoors = new ArrayList<>();
+	public List<EntityAnimation> openDoors = new CopyOnWriteArrayList<>();
 	
 	public List<EntityAnimation> findDoors(World world, AxisAlignedBB bb) {
 		if (openDoors.isEmpty())
@@ -108,11 +106,6 @@ public class LittleDoorHandler {
 		for (EntityAnimation animation : openDoors) {
 			if (animation.getUniqueID().equals(uuid))
 				return animation;
-			if (animation.fakeWorld.loadedEntityList.isEmpty())
-				continue;
-			for (Entity entity : animation.fakeWorld.loadedEntityList)
-				if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid))
-					return (EntityAnimation) entity;
 		}
 		return null;
 	}
@@ -127,23 +120,21 @@ public class LittleDoorHandler {
 	@SubscribeEvent
 	public void tick(WorldTickEvent event) {
 		if (event.side == side && event.phase == Phase.END) {
-			
 			World world = event.world;
 			openDoors.addAll(toBeAdded);
 			toBeAdded.clear();
 			
 			isTicking = true;
-			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
-				EntityAnimation door = (EntityAnimation) iterator.next();
+			for (EntityAnimation door : openDoors) {
 				
-				if (door.world != world)
+				if (door.world instanceof CreativeWorld)
 					continue;
 				
 				door.onUpdateForReal();
-				
-				if (door.isDead)
-					iterator.remove();
 			}
+			
+			openDoors.removeIf((x) -> x.isDead);
+			
 			isTicking = false;
 		}
 	}
@@ -292,13 +283,13 @@ public class LittleDoorHandler {
 	@SideOnly(Side.CLIENT)
 	public void tickClient(ClientTickEvent event) {
 		if (event.side == side && event.phase == Phase.END && (!Minecraft.getMinecraft().isSingleplayer() || !Minecraft.getMinecraft().isGamePaused())) {
-			for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
-				EntityAnimation door = (EntityAnimation) iterator.next();
-				if (door.isDead)
-					iterator.remove();
-				
+			for (EntityAnimation door : openDoors) {
+				if (door.world instanceof CreativeWorld)
+					continue;
 				door.onUpdateForReal();
 			}
+			
+			openDoors.removeIf((x) -> x.isDead);
 		}
 	}
 	
@@ -316,13 +307,13 @@ public class LittleDoorHandler {
 	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {
-		for (Iterator iterator = openDoors.iterator(); iterator.hasNext();) {
-			EntityAnimation animation = (EntityAnimation) iterator.next();
-			if (animation.world == event.getWorld()) {
-				animation.addedDoor = false;
-				iterator.remove();
+		openDoors.removeIf((x) -> {
+			if (x.world == event.getWorld()) {
+				x.addedDoor = false;
+				return true;
 			}
-		}
+			return false;
+		});
 	}
 	
 	@SubscribeEvent
@@ -415,25 +406,7 @@ public class LittleDoorHandler {
 			EntityAnimation entity = (EntityAnimation) lastWorldRayTraceResult.parent;
 			GlStateManager.pushMatrix();
 			
-			Entity renderViewEntity = mc.getRenderViewEntity();
-			
-			double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * (double) partialTicks;
-			double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * (double) partialTicks;
-			double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * (double) partialTicks;
-			
-			Vec3d rotation = entity.getRotationVector(partialTicks);
-			Vec3d offset = entity.getOffsetVector(partialTicks);
-			
-			GlStateManager.translate(-camX, -camY, -camZ);
-			GlStateManager.translate(offset.x, offset.y, offset.z);
-			
-			GlStateManager.translate(entity.center.rotationCenter.x, entity.center.rotationCenter.y, entity.center.rotationCenter.z);
-			
-			GL11.glRotated(rotation.x, 1, 0, 0);
-			GL11.glRotated(rotation.y, 0, 1, 0);
-			GL11.glRotated(rotation.z, 0, 0, 1);
-			
-			GlStateManager.translate(-entity.center.rotationCenter.x, -entity.center.rotationCenter.y, -entity.center.rotationCenter.z);
+			entity.origin.setupRendering(entity, partialTicks);
 			
 			RenderGlobal.drawSelectionBoundingBox(iblockstate.getSelectedBoundingBox(lastWorldRayTraceResult, blockpos).grow(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
 			GlStateManager.popMatrix();

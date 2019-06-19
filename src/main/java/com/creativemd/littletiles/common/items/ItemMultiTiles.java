@@ -128,7 +128,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public PlacementMode getPlacementMode(ItemStack stack) {
-		if (!currentMode.canPlaceStructures() && stack.getTagCompound().hasKey("structure"))
+		if (!currentMode.canPlaceStructures() && stack.hasTagCompound() && stack.getTagCompound().hasKey("structure"))
 			return PlacementMode.getStructureDefault();
 		return currentMode;
 	}

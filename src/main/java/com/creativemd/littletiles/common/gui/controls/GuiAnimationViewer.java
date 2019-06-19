@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 
 public class GuiAnimationViewer extends GuiControl implements IAnimationControl {
 	
@@ -135,7 +136,9 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		
 		GlStateManager.pushMatrix();
 		
-		GlStateManager.translate(animation.center.baseOffset.getX(), animation.center.baseOffset.getY() - 75, animation.center.baseOffset.getZ());
+		GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
+		GlStateManager.translate(0, -75, 0);
+		
 		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
 		
 		GlStateManager.popMatrix();

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.world.SubWorld;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -91,5 +92,11 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	@Override
 	public boolean isLinkToAnotherWorld() {
 		return true;
+	}
+	
+	@Override
+	public EntityAnimation getAnimation() {
+		SubWorld fakeWorld = (SubWorld) parent.getWorld();
+		return (EntityAnimation) fakeWorld.parent;
 	}
 }

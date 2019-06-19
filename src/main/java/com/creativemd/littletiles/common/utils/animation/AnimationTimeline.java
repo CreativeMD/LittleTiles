@@ -167,4 +167,10 @@ public class AnimationTimeline {
 		nbt.setTag("values", list);
 		return nbt;
 	}
+	
+	public void offset(int offset) {
+		duration += offset;
+		for (Pair<AnimationKey, ValueTimeline> pair : values)
+			pair.value.offset(offset);
+	}
 }
