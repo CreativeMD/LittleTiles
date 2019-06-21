@@ -144,10 +144,8 @@ public class AnimationGuiHandler implements IAnimationHandler {
 						holder.handler.takeInitialState(childAnimation);
 						LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
 						parser.createControls(holder.previews, child);
-						if (holder.handler.timeline != null) {
-							holder.handler.timeline.offset(pair.value);
+						if (holder.handler.timeline != null)
 							subHolders.add(holder);
-						}
 					}
 				}
 			}
@@ -202,17 +200,15 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	public void setTimeline(AnimationTimeline timeline, PairList<Integer, Integer> children) {
 		this.timeline = timeline;
 		if (this.timeline != null) {
-			this.setDuration = this.timeline.duration;
 			this.timeline.offset(offset);
+			this.setDuration = this.timeline.duration;
 			updateTimeline();
 		} else
 			setDuration = 0;
 		state.clear();
 		
-		if (this.childActivation == null || children == null) {
-			this.childActivation = children == null ? null : new PairList<>(children);
-			this.childrenChanged = true;
-		}
+		this.childActivation = children == null ? null : new PairList<>(children);
+		this.childrenChanged = true;
 	}
 	
 	private static class AnimationGuiHolder {

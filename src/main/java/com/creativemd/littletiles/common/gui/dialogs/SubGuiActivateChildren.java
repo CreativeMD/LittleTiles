@@ -6,6 +6,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.mc.ContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
@@ -42,20 +43,26 @@ public class SubGuiActivateChildren extends SubGui {
 		button.childActivation = new PairList<>();
 		for (Integer integer : button.possibleChildren) {
 			GuiCheckBox box = (GuiCheckBox) get("" + integer);
+			GuiTextfield textfield = (GuiTextfield) get("time" + integer);
 			if (box != null && box.value)
-				button.childActivation.add(integer, 0);
+				button.childActivation.add(integer, textfield.parseInteger());
 		}
 		button.raiseEvent(new GuiControlChangedEvent(button));
 	}
 	
 	@Override
 	public void createControls() {
+		if (button.childActivation == null)
+			button.childActivation = new PairList<>();
 		button.possibleChildren = new ArrayList<>();
 		int i = 0;
 		int added = 0;
 		for (LittlePreviews child : button.previews.getChildren()) {
 			if (LittleDoor.class.isAssignableFrom(LittleStructureRegistry.getStructureClass(child.getStructureId()))) {
-				controls.add(new GuiCheckBox("" + i, getDisplayName(child, i), 0, added * 20, button.activator != null && button.activator.doesActivateChild(i)));
+				boolean doesActivate = button.childActivation.containsKey(i);
+				GuiCheckBox box = new GuiCheckBox("" + i, getDisplayName(child, i), 0, added * 20, doesActivate);
+				controls.add(box);
+				controls.add(new GuiTextfield("time" + i, (doesActivate ? button.childActivation.getValue(i) : 0) + "", box.width + 10, added * 20, 40, 12).setNumbersOnly());
 				button.possibleChildren.add(i);
 				added++;
 			}

@@ -70,6 +70,10 @@ public abstract class LittleDoor extends LittleStructure {
 		return childActivation.containsKey(id);
 	}
 	
+	public Integer getActivateChildTime(int id) {
+		return childActivation.getValue(id);
+	}
+	
 	public boolean activate(@Nullable EntityPlayer player, BlockPos pos, @Nullable LittleTile tile) {
 		if (!hasLoaded()) {
 			player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
@@ -116,19 +120,24 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public void beforeTick(EntityAnimation animation, int tick) {
-		if (tick == 0) {
-			DoorController controller = (DoorController) animation.controller;
-			for (LittleDoor door : collectDoorChildren()) {
-				DoorOpeningResult result;
-				if (controller.result.isEmpty() || !controller.result.nbt.hasKey("c" + door.parent.getChildID()))
-					result = EMPTY_OPENING_RESULT;
-				else
-					result = new DoorOpeningResult(controller.result.nbt.getCompoundTag("c" + door.parent.getChildID()));
-				EntityAnimation childAnimation = door.openDoor(null, controller.supplier, result);
-				if (childAnimation != null)
-					childAnimation.controller.onServerApproves();
+		DoorController controller = (DoorController) animation.controller;
+		for (Pair<Integer, Integer> pair : childActivation) {
+			if (pair.value <= tick) {
+				IStructureChildConnector connector = children.get(pair.key);
+				LittleDoor door = (LittleDoor) connector.getStructure(getWorld());
+				if (!connector.isLinkToAnotherWorld()) {
+					DoorOpeningResult result;
+					if (controller.result.isEmpty() || !controller.result.nbt.hasKey("c" + door.parent.getChildID()))
+						result = EMPTY_OPENING_RESULT;
+					else
+						result = new DoorOpeningResult(controller.result.nbt.getCompoundTag("c" + door.parent.getChildID()));
+					EntityAnimation childAnimation = door.openDoor(null, controller.supplier, result);
+					if (childAnimation != null)
+						childAnimation.controller.onServerApproves();
+				}
 			}
 		}
+		
 	}
 	
 	public void afterTick(EntityAnimation animation, int tick) {
@@ -137,8 +146,10 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public int getCompleteDuration() {
 		int duration = 0;
-		for (LittleDoor door : collectDoorChildren()) {
-			duration = Math.max(duration, childActivation.getValue(door.parent.getChildID()) + door.getCompleteDuration());
+		for (Pair<Integer, Integer> pair : childActivation) {
+			IStructureChildConnector connector = children.get(pair.key);
+			LittleDoor door = (LittleDoor) connector.getStructure(getWorld());
+			duration = Math.max(duration, pair.value + door.getCompleteDuration());
 		}
 		return duration;
 	}
