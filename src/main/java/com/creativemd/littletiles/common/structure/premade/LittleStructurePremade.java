@@ -30,13 +30,13 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	
 	private static JsonParser parser = new JsonParser();
 	
-	public static void registerPremadeStructureType(String id, Class<? extends LittleStructurePremade> classStructure) {
+	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure) {
 		LittleStructureRegistry.registerStructureType(id, "premade", classStructure, LittleStructureAttribute.PREMADE, null);
 		try {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
 			NBTTagCompound structureNBT = new NBTTagCompound();
 			structureNBT.setString("id", id);
-			NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/littletiles/premade/" + id + ".struct"), Charsets.UTF_8));
+			NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + modid + "/premade/" + id + ".struct"), Charsets.UTF_8));
 			nbt.setTag("structure", structureNBT);
 			stack.setTagCompound(nbt);
 			LittlePreviews previews = LittleTilePreview.getPreview(stack);
@@ -76,9 +76,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	public static void initPremadeStructures() {
-		registerPremadeStructureType("workbench", LittleWorkbench.class);
-		registerPremadeStructureType("importer", LittleImporter.class);
-		registerPremadeStructureType("exporter", LittleExporter.class);
+		registerPremadeStructureType("workbench", LittleTiles.modid, LittleWorkbench.class);
+		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
+		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
 	}
 	
 	public static class LittleStructurePremadeEntry {
