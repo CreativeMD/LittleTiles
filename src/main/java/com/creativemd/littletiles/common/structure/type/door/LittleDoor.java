@@ -1,20 +1,15 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -35,43 +30,16 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public boolean activateParent = false;
-	public PairList<Integer, Integer> childActivation;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		if (nbt.hasKey("activator")) {
-			int[] array = nbt.getIntArray("activator");
-			childActivation = new PairList<>();
-			for (int i = 0; i < array.length; i += 2) {
-				childActivation.add(array[i], array[i + 1]);
-			}
-		} else
-			childActivation = new PairList<>();
 		activateParent = nbt.getBoolean("activateParent");
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		if (childActivation != null) {
-			int[] array = new int[childActivation.size() * 2];
-			int i = 0;
-			for (Pair<Integer, Integer> pair : childActivation) {
-				array[i * 2] = pair.key;
-				array[i * 2 + 1] = pair.value;
-				i++;
-			}
-			nbt.setIntArray("activator", array);
-		}
 		if (activateParent)
 			nbt.setBoolean("activateParent", activateParent);
-	}
-	
-	public boolean doesActivateChild(int id) {
-		return childActivation.containsKey(id);
-	}
-	
-	public Integer getActivateChildTime(int id) {
-		return childActivation.getValue(id);
 	}
 	
 	public boolean activate(@Nullable EntityPlayer player, BlockPos pos, @Nullable LittleTile tile) {
@@ -120,23 +88,6 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public void beforeTick(EntityAnimation animation, int tick) {
-		DoorController controller = (DoorController) animation.controller;
-		for (Pair<Integer, Integer> pair : childActivation) {
-			if (pair.value <= tick) {
-				IStructureChildConnector connector = children.get(pair.key);
-				LittleDoor door = (LittleDoor) connector.getStructure(getWorld());
-				if (!connector.isLinkToAnotherWorld()) {
-					DoorOpeningResult result;
-					if (controller.result.isEmpty() || !controller.result.nbt.hasKey("c" + door.parent.getChildID()))
-						result = EMPTY_OPENING_RESULT;
-					else
-						result = new DoorOpeningResult(controller.result.nbt.getCompoundTag("c" + door.parent.getChildID()));
-					EntityAnimation childAnimation = door.openDoor(null, controller.supplier, result);
-					if (childAnimation != null)
-						childAnimation.controller.onServerApproves();
-				}
-			}
-		}
 		
 	}
 	
@@ -144,45 +95,18 @@ public abstract class LittleDoor extends LittleStructure {
 		
 	}
 	
-	public int getCompleteDuration() {
-		int duration = 0;
-		for (Pair<Integer, Integer> pair : childActivation) {
-			IStructureChildConnector connector = children.get(pair.key);
-			LittleDoor door = (LittleDoor) connector.getStructure(getWorld());
-			duration = Math.max(duration, pair.value + door.getCompleteDuration());
-		}
-		return duration;
-	}
+	public abstract int getCompleteDuration();
 	
-	public List<LittleDoor> collectDoorChildren() {
-		List<LittleDoor> doors = new ArrayList<>();
-		for (Pair<Integer, Integer> pair : childActivation) {
-			IStructureChildConnector child = children.get(pair.key);
-			if (child == null)
-				return null;
-			
-			LittleStructure childStructure = child.getStructure(getWorld());
-			if (childStructure == null || !(childStructure instanceof LittleDoor))
-				return null;
-			
-			doors.add((LittleDoor) childStructure);
-		}
-		
-		return doors;
-	}
+	public abstract List<LittleDoor> collectDoorsToCheck();
 	
 	public DoorOpeningResult canOpenDoor(@Nullable EntityPlayer player) {
 		if (isInMotion())
 			return null;
 		
-		List<LittleDoor> doors = collectDoorChildren();
-		
-		if (doors == null)
-			return null;
-		
 		NBTTagCompound nbt = null;
 		
-		for (LittleDoor door : doors) {
+		for (LittleDoor door : collectDoorsToCheck()) {
+			
 			DoorOpeningResult subResult = door.canOpenDoor(player);
 			
 			if (subResult == null)
@@ -191,7 +115,7 @@ public abstract class LittleDoor extends LittleStructure {
 			if (!subResult.isEmpty()) {
 				if (nbt == null)
 					nbt = new NBTTagCompound();
-				nbt.setTag("c" + door.parent.getChildID(), subResult.nbt);
+				nbt.setTag("e" + door.parent.getChildID(), subResult.nbt);
 			}
 		}
 		
@@ -211,12 +135,6 @@ public abstract class LittleDoor extends LittleStructure {
 	public boolean isInMotion() {
 		if (animation != null && animation.controller.isChanging())
 			return true;
-		
-		if (childActivation != null && !childActivation.isEmpty())
-			for (LittleDoor door : collectDoorChildren())
-				if (door.isInMotion())
-					return true;
-				
 		return false;
 	}
 	

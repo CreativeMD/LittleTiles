@@ -75,8 +75,6 @@ public class DoorController extends EntityAnimationController {
 		generateAllTransistions(duration);
 		modifiedTransition = false;
 		
-		System.out.println("duration: " + completeDuration);
-		new Exception().printStackTrace();
 		stretchTransitions();
 		startTransition(openedState);
 	}

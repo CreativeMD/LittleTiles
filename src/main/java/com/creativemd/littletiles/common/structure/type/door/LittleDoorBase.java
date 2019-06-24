@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
@@ -23,7 +24,7 @@ import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.gui.dialogs.SubGuiActivateChildren.GuiActivateChildButton;
+import com.creativemd.littletiles.common.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
@@ -46,6 +47,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
+import com.creativemd.littletiles.common.utils.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -53,6 +56,7 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -67,10 +71,15 @@ public abstract class LittleDoorBase extends LittleDoor {
 	
 	public int duration = 50;
 	public boolean stayAnimated = false;
+	public List<AnimationEvent> events;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
+		events = new ArrayList<>();
+		NBTTagList list = nbt.getTagList("events", 10);
+		for (int i = 0; i < list.tagCount(); i++)
+			events.add(AnimationEvent.loadFromNBT(list.getCompoundTagAt(i)));
 		if (nbt.hasKey("duration"))
 			duration = nbt.getInteger("duration");
 		else
@@ -81,6 +90,10 @@ public abstract class LittleDoorBase extends LittleDoor {
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
+		NBTTagList list = new NBTTagList();
+		for (AnimationEvent event : events)
+			list.appendTag(event.writeToNBT(new NBTTagCompound()));
+		nbt.setTag("events", list);
 		nbt.setInteger("duration", duration);
 		if (stayAnimated)
 			nbt.setBoolean("stayAnimated", stayAnimated);
@@ -98,8 +111,36 @@ public abstract class LittleDoorBase extends LittleDoor {
 	}
 	
 	@Override
+	public void beforeTick(EntityAnimation animation, int tick) {
+		super.beforeTick(animation, tick);
+		DoorController controller = (DoorController) animation.controller;
+		for (AnimationEvent event : events)
+			if (event.shouldBeProcessed(tick))
+				event.process(controller);
+			
+	}
+	
+	@Override
 	public int getCompleteDuration() {
-		return Math.max(duration, super.getCompleteDuration());
+		int duration = this.duration;
+		for (AnimationEvent event : events)
+			duration = Math.max(duration, event.getMinimumRequiredDuration(this));
+		return duration;
+	}
+	
+	@Override
+	public List<LittleDoor> collectDoorsToCheck() {
+		List<Integer> children = new ArrayList<>();
+		for (AnimationEvent event : events)
+			if (event instanceof ChildActivateEvent && !children.contains(((ChildActivateEvent) event).childId))
+				children.add(((ChildActivateEvent) event).childId);
+			
+		List<LittleDoor> doors = new ArrayList<>();
+		if (children.isEmpty())
+			return doors;
+		for (Integer integer : children)
+			doors.add((LittleDoor) this.children.get(integer).getStructure(getWorld()));
+		return doors;
 	}
 	
 	@Override
@@ -108,6 +149,9 @@ public abstract class LittleDoorBase extends LittleDoor {
 		
 		if (result == null)
 			return null;
+		
+		for (AnimationEvent event : events)
+			event.reset();
 		
 		if (isAnimated()) // No transformations done if the door is already an animation
 			return result;
@@ -334,7 +378,7 @@ public abstract class LittleDoorBase extends LittleDoor {
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
-			parent.controls.add(new GuiActivateChildButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
+			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
 		}
 		
@@ -343,19 +387,26 @@ public abstract class LittleDoorBase extends LittleDoor {
 		public LittleDoorBase parseStructure(LittlePreviews previews) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
-			GuiActivateChildButton children = (GuiActivateChildButton) parent.get("children_activate");
+			GuiDoorEventsButton button = (GuiDoorEventsButton) parent.get("children_activate");
 			int duration = (int) slider.value;
 			boolean stayAnimated = checkBox.value;
 			LittleDoorBase door = parseStructure();
 			door.duration = duration;
 			door.stayAnimated = stayAnimated;
-			door.childActivation = children.childActivation;
+			door.events = button.events;
 			List<LittlePreviews> previewChildren = previews.getChildren();
-			for (int i = 0; i < previewChildren.size(); i++) {
-				if (door.childActivation.containsKey(i))
-					previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
-				else
-					previewChildren.get(i).getStructureData().removeTag("activateParent");
+			
+			if (!previewChildren.isEmpty()) {
+				BitSet set = new BitSet(previewChildren.size());
+				for (AnimationEvent event : door.events)
+					if (event instanceof ChildActivateEvent)
+						set.set(((ChildActivateEvent) event).childId);
+					
+				for (int i = 0; i < previewChildren.size(); i++)
+					if (set.get(i))
+						previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
+					else
+						previewChildren.get(i).getStructureData().removeTag("activateParent");
 			}
 			return door;
 		}
@@ -369,9 +420,9 @@ public abstract class LittleDoorBase extends LittleDoor {
 		public void updateTimeline() {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
 			AnimationTimeline timeline = new AnimationTimeline((int) slider.value, new PairList<>());
-			GuiActivateChildButton children = (GuiActivateChildButton) parent.get("children_activate");
+			GuiDoorEventsButton children = (GuiDoorEventsButton) parent.get("children_activate");
 			populateTimeline(timeline);
-			handler.setTimeline(timeline, children.childActivation);
+			handler.setTimeline(timeline, children.events);
 		}
 		
 	}

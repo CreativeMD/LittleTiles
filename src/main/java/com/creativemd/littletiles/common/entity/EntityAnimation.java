@@ -111,6 +111,12 @@ public class EntityAnimation extends Entity {
 		addDoor();
 		preventPush = true;
 		onUpdateForReal();
+		this.initalOffX = origin.offX();
+		this.initalOffY = origin.offY();
+		this.initalOffZ = origin.offZ();
+		this.initalRotX = origin.rotX();
+		this.initalRotY = origin.rotY();
+		this.initalRotZ = origin.rotZ();
 		preventPush = false;
 		
 		origin.tick();
@@ -141,6 +147,13 @@ public class EntityAnimation extends Entity {
 	}
 	
 	// ================World Data================
+	
+	public double initalOffX;
+	public double initalOffY;
+	public double initalOffZ;
+	public double initalRotX;
+	public double initalRotY;
+	public double initalRotZ;
 	
 	public CreativeWorld fakeWorld;
 	public IVecOrigin origin;
@@ -806,6 +819,13 @@ public class EntityAnimation extends Entity {
 		if (world.isRemote)
 			this.fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
+		this.initalOffX = compound.getDouble("initOffX");
+		this.initalOffY = compound.getDouble("initOffY");
+		this.initalOffZ = compound.getDouble("initOffZ");
+		this.initalRotX = compound.getDouble("initRotX");
+		this.initalRotY = compound.getDouble("initRotY");
+		this.initalRotZ = compound.getDouble("initRotZ");
+		
 		if (compound.hasKey("axis"))
 			setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
 		else
@@ -862,6 +882,13 @@ public class EntityAnimation extends Entity {
 	@Override
 	protected void writeEntityToNBT(NBTTagCompound compound) {
 		center.writeToNBT("center", compound);
+		
+		compound.setDouble("initOffX", initalOffX);
+		compound.setDouble("initOffY", initalOffY);
+		compound.setDouble("initOffZ", initalOffZ);
+		compound.setDouble("initRotX", initalRotX);
+		compound.setDouble("initRotY", initalRotY);
+		compound.setDouble("initRotZ", initalRotZ);
 		
 		compound.setBoolean("subworld", fakeWorld.hasParent());
 		

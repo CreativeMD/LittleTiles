@@ -5,18 +5,11 @@ import java.util.List;
 
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
-import com.creativemd.creativecore.common.utils.type.Pair;
-import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
 
 public class AnimationGuiHandler implements IAnimationHandler {
 	
@@ -42,12 +35,12 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	}
 	
 	public void takeInitialState(EntityAnimation animation) {
-		this.offX = animation.origin.offX();
-		this.offY = animation.origin.offY();
-		this.offZ = animation.origin.offZ();
-		this.rotX = animation.origin.rotX();
-		this.rotY = animation.origin.rotY();
-		this.rotZ = animation.origin.rotZ();
+		this.offX = animation.initalOffX;
+		this.offY = animation.initalOffY;
+		this.offZ = animation.initalOffZ;
+		this.rotX = animation.initalRotX;
+		this.rotY = animation.initalRotY;
+		this.rotZ = animation.initalRotZ;
 	}
 	
 	private int setDuration = 0;
@@ -59,9 +52,13 @@ public class AnimationGuiHandler implements IAnimationHandler {
 	private AnimationTimeline timeline;
 	private AnimationState state = new AnimationState();
 	
-	private List<AnimationGuiHolder> subHolders = new ArrayList<>();
-	private PairList<Integer, Integer> childActivation;
-	private boolean childrenChanged = false;
+	public List<AnimationGuiHolder> subHolders = new ArrayList<>();
+	private List<AnimationEvent> events;
+	private boolean eventsChanged = false;
+	
+	public boolean hasTimeline() {
+		return timeline != null;
+	}
 	
 	public void setCenter(StructureAbsolute center) {
 		this.center = center;
@@ -126,31 +123,12 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		}
 		
 		boolean hasChanged = false;
-		if (childrenChanged) {
+		if (eventsChanged) {
 			subHolders.clear();
-			if (childActivation != null) {
-				for (Pair<Integer, Integer> pair : childActivation) {
-					IStructureChildConnector connector = animation.structure.children.get(pair.key);
-					if (connector != null && connector.isConnected(animation.world) && connector.getStructureWithoutLoading() instanceof LittleDoor) {
-						LittleDoor child = (LittleDoor) connector.getStructureWithoutLoading();
-						EntityAnimation childAnimation;
-						if (!connector.isLinkToAnotherWorld())
-							childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT);
-						else
-							childAnimation = connector.getAnimation();
-						GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
-						};
-						AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(pair.key), new AnimationGuiHandler(pair.value, this), childAnimation);
-						holder.handler.takeInitialState(childAnimation);
-						LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
-						parser.createControls(holder.previews, child);
-						if (holder.handler.timeline != null)
-							subHolders.add(holder);
-					}
-				}
-			}
+			for (AnimationEvent event : events)
+				event.prepareInGui(previews, animation, this);
 			hasChanged = true;
-			childrenChanged = false;
+			eventsChanged = false;
 		}
 		
 		for (AnimationGuiHolder holder : subHolders)
@@ -197,7 +175,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
 			holder.handler.syncTimelineDuration(duration);
 	}
 	
-	public void setTimeline(AnimationTimeline timeline, PairList<Integer, Integer> children) {
+	public void setTimeline(AnimationTimeline timeline, List<AnimationEvent> events) {
 		this.timeline = timeline;
 		if (this.timeline != null) {
 			this.timeline.offset(offset);
@@ -207,11 +185,11 @@ public class AnimationGuiHandler implements IAnimationHandler {
 			setDuration = 0;
 		state.clear();
 		
-		this.childActivation = children == null ? null : new PairList<>(children);
-		this.childrenChanged = true;
+		this.events = events == null ? new ArrayList<>() : new ArrayList<>(events);
+		this.eventsChanged = true;
 	}
 	
-	private static class AnimationGuiHolder {
+	public static class AnimationGuiHolder {
 		
 		public final LittlePreviews previews;
 		public final AnimationGuiHandler handler;

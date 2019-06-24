@@ -141,3 +141,5 @@ gui.door.stayAnimated=Stay Animated
 gui.door.stayAnimatedTooltip=Only use if necessary, it will affect your FPS
 gui.door.children=Children
 gui.structure.hierarchy=Hierarchy
+
+animation.event.child.name=Activate Child
