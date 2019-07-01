@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.entity;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
+import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.animation.AnimationController;
 
@@ -33,6 +34,7 @@ public abstract class EntityAnimationController extends AnimationController {
 	
 	public void setParent(EntityAnimation parent) {
 		this.parent = parent;
+		((IAnimatedStructure) parent.structure).setAnimation(parent);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {

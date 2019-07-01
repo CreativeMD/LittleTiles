@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -17,6 +16,7 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
@@ -45,6 +45,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
 
 import net.minecraft.block.state.IBlockState;
@@ -87,20 +88,21 @@ public abstract class LittleStructure {
 		return null;
 	}
 	
-	public final LittleStructureAttribute attribute;
 	public final LittleStructureType type;
-	
 	public String name;
 	
 	public IStructureChildConnector parent;
-	public LinkedHashMap<Integer, IStructureChildConnector> children;
+	public List<IStructureChildConnector> children;
 	public List<LittleStructure> tempChildren;
 	
 	public LittleTilePos lastMainTileVec = null;
 	
 	public LittleStructure(LittleStructureType type) {
-		this.attribute = type.attribute;
 		this.type = type;
+	}
+	
+	public LittleStructureAttribute getAttribute() {
+		return type.attribute;
 	}
 	
 	/** takes name of stack and connects the structure to its children (does so recursively)
@@ -115,7 +117,7 @@ public abstract class LittleStructure {
 		combineTiles();
 		
 		if (tempChildren != null) {
-			children = new LinkedHashMap<>();
+			children = new ArrayList<>();
 			for (int i = 0; i < tempChildren.size(); i++) {
 				LittleStructure child = tempChildren.get(i);
 				child.updateParentConnection(i, this);
@@ -140,7 +142,7 @@ public abstract class LittleStructure {
 			this.updateParentConnection(parent.getChildID(), parentStructure);
 		}
 		
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children) {
 			LittleStructure childStructure = child.getStructure(getWorld());
 			childStructure.updateParentConnection(child.getChildID(), this);
 			this.updateChildConnection(child.getChildID(), childStructure);
@@ -164,7 +166,7 @@ public abstract class LittleStructure {
 				
 				if (stTile != mainTile) {
 					stTile.connection = getStructureLink(stTile);
-					stTile.connection.setLoadedStructure(this, attribute);
+					stTile.connection.setLoadedStructure(this, getAttribute());
 				}
 			}
 		}
@@ -174,7 +176,7 @@ public abstract class LittleStructure {
 			LittleTileVecContext vec = lastMainTileVec.getRelative(absolute);
 			if (!lastMainTileVec.equals(absolute)) {
 				for (StructureTypeRelative relative : type.relatives) {
-					StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+					StructureRelative relativeST = relative.getRelative(this);
 					if (relativeST != null)
 						relativeST.onMove(this, vec.context, vec.vec);
 				}
@@ -185,11 +187,11 @@ public abstract class LittleStructure {
 	}
 	
 	public LittleTileIdentifierStructureRelative getMainTileCoord(BlockPos pos) {
-		return new LittleTileIdentifierStructureRelative(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute);
+		return new LittleTileIdentifierStructureRelative(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute());
 	}
 	
 	public StructureLinkTile getStructureLink(LittleTile tile) {
-		return new StructureLinkTile(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), attribute, tile);
+		return new StructureLinkTile(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute(), tile);
 	}
 	
 	public boolean hasMainTile() {
@@ -295,12 +297,22 @@ public abstract class LittleStructure {
 		if (!hasLoaded() || !loadChildren())
 			return tiles;
 		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet()) {
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet())
 			tiles.add(entry.getKey(), entry.getValue());
-		}
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children)
 			child.getStructure(getWorld()).getAllTiles(tiles);
-		}
+		return tiles;
+	}
+	
+	public HashMapList<TileEntityLittleTiles, LittleTile> getAllTilesSameWorld(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
+		if (!hasLoaded() || !loadChildren())
+			return tiles;
+		
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet())
+			tiles.add(entry.getKey(), entry.getValue());
+		for (IStructureChildConnector child : children)
+			if (!child.isLinkToAnotherWorld())
+				child.getStructure(getWorld()).getAllTiles(tiles);
 		return tiles;
 	}
 	
@@ -323,7 +335,7 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean isRelationToChildrenBroken() {
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children) {
 			if (!child.isConnected(getWorld()))
 				return true;
 		}
@@ -336,14 +348,19 @@ public abstract class LittleStructure {
 		
 		IStructureChildConnector<LittleStructure> connector;
 		if (childWorld == world)
-			connector = new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.attribute, this, i, false);
+			connector = new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.getAttribute(), this, i, false);
 		else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-			connector = new StructureLinkToSubWorld(child.getMainTile(), child.attribute, this, i, ((SubWorld) childWorld).parent.getUniqueID());
+			connector = new StructureLinkToSubWorld(child.getMainTile(), child.getAttribute(), this, i, ((SubWorld) childWorld).parent.getUniqueID());
 		else
 			throw new RuntimeException("Invalid connection between to structures!");
 		
-		connector.setLoadedStructure(child, child.attribute);
-		children.put(i, connector);
+		connector.setLoadedStructure(child, child.getAttribute());
+		if (children.size() > i)
+			children.set(i, connector);
+		else if (children.size() == i)
+			children.add(connector);
+		else
+			throw new RuntimeException("Invalid childId " + children.size() + ".");
 	}
 	
 	public void updateParentConnection(int i, LittleStructure parent) {
@@ -352,13 +369,13 @@ public abstract class LittleStructure {
 		
 		IStructureChildConnector<LittleStructure> connector;
 		if (parentWorld == world)
-			connector = new StructureLink(this.mainTile.te, parent.getMainTile().te.getPos(), parent.getMainTile().getContext(), parent.getMainTile().getIdentifier(), parent.attribute, this, i, true);
+			connector = new StructureLink(this.mainTile.te, parent.getMainTile().te.getPos(), parent.getMainTile().getContext(), parent.getMainTile().getIdentifier(), parent.getAttribute(), this, i, true);
 		else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
-			connector = new StructureLinkFromSubWorld(parent.getMainTile(), parent.attribute, this, i);
+			connector = new StructureLinkFromSubWorld(parent.getMainTile(), parent.getAttribute(), this, i);
 		else
 			throw new RuntimeException("Invalid connection between to structures!");
 		
-		connector.setLoadedStructure(parent, parent.attribute);
+		connector.setLoadedStructure(parent, parent.getAttribute());
 		this.parent = connector;
 	}
 	
@@ -396,12 +413,12 @@ public abstract class LittleStructure {
 	
 	public boolean loadChildren() {
 		if (children == null)
-			children = new LinkedHashMap<>();
+			children = new ArrayList<>();
 		
 		if (children.isEmpty())
 			return true;
 		
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children) {
 			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().hasLoaded() || !child.getStructureWithoutLoading().loadChildren())
 				return false;
 		}
@@ -410,7 +427,7 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean isChildMoving() {
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children) {
 			if (child.isLinkToAnotherWorld())
 				return true;
 			if (child.getStructure(getWorld()).isChildMoving())
@@ -482,14 +499,14 @@ public abstract class LittleStructure {
 			parent = null;
 		
 		if (nbt.hasKey("children")) {
-			children = new LinkedHashMap<>();
+			children = new ArrayList<>();
 			NBTTagList list = nbt.getTagList("children", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
 				IStructureChildConnector child = StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false);
-				children.put(child.getChildID(), child);
+				children.add(child);
 			}
 		} else
-			children = new LinkedHashMap<>();
+			children = new ArrayList<>();
 		
 		for (StructureTypeRelative relative : type.relatives) {
 			if (nbt.hasKey(relative.saveKey))
@@ -520,7 +537,7 @@ public abstract class LittleStructure {
 		inverted.invert();
 		
 		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
 				continue;
 			relativeST.onMove(this, vec.context, vec.vec);
@@ -545,7 +562,7 @@ public abstract class LittleStructure {
 		
 		if (children != null && !children.isEmpty()) {
 			NBTTagList list = new NBTTagList();
-			for (IStructureChildConnector child : children.values()) {
+			for (IStructureChildConnector child : children) {
 				list.appendTag(child.writeToNBT(new NBTTagCompound()));
 			}
 			nbt.setTag("children", list);
@@ -576,7 +593,7 @@ public abstract class LittleStructure {
 		}
 		
 		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
 				continue;
 			relativeST.writeToNBT(relative.saveKey, nbt);
@@ -614,7 +631,7 @@ public abstract class LittleStructure {
 					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						if (tile.connection.isLink())
-							tile.connection.setLoadedStructure(this, attribute);
+							tile.connection.setLoadedStructure(this, getAttribute());
 						found++;
 					}
 				}
@@ -656,13 +673,11 @@ public abstract class LittleStructure {
 		}
 		
 		if (hasLoaded() && loadChildren()) {
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
 				entry.getKey().removeTiles(entry.getValue());
-			}
 			
-			for (IStructureChildConnector child : children.values()) {
+			for (IStructureChildConnector child : children)
 				child.destroyStructure();
-			}
 		}
 	}
 	
@@ -672,9 +687,9 @@ public abstract class LittleStructure {
 	
 	public LittleGridContext getMinContext() {
 		LittleGridContext context = LittleGridContext.getMin();
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children)
 			context = LittleGridContext.max(context, child.getStructure(getWorld()).getMinContext());
-		}
+		
 		for (StructureTypeRelative relative : type.relatives) {
 			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
@@ -685,21 +700,17 @@ public abstract class LittleStructure {
 		return context;
 	}
 	
-	public LittlePreviewsStructure getPreviewsSameWorld(BlockPos pos) {
+	public LittleAbsolutePreviewsStructure getAbsolutePreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
+		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			LittleTilePreview preview = previews.addTile(tile);
-			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
+			previews.addTile(iterator.next());
 		}
 		
-		for (IStructureChildConnector child : children.values()) {
-			if (!child.isLinkToAnotherWorld())
-				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
-		}
+		for (IStructureChildConnector child : children)
+			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 		
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
@@ -717,47 +728,51 @@ public abstract class LittleStructure {
 			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 		}
 		
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children)
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
-		}
 		
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
 		return previews;
 	}
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviewsSameWorld(BlockPos pos) {
+	public LittleAbsolutePreviewsStructure getAbsolutePreviewsSameWorldOnly(BlockPos pos) {
+		
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
 		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();)
 			previews.addTile(iterator.next());
-		}
 		
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children)
 			if (!child.isLinkToAnotherWorld())
-				previews.addChild(child.getStructure(getWorld()).getPreviewsSameWorld(pos));
-		}
-		
+				previews.addChild(child.getStructure(getWorld()).getPreviewsSameWorldOnly(pos));
+			else
+				previews.getStructure().tempChildren.add(child.getStructure(getWorld()));
+			
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
 		return previews;
 	}
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviews(BlockPos pos) {
+	public LittlePreviewsStructure getPreviewsSameWorldOnly(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
+		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
-			previews.addTile(iterator.next());
+			LittleTile tile = iterator.next();
+			LittleTilePreview preview = previews.addTile(tile);
+			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
 		}
 		
-		for (IStructureChildConnector child : children.values()) {
-			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
-		}
-		
+		for (IStructureChildConnector child : children)
+			if (!child.isLinkToAnotherWorld())
+				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
+			else
+				previews.getStructure().tempChildren.add(child.getStructure(getWorld()));
+			
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
 		return previews;
@@ -767,9 +782,8 @@ public abstract class LittleStructure {
 		for (TileEntityLittleTiles te : tiles.keySet()) {
 			pos.setPos(Math.min(pos.getX(), te.getPos().getX()), Math.min(pos.getY(), te.getPos().getY()), Math.min(pos.getZ(), te.getPos().getZ()));
 		}
-		for (IStructureChildConnector child : children.values()) {
+		for (IStructureChildConnector child : children)
 			child.getStructure(getWorld()).getMinPos(pos);
-		}
 		return pos;
 	}
 	
@@ -822,11 +836,66 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
+	public void transferChildrenToAnimation(EntityAnimation animation) {
+		for (IStructureChildConnector child : children) {
+			LittleStructure childStructure = child.getStructure(getWorld());
+			if (child.isLinkToAnotherWorld()) {
+				
+				EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
+				int l1 = subAnimation.chunkCoordX;
+				int i2 = subAnimation.chunkCoordZ;
+				World world = getWorld();
+				if (subAnimation.addedToChunk) {
+					Chunk chunk = world.getChunkFromChunkCoords(l1, i2);
+					if (chunk != null)
+						chunk.removeEntity(subAnimation);
+					subAnimation.addedToChunk = false;
+				}
+				world.loadedEntityList.remove(subAnimation);
+				subAnimation.setParentWorld(animation.fakeWorld);
+				animation.fakeWorld.spawnEntity(subAnimation);
+			} else
+				childStructure.transferChildrenToAnimation(animation);
+		}
+	}
+	
+	public void transferChildrenFromAnimation(EntityAnimation animation) {
+		World parentWorld = animation.fakeWorld.getParent();
+		for (IStructureChildConnector child : children) {
+			LittleStructure childStructure = child.getStructure(getWorld());
+			if (child.isLinkToAnotherWorld()) {
+				EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
+				int l1 = subAnimation.chunkCoordX;
+				int i2 = subAnimation.chunkCoordZ;
+				if (subAnimation.addedToChunk) {
+					Chunk chunk = animation.fakeWorld.getChunkFromChunkCoords(l1, i2);
+					if (chunk != null)
+						chunk.removeEntity(subAnimation);
+					subAnimation.addedToChunk = false;
+				}
+				animation.fakeWorld.loadedEntityList.remove(subAnimation);
+				subAnimation.setParentWorld(parentWorld);
+				parentWorld.spawnEntity(subAnimation);
+			} else
+				childStructure.transferChildrenFromAnimation(animation);
+		}
+	}
+	
+	public void transformAnimation(LittleTransformation transformation) {
+		for (IStructureChildConnector child : children) {
+			LittleStructure childStructure = child.getStructure(getWorld());
+			if (child.isLinkToAnotherWorld())
+				((IAnimatedStructure) childStructure).getAnimation().transformWorld(transformation);
+			else
+				childStructure.transformAnimation(transformation);
+		}
+	}
+	
 	// ====================SORTING====================
 	
 	public void onMove(LittleGridContext context, LittleTileVec offset) {
 		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
 				continue;
 			relativeST.onMove(this, context, offset);
@@ -835,7 +904,7 @@ public abstract class LittleStructure {
 	
 	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
 				continue;
 			relativeST.onFlip(this, context, axis, doubledCenter);
@@ -844,7 +913,7 @@ public abstract class LittleStructure {
 	
 	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
 		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = (StructureRelative) relative.getRelative(this);
+			StructureRelative relativeST = relative.getRelative(this);
 			if (relativeST == null)
 				continue;
 			relativeST.onRotate(this, context, rotation, doubledCenter);
@@ -906,7 +975,7 @@ public abstract class LittleStructure {
 	}
 	
 	public LittleTileIdentifierStructureAbsolute getAbsoluteIdentifier() {
-		return new LittleTileIdentifierStructureAbsolute(mainTile, attribute);
+		return new LittleTileIdentifierStructureAbsolute(mainTile, getAttribute());
 	}
 	
 	public boolean isChildOf(LittleStructure structure) {

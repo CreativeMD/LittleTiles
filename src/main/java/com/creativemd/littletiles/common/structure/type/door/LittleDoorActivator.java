@@ -64,6 +64,14 @@ public class LittleDoorActivator extends LittleDoor {
 		return doors;
 	}
 	
+	@Override
+	public boolean isInMotion() {
+		for (int i : toActivate)
+			if (((LittleDoor) children.get(toActivate[i]).getStructure(getWorld())).isInMotion())
+				return true;
+		return false;
+	}
+	
 	public static class LittleDoorActivatorParser extends LittleStructureGuiParser {
 		
 		public LittleDoorActivatorParser(GuiParent parent, AnimationGuiHandler handler) {

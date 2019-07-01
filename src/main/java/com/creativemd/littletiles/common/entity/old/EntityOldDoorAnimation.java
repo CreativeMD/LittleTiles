@@ -8,7 +8,6 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
@@ -119,7 +118,7 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 	@Override
 	public void onTick() {
 		if (transformation != null)
-			transformation.performTransformation(this, progress / (double) duration);
+			transformation.performTransformation(this, progress / duration);
 	}
 	
 	@Override
@@ -141,8 +140,9 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 				if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
 					if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
 						LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
-						newDoor.parent = new StructureLink(newDoor.getMainTile().te, parentStructure.getMainTile().te.getPos(), parentStructure.getMainTile().getContext(), parentStructure.getMainTile().getIdentifier(), parentStructure.attribute, newDoor, placedStructureParent.parent.getChildID(), true);
-						parentStructure.children.put(newDoor.parent.getChildID(), new StructureLink(parentStructure.getMainTile().te, newDoor.getMainTile().te.getPos(), newDoor.getMainTile().getContext(), newDoor.getMainTile().getIdentifier(), newDoor.attribute, parentStructure, newDoor.parent.getChildID(), false));
+						
+						parentStructure.updateChildConnection(newDoor.parent.getChildID(), newDoor);
+						newDoor.updateParentConnection(newDoor.parent.getChildID(), parentStructure);
 					}
 				} else if (!world.isRemote)
 					WorldUtils.dropItem(world, previews.getStructure().getStructureDrop(), baseOffset);

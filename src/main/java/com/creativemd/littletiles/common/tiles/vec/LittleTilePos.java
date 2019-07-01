@@ -171,7 +171,8 @@ public class LittleTilePos {
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
-		nbt.setIntArray(name, new int[] { pos.getX(), pos.getY(), pos.getZ(), contextVec.context.size, contextVec.vec.x, contextVec.vec.y, contextVec.vec.z });
+		nbt.setIntArray(name, new int[] { pos.getX(), pos.getY(), pos.getZ(), contextVec.context.size, contextVec.vec.x,
+		        contextVec.vec.y, contextVec.vec.z });
 	}
 	
 	public LittleGridContext getContext() {

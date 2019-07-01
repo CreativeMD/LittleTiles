@@ -214,7 +214,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		List<BlockPos> coordsToCheck = mode.getCoordsToCheck(splitted, pos);
 		
 		if (canPlaceTiles(player, world, splitted, coordsToCheck, mode)) {
-			LittlePlaceResult placed = new LittlePlaceResult(pos, context);
+			LittlePlaceResult placed = new LittlePlaceResult(pos, context, parentStructure);
 			List<SoundType> soundsToBePlayed = new ArrayList<>();
 			List<LastPlacedTile> lastPlacedTiles = new ArrayList<>(); // Used for structures, to be sure that this is the last thing which will be placed
 			
@@ -260,7 +260,7 @@ public class LittleActionPlaceStack extends LittleAction {
 											placeTile.structurePreview.getStructure().setMainTile(LT);
 										else {
 											LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
-											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure(), placeTile.structurePreview.getStructure().attribute);
+											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure(), placeTile.structurePreview.getStructure().getAttribute());
 											placeTile.structurePreview.getStructure().addTile(LT);
 										}
 									}
@@ -439,10 +439,12 @@ public class LittleActionPlaceStack extends LittleAction {
 		public final LittleBoxes placedBoxes;
 		private BlockPos lastPos = null;
 		public final List<TileEntityLittleTiles> tileEntities = new ArrayList<>();
+		public final LittleStructure parentStructure;
 		
-		public LittlePlaceResult(BlockPos pos, LittleGridContext context) {
-			placedPreviews = new LittleAbsolutePreviews(pos, context);
-			placedBoxes = new LittleBoxes(pos, context);
+		public LittlePlaceResult(BlockPos pos, LittleGridContext context, LittleStructure parentStructure) {
+			this.placedPreviews = new LittleAbsolutePreviews(pos, context);
+			this.placedBoxes = new LittleBoxes(pos, context);
+			this.parentStructure = parentStructure;
 		}
 		
 		public void addPlacedTile(LittleTile tile) {

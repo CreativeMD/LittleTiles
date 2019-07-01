@@ -48,6 +48,7 @@ import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTim
 import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.utils.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -281,13 +282,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorTransformation[] getDoorTransformations(EntityPlayer player) {
-		return new DoorTransformation[] {
-		        new DoorTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
+		return new LittleTransformation[] {
+		        new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 	}
 	
 	@Override
-	public void transformPreview(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+	public void transformDoorPreview(LittleAbsolutePreviewsStructure previews, LittleTransformation transformation) {
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		if (newDoor.axisCenter.getContext().size > previews.context.size)
 			previews.convertTo(newDoor.axisCenter.getContext());
@@ -296,7 +297,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
 		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		int duration = newDoor.duration;
 		

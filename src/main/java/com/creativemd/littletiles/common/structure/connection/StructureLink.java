@@ -74,11 +74,11 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 				return;
 			}
 			
-			link.setLoadedStructure(parent, parent.attribute);
+			link.setLoadedStructure(parent, parent.getAttribute());
 		} else {
 			if (this.connectedStructure.parent == null)
 				this.connectedStructure.updateParentConnection(childID, parent);
-			this.connectedStructure.parent.setLoadedStructure(parent, parent.attribute); // Yeah it looks confusing ... it loads the parent for the child
+			this.connectedStructure.parent.setLoadedStructure(parent, parent.getAttribute()); // Yeah it looks confusing ... it loads the parent for the child
 		}
 	}
 	
@@ -116,7 +116,7 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : connectedStructure.getEntrySet()) {
 				entry.getKey().removeTiles(entry.getValue());
 			}
-			for (IStructureChildConnector child : connectedStructure.children.values())
+			for (IStructureChildConnector child : connectedStructure.children)
 				child.destroyStructure();
 		}
 	}

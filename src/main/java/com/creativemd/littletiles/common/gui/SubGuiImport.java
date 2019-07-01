@@ -9,8 +9,6 @@ import java.awt.datatransfer.Transferable;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
-import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
@@ -49,15 +47,8 @@ public class SubGuiImport extends SubGui {
 				} catch (NBTException e) {
 					
 				}
-				// nbt.setString("text", textfield.text);
-				
 			}
 		});
-	}
-	
-	@CustomEventSubscribe
-	public void onSlotChange(SlotChangeEvent event) {
-		
 	}
 	
 }

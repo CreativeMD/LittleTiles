@@ -8,10 +8,8 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,13 +21,10 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -128,6 +123,10 @@ public class DoorController extends EntityAnimationController {
 	public void removeWaitingTe(TileEntityLittleTiles te) {
 		synchronized (waitingForRender) {
 			waitingForRender.remove(te);
+			if (waitingForRender.isEmpty()) {
+				parent.getRenderChunkSuppilier().unloadRenderCache();
+				parent.isDead = true;
+			}
 		}
 	}
 	
@@ -157,17 +156,12 @@ public class DoorController extends EntityAnimationController {
 				
 				if (ticksToWait % 10 == 0) {
 					synchronized (waitingForRender) {
-						List<TileEntityLittleTiles> tileEntities = null;
 						for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
 							TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
 							if (te != te.getWorld().getTileEntity(te.getPos())) {
-								if (tileEntities == null)
-									tileEntities = new ArrayList<>();
-								tileEntities.add(te);
+								iterator.remove();
 							}
 						}
-						if (tileEntities != null)
-							waitingForRender.removeAll(tileEntities);
 					}
 				}
 				
@@ -202,21 +196,11 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void startTransition(String key) {
 		super.startTransition(key);
-		if (parent != null)
-			((LittleDoor) parent.structure).setAnimation(parent);
-	}
-	
-	@Override
-	public void setParent(EntityAnimation parent) {
-		super.setParent(parent);
-		if (isChanging())
-			((LittleDoor) parent.structure).setAnimation(parent);
 	}
 	
 	@Override
 	public void endTransition() {
 		super.endTransition();
-		((LittleDoor) parent.structure).setAnimation(parent);
 		if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
 			if (isWaitingForApprove)
 				placed = false;
@@ -246,7 +230,7 @@ public class DoorController extends EntityAnimationController {
 		if (world.isRemote)
 			waitingForRender = new ArrayList<>();
 		
-		LittleAbsolutePreviewsStructure previews = parent.getAbsolutePreviews();
+		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
@@ -260,21 +244,7 @@ public class DoorController extends EntityAnimationController {
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
 			
-			if (parent.structure.loadChildren()) {
-				for (IStructureChildConnector child : parent.structure.children.values()) {
-					LittleStructure childStructure = child.getStructure(parent.fakeWorld);
-					World childWorld = childStructure.getWorld();
-					if (childWorld instanceof SubWorld) {
-						Entity entity = ((SubWorld) childWorld).parent;
-						parent.fakeWorld.loadedEntityList.remove(entity);
-						if (entity instanceof EntityAnimation)
-							((EntityAnimation) entity).setParentWorld(parent.fakeWorld.getParent());
-						else
-							entity.world = parent.fakeWorld.getParent();
-						parent.fakeWorld.getParent().spawnEntity(entity);
-					}
-				}
-			}
+			newDoor.transferChildrenFromAnimation(parent);
 		} else {
 			parent.isDead = true;
 			if (!world.isRemote)
@@ -282,9 +252,9 @@ public class DoorController extends EntityAnimationController {
 			return;
 		}
 		
-		if (!world.isRemote)
-			parent.isDead = true;
-		else {
+		//if (!world.isRemote)
+		parent.isDead = true;
+		/*else {
 			synchronized (waitingForRender) {
 				ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
 				for (int i = 0; i < coordsToCheck.size(); i++) {
@@ -298,7 +268,7 @@ public class DoorController extends EntityAnimationController {
 			ticksToWait = waitTimeRender;
 			parent.isDead = false;
 			placed = true;
-		}
+		}*/
 	}
 	
 	@Override

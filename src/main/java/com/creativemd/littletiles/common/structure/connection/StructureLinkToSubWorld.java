@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import java.util.UUID;
 
-import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -65,7 +64,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 		
 		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
-		this.connectedStructure.parent.setLoadedStructure(parent, parent.attribute);
+		this.connectedStructure.parent.setLoadedStructure(parent, parent.getAttribute());
 	}
 	
 	@Override
@@ -90,10 +89,10 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
-		EntityAnimation animation = LittleDoorHandler.getHandler((SubWorld) connectedStructure.getWorld()).findDoor(entityUUID);
+		EntityAnimation animation = LittleDoorHandler.getHandler(connectedStructure.getWorld()).findDoor(entityUUID);
 		if (animation != null)
 			animation.isDead = true;
-		for (IStructureChildConnector child : connectedStructure.children.values())
+		for (IStructureChildConnector child : connectedStructure.children)
 			child.destroyStructure();
 	}
 	

@@ -158,7 +158,8 @@ public enum LittleSlice {
 	}
 	
 	public LittleSlice rotate(Rotation rotation) {
-		return getSliceFromNormal(new int[] { rotation.getMatrix().getX(normal), rotation.getMatrix().getY(normal), rotation.getMatrix().getZ(normal) });
+		return getSliceFromNormal(new int[] { rotation.getMatrix().getX(normal), rotation.getMatrix().getY(normal),
+		        rotation.getMatrix().getZ(normal) });
 	}
 	
 	public LittleSlice flip(Axis axis) {

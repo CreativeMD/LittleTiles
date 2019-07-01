@@ -46,6 +46,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -138,17 +139,17 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
 		return doorRotation.createController(result, supplier, transformation.getRotation(axis), this, completeDuration);
 	}
 	
 	@Override
-	public DoorTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
+	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		return doorRotation.getDoorTransformations(this, player);
 	}
 	
 	@Override
-	public void transformPreview(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+	public void transformDoorPreview(LittleAbsolutePreviewsStructure previews, LittleTransformation transformation) {
 		LittleAxisDoor newDoor = (LittleAxisDoor) previews.getStructure();
 		if (newDoor.axisCenter.getContext().size > previews.context.size)
 			previews.convertTo(newDoor.axisCenter.getContext());
@@ -533,7 +534,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration);
 		
-		protected abstract DoorTransformation[] getDoorTransformations(LittleAxisDoor door, @Nullable EntityPlayer player);
+		protected abstract LittleTransformation[] getDoorTransformations(LittleAxisDoor door, @Nullable EntityPlayer player);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract boolean shouldUpdateTimeline(GuiControl control);
@@ -648,11 +649,11 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected DoorTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
+		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
 			StructureAbsolute absolute = door.getAbsoluteAxis();
 			Rotation rotation = player != null ? getRotation(player, door, absolute) : getDefaultRotation(door, absolute);
-			return new DoorTransformation[] { new DoorTransformation(door.getMainTile().te.getPos(), rotation),
-			        new DoorTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), rotation),
+			        new LittleTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
 		}
 		
 	}
@@ -726,9 +727,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected DoorTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			return new DoorTransformation[] {
-			        new DoorTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
+			return new LittleTransformation[] {
+			        new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 		}
 		
 	}

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -24,20 +25,27 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
+import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
+import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.vec.LittleRayTraceResult;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.google.common.base.Predicate;
 
 import net.minecraft.block.state.IBlockState;
@@ -244,9 +252,6 @@ public class EntityAnimation extends Entity {
 		}
 		
 		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
-		// BoxUtils.compressBoxes(worldCollisionBoxes, 0); //deviation might be
-		// increased txco save performance
-		
 		worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
@@ -791,8 +796,47 @@ public class EntityAnimation extends Entity {
 	
 	// ================Saving & Loading================
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviews() {
-		return structure.getAbsolutePreviews(absolutePreviewPos);
+	public void transformWorld(LittleTransformation transformation) {
+		if (!structure.loadTiles() || !structure.loadChildren() || !structure.loadParent())
+			return;
+		LittleAbsolutePreviewsStructure previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
+		transformation.transform(previews);
+		
+		List<BlockPos> positions = new ArrayList<>();
+		for (TileEntity te : fakeWorld.loadedTileEntityList) {
+			if (te instanceof TileEntityLittleTiles) {
+				((TileEntityLittleTiles) te).getTiles().clear();
+				positions.add(te.getPos());
+			}
+		}
+		
+		for (BlockPos pos : positions) {
+			fakeWorld.setBlockToAir(pos);
+			fakeWorld.removeTileEntity(pos);
+		}
+		
+		if (world.isRemote)
+			getRenderChunkSuppilier().unloadRenderCache();
+		
+		List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		
+		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
+		
+		int childId = this.structure.parent.getChildID();
+		LittleStructure parentStructure = this.structure.parent.getStructure(fakeWorld);
+		LittlePlaceResult result = LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
+		this.structure = result.parentStructure;
+		((IAnimatedStructure) this.structure).setAnimation(this);
+		parentStructure.updateChildConnection(childId, this.structure);
+		this.structure.updateParentConnection(childId, parentStructure);
+		
+		this.structure.transformAnimation(transformation);
+		
+		//TODO Might transform door controller as well?
+		//TODO Also rotate absolutePreviewPos
+		
+		updateWorldCollision();
 	}
 	
 	@Deprecated

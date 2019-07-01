@@ -34,7 +34,7 @@ public class StructureMainTile implements IStructureConnector<LittleTile> {
 	
 	@Override
 	public LittleStructureAttribute getAttribute() {
-		return structure.attribute;
+		return structure.getAttribute();
 	}
 	
 	@Override

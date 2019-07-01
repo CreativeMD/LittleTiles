@@ -99,6 +99,8 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public abstract List<LittleDoor> collectDoorsToCheck();
 	
+	public abstract boolean isInMotion();
+	
 	public DoorOpeningResult canOpenDoor(@Nullable EntityPlayer player) {
 		if (isInMotion())
 			return null;
@@ -125,22 +127,6 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result);
-	
-	public EntityAnimation animation;
-	
-	public void setAnimation(EntityAnimation animation) {
-		this.animation = animation;
-	}
-	
-	public boolean isInMotion() {
-		if (animation != null && animation.controller.isChanging())
-			return true;
-		return false;
-	}
-	
-	public boolean isAnimated() {
-		return animation != null;
-	}
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
 	

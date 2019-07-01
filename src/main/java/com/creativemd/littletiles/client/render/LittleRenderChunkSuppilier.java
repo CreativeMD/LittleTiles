@@ -22,6 +22,7 @@ public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
 		for (LittleRenderChunk chunk : renderChunks.values()) {
 			chunk.unload();
 		}
+		renderChunks.clear();
 	}
 	
 	@Override

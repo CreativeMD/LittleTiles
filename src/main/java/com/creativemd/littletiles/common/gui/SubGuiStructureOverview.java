@@ -70,7 +70,7 @@ public class SubGuiStructureOverview extends SubGui {
 			GuiScrollBox scrollBox = new GuiScrollBox(name, 3, 55, 165, 100);
 			scrollBox.scaleFactor = 0.9F;
 			int i = 0;
-			for (IStructureChildConnector child : structure.children.values()) {
+			for (IStructureChildConnector child : structure.children) {
 				scrollBox.addControl(new GuiLabel("id: " + child.getChildID() + ", " + (child.getStructureWithoutLoading() == null ? ChatFormatting.YELLOW + "pending" : ChatFormatting.DARK_GREEN + (child.getStructureWithoutLoading().name != null ? child.getStructureWithoutLoading().name : child.getStructureWithoutLoading().type.id) + ChatFormatting.WHITE + ", " + child.getStructureWithoutLoading().countTiles() + " tile(s)"), 0, 5 + 20 * i));
 				if (child.getStructureWithoutLoading() == null)
 					scrollBox.addControl(new GuiButton("connect", 115, 2 + 20 * i) {

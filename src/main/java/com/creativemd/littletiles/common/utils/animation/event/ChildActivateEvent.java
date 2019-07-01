@@ -5,6 +5,7 @@ import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
+import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -76,7 +77,7 @@ public class ChildActivateEvent extends AnimationEvent {
 			if (!connector.isLinkToAnotherWorld())
 				childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT);
 			else
-				childAnimation = child.animation;
+				childAnimation = ((IAnimatedStructure) child).getAnimation();
 			GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
 			};
 			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(tick, handler), childAnimation);

@@ -29,6 +29,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -65,28 +66,28 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, DoorTransformation transformation, int completeDuration) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
 		if (stayAnimated)
 			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration);
 		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration);
 	}
 	
 	@Override
-	public void transformPreview(LittleAbsolutePreviewsStructure previews, DoorTransformation transformation) {
+	public void transformDoorPreview(LittleAbsolutePreviewsStructure previews, LittleTransformation transformation) {
 		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
 		structure.moveDirection = moveDirection.getOpposite();
 	}
 	
 	@Override
-	public DoorTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
+	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		if (stayAnimated)
-			return new DoorTransformation[] {
-			        new DoorTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+			return new LittleTransformation[] {
+			        new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 		LittleTileVec offsetVec = new LittleTileVec(moveDirection);
 		offsetVec.scale(moveDistance);
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
-		return new DoorTransformation[] {
-		        new DoorTransformation(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)), 0, 0, 0, new LittleTileVec(0, 0, 0), offset) };
+		return new LittleTransformation[] {
+		        new LittleTransformation(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)), 0, 0, 0, new LittleTileVec(0, 0, 0), offset) };
 	}
 	
 	@Override
