@@ -128,10 +128,6 @@ public class DoorController extends EntityAnimationController {
 	public void removeWaitingTe(TileEntityLittleTiles te) {
 		synchronized (waitingForRender) {
 			waitingForRender.remove(te);
-			if (waitingForRender.isEmpty()) {
-				parent.getRenderChunkSuppilier().unloadRenderCache();
-				parent.isDead = true;
-			}
 		}
 	}
 	
