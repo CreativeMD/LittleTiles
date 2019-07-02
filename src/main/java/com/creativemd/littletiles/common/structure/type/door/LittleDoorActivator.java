@@ -44,7 +44,7 @@ public class LittleDoorActivator extends LittleDoor {
 	@Override
 	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
 		for (int i : toActivate)
-			((LittleDoor) children.get(toActivate[i]).getStructure(getWorld())).openDoor(player, uuid, result);
+			((LittleDoor) children.get(i).getStructure(getWorld())).openDoor(player, uuid, result);
 		return null;
 	}
 	
@@ -52,7 +52,7 @@ public class LittleDoorActivator extends LittleDoor {
 	public int getCompleteDuration() {
 		int duration = 0;
 		for (int i : toActivate)
-			duration = Math.max(duration, ((LittleDoor) children.get(toActivate[i]).getStructure(getWorld())).getCompleteDuration());
+			duration = Math.max(duration, ((LittleDoor) children.get(i).getStructure(getWorld())).getCompleteDuration());
 		return duration;
 	}
 	
@@ -60,14 +60,14 @@ public class LittleDoorActivator extends LittleDoor {
 	public List<LittleDoor> collectDoorsToCheck() {
 		List<LittleDoor> doors = new ArrayList<>();
 		for (int i : toActivate)
-			doors.add((LittleDoor) children.get(toActivate[i]).getStructure(getWorld()));
+			doors.add((LittleDoor) children.get(i).getStructure(getWorld()));
 		return doors;
 	}
 	
 	@Override
 	public boolean isInMotion() {
 		for (int i : toActivate)
-			if (((LittleDoor) children.get(toActivate[i]).getStructure(getWorld())).isInMotion())
+			if (((LittleDoor) children.get(i).getStructure(getWorld())).isInMotion())
 				return true;
 		return false;
 	}
@@ -116,8 +116,18 @@ public class LittleDoorActivator extends LittleDoor {
 					toActivate.add(integer);
 			}
 			activator.toActivate = new int[toActivate.size()];
-			for (int i : activator.toActivate)
+			for (int i = 0; i < activator.toActivate.length; i++)
 				activator.toActivate[i] = toActivate.get(i);
+			
+			List<LittlePreviews> previewChildren = previews.getChildren();
+			
+			if (!previewChildren.isEmpty()) {
+				for (int i = 0; i < previewChildren.size(); i++)
+					if (ArrayUtils.contains(activator.toActivate, i))
+						previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
+					else
+						previewChildren.get(i).getStructureData().removeTag("activateParent");
+			}
 			return activator;
 		}
 		
