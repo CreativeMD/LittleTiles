@@ -31,6 +31,7 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
+import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava.LittleFlowingLavaPreview;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
@@ -40,6 +41,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.ItemBlockColored;
+import com.creativemd.littletiles.common.blocks.ItemBlockColored2;
 import com.creativemd.littletiles.common.blocks.ItemBlockFlowingLava;
 import com.creativemd.littletiles.common.blocks.ItemBlockFlowingWater;
 import com.creativemd.littletiles.common.blocks.ItemBlockTransparentColored;
@@ -169,6 +171,7 @@ public class LittleTiles {
 	public static Block blockTileTickingRendered;
 	
 	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
+	public static Block coloredBlock2 = new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
 	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
@@ -217,10 +220,10 @@ public class LittleTiles {
 		config.save();
 		proxy.loadSidePre();
 		
-		blockTileNoTicking = (BlockTile) new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
-		blockTileTicking = (BlockTile) new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
-		blockTileNoTickingRendered = (BlockTile) new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
-		blockTileTickingRendered = (BlockTile) new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
+		blockTileNoTicking = new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
+		blockTileTicking = new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
+		blockTileNoTickingRendered = new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
+		blockTileTickingRendered = new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
 		
 		hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
 		recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
@@ -256,12 +259,12 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava);
+		event.getRegistry().registerAll(coloredBlock, coloredBlock2, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava);
 	}
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()), new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()), new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()), new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()), new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(blockTileTickingRendered.getRegistryName()), new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()), new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()), new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(flowingLava.getRegistryName()), new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(whiteFlowingLava.getRegistryName()));
+		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()), new ItemBlockColored2(coloredBlock2, coloredBlock2.getRegistryName()).setRegistryName(coloredBlock2.getRegistryName()), new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()), new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()), new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()), new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(blockTileTickingRendered.getRegistryName()), new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()), new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()), new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(flowingLava.getRegistryName()), new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(whiteFlowingLava.getRegistryName()));
 		
 		proxy.loadSide();
 	}

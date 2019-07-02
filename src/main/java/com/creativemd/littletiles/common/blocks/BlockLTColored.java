@@ -80,7 +80,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		return 0;
 	}
 	
-	public static enum EnumType implements IStringSerializable {
+	public enum EnumType implements IStringSerializable {
 		
 		clean,
 		floor,

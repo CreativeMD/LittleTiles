@@ -16,6 +16,7 @@ import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
+import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -254,6 +255,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
 		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());
+		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock2, LittleTiles.modid, "colored_block_", BlockLTColored2.EnumType.values());
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.flowingWater);
 		CreativeCoreClient.registerBlockItem(LittleTiles.whiteFlowingWater);

@@ -1,0 +1,17 @@
+{
+  "result": {
+    "item": "littletiles:ltcoloredblock2",
+    "data": 4,
+    "count": 1
+  },
+  "pattern": [
+    "X"
+  ],
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "X": {
+      "item": "littletiles:ltcoloredblock",
+      "data": 13
+    }
+  }
+}
