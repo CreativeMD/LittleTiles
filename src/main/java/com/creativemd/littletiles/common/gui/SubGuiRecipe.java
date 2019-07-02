@@ -142,7 +142,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	
 	@Override
 	public void createControls() {
-		controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 80, craftables));
+		controls.add(new GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>>("types", 0, 5, 90, craftables));
 		
 		controls.add(new GuiButton("clear", translate("selection.clear"), 105, 176, 38) {
 			

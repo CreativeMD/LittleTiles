@@ -9,6 +9,8 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -17,6 +19,10 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
+import com.creativemd.littletiles.common.utils.animation.event.ChildActivateEvent;
+import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -104,6 +110,25 @@ public class LittleDoorActivator extends LittleDoor {
 				}
 				i++;
 			}
+			
+			updateTimeline();
+		}
+		
+		@CustomEventSubscribe
+		public void onChanged(GuiControlChangedEvent event) {
+			if (event.source instanceof GuiCheckBox)
+				updateTimeline();
+		}
+		
+		public void updateTimeline() {
+			AnimationTimeline timeline = new AnimationTimeline(0, new PairList<>());
+			List<AnimationEvent> events = new ArrayList<>();
+			for (Integer integer : possibleChildren) {
+				GuiCheckBox box = (GuiCheckBox) parent.get("" + integer);
+				if (box != null && box.value)
+					events.add(new ChildActivateEvent(0, integer));
+			}
+			handler.setTimeline(timeline, events);
 		}
 		
 		@Override

@@ -38,10 +38,6 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 		this.setDefaultState(this.blockState.getBaseState().withProperty(VARIANT, BlockLTColored.EnumType.clean));
 	}
 	
-	// public static final String[] subBlocks = new String[]{"clean", "floor",
-	// "grainybig", "grainy", "grainylow", "brick", "bordered", "brickBig",
-	// "structured", "brokenBrickBig", "clay"};
-	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
@@ -52,7 +48,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return ((BlockLTColored.EnumType) state.getValue(VARIANT)).getMetadata();
+		return state.getValue(VARIANT).getMetadata();
 	}
 	
 	@Override
@@ -62,7 +58,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return ((BlockLTColored.EnumType) state.getValue(VARIANT)).getMetadata();
+		return state.getValue(VARIANT).getMetadata();
 	}
 	
 	@Override

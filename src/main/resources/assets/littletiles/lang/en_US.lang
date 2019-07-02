@@ -132,6 +132,7 @@ structure.noclip.name=No-clip
 structure.door.name=Axis Door
 structure.slidingDoor.name=Sliding Door
 structure.advancedDoor.name=Advanced Door
+structure.doorActivator.name=Door Activator
 
 structure.category.simple=Simple
 structure.category.door=Doors
