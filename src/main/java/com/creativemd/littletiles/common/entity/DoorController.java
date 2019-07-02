@@ -26,8 +26,10 @@ import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -255,9 +257,9 @@ public class DoorController extends EntityAnimationController {
 			return;
 		}
 		
-		//if (!world.isRemote)
-		parent.isDead = true;
-		/*else {
+		if (!world.isRemote)
+			parent.isDead = true;
+		else {
 			synchronized (waitingForRender) {
 				ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
 				for (int i = 0; i < coordsToCheck.size(); i++) {
@@ -271,7 +273,7 @@ public class DoorController extends EntityAnimationController {
 			ticksToWait = waitTimeRender;
 			parent.isDead = false;
 			placed = true;
-		}*/
+		}
 	}
 	
 	@Override
