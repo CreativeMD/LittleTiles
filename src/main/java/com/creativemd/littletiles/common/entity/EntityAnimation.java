@@ -211,12 +211,12 @@ public class EntityAnimation extends Entity {
 	/** Should be called if the world of the animation will be modified (Currently
 	 * not possible) */
 	public void updateWorldCollision() {
-		double minX = Integer.MAX_VALUE;
-		double minY = Integer.MAX_VALUE;
-		double minZ = Integer.MAX_VALUE;
-		double maxX = Integer.MIN_VALUE;
-		double maxY = Integer.MIN_VALUE;
-		double maxZ = Integer.MIN_VALUE;
+		double minX = Double.MAX_VALUE;
+		double minY = Double.MAX_VALUE;
+		double minZ = Double.MAX_VALUE;
+		double maxX = -Double.MAX_VALUE;
+		double maxY = -Double.MAX_VALUE;
+		double maxZ = -Double.MAX_VALUE;
 		
 		worldCollisionBoxes = new ArrayList<>();
 		
@@ -252,7 +252,10 @@ public class EntityAnimation extends Entity {
 		}
 		
 		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
-		worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
+		if (minX == Double.MAX_VALUE)
+			worldBoundingBox = new OrientatedBoundingBox(origin, 0, 0, 0, 1, 1, 1);
+		else
+			worldBoundingBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
 	private static double minIgnore(double par1, double par2) {
