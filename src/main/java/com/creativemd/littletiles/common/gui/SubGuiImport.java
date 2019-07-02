@@ -9,9 +9,11 @@ import java.awt.datatransfer.Transferable;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class SubGuiImport extends SubGui {
 	
@@ -43,7 +45,13 @@ public class SubGuiImport extends SubGui {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				try {
-					sendPacketToServer(JsonToNBT.getTagFromJson(textfield.text));
+					NBTTagCompound nbt = JsonToNBT.getTagFromJson(textfield.text);
+					try {
+						LittleGridContext.get(nbt);
+						sendPacketToServer(nbt);
+					} catch (RuntimeException e) {
+						openButtonDialogDialog("Invalid grid size " + nbt.getInteger("grid"), "Ok");
+					}
 				} catch (NBTException e) {
 					
 				}
