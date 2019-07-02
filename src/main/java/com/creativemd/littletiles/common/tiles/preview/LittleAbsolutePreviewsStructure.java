@@ -42,6 +42,13 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	}
 	
 	@Override
+	public void addChild(LittlePreviews child) {
+		super.addChild(child);
+		if (structure != null)
+			structure.tempChildren.add(child.getStructure());
+	}
+	
+	@Override
 	public LittleStructure getStructure() {
 		if (structure == null) {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);

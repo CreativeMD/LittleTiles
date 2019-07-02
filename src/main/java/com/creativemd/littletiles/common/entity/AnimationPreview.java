@@ -10,16 +10,20 @@ import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -39,6 +43,14 @@ public class AnimationPreview {
 		BlockPos pos = new BlockPos(0, 75, 0);
 		FakeWorld fakeWorld = FakeWorld.createFakeWorld("animationViewer", true);
 		fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		
+		if (!previews.hasStructure()) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class)).writeToNBT(nbt);
+			LittlePreviewsStructure newPreviews = new LittlePreviewsStructure(nbt, previews.context);
+			newPreviews.assign(previews);
+			previews = newPreviews;
+		}
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
@@ -69,6 +81,11 @@ public class AnimationPreview {
 			
 			@Override
 			protected void readFromNBT(NBTTagCompound nbt) {
+				
+			}
+			
+			@Override
+			public void transform(LittleTransformation transformation) {
 				
 			}
 		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure == null ? null : structure.getAbsoluteIdentifier());

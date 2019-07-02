@@ -2,9 +2,13 @@ package com.creativemd.littletiles.common.utils.animation;
 
 import java.util.HashMap;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
+
+import net.minecraft.util.EnumFacing.Axis;
 
 public class AnimationController {
 	
@@ -162,6 +166,24 @@ public class AnimationController {
 			if (obj instanceof AnimationControllerState)
 				return name.equals(((AnimationControllerState) obj).name);
 			return false;
+		}
+		
+		public void transform(LittleTransformation transformation) {
+			if (transformation.rotX != 0) {
+				Rotation rotation = transformation.getRotation(Axis.X);
+				for (int i = 0; i < Math.abs(transformation.rotX); i++)
+					state.transform(rotation);
+			}
+			if (transformation.rotY != 0) {
+				Rotation rotation = transformation.getRotation(Axis.Y);
+				for (int i = 0; i < Math.abs(transformation.rotY); i++)
+					state.transform(rotation);
+			}
+			if (transformation.rotZ != 0) {
+				Rotation rotation = transformation.getRotation(Axis.Z);
+				for (int i = 0; i < Math.abs(transformation.rotZ); i++)
+					state.transform(rotation);
+			}
 		}
 		
 	}

@@ -3,6 +3,9 @@ package com.creativemd.littletiles.common.utils.animation;
 import java.util.Collection;
 import java.util.HashMap;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.type.Pair;
+
 import net.minecraft.util.EnumFacing.Axis;
 
 public abstract class AnimationKey {
@@ -63,6 +66,11 @@ public abstract class AnimationKey {
 			return value % 360 == 0;
 		}
 		
+		@Override
+		public Pair<AnimationKey, Double> transform(Rotation rotation, double value) {
+			return new Pair<>(getRotation(rotation.getRotatedComponent(axis)), (rotation.getRotatedComponentPositive(axis) ? value : -value));
+		}
+		
 	}
 	
 	public static class OffsetKey extends AnimationKey {
@@ -77,6 +85,11 @@ public abstract class AnimationKey {
 		@Override
 		public boolean isAligned(double value) {
 			return true;
+		}
+		
+		@Override
+		public Pair<AnimationKey, Double> transform(Rotation rotation, double value) {
+			return new Pair<>(getOffset(rotation.getRotatedComponent(axis)), (rotation.getRotatedComponentPositive(axis) ? value : -value));
 		}
 		
 	}
@@ -95,5 +108,12 @@ public abstract class AnimationKey {
 	}
 	
 	public abstract boolean isAligned(double value);
+	
+	public abstract Pair<AnimationKey, Double> transform(Rotation rotation, double value);
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 	
 }

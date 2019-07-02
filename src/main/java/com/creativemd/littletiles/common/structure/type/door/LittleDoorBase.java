@@ -66,7 +66,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	
 	public int duration = 50;
 	public boolean stayAnimated = false;
-	public List<AnimationEvent> events;
+	public List<AnimationEvent> events = new ArrayList<>();
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {

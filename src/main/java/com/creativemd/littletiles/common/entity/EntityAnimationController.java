@@ -6,6 +6,7 @@ import java.util.HashMap;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.animation.AnimationController;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,7 +35,8 @@ public abstract class EntityAnimationController extends AnimationController {
 	
 	public void setParent(EntityAnimation parent) {
 		this.parent = parent;
-		((IAnimatedStructure) parent.structure).setAnimation(parent);
+		if (parent.structure != null && parent.structure instanceof IAnimatedStructure)
+			((IAnimatedStructure) parent.structure).setAnimation(parent);
 	}
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
@@ -64,6 +66,8 @@ public abstract class EntityAnimationController extends AnimationController {
 	public boolean isWaitingForRender() {
 		return false;
 	}
+	
+	public abstract void transform(LittleTransformation transformation);
 	
 	public static EntityAnimationController parseController(EntityAnimation animation, NBTTagCompound nbt) {
 		Class<? extends EntityAnimationController> controllerType = controllerTypes.get(nbt.getString("id"));

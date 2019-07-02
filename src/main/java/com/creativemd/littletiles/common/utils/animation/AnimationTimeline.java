@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.animation;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
@@ -172,5 +173,19 @@ public class AnimationTimeline {
 		duration += offset;
 		for (Pair<AnimationKey, ValueTimeline> pair : values)
 			pair.value.offset(offset);
+	}
+	
+	public void transform(Rotation rotation) {
+		PairList<AnimationKey, ValueTimeline> newPairs = new PairList<>();
+		for (Pair<AnimationKey, ValueTimeline> pair : values) {
+			Pair<AnimationKey, Double> result = pair.key.transform(rotation, 1);
+			if (result != null) {
+				if (result.value < 0)
+					pair.value.flip();
+				newPairs.add(result.key, pair.value);
+			} else
+				newPairs.add(pair);
+		}
+		this.values = newPairs;
 	}
 }

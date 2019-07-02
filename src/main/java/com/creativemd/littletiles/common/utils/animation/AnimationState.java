@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.vecmath.Vector3d;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 
@@ -70,5 +71,17 @@ public class AnimationState {
 		for (Pair<AnimationKey, Double> pair : values)
 			nbt.setDouble(pair.key.name, pair.value);
 		return nbt;
+	}
+	
+	public void transform(Rotation rotation) {
+		PairList<AnimationKey, Double> newPairs = new PairList<>();
+		for (Pair<AnimationKey, Double> pair : values) {
+			Pair<AnimationKey, Double> result = pair.key.transform(rotation, pair.value);
+			if (result != null)
+				newPairs.add(result);
+			else
+				newPairs.add(pair);
+		}
+		this.values = newPairs;
 	}
 }

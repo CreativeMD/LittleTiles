@@ -75,9 +75,6 @@ public class SubGuiDoorEvents extends SubGui {
 	
 	@Override
 	public void createControls() {
-		if (button.events == null)
-			button.events = new ArrayList<>();
-		
 		GuiScrollBox box = new GuiScrollBox("content", 0, 0, 170, 110);
 		controls.add(box);
 		GuiComboBox type = new GuiComboBox("type", 0, 120, 100, AnimationEvent.typeNamestranslated());
@@ -133,6 +130,8 @@ public class SubGuiDoorEvents extends SubGui {
 			this.activator = door;
 			if (activator != null)
 				this.events = activator.events;
+			if (this.events == null)
+				this.events = new ArrayList<>();
 		}
 		
 		@Override

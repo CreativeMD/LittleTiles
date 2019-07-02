@@ -832,8 +832,7 @@ public class EntityAnimation extends Entity {
 		this.structure.updateParentConnection(childId, parentStructure);
 		
 		this.structure.transformAnimation(transformation);
-		
-		//TODO Might transform door controller as well?
+		this.controller.transform(transformation);
 		//TODO Also rotate absolutePreviewPos
 		
 		updateWorldCollision();

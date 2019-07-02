@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
@@ -20,11 +21,13 @@ import com.creativemd.littletiles.common.utils.animation.AnimationController;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -343,6 +346,33 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void onServerApproves() {
 		isWaitingForApprove = false;
+	}
+	
+	@Override
+	public void transform(LittleTransformation transformation) {
+		for (AnimationControllerState state : states.values())
+			state.transform(transformation);
+		for (AnimationTimeline timeline : stateTransition.values()) {
+			if (transformation.rotX != 0) {
+				Rotation rotation = transformation.getRotation(Axis.X);
+				for (int i = 0; i < Math.abs(transformation.rotX); i++)
+					timeline.transform(rotation);
+			}
+			if (transformation.rotY != 0) {
+				Rotation rotation = transformation.getRotation(Axis.Y);
+				for (int i = 0; i < Math.abs(transformation.rotY); i++)
+					timeline.transform(rotation);
+			}
+			if (transformation.rotZ != 0) {
+				Rotation rotation = transformation.getRotation(Axis.Z);
+				for (int i = 0; i < Math.abs(transformation.rotZ); i++)
+					timeline.transform(rotation);
+			}
+		}
+		
+		tickingState.clear();
+		if (isChanging())
+			animation.tick(tick, tickingState);
 	}
 	
 }
