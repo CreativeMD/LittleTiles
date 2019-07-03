@@ -95,6 +95,10 @@ public abstract class LittleDoor extends LittleStructure {
 		
 	}
 	
+	public void onFinished(EntityAnimation animation) {
+		
+	}
+	
 	public abstract int getCompleteDuration();
 	
 	public abstract List<LittleDoor> collectDoorsToCheck();

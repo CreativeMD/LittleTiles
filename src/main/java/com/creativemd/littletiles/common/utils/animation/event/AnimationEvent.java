@@ -23,7 +23,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public abstract class AnimationEvent {
+public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	
 	private static HashMap<String, Class<? extends AnimationEvent>> eventTypes = new HashMap<>();
 	private static HashMap<String, AnimationEventGuiParser> eventTypeParsers = new HashMap<>();
@@ -124,7 +124,7 @@ public abstract class AnimationEvent {
 		});
 	}
 	
-	protected final int tick;
+	private int tick;
 	private boolean activated = false;
 	
 	public AnimationEvent(int tick) {
@@ -147,7 +147,7 @@ public abstract class AnimationEvent {
 		return tick + getEventDuration(structure);
 	}
 	
-	protected abstract int getEventDuration(LittleStructure structure);
+	public abstract int getEventDuration(LittleStructure structure);
 	
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt.setString("id", getId(this.getClass()));
@@ -172,5 +172,14 @@ public abstract class AnimationEvent {
 	
 	public void prepareInGui(LittlePreviews previews, EntityAnimation animation, AnimationGuiHandler handler) {
 		
+	}
+	
+	public void invert(LittleDoor door, int duration) {
+		this.tick = duration - getMinimumRequiredDuration(door);
+	}
+	
+	@Override
+	public int compareTo(AnimationEvent o) {
+		return Integer.compare(this.tick, o.tick);
 	}
 }

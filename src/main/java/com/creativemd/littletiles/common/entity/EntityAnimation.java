@@ -119,6 +119,7 @@ public class EntityAnimation extends Entity {
 		addDoor();
 		preventPush = true;
 		onUpdateForReal();
+		setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
 		this.initalOffX = origin.offX();
 		this.initalOffY = origin.offY();
 		this.initalOffZ = origin.offZ();

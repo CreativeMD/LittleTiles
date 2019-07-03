@@ -112,7 +112,14 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		for (AnimationEvent event : events)
 			if (event.shouldBeProcessed(tick))
 				event.process(controller);
-			
+	}
+	
+	@Override
+	public void onFinished(EntityAnimation animation) {
+		int duration = getCompleteDuration();
+		for (AnimationEvent event : events)
+			event.invert(this, duration);
+		events.sort(null);
 	}
 	
 	@Override

@@ -104,6 +104,7 @@ public class SubGuiDoorEvents extends SubGui {
 						SubGuiDoorEvents.this.button.events.add(event);
 					}
 				}
+				SubGuiDoorEvents.this.button.events.sort(null);
 				closeGui();
 				SubGuiDoorEvents.this.button.raiseEvent(new GuiControlChangedEvent(SubGuiDoorEvents.this.button));
 			}

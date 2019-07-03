@@ -62,7 +62,7 @@ public class ChildActivateEvent extends AnimationEvent {
 	}
 	
 	@Override
-	protected int getEventDuration(LittleStructure structure) {
+	public int getEventDuration(LittleStructure structure) {
 		IStructureChildConnector connector = structure.children.get(childId);
 		LittleDoor door = (LittleDoor) connector.getStructure(structure.getWorld());
 		return door.getCompleteDuration();
@@ -80,7 +80,7 @@ public class ChildActivateEvent extends AnimationEvent {
 				childAnimation = ((IAnimatedStructure) child).getAnimation();
 			GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
 			};
-			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(tick, handler), childAnimation);
+			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(getTick(), handler), childAnimation);
 			holder.handler.takeInitialState(childAnimation);
 			LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
 			parser.createControls(holder.previews, holder.previews.getStructure());

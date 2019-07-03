@@ -202,6 +202,7 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void endTransition() {
 		super.endTransition();
+		((LittleDoor) parent.structure).onFinished(parent);
 		if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
 			if (isWaitingForApprove)
 				placed = false;
