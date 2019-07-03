@@ -124,6 +124,11 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		
 		boolean hasChanged = false;
 		if (eventsChanged) {
+			for (AnimationGuiHolder holder : subHolders) {
+				holder.handler.stop();
+				holder.handler.updateTick(holder.animation);
+				holder.handler.updateTick(holder.animation);
+			}
 			subHolders.clear();
 			for (AnimationEvent event : events)
 				event.prepareInGui(previews, animation, this);
