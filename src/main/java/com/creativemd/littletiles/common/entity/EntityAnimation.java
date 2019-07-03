@@ -836,7 +836,7 @@ public class EntityAnimation extends Entity {
 		
 		this.structure.transformAnimation(transformation);
 		this.controller.transform(transformation);
-		//TODO Also rotate absolutePreviewPos
+		absolutePreviewPos = transformation.transform(absolutePreviewPos);
 		
 		updateWorldCollision();
 	}

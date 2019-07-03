@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.utils.vec;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
@@ -67,6 +68,31 @@ public class LittleTransformation {
 			return Rotation.getRotation(axis, rotZ > 0);
 		}
 		return null;
+	}
+	
+	public BlockPos transform(BlockPos pos) {
+		pos = pos.subtract(center);
+		if (rotX != 0) {
+			Rotation rotation = getRotation(Axis.X);
+			for (int i = 0; i < Math.abs(rotX); i++)
+				pos = RotationUtils.rotate(pos, rotation);
+		}
+		if (rotY != 0) {
+			Rotation rotation = getRotation(Axis.Y);
+			for (int i = 0; i < Math.abs(rotY); i++)
+				pos = RotationUtils.rotate(pos, rotation);
+		}
+		if (rotZ != 0) {
+			Rotation rotation = getRotation(Axis.Z);
+			for (int i = 0; i < Math.abs(rotZ); i++)
+				pos = RotationUtils.rotate(pos, rotation);
+		}
+		
+		pos = pos.add(center);
+		
+		if (offset != null)
+			pos = pos.add(offset.getBlockPos());
+		return pos;
 	}
 	
 	public void transform(LittleAbsolutePreviews previews) {
