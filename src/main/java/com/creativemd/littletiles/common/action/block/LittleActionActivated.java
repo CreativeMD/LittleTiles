@@ -48,7 +48,7 @@ public class LittleActionActivated extends LittleActionInteract {
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		if (!player.world.isRemote) // Block server right click event
+		if (!player.world.isRemote && uuid == null) // Block server right click event
 			LittleEvent.addBlockTilePrevent(player);
 		if (preventInteraction)
 			return true;

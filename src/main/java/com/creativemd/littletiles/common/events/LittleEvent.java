@@ -66,9 +66,11 @@ import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
@@ -172,7 +174,7 @@ public class LittleEvent {
 	public void renderOverlay(RenderBlockOverlayEvent event) {
 		if (event.getOverlayType() == OverlayType.WATER) {
 			EntityPlayer player = event.getPlayer();
-			double d0 = player.posY + (double) player.getEyeHeight();
+			double d0 = player.posY + player.getEyeHeight();
 			BlockPos blockpos = new BlockPos(player.posX, d0, player.posZ);
 			TileEntity te = player.world.getTileEntity(blockpos);
 			if (te instanceof TileEntityLittleTiles) {
@@ -202,10 +204,10 @@ public class LittleEvent {
 						float f7 = -mc.player.rotationYaw / 64.0F;
 						float f8 = mc.player.rotationPitch / 64.0F;
 						bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);
-						bufferbuilder.pos(-1.0D, -1.0D, -0.5D).tex((double) (4.0F + f7), (double) (4.0F + f8)).endVertex();
-						bufferbuilder.pos(1.0D, -1.0D, -0.5D).tex((double) (0.0F + f7), (double) (4.0F + f8)).endVertex();
-						bufferbuilder.pos(1.0D, 1.0D, -0.5D).tex((double) (0.0F + f7), (double) (0.0F + f8)).endVertex();
-						bufferbuilder.pos(-1.0D, 1.0D, -0.5D).tex((double) (4.0F + f7), (double) (0.0F + f8)).endVertex();
+						bufferbuilder.pos(-1.0D, -1.0D, -0.5D).tex(4.0F + f7, 4.0F + f8).endVertex();
+						bufferbuilder.pos(1.0D, -1.0D, -0.5D).tex(0.0F + f7, 4.0F + f8).endVertex();
+						bufferbuilder.pos(1.0D, 1.0D, -0.5D).tex(0.0F + f7, 0.0F + f8).endVertex();
+						bufferbuilder.pos(-1.0D, 1.0D, -0.5D).tex(4.0F + f7, 0.0F + f8).endVertex();
 						tessellator.draw();
 						
 						GlStateManager.popMatrix();
@@ -238,6 +240,22 @@ public class LittleEvent {
 			return false;
 		blockTilePrevent.remove(index);
 		return true;
+	}
+	
+	@SubscribeEvent
+	public void onInteractAir(RightClickEmpty event) {
+		if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
+			event.setCanceled(true);
+			return;
+		}
+	}
+	
+	@SubscribeEvent
+	public void onInteractEntity(EntityInteractSpecific event) {
+		if (!event.getWorld().isRemote && consumeBlockTilePrevent(event.getEntityPlayer())) {
+			event.setCanceled(true);
+			return;
+		}
 	}
 	
 	@SubscribeEvent
@@ -298,7 +316,7 @@ public class LittleEvent {
 				LittleTilePos result = new LittleTilePos(event.getTarget(), selector.getContext(stack));
 				if (selector.hasCustomBox(world, stack, player, state, event.getTarget(), result)) {
 					while (LittleTilesClient.flip.isPressed()) {
-						int i4 = MathHelper.floor((double) (player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+						int i4 = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 						EnumFacing direction = null;
 						switch (i4) {
 						case 0:
@@ -337,9 +355,9 @@ public class LittleEvent {
 					while (LittleTilesClient.left.isPressed())
 						processRotateKey(player, Rotation.Y_CLOCKWISE);
 					
-					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) event.getPartialTicks();
-					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) event.getPartialTicks();
-					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) event.getPartialTicks();
+					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
 					LittleBoxes boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), result);
 					// box.addOffset(new LittleTileVec(pos));
 					
