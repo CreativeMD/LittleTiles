@@ -11,7 +11,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.CreativeBakedQuad;
 import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
@@ -283,7 +282,7 @@ public class RenderingThread extends Thread {
 											if (quads != null && !quads.isEmpty()) {
 												for (int k = 0; k < quads.size(); k++) {
 													BakedQuad quad = quads.get(k);
-													consumer.quad = (CreativeBakedQuad) quad;
+													consumer.quad = quad;
 													renderQuad(buffer, quad);
 												}
 											}
@@ -377,6 +376,7 @@ public class RenderingThread extends Thread {
 		
 		if (te.rebuildRenderingCache) {
 			te.rebuildRenderingCache = false;
+			te.getCubeCache().clearCache();
 			te.buildingCache.set(false);
 			return false;
 		}

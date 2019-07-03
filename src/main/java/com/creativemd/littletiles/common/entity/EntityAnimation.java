@@ -118,8 +118,8 @@ public class EntityAnimation extends Entity {
 		
 		addDoor();
 		preventPush = true;
+		hasChanged = true;
 		onUpdateForReal();
-		setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
 		this.initalOffX = origin.offX();
 		this.initalOffY = origin.offY();
 		this.initalOffZ = origin.offZ();
@@ -600,12 +600,16 @@ public class EntityAnimation extends Entity {
 		motionZ = 0;
 	}
 	
+	protected boolean hasChanged = false;
+	
 	public void updateBoundingBox() {
 		if (worldBoundingBox == null || fakeWorld == null)
 			return;
 		
-		if (origin.hasChanged())
+		if (origin.hasChanged() || hasChanged) {
+			hasChanged = false;
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
+		}
 	}
 	
 	public void onTick() {
@@ -840,6 +844,7 @@ public class EntityAnimation extends Entity {
 		absolutePreviewPos = transformation.transform(absolutePreviewPos);
 		
 		updateWorldCollision();
+		updateBoundingBox();
 	}
 	
 	@Deprecated
@@ -921,7 +926,7 @@ public class EntityAnimation extends Entity {
 				fakeWorld.spawnEntity(EntityList.createEntityFromNBT(subEntities.getCompoundTagAt(i), fakeWorld));
 			}
 		}
-		
+		hasChanged = true;
 		updateWorldCollision();
 		updateBoundingBox();
 	}
