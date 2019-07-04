@@ -85,6 +85,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 		
 		try {
 			AnimationEvent event = eventClass.getConstructor(int.class).newInstance(nbt.getInteger("tick"));
+			event.read(nbt);
 			return event;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			throw new RuntimeException(e);
@@ -108,7 +109,10 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 					i++;
 				}
 				
-				parent.addControl(new GuiComboBox("child", 38, 0, 100, children));
+				GuiComboBox box = new GuiComboBox("child", 38, 0, 100, children);
+				if (event != null)
+					box.select(event.childId);
+				parent.addControl(box);
 			}
 			
 			@Override
