@@ -172,7 +172,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GlStateManager.disableLighting();
 			GlStateManager.disableCull();
 			GlStateManager.disableBlend();
-			GlStateManager.disableDepth();
+			//GlStateManager.disableDepth();
 			
 			GlStateManager.glLineWidth(4.0F);
 			

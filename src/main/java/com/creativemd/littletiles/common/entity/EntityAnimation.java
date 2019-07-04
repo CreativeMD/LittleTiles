@@ -157,6 +157,8 @@ public class EntityAnimation extends Entity {
 	public void markRemoved() {
 		isDead = true;
 		addedDoor = false;
+		if (fakeWorld == null || fakeWorld.loadedEntityList == null)
+			return;
 		for (Entity entity : fakeWorld.loadedEntityList)
 			if (entity instanceof EntityAnimation)
 				((EntityAnimation) entity).markRemoved();
@@ -614,13 +616,23 @@ public class EntityAnimation extends Entity {
 	
 	protected boolean hasChanged = false;
 	
+	protected void markOriginChange() {
+		hasChanged = true;
+		if (fakeWorld.loadedEntityList.isEmpty())
+			return;
+		for (Entity entity : fakeWorld.loadedEntityList)
+			if (entity instanceof EntityAnimation)
+				((EntityAnimation) entity).markOriginChange();
+	}
+	
 	public void updateBoundingBox() {
 		if (worldBoundingBox == null || fakeWorld == null)
 			return;
 		
 		if (origin.hasChanged() || hasChanged) {
-			hasChanged = false;
+			markOriginChange();
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
+			hasChanged = false;
 		}
 	}
 	
@@ -896,22 +908,17 @@ public class EntityAnimation extends Entity {
 		else
 			setCenter(new StructureAbsolute("center", compound));
 		NBTTagList list = compound.getTagList("tileEntity", 10);
-		LittleStructure parent = null;
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
-			te.setWorld(fakeWorld);
-			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = iterator.next();
-				if (!tile.connection.isLink()) {
-					LittleStructure structure = tile.connection.getStructureWithoutLoading();
-					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
-						parent = structure;
-				}
-			}
-			fakeWorld.setBlockState(te.getPos(), BlockTile.getState(te.isTicking(), te.isRendered()));
-			fakeWorld.setTileEntity(te.getPos(), te);
+			BlockPos pos = new BlockPos(nbt.getInteger("x"), nbt.getInteger("y"), nbt.getInteger("z"));
+			fakeWorld.setBlockState(pos, BlockTile.getState(nbt.getInteger("stateId")));
+			TileEntityLittleTiles te = (TileEntityLittleTiles) fakeWorld.getTileEntity(pos);
+			te.readFromNBT(nbt);
+			if (world.isRemote)
+				te.updateCustomRenderer();
 		}
+		
+		fakeWorld.loadedTileEntityList.removeIf(x -> x.isInvalid());
 		
 		int[] array = compound.getIntArray("previewPos");
 		if (array.length == 3)
@@ -963,8 +970,11 @@ public class EntityAnimation extends Entity {
 		
 		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 			TileEntity te = iterator.next();
-			if (te instanceof TileEntityLittleTiles)
-				list.appendTag(te.writeToNBT(new NBTTagCompound()));
+			if (te instanceof TileEntityLittleTiles) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setInteger("stateId", BlockTile.getStateId((TileEntityLittleTiles) te));
+				list.appendTag(te.writeToNBT(nbt));
+			}
 		}
 		
 		compound.setTag("controller", controller.writeToNBT(new NBTTagCompound()));

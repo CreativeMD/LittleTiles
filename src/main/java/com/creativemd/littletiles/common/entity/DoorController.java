@@ -185,13 +185,16 @@ public class DoorController extends EntityAnimationController {
 			}
 		}
 		
-		if (!parent.structure.loadChildren())
-			return currentState.state;
-		
-		((LittleDoor) parent.structure).beforeTick(parent, tick);
-		AnimationState state = super.tick();
-		((LittleDoor) parent.structure).afterTick(parent, tick);
-		return state;
+		if (isChanging()) {
+			if (!parent.structure.loadChildren())
+				return currentState.state;
+			
+			((LittleDoor) parent.structure).beforeTick(parent, tick);
+			AnimationState state = super.tick();
+			((LittleDoor) parent.structure).afterTick(parent, tick);
+			return state;
+		} else
+			return super.tick();
 	}
 	
 	@Override

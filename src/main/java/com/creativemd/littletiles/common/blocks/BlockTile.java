@@ -139,6 +139,28 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		setSoundType(SILENT);
 	}
 	
+	public static int getStateId(TileEntityLittleTiles te) {
+		return getStateId(te.isTicking(), te.isRendered());
+	}
+	
+	public static int getStateId(boolean ticking, boolean rendered) {
+		return rendered ? (ticking ? 3 : 2) : (ticking ? 1 : 0);
+	}
+	
+	public static IBlockState getState(int id) {
+		switch (id) {
+		case 0:
+			return LittleTiles.blockTileNoTicking.getDefaultState();
+		case 1:
+			return LittleTiles.blockTileTicking.getDefaultState();
+		case 2:
+			return LittleTiles.blockTileNoTickingRendered.getDefaultState();
+		case 3:
+			return LittleTiles.blockTileTickingRendered.getDefaultState();
+		}
+		return null;
+	}
+	
 	public static IBlockState getState(boolean ticking, boolean rendered) {
 		return rendered ? (ticking ? LittleTiles.blockTileTickingRendered.getDefaultState() : LittleTiles.blockTileNoTickingRendered.getDefaultState()) : (ticking ? LittleTiles.blockTileTicking.getDefaultState() : LittleTiles.blockTileNoTicking.getDefaultState());
 	}
@@ -529,7 +551,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			
 			Random random = new Random();
 			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
-				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + ((double) random.nextFloat() - 0.5D) * (double) entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + ((double) random.nextFloat() - 0.5D) * (double) entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()));
+				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()));
 			return true;
 		}
 		return false;
@@ -547,32 +569,32 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int k = pos.getZ();
 			float f = 0.1F;
 			AxisAlignedBB axisalignedbb = result.tile.getSelectedBox(BlockPos.ORIGIN);
-			double d0 = (double) i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
-			double d1 = (double) j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
-			double d2 = (double) k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
+			double d0 = i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
+			double d1 = j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
+			double d2 = k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
 			EnumFacing side = target.sideHit;
 			if (side == EnumFacing.DOWN) {
-				d1 = (double) j + axisalignedbb.minY - 0.10000000149011612D;
+				d1 = j + axisalignedbb.minY - 0.10000000149011612D;
 			}
 			
 			if (side == EnumFacing.UP) {
-				d1 = (double) j + axisalignedbb.maxY + 0.10000000149011612D;
+				d1 = j + axisalignedbb.maxY + 0.10000000149011612D;
 			}
 			
 			if (side == EnumFacing.NORTH) {
-				d2 = (double) k + axisalignedbb.minZ - 0.10000000149011612D;
+				d2 = k + axisalignedbb.minZ - 0.10000000149011612D;
 			}
 			
 			if (side == EnumFacing.SOUTH) {
-				d2 = (double) k + axisalignedbb.maxZ + 0.10000000149011612D;
+				d2 = k + axisalignedbb.maxZ + 0.10000000149011612D;
 			}
 			
 			if (side == EnumFacing.WEST) {
-				d0 = (double) i + axisalignedbb.minX - 0.10000000149011612D;
+				d0 = i + axisalignedbb.minX - 0.10000000149011612D;
 			}
 			
 			if (side == EnumFacing.EAST) {
-				d0 = (double) i + axisalignedbb.maxX + 0.10000000149011612D;
+				d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
 			}
 			
 			manager.addEffect(((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
@@ -594,10 +616,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			for (int j = 0; j < 1; ++j) {
 				for (int k = 0; k < 1; ++k) {
 					for (int l = 0; l < 1; ++l) {
-						double d0 = (double) pos.getX() + ((double) j + 0.5D) / 4.0D;
-						double d1 = (double) pos.getY() + ((double) k + 0.5D) / 4.0D;
-						double d2 = (double) pos.getZ() + ((double) l + 0.5D) / 4.0D;
-						manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - (double) pos.getX() - 0.5D, d1 - (double) pos.getY() - 0.5D, d2 - (double) pos.getZ() - 0.5D, Block.getStateId(state));
+						double d0 = pos.getX() + (j + 0.5D) / 4.0D;
+						double d1 = pos.getY() + (k + 0.5D) / 4.0D;
+						double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
+						manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
 						// manager.addEffect((new ParticleDigging(world, d0, d1, d2, d0 -
 						// (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 -
 						// (double)pos.getZ() - 0.5D, state)).setBlockPos(pos));
