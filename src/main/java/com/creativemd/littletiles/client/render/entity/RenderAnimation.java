@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
 import net.minecraft.client.renderer.entity.Render;
@@ -28,6 +29,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.client.FMLClientHandler;
@@ -164,32 +166,31 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			}
 		}
 		
-		/*if (mc.getRenderManager().isDebugBoundingBox() && !mc.isReducedDebug()) {
+		if (mc.getRenderManager().isDebugBoundingBox() && !mc.isReducedDebug()) {
 			GlStateManager.depthMask(false);
 			GlStateManager.disableTexture2D();
 			GlStateManager.disableLighting();
 			GlStateManager.disableCull();
 			GlStateManager.disableBlend();
+			GlStateManager.disableDepth();
 			
 			GlStateManager.glLineWidth(4.0F);
 			
 			GlStateManager.pushMatrix();
 			
-			double rotY = entity.worldRotY - entity.prevWorldRotY;
-			Matrix3d rotationY = MatrixUtils.createRotationMatrixY(rotY);
-			AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(entity.worldBoundingBox, entity.origin, null, 0, rotationY, rotY, null, 0, null);
-			RenderGlobal.drawBoundingBox(moveBB.minX - entity.posX + x, moveBB.minY - entity.posY + y, moveBB.minZ - entity.posZ + z, moveBB.maxX - entity.posX + x, moveBB.maxY - entity.posY + y, moveBB.maxZ - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+			AxisAlignedBB bb = entity.getEntityBoundingBox();
+			RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z, bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
 			
 			GlStateManager.popMatrix();
 			
+			GlStateManager.enableDepth();
 			GlStateManager.glLineWidth(2.0F);
 			GlStateManager.enableTexture2D();
 			GlStateManager.enableLighting();
 			GlStateManager.enableCull();
 			GlStateManager.disableBlend();
 			GlStateManager.depthMask(true);
-			
-		}*/
+		}
 	}
 	
 	public void render(TileEntityLittleTiles tileentityIn, float partialTicks, int destroyStage) {
@@ -199,7 +200,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				int i = tileentityIn.getWorld().getCombinedLight(tileentityIn.getPos(), 0);
 				int j = i % 65536;
 				int k = i / 65536;
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			}
 			BlockPos blockpos = tileentityIn.getPos();
