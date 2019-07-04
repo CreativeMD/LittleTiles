@@ -141,6 +141,10 @@ public class EntityAnimation extends Entity {
 		return world;
 	}
 	
+	public boolean isDoorAdded() {
+		return addedDoor;
+	}
+	
 	public void addDoor() {
 		if (!shouldAddDoor())
 			return;
@@ -148,6 +152,14 @@ public class EntityAnimation extends Entity {
 			LittleDoorHandler.getHandler(world).createDoor(this);
 			addedDoor = true;
 		}
+	}
+	
+	public void markRemoved() {
+		isDead = true;
+		addedDoor = false;
+		for (Entity entity : fakeWorld.loadedEntityList)
+			if (entity instanceof EntityAnimation)
+				((EntityAnimation) entity).markRemoved();
 	}
 	
 	@Override
@@ -625,7 +637,7 @@ public class EntityAnimation extends Entity {
 		fakeWorld.loadedEntityList.removeIf((Entity x) -> x.isDead);
 	}
 	
-	public boolean addedDoor;
+	private boolean addedDoor;
 	
 	@Override
 	public void onUpdate() {
@@ -652,10 +664,12 @@ public class EntityAnimation extends Entity {
 		
 		super.onUpdate();
 		
-		for (Entity entity : fakeWorld.loadedEntityList) {
+		for (int i = 0; i < fakeWorld.loadedEntityList.size(); i++) {
+			Entity entity = fakeWorld.loadedEntityList.get(i);
 			if (entity instanceof EntityAnimation)
 				((EntityAnimation) entity).onUpdateForReal();
 		}
+		onPostTick();
 		
 		onTick();
 		
@@ -668,7 +682,6 @@ public class EntityAnimation extends Entity {
 					tile.updateEntity();
 		}
 		
-		onPostTick();
 	}
 	
 	// ================Overridden================
@@ -923,7 +936,9 @@ public class EntityAnimation extends Entity {
 		if (compound.hasKey("subEntities")) {
 			NBTTagList subEntities = compound.getTagList("subEntities", 10);
 			for (int i = 0; i < subEntities.tagCount(); i++) {
-				fakeWorld.spawnEntity(EntityList.createEntityFromNBT(subEntities.getCompoundTagAt(i), fakeWorld));
+				Entity entity = EntityList.createEntityFromNBT(subEntities.getCompoundTagAt(i), fakeWorld);
+				if (entity != null)
+					fakeWorld.spawnEntity(entity);
 			}
 		}
 		hasChanged = true;
@@ -963,8 +978,11 @@ public class EntityAnimation extends Entity {
 		
 		if (!fakeWorld.loadedEntityList.isEmpty()) {
 			NBTTagList subEntities = new NBTTagList();
-			for (Entity entity : fakeWorld.loadedEntityList)
-				subEntities.appendTag(entity.writeToNBT(new NBTTagCompound()));
+			for (Entity entity : fakeWorld.loadedEntityList) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				entity.writeToNBTAtomically(nbt);
+				subEntities.appendTag(nbt);
+			}
 			compound.setTag("subEntities", subEntities);
 		}
 		

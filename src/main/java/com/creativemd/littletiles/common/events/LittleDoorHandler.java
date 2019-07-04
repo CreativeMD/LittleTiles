@@ -133,7 +133,13 @@ public class LittleDoorHandler {
 				door.onUpdateForReal();
 			}
 			
-			openDoors.removeIf((x) -> x.isDead);
+			openDoors.removeIf((x) -> {
+				if (x.isDead) {
+					x.markRemoved();
+					return true;
+				}
+				return false;
+			});
 			
 			isTicking = false;
 		}
@@ -153,9 +159,9 @@ public class LittleDoorHandler {
 		if (renderViewEntity == null || client.openDoors.isEmpty())
 			return;
 		
-		double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * (double) partialTicks;
-		double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * (double) partialTicks;
-		double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * (double) partialTicks;
+		double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * partialTicks;
+		double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * partialTicks;
+		double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * partialTicks;
 		
 		ICamera camera = new Frustum();
 		camera.setPosition(camX, camY, camZ);
@@ -171,9 +177,9 @@ public class LittleDoorHandler {
 				door.lastTickPosZ = door.posZ;
 			}
 			
-			double d0 = door.lastTickPosX + (door.posX - door.lastTickPosX) * (double) partialTicks;
-			double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * (double) partialTicks;
-			double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * (double) partialTicks;
+			double d0 = door.lastTickPosX + (door.posX - door.lastTickPosX) * partialTicks;
+			double d1 = door.lastTickPosY + (door.posY - door.lastTickPosY) * partialTicks;
+			double d2 = door.lastTickPosZ + (door.posZ - door.lastTickPosZ) * partialTicks;
 			
 			float f = door.prevRotationYaw + (door.rotationYaw - door.prevRotationYaw) * partialTicks;
 			int i = door.getBrightnessForRender();
@@ -184,7 +190,7 @@ public class LittleDoorHandler {
 			
 			int j = i % 65536;
 			int k = i / 65536;
-			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			try {
 				// render.setRenderOutlines(render.getRenderManager().renderOutlines);
@@ -204,7 +210,7 @@ public class LittleDoorHandler {
 			Minecraft mc = Minecraft.getMinecraft();
 			EntityPlayer entity = event.getEntityPlayer();
 			Vec3d vec3d = entity.getPositionEyes(TickUtils.getPartialTickTime());
-			double d0 = (double) mc.playerController.getBlockReachDistance();
+			double d0 = mc.playerController.getBlockReachDistance();
 			double d1 = d0;
 			boolean flag = false;
 			if (mc.playerController.extendedReach()) {
@@ -230,7 +236,7 @@ public class LittleDoorHandler {
 			
 			for (int j = 0; j < list.size(); ++j) {
 				EntityAnimation entity1 = list.get(j);
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow((double) entity1.getCollisionBorderSize());
+				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
 				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
 				
 				if (axisalignedbb.contains(vec3d)) {
@@ -289,7 +295,13 @@ public class LittleDoorHandler {
 				door.onUpdateForReal();
 			}
 			
-			openDoors.removeIf((x) -> x.isDead);
+			openDoors.removeIf((x) -> {
+				if (x.isDead) {
+					x.markRemoved();
+					return true;
+				}
+				return false;
+			});
 		}
 	}
 	
@@ -297,19 +309,20 @@ public class LittleDoorHandler {
 	public void chunkUnload(ChunkEvent.Unload event) {
 		for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
 			for (Entity entity : map) {
-				if (entity instanceof EntityAnimation && ((EntityAnimation) entity).addedDoor) {
-					((EntityAnimation) entity).addedDoor = false;
-					openDoors.remove(entity);
+				if (entity instanceof EntityAnimation && ((EntityAnimation) entity).isDoorAdded()) {
+					((EntityAnimation) entity).markRemoved();
 				}
 			}
 		}
+		
+		openDoors.removeIf((x) -> x.isDead);
 	}
 	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {
 		openDoors.removeIf((x) -> {
 			if (x.world == event.getWorld()) {
-				x.addedDoor = false;
+				x.markRemoved();
 				return true;
 			}
 			return false;
