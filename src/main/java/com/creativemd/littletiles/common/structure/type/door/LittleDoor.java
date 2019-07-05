@@ -130,6 +130,16 @@ public abstract class LittleDoor extends LittleStructure {
 		return new DoorOpeningResult(nbt);
 	}
 	
+	public boolean canOpenDoor(@Nullable EntityPlayer player, DoorOpeningResult result) {
+		if (isInMotion())
+			return false;
+		
+		for (LittleDoor door : collectDoorsToCheck())
+			if (!canOpenDoor(player, result))
+				return false;
+		return true;
+	}
+	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result);
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);

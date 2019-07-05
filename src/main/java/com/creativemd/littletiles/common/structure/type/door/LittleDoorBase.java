@@ -221,6 +221,26 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
+	public boolean canOpenDoor(@Nullable EntityPlayer player, DoorOpeningResult result) {
+		if (!super.canOpenDoor(player, result))
+			return false;
+		LittleTransformation transform;
+		if (!result.isEmpty() && result.nbt.hasKey("transform"))
+			transform = new LittleTransformation(result.nbt.getIntArray("transform"));
+		else
+			transform = getDoorTransformations(player)[0];
+		
+		List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		
+		LittleAbsolutePreviewsStructure previews = getDoorPreviews(transform);
+		
+		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		
+		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
+		return LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this));
+	}
+	
+	@Override
 	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
 		if (isAnimated()) {
 			((DoorController) animation.controller).activate();

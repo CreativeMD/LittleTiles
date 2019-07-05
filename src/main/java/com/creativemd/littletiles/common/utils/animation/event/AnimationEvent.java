@@ -85,6 +85,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 		
 		try {
 			AnimationEvent event = eventClass.getConstructor(int.class).newInstance(nbt.getInteger("tick"));
+			event.activated = nbt.getBoolean("activated");
 			event.read(nbt);
 			return event;
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -156,6 +157,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		nbt.setString("id", getId(this.getClass()));
 		nbt.setInteger("tick", tick);
+		nbt.setBoolean("activated", activated);
 		write(nbt);
 		return nbt;
 	}

@@ -55,6 +55,11 @@ public class ChildActivateEvent extends AnimationEvent {
 		} else
 			result = LittleDoor.EMPTY_OPENING_RESULT;
 		
+		if (!door.canOpenDoor(null, result))
+			result = door.canOpenDoor(null);
+		if (result == null)
+			return true;
+		
 		EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, result);
 		if (childAnimation != null)
 			childAnimation.controller.onServerApproves();
