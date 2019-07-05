@@ -391,7 +391,11 @@ public class LittleDoorHandler {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void renderLast(RenderWorldLastEvent event) {
+		
 		Minecraft mc = Minecraft.getMinecraft();
+		
+		if (mc.gameSettings.hideGUI)
+			return;
 		EntityPlayer player = mc.player;
 		float partialTicks = event.getPartialTicks();
 		
