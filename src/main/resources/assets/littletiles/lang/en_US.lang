@@ -149,3 +149,13 @@ gui.door.children=Children
 gui.structure.hierarchy=Hierarchy
 
 animation.event.child.name=Activate Child
+
+config.littletiles.invertStickToGrid=Invert stick to grid
+config.littletiles.maxSavedActions=Maximum number of saved actions
+config.littletiles.useALTForEverything=Use ALT for everything
+config.littletiles.useAltWhenFlying=Use ALT when flying
+config.littletiles.hideParticleBlock=Hide Particle Block
+config.littletiles.renderingThreadCount=Number of Rendering Threads
+config.littletiles.highlightStructureBox=Highlight Structure Boundingbox
+config.littletiles.previewLines=Line Preview
+config.littletiles.enableRandomDisplayTick=Enable Random Display Tick

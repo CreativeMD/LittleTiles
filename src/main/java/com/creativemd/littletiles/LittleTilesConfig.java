@@ -138,6 +138,11 @@ public class LittleTilesConfig {
 		@Config.LangKey("config.littletiles.previewLines")
 		@Config.Comment("When set to true lines will be used to render the preview")
 		public boolean previewLines = false;
+		
+		@Config.Name("enableRandomDisplayTick")
+		@Config.LangKey("config.littletiles.enableRandomDisplayTick")
+		@Config.Comment("When set to true sand, gravel and redstone ore will spawn particles (also support other mods)")
+		public boolean enableRandomDisplayTick = false;
 	}
 	
 	@SubscribeEvent
