@@ -66,7 +66,7 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 		te.readFromNBT(nbtTileEntity);
 		for (LittleTile tile : te.getTiles())
 			for (int rotationStep = 0; rotationStep < rotationSteps; rotationStep++)
-				transformTile(tile, Rotation.Y_CLOCKWISE);
+				transformTile(tile, Rotation.Y_COUNTER_CLOCKWISE);
 		te.writeToNBT(nbtTileEntity);
 		return metadata;
 	}
@@ -87,16 +87,16 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 			StructureLinkBaseRelative connect = (StructureLinkBaseRelative) connector;
 			connect.coord = new BlockPos(RotationUtils.rotate(connect.coord, rotation));
 			Vec3i vec = RotationUtils.rotate(new Vec3i((double) connect.identifier[0], (double) connect.identifier[1], (double) connect.identifier[2]), rotation);
-			connect.identifier[0] = (int) vec.getX();
-			connect.identifier[1] = (int) vec.getY();
-			connect.identifier[2] = (int) vec.getZ();
+			connect.identifier[0] = vec.getX();
+			connect.identifier[1] = vec.getY();
+			connect.identifier[2] = vec.getZ();
 		} else if (connector instanceof LittleTileIdentifierStructureAbsolute) {
 			LittleTileIdentifierStructureAbsolute connect = (LittleTileIdentifierStructureAbsolute) connector;
 			connect.pos = new BlockPos(RotationUtils.rotate(connect.pos, rotation));
 			Vec3i vec = RotationUtils.rotate(new Vec3i((double) connect.identifier[0], (double) connect.identifier[1], (double) connect.identifier[2]), rotation);
-			connect.identifier[0] = (int) vec.getX();
-			connect.identifier[1] = (int) vec.getY();
-			connect.identifier[2] = (int) vec.getZ();
+			connect.identifier[0] = vec.getX();
+			connect.identifier[1] = vec.getY();
+			connect.identifier[2] = vec.getZ();
 		}
 	}
 }
