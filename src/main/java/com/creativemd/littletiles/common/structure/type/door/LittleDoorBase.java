@@ -188,7 +188,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
-		fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		if (world.isRemote)
+			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
 		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
 		
