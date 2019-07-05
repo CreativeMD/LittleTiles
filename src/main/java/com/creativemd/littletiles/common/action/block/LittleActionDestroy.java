@@ -76,11 +76,18 @@ public class LittleActionDestroy extends LittleActionInteract {
 					if (needIngredients(player) && !player.world.isRemote)
 						WorldUtils.dropItem(world, tile.connection.getStructure(world).getStructureDrop(), pos);
 					tile.destroy();
-				} else
-					tile.te.removeTile(tile);
-				
-				// if(!world.isRemote)
-				// tile.structure.removeWorldProperties();
+				} else {
+					if (secondMode) {
+						List<LittleTile> toRemove = new ArrayList<>();
+						for (LittleTile teTile : tile.te.getTiles()) {
+							boolean teLoaded = teTile.isChildOfStructure() && teTile.isConnectedToStructure() && teTile.connection.getStructure(world).hasLoaded() && teTile.connection.getStructure(world).loadChildren();
+							if (!teLoaded)
+								toRemove.add(teTile);
+						}
+						tile.te.removeTiles(toRemove);
+					} else
+						tile.te.removeTile(tile);
+				}
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
 		} else {
