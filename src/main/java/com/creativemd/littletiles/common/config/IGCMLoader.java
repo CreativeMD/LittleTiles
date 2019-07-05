@@ -75,7 +75,7 @@ public class IGCMLoader {
 					@Override
 					public void createChildren() {
 						registerElement("strictMining", new BooleanSegment("Strict Mininig in Survival", false).setToolTip("If you can edit a vanilla block in survival directly (hammer/ paint brush)."));
-						registerElement("highestHarvestTierSurvival", new BooleanSegment("Harvest Level in Survival", false).setToolTip("0: any, 1: stone, 2: iron, 3: dimanond."));
+						registerElement("highestHarvestTierSurvival", new IntegerSegment("Harvest Level in Survival", 0, 0, 10).setToolTip("0: any, 1: stone, 2: iron, 3: dimanond."));
 						
 						registerElement("editUnbreakable", new BooleanSegment("Edit Unbreakable Blocks", false).setToolTip("If you can edit an unbreakable block (bedrock) in survival."));
 						registerElement("limitEditBlocksSurvival", new BooleanSegment("Limit Edit/Remove Range", false).setToolTip("If the amount a player can destroy or paint at once should be limited in survival."));
