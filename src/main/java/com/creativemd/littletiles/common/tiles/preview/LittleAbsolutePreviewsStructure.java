@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.tiles.preview;
 
-import java.util.ArrayList;
-
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -45,16 +43,16 @@ public class LittleAbsolutePreviewsStructure extends LittleAbsolutePreviews {
 	public void addChild(LittlePreviews child) {
 		super.addChild(child);
 		if (structure != null)
-			structure.tempChildren.add(child.getStructure());
+			structure.addTempChild(child.getStructure());
 	}
 	
 	@Override
 	public LittleStructure getStructure() {
 		if (structure == null) {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);
-			structure.tempChildren = new ArrayList<>();
+			structure.createTempChildList();
 			for (LittlePreviews child : getChildren()) {
-				structure.tempChildren.add(child.getStructure());
+				structure.addTempChild(child.getStructure());
 			}
 		}
 		return structure;

@@ -93,7 +93,7 @@ public abstract class LittleStructure {
 	
 	public IStructureChildConnector parent;
 	public List<IStructureChildConnector> children;
-	public List<LittleStructure> tempChildren;
+	private List<LittleStructure> tempChildren;
 	
 	public LittleTilePos lastMainTileVec = null;
 	
@@ -103,6 +103,18 @@ public abstract class LittleStructure {
 	
 	public LittleStructureAttribute getAttribute() {
 		return type.attribute;
+	}
+	
+	public void createTempChildList() {
+		this.tempChildren = new ArrayList<>();
+	}
+	
+	public void addTempChild(LittleStructure child) {
+		if (child == this) {
+			new RuntimeException().printStackTrace();
+			throw new RuntimeException("Trying add itself to its children");
+		}
+		this.tempChildren.add(child);
 	}
 	
 	/** takes name of stack and connects the structure to its children (does so recursively)
@@ -749,7 +761,7 @@ public abstract class LittleStructure {
 			if (!child.isLinkToAnotherWorld())
 				previews.addChild(child.getStructure(getWorld()).getPreviewsSameWorldOnly(pos));
 			else
-				previews.getStructure().tempChildren.add(child.getStructure(getWorld()));
+				previews.getStructure().addTempChild(child.getStructure(getWorld()));
 			
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
@@ -771,7 +783,7 @@ public abstract class LittleStructure {
 			if (!child.isLinkToAnotherWorld())
 				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 			else
-				previews.getStructure().tempChildren.add(child.getStructure(getWorld()));
+				previews.getStructure().addTempChild(child.getStructure(getWorld()));
 			
 		previews.convertToSmallest();
 		previews.ensureContext(getMinContext());
