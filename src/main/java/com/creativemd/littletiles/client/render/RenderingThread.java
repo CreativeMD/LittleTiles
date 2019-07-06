@@ -96,14 +96,6 @@ public class RenderingThread extends Thread {
 	public static void addCoordToUpdate(TileEntityLittleTiles te) {
 		RenderingThread renderer = getNextThread();
 		
-		if (te.isEmpty()) {
-			if (te.getWorld() instanceof IOrientatedWorld)
-				RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).deleteRenderData(te);
-			te.setBuffer(new BlockLayerRenderBuffer());
-			te.inRenderingQueue.set(false);
-			return;
-		}
-		
 		Object chunk;
 		if (te.getWorld() instanceof IOrientatedWorld) {
 			chunk = RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos());
@@ -117,6 +109,21 @@ public class RenderingThread extends Thread {
 		
 		if (chunk == null) {
 			System.out.println("Invalid tileentity with no rendering chunk! pos: " + te.getPos() + ", world: " + te.getWorld());
+			return;
+		}
+		
+		if (te.isEmpty()) {
+			if (te.getWorld() instanceof IOrientatedWorld)
+				RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).deleteRenderData(te);
+			te.setBuffer(new BlockLayerRenderBuffer());
+			te.inRenderingQueue.set(false);
+			synchronized (chunks) {
+				if (!renderer.chunks.containsKey(chunk))
+					if (te.getWorld() instanceof IOrientatedWorld)
+						((LittleRenderChunk) chunk).markCompleted();
+					else
+						((RenderChunk) chunk).setNeedsUpdate(false);
+			}
 			return;
 		}
 		
