@@ -522,6 +522,13 @@ public abstract class LittleStructure {
 			for (int i = 0; i < list.tagCount(); i++) {
 				children.add(StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false));
 			}
+			if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated()) {
+				for (IStructureChildConnector child : children) {
+					if (child instanceof StructureLinkToSubWorld && ((StructureLinkToSubWorld) child).entityUUID.equals(((IAnimatedStructure) this).getAnimation().getUniqueID()))
+						throw new RuntimeException("Something went wrong during loading!");
+					
+				}
+			}
 		} else
 			children = new ArrayList<>();
 		

@@ -128,7 +128,7 @@ public class LittleDoorHandler {
 			isTicking = true;
 			for (EntityAnimation door : openDoors) {
 				
-				if (door.world instanceof CreativeWorld)
+				if (door.world != world || door.world instanceof CreativeWorld)
 					continue;
 				
 				door.onUpdateForReal();
