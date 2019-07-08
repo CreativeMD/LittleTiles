@@ -162,7 +162,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			for (Entity child : entity.fakeWorld.loadedEntityList) {
 				if (child instanceof EntityAnimation)
 					doRender((EntityAnimation) child, x + (entity.posX - child.posX), y + (entity.posY - child.posY), z + (entity.posZ - child.posZ), entityYaw, partialTicks);
-				//doRender((EntityAnimation) child, x, y, z, entityYaw, partialTicks);
 			}
 		}
 		

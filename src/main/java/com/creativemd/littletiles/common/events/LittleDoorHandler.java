@@ -23,6 +23,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
+import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -158,10 +159,13 @@ public class LittleDoorHandler {
 		Entity renderViewEntity = Minecraft.getMinecraft().getRenderViewEntity();
 		if (renderViewEntity == null || client.openDoors.isEmpty())
 			return;
+		double camX = renderViewEntity.lastTickPosX + (renderViewEntity.posX - renderViewEntity.lastTickPosX) * partialTicks;
+		double camY = renderViewEntity.lastTickPosY + (renderViewEntity.posY - renderViewEntity.lastTickPosY) * partialTicks;
+		double camZ = renderViewEntity.lastTickPosZ + (renderViewEntity.posZ - renderViewEntity.lastTickPosZ) * partialTicks;
 		
-		double camX = renderViewEntity.prevPosX + (renderViewEntity.posX - renderViewEntity.prevPosX) * partialTicks;
-		double camY = renderViewEntity.prevPosY + (renderViewEntity.posY - renderViewEntity.prevPosY) * partialTicks;
-		double camZ = renderViewEntity.prevPosZ + (renderViewEntity.posZ - renderViewEntity.prevPosZ) * partialTicks;
+		TileEntityRendererDispatcher.staticPlayerX = camX;
+		TileEntityRendererDispatcher.staticPlayerY = camY;
+		TileEntityRendererDispatcher.staticPlayerZ = camZ;
 		
 		ICamera camera = new Frustum();
 		camera.setPosition(camX, camY, camZ);
