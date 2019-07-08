@@ -352,6 +352,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		
 		if (!world.isRemote && tiles.size() == 0)
 			world.setBlockToAir(getPos());
+		
+		if (world instanceof CreativeWorld)
+			((CreativeWorld) world).hasChanged = true;
 	}
 	
 	@SideOnly(Side.CLIENT)

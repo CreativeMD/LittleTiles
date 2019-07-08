@@ -103,12 +103,9 @@ public class EntityAnimation extends Entity {
 		this.controller.setParent(this);
 		
 		this.absolutePreviewPos = absolutePreviewPos;
-		
+		setFakeWorld(fakeWorld);
 		this.entityUniqueID = uuid;
 		this.cachedUniqueIdString = this.entityUniqueID.toString();
-		
-		this.fakeWorld = fakeWorld;
-		this.fakeWorld.parent = this;
 		
 		setCenter(center);
 		
@@ -118,7 +115,6 @@ public class EntityAnimation extends Entity {
 		
 		addDoor();
 		preventPush = true;
-		hasChanged = true;
 		onUpdateForReal();
 		this.initalOffX = origin.offX();
 		this.initalOffY = origin.offY();
@@ -129,6 +125,15 @@ public class EntityAnimation extends Entity {
 		preventPush = false;
 		
 		origin.tick();
+	}
+	
+	public void setFakeWorld(CreativeWorld fakeWorld) {
+		this.fakeWorld = fakeWorld;
+		this.fakeWorld.parent = this;
+		
+		if (world.isRemote && this.fakeWorld.renderChunkSupplier == null)
+			this.fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		
 	}
 	
 	public boolean shouldAddDoor() {
@@ -240,6 +245,8 @@ public class EntityAnimation extends Entity {
 			
 			if (tileEntity instanceof TileEntityLittleTiles) {
 				TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+				if (te.isEmpty())
+					continue;
 				AxisAlignedBB bb = te.getSelectionBox();
 				minX = Math.min(minX, bb.minX);
 				minY = Math.min(minY, bb.minY);
@@ -265,6 +272,9 @@ public class EntityAnimation extends Entity {
 				}
 			}
 		}
+		
+		fakeWorld.hasChanged = false;
+		hasOriginChanged = true;
 		
 		collisionBoxWorker = new AABBCombiner(worldCollisionBoxes, 0);
 		if (minX == Double.MAX_VALUE)
@@ -614,10 +624,10 @@ public class EntityAnimation extends Entity {
 		motionZ = 0;
 	}
 	
-	protected boolean hasChanged = false;
+	protected boolean hasOriginChanged = false;
 	
 	protected void markOriginChange() {
-		hasChanged = true;
+		hasOriginChanged = true;
 		if (fakeWorld.loadedEntityList.isEmpty())
 			return;
 		for (Entity entity : fakeWorld.loadedEntityList)
@@ -629,10 +639,10 @@ public class EntityAnimation extends Entity {
 		if (worldBoundingBox == null || fakeWorld == null)
 			return;
 		
-		if (origin.hasChanged() || hasChanged) {
+		if (origin.hasChanged() || hasOriginChanged) {
 			markOriginChange();
 			setEntityBoundingBox(origin.getAxisAlignedBox(worldBoundingBox));
-			hasChanged = false;
+			hasOriginChanged = false;
 		}
 	}
 	
@@ -643,10 +653,6 @@ public class EntityAnimation extends Entity {
 		Vector3d offset = state.getOffset();
 		Vector3d rotation = state.getRotation();
 		moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ());
-	}
-	
-	public void onPostTick() {
-		fakeWorld.loadedEntityList.removeIf((Entity x) -> x.isDead);
 	}
 	
 	private boolean addedDoor;
@@ -662,6 +668,9 @@ public class EntityAnimation extends Entity {
 		
 		if (fakeWorld == null)
 			return;
+		
+		if (fakeWorld.hasChanged)
+			updateWorldCollision();
 		
 		if (collisionBoxWorker != null) {
 			collisionBoxWorker.work();
@@ -681,7 +690,7 @@ public class EntityAnimation extends Entity {
 			if (entity instanceof EntityAnimation)
 				((EntityAnimation) entity).onUpdateForReal();
 		}
-		onPostTick();
+		fakeWorld.loadedEntityList.removeIf((Entity x) -> x.isDead);
 		
 		onTick();
 		
@@ -891,10 +900,7 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
-		this.fakeWorld = compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote);
-		this.fakeWorld.parent = this;
-		if (world.isRemote)
-			this.fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		setFakeWorld(compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote));
 		
 		this.initalOffX = compound.getDouble("initOffX");
 		this.initalOffY = compound.getDouble("initOffY");
@@ -948,7 +954,6 @@ public class EntityAnimation extends Entity {
 					fakeWorld.spawnEntity(entity);
 			}
 		}
-		hasChanged = true;
 		updateWorldCollision();
 		updateBoundingBox();
 	}
