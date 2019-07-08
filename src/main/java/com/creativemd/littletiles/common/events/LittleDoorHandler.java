@@ -373,7 +373,7 @@ public class LittleDoorHandler {
 			RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin.transformPointToFakeWorld(look), pos, look);
 			if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
 				continue;
-			double tempDistance = pos.distanceTo(tempResult.hitVec);
+			double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
 			if (result == null || tempDistance < distance) {
 				result = tempResult;
 				distance = tempDistance;
