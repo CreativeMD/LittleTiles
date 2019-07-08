@@ -179,7 +179,8 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			GlStateManager.pushMatrix();
 			
 			AxisAlignedBB bb = entity.getEntityBoundingBox();
-			RenderGlobal.drawBoundingBox(bb.minX - entity.posX + x, bb.minY - entity.posY + y, bb.minZ - entity.posZ + z, bb.maxX - entity.posX + x, bb.maxY - entity.posY + y, bb.maxZ - entity.posZ + z, 1.0F, 1.0F, 1.0F, 1.0F);
+			GlStateManager.translate(-TileEntityRendererDispatcher.staticPlayerX, -TileEntityRendererDispatcher.staticPlayerY, -TileEntityRendererDispatcher.staticPlayerZ);
+			RenderGlobal.drawBoundingBox(bb.minX, bb.minY, bb.minZ, bb.maxX, bb.maxY, bb.maxZ, 1.0F, 1.0F, 1.0F, 1.0F);
 			
 			GlStateManager.popMatrix();
 			

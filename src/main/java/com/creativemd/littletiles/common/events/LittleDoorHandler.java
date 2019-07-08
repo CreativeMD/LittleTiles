@@ -82,7 +82,7 @@ public class LittleDoorHandler {
 		
 		List<EntityAnimation> doors = new ArrayList<>();
 		for (EntityAnimation door : openDoors) {
-			if (door.world == world && door.getEntityBoundingBox().intersects(bb))
+			if (door.getEntityBoundingBox().intersects(bb))
 				doors.add(door);
 		}
 		return doors;
@@ -392,6 +392,9 @@ public class LittleDoorHandler {
 	@SideOnly(Side.CLIENT)
 	public void renderLast(RenderWorldLastEvent event) {
 		
+		if (side.isServer())
+			return;
+		
 		Minecraft mc = Minecraft.getMinecraft();
 		
 		if (mc.gameSettings.hideGUI)
@@ -424,11 +427,9 @@ public class LittleDoorHandler {
 			GlStateManager.pushMatrix();
 			
 			entity.origin.setupRendering(entity, partialTicks);
-			
 			RenderGlobal.drawSelectionBoundingBox(iblockstate.getSelectedBoundingBox(lastWorldRayTraceResult, blockpos).grow(0.0020000000949949026D), 0.0F, 0.0F, 0.0F, 0.4F);
 			GlStateManager.popMatrix();
 		}
-		
 		GlStateManager.depthMask(true);
 		GlStateManager.enableTexture2D();
 		GlStateManager.disableBlend();
@@ -442,37 +443,11 @@ public class LittleDoorHandler {
 	}
 	
 	public static RayTraceResult getTarget(CreativeWorld world, Vec3d pos, Vec3d look, Vec3d originalPos, Vec3d originalLook) {
-		RayTraceResult result = null;
-		double distance = 0;
-		if (!world.loadedEntityList.isEmpty()) {
-			for (Entity entity : world.loadedEntityList) {
-				if (entity instanceof EntityAnimation) {
-					EntityAnimation animation = (EntityAnimation) entity;
-					
-					Vec3d newPos = animation.origin.transformPointToFakeWorld(originalPos);
-					Vec3d newLook = animation.origin.transformPointToFakeWorld(originalLook);
-					
-					if (animation.worldBoundingBox.intersects(new AxisAlignedBB(newPos, newLook))) {
-						RayTraceResult tempResult = getTarget(animation.fakeWorld, newPos, newLook, originalPos, originalLook);
-						if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
-							continue;
-						double tempDistance = newPos.distanceTo(tempResult.hitVec);
-						if (result == null || tempDistance < distance) {
-							result = tempResult;
-							distance = tempDistance;
-						}
-					}
-				}
-			}
-		}
-		
 		RayTraceResult tempResult = world.rayTraceBlocks(pos, look);
 		if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
-			return result;
+			return null;
 		tempResult.hitInfo = world;
-		if (result == null || pos.distanceTo(tempResult.hitVec) < distance)
-			return tempResult;
-		return result;
+		return tempResult;
 	}
 	
 	private static Field wasPushedByDoor = ReflectionHelper.findField(EntityPlayerMP.class, "wasPushedByDoor");
