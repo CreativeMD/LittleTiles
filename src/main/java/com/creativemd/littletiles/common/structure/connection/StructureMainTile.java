@@ -63,7 +63,7 @@ public class StructureMainTile implements IStructureConnector<LittleTile> {
 	}
 	
 	@Override
-	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute) {
+	public void setLoadedStructure(LittleStructure structure) {
 		new RuntimeException("Cannot set structure of main tile!").printStackTrace();
 	}
 	

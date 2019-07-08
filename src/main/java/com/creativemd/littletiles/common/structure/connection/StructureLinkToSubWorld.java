@@ -64,7 +64,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 		
 		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
-		this.connectedStructure.parent.setLoadedStructure(parent, parent.getAttribute());
+		this.connectedStructure.parent.setLoadedStructure(parent);
 	}
 	
 	@Override

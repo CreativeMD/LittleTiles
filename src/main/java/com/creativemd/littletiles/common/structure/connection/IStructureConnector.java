@@ -17,7 +17,7 @@ public interface IStructureConnector<T> {
 	
 	public boolean isConnected(World world);
 	
-	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute);
+	public void setLoadedStructure(LittleStructure structure);
 	
 	public LittleStructureAttribute getAttribute();
 	

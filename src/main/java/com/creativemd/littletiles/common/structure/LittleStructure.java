@@ -178,7 +178,7 @@ public abstract class LittleStructure {
 				
 				if (stTile != mainTile) {
 					stTile.connection = getStructureLink(stTile);
-					stTile.connection.setLoadedStructure(this, getAttribute());
+					stTile.connection.setLoadedStructure(this);
 				}
 			}
 		}
@@ -355,6 +355,9 @@ public abstract class LittleStructure {
 	}
 	
 	public void updateChildConnection(int i, LittleStructure child) {
+		if (child == this)
+			throw new RuntimeException("Trying to add structure to its own children!!!!!");
+		
 		World world = getWorld();
 		World childWorld = child.getWorld();
 		
@@ -366,7 +369,7 @@ public abstract class LittleStructure {
 		else
 			throw new RuntimeException("Invalid connection between to structures!");
 		
-		connector.setLoadedStructure(child, child.getAttribute());
+		connector.setLoadedStructure(child);
 		if (children.size() > i)
 			children.set(i, connector);
 		else if (children.size() == i)
@@ -376,6 +379,9 @@ public abstract class LittleStructure {
 	}
 	
 	public void updateParentConnection(int i, LittleStructure parent) {
+		if (parent == this)
+			throw new RuntimeException("Setting the structure to its own parent!!!!!!!");
+		
 		World world = getWorld();
 		World parentWorld = parent.getWorld();
 		
@@ -387,7 +393,7 @@ public abstract class LittleStructure {
 		else
 			throw new RuntimeException("Invalid connection between to structures!");
 		
-		connector.setLoadedStructure(parent, parent.getAttribute());
+		connector.setLoadedStructure(parent);
 		this.parent = connector;
 	}
 	
@@ -514,8 +520,7 @@ public abstract class LittleStructure {
 			children = new ArrayList<>();
 			NBTTagList list = nbt.getTagList("children", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
-				IStructureChildConnector child = StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false);
-				children.add(child);
+				children.add(StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false));
 			}
 		} else
 			children = new ArrayList<>();
@@ -643,7 +648,7 @@ public abstract class LittleStructure {
 					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						if (tile.connection.isLink())
-							tile.connection.setLoadedStructure(this, getAttribute());
+							tile.connection.setLoadedStructure(this);
 						found++;
 					}
 				}

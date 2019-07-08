@@ -97,9 +97,9 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierS
 	}
 	
 	@Override
-	public void setLoadedStructure(LittleStructure structure, LittleStructureAttribute attribute) {
+	public void setLoadedStructure(LittleStructure structure) {
 		this.connectedStructure = structure;
-		this.attribute = attribute;
+		this.attribute = structure.getAttribute();
 	}
 	
 	@Override

@@ -260,7 +260,7 @@ public class LittleActionPlaceStack extends LittleAction {
 											placeTile.structurePreview.getStructure().setMainTile(LT);
 										else {
 											LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
-											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure(), placeTile.structurePreview.getStructure().getAttribute());
+											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure());
 											placeTile.structurePreview.getStructure().addTile(LT);
 										}
 									}
