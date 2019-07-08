@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -454,7 +455,7 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	public HashMap<BlockPos, Integer> tilesToLoad = null;
+	public LinkedHashMap<BlockPos, Integer> tilesToLoad = null;
 	
 	public void loadStructure(LittleTile mainTile) {
 		this.mainTile = mainTile;
@@ -468,7 +469,7 @@ public abstract class LittleStructure {
 		if (tiles != null)
 			tiles = null;
 		
-		tilesToLoad = new HashMap<>();
+		tilesToLoad = new LinkedHashMap<>();
 		
 		// LoadTiles
 		if (nbt.hasKey("count")) // Old way
