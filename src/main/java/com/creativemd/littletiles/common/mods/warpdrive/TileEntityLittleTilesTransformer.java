@@ -124,6 +124,8 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 					System.out.println("Could not find rotated connection ...");
 			}
 		}
+		
+		te.updateTiles();
 	}
 	
 	@Override
