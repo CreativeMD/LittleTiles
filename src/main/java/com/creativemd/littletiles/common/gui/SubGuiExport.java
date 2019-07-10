@@ -3,11 +3,15 @@ package com.creativemd.littletiles.common.gui;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
@@ -36,43 +40,33 @@ public class SubGuiExport extends SubGui {
 			}
 		});
 		
-		controls.add(new GuiButton("Export model", 43, 52, 100) {
-			
-			@Override
-			public void onClicked(int x, int y, int button) {
-				if (this.caption.equals("Export model")) {
-					ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-					if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
-						textfield.text = StructureStringUtils.exportModel(stack);
-						this.caption = "Export structure";
-						this.customTooltip.clear();
-						this.customTooltip.add("Export structure instead,");
-						this.customTooltip.add("can be imported again!");
-					} else
-						textfield.text = "";
-					
-				} else {
-					ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-					if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
-						textfield.text = StructureStringUtils.exportStructure(stack);
-						this.caption = "Export model";
-						this.customTooltip.clear();
-						this.customTooltip.add("Export minecraft model instead,");
-						this.customTooltip.add("cannot be imported again!");
-					} else
-						textfield.text = "";
-				}
-			}
-		}.setCustomTooltip("Export minecraft model instead.", "CANNOT be imported again!"));
+		List<String> lines = new ArrayList<>();
+		lines.add("structure");
+		lines.add("model");
+		controls.add(new GuiComboBox("type", 43, 52, 100, lines));
+	}
+	
+	public void updateTextfield() {
+		ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
+		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
+			GuiComboBox box = (GuiComboBox) get("type");
+			if (box.index == 0)
+				textfield.text = StructureStringUtils.exportStructure(stack);
+			else
+				textfield.text = StructureStringUtils.exportModel(stack);
+			;
+		} else
+			textfield.text = "";
+	}
+	
+	@CustomEventSubscribe
+	public void onSelectionChanged(GuiControlChangedEvent event) {
+		updateTextfield();
 	}
 	
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event) {
-		ItemStack stack = ((SubContainerExport) container).slot.getStackInSlot(0);
-		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
-			textfield.text = StructureStringUtils.exportStructure(stack);
-		} else
-			textfield.text = "";
+		updateTextfield();
 	}
 	
 }
