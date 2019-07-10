@@ -16,6 +16,7 @@ import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
 import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.vec.ChildVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
@@ -193,7 +194,11 @@ public class EntityAnimation extends Entity {
 		this.center = center;
 		this.fakeWorld.setOrigin(center.rotationCenter);
 		this.origin = this.fakeWorld.getOrigin();
-		
+		if (fakeWorld.loadedEntityList.isEmpty())
+			return;
+		for (Entity entity : fakeWorld.loadedEntityList)
+			if (entity instanceof EntityAnimation)
+				((ChildVecOrigin) ((EntityAnimation) entity).origin).parent = this.origin;
 	}
 	
 	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
