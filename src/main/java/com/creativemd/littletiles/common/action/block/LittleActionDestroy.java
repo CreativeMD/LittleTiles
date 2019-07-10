@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -22,7 +21,6 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -140,20 +138,14 @@ public class LittleActionDestroy extends LittleActionInteract {
 	
 	public static class StructurePreview {
 		
-		public LittleAbsolutePreviews previews;
+		public LittleAbsolutePreviewsStructure previews;
 		public boolean requiresItemStack;
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
 			if (!structure.hasLoaded())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
-			NBTTagCompound structureNBT = new NBTTagCompound();
-			structure.writeToNBTPreview(structureNBT, structure.getMainTile().te.getPos());
-			previews = new LittleAbsolutePreviewsStructure(structureNBT, structure.getMainTile().te.getPos(), structure.getMainTile().getContext());
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : structure.entrySet()) {
-				previews.addTiles(entry.getValue());
-			}
-			previews.convertToSmallest();
+			previews = structure.getAbsolutePreviews(structure.getMainTile().te.getPos());
 			requiresItemStack = structure.canOnlyBePlacedByItemStack();
 			
 			this.structure = structure;
