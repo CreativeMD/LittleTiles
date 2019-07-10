@@ -8,7 +8,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
@@ -49,7 +49,7 @@ public class LittleSubGuiUtils {
 			
 			BlockIngredients ingredients = new BlockIngredients();
 			for (ItemStack bag : LittleAction.getBags(player))
-				ingredients.addIngredients(ItemTileContainer.loadInventory(bag));
+				ingredients.addIngredients(ItemBag.loadInventory(bag));
 			
 			List<ItemStack> newStacks = new ArrayList<>();
 			for (BlockIngredient ingredient : ingredients.getIngredients()) {

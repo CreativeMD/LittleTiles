@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerHeldItem;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
@@ -28,13 +28,10 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
 
-public class SubContainerTileContainer extends SubContainerHeldItem {
+public class SubContainerBag extends SubContainerHeldItem {
 	
-	public ItemStack stack;
-	
-	public SubContainerTileContainer(EntityPlayer player, ItemStack stack, int index) {
+	public SubContainerBag(EntityPlayer player, ItemStack stack, int index) {
 		super(player, stack, index);
-		this.stack = stack;
 	}
 	
 	private static Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, "colorValue", "field_193351_w");
@@ -51,16 +48,16 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleGridContext.get().maxTilesPerBlock;
 				
 				List<BlockIngredient> inventory = new ArrayList<>();
-				for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
-					for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
-						int index = x + y * ItemTileContainer.inventoryWidth;
+				for (int y = 0; y < ItemBag.inventoryHeight; y++) {
+					for (int x = 0; x < ItemBag.inventoryWidth; x++) {
+						int index = x + y * ItemBag.inventoryWidth;
 						BlockIngredient ingredient = ((SlotControlBlockIngredient) get("item" + index)).ingredient;
 						if (ingredient != null)
 							inventory.add(ingredient);
 					}
 				}
 				
-				ItemTileContainer.saveInventory(stack, inventory);
+				ItemBag.saveInventory(stack, inventory);
 				
 				reloadControls();
 			} else if (event.source.name.startsWith("input")) {
@@ -72,18 +69,18 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 				boolean containedColor = false;
 				
 				if (ingredients != null) {
-					ColorUnit result = ItemTileContainer.storeColor(stack, ingredients.color, true);
+					ColorUnit result = ItemBag.storeColor(stack, ingredients.color, true);
 					if (result != null && result.equals(ingredients.color))
 						return;
 					
 					containedColor = !ingredients.color.isEmpty();
 					
 					while (!input.isEmpty()) {
-						if (ItemTileContainer.storeBlocks(stack, ingredients.block.copy(), true) != null)
+						if (ItemBag.storeBlocks(stack, ingredients.block.copy(), true) != null)
 							break;
 						input.shrink(1);
-						ItemTileContainer.storeBlocks(stack, ingredients.block.copy(), false);
-						if (ItemTileContainer.storeColor(stack, ingredients.color, false) != null)
+						ItemBag.storeBlocks(stack, ingredients.block.copy(), false);
+						if (ItemBag.storeColor(stack, ingredients.color, false) != null)
 							break;
 					}
 					
@@ -98,12 +95,12 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 						ColorUnit color = ColorUnit.getColors(dyeColor.getInt(optional.get()));
 						
 						color.scale(2);
-						ColorUnit result = ItemTileContainer.storeColor(stack, color, true);
+						ColorUnit result = ItemBag.storeColor(stack, color, true);
 						if (result != null && result.equals(color))
 							return;
 						while (!input.isEmpty()) {
 							input.shrink(1);
-							if (ItemTileContainer.storeColor(stack, color, false) != null)
+							if (ItemBag.storeColor(stack, color, false) != null)
 								break;
 						}
 						
@@ -137,10 +134,10 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 	public InventoryBasic bagInventory;
 	
 	public void updateSlots() {
-		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
-		for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
-			for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
-				int index = x + y * ItemTileContainer.inventoryWidth;
+		List<BlockIngredient> inventory = ItemBag.loadInventory(stack);
+		for (int y = 0; y < ItemBag.inventoryHeight; y++) {
+			for (int x = 0; x < ItemBag.inventoryWidth; x++) {
+				int index = x + y * ItemBag.inventoryWidth;
 				bagInventory.setInventorySlotContents(index, index < inventory.size() ? inventory.get(index).getTileItemStack() : ItemStack.EMPTY);
 				((SlotControlBlockIngredient) get("item" + index)).ingredient = index < inventory.size() ? inventory.get(index) : null;
 			}
@@ -150,16 +147,16 @@ public class SubContainerTileContainer extends SubContainerHeldItem {
 	@Override
 	public void createControls() {
 		
-		List<BlockIngredient> inventory = ItemTileContainer.loadInventory(stack);
-		bagInventory = new InventoryBasic("item", false, ItemTileContainer.inventorySize) {
+		List<BlockIngredient> inventory = ItemBag.loadInventory(stack);
+		bagInventory = new InventoryBasic("item", false, ItemBag.inventorySize) {
 			@Override
 			public int getInventoryStackLimit() {
-				return ItemTileContainer.maxStackSizeOfTiles;
+				return ItemBag.maxStackSizeOfTiles;
 			}
 		};
-		for (int y = 0; y < ItemTileContainer.inventoryHeight; y++) {
-			for (int x = 0; x < ItemTileContainer.inventoryWidth; x++) {
-				int index = x + y * ItemTileContainer.inventoryWidth;
+		for (int y = 0; y < ItemBag.inventoryHeight; y++) {
+			for (int x = 0; x < ItemBag.inventoryWidth; x++) {
+				int index = x + y * ItemBag.inventoryWidth;
 				bagInventory.setInventorySlotContents(index, index < inventory.size() ? inventory.get(index).getTileItemStack() : ItemStack.EMPTY);
 				controls.add(new SlotControlBlockIngredient(new Slot(bagInventory, index, 5 + x * 18, 5 + y * 18) {
 					@Override

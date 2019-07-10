@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.items.ItemPremadeStructure;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
@@ -550,9 +550,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 				ItemStack used = stack.copy();
 				
 				if (toCheck != null)
-					toCheck = ItemTileContainer.drainBlocks(used, toCheck, false);
+					toCheck = ItemBag.drainBlocks(used, toCheck, false);
 				if (color != null)
-					color = ItemTileContainer.drainColor(used, color, false);
+					color = ItemBag.drainColor(used, color, false);
 				
 				usedBags.add(used);
 			}
@@ -611,9 +611,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 			// enough ingredients and enough space (if it needs to drain additional itemstacks)
 			for (ItemStack stack : bags) {
 				if (toCheck != null)
-					toCheck = ItemTileContainer.drainBlocks(stack, toCheck, false);
+					toCheck = ItemBag.drainBlocks(stack, toCheck, false);
 				if (color != null)
-					color = ItemTileContainer.drainColor(stack, color, false);
+					color = ItemBag.drainColor(stack, color, false);
 			}
 			
 			if (toCheck != null || ingredients.hasStacks()) {
@@ -724,9 +724,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		for (ItemStack stack : bags) {
 			if (toCheck != null)
-				toCheck = ItemTileContainer.storeBlocks(stack, toCheck, true, simulate);
+				toCheck = ItemBag.storeBlocks(stack, toCheck, true, simulate);
 			if (color != null)
-				color = ItemTileContainer.storeColor(stack, color, simulate);
+				color = ItemBag.storeColor(stack, color, simulate);
 			
 			if (toCheck == null && color == null)
 				break;
@@ -734,7 +734,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		if (color == null && toCheck != null) {
 			for (ItemStack stack : bags) {
-				toCheck = ItemTileContainer.storeBlocks(stack, toCheck, false, simulate);
+				toCheck = ItemBag.storeBlocks(stack, toCheck, false, simulate);
 				if (toCheck == null)
 					break;
 			}
@@ -779,7 +779,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		List<ItemStack> bags = new ArrayList<>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
-			if (stack.getItem() instanceof ItemTileContainer)
+			if (stack.getItem() instanceof ItemBag)
 				bags.add(stack);
 		}
 		return bags;

@@ -11,8 +11,8 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.container.SubContainerTileContainer;
-import com.creativemd.littletiles.common.gui.SubGuiTileContainer;
+import com.creativemd.littletiles.common.container.SubContainerBag;
+import com.creativemd.littletiles.common.gui.SubGuiBag;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
@@ -35,7 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemTileContainer extends Item implements IGuiCreator {
+public class ItemBag extends Item implements IGuiCreator {
 	
 	public static int colorUnitMaximum = 10000000;
 	public static int inventoryWidth = 6;
@@ -44,7 +44,7 @@ public class ItemTileContainer extends Item implements IGuiCreator {
 	public static int maxStackSize = 64;
 	public static int maxStackSizeOfTiles = maxStackSize * LittleGridContext.get().maxTilesPerBlock;
 	
-	public ItemTileContainer() {
+	public ItemBag() {
 		setCreativeTab(LittleTiles.littleTab);
 		setMaxStackSize(1);
 	}
@@ -120,9 +120,9 @@ public class ItemTileContainer extends Item implements IGuiCreator {
 	}
 	
 	public static BlockIngredients storeBlocks(ItemStack stack, BlockIngredients ingredients, boolean simulate) {
-		ingredients = ItemTileContainer.storeBlocks(stack, ingredients, true, simulate);
+		ingredients = ItemBag.storeBlocks(stack, ingredients, true, simulate);
 		if (ingredients != null)
-			ingredients = ItemTileContainer.storeBlocks(stack, ingredients, false, simulate);
+			ingredients = ItemBag.storeBlocks(stack, ingredients, false, simulate);
 		return ingredients;
 	}
 	
@@ -250,12 +250,12 @@ public class ItemTileContainer extends Item implements IGuiCreator {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubGuiTileContainer(stack);
+		return new SubGuiBag(stack);
 	}
 	
 	@Override
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
-		return new SubContainerTileContainer(player, stack, player.inventory.currentItem);
+		return new SubContainerBag(player, stack, player.inventory.currentItem);
 	}
 	
 	@Override

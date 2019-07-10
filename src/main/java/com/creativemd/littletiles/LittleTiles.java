@@ -86,7 +86,7 @@ import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
-import com.creativemd.littletiles.common.items.ItemTileContainer;
+import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.mods.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mods.warpdrive.TileEntityLittleTilesTransformer;
@@ -231,7 +231,7 @@ public class LittleTiles {
 		recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
 		multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
 		saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
-		container = new ItemTileContainer().setUnlocalizedName("LTContainer").setRegistryName("container");
+		container = new ItemBag().setUnlocalizedName("LTContainer").setRegistryName("container");
 		wrench = new ItemLittleWrench().setUnlocalizedName("LTWrench").setRegistryName("wrench");
 		screwdriver = new ItemLittleScrewdriver().setUnlocalizedName("LTScrewdriver").setRegistryName("screwdriver");
 		chisel = new ItemLittleChisel().setUnlocalizedName("LTChisel").setRegistryName("chisel");
