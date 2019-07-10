@@ -137,11 +137,12 @@ public class AnimationController {
 	
 	public AnimationState tick() {
 		if (isChanging()) {
-			if (animation.tick(tick, tickingState))
+			if (animation.tick(tick, tickingState)) {
+				tick++;
 				return tickingState;
-			else
+			} else
 				endTransition();
-			tick++;
+			
 		}
 		return currentState.state;
 	}
