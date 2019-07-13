@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import cr0s.warpdrive.api.IBlockTransformer;
@@ -152,16 +153,18 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 	}
 	
 	public static void transformTile(LittleTile tile, Rotation rotation) {
+		LittleTileVec moved = tile.box.getMinVec();
 		tile.box.rotateBox(rotation, tile.getContext().rotationCenter);
+		moved.sub(tile.box.getMinVec());
 		if (tile.isChildOfStructure()) {
 			if (!tile.connection.isLink())
-				transformStructure(tile.connection.getStructureWithoutLoading(), rotation);
+				transformStructure(tile.connection.getStructureWithoutLoading(), rotation, moved);
 		}
 	}
 	
-	public static void transformStructure(LittleStructure structure, Rotation rotation) {
+	public static void transformStructure(LittleStructure structure, Rotation rotation, LittleTileVec moved) {
+		BlockPos mainPos = structure.getMainTile().te.getPos();
 		if (structure.tilesToLoad != null) {
-			BlockPos mainPos = structure.getMainTile().te.getPos();
 			LinkedHashMap<BlockPos, Integer> newTilesToLoad = new LinkedHashMap<>();
 			for (Entry<BlockPos, Integer> entry : structure.tilesToLoad.entrySet()) {
 				BlockPos pos = entry.getKey();
@@ -174,11 +177,16 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
+		LittleTileVec center = context.rotationCenter.copy();
+		LittleTileVec offset = structure.getMainTile().getMinVec();
+		offset.scale(2);
+		center.sub(offset);
 		for (StructureTypeRelative relative : structure.type.relatives) {
 			StructureRelative relativeST = relative.getRelative(structure);
 			if (relativeST == null)
 				continue;
-			relativeST.onRotate(structure, context, rotation, context.rotationCenter);
+			relativeST.onMove(structure, context, moved);
+			relativeST.onRotate(structure, context, rotation, center);
 		}
 	}
 }
