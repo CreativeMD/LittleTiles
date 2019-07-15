@@ -311,7 +311,10 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	
 	@Override
 	public void receiveContainerPacket(NBTTagCompound nbt) {
-		stack.setTagCompound(nbt);
+		if (nbt.hasNoTags())
+			stack.setTagCompound(null);
+		else
+			stack.setTagCompound(nbt);
 	}
 	
 	public static class LoadingThread extends Thread {

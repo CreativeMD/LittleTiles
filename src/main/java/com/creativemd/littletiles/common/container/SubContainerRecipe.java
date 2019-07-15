@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,9 +23,10 @@ public class SubContainerRecipe extends SubContainerConfigure {
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
 		if (nbt.getBoolean("clear_content")) {
-			LittleTilePreview.removePreviewTiles(stack);
-			stack.getTagCompound().removeTag("structure");
-			sendNBTToGui(stack.getTagCompound());
+			/*LittleTilePreview.removePreviewTiles(stack);
+			stack.getTagCompound().removeTag("structure");*/
+			stack.setTagCompound(null);
+			sendNBTToGui(new NBTTagCompound());
 		} else if (nbt.getBoolean("set_structure")) {
 			stack.setTagCompound(nbt.getCompoundTag("stack"));
 		}
