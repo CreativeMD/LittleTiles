@@ -14,6 +14,6 @@ public abstract class AnimationEventGuiParser<T extends AnimationEvent> {
 	public abstract void createControls(GuiParent parent, @Nullable T event, LittlePreviews previews);
 	
 	@SideOnly(Side.CLIENT)
-	public abstract void parse(GuiParent parent, T event);
+	public abstract T parse(GuiParent parent, T event);
 	
 }

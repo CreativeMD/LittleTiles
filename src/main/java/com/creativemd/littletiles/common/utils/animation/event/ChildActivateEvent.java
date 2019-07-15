@@ -75,6 +75,8 @@ public class ChildActivateEvent extends AnimationEvent {
 	
 	@Override
 	public void prepareInGui(LittlePreviews previews, EntityAnimation animation, AnimationGuiHandler handler) {
+		if (animation.structure.children.size() <= childId)
+			return;
 		IStructureChildConnector connector = animation.structure.children.get(childId);
 		if (connector != null && connector.isConnected(animation.world) && connector.getStructureWithoutLoading() instanceof LittleDoor) {
 			LittleDoor child = (LittleDoor) connector.getStructureWithoutLoading();

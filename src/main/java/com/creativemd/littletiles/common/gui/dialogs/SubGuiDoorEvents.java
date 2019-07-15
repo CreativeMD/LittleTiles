@@ -100,8 +100,9 @@ public class SubGuiDoorEvents extends SubGui {
 						AnimationEventGuiParser parser = AnimationEvent.getParser(control.name);
 						GuiTextfield textfield = (GuiTextfield) ((GuiPanel) control).get("tick");
 						AnimationEvent event = AnimationEvent.create(textfield.parseInteger(), control.name);
-						parser.parse((GuiParent) control, event);
-						SubGuiDoorEvents.this.button.events.add(event);
+						event = parser.parse((GuiParent) control, event);
+						if (event != null)
+							SubGuiDoorEvents.this.button.events.add(event);
 					}
 				}
 				SubGuiDoorEvents.this.button.events.sort(null);

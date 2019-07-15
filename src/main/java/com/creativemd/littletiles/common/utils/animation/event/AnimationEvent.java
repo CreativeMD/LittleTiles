@@ -118,13 +118,16 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
-			public void parse(GuiParent parent, ChildActivateEvent event) {
+			public ChildActivateEvent parse(GuiParent parent, ChildActivateEvent event) {
 				GuiComboBox child = (GuiComboBox) parent.get("child");
 				try {
 					event.childId = Integer.parseInt(child.caption.split(":")[0]);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+				if (child.lines.isEmpty())
+					return null;
+				return event;
 			}
 		});
 	}
