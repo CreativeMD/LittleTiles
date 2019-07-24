@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.LittleTileBlock.MissingBlockHandler;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -74,6 +75,7 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpt
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.entity.player.PlayerWakeUpEvent;
 import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
+import net.minecraftforge.event.world.WorldEvent.Unload;
 import net.minecraftforge.fml.common.eventhandler.Event.Result;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedOutEvent;
@@ -280,6 +282,13 @@ public class LittleEvent {
 			if (event.getHand() == EnumHand.MAIN_HAND && event.getWorld().isRemote)
 				onRightInteractClient(iTile, event.getEntityPlayer(), event.getHand(), event.getWorld(), stack, event.getPos(), event.getFace());
 			event.setCanceled(true);
+		}
+	}
+	
+	@SubscribeEvent
+	public void worldUnload(Unload event) {
+		if (event.getWorld().isRemote) {
+			MissingBlockHandler.unload();
 		}
 	}
 	

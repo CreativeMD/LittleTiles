@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tiles;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
@@ -62,7 +63,7 @@ public class LittleTileBlock extends LittleTile {
 		if (block == null || block instanceof BlockAir) {
 			this.block = Blocks.AIR;
 			this.meta = meta;
-			this.handler = new MissingBlockHandler(defaultName);
+			this.handler = MissingBlockHandler.getHandler(defaultName);
 		} else
 			setBlock(block, meta);
 	}
@@ -231,7 +232,7 @@ public class LittleTileBlock extends LittleTile {
 		Minecraft mc = Minecraft.getMinecraft();
 		ItemStack itemstack = mc.player.getHeldItemMainhand();
 		if (mc.playerController.getCurrentGameType() == GameType.CREATIVE && !itemstack.isEmpty() && itemstack.getItem() == Item.getItemFromBlock(Blocks.BARRIER))
-			mc.world.spawnParticle(EnumParticleTypes.BARRIER, (double) ((float) pos.getX() + 0.5F), (double) ((float) pos.getY() + 0.5F), (double) ((float) pos.getZ() + 0.5F), 0.0D, 0.0D, 0.0D, new int[0]);
+			mc.world.spawnParticle(EnumParticleTypes.BARRIER, pos.getX() + 0.5F, pos.getY() + 0.5F, pos.getZ() + 0.5F, 0.0D, 0.0D, 0.0D, new int[0]);
 	}
 	
 	@Override
@@ -273,7 +274,7 @@ public class LittleTileBlock extends LittleTile {
 	
 	@Override
 	public float getEnchantPowerBonus(World world, BlockPos pos) {
-		return (float) block.getEnchantPowerBonus(world, pos);
+		return block.getEnchantPowerBonus(world, pos);
 	}
 	
 	@Override
@@ -369,10 +370,25 @@ public class LittleTileBlock extends LittleTile {
 	
 	public static class MissingBlockHandler implements ISpecialBlockHandler {
 		
+		private static HashMap<String, MissingBlockHandler> handlers = new HashMap<>();
+		
+		public static MissingBlockHandler getHandler(String blockname) {
+			MissingBlockHandler handler = handlers.get(blockname);
+			if (handler != null)
+				return handler;
+			handler = new MissingBlockHandler(blockname);
+			handlers.put(blockname, handler);
+			return handler;
+		}
+		
 		public final String blockname;
 		
-		public MissingBlockHandler(String blockname) {
+		private MissingBlockHandler(String blockname) {
 			this.blockname = blockname;
+		}
+		
+		public static void unload() {
+			handlers.clear();
 		}
 	}
 }
