@@ -233,8 +233,6 @@ public class RenderingThread extends Thread {
 								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
 								BufferBuilder buffer = null;
 								
-								if (layer == BlockRenderLayer.SOLID && cubes == null)
-									System.out.println("What happened here!");
 								if (cubes != null && cubes.size() > 0)
 									buffer = layerBuffer.createVertexBuffer(cubes);
 								
@@ -258,7 +256,6 @@ public class RenderingThread extends Thread {
 										int offsetX = pos.getX() - dx;
 										int offsetY = pos.getY() - dy;
 										int offsetZ = pos.getZ() - dz;
-										// buffer.setTranslation(dx+offsetX, dy+offsetY, dz+offsetZ);
 										buffer.setTranslation(offsetX, offsetY, offsetZ);
 									} else {
 										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
@@ -285,19 +282,28 @@ public class RenderingThread extends Thread {
 										consumer.getBlockInfo().updateShift();
 										
 										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-											List<BakedQuad> quads = cube.getQuad(EnumFacing.VALUES[h]);
-											if (quads != null && !quads.isEmpty()) {
-												for (int k = 0; k < quads.size(); k++) {
-													BakedQuad quad = quads.get(k);
-													consumer.quad = quad;
-													renderQuad(buffer, quad);
+											Object quadObject = cube.getQuad(EnumFacing.VALUES[h]);
+											if (quadObject instanceof List) {
+												List<BakedQuad> quads = (List<BakedQuad>) quadObject;
+												if (quads != null && !quads.isEmpty()) {
+													for (int k = 0; k < quads.size(); k++) {
+														BakedQuad quad = quads.get(k);
+														consumer.quad = quad;
+														renderQuad(buffer, quad);
+													}
 												}
+											} else if (quadObject instanceof BakedQuad) {
+												consumer.quad = (BakedQuad) quadObject;
+												renderQuad(buffer, (BakedQuad) quadObject);
 											}
 											
 										}
 										
 										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 											SVertexBuilder.popEntity(buffer);
+										
+										if (!LittleTilesConfig.rendering.useQuadCache)
+											cube.deleteQuadCache();
 									}
 									
 									consumer.quad = null;
@@ -317,6 +323,8 @@ public class RenderingThread extends Thread {
 							if (!setRendered(data, layerBuffer))
 								updateCoords.add(data);
 							
+							consumer.setWorld(null);
+							
 						} catch (RenderOverlapException e) {
 							updateCoords.add(data);
 						} catch (Exception e) {
@@ -329,7 +337,6 @@ public class RenderingThread extends Thread {
 						updateCoords.add(data);
 				} catch (Exception e) {
 					updateCoords.add(data);
-					// e.printStackTrace();
 				} catch (OutOfMemoryError error) {
 					updateCoords.add(data);
 					error.printStackTrace();

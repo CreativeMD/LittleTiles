@@ -119,6 +119,11 @@ public class LittleTilesConfig {
 	@LittleConfig
 	public static class Rendering {
 		
+		@Config.Name("useQuadCache")
+		@Config.LangKey("config.littletiles.useQuadCache")
+		@Config.Comment("Significantly increases RAM usuage, but reduces rerendering time. (Requires world restart)")
+		public boolean useQuadCache = false;
+		
 		@Config.Name("hideParticleBlock")
 		@Config.LangKey("config.littletiles.hideParticleBlock")
 		@Config.Comment("Whether the particle block is visible or not")
