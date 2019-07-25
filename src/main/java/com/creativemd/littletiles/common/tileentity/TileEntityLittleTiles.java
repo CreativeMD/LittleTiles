@@ -296,11 +296,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		world.checkLight(getPos());
 	}
 	
-	@SideOnly(Side.CLIENT)
-	private void clientCustomUpdate(Runnable run) {
-		Minecraft.getMinecraft().addScheduledTask(run);
-	}
-	
 	protected boolean hasRendered() {
 		for (LittleTile tile : tiles) {
 			if (tile.needCustomRendering())
@@ -327,6 +322,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 			newTe.assign(this);
 			
+			System.out.print("Changed block's state from (ticking:" + isTicking() + ",rendered:" + isRendered() + ") to (ticking:" + newTe.isTicking() + ",rendered:" + newTe.isRendered() + ")");
 			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty(), rendered), 2);
 			world.setTileEntity(pos, newTe);
 		}
@@ -363,10 +359,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		updateRenderDistance();
 		if (inRenderingQueue == null || !inRenderingQueue.get())
 			getCubeCache().clearCache();
-		// getBuffer().clear();
-		addToRenderUpdate();
 		
-		// lastRenderedLightValue = 0;
+		addToRenderUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -513,7 +507,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@SideOnly(Side.CLIENT)
 	public void updateRenderBoundingBox() {
-		// cachedRenderBoundingBox = null;
 		requireRenderingBoundingBoxUpdate = true;
 	}
 	
@@ -570,12 +563,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
 	}
 	
-	// public boolean needFullUpdate = true;
-	
 	public boolean preventUpdate = false;
-	
-	/* public LittleTile getTileFromPosition(int x, int y, int z) { for (LittleTile
-	 * tile : tiles) { if(tile.isAt(x, y, z)) return tile; } return null; } */
 	
 	/** Used for rendering */
 	@SideOnly(Side.CLIENT)
@@ -1084,5 +1072,21 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	public boolean isEmpty() {
 		return tiles.isEmpty();
+	}
+	
+	@Override
+	public void invalidate() {
+		if (isClientSide()) {
+			waitingAnimation = null;
+			buffer = null;
+			cubeCache = null;
+			lastRenderedChunk = null;
+			renderTiles = null;
+			cachedRenderBoundingBox = null;
+		}
+		sideCache = null;
+		tiles = null;
+		updateTiles = null;
+		super.invalidate();
 	}
 }

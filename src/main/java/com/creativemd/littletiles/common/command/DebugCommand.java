@@ -1,28 +1,27 @@
-package com.creativemd.littletiles.client.profile;
+package com.creativemd.littletiles.common.command;
 
-import com.creativemd.creativecore.common.gui.opener.GuiHandler;
+import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 
-public class CommandOpenRenderProfiler extends CommandBase {
+public class DebugCommand extends CommandBase {
 	
 	@Override
 	public String getName() {
-		return "rendering-profiler";
+		return "lt-debug";
 	}
 	
 	@Override
 	public String getUsage(ICommandSender sender) {
-		return "Opens a profiler gui";
+		return "/lt-debug shows special debugging for LT";
 	}
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		GuiHandler.openGui("rendering-handler", new NBTTagCompound());
+		LittleTilesProfiler.showDebugInfo ^= true;
 	}
 	
 }

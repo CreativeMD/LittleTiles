@@ -10,7 +10,7 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHel
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.profile.CommandOpenRenderProfiler;
+import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
 import com.creativemd.littletiles.client.render.OverlayRenderer;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
@@ -19,6 +19,7 @@ import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
@@ -236,7 +237,9 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		LittleParticleType.initClient();
 		
-		ClientCommandHandler.instance.registerCommand(new CommandOpenRenderProfiler());
+		ClientCommandHandler.instance.registerCommand(new DebugCommand());
+		
+		MinecraftForge.EVENT_BUS.register(LittleTilesProfiler.class);
 	}
 	
 	@Override

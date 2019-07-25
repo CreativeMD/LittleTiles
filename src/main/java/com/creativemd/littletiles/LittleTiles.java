@@ -7,10 +7,8 @@ import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorBlock;
-import com.creativemd.littletiles.client.profile.RenderingProfilerGui;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -73,6 +71,7 @@ import com.creativemd.littletiles.common.gui.SubGuiStorage;
 import com.creativemd.littletiles.common.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.common.gui.SubGuiWorkbench;
 import com.creativemd.littletiles.common.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemHammer;
@@ -86,7 +85,6 @@ import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
-import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.mods.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mods.warpdrive.TileEntityLittleTilesTransformer;
@@ -365,20 +363,6 @@ public class LittleTiles {
 				else if (stack.getItem() instanceof ISpecialBlockSelector)
 					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
 				return null;
-			}
-		});
-		
-		GuiHandler.registerGuiHandler("rendering-handler", new CustomGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
-				return new RenderingProfilerGui();
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
-				return new SubContainerEmpty(player);
 			}
 		});
 		

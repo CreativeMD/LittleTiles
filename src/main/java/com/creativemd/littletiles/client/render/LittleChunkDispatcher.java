@@ -3,11 +3,11 @@ package com.creativemd.littletiles.client.render;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -55,35 +55,29 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
 	private static Field dynamicLightUpdate = ReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
 	
-	// private static Field tempLittleTiles =
-	// ReflectionHelper.findField(RenderChunk.class, "tempLittleTiles");
-	
 	private static Minecraft mc = Minecraft.getMinecraft();
-	
-	/* public static void onStartRendering(RenderChunk chunk) {
-	 * List<TileEntityLittleTiles> tiles = new ArrayList<>(); try {
-	 * tempLittleTiles.set(chunk, new ArrayList<>()); } catch
-	 * (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace();
-	 * } } */
 	
 	public static void addTileEntity(List<TileEntityLittleTiles> tiles, TileEntity te) {
 		if (te instanceof TileEntityLittleTiles) {
 			tiles.add((TileEntityLittleTiles) te);
-			/* try { ((ArrayList<TileEntityLittleTiles>)
-			 * tempLittleTiles.get(chunk)).add((TileEntityLittleTiles) te); } catch
-			 * (IllegalArgumentException | IllegalAccessException e) { e.printStackTrace();
-			 * } */
 		}
 	}
 	
 	public static void onDoneRendering(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
 		try {
 			littleTiles.set(chunk, tiles);
-			// littleTiles.set(chunk, tempLittleTiles.get(chunk));
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public static void clearTE(RenderChunk chunk) {
+		try {
+			littleTiles.set(chunk, null);
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static List<TileEntityLittleTiles> getLittleTE(RenderChunk chunk) {
@@ -107,8 +101,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		}
 		
 		if (buffer.getVertexFormat() != null && (layer != BlockRenderLayer.TRANSLUCENT || (compiled.getState() != emptyState && !(compiled.getState() instanceof LittleVertexBufferState)))) {
-			// System.out.println("LittleTiles updating " + chunk.boundingBox + " layer=" +
-			// layer + " state=" + compiled.getState());
 			List<TileEntityLittleTiles> tiles = getLittleTE(chunk);
 			
 			if (tiles == null || tiles.isEmpty()) {
@@ -122,7 +114,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			
 			int expanded = 0;
 			
-			// long time = System.currentTimeMillis();
 			boolean dynamicUpdate = false;
 			try {
 				if (layer == BlockRenderLayer.SOLID)
@@ -132,17 +123,15 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			}
 			
 			if (!tiles.isEmpty()) {
-				for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
-					TileEntityLittleTiles te = iterator.next();
-					
+				for (TileEntityLittleTiles te : tiles) {
 					if (layer == BlockRenderLayer.SOLID) {
 						if (dynamicUpdate)
 							te.hasLightChanged = true;
 						
-						((TileEntityLittleTiles) te).updateQuadCache(chunk);
+						te.updateQuadCache(chunk);
 					}
 					
-					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
+					BlockLayerRenderBuffer blockLayerBuffer = te.getBuffer();
 					if (blockLayerBuffer != null) {
 						BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
 						if (teBuffer != null)
@@ -158,8 +147,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				e2.printStackTrace();
 			}
 			
-			// System.out.println("First: " + (System.currentTimeMillis() - time));
-			
 			if (expanded > 0) {
 				if (compiled.isLayerEmpty(layer))
 					try {
@@ -173,9 +160,8 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				
 				BufferBuilderUtils.growBuffer(buffer, buffer.getVertexFormat().getIntegerSize() * expanded * 4);
 				
-				for (Iterator<TileEntityLittleTiles> iterator = tiles.iterator(); iterator.hasNext();) {
-					TileEntityLittleTiles te = iterator.next();
-					BlockLayerRenderBuffer blockLayerBuffer = ((TileEntityLittleTiles) te).getBuffer();
+				for (TileEntityLittleTiles te : tiles) {
+					BlockLayerRenderBuffer blockLayerBuffer = te.getBuffer();
 					if (blockLayerBuffer == null)
 						continue;
 					BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
@@ -190,7 +176,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 					float z = (float) entity.posZ;
 					
 					buffer.sortVertexData(x, y, z);
-					// System.out.println("Updating little sorting");
 					compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
 				}
 				
@@ -202,7 +187,9 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
-				// System.out.println("Second: " + (System.currentTimeMillis() - time));
+				
+				LittleTilesProfiler.uploaded++;
+				clearTE(chunk);
 			}
 		}
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
@@ -225,7 +212,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			BufferBuilder worldRendererIn = generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT);
 			BlockPos pos = chunk.getPosition();
 			worldRendererIn.begin(7, DefaultVertexFormats.BLOCK);
-			worldRendererIn.setTranslation((double) (-pos.getX()), (double) (-pos.getY()), (double) (-pos.getZ()));
+			worldRendererIn.setTranslation((-pos.getX()), (-pos.getY()), (-pos.getZ()));
 			
 			generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT).setVertexState(compiledchunk.getState());
 			

@@ -16,6 +16,7 @@ import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
@@ -112,7 +113,7 @@ public class RenderingThread extends Thread {
 			return;
 		}
 		
-		if (te.isEmpty()) {
+		if (te.isEmpty() && (te.getBuffer() == null || !te.getBuffer().isEmpty())) {
 			if (te.getWorld() instanceof IOrientatedWorld)
 				RenderUploader.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).deleteRenderData(te);
 			te.setBuffer(new BlockLayerRenderBuffer());
@@ -395,6 +396,7 @@ public class RenderingThread extends Thread {
 			return false;
 		}
 		
+		te.lastRenderedChunk = null;
 		te.inRenderingQueue.set(false);
 		te.buildingCache.set(false);
 		
@@ -410,10 +412,13 @@ public class RenderingThread extends Thread {
 			
 			if (count == null || count.intValue() <= 0) {
 				chunks.remove(data.chunk);
-				if (data.subWorld)
+				if (data.subWorld) {
+					LittleTilesProfiler.ltChunksUpdates++;
 					((LittleRenderChunk) data.chunk).markCompleted();
-				else
+				} else {
+					LittleTilesProfiler.vanillaChunksUpdates++;
 					((RenderChunk) data.chunk).setNeedsUpdate(false);
+				}
 			}
 			
 			boolean finished = true;
