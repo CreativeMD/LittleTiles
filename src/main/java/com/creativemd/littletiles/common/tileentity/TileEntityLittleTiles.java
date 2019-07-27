@@ -173,11 +173,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@SideOnly(Side.CLIENT)
 	public void clearWaitingAnimations() {
-		synchronized (waitingAnimation) {
-			for (EntityAnimation animation : waitingAnimation) {
-				animation.controller.removeWaitingTe(this);
+		if (waitingAnimation != null) {
+			synchronized (waitingAnimation) {
+				for (EntityAnimation animation : waitingAnimation) {
+					animation.controller.removeWaitingTe(this);
+				}
+				waitingAnimation = new ArrayList<>();
 			}
-			waitingAnimation = new ArrayList<>();
 		}
 	}
 	
@@ -891,6 +893,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void combineTiles() {
+		if (isInvalid())
+			return;
 		combineTilesList(tiles);
 		
 		convertToSmallest();
