@@ -17,6 +17,8 @@ import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler.AnimationGuiHolder;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ChildActivateEvent extends AnimationEvent {
 	
@@ -74,6 +76,7 @@ public class ChildActivateEvent extends AnimationEvent {
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void prepareInGui(LittlePreviews previews, EntityAnimation animation, AnimationGuiHandler handler) {
 		if (animation.structure.children.size() <= childId)
 			return;

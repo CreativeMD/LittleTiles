@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.client.render;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -11,7 +12,8 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.CreativeCubeConsumer;
+import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
+import com.creativemd.creativecore.common.utils.type.SingletonList;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -30,14 +32,12 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.pipeline.LightUtil;
 import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -55,9 +55,12 @@ public class RenderingThread extends Thread {
 	public static synchronized RenderingThread getNextThread() {
 		synchronized (threads) {
 			RenderingThread thread = threads.get(threadIndex);
+			if (thread == null)
+				threads.set(threadIndex, thread = new RenderingThread(threadIndex));
 			threadIndex++;
 			if (threadIndex >= threads.size())
 				threadIndex = 0;
+			
 			return thread;
 		}
 	}
@@ -66,29 +69,18 @@ public class RenderingThread extends Thread {
 		if (count <= 0)
 			throw new IllegalArgumentException("count has to be at least equal or greater than one");
 		if (threads != null) {
-			for (RenderingThread thread : threads) {
-				thread.active = false;
-			}
-			
-			for (RenderingThread thread : threads) {
-				int i = 0;
-				while (thread.isAlive() && i < 10000) {
-					i++;
-					try {
-						sleep(1);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				while (thread.updateCoords.size() > 0)
+			for (RenderingThread thread : threads)
+				if (thread != null)
+					thread.interrupt();
+				
+			for (RenderingThread thread : threads)
+				while (thread != null && thread.updateCoords.size() > 0)
 					thread.updateCoords.poll().te.resetRenderingState();
-			}
 		}
 		threadIndex = 0;
 		threads = new ArrayList<>();
-		for (int i = 0; i < count; i++) {
-			threads.add(new RenderingThread(i));
-		}
+		for (int i = 0; i < count; i++)
+			threads.add(null);
 	}
 	
 	public static HashMap<Object, AtomicInteger> chunks = new HashMap<>();
@@ -148,240 +140,217 @@ public class RenderingThread extends Thread {
 	final int index;
 	
 	public RenderingThread(int index) {
-		start();
 		this.index = index;
+		start();
 	}
 	
 	public int getThreadIndex() {
 		return index;
 	}
 	
+	private final SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<BakedQuad>(null);
 	private final IBlockAccessFake fakeAccess = new IBlockAccessFake();
 	public boolean active = true;
 	
 	@Override
 	public void run() {
-		while (active) {
-			IBlockAccess world = mc.world;
-			
-			if (world != null && !updateCoords.isEmpty()) {
-				RenderingData data = updateCoords.poll();
+		try {
+			while (active) {
+				IBlockAccess world = mc.world;
 				
-				try {
-					data.te.buildingCache.set(true);
-					BlockPos pos = data.te.getPos();
-					RenderCubeLayerCache cubeCache = data.te.getCubeCache();
+				if (world != null && !updateCoords.isEmpty()) {
+					RenderingData data = updateCoords.poll();
 					
-					if (data.te.getWorld() == null || !data.te.hasLoaded())
-						throw new RenderingException("Tileentity is not loaded yet");
-					
-					for (BlockRenderLayer layer : BlockRenderLayer.values()) {
-						cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
+					try {
+						data.te.buildingCache.set(true);
+						BlockPos pos = data.te.getPos();
+						RenderCubeLayerCache cubeCache = data.te.getCubeCache();
 						
-						List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
-						for (int j = 0; j < cubes.size(); j++) {
-							RenderCubeObject cube = cubes.get(j);
-							if (cube.doesNeedQuadUpdate) {
-								if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
-									fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
-									world = fakeAccess;
-								} else
-									world = data.te.getWorld();
-								
-								IBlockState modelState = cube.getBlockState().getActualState(world, pos);
-								IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
-								modelState = cube.getModelState(modelState, world, pos);
-								BlockPos offset = cube.getOffset();
-								for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-									EnumFacing facing = EnumFacing.VALUES[h];
-									if (cube.shouldSideBeRendered(facing)) {
-										if (cube.getQuad(facing) == null)
-											cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
+						if (data.te.getWorld() == null || !data.te.hasLoaded())
+							throw new RenderingException("Tileentity is not loaded yet");
+						
+						for (BlockRenderLayer layer : BlockRenderLayer.values()) {
+							cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
+							
+							List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
+							for (int j = 0; j < cubes.size(); j++) {
+								RenderCubeObject cube = cubes.get(j);
+								if (cube.doesNeedQuadUpdate) {
+									if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
+										fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
+										world = fakeAccess;
 									} else
-										cube.setQuad(facing, null);
+										world = data.te.getWorld();
+									
+									IBlockState modelState = cube.getBlockState().getActualState(world, pos);
+									IBakedModel blockModel = OptifineHelper.getRenderModel(mc.getBlockRendererDispatcher().getModelForState(modelState), world, modelState, pos);
+									modelState = cube.getModelState(modelState, world, pos);
+									BlockPos offset = cube.getOffset();
+									for (int h = 0; h < EnumFacing.VALUES.length; h++) {
+										EnumFacing facing = EnumFacing.VALUES[h];
+										if (cube.shouldSideBeRendered(facing)) {
+											if (cube.getQuad(facing) == null)
+												cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
+										} else
+											cube.setQuad(facing, null);
+									}
+									cube.doesNeedQuadUpdate = false;
 								}
-								cube.doesNeedQuadUpdate = false;
 							}
 						}
-					}
-					
-					cubeCache.sortCache();
-					
-					world = mc.world;
-					
-					BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
-					if (!layerBuffer.isDrawing()) {
-						data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex.get();
-						try {
-							layerBuffer.setDrawing();
-							
-							if (!consumer.format.equals(DefaultVertexFormats.BLOCK))
-								consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
-							
-							World renderWorld = data.te.getWorld();
-							if (renderWorld instanceof SubWorld && !((SubWorld) renderWorld).shouldRender)
-								renderWorld = ((SubWorld) renderWorld).parentWorld;
-							
-							consumer.setWorld(renderWorld);
-							consumer.setBlockPos(pos);
-							consumer.setState(data.state);
-							consumer.getBlockInfo().updateLightMatrix();
-							
-							// Render vertex buffer
-							for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-								BlockRenderLayer layer = BlockRenderLayer.values()[i];
+						
+						cubeCache.sortCache();
+						fakeAccess.set(null, null, null);
+						world = mc.world;
+						
+						BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
+						if (!layerBuffer.isDrawing()) {
+							data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex.get();
+							try {
+								layerBuffer.setDrawing();
 								
-								List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
-								BufferBuilder buffer = null;
+								World renderWorld = data.te.getWorld();
+								if (renderWorld instanceof SubWorld && !((SubWorld) renderWorld).shouldRender)
+									renderWorld = ((SubWorld) renderWorld).parentWorld;
 								
-								if (cubes != null && cubes.size() > 0)
-									buffer = layerBuffer.createVertexBuffer(cubes);
-								
-								if (buffer != null) {
-									consumer.buffer = buffer;
-									consumer.layer = layer;
+								// Render vertex buffer
+								for (int i = 0; i < BlockRenderLayer.values().length; i++) {
+									BlockRenderLayer layer = BlockRenderLayer.values()[i];
 									
-									buffer.begin(7, DefaultVertexFormats.BLOCK);
-									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !data.subWorld) {
-										int bits = 8;
-										int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
-										int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
-										int dz = data.te.lastRenderedChunk.getPosition().getZ() >> bits << bits;
-										
-										dx = OptifineHelper.getRenderChunkRegionX(data.te.lastRenderedChunk);
-										dz = OptifineHelper.getRenderChunkRegionZ(data.te.lastRenderedChunk);
-										
-										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-										int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-										int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
-										int offsetX = pos.getX() - dx;
-										int offsetY = pos.getY() - dy;
-										int offsetZ = pos.getZ() - dz;
-										buffer.setTranslation(offsetX, offsetY, offsetZ);
-									} else {
-										int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-										int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-										int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
-										int offsetX = pos.getX() - (chunkX * 16);
-										int offsetY = pos.getY() - (chunkY * 16);
-										int offsetZ = pos.getZ() - (chunkZ * 16);
-										buffer.setTranslation(offsetX, offsetY, offsetZ);
-									}
+									net.minecraftforge.client.ForgeHooksClient.setRenderLayer(layer);
 									
-									for (int j = 0; j < cubes.size(); j++) {
-										RenderCubeObject cube = cubes.get(j);
-										consumer.cube = cube;
-										IBlockState state = cube.getBlockState();
+									List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
+									BufferBuilder buffer = null;
+									
+									if (cubes != null && cubes.size() > 0)
+										buffer = layerBuffer.createVertexBuffer(cubes);
+									
+									if (buffer != null) {
 										
-										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
-											if (state.getBlock() instanceof IFakeRenderingBlock)
-												state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
-											SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
+										buffer.begin(7, DefaultVertexFormats.BLOCK);
+										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !data.subWorld) {
+											int bits = 8;
+											int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
+											int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
+											int dz = data.te.lastRenderedChunk.getPosition().getZ() >> bits << bits;
+											
+											dx = OptifineHelper.getRenderChunkRegionX(data.te.lastRenderedChunk);
+											dz = OptifineHelper.getRenderChunkRegionZ(data.te.lastRenderedChunk);
+											
+											int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
+											int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
+											int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+											int offsetX = -dx;
+											int offsetY = -dy;
+											int offsetZ = -dz;
+											buffer.setTranslation(offsetX, offsetY, offsetZ);
+										} else {
+											int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
+											int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
+											int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
+											int offsetX = -chunkX * 16;
+											int offsetY = -chunkY * 16;
+											int offsetZ = -chunkZ * 16;
+											buffer.setTranslation(offsetX, offsetY, offsetZ);
 										}
 										
-										consumer.setState(state);
-										consumer.getBlockInfo().updateShift();
+										boolean smooth = Minecraft.isAmbientOcclusionEnabled() && data.state.getLightValue(renderWorld, pos) == 0; //&& modelIn.isAmbientOcclusion(stateIn);
 										
-										for (int h = 0; h < EnumFacing.VALUES.length; h++) {
-											Object quadObject = cube.getQuad(EnumFacing.VALUES[h]);
-											if (quadObject instanceof List) {
-												List<BakedQuad> quads = (List<BakedQuad>) quadObject;
+										BitSet bitset = FMLClientHandler.instance().hasOptifine() ? null : new BitSet(3);
+										float[] afloat = null;
+										Object ambientFace = null;
+										if (smooth) {
+											if (FMLClientHandler.instance().hasOptifine())
+												ambientFace = OptifineHelper.getEnv(buffer, renderWorld, data.state, pos);
+											else {
+												afloat = new float[EnumFacing.VALUES.length * 2];
+												ambientFace = CreativeModelPipeline.createAmbientOcclusionFace();
+											}
+										}
+										
+										for (int j = 0; j < cubes.size(); j++) {
+											RenderCubeObject cube = cubes.get(j);
+											IBlockState state = cube.getBlockState();
+											
+											if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {
+												if (state.getBlock() instanceof IFakeRenderingBlock)
+													state = ((IFakeRenderingBlock) state.getBlock()).getFakeState(state);
+												SVertexBuilder.pushEntity(state, pos, data.te.getWorld(), buffer);
+											}
+											
+											for (int h = 0; h < EnumFacing.VALUES.length; h++) {
+												EnumFacing facing = EnumFacing.VALUES[h];
+												Object quadObject = cube.getQuad(facing);
+												List<BakedQuad> quads = null;
+												if (quadObject instanceof List) {
+													quads = (List<BakedQuad>) quadObject;
+												} else if (quadObject instanceof BakedQuad) {
+													bakedQuadWrapper.setElement((BakedQuad) quadObject);
+													quads = bakedQuadWrapper;
+												}
+												
 												if (quads != null && !quads.isEmpty()) {
 													for (int k = 0; k < quads.size(); k++) {
 														BakedQuad quad = quads.get(k);
-														consumer.quad = quad;
-														renderQuad(buffer, quad);
+														if (smooth)
+															CreativeModelPipeline.renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
+														else
+															CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube);
 													}
 												}
-											} else if (quadObject instanceof BakedQuad) {
-												consumer.quad = (BakedQuad) quadObject;
-												renderQuad(buffer, (BakedQuad) quadObject);
 											}
 											
+											bakedQuadWrapper.setElement(null);
+											
+											if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
+												SVertexBuilder.popEntity(buffer);
+											
+											if (!LittleTilesConfig.rendering.useQuadCache)
+												cube.deleteQuadCache();
 										}
 										
 										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-											SVertexBuilder.popEntity(buffer);
+											SVertexBuilder.calcNormalChunkLayer(buffer);
 										
-										if (!LittleTilesConfig.rendering.useQuadCache)
-											cube.deleteQuadCache();
+										buffer.finishDrawing();
+										
+										layerBuffer.setBufferByLayer(buffer, layer);
 									}
-									
-									consumer.quad = null;
-									consumer.cube = null;
-									
-									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
-										SVertexBuilder.calcNormalChunkLayer(buffer);
-									
-									buffer.finishDrawing();
-									consumer.buffer = null;
-									
-									layerBuffer.setBufferByLayer(buffer, layer);
 								}
-							}
-							
-							layerBuffer.setFinishedDrawing();
-							if (!setRendered(data, layerBuffer))
-								updateCoords.add(data);
-							
-							consumer.setWorld(null);
-							
-						} catch (RenderOverlapException e) {
-							updateCoords.add(data);
-						} catch (Exception e) {
-							e.printStackTrace();
-							updateCoords.add(data);
-							if (layerBuffer != null)
+								
+								net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
+								
 								layerBuffer.setFinishedDrawing();
-						}
-					} else
+								if (!setRendered(data, layerBuffer))
+									updateCoords.add(data);
+								
+							} catch (RenderOverlapException e) {
+								updateCoords.add(data);
+							} catch (Exception e) {
+								e.printStackTrace();
+								updateCoords.add(data);
+								if (layerBuffer != null)
+									layerBuffer.setFinishedDrawing();
+							}
+						} else
+							updateCoords.add(data);
+					} catch (Exception e) {
 						updateCoords.add(data);
-				} catch (Exception e) {
-					updateCoords.add(data);
-				} catch (OutOfMemoryError error) {
-					updateCoords.add(data);
-					error.printStackTrace();
+					} catch (OutOfMemoryError error) {
+						updateCoords.add(data);
+						error.printStackTrace();
+					}
+				} else if (world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())) {
+					updateCoords.clear();
+					chunks.clear();
 				}
-			} else if (world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())) {
-				updateCoords.clear();
-				chunks.clear();
-			} else if (world != null && !chunks.isEmpty()) {
 				
-			}
-			try {
 				sleep(1);
-			} catch (InterruptedException e) {
-				// e.printStackTrace();
+				if (Thread.currentThread().isInterrupted())
+					throw new InterruptedException();
 			}
-		}
-	}
-	
-	private CreativeCubeConsumer consumer = new CreativeCubeConsumer(DefaultVertexFormats.BLOCK, mc.getBlockColors());
-	
-	private synchronized void renderQuad(BufferBuilder buffer, BakedQuad quad) {
-		if (quad.hasTintIndex()) {
-			consumer.setQuadTint(quad.getTintIndex());
-		}
-		consumer.setApplyDiffuseLighting(quad.shouldApplyDiffuseLighting());
-		// int[] eMap = mapFormats(consumer.getVertexFormat(),
-		// DefaultVertexFormats.ITEM);
-		float[] data = new float[4];
-		VertexFormat formatFrom = consumer.format;
-		VertexFormat formatTo = quad.getFormat();
-		int countFrom = formatFrom.getElementCount();
-		int countTo = formatTo.getElementCount();
-		int[] eMap = LightUtil.mapFormats(formatFrom, formatTo); // getFormatMaps().getUnchecked(Pair.of(formatFrom,
-		                                                         // formatTo));
-		for (int v = 0; v < 4; v++) {
-			for (int e = 0; e < countFrom; e++) {
-				if (eMap[e] != countTo) {
-					LightUtil.unpack(quad.getVertexData(), data, quad.getFormat(), v, eMap[e]);
-					
-					consumer.put(e, data);
-				} else {
-					consumer.put(e);
-				}
-			}
+		} catch (InterruptedException e) {
+			
 		}
 	}
 	

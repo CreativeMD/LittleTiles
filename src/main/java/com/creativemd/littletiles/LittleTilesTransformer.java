@@ -8,6 +8,7 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
@@ -430,6 +431,30 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						mInsn.name = "checkIfEmpty";
 						mInsn.desc = patchDESC("(Ljava/util/List;Lnet/minecraft/entity/player/EntityPlayerMP;)Z");
 						mInsn.itf = false;
+					}
+				}
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.BlockModelRenderer") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				String name = patchClassName("net/minecraft/client/renderer/BlockModelRenderer$AmbientOcclusionFace");
+				for (InnerClassNode innerClass : node.innerClasses) {
+					if (innerClass.name.equals(name)) {
+						innerClass.access += Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER;
+					}
+				}
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.BlockModelRenderer$AmbientOcclusionFace") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				for (MethodNode m : node.methods) {
+					if (m.name.equals("<init>")) {
+						m.access = Opcodes.ACC_PUBLIC;
+						break;
 					}
 				}
 			}

@@ -76,13 +76,15 @@ public class LittleTilesProfiler {
 			details.add("Triggered", uploaded + "(" + vanillaChunksUpdates + ")/" + ltChunksUpdates);
 			int queued = 0;
 			for (RenderingThread thread : RenderingThread.threads)
-				queued += thread.updateCoords.size();
+				if (thread != null)
+					queued += thread.updateCoords.size();
 			details.add("Queue", queued);
 			
 			for (RenderingThread thread : RenderingThread.threads)
-				details.add("" + thread.getThreadIndex(), thread.updateCoords.size());
+				if (thread != null)
+					details.add("" + thread.getThreadIndex(), thread.updateCoords.size());
+				
 			list.add(format(details));
-			
 			details.clear();
 			
 			for (int i = 0; i < list.size(); ++i) {

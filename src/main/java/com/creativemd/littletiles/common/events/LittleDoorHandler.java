@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -29,7 +28,6 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -324,8 +322,6 @@ public class LittleDoorHandler {
 		openDoors.removeIf((x) -> x.isDead);
 	}
 	
-	private static Field setTileEntitiesField;
-	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {
 		openDoors.removeIf((x) -> {
@@ -340,18 +336,6 @@ public class LittleDoorHandler {
 			lastPlayerRayTraceResult = null;
 			lastRayTraceResult = null;
 			lastWorldRayTraceResult = null;
-			
-			if (setTileEntitiesField == null)
-				setTileEntitiesField = ReflectionHelper.findField(RenderGlobal.class, "setTileEntities", "field_181024_n");
-			
-			try {
-				Set<TileEntity> set = (Set<TileEntity>) setTileEntitiesField.get(Minecraft.getMinecraft().renderGlobal);
-				synchronized (set) {
-					set.clear();
-				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
-			}
 			
 		}
 	}

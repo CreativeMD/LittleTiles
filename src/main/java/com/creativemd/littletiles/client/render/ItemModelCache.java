@@ -105,6 +105,10 @@ public class ItemModelCache {
 		}
 	}
 	
+	public static void unload() {
+		caches.clear();
+	}
+	
 	public static RenderingThreadItem thread = new RenderingThreadItem();
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
@@ -126,7 +130,7 @@ public class ItemModelCache {
 				
 				BlockRenderLayer layer = MinecraftForgeClient.getRenderLayer();
 				cacheModel(data, CreativeBakedModel.getBlockQuads(renderer.getRenderingCubes(null, null, data.stack), new ArrayList<>(), null, data.facing, null, layer, null, null, 0, data.stack, true));
-			} else if (items.isEmpty())
+			} else if (world == null)
 				items.clear();
 		}
 		

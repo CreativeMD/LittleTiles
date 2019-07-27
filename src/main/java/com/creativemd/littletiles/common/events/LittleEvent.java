@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
@@ -13,6 +14,7 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.ItemModelCache;
 import com.creativemd.littletiles.client.render.PreviewRenderer;
+import com.creativemd.littletiles.client.render.RenderingThread;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.ILittleTile;
@@ -285,10 +287,33 @@ public class LittleEvent {
 		}
 	}
 	
+	private static Field setTileEntitiesField;
+	
 	@SubscribeEvent
 	public void worldUnload(Unload event) {
 		if (event.getWorld().isRemote) {
 			MissingBlockHandler.unload();
+			ItemModelCache.unload();
+			
+			for (int i = 0; i < RenderingThread.threads.size(); i++) {
+				RenderingThread thread = RenderingThread.threads.get(i);
+				thread.interrupt();
+				thread.updateCoords.clear();
+				RenderingThread.threads.set(i, null);
+			}
+			RenderingThread.chunks.clear();
+			
+			if (setTileEntitiesField == null)
+				setTileEntitiesField = ReflectionHelper.findField(RenderGlobal.class, "setTileEntities", "field_181024_n");
+			
+			try {
+				Set<TileEntity> set = (Set<TileEntity>) setTileEntitiesField.get(Minecraft.getMinecraft().renderGlobal);
+				synchronized (set) {
+					set.clear();
+				}
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

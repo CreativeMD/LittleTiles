@@ -72,14 +72,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		
 	}
 	
-	public static void clearTE(RenderChunk chunk) {
-		try {
-			littleTiles.set(chunk, null);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public static List<TileEntityLittleTiles> getLittleTE(RenderChunk chunk) {
 		try {
 			return (List<TileEntityLittleTiles>) littleTiles.get(chunk);
@@ -189,7 +181,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				}
 				
 				LittleTilesProfiler.uploaded++;
-				clearTE(chunk);
 			}
 		}
 		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
@@ -214,7 +205,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 			worldRendererIn.begin(7, DefaultVertexFormats.BLOCK);
 			worldRendererIn.setTranslation((-pos.getX()), (-pos.getY()), (-pos.getZ()));
 			
-			generator.getRegionRenderCacheBuilder().getWorldRendererByLayer(BlockRenderLayer.TRANSLUCENT).setVertexState(compiledchunk.getState());
+			worldRendererIn.setVertexState(compiledchunk.getState());
 			
 			worldRendererIn.sortVertexData(x, y, z);
 			compiledchunk.setState(new LittleVertexBufferState(worldRendererIn, worldRendererIn.getVertexState()));
