@@ -65,7 +65,7 @@ public class LittleTilesProfiler {
 	
 	@SubscribeEvent
 	public static void onRender(RenderTickEvent event) {
-		if (showDebugInfo && event.phase == Phase.END && mc.inGameHasFocus) {
+		if (showDebugInfo && event.phase == Phase.END && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
 			
 			GlStateManager.pushMatrix();
 			List<String> list = new ArrayList<>();

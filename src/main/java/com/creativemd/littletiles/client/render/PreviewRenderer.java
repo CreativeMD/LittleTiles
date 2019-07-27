@@ -85,7 +85,7 @@ public class PreviewRenderer {
 	
 	@SubscribeEvent
 	public void tick(RenderWorldLastEvent event) {
-		if (mc.player != null && mc.inGameHasFocus) {
+		if (mc.player != null && mc.inGameHasFocus && !mc.gameSettings.hideGUI) {
 			World world = mc.world;
 			EntityPlayer player = mc.player;
 			ItemStack stack = mc.player.getHeldItemMainhand();
@@ -117,9 +117,9 @@ public class PreviewRenderer {
 					
 					if (result != null) {
 						processMarkKey(player, iTile, stack, result, result.isAbsolute());
-						double x = (double) position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
-						double y = (double) position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
-						double z = (double) position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+						double x = position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
+						double y = position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
+						double z = position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
 						
 						for (int i = 0; i < result.placePreviews.size(); i++) {
 							
@@ -174,7 +174,7 @@ public class PreviewRenderer {
 	
 	public void processRotateKeys(LittleGridContext context) {
 		while (LittleTilesClient.flip.isPressed()) {
-			int i4 = MathHelper.floor((double) (this.mc.player.rotationYaw * 4.0F / 360.0F) + 0.5D) & 3;
+			int i4 = MathHelper.floor(this.mc.player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
 			EnumFacing direction = null;
 			switch (i4) {
 			case 0:
@@ -257,9 +257,9 @@ public class PreviewRenderer {
 				if (result != null) {
 					processMarkKey(player, iTile, stack, result, result.isAbsolute());
 					
-					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * (double) event.getPartialTicks();
-					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * (double) event.getPartialTicks();
-					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * (double) event.getPartialTicks();
+					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
+					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
+					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
 					
 					GlStateManager.enableBlend();
 					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
