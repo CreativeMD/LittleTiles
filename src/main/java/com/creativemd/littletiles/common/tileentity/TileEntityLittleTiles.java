@@ -307,7 +307,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	protected void customTilesUpdate() {
-		if (world.isRemote)
+		if (world.isRemote || tiles == null)
 			return;
 		boolean rendered = hasRendered();
 		if (updateTiles.isEmpty() == isTicking() || rendered != isRendered()) {
@@ -324,7 +324,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 			newTe.assign(this);
 			
-			System.out.print("Changed block's state from (ticking:" + isTicking() + ",rendered:" + isRendered() + ") to (ticking:" + newTe.isTicking() + ",rendered:" + newTe.isRendered() + ")");
 			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty(), rendered), 2);
 			world.setTileEntity(pos, newTe);
 		}
@@ -346,13 +345,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (isClientSide())
 			updateCustomRenderer();
 		
-		customTilesUpdate();
-		
 		if (!world.isRemote && tiles.size() == 0)
 			world.setBlockToAir(getPos());
 		
 		if (world instanceof CreativeWorld)
 			((CreativeWorld) world).hasChanged = true;
+		
+		customTilesUpdate();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -1088,9 +1087,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			renderTiles = null;
 			cachedRenderBoundingBox = null;
 		}
-		sideCache = null;
-		tiles = null;
-		updateTiles = null;
+		//sideCache = null;
+		//tiles = null;
+		//updateTiles = null;
 		super.invalidate();
 	}
 }

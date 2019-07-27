@@ -392,7 +392,7 @@ public class RenderingThread extends Thread {
 			
 			boolean finished = true;
 			for (RenderingThread thread : threads) {
-				if (!thread.updateCoords.isEmpty()) {
+				if (thread != null && !thread.updateCoords.isEmpty()) {
 					finished = false;
 					break;
 				}
