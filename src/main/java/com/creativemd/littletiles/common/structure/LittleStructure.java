@@ -948,15 +948,21 @@ public abstract class LittleStructure {
 	// ====================Helpers====================
 	
 	public AxisAlignedBB getSurroundingBox() {
-		return new SurroundingBox(true).add(tiles.entrySet()).getSurroundingBox();
+		if (hasLoaded())
+			return new SurroundingBox(true).add(tiles.entrySet()).getSurroundingBox();
+		return null;
 	}
 	
 	public Vec3d getHighestCenterVec() {
-		return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterVec();
+		if (hasLoaded())
+			return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterVec();
+		return null;
 	}
 	
 	public LittleTilePos getHighestCenterPoint() {
-		return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterPoint();
+		if (hasLoaded())
+			return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterPoint();
+		return null;
 	}
 	
 	// ====================Extra====================
