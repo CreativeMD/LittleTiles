@@ -96,7 +96,7 @@ public abstract class SelectShape {
 		@Override
 		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
 			LittleTileVec offset = new LittleTileVec(side);
-			offset.scale((int) (thickness - 1) / 2);
+			offset.scale((thickness - 1) / 2);
 			vec.sub(offset);
 			if ((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE)
 				vec.sub(side);
@@ -237,6 +237,9 @@ public abstract class SelectShape {
 		
 		@Override
 		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			int thickness = nbt.getInteger("thick");
+			if (thickness > context.size)
+				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleTilePos vec = new LittleTilePos(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
@@ -247,6 +250,9 @@ public abstract class SelectShape {
 		
 		@Override
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			int thickness = nbt.getInteger("thick");
+			if (thickness > context.size)
+				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleTilePos vec = new LittleTilePos(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
