@@ -297,6 +297,8 @@ public class LittleEvent {
 			
 			for (int i = 0; i < RenderingThread.threads.size(); i++) {
 				RenderingThread thread = RenderingThread.threads.get(i);
+				if (thread == null)
+					continue;
 				thread.interrupt();
 				thread.updateCoords.clear();
 				RenderingThread.threads.set(i, null);
