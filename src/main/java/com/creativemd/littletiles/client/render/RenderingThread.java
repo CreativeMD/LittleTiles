@@ -321,6 +321,9 @@ public class RenderingThread extends Thread {
 								net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
 								
 								layerBuffer.setFinishedDrawing();
+								
+								if (!LittleTilesConfig.rendering.useCubeCache)
+									cubeCache.clearCache();
 								if (!setRendered(data, layerBuffer))
 									updateCoords.add(data);
 								

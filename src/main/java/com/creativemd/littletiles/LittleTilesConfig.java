@@ -121,8 +121,13 @@ public class LittleTilesConfig {
 		
 		@Config.Name("useQuadCache")
 		@Config.LangKey("config.littletiles.useQuadCache")
-		@Config.Comment("Significantly increases RAM usuage, but reduces rerendering time. (Requires world restart)")
+		@Config.Comment("Significantly increases RAM usuage, but reduces rerendering time. Only effective if useCubeCache is true (Requires world restart)")
 		public boolean useQuadCache = false;
+		
+		@Config.Name("useCubeCache")
+		@Config.LangKey("config.littletiles.useCubeCache")
+		@Config.Comment("Significantly increases RAM usuage, but reduces rerendering time. (Requires world restart)")
+		public boolean useCubeCache = true;
 		
 		@Config.Name("hideParticleBlock")
 		@Config.LangKey("config.littletiles.hideParticleBlock")

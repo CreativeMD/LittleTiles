@@ -161,3 +161,4 @@ config.littletiles.highlightStructureBox=Highlight Structure Boundingbox
 config.littletiles.previewLines=Line Preview
 config.littletiles.enableRandomDisplayTick=Enable Random Display Tick
 config.littletiles.useQuadCache=Use Quad-Cache
+config.littletiles.useCubeCache=Use Cube-Cache
