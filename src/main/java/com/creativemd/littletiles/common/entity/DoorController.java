@@ -372,7 +372,10 @@ public class DoorController extends EntityAnimationController {
 			}
 		}
 		
-		tickingState.clear();
+		if (tickingState != null)
+			tickingState.clear();
+		else if (isChanging())
+			tickingState = new AnimationState();
 		if (isChanging())
 			animation.tick(tick, tickingState);
 	}
