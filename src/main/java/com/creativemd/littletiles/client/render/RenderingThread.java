@@ -256,16 +256,15 @@ public class RenderingThread extends Thread {
 										
 										boolean smooth = Minecraft.isAmbientOcclusionEnabled() && data.state.getLightValue(renderWorld, pos) == 0; //&& modelIn.isAmbientOcclusion(stateIn);
 										
-										BitSet bitset = FMLClientHandler.instance().hasOptifine() ? null : new BitSet(3);
+										BitSet bitset = null;
 										float[] afloat = null;
 										Object ambientFace = null;
-										if (smooth) {
-											if (FMLClientHandler.instance().hasOptifine())
-												ambientFace = OptifineHelper.getEnv(buffer, renderWorld, data.state, pos);
-											else {
-												afloat = new float[EnumFacing.VALUES.length * 2];
-												ambientFace = CreativeModelPipeline.createAmbientOcclusionFace();
-											}
+										if (FMLClientHandler.instance().hasOptifine())
+											ambientFace = OptifineHelper.getEnv(buffer, renderWorld, data.state, pos);
+										else if (smooth) {
+											bitset = new BitSet(3);
+											afloat = new float[EnumFacing.VALUES.length * 2];
+											ambientFace = CreativeModelPipeline.createAmbientOcclusionFace();
 										}
 										
 										for (int j = 0; j < cubes.size(); j++) {
@@ -288,16 +287,11 @@ public class RenderingThread extends Thread {
 													bakedQuadWrapper.setElement((BakedQuad) quadObject);
 													quads = bakedQuadWrapper;
 												}
-												
-												if (quads != null && !quads.isEmpty()) {
-													for (int k = 0; k < quads.size(); k++) {
-														BakedQuad quad = quads.get(k);
-														if (smooth)
-															CreativeModelPipeline.renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
-														else
-															CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube);
-													}
-												}
+												if (quads != null && !quads.isEmpty())
+													if (smooth)
+														CreativeModelPipeline.renderBlockFaceSmooth(renderWorld, state, pos, buffer, layer, quads, afloat, facing, bitset, ambientFace, cube);
+													else
+														CreativeModelPipeline.renderBlockFaceFlat(renderWorld, state, pos, buffer, layer, quads, facing, bitset, cube, ambientFace);
 											}
 											
 											bakedQuadWrapper.setElement(null);
