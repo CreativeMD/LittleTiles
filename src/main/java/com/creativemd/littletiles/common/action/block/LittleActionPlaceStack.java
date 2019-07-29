@@ -271,13 +271,13 @@ public class LittleActionPlaceStack extends LittleAction {
 						}
 						
 						te.preventUpdate = false;
-						if (parentStructure != null)
-							te.combineTiles(parentStructure);
-						else
+						if (parentStructure == null) {
 							te.combineTiles();
-						
-						if (parentStructure != null && te.getTiles().size() == 1 && te.convertBlockToVanilla())
-							placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)
+							
+							if (te.getTiles().size() == 1 && te.convertBlockToVanilla())
+								placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)
+						} else
+							te.combineTiles(parentStructure);
 					}
 				}
 			}

@@ -163,6 +163,7 @@ public class RenderingThread extends Thread {
 					
 					try {
 						data.te.buildingCache.set(true);
+						
 						BlockPos pos = data.te.getPos();
 						RenderCubeLayerCache cubeCache = data.te.getCubeCache();
 						
@@ -373,8 +374,6 @@ public class RenderingThread extends Thread {
 			
 			if (data.subWorld)
 				((LittleRenderChunk) data.chunk).addRenderData(te);
-			
-			te.clearWaitingAnimations();
 			
 			if (count == null || count.intValue() <= 0) {
 				chunks.remove(data.chunk);

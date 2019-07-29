@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
@@ -10,6 +9,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
@@ -26,10 +26,8 @@ import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -155,7 +153,7 @@ public class DoorController extends EntityAnimationController {
 			if (placed) {
 				ticksToWait--;
 				
-				if (ticksToWait % 10 == 0) {
+				/*if (ticksToWait % 10 == 0) {
 					synchronized (waitingForRender) {
 						for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
 							TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
@@ -164,7 +162,9 @@ public class DoorController extends EntityAnimationController {
 							}
 						}
 					}
-				}
+				}*/
+				
+				System.out.println(waitingForRender.size());
 				
 				if (waitingForRender.size() == 0 || ticksToWait < 0) {
 					parent.getRenderChunkSuppilier().unloadRenderCache();
@@ -231,10 +231,6 @@ public class DoorController extends EntityAnimationController {
 		}
 		
 		World world = parent.world;
-		
-		if (world.isRemote)
-			waitingForRender = new ArrayList<>();
-		
 		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
@@ -242,7 +238,8 @@ public class DoorController extends EntityAnimationController {
 		
 		LittleStructure newDoor = previews.getStructure();
 		
-		if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
+		LittlePlaceResult result;
+		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
 			if (parent.structure.parent != null && parent.structure.parent.isConnected(world)) {
 				LittleStructure parentStructure = parent.structure.parent.getStructureWithoutLoading();
 				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
@@ -260,14 +257,11 @@ public class DoorController extends EntityAnimationController {
 		if (!world.isRemote)
 			parent.isDead = true;
 		else {
+			waitingForRender = new ArrayList<>();
 			synchronized (waitingForRender) {
-				ArrayList<BlockPos> coordsToCheck = new ArrayList<>(LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos).keySet());
-				for (int i = 0; i < coordsToCheck.size(); i++) {
-					TileEntity te = world.getTileEntity(coordsToCheck.get(i));
-					if (te instanceof TileEntityLittleTiles) {
-						((TileEntityLittleTiles) te).addWaitingAnimation(parent);
-						waitingForRender.add((TileEntityLittleTiles) te);
-					}
+				for (TileEntityLittleTiles te : result.tileEntities) {
+					te.addWaitingAnimation(parent);
+					waitingForRender.add(te);
 				}
 			}
 			ticksToWait = waitTimeRender;

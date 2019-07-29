@@ -197,13 +197,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
 		
-		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate())
-			clearWaitingAnimations();
-		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
 		
 		hasLightChanged = false;
 		hasNeighborChanged = false;
+		
+		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate() && !inRenderingQueue.get())
+			clearWaitingAnimations();
 		
 		if (doesNeedUpdate)
 			addToRenderUpdate();
@@ -1080,7 +1080,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	public void invalidate() {
 		if (isClientSide()) {
-			waitingAnimation = null;
+			clearWaitingAnimations();
 			buffer = null;
 			cubeCache = null;
 			lastRenderedChunk = null;
