@@ -1083,7 +1083,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			clearWaitingAnimations();
 			buffer = null;
 			cubeCache = null;
-			lastRenderedChunk = null;
 			renderTiles = null;
 			cachedRenderBoundingBox = null;
 		}
