@@ -904,6 +904,12 @@ public class EntityAnimation extends Entity {
 	}
 	
 	@Override
+	public void onRemovedFromWorld() {
+		super.onRemovedFromWorld();
+		markRemoved();
+	}
+	
+	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		setFakeWorld(compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote));
 		

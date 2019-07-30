@@ -28,7 +28,6 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.util.ClassInheritanceMultiMap;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -311,13 +310,13 @@ public class LittleDoorHandler {
 	
 	@SubscribeEvent
 	public void chunkUnload(ChunkEvent.Unload event) {
-		for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
+		/*for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
 			for (Entity entity : map) {
 				if (entity instanceof EntityAnimation && ((EntityAnimation) entity).isDoorAdded()) {
 					((EntityAnimation) entity).markRemoved();
 				}
 			}
-		}
+		}*/
 		
 		openDoors.removeIf((x) -> x.isDead);
 	}
