@@ -164,6 +164,9 @@ public class RenderingThread extends Thread {
 					try {
 						data.te.buildingCache.set(true);
 						
+						if (data.te.isInvalid())
+							throw new InvalidTileEntityException(data.te.getPos() + "");
+						
 						BlockPos pos = data.te.getPos();
 						RenderCubeLayerCache cubeCache = data.te.getCubeCache();
 						
@@ -202,6 +205,8 @@ public class RenderingThread extends Thread {
 						
 						cubeCache.sortCache();
 						fakeAccess.set(null, null, null);
+						if (data.te.isInvalid())
+							throw new InvalidTileEntityException(data.te.getPos() + "");
 						world = mc.world;
 						
 						BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
@@ -231,12 +236,13 @@ public class RenderingThread extends Thread {
 										buffer.begin(7, DefaultVertexFormats.BLOCK);
 										if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !data.subWorld) {
 											int bits = 8;
-											int dx = data.te.lastRenderedChunk.getPosition().getX() >> bits << bits;
-											int dy = data.te.lastRenderedChunk.getPosition().getY() >> bits << bits;
-											int dz = data.te.lastRenderedChunk.getPosition().getZ() >> bits << bits;
+											RenderChunk chunk = (RenderChunk) data.chunk;
+											int dx = chunk.getPosition().getX() >> bits << bits;
+											int dy = chunk.getPosition().getY() >> bits << bits;
+											int dz = chunk.getPosition().getZ() >> bits << bits;
 											
-											dx = OptifineHelper.getRenderChunkRegionX(data.te.lastRenderedChunk);
-											dz = OptifineHelper.getRenderChunkRegionZ(data.te.lastRenderedChunk);
+											dx = OptifineHelper.getRenderChunkRegionX(chunk);
+											dz = OptifineHelper.getRenderChunkRegionZ(chunk);
 											
 											int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
 											int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
@@ -332,6 +338,8 @@ public class RenderingThread extends Thread {
 							}
 						} else
 							updateCoords.add(data);
+					} catch (InvalidTileEntityException e) {
+						setRendered(data, new BlockLayerRenderBuffer());
 					} catch (Exception e) {
 						updateCoords.add(data);
 					} catch (OutOfMemoryError error) {
@@ -343,7 +351,8 @@ public class RenderingThread extends Thread {
 					chunks.clear();
 				}
 				
-				sleep(1);
+				if (updateCoords.isEmpty())
+					sleep(1);
 				if (Thread.currentThread().isInterrupted())
 					throw new InterruptedException();
 			}
@@ -399,6 +408,13 @@ public class RenderingThread extends Thread {
 		
 		return true;
 		
+	}
+	
+	public static class InvalidTileEntityException extends Exception {
+		
+		public InvalidTileEntityException(String arg0) {
+			super(arg0);
+		}
 	}
 	
 	public static class RenderingException extends Exception {

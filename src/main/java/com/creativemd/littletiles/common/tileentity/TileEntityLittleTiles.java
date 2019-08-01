@@ -677,6 +677,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			updateBlock();
 			customTilesUpdate();
 		}
+		
+		deleteTempWorld();
 	}
 	
 	@Override
@@ -1081,6 +1083,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void invalidate() {
 		if (isClientSide()) {
 			clearWaitingAnimations();
+			lastRenderedChunk = null;
 			buffer = null;
 			cubeCache = null;
 			renderTiles = null;
@@ -1089,6 +1092,28 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		//sideCache = null;
 		//tiles = null;
 		//updateTiles = null;
+		
+	}
+	
+	@Override
+	public void onChunkUnload() {
 		super.invalidate();
+		tiles = null;
+		sideCache = null;
+		updateTiles = null;
+		if (isClientSide()) {
+			clearWaitingAnimations();
+			lastRenderedChunk = null;
+			buffer = null;
+			cubeCache = null;
+			renderTiles = null;
+			cachedRenderBoundingBox = null;
+		}
+		
+	}
+	
+	@Override
+	public void validate() {
+		super.validate();
 	}
 }
