@@ -549,6 +549,70 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
+	public static Ingredients getMissing(EntityPlayer player, Ingredients ingredients) {
+		if (needIngredients(player)) {
+			Ingredients missing = new Ingredients();
+			List<ItemStack> bags = getBags(player);
+			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
+			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
+			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
+			
+			if (color != null && color.isEmpty())
+				color = null;
+			
+			for (ItemStack stack : bags) {
+				ItemStack used = stack.copy();
+				
+				if (toCheck != null)
+					toCheck = ItemBag.drainBlocks(used, toCheck, false);
+				if (color != null)
+					color = ItemBag.drainColor(used, color, false);
+				
+				usedBags.add(used);
+			}
+			
+			if (color != null)
+				missing.color = color;
+			
+			if (toCheck != null || ingredients.hasStacks()) {
+				List<ItemStack> inventory = InventoryUtils.copy(player.inventory);
+				
+				if (toCheck != null) {
+					BlockIngredients additionalIngredients = new BlockIngredients();
+					
+					for (Iterator iterator = inventory.iterator(); iterator.hasNext();) {
+						ItemStack itemStack = (ItemStack) iterator.next();
+						BlockIngredient leftOver = toCheck.drainItemStack(itemStack);
+						
+						if (leftOver != null)
+							additionalIngredients.addIngredient(leftOver);
+						
+						if (itemStack.isEmpty())
+							iterator.remove();
+						
+						if (toCheck.isEmpty())
+							break;
+					}
+					
+					if (!toCheck.isEmpty())
+						missing.block = toCheck;
+					
+				}
+				
+				if (ingredients.hasStacks())
+					for (Iterator iterator = ingredients.getStacks().iterator(); iterator.hasNext();) {
+						StackIngredient stackIngredient = (StackIngredient) iterator.next();
+						if (stackIngredient.drain(inventory))
+							iterator.remove();
+						else
+							ingredients.addStack(stackIngredient);
+					}
+			}
+			
+		}
+		return ingredients;
+	}
+	
 	public static boolean canDrain(EntityPlayer player, Ingredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
@@ -611,7 +675,6 @@ public abstract class LittleAction extends CreativeCorePacket {
 			
 		}
 		return true;
-		
 	}
 	
 	public static boolean drain(EntityPlayer player, Ingredients ingredients) throws NotEnoughIngredientsException {

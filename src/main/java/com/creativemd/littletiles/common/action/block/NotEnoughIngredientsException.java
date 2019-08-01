@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.action.block;
 
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
 
 import net.minecraft.item.ItemStack;
 

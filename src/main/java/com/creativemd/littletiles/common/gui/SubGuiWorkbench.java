@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
@@ -10,9 +9,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughColorException;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughStackException;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException.NotEnoughVolumeExcepion;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
@@ -61,13 +57,20 @@ public class SubGuiWorkbench extends SubGui {
 							if (LittleAction.drain(player, ingredients)) {
 								sendPacketToServer(new NBTTagCompound());
 							}
-						} catch (NotEnoughIngredientsException e) {
-							if (e instanceof NotEnoughVolumeExcepion) {
+						} catch (NotEnoughIngredientsException e2) {
+							Ingredients missing = LittleAction.getMissing(player, IngredientUtils.getIngredients(previews));
+							
+							if (ingredients.block != null)
 								for (BlockIngredient ingredient : ingredients.block.getIngredients()) {
-									listBox.add(ingredient.value > 1 ? ingredient.value + " blocks" : (int) (ingredient.value * previews.context.maxTilesPerBlock) + " pixels", ingredient.getItemStack());
+									int fullBlocks = (int) ingredient.value;
+									int pixels = (int) Math.ceil(((ingredient.value - fullBlocks) * previews.context.maxTilesPerBlock));
+									String line = fullBlocks > 0 ? fullBlocks + " blocks" : "";
+									line += (fullBlocks > 0 ? " " : "") + pixels + " pixels";
+									listBox.add(line, ingredient.getItemStack());
 								}
-							} else if (e instanceof NotEnoughColorException) {
-								ColorUnit unit = ((NotEnoughColorException) e).missing;
+							
+							if (ingredients.color != null) {
+								ColorUnit unit = ingredients.color;
 								if (unit.BLACK > 0)
 									listBox.add(unit.getBlackDescription(), ItemStack.EMPTY);
 								if (unit.CYAN > 0)
@@ -76,13 +79,10 @@ public class SubGuiWorkbench extends SubGui {
 									listBox.add(unit.getMagentaDescription(), ItemStack.EMPTY);
 								if (unit.YELLOW > 0)
 									listBox.add(unit.getYellowDescription(), ItemStack.EMPTY);
-							} else if (e instanceof NotEnoughStackException) {
-								for (StackIngredient stack : ingredients.getStacks()) {
-									listBox.add(stack.count + "", stack.stack);
-								}
-							} else {
-								label.caption = e.getLocalizedMessage();
-								label.width = GuiRenderHelper.instance.getStringWidth(label.caption) + label.getContentOffset() * 2;
+							}
+							
+							for (StackIngredient stack : ingredients.getStacks()) {
+								listBox.add(stack.count + "", stack.stack);
 							}
 							
 						}

@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.gui.controls;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.controls.container.client.GuiSlotControl;
@@ -35,8 +35,8 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 	}
 	
 	@Override
-	public ArrayList<String> getTooltip() {
-		ArrayList<String> tooltip = super.getTooltip();
+	public List<String> getTooltip() {
+		List<String> tooltip = super.getTooltip();
 		BlockIngredient ingredient = ((SlotControlBlockIngredient) slot).ingredient;
 		if (ingredient != null) {
 			int blocks = (int) ingredient.value;
