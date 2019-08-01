@@ -90,6 +90,9 @@ public class PreviewRenderer {
 			EntityPlayer player = mc.player;
 			ItemStack stack = mc.player.getHeldItemMainhand();
 			
+			if (!LittleAction.canPlace(player))
+				return;
+			
 			handleUndoAndRedo(player);
 			
 			if (PlacementHelper.isLittleBlock(stack) && (marked != null || (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK && mc.objectMouseOver.sideHit != null))) {
@@ -238,6 +241,10 @@ public class PreviewRenderer {
 		EntityPlayer player = event.getPlayer();
 		World world = player.world;
 		ItemStack stack = player.getHeldItemMainhand();
+		
+		if (!LittleAction.canPlace(player))
+			return;
+		
 		if ((event.getTarget().typeOfHit == Type.BLOCK || marked != null) && PlacementHelper.isLittleBlock(stack)) {
 			if (marked != null)
 				marked.renderBlockHighlight(player, event.getPartialTicks());

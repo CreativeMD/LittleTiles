@@ -20,8 +20,8 @@ import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsExcept
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.items.ItemBag;
+import com.creativemd.littletiles.common.items.ItemPremadeStructure;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
@@ -72,6 +72,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -227,6 +228,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return SpecialServerConfig.canEditBlock(player, state, pos);
 	}
 	
+	public static boolean canPlace(EntityPlayer player) {
+		GameType type = PlayerUtils.getGameType(player);
+		if (type == GameType.CREATIVE || type == GameType.SURVIVAL || type == GameType.ADVENTURE)
+			return true;
+		return false;
+	}
+	
 	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
@@ -249,7 +257,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					// new TileEntityLittleTiles();
 					if (!world.setBlockState(pos, BlockTile.getState(false, false)))
 						return null;
-					tileEntity = (TileEntityLittleTiles) world.getTileEntity(pos);
+					tileEntity = world.getTileEntity(pos);
 				}
 			}
 			
