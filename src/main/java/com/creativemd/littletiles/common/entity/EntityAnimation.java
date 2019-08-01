@@ -708,6 +708,12 @@ public class EntityAnimation extends Entity {
 					tile.updateEntity();
 		}
 		
+		prevPosX = center.baseOffset.getX() + origin.offXLast();
+		prevPosY = center.baseOffset.getY() + origin.offYLast();
+		prevPosZ = center.baseOffset.getZ() + origin.offZLast();
+		posX = center.baseOffset.getX() + origin.offX();
+		posY = center.baseOffset.getY() + origin.offY();
+		posZ = center.baseOffset.getZ() + origin.offZ();
 	}
 	
 	// ================Overridden================
