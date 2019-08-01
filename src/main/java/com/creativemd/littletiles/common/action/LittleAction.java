@@ -228,6 +228,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return SpecialServerConfig.canEditBlock(player, state, pos);
 	}
 	
+	public static boolean canUseUndoOrRedo(EntityPlayer player) {
+		GameType type = PlayerUtils.getGameType(player);
+		return type == GameType.CREATIVE || type == GameType.SURVIVAL;
+	}
+	
 	public static boolean canPlace(EntityPlayer player) {
 		GameType type = PlayerUtils.getGameType(player);
 		if (type == GameType.CREATIVE || type == GameType.SURVIVAL || type == GameType.ADVENTURE)

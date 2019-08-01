@@ -68,7 +68,8 @@ public class PreviewRenderer {
 	public static void handleUndoAndRedo(EntityPlayer player) {
 		while (LittleTilesClient.undo.isPressed()) {
 			try {
-				LittleAction.undo();
+				if (LittleAction.canUseUndoOrRedo(player))
+					LittleAction.undo();
 			} catch (LittleActionException e) {
 				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			}
@@ -76,7 +77,8 @@ public class PreviewRenderer {
 		
 		while (LittleTilesClient.redo.isPressed()) {
 			try {
-				LittleAction.redo();
+				if (LittleAction.canUseUndoOrRedo(player))
+					LittleAction.redo();
 			} catch (LittleActionException e) {
 				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			}
