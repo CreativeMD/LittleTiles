@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.gui.controls;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
@@ -36,9 +37,9 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 	
 	@Override
 	public List<String> getTooltip() {
-		List<String> tooltip = super.getTooltip();
 		BlockIngredient ingredient = ((SlotControlBlockIngredient) slot).ingredient;
 		if (ingredient != null) {
+			List<String> tooltip = new ArrayList<String>();
 			int blocks = (int) ingredient.value;
 			double pixel = (ingredient.value - blocks) * LittleGridContext.get().maxTilesPerBlock;
 			String line = "volume: ";
@@ -48,7 +49,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 				line += (Math.round(pixel * 100) / 100) + " pixel";
 			tooltip.add(line);
 		}
-		return tooltip;
+		return super.getTooltip();
 	}
 	
 }
