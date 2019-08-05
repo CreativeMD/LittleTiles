@@ -1092,7 +1092,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		//sideCache = null;
 		//tiles = null;
 		//updateTiles = null;
-		
+		super.invalidate();
 	}
 	
 	@Override
