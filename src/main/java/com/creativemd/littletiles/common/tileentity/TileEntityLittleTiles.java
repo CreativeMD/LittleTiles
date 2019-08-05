@@ -1078,42 +1078,4 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public boolean isEmpty() {
 		return tiles.isEmpty();
 	}
-	
-	@Override
-	public void invalidate() {
-		if (isClientSide()) {
-			clearWaitingAnimations();
-			lastRenderedChunk = null;
-			buffer = null;
-			cubeCache = null;
-			renderTiles = null;
-			cachedRenderBoundingBox = null;
-		}
-		//sideCache = null;
-		//tiles = null;
-		//updateTiles = null;
-		super.invalidate();
-	}
-	
-	@Override
-	public void onChunkUnload() {
-		super.invalidate();
-		tiles = null;
-		sideCache = null;
-		updateTiles = null;
-		if (isClientSide()) {
-			clearWaitingAnimations();
-			lastRenderedChunk = null;
-			buffer = null;
-			cubeCache = null;
-			renderTiles = null;
-			cachedRenderBoundingBox = null;
-		}
-		
-	}
-	
-	@Override
-	public void validate() {
-		super.validate();
-	}
 }
