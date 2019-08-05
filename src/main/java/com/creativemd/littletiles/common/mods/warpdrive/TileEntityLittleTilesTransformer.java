@@ -136,8 +136,7 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 			return metadata;
 		}
 		
-		TileEntityLittleTiles te = new TileEntityLittleTiles();
-		te.readFromNBT(nbtTileEntity);
+		TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(transformation.getTargetWorld(), nbtTileEntity);
 		
 		Rotation rotation = Rotation.Y_COUNTER_CLOCKWISE;
 		int count = rotationSteps;
