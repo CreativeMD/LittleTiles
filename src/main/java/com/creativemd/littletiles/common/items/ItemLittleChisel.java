@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.PreviewRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
@@ -218,6 +219,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		return Minecraft.getMinecraft().player;
 	}
 	
+	@Override
 	public LittleAbsolutePreviews getLittlePreview(ItemStack stack) {
 		return null;
 	}
@@ -327,6 +329,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			ItemLittleChisel.cachedPos = null;
 			ItemLittleChisel.cachedSettings = null;
 			ItemLittleChisel.cachedShape = null;
+			PreviewRenderer.marked = null;
 			
 		} else
 			return true;
