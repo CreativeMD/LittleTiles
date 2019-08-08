@@ -137,12 +137,12 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		case EAST:
 			rotX.set(0);
 			rotY.set(-90);
-			rotZ.set(180);
+			rotZ.set(0);
 			break;
 		case WEST:
 			rotX.set(0);
 			rotY.set(90);
-			rotZ.set(180);
+			rotZ.set(0);
 			break;
 		case UP:
 			rotX.set(90);
@@ -157,12 +157,12 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		case SOUTH:
 			rotX.set(0);
 			rotY.set(-180);
-			rotZ.set(180);
+			rotZ.set(0);
 			break;
 		case NORTH:
 			rotX.set(0);
 			rotY.set(0);
-			rotZ.set(180);
+			rotZ.set(0);
 			break;
 		}
 		
