@@ -60,7 +60,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 			return;
 		}
 		
-		link.setLoadedStructure(connectedStructure);
+		link.setLoadedStructure(this.parent);
 	}
 	
 	@Override

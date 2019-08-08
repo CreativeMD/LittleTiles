@@ -111,10 +111,6 @@ public abstract class LittleStructure {
 	}
 	
 	public void addTempChild(LittleStructure child) {
-		if (child == this) {
-			new RuntimeException().printStackTrace();
-			throw new RuntimeException("Trying add itself to its children");
-		}
 		this.tempChildren.add(child);
 	}
 	
@@ -356,9 +352,6 @@ public abstract class LittleStructure {
 	}
 	
 	public void updateChildConnection(int i, LittleStructure child) {
-		if (child == this)
-			throw new RuntimeException("Trying to add structure to its own children!!!!!");
-		
 		World world = getWorld();
 		World childWorld = child.getWorld();
 		
@@ -380,9 +373,6 @@ public abstract class LittleStructure {
 	}
 	
 	public void updateParentConnection(int i, LittleStructure parent) {
-		if (parent == this)
-			throw new RuntimeException("Setting the structure to its own parent!!!!!!!");
-		
 		World world = getWorld();
 		World parentWorld = parent.getWorld();
 		
