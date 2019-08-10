@@ -52,7 +52,11 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
 		for (int i = 0; i < positions.size(); i++) {
 			writePos(buf, positions.get(i));
 			writeState(buf, states.get(i));
-			writePacket(buf, packets.get(i));
+			if (packets.get(i) != null) {
+				buf.writeBoolean(true);
+				writePacket(buf, packets.get(i));
+			} else
+				buf.writeBoolean(false);
 		}
 		
 		if (uuid != null) {
@@ -71,7 +75,10 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
 		for (int i = 0; i < size; i++) {
 			positions.add(readPos(buf));
 			states.add(readState(buf));
-			packets.add((SPacketUpdateTileEntity) readPacket(buf));
+			if (buf.readBoolean())
+				packets.add((SPacketUpdateTileEntity) readPacket(buf));
+			else
+				packets.add(null);
 		}
 		
 		if (buf.readBoolean())
@@ -95,11 +102,13 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
 		for (int i = 0; i < positions.size(); i++) {
 			if (world instanceof WorldClient) {
 				((WorldClient) world).invalidateRegionAndSetBlock(positions.get(i), states.get(i));
-				((EntityPlayerSP) player).connection.handleUpdateTileEntity(packets.get(i));
+				if (packets.get(i) != null)
+					((EntityPlayerSP) player).connection.handleUpdateTileEntity(packets.get(i));
 			} else {
 				world.setBlockState(positions.get(i), states.get(i), 3);
 				TileEntity te = world.getTileEntity(positions.get(i));
-				te.onDataPacket(((EntityPlayerSP) player).connection.getNetworkManager(), packets.get(i));
+				if (packets.get(i) != null)
+					te.onDataPacket(((EntityPlayerSP) player).connection.getNetworkManager(), packets.get(i));
 			}
 			
 		}
