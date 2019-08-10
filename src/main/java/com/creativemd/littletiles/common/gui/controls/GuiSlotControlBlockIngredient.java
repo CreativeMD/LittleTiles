@@ -48,6 +48,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 			if (pixel > 0)
 				line += (Math.round(pixel * 100) / 100) + " pixel";
 			tooltip.add(line);
+			return tooltip;
 		}
 		return super.getTooltip();
 	}
