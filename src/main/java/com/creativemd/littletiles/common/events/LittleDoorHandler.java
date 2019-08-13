@@ -9,11 +9,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -28,6 +30,7 @@ import net.minecraft.crash.CrashReport;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ReportedException;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -37,6 +40,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
@@ -142,6 +146,16 @@ public class LittleDoorHandler {
 			});
 			
 			isTicking = false;
+		}
+	}
+	
+	@SubscribeEvent
+	public void trackEntity(StartTracking event) {
+		if (side.isClient())
+			return;
+		if (event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).controller.activator() != event.getEntityPlayer()) {
+			EntityAnimation animation = (EntityAnimation) event.getTarget();
+			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
 	
@@ -318,11 +332,23 @@ public class LittleDoorHandler {
 			}
 		}*/
 		
-		openDoors.removeIf((x) -> x.isDead);
+		if (event.getWorld().isRemote != side.isClient())
+			return;
+		
+		openDoors.removeIf((x) -> {
+			if (x.isDead) {
+				x.markRemoved();
+				return true;
+			}
+			return false;
+		});
 	}
 	
 	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {
+		if (event.getWorld().isRemote != side.isClient())
+			return;
+		
 		openDoors.removeIf((x) -> {
 			if (x.world == event.getWorld()) {
 				x.markRemoved();

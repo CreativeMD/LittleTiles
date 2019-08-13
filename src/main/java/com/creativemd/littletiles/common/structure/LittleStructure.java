@@ -855,7 +855,6 @@ public abstract class LittleStructure {
 		for (IStructureChildConnector child : children) {
 			LittleStructure childStructure = child.getStructure(getWorld());
 			if (child.isLinkToAnotherWorld()) {
-				
 				EntityAnimation subAnimation = ((IAnimatedStructure) childStructure).getAnimation();
 				int l1 = subAnimation.chunkCoordX;
 				int i2 = subAnimation.chunkCoordZ;
@@ -869,6 +868,7 @@ public abstract class LittleStructure {
 				world.loadedEntityList.remove(subAnimation);
 				subAnimation.setParentWorld(animation.fakeWorld);
 				animation.fakeWorld.spawnEntity(subAnimation);
+				subAnimation.updateTickState();
 			} else
 				childStructure.transferChildrenToAnimation(animation);
 		}
@@ -891,6 +891,7 @@ public abstract class LittleStructure {
 				animation.fakeWorld.loadedEntityList.remove(subAnimation);
 				subAnimation.setParentWorld(parentWorld);
 				parentWorld.spawnEntity(subAnimation);
+				subAnimation.updateTickState();
 			} else
 				childStructure.transferChildrenFromAnimation(animation);
 		}

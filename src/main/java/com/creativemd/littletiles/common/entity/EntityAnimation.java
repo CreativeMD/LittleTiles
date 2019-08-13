@@ -13,13 +13,13 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
-import com.creativemd.creativecore.common.utils.math.box.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.box.CollidingPlane.PushCache;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
+import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.ChildVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
-import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils;
-import com.creativemd.creativecore.common.utils.math.vec.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -651,6 +651,16 @@ public class EntityAnimation extends Entity {
 		}
 	}
 	
+	public void updateTickState() {
+		if (controller == null)
+			return;
+		AnimationState state = controller.tick();
+		Vector3d offset = state.getOffset();
+		Vector3d rotation = state.getRotation();
+		moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ());
+		origin.tick();
+	}
+	
 	public void onTick() {
 		if (controller == null)
 			return;
@@ -695,7 +705,14 @@ public class EntityAnimation extends Entity {
 			if (entity instanceof EntityAnimation)
 				((EntityAnimation) entity).onUpdateForReal();
 		}
-		fakeWorld.loadedEntityList.removeIf((Entity x) -> x.isDead);
+		fakeWorld.loadedEntityList.removeIf((x) -> {
+			if (x.isDead) {
+				if (x instanceof EntityAnimation)
+					((EntityAnimation) x).markRemoved();
+				return true;
+			}
+			return false;
+		});
 		
 		onTick();
 		
@@ -753,8 +770,9 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public void setDead() {
-		if (!this.isDead && (!world.isRemote || controller == null || !controller.isWaitingForRender()))
+		if (!this.isDead && (!world.isRemote || controller == null || !controller.isWaitingForRender())) {
 			this.isDead = true;
+		}
 	}
 	
 	public void destroyAnimation() {
@@ -890,6 +908,7 @@ public class EntityAnimation extends Entity {
 		
 		updateWorldCollision();
 		updateBoundingBox();
+		updateTickState();
 	}
 	
 	@Deprecated

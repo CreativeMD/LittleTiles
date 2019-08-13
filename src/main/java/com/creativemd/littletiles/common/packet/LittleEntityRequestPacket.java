@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.google.common.base.Predicate;
 
 import io.netty.buffer.ByteBuf;
@@ -40,6 +41,14 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
+		EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+		if (animation != null) {
+			animation.isDead = false;
+			animation.readFromNBT(nbt);
+			animation.origin.tick();
+			return;
+		}
+		
 		for (Iterator<EntityAnimation> iterator = player.world.getEntities(EntityAnimation.class, new Predicate<EntityAnimation>() {
 			
 			@Override
@@ -50,14 +59,12 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 		}).iterator();iterator.hasNext();) {
 			Entity entity = iterator.next();
 			if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid)) {
-				EntityAnimation animation = (EntityAnimation) entity;
+				animation = (EntityAnimation) entity;
+				animation.isDead = false;
 				animation.readFromNBT(nbt);
-				animation.updateBoundingBox();
-				animation.preventPush = true;
-				animation.onUpdateForReal();
-				animation.preventPush = false;
-				
 				animation.origin.tick();
+				if (!animation.isDoorAdded())
+					animation.addDoor();
 				return;
 			}
 		}

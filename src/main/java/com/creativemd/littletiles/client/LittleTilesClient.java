@@ -150,18 +150,11 @@ public class LittleTilesClient extends LittleTilesServer {
 			@Override
 			public Entity apply(EntitySpawnMessage input) {
 				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
-				EntityAnimation animation = null;
-				for (EntityAnimation entity : LittleDoorHandler.client.openDoors) {
-					if (entity.getUniqueID().equals(uuid)) {
-						animation = entity;
-						break;
-					}
-				}
+				EntityAnimation animation = LittleDoorHandler.client.findDoor(uuid);
 				
 				boolean alreadyExisted = animation != null;
 				if (animation == null) {
 					animation = new EntityAnimation(mc.world);
-					
 					animation.setUniqueId(uuid);
 				} else {
 					animation.spawnedInWorld = true;

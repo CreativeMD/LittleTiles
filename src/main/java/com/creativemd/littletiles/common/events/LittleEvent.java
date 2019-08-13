@@ -21,7 +21,6 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -48,7 +47,6 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -68,7 +66,6 @@ import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
-import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
@@ -89,14 +86,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleEvent {
-	
-	@SubscribeEvent
-	public void trackEntity(StartTracking event) {
-		if (event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).controller.activator() != event.getEntityPlayer()) {
-			EntityAnimation animation = (EntityAnimation) event.getTarget();
-			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) event.getEntityPlayer());
-		}
-	}
 	
 	public static ItemStack lastSelectedItem = null;
 	public static ISpecialBlockSelector blockSelector = null;

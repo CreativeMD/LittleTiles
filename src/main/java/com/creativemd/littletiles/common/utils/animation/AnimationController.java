@@ -135,6 +135,14 @@ public class AnimationController {
 		tickingState = null;
 	}
 	
+	public AnimationState getTickingState() {
+		if (isChanging()) {
+			animation.tick(tick, tickingState);
+			return tickingState;
+		}
+		return currentState.state;
+	}
+	
 	public AnimationState tick() {
 		if (isChanging()) {
 			if (animation.tick(tick, tickingState)) {
