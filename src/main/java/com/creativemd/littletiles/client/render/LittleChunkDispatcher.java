@@ -15,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -25,7 +24,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-public class LittleChunkDispatcher extends ChunkRenderDispatcher {
+public class LittleChunkDispatcher {
 	
 	public static AtomicInteger currentRenderIndex = new AtomicInteger(0);
 	
@@ -42,10 +41,6 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public LittleChunkDispatcher() {
-		super();
 	}
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
@@ -83,11 +78,15 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 	
 	public static Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
 	
-	@Override
-	public ListenableFuture<Object> uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
+	public ListenableFuture<Object> uploadChunk2(final BlockRenderLayer p_188245_1_, final BufferBuilder p_188245_2_, final RenderChunk p_188245_3_, final CompiledChunk p_188245_4_, final double p_188245_5_) {
+		uploadChunk(p_188245_1_, p_188245_2_, p_188245_3_, p_188245_4_, p_188245_5_);
+		return null;
+	}
+	
+	public static void uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
 		try {
 			if (added.getBoolean(buffer))
-				return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
+				return;
 		} catch (IllegalArgumentException | IllegalAccessException e2) {
 			e2.printStackTrace();
 		}
@@ -101,7 +100,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
-				return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
+				return;
 			}
 			
 			int expanded = 0;
@@ -183,7 +182,7 @@ public class LittleChunkDispatcher extends ChunkRenderDispatcher {
 				LittleTilesProfiler.uploaded++;
 			}
 		}
-		return super.uploadChunk(layer, buffer, chunk, compiled, p_188245_5_);
+		return;
 	}
 	
 	public static BufferBuilder.State emptyState = loadEmptyState();

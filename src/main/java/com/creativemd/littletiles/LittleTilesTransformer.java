@@ -35,27 +35,22 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			
 			@Override
 			public void transform(ClassNode classNode) {
-				MethodNode m = findMethod(classNode, "loadRenderers", "()V");
-				String className = patchClassName("net/minecraft/client/renderer/chunk/ChunkRenderDispatcher");
-				boolean isNextLabel = false;
-				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
-					AbstractInsnNode node = (AbstractInsnNode) iterator.next();
-					if (isNextLabel && node instanceof LabelNode) {
-						m.instructions.insert(node, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onReloadRenderers", patchDESC("(Lnet/minecraft/client/renderer/RenderGlobal;)V"), false));
-						m.instructions.insert(node, new VarInsnNode(Opcodes.ALOAD, 0));
-						isNextLabel = false;
-					}
-					if (node instanceof TypeInsnNode && ((TypeInsnNode) node).getOpcode() == Opcodes.NEW && ((TypeInsnNode) node).desc.equals(className))
-						((TypeInsnNode) node).desc = "com/creativemd/littletiles/client/render/LittleChunkDispatcher";
-					if (node instanceof MethodInsnNode && ((MethodInsnNode) node).name.equals("<init>") && ((MethodInsnNode) node).desc.equals("()V") && ((MethodInsnNode) node).owner.equals(className)) {
-						MethodInsnNode method = (MethodInsnNode) node;
-						method.owner = "com/creativemd/littletiles/client/render/LittleChunkDispatcher";
-						isNextLabel = true;
-					}
-				}
-				
-				m = findMethod(classNode, "renderEntities", "(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;F)V");
+				MethodNode m = findMethod(classNode, "renderEntities", "(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;F)V");
 				m.instructions.insertBefore(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleDoorHandler", "renderTick", "()V", false));
+			}
+		});
+		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher") {
+			
+			@Override
+			public void transform(ClassNode node) {
+				MethodNode m = findMethod(node, "uploadChunk", "(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/BufferBuilder;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)Lcom/google/common/util/concurrent/ListenableFuture;");
+				AbstractInsnNode first = m.instructions.getFirst();
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 1));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 2));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 3));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.DLOAD, 5));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "uploadChunk", patchDESC("(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/BufferBuilder;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)V"), false));
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.entity.player.EntityPlayer") {
