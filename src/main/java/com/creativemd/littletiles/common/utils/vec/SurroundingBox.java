@@ -247,6 +247,34 @@ public class SurroundingBox {
 		return new Vec3d(context.toVanillaGrid((minX + maxX) / 2D), pos.getPosY(), context.toVanillaGrid((minZ + maxZ) / 2D));
 	}
 	
+	public long getMinX() {
+		return minX;
+	}
+	
+	public long getMinY() {
+		return minY;
+	}
+	
+	public long getMinZ() {
+		return minZ;
+	}
+	
+	public long getMaxX() {
+		return maxX;
+	}
+	
+	public long getMaxY() {
+		return maxY;
+	}
+	
+	public long getMaxZ() {
+		return maxZ;
+	}
+	
+	public LittleGridContext getContext() {
+		return context;
+	}
+	
 	public int count() {
 		return count;
 	}

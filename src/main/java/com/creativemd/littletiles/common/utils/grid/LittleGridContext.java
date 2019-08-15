@@ -169,9 +169,15 @@ public class LittleGridContext {
 		return grid * gridMCLength;
 	}
 	
-	public int toBlockOffset(int grid) {
+	public int toBlockOffset(long grid) {
 		if (grid > 0)
 			return (int) (grid / size);
+		return (int) Math.floor(grid / (double) size);
+	}
+	
+	public int toBlockOffset(int grid) {
+		if (grid > 0)
+			return grid / size;
 		return (int) Math.floor(grid / (double) size);
 	}
 	
