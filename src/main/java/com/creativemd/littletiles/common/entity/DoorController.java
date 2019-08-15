@@ -124,6 +124,8 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void removeWaitingTe(TileEntityLittleTiles te) {
+		if (!isWaitingForRender())
+			return;
 		synchronized (waitingForRender) {
 			waitingForRender.remove(te);
 		}
