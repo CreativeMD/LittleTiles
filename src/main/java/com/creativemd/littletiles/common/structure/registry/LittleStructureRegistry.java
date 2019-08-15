@@ -84,8 +84,6 @@ public class LittleStructureRegistry {
 	private static void registerStructureType(String id, LittleStructureType entry, Class<? extends LittleStructureGuiParser> parser) {
 		if (structures.containsKey(id))
 			throw new RuntimeException("ID is already taken! id=" + id);
-		if (structures.containsValue(entry))
-			throw new RuntimeException("Already registered class=" + entry);
 		
 		if (parser != null)
 			registerGuiParser(id, entry.category, parser);
