@@ -217,7 +217,7 @@ public class RenderingThread extends Thread {
 								
 								World renderWorld = data.te.getWorld();
 								if (renderWorld instanceof SubWorld && !((SubWorld) renderWorld).shouldRender)
-									renderWorld = ((SubWorld) renderWorld).parentWorld;
+									renderWorld = ((SubWorld) renderWorld).getRealWorld();
 								
 								// Render vertex buffer
 								for (int i = 0; i < BlockRenderLayer.values().length; i++) {
