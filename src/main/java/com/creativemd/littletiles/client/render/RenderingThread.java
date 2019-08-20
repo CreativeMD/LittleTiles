@@ -162,10 +162,10 @@ public class RenderingThread extends Thread {
 					RenderingData data = updateCoords.poll();
 					
 					try {
-						data.te.buildingCache.set(true);
-						
 						if (data.te.isInvalid())
 							throw new InvalidTileEntityException(data.te.getPos() + "");
+						
+						data.te.buildingCache.set(true);
 						
 						BlockPos pos = data.te.getPos();
 						RenderCubeLayerCache cubeCache = data.te.getCubeCache();
@@ -346,6 +346,7 @@ public class RenderingThread extends Thread {
 						updateCoords.add(data);
 						error.printStackTrace();
 					}
+					data = null;
 				} else if (world == null && (!updateCoords.isEmpty() || !chunks.isEmpty())) {
 					updateCoords.clear();
 					chunks.clear();
@@ -365,7 +366,7 @@ public class RenderingThread extends Thread {
 		TileEntityLittleTiles te = data.te;
 		te.setBuffer(buffer);
 		
-		if (te.rebuildRenderingCache) {
+		if (!te.isInvalid() && te.rebuildRenderingCache) {
 			te.rebuildRenderingCache = false;
 			te.getCubeCache().clearCache();
 			te.buildingCache.set(false);

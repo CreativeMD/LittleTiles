@@ -18,7 +18,8 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -87,10 +88,10 @@ public class LittleStorage extends LittleStructure {
 	}
 	
 	@Override
-	public void addIngredients(Ingredients ingredients) {
+	public void addIngredients(LittleIngredients ingredients) {
 		super.addIngredients(ingredients);
 		if (inventory != null)
-			ingredients.addStack(inventory);
+			ingredients.add(new StackIngredient(inventory));
 	}
 	
 	public static int getSizeOfInventory(LittlePreviews previews) {

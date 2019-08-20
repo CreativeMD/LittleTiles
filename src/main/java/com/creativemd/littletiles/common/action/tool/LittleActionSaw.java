@@ -11,9 +11,9 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 
 import io.netty.buffer.ByteBuf;
@@ -113,16 +113,16 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if (box != null) {
 				double amount = Math.abs(box.getPercentVolume(te.getContext()) - tile.box.getPercentVolume(te.getContext()));
-				BlockIngredients ingredients = new BlockIngredients();
+				BlockIngredient ingredients = new BlockIngredient();
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredient ingredient = preview.getBlockIngredient(te.getContext());
+				BlockIngredientEntry ingredient = preview.getBlockIngredient(te.getContext());
 				if (ingredient != null) {
 					ingredient.value = amount;
 					ingredients.addIngredient(ingredient);
 					
-					ColorUnit unit = null;
+					ColorIngredient unit = null;
 					if (preview.hasColor()) {
-						unit = ColorUnit.getColors(preview.getColor());
+						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
 					}
 					
@@ -225,16 +225,16 @@ public class LittleActionSaw extends LittleActionInteract {
 				}
 				
 				double amount = Math.abs(oldBox.getPercentVolume(context) - tile.box.getPercentVolume(tile.getContext()));
-				BlockIngredients ingredients = new BlockIngredients();
+				BlockIngredient ingredients = new BlockIngredient();
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredient ingredient = preview.getBlockIngredient(tile.getContext());
+				BlockIngredientEntry ingredient = preview.getBlockIngredient(tile.getContext());
 				if (ingredient != null) {
 					ingredient.value = amount;
 					ingredients.addIngredient(ingredient);
 					
-					ColorUnit unit = null;
+					ColorIngredient unit = null;
 					if (preview.hasColor()) {
-						unit = ColorUnit.getColors(preview.getColor());
+						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
 					}
 					

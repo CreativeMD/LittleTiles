@@ -8,16 +8,16 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiItemListBox;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -61,7 +61,7 @@ public class SubGuiWorkbench extends SubGui {
 							Ingredients missing = LittleAction.getMissing(player, IngredientUtils.getIngredients(previews));
 							
 							if (ingredients.block != null)
-								for (BlockIngredient ingredient : ingredients.block.getIngredients()) {
+								for (BlockIngredientEntry ingredient : ingredients.block.getIngredients()) {
 									int fullBlocks = (int) ingredient.value;
 									int pixels = (int) Math.ceil(((ingredient.value - fullBlocks) * previews.context.maxTilesPerBlock));
 									String line = fullBlocks > 0 ? fullBlocks + " blocks" : "";
@@ -70,14 +70,14 @@ public class SubGuiWorkbench extends SubGui {
 								}
 							
 							if (ingredients.color != null) {
-								ColorUnit unit = ingredients.color;
-								if (unit.BLACK > 0)
+								ColorIngredient unit = ingredients.color;
+								if (unit.black > 0)
 									listBox.add(unit.getBlackDescription(), ItemStack.EMPTY);
-								if (unit.CYAN > 0)
+								if (unit.cyan > 0)
 									listBox.add(unit.getCyanDescription(), ItemStack.EMPTY);
-								if (unit.MAGENTA > 0)
+								if (unit.magenta > 0)
 									listBox.add(unit.getMagentaDescription(), ItemStack.EMPTY);
-								if (unit.YELLOW > 0)
+								if (unit.yellow > 0)
 									listBox.add(unit.getYellowDescription(), ItemStack.EMPTY);
 							}
 							

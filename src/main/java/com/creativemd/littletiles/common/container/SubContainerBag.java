@@ -1,9 +1,6 @@
 package com.creativemd.littletiles.common.container;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
@@ -13,28 +10,26 @@ import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient
 import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
-import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.oredict.DyeUtils;
 
 public class SubContainerBag extends SubContainerHeldItem {
+	
+	public LittleIngredients bag;
 	
 	public SubContainerBag(EntityPlayer player, ItemStack stack, int index) {
 		super(player, stack, index);
 	}
-	
-	private static Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, "colorValue", "field_193351_w");
 	
 	@CustomEventSubscribe
 	public void onSlotChange(SlotChangeEvent event) {
@@ -47,76 +42,41 @@ public class SubContainerBag extends SubContainerHeldItem {
 				else if (slot.ingredient != null)
 					slot.ingredient.value = slot.slot.getStack().getCount() / (double) LittleGridContext.get().maxTilesPerBlock;
 				
-				List<BlockIngredient> inventory = new ArrayList<>();
+				BlockIngredient blocks = new BlockIngredient().setLimits(ItemBag.inventorySize, ItemBag.maxStackSize);
 				for (int y = 0; y < ItemBag.inventoryHeight; y++) {
 					for (int x = 0; x < ItemBag.inventoryWidth; x++) {
 						int index = x + y * ItemBag.inventoryWidth;
-						BlockIngredient ingredient = ((SlotControlBlockIngredient) get("item" + index)).ingredient;
+						BlockIngredientEntry ingredient = ((SlotControlBlockIngredient) get("item" + index)).ingredient;
 						if (ingredient != null)
-							inventory.add(ingredient);
+							blocks.add(ingredient);
 					}
 				}
 				
-				ItemBag.saveInventory(stack, inventory);
+				bag.set(blocks);
+				((ItemBag) stack.getItem()).setInventory(stack, bag);
 				
 				reloadControls();
 			} else if (event.source.name.startsWith("input")) {
 				
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
 				
-				Ingredients ingredients = IngredientUtils.getIngredientsOfStack(input);
+				LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
+				ingredients.scale(input.getCount());
 				
-				boolean containedColor = false;
-				
-				if (ingredients != null) {
-					ColorUnit result = ItemBag.storeColor(stack, ingredients.color, true);
-					if (result != null && result.equals(ingredients.color))
-						return;
-					
-					containedColor = !ingredients.color.isEmpty();
-					
-					while (!input.isEmpty()) {
-						if (ItemBag.storeBlocks(stack, ingredients.block.copy(), true) != null)
-							break;
-						input.shrink(1);
-						ItemBag.storeBlocks(stack, ingredients.block.copy(), false);
-						if (ItemBag.storeColor(stack, ingredients.color, false) != null)
-							break;
+				if (bag.add(ingredients) == null) {
+					((ItemBag) stack.getItem()).setInventory(stack, bag);
+					if (ingredients.contains(BlockIngredient.class)) {
+						updateSlots();
+						player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
 					}
 					
-					updateSlots();
-					
-					player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
-				} else if (DyeUtils.isDye(input)) {
-					try {
-						Optional<EnumDyeColor> optional = DyeUtils.colorFromStack(input);
-						if (!optional.isPresent())
-							return;
-						ColorUnit color = ColorUnit.getColors(dyeColor.getInt(optional.get()));
-						
-						color.scale(2);
-						ColorUnit result = ItemBag.storeColor(stack, color, true);
-						if (result != null && result.equals(color))
-							return;
-						while (!input.isEmpty()) {
-							input.shrink(1);
-							if (ItemBag.storeColor(stack, color, false) != null)
-								break;
-						}
-						
-						containedColor = true;
-						
-					} catch (IllegalArgumentException | IllegalAccessException e) {
-						e.printStackTrace();
+					if (ingredients.contains(ColorIngredient.class)) {
+						reloadControls();
+						player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
 					}
 					
-				}
-				
-				if (containedColor) {
-					reloadControls();
-					
-					player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
-				}
+				} else
+					bag = ((ItemBag) stack.getItem()).getInventory(stack);
 			}
 			
 		}
@@ -134,7 +94,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 	public InventoryBasic bagInventory;
 	
 	public void updateSlots() {
-		List<BlockIngredient> inventory = ItemBag.loadInventory(stack);
+		List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
 		for (int y = 0; y < ItemBag.inventoryHeight; y++) {
 			for (int x = 0; x < ItemBag.inventoryWidth; x++) {
 				int index = x + y * ItemBag.inventoryWidth;
@@ -146,8 +106,9 @@ public class SubContainerBag extends SubContainerHeldItem {
 	
 	@Override
 	public void createControls() {
+		bag = ((ItemBag) stack.getItem()).getInventory(stack);
+		List<BlockIngredientEntry> inventory = bag.get(BlockIngredient.class).getContent();
 		
-		List<BlockIngredient> inventory = ItemBag.loadInventory(stack);
 		bagInventory = new InventoryBasic("item", false, ItemBag.inventorySize) {
 			@Override
 			public int getInventoryStackLimit() {

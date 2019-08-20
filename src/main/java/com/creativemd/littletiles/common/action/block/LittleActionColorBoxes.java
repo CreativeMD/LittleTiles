@@ -19,8 +19,8 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
@@ -79,7 +79,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	public boolean doneSomething;
 	
-	public ColorUnit action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorUnit gained, boolean simulate, LittleGridContext context) {
+	public ColorIngredient action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorIngredient gained, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
 		double colorVolume = 0;
 		
@@ -117,7 +117,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						volume += box2.getPercentVolume(context);
 					}
 					
-					gained.addColorUnit(ColorUnit.getColors(tile.getPreviewTile(), volume));
+					gained.addColorUnit(ColorIngredient.getColors(tile.getPreviewTile(), volume));
 					
 				} else {
 					List<LittleTileBox> cutout = new ArrayList<>();
@@ -164,7 +164,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			} else {
 				if (simulate) {
 					colorVolume += tile.getPercentVolume();
-					gained.addColorUnit(ColorUnit.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
+					gained.addColorUnit(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
 				} else {
 					List<LittleTileBox> oldBoxes = new ArrayList<>();
 					oldBoxes.add(tile.box);
@@ -192,7 +192,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				}
 			}
 		}
-		ColorUnit toDrain = ColorUnit.getColors(color);
+		ColorIngredient toDrain = ColorIngredient.getColors(color);
 		toDrain.scale(colorVolume);
 		
 		gained.drain(toDrain);
@@ -228,13 +228,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				context = te.getContext();
 			}
 			
-			List<BlockIngredient> entries = new ArrayList<>();
+			List<BlockIngredientEntry> entries = new ArrayList<>();
 			
 			te.preventUpdate = true;
 			
-			ColorUnit gained = new ColorUnit();
+			ColorIngredient gained = new ColorIngredient();
 			
-			ColorUnit toDrain = action(te, boxes, gained, true, context);
+			ColorIngredient toDrain = action(te, boxes, gained, true, context);
 			
 			if (addIngredients(player, null, gained, true)) {
 				drain(player, new Ingredients(toDrain, null));

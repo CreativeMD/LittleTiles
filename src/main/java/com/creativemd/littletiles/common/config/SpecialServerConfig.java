@@ -28,6 +28,7 @@ public class SpecialServerConfig {
 	
 	/** tile-size: 1x1x1 of default grid **/
 	public static float storagePerPixel = 1;
+	public static float dyeVolume = 2;
 	
 	public static boolean enableBed = true;
 	

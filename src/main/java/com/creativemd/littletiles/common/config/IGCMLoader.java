@@ -69,6 +69,7 @@ public class IGCMLoader {
 						SpecialServerConfig.maxPlaceBlocks = (Integer) getValue("maxPlaceBlocks");
 						SpecialServerConfig.minimumTransparency = (Integer) getValue("minimumTransparency");
 						SpecialServerConfig.storagePerPixel = (Float) getValue("storagePerPixel");
+						SpecialServerConfig.dyeVolume = (Float) getValue("dyeVolume");
 						SpecialServerConfig.highestHarvestTierSurvival = (Integer) getValue("highestHarvestTierSurvival");
 					}
 					
@@ -84,6 +85,7 @@ public class IGCMLoader {
 						registerElement("maxPlaceBlocks", new IntegerSegment("Max Place Range", 10, 1, Integer.MAX_VALUE).setToolTip("Only affects the range if place limitation is enabled."));
 						registerElement("minimumTransparency", new IntegerSliderSegment("Minimum Transparency in survival", 255, 0, 255).setToolTip("Transparency will be enabled if the minimum is smaller than 255."));
 						registerElement("storagePerPixel", new FloatSegment("Storage per Pixel", 1F, 0F, Float.MAX_VALUE).setToolTip("Each pixel in default grid makes space for one itemstack (stacksize of one).", "64 pixel add up to one slot"));
+						registerElement("dyeVolume", new FloatSegment("Dye Volume", 1F, 0F, Float.MAX_VALUE).setToolTip("How many blocks can painted with one dye", "assuming the tile has the exact same color"));
 					}
 				});
 				

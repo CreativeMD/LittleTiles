@@ -16,7 +16,7 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
-import com.creativemd.littletiles.common.action.block.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -43,10 +43,11 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
-import com.creativemd.littletiles.common.utils.ingredients.ColorUnit;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
@@ -554,8 +555,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 			Ingredients missing = new Ingredients();
 			List<ItemStack> bags = getBags(player);
 			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
-			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
-			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
+			BlockIngredient toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
+			ColorIngredient color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
 			
 			if (color != null && color.isEmpty())
 				color = null;
@@ -578,11 +579,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 				List<ItemStack> inventory = InventoryUtils.copy(player.inventory);
 				
 				if (toCheck != null) {
-					BlockIngredients additionalIngredients = new BlockIngredients();
+					BlockIngredient additionalIngredients = new BlockIngredient();
 					
 					for (Iterator iterator = inventory.iterator(); iterator.hasNext();) {
 						ItemStack itemStack = (ItemStack) iterator.next();
-						BlockIngredient leftOver = toCheck.drainItemStack(itemStack);
+						BlockIngredientEntry leftOver = toCheck.drainItemStack(itemStack);
 						
 						if (leftOver != null)
 							additionalIngredients.addIngredient(leftOver);
@@ -617,8 +618,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
 			List<ItemStack> usedBags = new ArrayList<>(); // Those bags will be drained in order to simulate the action.
-			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
-			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
+			BlockIngredient toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
+			ColorIngredient color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
 			
 			if (color != null && color.isEmpty())
 				color = null;
@@ -641,11 +642,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 				List<ItemStack> inventory = InventoryUtils.copy(player.inventory);
 				
 				if (toCheck != null) {
-					BlockIngredients additionalIngredients = new BlockIngredients();
+					BlockIngredient additionalIngredients = new BlockIngredient();
 					
 					for (Iterator iterator = inventory.iterator(); iterator.hasNext();) {
 						ItemStack itemStack = (ItemStack) iterator.next();
-						BlockIngredient leftOver = toCheck.drainItemStack(itemStack);
+						BlockIngredientEntry leftOver = toCheck.drainItemStack(itemStack);
 						
 						if (leftOver != null)
 							additionalIngredients.addIngredient(leftOver);
@@ -681,8 +682,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player) && canDrain(player, ingredients)) {
 			List<ItemStack> bags = getBags(player);
 			
-			BlockIngredients toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
-			ColorUnit color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
+			BlockIngredient toCheck = ingredients.block != null ? ingredients.block.copy() : null; // Temporary
+			ColorIngredient color = ingredients.color != null ? ingredients.color.copy() : null; // Temporary
 			
 			// enough ingredients and enough space (if it needs to drain additional itemstacks)
 			for (ItemStack stack : bags) {
@@ -696,11 +697,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 				List<ItemStack> inventory = InventoryUtils.asList(player.inventory);
 				
 				if (toCheck != null) {
-					BlockIngredients additionalIngredients = new BlockIngredients();
+					BlockIngredient additionalIngredients = new BlockIngredient();
 					
 					for (Iterator iterator = inventory.iterator(); iterator.hasNext();) {
 						ItemStack itemStack = (ItemStack) iterator.next();
-						BlockIngredient leftOver = toCheck.drainItemStack(itemStack);
+						BlockIngredientEntry leftOver = toCheck.drainItemStack(itemStack);
 						
 						if (leftOver != null)
 							additionalIngredients.addIngredient(leftOver);
@@ -781,12 +782,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	public static boolean addPreviewToInventory(EntityPlayer player, LittlePreviews previews) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
-			ColorUnit color = new ColorUnit();
-			BlockIngredients ingredients = new BlockIngredients();
+			ColorIngredient color = new ColorIngredient();
+			BlockIngredient ingredients = new BlockIngredient();
 			for (LittleTilePreview preview : previews) {
 				if (preview.canBeConvertedToBlockEntry()) {
 					ingredients.addIngredient(preview.getBlockIngredient(previews.context));
-					color.addColorUnit(ColorUnit.getColors(previews.context, preview));
+					color.addColorUnit(ColorIngredient.getColors(previews.context, preview));
 				}
 			}
 			return addIngredients(player, ingredients, color);
@@ -794,7 +795,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
-	public static boolean store(List<ItemStack> bags, BlockIngredients toCheck, ColorUnit color, boolean simulate) throws NotEnoughIngredientsException {
+	public static boolean store(List<ItemStack> bags, BlockIngredient toCheck, ColorIngredient color, boolean simulate) throws NotEnoughIngredientsException {
 		if ((toCheck == null || toCheck.isEmpty()) && (color == null || color.isEmpty()))
 			return true;
 		
@@ -829,11 +830,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return addIngredients(player, ingredients.block, ingredients.color);
 	}
 	
-	public static boolean addIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
+	public static boolean addIngredients(EntityPlayer player, BlockIngredient ingredients, ColorIngredient unit) throws NotEnoughIngredientsException {
 		return addIngredients(player, ingredients, unit, false);
 	}
 	
-	public static boolean addIngredients(EntityPlayer player, BlockIngredients ingredients, ColorUnit unit, boolean simulate) throws NotEnoughIngredientsException {
+	public static boolean addIngredients(EntityPlayer player, BlockIngredient ingredients, ColorIngredient unit, boolean simulate) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			List<ItemStack> bags = getBags(player);
 			
@@ -844,21 +845,21 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
-	public static boolean addIngredients(List<ItemStack> bags, BlockIngredients ingredients, ColorUnit unit) throws NotEnoughIngredientsException {
+	public static boolean addIngredients(List<ItemStack> bags, BlockIngredient ingredients, ColorIngredient unit) throws NotEnoughIngredientsException {
 		if (store(bags, ingredients != null ? ingredients.copy() : null, unit != null ? unit.copy() : null, true))
 			store(bags, ingredients, unit, false);
 		
 		return true;
 	}
 	
-	public static List<ItemStack> getBags(EntityPlayer player) {
-		List<ItemStack> bags = new ArrayList<>();
+	public static List<ItemStack> getInventories(EntityPlayer player) {
+		List<ItemStack> inventories = new ArrayList<>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
-			if (stack.getItem() instanceof ItemBag)
-				bags.add(stack);
+			if (stack.getItem() instanceof ILittleInventory)
+				inventories.add(stack);
 		}
-		return bags;
+		return inventories;
 	}
 	
 	public static boolean canDrainPremadeItemStack(EntityPlayer player, ItemStack toDrain) throws NotEnoughIngredientsException {

@@ -45,7 +45,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.tiles.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
 
@@ -696,7 +696,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	public void addIngredients(Ingredients ingredients) {
+	public void addIngredients(LittleIngredients ingredients) {
 		
 	}
 	

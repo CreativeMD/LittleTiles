@@ -22,7 +22,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -156,7 +156,7 @@ public class LittleTilePreview implements ICombinable {
 	}
 	
 	@Nullable
-	public BlockIngredient getBlockIngredient(LittleGridContext context) {
+	public BlockIngredientEntry getBlockIngredient(LittleGridContext context) {
 		if (hasBlockIngredient())
 			return handler.getBlockIngredient(context, this);
 		return null;

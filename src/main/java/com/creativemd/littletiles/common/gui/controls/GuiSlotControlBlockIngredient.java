@@ -9,13 +9,13 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 
 import net.minecraft.item.ItemStack;
 
 public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 	
-	public GuiSlotControlBlockIngredient(int x, int y, SlotControl slot, BlockIngredient ingredient) {
+	public GuiSlotControlBlockIngredient(int x, int y, SlotControl slot, BlockIngredientEntry ingredient) {
 		super(x, y, slot);
 	}
 	
@@ -37,7 +37,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 	
 	@Override
 	public List<String> getTooltip() {
-		BlockIngredient ingredient = ((SlotControlBlockIngredient) slot).ingredient;
+		BlockIngredientEntry ingredient = ((SlotControlBlockIngredient) slot).ingredient;
 		if (ingredient != null) {
 			List<String> tooltip = new ArrayList<String>();
 			int blocks = (int) ingredient.value;

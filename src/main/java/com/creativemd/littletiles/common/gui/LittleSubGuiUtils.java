@@ -8,10 +8,10 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.items.ItemBag;
+import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient.BlockIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -47,12 +47,12 @@ public class LittleSubGuiUtils {
 		public HashMapList<String, ItemStack> collect(EntityPlayer player) {
 			HashMapList<String, ItemStack> stacks = super.collect(player);
 			
-			BlockIngredients ingredients = new BlockIngredients();
-			for (ItemStack bag : LittleAction.getBags(player))
-				ingredients.addIngredients(ItemBag.loadInventory(bag));
+			BlockIngredient ingredients = new BlockIngredient();
+			for (ItemStack stack : LittleAction.getInventories(player))
+				ingredients.add(((ILittleInventory) stack.getItem()).getInventory(stack).get(BlockIngredient.class));
 			
 			List<ItemStack> newStacks = new ArrayList<>();
-			for (BlockIngredient ingredient : ingredients.getIngredients()) {
+			for (BlockIngredientEntry ingredient : ingredients.getContent()) {
 				ItemStack stack = ingredient.getItemStack();
 				
 				stack.setCount(Math.max(1, (int) ingredient.value));

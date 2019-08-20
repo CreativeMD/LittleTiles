@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 
 import net.minecraft.block.Block;
@@ -79,7 +79,7 @@ public abstract class LittleTilePreviewHandler {
 		}
 		
 		@Override
-		public BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
+		public BlockIngredientEntry getBlockIngredient(LittleGridContext context, LittleTilePreview preview) {
 			return IngredientUtils.getBlockIngredient(getPreviewBlock(preview), getPreviewBlockMeta(preview), preview.getPercentVolume(context));
 		}
 		
@@ -126,7 +126,7 @@ public abstract class LittleTilePreviewHandler {
 	@SideOnly(Side.CLIENT)
 	public abstract RenderCubeObject getCubeBlock(LittleGridContext context, LittleTilePreview preview);
 	
-	public abstract BlockIngredient getBlockIngredient(LittleGridContext context, LittleTilePreview preview);
+	public abstract BlockIngredientEntry getBlockIngredient(LittleGridContext context, LittleTilePreview preview);
 	
 	public abstract ItemStack getBlockStack(LittleTilePreview preview);
 	

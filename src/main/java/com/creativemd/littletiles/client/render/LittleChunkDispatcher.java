@@ -9,7 +9,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -77,11 +76,6 @@ public class LittleChunkDispatcher {
 	}
 	
 	public static Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
-	
-	public ListenableFuture<Object> uploadChunk2(final BlockRenderLayer p_188245_1_, final BufferBuilder p_188245_2_, final RenderChunk p_188245_3_, final CompiledChunk p_188245_4_, final double p_188245_5_) {
-		uploadChunk(p_188245_1_, p_188245_2_, p_188245_3_, p_188245_4_, p_188245_5_);
-		return null;
-	}
 	
 	public static void uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
 		try {
@@ -182,7 +176,15 @@ public class LittleChunkDispatcher {
 				LittleTilesProfiler.uploaded++;
 			}
 		}
-		return;
+		
+		int index = layer.ordinal(); // Check if another layer needs to be added if yes abort
+		while (index < 3) {
+			index++;
+			if (compiled.isLayerStarted(BlockRenderLayer.values()[index]))
+				return;
+		}
+		
+		onDoneRendering(chunk, null); // Clear LTTiles cache
 	}
 	
 	public static BufferBuilder.State emptyState = loadEmptyState();
