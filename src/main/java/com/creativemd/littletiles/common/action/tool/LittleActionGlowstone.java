@@ -7,7 +7,7 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
+import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -107,7 +107,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 			if (needIngredients(player)) {
 				ItemStack stack = new ItemStack(Items.GLOWSTONE_DUST);
 				if (!InventoryUtils.consumeItemStack(player.inventory, stack))
-					throw new NotEnoughIngredientsException.NotEnoughStackException(stack);
+					throw new NotEnoughSpaceException(stack);
 			}
 			
 			if (tile.glowing)

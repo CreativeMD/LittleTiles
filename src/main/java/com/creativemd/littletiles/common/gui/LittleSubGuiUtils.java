@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -48,11 +49,14 @@ public class LittleSubGuiUtils {
 			HashMapList<String, ItemStack> stacks = super.collect(player);
 			
 			BlockIngredient ingredients = new BlockIngredient();
-			for (ItemStack stack : LittleAction.getInventories(player))
-				ingredients.add(((ILittleInventory) stack.getItem()).getInventory(stack).get(BlockIngredient.class));
+			for (ItemStack stack : LittleAction.getInventories(player)) {
+				LittleIngredients inventory = ((ILittleInventory) stack.getItem()).getInventory(stack);
+				if (inventory != null)
+					ingredients.add(inventory.get(BlockIngredient.class));
+			}
 			
 			List<ItemStack> newStacks = new ArrayList<>();
-			for (BlockIngredientEntry ingredient : ingredients.getContent()) {
+			for (BlockIngredientEntry ingredient : ingredients) {
 				ItemStack stack = ingredient.getItemStack();
 				
 				stack.setCount(Math.max(1, (int) ingredient.value));

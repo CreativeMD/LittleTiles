@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
@@ -15,7 +14,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -89,7 +88,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
 		} else {
-			
+			LittleInventory inventory = new LittleInventory(player);
 			destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 			List<LittleTile> tiles = new ArrayList<>();
 			
@@ -97,20 +96,13 @@ public class LittleActionDestroy extends LittleActionInteract {
 				List<LittleTile> remains = new ArrayList<>();
 				for (LittleTile toDestory : te.getTiles()) {
 					if (!toDestory.isChildOfStructure()) {
-						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one
-						                                   // block
+						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one block
 						tiles.add(toDestory);
 					} else
 						remains.add(toDestory);
 				}
 				
-				if (player.isCreative())
-					addPreviewToInventory(player, destroyedTiles);
-				else if (!world.isRemote) {
-					ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-					LittleTilePreview.saveTiles(world, te.getContext(), tiles, drop);
-					WorldUtils.dropItem(world, drop, pos);
-				}
+				giveOrDrop(player, inventory, tiles);
 				
 				tiles.clear();
 				
@@ -120,7 +112,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			} else {
 				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
 				
-				addPreviewToInventory(player, destroyedTiles);
+				give(player, inventory, getIngredients(destroyedTiles));
 				
 				tile.destroy();
 			}

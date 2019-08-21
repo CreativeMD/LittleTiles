@@ -11,6 +11,12 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> {
 	
 	protected LittleIngredient[] content = new LittleIngredient[LittleIngredient.getSize()];
 	
+	public LittleIngredients(LittleIngredient... ingredients) {
+		for (int i = 0; i < ingredients.length; i++) {
+			set(ingredients[i]);
+		}
+	}
+	
 	public LittleIngredients() {
 		
 	}

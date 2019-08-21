@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.utils.ingredients;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -8,7 +9,7 @@ import com.creativemd.creativecore.common.utils.type.LinkedHashMapDouble;
 
 import net.minecraft.item.ItemStack;
 
-public class BlockIngredient extends LittleIngredient<BlockIngredient> {
+public class BlockIngredient extends LittleIngredient<BlockIngredient> implements Iterable<BlockIngredientEntry> {
 	
 	private int maxEntries = -1;
 	private double maxVolume = -1;
@@ -102,10 +103,6 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> {
 		return ingredient;
 	}
 	
-	public List<BlockIngredientEntry> getContent() {
-		return content;
-	}
-	
 	@Override
 	public boolean isEmpty() {
 		return content.isEmpty();
@@ -160,5 +157,14 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> {
 			}
 		}
 		return Math.min(count, availableCount);
+	}
+	
+	@Override
+	public Iterator<BlockIngredientEntry> iterator() {
+		return content.iterator();
+	}
+	
+	public List<BlockIngredientEntry> getContent() {
+		return content;
 	}
 }

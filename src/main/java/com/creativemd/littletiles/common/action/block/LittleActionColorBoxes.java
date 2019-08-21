@@ -21,7 +21,8 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
 import io.netty.buffer.ByteBuf;
@@ -117,7 +118,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						volume += box2.getPercentVolume(context);
 					}
 					
-					gained.addColorUnit(ColorIngredient.getColors(tile.getPreviewTile(), volume));
+					gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
 					
 				} else {
 					List<LittleTileBox> cutout = new ArrayList<>();
@@ -164,7 +165,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			} else {
 				if (simulate) {
 					colorVolume += tile.getPercentVolume();
-					gained.addColorUnit(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
+					gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
 				} else {
 					List<LittleTileBox> oldBoxes = new ArrayList<>();
 					oldBoxes.add(tile.box);
@@ -195,9 +196,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		ColorIngredient toDrain = ColorIngredient.getColors(color);
 		toDrain.scale(colorVolume);
 		
-		gained.drain(toDrain);
-		
-		return toDrain;
+		return gained.sub(toDrain);
 	}
 	
 	@Override
@@ -235,13 +234,20 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			ColorIngredient gained = new ColorIngredient();
 			
 			ColorIngredient toDrain = action(te, boxes, gained, true, context);
-			
-			if (addIngredients(player, null, gained, true)) {
-				drain(player, new Ingredients(toDrain, null));
-				addIngredients(player, null, gained);
-				
-				action(te, boxes, gained, false, context);
+			LittleIngredients gainedIngredients = new LittleIngredients(gained);
+			LittleIngredients drainedIngredients = new LittleIngredients(toDrain);
+			LittleInventory inventory = new LittleInventory(player);
+			try {
+				inventory.startSimulation();
+				give(player, inventory, gainedIngredients);
+				take(player, inventory, drainedIngredients);
+			} finally {
+				inventory.stopSimulation();
 			}
+			
+			give(player, inventory, gainedIngredients);
+			take(player, inventory, drainedIngredients);
+			action(te, boxes, gained, false, context);
 			
 			te.preventUpdate = false;
 			

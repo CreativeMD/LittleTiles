@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -58,9 +59,10 @@ public class SubContainerWorkbench extends SubContainer {
 						LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
 						
 						try {
-							if (LittleAction.drain(player, tiles)) {
+							LittleInventory inventory = new LittleInventory(player);
+							if (LittleAction.take(player, inventory, LittleAction.getIngredients(tiles))) {
 								ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-								stack.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+								stack.setTagCompound(stack1.getTagCompound().copy());
 								if (!player.inventory.addItemStackToInventory(stack))
 									WorldUtils.dropItem(player, stack);
 							}
@@ -80,7 +82,7 @@ public class SubContainerWorkbench extends SubContainer {
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
 				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced)) {
-					stack2.setTagCompound((NBTTagCompound) stack1.getTagCompound().copy());
+					stack2.setTagCompound(stack1.getTagCompound().copy());
 				}
 			}
 		}

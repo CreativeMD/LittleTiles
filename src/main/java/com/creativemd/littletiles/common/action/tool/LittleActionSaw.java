@@ -11,10 +11,11 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry.BlockIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -113,23 +114,27 @@ public class LittleActionSaw extends LittleActionInteract {
 			
 			if (box != null) {
 				double amount = Math.abs(box.getPercentVolume(te.getContext()) - tile.box.getPercentVolume(te.getContext()));
-				BlockIngredient ingredients = new BlockIngredient();
+				LittleIngredients ingredients = new LittleIngredients();
+				LittleInventory inventory = new LittleInventory(player);
+				BlockIngredient blocks = new BlockIngredient();
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredientEntry ingredient = preview.getBlockIngredient(te.getContext());
-				if (ingredient != null) {
-					ingredient.value = amount;
-					ingredients.addIngredient(ingredient);
+				BlockIngredientEntry block = preview.getBlockIngredient(te.getContext());
+				if (block != null) {
+					block.value = amount;
+					blocks.add(block);
+					ingredients.set(blocks);
 					
 					ColorIngredient unit = null;
 					if (preview.hasColor()) {
 						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
+						ingredients.set(unit);
 					}
 					
 					if (secondMode)
-						addIngredients(player, ingredients, unit);
+						give(player, inventory, ingredients);
 					else
-						drain(player, new Ingredients(unit, ingredients));
+						take(player, inventory, ingredients);
 					
 				}
 				
@@ -225,23 +230,28 @@ public class LittleActionSaw extends LittleActionInteract {
 				}
 				
 				double amount = Math.abs(oldBox.getPercentVolume(context) - tile.box.getPercentVolume(tile.getContext()));
-				BlockIngredient ingredients = new BlockIngredient();
+				
 				LittleTilePreview preview = tile.getPreviewTile();
-				BlockIngredientEntry ingredient = preview.getBlockIngredient(tile.getContext());
-				if (ingredient != null) {
-					ingredient.value = amount;
-					ingredients.addIngredient(ingredient);
+				LittleIngredients ingredients = new LittleIngredients();
+				BlockIngredient blocks = new BlockIngredient();
+				BlockIngredientEntry block = preview.getBlockIngredient(tile.getContext());
+				if (block != null) {
+					LittleInventory inventory = new LittleInventory(player);
+					block.value = amount;
+					blocks.add(block);
+					ingredients.set(blocks);
 					
 					ColorIngredient unit = null;
 					if (preview.hasColor()) {
 						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
+						ingredients.set(unit);
 					}
 					
 					if (oldBox.getVolume() < tile.box.getVolume())
-						addIngredients(player, ingredients, unit);
+						give(player, inventory, ingredients);
 					else
-						drain(player, new Ingredients(unit, ingredients));
+						take(player, inventory, ingredients);
 				}
 				
 				replacedBox = tile.box.copy();

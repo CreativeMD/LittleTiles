@@ -17,7 +17,8 @@ import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
@@ -76,8 +77,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
-		
-		if (canDrainIngredientsBeforePlacing(player)) {
+		LittleInventory inventory = new LittleInventory(player);
+		if (canDrainIngredientsBeforePlacing(player, inventory)) {
 			List<PlacePreviewTile> placePreviews = new ArrayList<>();
 			previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 			
@@ -89,11 +90,11 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			if (placedTiles != null) {
 				boxes = placedTiles.placedBoxes;
 				
-				drainIngredientsAfterPlacing(player, placedTiles, previews);
+				drainIngredientsAfterPlacing(player, inventory, placedTiles, previews);
 				
 				if (!player.world.isRemote) {
-					addTilesToInventoryOrDrop(player, unplaceableTiles);
-					addTilesToInventoryOrDrop(player, removedTiles);
+					giveOrDrop(player, inventory, unplaceableTiles);
+					giveOrDrop(player, inventory, removedTiles);
 				}
 				
 				if (!removedTiles.isEmpty()) {
@@ -116,12 +117,17 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		return false;
 	}
 	
-	protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException {
-		return canDrain(player, previews);
+	protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player, LittleInventory inventory) throws LittleActionException {
+		try {
+			inventory.startSimulation();
+			return take(player, inventory, getIngredients(previews));
+		} finally {
+			inventory.stopSimulation();
+		}
 	}
 	
-	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
-		drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
+	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
+		take(player, inventory, LittleIngredient.extractStructureOnly(previews).add(getIngredients(placedTiles.placedPreviews)));
 	}
 	
 	@Override
@@ -151,14 +157,20 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		}
 		
 		@Override
-		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
-			drainPremadeItemStack(player, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id).stack);
+		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
+			take(player, inventory, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id).stack);
 		}
 		
 		@Override
-		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player) throws LittleActionException {
+		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player, LittleInventory inventory) throws LittleActionException {
 			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id);
-			return canDrainPremadeItemStack(player, entry.stack) && entry.arePreviewsEqual(previews);
+			
+			try {
+				inventory.startSimulation();
+				return take(player, inventory, entry.stack) && entry.arePreviewsEqual(previews);
+			} finally {
+				inventory.stopSimulation();
+			}
 		}
 		
 	}

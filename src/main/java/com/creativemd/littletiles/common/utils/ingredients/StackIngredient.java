@@ -176,4 +176,8 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
 		return Math.min(count, availableCount);
 	}
 	
+	public List<StackIngredientEntry> getContent() {
+		return content;
+	}
+	
 }

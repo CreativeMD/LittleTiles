@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
@@ -106,20 +107,27 @@ public class LittleActionReplace extends LittleActionInteract {
 			if (toRemove.isEmpty())
 				return false;
 			
-			if (canDrain(player, toBePlaced))
-				addPreviewToInventory(player, replacedTiles);
-			drain(player, toBePlaced);
+			LittleInventory inventory = new LittleInventory(player);
+			
+			try {
+				inventory.startSimulation();
+				take(player, inventory, getIngredients(toBePlaced));
+				give(player, inventory, getIngredients(replacedTiles));
+			} finally {
+				inventory.stopSimulation();
+			}
 			
 			for (LittleTile toDestroy : toRemove)
 				toDestroy.destroy();
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
-			addTilesToInventoryOrDrop(player, unplaceableTiles);
-			
+			giveOrDrop(player, inventory, unplaceableTiles);
 		} else {
 			if (tile.isChildOfStructure())
 				return false;
+			
+			LittleInventory inventory = new LittleInventory(player);
 			
 			replacedTiles.addTile(tile);
 			boxes.addBox(tile);
@@ -128,9 +136,13 @@ public class LittleActionReplace extends LittleActionInteract {
 			toReplace.box = tile.box;
 			toBePlaced.addPreview(null, toReplace, te.getContext());
 			
-			if (canDrain(player, toBePlaced))
-				addPreviewToInventory(player, replacedTiles);
-			drain(player, toBePlaced);
+			try {
+				inventory.startSimulation();
+				take(player, inventory, getIngredients(toBePlaced));
+				give(player, inventory, getIngredients(replacedTiles));
+			} finally {
+				inventory.stopSimulation();
+			}
 			
 			tile.destroy();
 			
@@ -139,7 +151,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
-			addTilesToInventoryOrDrop(player, unplaceableTiles);
+			giveOrDrop(player, inventory, unplaceableTiles);
 		}
 		
 		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);

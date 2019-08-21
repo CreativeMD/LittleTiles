@@ -24,7 +24,16 @@ public class LittleInventory implements Iterable<ItemStack> {
 	protected List<ItemStack> cachedInventory;
 	protected List<LittleIngredients> cachedInventories;
 	
+	public LittleInventory(EntityPlayer player) {
+		this(player, player.inventory);
+	}
+	
+	public LittleInventory(IInventory inventory) {
+		this(null, inventory);
+	}
+	
 	public LittleInventory(EntityPlayer player, IInventory inventory) {
+		this.player = player;
 		this.inventory = inventory;
 		this.inventories = new ArrayList<>();
 		this.inventoriesId = new ArrayList<>();
@@ -103,32 +112,6 @@ public class LittleInventory implements Iterable<ItemStack> {
 		}
 	}
 	
-	public boolean add(ItemStack stack) {
-		for (int i = 0; i < size(); i++) {
-			ItemStack inventoryStack = get(i);
-			if (InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
-				int amount = Math.min(stack.getMaxStackSize() - inventoryStack.getCount(), stack.getCount());
-				if (amount > 0) {
-					ItemStack newStack = stack.copy();
-					newStack.setCount(inventoryStack.getCount() + amount);
-					set(i, newStack);
-					
-					stack.shrink(amount);
-					if (stack.isEmpty())
-						return true;
-				}
-			}
-			
-		}
-		for (int i = 0; i < size(); i++) {
-			if (get(i).isEmpty()) {
-				set(i, stack);
-				return true;
-			}
-		}
-		return false;
-	}
-	
 	public void set(int index, ItemStack stack) {
 		if (simulate)
 			cachedInventory.set(index, stack);
@@ -165,18 +148,19 @@ public class LittleInventory implements Iterable<ItemStack> {
 		};
 	}
 	
-	protected void take(LittleIngredient ingredient) throws NotEnoughIngredientsException {
+	protected LittleIngredient take(LittleIngredient ingredient) throws NotEnoughIngredientsException {
 		List<LittleIngredients> inv = simulate ? cachedInventories : inventories;
 		for (LittleIngredients ingredients : inv) {
 			ingredient = ingredients.sub(ingredient);
 			if (ingredient == null)
-				return;
+				return null;
 		}
+		return ingredient;
 	}
 	
 	public void take(LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		for (LittleIngredient ingredient : ingredients.getContent())
-			take(ingredient);
+			ingredients.set(take(ingredient));
 		
 		if (!ingredients.isEmpty()) { // Try to drain remaining ingredients from inventory
 			LittleIngredients overflow = new LittleIngredients();
@@ -193,12 +177,17 @@ public class LittleInventory implements Iterable<ItemStack> {
 				}
 			}
 			
+			if (!ingredients.isEmpty())
+				throw new NotEnoughIngredientsException(ingredients);
+			
 			if (!overflow.isEmpty()) {
 				List<ItemStack> stacks = overflow.handleOverflow();
 				if (stacks != null && !stacks.isEmpty())
 					addOrDropStacks(stacks);
 			}
 		}
+		
+		saveInventories();
 	}
 	
 	protected void give(LittleIngredient ingredient) throws NotEnoughSpaceException {
@@ -217,6 +206,8 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public void give(LittleIngredients ingredients) throws NotEnoughSpaceException {
 		for (LittleIngredient ingredient : ingredients.getContent())
 			give(ingredient);
+		
+		saveInventories();
 	}
 	
 	public void saveInventories() {

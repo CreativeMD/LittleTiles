@@ -18,7 +18,8 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 
@@ -60,13 +61,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	
 	public boolean doneSomething;
 	
-	public Ingredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context) {
+	public LittleIngredients action(EntityPlayer player, TileEntityLittleTiles te, List<LittleTileBox> boxes, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
 		
 		if (previews == null)
 			previews = new LittleAbsolutePreviews(te.getPos(), context);
 		
-		Ingredients ingredients = new Ingredients();
+		LittleIngredients ingredients = new LittleIngredients();
 		
 		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
@@ -117,10 +118,10 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				}
 				
 				if (volume > 0)
-					ingredients.addPreview(preview, volume);
+					ingredients.add(getIngredients(preview, volume));
 			} else {
 				if (!tile.isChildOfStructure())
-					ingredients.addPreview(tile.getContext(), tile.getPreviewTile());
+					ingredients.add(getIngredients(tile));
 				
 				if (!simulate) {
 					if (tile.isChildOfStructure()) {
@@ -170,7 +171,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				context = ((TileEntityLittleTiles) tileEntity).getContext();
 			}
 			
-			if (addIngredients(player, action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
+			if (give(player, new LittleInventory(player), action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
 				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
 			
 			((TileEntityLittleTiles) tileEntity).combineTiles();

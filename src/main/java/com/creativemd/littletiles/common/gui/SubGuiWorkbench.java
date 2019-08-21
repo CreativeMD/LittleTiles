@@ -13,12 +13,14 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
-import com.creativemd.littletiles.common.utils.ingredients.Ingredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.StackIngredientEntry;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -50,18 +52,19 @@ public class SubGuiWorkbench extends SubGui {
 						LittlePreviews previews = LittleTilePreview.getPreview(stack1);
 						
 						EntityPlayer player = getPlayer();
-						
-						Ingredients ingredients = IngredientUtils.getIngredients(previews);
+						LittleInventory inventory = new LittleInventory(player);
+						LittleIngredients ingredients = LittleAction.getIngredients(previews);
 						
 						try {
-							if (LittleAction.drain(player, ingredients)) {
+							if (LittleAction.take(player, inventory, ingredients)) {
 								sendPacketToServer(new NBTTagCompound());
 							}
 						} catch (NotEnoughIngredientsException e2) {
-							Ingredients missing = LittleAction.getMissing(player, IngredientUtils.getIngredients(previews));
+							LittleIngredients missing = e2.getIngredients();
 							
-							if (ingredients.block != null)
-								for (BlockIngredientEntry ingredient : ingredients.block.getIngredients()) {
+							BlockIngredient blocks = missing.get(BlockIngredient.class);
+							if (blocks != null)
+								for (BlockIngredientEntry ingredient : blocks) {
 									int fullBlocks = (int) ingredient.value;
 									int pixels = (int) Math.ceil(((ingredient.value - fullBlocks) * previews.context.maxTilesPerBlock));
 									String line = fullBlocks > 0 ? fullBlocks + " blocks" : "";
@@ -69,19 +72,20 @@ public class SubGuiWorkbench extends SubGui {
 									listBox.add(line, ingredient.getItemStack());
 								}
 							
-							if (ingredients.color != null) {
-								ColorIngredient unit = ingredients.color;
-								if (unit.black > 0)
-									listBox.add(unit.getBlackDescription(), ItemStack.EMPTY);
-								if (unit.cyan > 0)
-									listBox.add(unit.getCyanDescription(), ItemStack.EMPTY);
-								if (unit.magenta > 0)
-									listBox.add(unit.getMagentaDescription(), ItemStack.EMPTY);
-								if (unit.yellow > 0)
-									listBox.add(unit.getYellowDescription(), ItemStack.EMPTY);
+							ColorIngredient color = missing.get(ColorIngredient.class);
+							if (color != null) {
+								if (color.black > 0)
+									listBox.add(color.getBlackDescription(), ItemStack.EMPTY);
+								if (color.cyan > 0)
+									listBox.add(color.getCyanDescription(), ItemStack.EMPTY);
+								if (color.magenta > 0)
+									listBox.add(color.getMagentaDescription(), ItemStack.EMPTY);
+								if (color.yellow > 0)
+									listBox.add(color.getYellowDescription(), ItemStack.EMPTY);
 							}
 							
-							for (StackIngredient stack : ingredients.getStacks()) {
+							StackIngredient stacks = missing.get(StackIngredient.class);
+							for (StackIngredientEntry stack : stacks) {
 								listBox.add(stack.count + "", stack.stack);
 							}
 							

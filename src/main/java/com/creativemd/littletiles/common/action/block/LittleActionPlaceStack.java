@@ -24,7 +24,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
@@ -158,9 +158,17 @@ public class LittleActionPlaceStack extends LittleAction {
 		
 		ItemStack toPlace = stack.copy();
 		
+		LittleInventory inventory = new LittleInventory(player);
+		
 		if (needIngredients(player)) {
-			if (!iTile.containsIngredients(stack))
-				canDrain(player, result.previews);
+			if (!iTile.containsIngredients(stack)) {
+				try {
+					inventory.startSimulation();
+					take(player, inventory, getIngredients(result.previews));
+				} finally {
+					inventory.stopSimulation();
+				}
+			}
 		}
 		
 		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
@@ -169,13 +177,13 @@ public class LittleActionPlaceStack extends LittleAction {
 			boxes = placedTiles.placedBoxes;
 			
 			if (needIngredients(player)) {
-				addTilesToInventoryOrDrop(player, removedTiles);
+				giveOrDrop(player, inventory, removedTiles);
 				
 				if (iTile.containsIngredients(stack)) {
 					stack.shrink(1);
-					addTilesToInventoryOrDrop(player, unplaceableTiles);
+					giveOrDrop(player, inventory, unplaceableTiles);
 				} else
-					drain(player, IngredientUtils.getStructureIngredients(previews).add(IngredientUtils.getIngredients(placedTiles.placedPreviews)));
+					take(player, inventory, getIngredients(previews).add(getIngredients(placedTiles.placedPreviews)));
 			}
 			
 			if (!removedTiles.isEmpty()) {

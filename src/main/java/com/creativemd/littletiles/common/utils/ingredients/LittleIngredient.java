@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
@@ -41,16 +42,36 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		return typesOverflowHandler.get(ingredient.getClass()).handleOverflow(ingredient);
 	}
 	
-	static void extract(LittleIngredients ingredients, LittlePreviews previews) {
-		for (IngredientConvertionHandler handler : typesConverationHandler)
-			ingredients.add(handler.extract(previews));
-		
+	static void extract(LittleIngredients ingredients, LittlePreviews previews, boolean onlyStructure) {
+		if (!onlyStructure)
+			for (IngredientConvertionHandler handler : typesConverationHandler)
+				ingredients.add(handler.extract(previews));
+			
 		if (previews.hasStructure())
 			previews.getStructure().addIngredients(ingredients);
 		
 		if (previews.hasChildren())
 			for (LittlePreviews child : previews.getChildren())
-				extract(ingredients, child);
+				extract(ingredients, child, onlyStructure);
+	}
+	
+	public static LittleIngredients extract(LittleTilePreview preview, double volume) {
+		LittleIngredients ingredients = new LittleIngredients();
+		for (IngredientConvertionHandler handler : typesConverationHandler)
+			ingredients.add(handler.extract(preview, volume));
+		return ingredients;
+	}
+	
+	public static LittleIngredients extract(LittlePreviews previews) {
+		LittleIngredients ingredients = new LittleIngredients();
+		extract(ingredients, previews, false);
+		return ingredients;
+	}
+	
+	public static LittleIngredients extractStructureOnly(LittlePreviews previews) {
+		LittleIngredients ingredients = new LittleIngredients();
+		extract(ingredients, previews, true);
+		return ingredients;
 	}
 	
 	public static LittleIngredients extractWithoutCount(ItemStack stack, boolean useLTStructures) {
@@ -59,7 +80,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		
 		if (tile != null) {
 			if (useLTStructures && tile.hasLittlePreview(stack) && tile.containsIngredients(stack))
-				extract(ingredients, tile.getLittlePreview(stack));
+				extract(ingredients, tile.getLittlePreview(stack), false);
 		} else {
 			for (IngredientConvertionHandler handler : typesConverationHandler)
 				ingredients.add(handler.extract(stack));
@@ -124,6 +145,15 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				return ingredient;
 			}
 			
+			@Override
+			public BlockIngredient extract(LittleTilePreview preview, double volume) {
+				BlockIngredient ingredient = new BlockIngredient();
+				BlockIngredientEntry entry = preview.getBlockIngredient(LittleGridContext.get());
+				entry.value = volume;
+				ingredient.add(entry);
+				return ingredient;
+			}
+			
 		});
 		registerType(ColorIngredient.class, new IngredientOverflowHandler<ColorIngredient>() {
 			
@@ -162,6 +192,13 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 					
 				if (ingredient.isEmpty())
 					return null;
+				return ingredient;
+			}
+			
+			@Override
+			public ColorIngredient extract(LittleTilePreview preview, double volume) {
+				ColorIngredient ingredient = new ColorIngredient();
+				ingredient.add(ColorIngredient.getColors(preview, volume));
 				return ingredient;
 			}
 			
@@ -217,6 +254,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		public abstract T extract(ItemStack stack);
 		
 		public abstract T extract(LittlePreviews previews);
+		
+		public abstract T extract(LittleTilePreview preview, double volume);
 		
 	}
 	
