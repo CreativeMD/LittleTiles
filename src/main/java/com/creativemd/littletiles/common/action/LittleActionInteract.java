@@ -106,7 +106,8 @@ public abstract class LittleActionInteract extends LittleAction {
 			if (tile != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = rayTrace(te, tile);
-				return action(world, te, tile, stack, player, moving, blockPos, secondMode);
+				if (moving != null)
+					return action(world, te, tile, stack, player, moving, blockPos, secondMode);
 			} else
 				onTileNotFound();
 		} else
