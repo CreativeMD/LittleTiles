@@ -96,6 +96,9 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	
 	@Override
 	public ColorIngredient add(ColorIngredient ingredient) {
+		if (ingredient == null || ingredient.isEmpty())
+			return null;
+		
 		ColorIngredient remaining = null;
 		this.black += ingredient.black;
 		if (this.limit > 0 && this.black > limit) {
@@ -130,6 +133,9 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	
 	@Override
 	public ColorIngredient sub(ColorIngredient ingredient) {
+		if (ingredient == null || ingredient.isEmpty())
+			return null;
+		
 		ColorIngredient remaining = null;
 		this.black -= ingredient.black;
 		if (this.black < 0) {
