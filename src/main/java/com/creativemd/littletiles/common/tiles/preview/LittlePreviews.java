@@ -115,10 +115,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	public void addChild(LittlePreviews child) {
 		if (child.isAbsolute())
 			throw new RuntimeException("Absolute previews cannot be added as a child!");
-		children.add((LittlePreviewsStructure) child);
+		children.add(child);
 		if (context.size < child.getSmallestContext())
 			convertToSmallest();
-		else
+		else if (child.context != context)
 			child.convertTo(context);
 	}
 	
@@ -147,6 +147,8 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			convertTo(context);
 		else if (context.size < this.context.size)
 			offset.convertTo(context, this.context);
+		
+		context = this.context;
 		
 		for (LittleTilePreview preview : previews) {
 			preview.box.add(offset);
