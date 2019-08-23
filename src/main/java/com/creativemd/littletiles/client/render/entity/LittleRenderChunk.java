@@ -2,6 +2,7 @@ package com.creativemd.littletiles.client.render.entity;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -35,9 +36,31 @@ public class LittleRenderChunk {
 	
 	public int transparencySortedIndex = 0;
 	
+	protected void add(TileEntityLittleTiles te) {
+		tileEntities.add(te);
+	}
+	
+	protected boolean contains(TileEntityLittleTiles te) {
+		for (TileEntityLittleTiles teSearch : tileEntities)
+			if (te.getPos().equals(teSearch.getPos()))
+				return true;
+		return false;
+	}
+	
+	protected boolean remove(TileEntityLittleTiles te) {
+		for (Iterator<TileEntityLittleTiles> iterator = tileEntities.iterator(); iterator.hasNext();) {
+			TileEntityLittleTiles teSearch = iterator.next();
+			if (te.getPos().equals(teSearch.getPos())) {
+				iterator.remove();
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void deleteRenderData(TileEntityLittleTiles te) {
 		synchronized (tileEntities) {
-			tileEntities.remove(te);
+			remove(te);
 		}
 		
 		complete = false;
@@ -47,9 +70,9 @@ public class LittleRenderChunk {
 	public void addRenderData(TileEntityLittleTiles te) {
 		synchronized (tileEntities) {
 			
-			if (tileEntities.contains(te)) {
+			if (contains(te)) {
 				if (te.isEmpty()) {
-					tileEntities.remove(te);
+					remove(te);
 					return;
 				}
 				modified = true;
@@ -57,12 +80,10 @@ public class LittleRenderChunk {
 				if (te.isEmpty())
 					return;
 				
-				tileEntities.add(te);
+				add(te);
 				
 				if (!modified)
 					addRenderDataInternal(te);
-				else
-					modified = true;
 			}
 			
 			if (modified)

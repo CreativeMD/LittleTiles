@@ -135,7 +135,7 @@ public abstract class LittleDoor extends LittleStructure {
 			return false;
 		
 		for (LittleDoor door : collectDoorsToCheck())
-			if (!canOpenDoor(player, result))
+			if (!door.canOpenDoor(player, result))
 				return false;
 		return true;
 	}

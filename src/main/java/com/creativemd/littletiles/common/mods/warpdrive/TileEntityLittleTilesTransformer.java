@@ -2,24 +2,19 @@ package com.creativemd.littletiles.common.mods.warpdrive;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseRelative;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.LittleBlockTransformer;
 
 import cr0s.warpdrive.api.IBlockTransformer;
 import cr0s.warpdrive.api.ITransformation;
@@ -144,48 +139,9 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 			count = 1;
 			rotation = Rotation.Y_CLOCKWISE;
 		}
-		for (LittleTile tile : te.getTiles())
-			for (int rotationStep = 0; rotationStep < count; rotationStep++)
-				transformTile(tile, rotation);
+		LittleBlockTransformer.rotateTE(te, rotation, count, false);
 		te.writeToNBT(nbtTileEntity);
 		return metadata;
 	}
 	
-	public static void transformTile(LittleTile tile, Rotation rotation) {
-		LittleTileVec moved = tile.box.getMinVec();
-		tile.box.rotateBox(rotation, tile.getContext().rotationCenter);
-		moved.sub(tile.box.getMinVec());
-		if (tile.isChildOfStructure()) {
-			if (!tile.connection.isLink())
-				transformStructure(tile.connection.getStructureWithoutLoading(), rotation, moved);
-		}
-	}
-	
-	public static void transformStructure(LittleStructure structure, Rotation rotation, LittleTileVec moved) {
-		BlockPos mainPos = structure.getMainTile().te.getPos();
-		if (structure.tilesToLoad != null) {
-			LinkedHashMap<BlockPos, Integer> newTilesToLoad = new LinkedHashMap<>();
-			for (Entry<BlockPos, Integer> entry : structure.tilesToLoad.entrySet()) {
-				BlockPos pos = entry.getKey();
-				pos = pos.subtract(mainPos);
-				pos = RotationUtils.rotate(pos, rotation);
-				pos = pos.add(mainPos);
-				newTilesToLoad.put(pos, entry.getValue());
-			}
-			structure.tilesToLoad = newTilesToLoad;
-		}
-		
-		LittleGridContext context = structure.getMainTile().getContext();
-		LittleTileVec center = context.rotationCenter.copy();
-		LittleTileVec offset = structure.getMainTile().getMinVec();
-		offset.scale(2);
-		center.sub(offset);
-		for (StructureTypeRelative relative : structure.type.relatives) {
-			StructureRelative relativeST = relative.getRelative(structure);
-			if (relativeST == null)
-				continue;
-			relativeST.onMove(structure, context, moved);
-			relativeST.onRotate(structure, context, rotation, center);
-		}
-	}
 }

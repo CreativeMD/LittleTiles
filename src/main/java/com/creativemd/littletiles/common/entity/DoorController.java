@@ -128,6 +128,8 @@ public class DoorController extends EntityAnimationController {
 			return;
 		synchronized (waitingForRender) {
 			waitingForRender.remove(te);
+			if (waitingForRender.isEmpty())
+				parent.isDead = true;
 		}
 	}
 	
@@ -245,6 +247,14 @@ public class DoorController extends EntityAnimationController {
 				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
+			
+			parent.fakeWorld.loadedEntityList.removeIf((x) -> {
+				if (x instanceof EntityAnimation && ((EntityAnimation) x).controller.isWaitingForRender()) {
+					((EntityAnimation) x).markRemoved();
+					return true;
+				}
+				return false;
+			});
 			
 			newDoor.transferChildrenFromAnimation(parent);
 		} else {

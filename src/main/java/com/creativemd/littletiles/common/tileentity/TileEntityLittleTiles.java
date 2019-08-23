@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
@@ -36,21 +37,22 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.vec.LittleBlockTransformer;
 
 import elucent.albedo.lighting.ILightProvider;
 import elucent.albedo.lighting.Light;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
@@ -61,16 +63,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	public static CopyOnWriteArrayList<LittleTile> createTileList() {
 		return new CopyOnWriteArrayList<LittleTile>();
-	}
-	
-	public TileEntityLittleTiles() {
-		if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-			initClient();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	protected void initClient() {
-		waitingAnimation = new ArrayList<>();
 	}
 	
 	protected void assign(TileEntityLittleTiles te) {
@@ -185,6 +177,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@SideOnly(Side.CLIENT)
 	public void addWaitingAnimation(EntityAnimation animation) {
+		if (waitingAnimation == null)
+			waitingAnimation = new ArrayList<>();
 		synchronized (waitingAnimation) {
 			waitingAnimation.add(animation);
 		}
@@ -307,7 +301,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	protected void customTilesUpdate() {
-		if (world.isRemote || tiles == null)
+		if (world.isRemote)
 			return;
 		boolean rendered = hasRendered();
 		if (updateTiles.isEmpty() == isTicking() || rendered != isRendered()) {
@@ -345,7 +339,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (isClientSide())
 			updateCustomRenderer();
 		
-		if (!world.isRemote && tiles.size() == 0)
+		if (!world.isRemote && tiles.isEmpty())
 			world.setBlockToAir(getPos());
 		
 		if (world instanceof CreativeWorld)
@@ -646,10 +640,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
 		
-		if (tiles != null)
-			tiles.clear();
-		if (updateTiles != null)
-			updateTiles.clear();
+		tiles.clear();
+		updateTiles.clear();
 		collisionChecks = 0;
 		preventUpdate = true;
 		
@@ -673,7 +665,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		
 		preventUpdate = false;
-		if (world != null) {
+		if (world != null && !world.isRemote) {
 			updateBlock();
 			customTilesUpdate();
 		}
@@ -719,6 +711,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
+		preventUpdate = true;
+		
 		LittleGridContext context = LittleGridContext.get(nbt);
 		
 		if (context != this.context)
@@ -775,21 +769,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			}
 		}
 		
-		updateTiles();
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void handleUpdateTag(NBTTagCompound nbt) {
-		handleUpdatePacket(Minecraft.getMinecraft().getConnection().getNetworkManager(), nbt);
-	}
-	
-	@Override
-	public NBTTagCompound getUpdateTag() {
-		NBTTagCompound nbt = super.getUpdateTag();
+		preventUpdate = false;
 		
-		getDescriptionNBT(nbt);
-		return nbt;
+		updateTiles();
 	}
 	
 	/** uses the corner and is therefore faster */
@@ -894,8 +876,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void combineTiles() {
-		if (isInvalid())
-			return;
 		combineTilesList(tiles);
 		
 		convertToSmallest();
@@ -1065,17 +1045,35 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return null;
 	}
 	
-	@Override
-	public int hashCode() {
-		return pos.hashCode();
-	}
-	
-	@Override
-	public boolean equals(Object obj) {
-		return obj instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) obj).pos.equals(pos);
-	}
-	
 	public boolean isEmpty() {
 		return tiles.isEmpty();
+	}
+	
+	@Override
+	public void onChunkUnload() {
+		super.onChunkUnload();
+		if (world.isRemote) {
+			tiles = null;
+			updateTiles = null;
+			renderTiles = null;
+			buffer = null;
+			cubeCache = null;
+			sideCache = null;
+			waitingAnimation = null;
+			lastRenderedChunk = null;
+			cachedRenderBoundingBox = null;
+		}
+	}
+	
+	@Override
+	public void rotate(Rotation rotationIn) {
+		LittleBlockTransformer.rotateTE(this, RotationUtils.getRotation(rotationIn), RotationUtils.getRotationCount(rotationIn), true);
+		updateTiles();
+	}
+	
+	@Override
+	public void mirror(Mirror mirrorIn) {
+		LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn), true);
+		updateTiles();
 	}
 }
