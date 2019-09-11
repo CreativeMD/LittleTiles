@@ -1,10 +1,8 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
@@ -25,7 +23,7 @@ public class LittleRenderChunk {
 	protected List<BufferBuilder>[] queuedBuffers = new List[BlockRenderLayer.values().length];
 	protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
 	
-	private Set<TileEntityLittleTiles> tileEntities = new HashSet<>();
+	private List<TileEntityLittleTiles> tileEntities = new ArrayList<>();
 	/** if one of the blocks has been modified, which requires the chunk cache to be uploaded again */
 	private boolean modified = false;
 	private boolean complete = false;
@@ -40,11 +38,11 @@ public class LittleRenderChunk {
 		tileEntities.add(te);
 	}
 	
-	protected boolean contains(TileEntityLittleTiles te) {
+	protected TileEntityLittleTiles get(BlockPos pos) {
 		for (TileEntityLittleTiles teSearch : tileEntities)
-			if (te.getPos().equals(teSearch.getPos()))
-				return true;
-		return false;
+			if (teSearch.getPos().equals(pos))
+				return teSearch;
+		return null;
 	}
 	
 	protected boolean remove(TileEntityLittleTiles te) {
@@ -70,11 +68,15 @@ public class LittleRenderChunk {
 	public void addRenderData(TileEntityLittleTiles te) {
 		synchronized (tileEntities) {
 			
-			if (contains(te)) {
-				if (te.isEmpty()) {
+			TileEntityLittleTiles existing = get(te.getPos());
+			if (existing != null) {
+				if (existing != te) {
 					remove(te);
-					return;
-				}
+					if (!te.isEmpty())
+						add(te);
+				} else if (te.isEmpty())
+					remove(te);
+				
 				modified = true;
 			} else {
 				if (te.isEmpty())
@@ -167,6 +169,7 @@ public class LittleRenderChunk {
 					if (queuedBuffers[i] != null)
 						queuedBuffers[i].clear();
 				}
+				System.out.println("processed: " + tileEntities.size());
 				modified = false;
 				for (TileEntityLittleTiles te : tileEntities) {
 					addRenderDataInternal(te);
