@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -127,7 +128,9 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	}
 	
 	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
-		take(player, inventory, LittleIngredient.extractStructureOnly(previews).add(getIngredients(placedTiles.placedPreviews)));
+		LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
+		ingredients.add(getIngredients(placedTiles.placedPreviews));
+		take(player, inventory, ingredients);
 	}
 	
 	@Override

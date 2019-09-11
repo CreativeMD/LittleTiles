@@ -600,10 +600,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean giveOrDrop(EntityPlayer player, LittleInventory inventory, List<LittleTile> tiles) {
-		LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
-		previews.addTiles(tiles);
 		if (needIngredients(player) && !tiles.isEmpty()) {
+			LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
+			previews.addTiles(tiles);
 			try {
+				
 				LittleIngredients ingredients = getIngredients(previews);
 				try {
 					inventory.startSimulation();

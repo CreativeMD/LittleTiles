@@ -79,7 +79,7 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
 			}
 		}
 		
-		if (maxEntries != -1 && content.size() < maxEntries) {
+		if (maxEntries == -1 || content.size() < maxEntries) {
 			content.add(ingredient.copy());
 			return null;
 		}

@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -182,8 +183,11 @@ public class LittleActionPlaceStack extends LittleAction {
 				if (iTile.containsIngredients(stack)) {
 					stack.shrink(1);
 					giveOrDrop(player, inventory, unplaceableTiles);
-				} else
-					take(player, inventory, getIngredients(previews).add(getIngredients(placedTiles.placedPreviews)));
+				} else {
+					LittleIngredients ingredients = getIngredients(previews);
+					ingredients.add(getIngredients(placedTiles.placedPreviews));
+					take(player, inventory, ingredients);
+				}
 			}
 			
 			if (!removedTiles.isEmpty()) {
