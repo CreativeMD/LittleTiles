@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
-import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
+import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;

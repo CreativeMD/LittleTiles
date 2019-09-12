@@ -81,13 +81,13 @@ public class LittleTilesAfterTransformer extends CreativeTransformer {
 								index = local.index;
 						}
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, index));
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "addTileEntity", "(Ljava/util/List;Lnet/minecraft/tileentity/TileEntity;)V", false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "addTileEntity", "(Ljava/util/List;Lnet/minecraft/tileentity/TileEntity;)V", false));
 						// m.instructions.insertBefore(insn, last);
 					} else if (insn instanceof MethodInsnNode && ((MethodInsnNode) insn).desc.equals(descAfter) && ((MethodInsnNode) insn).owner.equals(ownerAfter) && ((MethodInsnNode) insn).name.equals(nameAfter)) {
 						AbstractInsnNode before = insn.getPrevious().getPrevious();
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, tilesLocalID));
-						m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onDoneRendering", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;Ljava/util/List;)V", false));
+						m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "onDoneRendering", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;Ljava/util/List;)V", false));
 						
 					}
 				}

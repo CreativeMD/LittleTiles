@@ -10,11 +10,14 @@ import com.creativemd.creativecore.client.rendering.model.CreativeBlockRenderHel
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.core.CreativeCoreClient;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
-import com.creativemd.littletiles.client.render.OverlayRenderer;
-import com.creativemd.littletiles.client.render.PreviewRenderer;
-import com.creativemd.littletiles.client.render.TileEntityTilesRenderer;
+import com.creativemd.littletiles.client.gui.controls.GuiAxisIndicatorControl;
 import com.creativemd.littletiles.client.render.entity.RenderSizedTNTPrimed;
+import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
+import com.creativemd.littletiles.client.render.overlay.OverlayControl;
+import com.creativemd.littletiles.client.render.overlay.OverlayRenderer;
+import com.creativemd.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
+import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
+import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
@@ -74,6 +77,8 @@ public class LittleTilesClient extends LittleTilesServer {
 	
 	public static TileEntityTilesRenderer tileEntityRenderer;
 	
+	public static OverlayRenderer overlay;
+	
 	@Override
 	public void loadSidePre() {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
@@ -116,7 +121,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		BlockTile.mc = mc;
 		
-		MinecraftForge.EVENT_BUS.register(new OverlayRenderer());
+		MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
 		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.client = new LittleDoorHandler(Side.CLIENT));
 		
@@ -232,7 +237,10 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		ClientCommandHandler.instance.registerCommand(new DebugCommand());
 		
-		MinecraftForge.EVENT_BUS.register(LittleTilesProfiler.class);
+		// Init overlays
+		MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+		
+		overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis", 0, 0), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
 	}
 	
 	@Override

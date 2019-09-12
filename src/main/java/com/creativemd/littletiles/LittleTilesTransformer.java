@@ -50,7 +50,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 3));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 4));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.DLOAD, 5));
-				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "uploadChunk", patchDESC("(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/BufferBuilder;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)V"), false));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "uploadChunk", patchDESC("(Lnet/minecraft/util/BlockRenderLayer;Lnet/minecraft/client/renderer/BufferBuilder;Lnet/minecraft/client/renderer/chunk/RenderChunk;Lnet/minecraft/client/renderer/chunk/CompiledChunk;D)V"), false));
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.entity.player.EntityPlayer") {
@@ -105,7 +105,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.add(new VarInsnNode(Opcodes.FLOAD, 2));
 				m.instructions.add(new VarInsnNode(Opcodes.FLOAD, 3));
 				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 4));
-				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "resortTransparency", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;FFFLnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator;)V", false));
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "resortTransparency", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;FFFLnet/minecraft/client/renderer/chunk/ChunkCompileTaskGenerator;)V", false));
 				
 				m.instructions.add(new InsnNode(Opcodes.RETURN));
 				m.instructions.add(new LabelNode());
@@ -298,7 +298,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					
 					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKEVIRTUAL && ((MethodInsnNode) insn).name.equals(methodName) && ((MethodInsnNode) insn).owner.equals(className)) {
 						AbstractInsnNode before = insn.getPrevious().getPrevious();
-						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/LittleChunkDispatcher", "onOptifineMarksChunkRenderUpdateForDynamicLights", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V", false));
+						m.instructions.insert(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "onOptifineMarksChunkRenderUpdateForDynamicLights", "(Lnet/minecraft/client/renderer/chunk/RenderChunk;)V", false));
 						
 						m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD, ((VarInsnNode) before).var));
 						
@@ -322,7 +322,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 9));
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"), false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"), false));
 						m.instructions.remove(insn);
 						break;
 					}
@@ -341,7 +341,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
 						
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
 						m.instructions.remove(insn);
 						break;
 					}
@@ -354,7 +354,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 1));
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 3));
-				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "isNeighbour", patchDESC("(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;)Z"), false));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "isNeighbour", patchDESC("(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;)Z"), false));
 				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
@@ -364,7 +364,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				insn = (LabelNode) m.instructions.getFirst();
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/ConnectedTexturesModifier", "isFullCube", patchDESC("(Lnet/minecraft/block/state/IBlockState;)Z"), false));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "isFullCube", patchDESC("(Lnet/minecraft/block/state/IBlockState;)Z"), false));
 				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));

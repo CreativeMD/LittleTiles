@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;

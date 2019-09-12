@@ -8,7 +8,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.RenderingThread;
+import com.creativemd.littletiles.client.render.cache.RenderingThread;
 
 import net.minecraftforge.common.config.Config;
 import net.minecraftforge.common.config.ConfigManager;

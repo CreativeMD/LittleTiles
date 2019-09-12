@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.renderer.BufferBuilder;

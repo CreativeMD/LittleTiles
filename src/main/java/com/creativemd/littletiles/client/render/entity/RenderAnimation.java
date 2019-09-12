@@ -6,7 +6,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.client.render.LittleRenderChunkSuppilier;
+import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

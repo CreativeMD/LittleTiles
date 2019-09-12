@@ -6,7 +6,7 @@ import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.event.container.SlotChangeEvent;
 import com.creativemd.creativecore.common.gui.premade.SubContainerHeldItem;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.gui.controls.SlotControlBlockIngredient;
+import com.creativemd.littletiles.client.gui.controls.SlotControlBlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;

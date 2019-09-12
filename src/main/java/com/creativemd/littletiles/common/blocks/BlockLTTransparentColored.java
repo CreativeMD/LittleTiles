@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.IFakeRenderingBlock;
+import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;

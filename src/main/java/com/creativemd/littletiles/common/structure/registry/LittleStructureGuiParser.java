@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.structure.registry;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
+import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
-import com.creativemd.littletiles.common.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;

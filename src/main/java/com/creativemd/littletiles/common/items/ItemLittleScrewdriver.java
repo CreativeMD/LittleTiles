@@ -9,8 +9,8 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.gui.SubGuiScrewdriver;
 import com.creativemd.littletiles.common.container.SubContainerScrewdriver;
-import com.creativemd.littletiles.common.gui.SubGuiScrewdriver;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;

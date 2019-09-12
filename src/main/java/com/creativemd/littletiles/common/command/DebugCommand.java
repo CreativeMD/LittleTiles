@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.command;
 
-import com.creativemd.littletiles.client.profile.LittleTilesProfiler;
+import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -21,7 +21,7 @@ public class DebugCommand extends CommandBase {
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		LittleTilesProfiler.showDebugInfo ^= true;
+		LittleTilesProfilerOverlay.showDebugInfo ^= true;
 	}
 	
 }

@@ -7,7 +7,7 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;

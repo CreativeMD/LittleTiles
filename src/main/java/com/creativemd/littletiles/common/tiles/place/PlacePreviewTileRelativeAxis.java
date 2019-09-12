@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.tiles.place;
 
 import java.util.List;
 
-import com.creativemd.littletiles.client.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
