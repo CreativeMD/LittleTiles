@@ -398,6 +398,9 @@ public class LittleActionPlaceStack extends LittleAction {
 				if (!needsCollisionCheck)
 					continue;
 				
+				if (pos.getY() < 0 && pos.getY() >= 256)
+					return false;
+				
 				TileEntityLittleTiles te = loadTe(player, world, pos, false);
 				if (te != null) {
 					LittleGridContext contextBefore = te.getContext();
