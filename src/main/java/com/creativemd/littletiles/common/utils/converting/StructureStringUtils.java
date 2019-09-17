@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
-import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
@@ -37,16 +36,11 @@ public class StructureStringUtils {
 		if (stack != null && (PlacementHelper.isLittleBlock(stack) || stack.getItem() instanceof ItemRecipe)) {
 			JsonObject object = new JsonObject();
 			NBTTagCompound nbt = new NBTTagCompound();
-			LittlePreviews previews = null;
-			if (stack.getItem() instanceof ItemRecipe) {
-				previews = LittleTilePreview.getPreview(stack);
-			} else {
-				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
-				previews = tile.getLittlePreview(stack);
-			}
+			if (!(stack.getItem() instanceof ItemRecipe) && !PlacementHelper.isLittleBlock(stack))
+				return "";
 			
 			List<String> texturenames = new ArrayList<>();
-			List<? extends RenderCubeObject> cubes = ((ICreativeRendered) stack.getItem()).getRenderingCubes(null, null, stack);
+			List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
 			JsonArray elements = new JsonArray();
 			for (int i = 0; i < cubes.size(); i++) {
 				RenderCubeObject cube = cubes.get(i);
