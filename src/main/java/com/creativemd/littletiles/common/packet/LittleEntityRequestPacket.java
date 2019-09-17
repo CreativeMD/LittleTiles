@@ -45,7 +45,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 		if (animation != null) {
 			animation.isDead = false;
 			animation.readFromNBT(nbt);
-			animation.origin.tick();
+			animation.updateTickState();
 			return;
 		}
 		
@@ -62,7 +62,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 				animation = (EntityAnimation) entity;
 				animation.isDead = false;
 				animation.readFromNBT(nbt);
-				animation.origin.tick();
+				animation.updateTickState();
 				if (!animation.isDoorAdded())
 					animation.addDoor();
 				return;

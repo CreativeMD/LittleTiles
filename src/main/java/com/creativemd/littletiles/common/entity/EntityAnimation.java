@@ -15,8 +15,8 @@ import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
 import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.ChildVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
@@ -654,7 +654,7 @@ public class EntityAnimation extends Entity {
 	public void updateTickState() {
 		if (controller == null)
 			return;
-		AnimationState state = controller.tick();
+		AnimationState state = controller.getTickingState();
 		Vector3d offset = state.getOffset();
 		Vector3d rotation = state.getRotation();
 		moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ());
