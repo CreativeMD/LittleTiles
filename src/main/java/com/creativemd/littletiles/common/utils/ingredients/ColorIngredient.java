@@ -216,6 +216,20 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 		this.yellow = (int) Math.floor(this.yellow * scale);
 	}
 	
+	@Override
+	public String print(List<Object> objects) {
+		String text = "";
+		if (black > 0)
+			text += getBlackDescription();
+		if (cyan > 0)
+			text += (text.isEmpty() ? "" : " ") + getCyanDescription();
+		if (magenta > 0)
+			text += (text.isEmpty() ? "" : " ") + getMagentaDescription();
+		if (yellow > 0)
+			text += (text.isEmpty() ? "" : " ") + getYellowDescription();
+		return text;
+	}
+	
 	public static float dyeToBlockPercentage = 4096;
 	
 	public static ColorIngredient getColors(LittleTilePreview preview, double volume) {

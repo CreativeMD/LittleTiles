@@ -1,11 +1,17 @@
 package com.creativemd.littletiles.common.action;
 
+import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
+
 import net.minecraft.util.text.translation.I18n;
 
 public class LittleActionException extends Exception {
 	
 	public LittleActionException(String msg) {
 		super(msg);
+	}
+	
+	public ActionMessage getActionMessage() {
+		return null;
 	}
 	
 	@Override

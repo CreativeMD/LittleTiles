@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.StackIngredientEntry;
+import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -65,11 +66,7 @@ public class SubGuiWorkbench extends SubGui {
 							BlockIngredient blocks = missing.get(BlockIngredient.class);
 							if (blocks != null)
 								for (BlockIngredientEntry ingredient : blocks) {
-									int fullBlocks = (int) ingredient.value;
-									int pixels = (int) Math.ceil(((ingredient.value - fullBlocks) * previews.context.maxTilesPerBlock));
-									String line = fullBlocks > 0 ? fullBlocks + " blocks" : "";
-									line += (fullBlocks > 0 ? " " : "") + pixels + " pixels";
-									listBox.add(line, ingredient.getItemStack());
+									listBox.add(TooltipUtils.printVolume(ingredient.value, true), ingredient.getItemStack());
 								}
 							
 							ColorIngredient color = missing.get(ColorIngredient.class);

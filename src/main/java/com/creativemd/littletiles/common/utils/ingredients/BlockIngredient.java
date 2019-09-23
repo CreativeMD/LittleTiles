@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.LinkedHashMapDouble;
+import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.item.ItemStack;
 
@@ -166,5 +167,26 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
 	
 	public List<BlockIngredientEntry> getContent() {
 		return content;
+	}
+	
+	@Override
+	public String print(List<Object> objects) {
+		if (content.size() <= 4) {
+			String message = "";
+			for (BlockIngredientEntry entry : content) {
+				ItemStack stack = entry.getItemStack();
+				message += "{" + objects.size() + "} " + TooltipUtils.printVolume(entry.value, false) + " " + stack.getDisplayName() + "\n";
+				objects.add(stack);
+			}
+			return message;
+		}
+		
+		String message = "";
+		for (BlockIngredientEntry entry : content) {
+			ItemStack stack = entry.getItemStack();
+			message += "{" + objects.size() + "} " + TooltipUtils.printVolume(entry.value, false) + " ";
+			objects.add(stack);
+		}
+		return message;
 	}
 }

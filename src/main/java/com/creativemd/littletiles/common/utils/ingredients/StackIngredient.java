@@ -180,4 +180,23 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
 		return content;
 	}
 	
+	@Override
+	public String print(List<Object> objects) {
+		if (content.size() <= 4) {
+			String message = "";
+			for (StackIngredientEntry entry : content) {
+				message += "{" + objects.size() + "} " + entry.count + " " + entry.stack.getDisplayName() + "\n";
+				objects.add(entry.stack);
+			}
+			return message;
+		}
+		
+		String message = "";
+		for (StackIngredientEntry entry : content) {
+			message += "{" + objects.size() + "} " + entry.count + " ";
+			objects.add(entry.stack);
+		}
+		return message;
+	}
+	
 }

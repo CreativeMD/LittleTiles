@@ -12,6 +12,8 @@ public class OverlayGui extends SubGui {
 	protected List<OverlayControl> overlayControls = new ArrayList<>();
 	
 	public OverlayGui() {
+		borderWidth = 0;
+		marginWidth = 0;
 		setStyle(Style.emptyStyle);
 	}
 	
@@ -38,8 +40,11 @@ public class OverlayGui extends SubGui {
 	}
 	
 	public void resize() {
-		for (int i = 0; i < overlayControls.size(); i++)
-			positionControl(overlayControls.get(i));
+		for (int i = 0; i < overlayControls.size(); i++) {
+			OverlayControl control = overlayControls.get(i);
+			control.resize();
+			positionControl(control);
+		}
 	}
 	
 	public void add(OverlayControl control) {

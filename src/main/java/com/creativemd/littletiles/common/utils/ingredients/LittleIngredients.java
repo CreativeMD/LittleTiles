@@ -1,13 +1,14 @@
 package com.creativemd.littletiles.common.utils.ingredients;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import net.minecraft.item.ItemStack;
 
-public class LittleIngredients extends LittleIngredientBase<LittleIngredients> {
+public class LittleIngredients extends LittleIngredientBase<LittleIngredients> implements Iterable<LittleIngredient> {
 	
 	protected LittleIngredient[] content = new LittleIngredient[LittleIngredient.getSize()];
 	
@@ -170,6 +171,35 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> {
 	
 	protected boolean removeEmptyIngredients() {
 		return true;
+	}
+	
+	@Override
+	public Iterator<LittleIngredient> iterator() {
+		return new Iterator<LittleIngredient>() {
+			int index = -1;
+			
+			@Override
+			public boolean hasNext() {
+				int nextIndex = index + 1;
+				while (nextIndex < content.length) {
+					if (content[nextIndex] != null && !content[nextIndex].isEmpty())
+						return true;
+					nextIndex++;
+				}
+				return false;
+			}
+			
+			@Override
+			public LittleIngredient next() {
+				index++;
+				while (index < content.length) {
+					if (content[index] != null && !content[index].isEmpty())
+						return content[index];
+					index++;
+				}
+				throw new RuntimeException("Iterator reached end of ingredients. Something has gone wrong!");
+			}
+		};
 	}
 	
 }

@@ -5,6 +5,8 @@ import org.lwjgl.opengl.GL11;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
+import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
@@ -23,6 +25,21 @@ public class OverlayRenderer {
 	protected static ScaledResolution scaledResolution;
 	
 	private OverlayGui gui = new OverlayGui();
+	private GuiActionDisplay actionDisplay = new GuiActionDisplay("action", 0, 0, 100).setMessageCount(1);
+	
+	public OverlayRenderer() {
+		add(new OverlayControl(actionDisplay, OverlayPositionType.ACTION_BAR) {
+			@Override
+			public void resize() {
+				super.resize();
+				this.control.width = this.parent.width;
+			}
+		});
+	}
+	
+	public void addMessage(ActionMessage message) {
+		actionDisplay.addMessage(message);
+	}
 	
 	public void add(OverlayControl control) {
 		gui.add(control);
@@ -69,6 +86,14 @@ public class OverlayRenderer {
 			protected void positionControl(GuiControl control, int width, int height) {
 				control.posX = width / 2 - control.width / 2;
 				control.posY = height / 2 - control.height / 2;
+			}
+		},
+		ACTION_BAR {
+			
+			@Override
+			protected void positionControl(GuiControl control, int width, int height) {
+				control.posX = width / 2 - control.width / 2;
+				control.posY = height - control.height - 68;
 			}
 		};
 		

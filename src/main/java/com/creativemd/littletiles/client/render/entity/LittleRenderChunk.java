@@ -169,7 +169,6 @@ public class LittleRenderChunk {
 					if (queuedBuffers[i] != null)
 						queuedBuffers[i].clear();
 				}
-				System.out.println("processed: " + tileEntities.size());
 				modified = false;
 				for (TileEntityLittleTiles te : tileEntities) {
 					addRenderDataInternal(te);

@@ -243,6 +243,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		return this.getClass() == obj.getClass();
 	}
 	
+	public abstract String print(List<Object> objects);
+	
 	public static abstract class IngredientOverflowHandler<T extends LittleIngredient> {
 		
 		public abstract List<ItemStack> handleOverflow(T overflow) throws NotEnoughSpaceException;

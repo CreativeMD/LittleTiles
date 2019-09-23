@@ -1,6 +1,10 @@
 package com.creativemd.littletiles.common.utils.ingredients;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
 
 import net.minecraft.item.ItemStack;
 
@@ -15,7 +19,7 @@ public class NotEnoughIngredientsException extends LittleActionException {
 	}
 	
 	public NotEnoughIngredientsException(LittleIngredient ingredient) {
-		this("exception.ingredient.space", ingredient);
+		this("exception.ingredient.missing", ingredient);
 	}
 	
 	public NotEnoughIngredientsException(ItemStack stack) {
@@ -24,7 +28,7 @@ public class NotEnoughIngredientsException extends LittleActionException {
 	}
 	
 	public NotEnoughIngredientsException(LittleIngredients ingredients) {
-		super("exception.ingredient.space");
+		super("exception.ingredient.missing");
 		this.ingredients = ingredients;
 	}
 	
@@ -32,10 +36,20 @@ public class NotEnoughIngredientsException extends LittleActionException {
 		return ingredients;
 	}
 	
+	@Override
+	public ActionMessage getActionMessage() {
+		String message = getLocalizedMessage() + "\n";
+		List objects = new ArrayList();
+		for (LittleIngredient ingredient : ingredients) {
+			message += ingredient.print(objects);
+		}
+		return new ActionMessage(message, objects.toArray());
+	}
+	
 	public static class NotEnoughSpaceException extends NotEnoughIngredientsException {
 		
 		public NotEnoughSpaceException(LittleIngredient ingredient) {
-			super("exception.ingredient.space.volume", ingredient);
+			super("exception.ingredient.space", ingredient);
 		}
 		
 		public NotEnoughSpaceException(ItemStack stack) {

@@ -25,10 +25,16 @@ public class OverlayControl {
 	}
 	
 	public boolean shouldRender() {
+		if (shouldRender == null)
+			return true;
 		return shouldRender.getAsBoolean();
 	}
 	
 	public void onTick() {
+		
+	}
+	
+	public void resize() {
 		
 	}
 	

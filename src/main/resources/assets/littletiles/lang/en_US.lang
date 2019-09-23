@@ -69,11 +69,8 @@ action.entity.notfound=Entity not found
 action.structure.notloaded=Structure is not loaded
 action.revert.notavailable=Action cannot be reverted
 
-exception.ingredient.color=Not enough color
-exception.ingredient.volume=Not enough material
-exception.ingredient.space.volume=Not enough space for material
-exception.ingredient.space.color=Not enough space for color
-exception.ingredient.stack=Missing 
+exception.ingredient.missing=Not enough ingredients
+exception.ingredient.space=Not enough space for
 exception.permission.edit=You are not allowed to edit more than %s blocks
 exception.permission.place.color=You are not allowed to place something with alpha below %s
 exception.permission.place=You are not allowed to place more than %s blocks
@@ -87,6 +84,13 @@ color.unit.magenta=magenta
 color.unit.yellow=yellow
 color.unit.single=unit
 color.unit.multiple=units
+
+volume.unit.big.single=block
+volume.unit.big.multiple=blocks
+volume.unit.big.short=b
+volume.unit.small.single=pixel
+volume.unit.small.multiple=pixels
+volume.unit.small.short=p
 
 selector.ingredients=Ingredients
 

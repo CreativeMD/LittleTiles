@@ -14,6 +14,7 @@ import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
@@ -45,6 +46,7 @@ import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
+import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -186,7 +188,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 				return true;
 			}
 		} catch (LittleActionException e) {
-			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+			ActionMessage message = e.getActionMessage();
+			if (message != null)
+				LittleTilesClient.overlay.addMessage(message);
+			else
+				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 			return false;
 		}
 		
@@ -195,13 +201,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
-		// Not used yet
 		
-		try {
-			action(player);
-		} catch (LittleActionException e) {
-			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-		}
 	}
 	
 	@Override
