@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -162,14 +163,8 @@ public class LittleActionPlaceStack extends LittleAction {
 		LittleInventory inventory = new LittleInventory(player);
 		
 		if (needIngredients(player)) {
-			if (!iTile.containsIngredients(stack)) {
-				try {
-					inventory.startSimulation();
-					take(player, inventory, getIngredients(result.previews));
-				} finally {
-					inventory.stopSimulation();
-				}
-			}
+			if (!iTile.containsIngredients(stack))
+				canTake(player, inventory, getIngredients(result.previews));
 		}
 		
 		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
@@ -184,7 +179,7 @@ public class LittleActionPlaceStack extends LittleAction {
 					stack.shrink(1);
 					giveOrDrop(player, inventory, unplaceableTiles);
 				} else {
-					LittleIngredients ingredients = getIngredients(previews);
+					LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
 					ingredients.add(getIngredients(placedTiles.placedPreviews));
 					take(player, inventory, ingredients);
 				}

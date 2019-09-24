@@ -119,12 +119,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	}
 	
 	protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player, LittleInventory inventory) throws LittleActionException {
-		try {
-			inventory.startSimulation();
-			return take(player, inventory, getIngredients(previews));
-		} finally {
-			inventory.stopSimulation();
-		}
+		return canTake(player, inventory, getIngredients(previews));
 	}
 	
 	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {

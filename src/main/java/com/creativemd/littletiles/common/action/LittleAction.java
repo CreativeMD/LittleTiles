@@ -559,7 +559,20 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static boolean take(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+	public static boolean canTake(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+		if (needIngredients(player)) {
+			try {
+				inventory.startSimulation();
+				inventory.take(ingredients);
+				return true;
+			} finally {
+				inventory.stopSimulation();
+			}
+		}
+		return true;
+	}
+	
+	public static boolean checkAndTake(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
@@ -569,6 +582,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 			}
 			inventory.take(ingredients);
 		}
+		return true;
+	}
+	
+	public static boolean take(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+		if (needIngredients(player))
+			inventory.take(ingredients);
 		return true;
 	}
 	
@@ -586,7 +605,20 @@ public abstract class LittleAction extends CreativeCorePacket {
 		throw new NotEnoughIngredientsException(toDrain);
 	}
 	
-	public static boolean give(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+	public static boolean canGive(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+		if (needIngredients(player)) {
+			try {
+				inventory.startSimulation();
+				inventory.give(ingredients);
+				return true;
+			} finally {
+				inventory.stopSimulation();
+			}
+		}
+		return true;
+	}
+	
+	public static boolean checkAndGive(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
@@ -599,20 +631,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
+	public static boolean give(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
+		if (needIngredients(player))
+			inventory.give(ingredients);
+		return true;
+	}
+	
 	public static boolean giveOrDrop(EntityPlayer player, LittleInventory inventory, List<LittleTile> tiles) {
 		if (needIngredients(player) && !tiles.isEmpty()) {
 			LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
 			previews.addTiles(tiles);
 			try {
-				
-				LittleIngredients ingredients = getIngredients(previews);
-				try {
-					inventory.startSimulation();
-					give(player, inventory, ingredients);
-				} finally {
-					inventory.stopSimulation();
-				}
-				give(player, inventory, ingredients);
+				checkAndGive(player, inventory, getIngredients(previews));
 			} catch (NotEnoughIngredientsException e) {
 				drop(player, previews);
 			}

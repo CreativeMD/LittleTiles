@@ -57,7 +57,7 @@ public class SubGuiWorkbench extends SubGui {
 						LittleIngredients ingredients = LittleAction.getIngredients(previews);
 						
 						try {
-							if (LittleAction.take(player, inventory, ingredients)) {
+							if (LittleAction.checkAndTake(player, inventory, ingredients)) {
 								sendPacketToServer(new NBTTagCompound());
 							}
 						} catch (NotEnoughIngredientsException e2) {

@@ -60,7 +60,7 @@ public class SubContainerWorkbench extends SubContainer {
 						
 						try {
 							LittleInventory inventory = new LittleInventory(player);
-							if (LittleAction.take(player, inventory, LittleAction.getIngredients(tiles))) {
+							if (LittleAction.checkAndTake(player, inventory, LittleAction.getIngredients(tiles))) {
 								ItemStack stack = new ItemStack(LittleTiles.multiTiles);
 								stack.setTagCompound(stack1.getTagCompound().copy());
 								if (!player.inventory.addItemStackToInventory(stack))
