@@ -53,7 +53,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public void startSimulation() {
 		cachedInventory = new ArrayList<ItemStack>();
 		for (int i = 0; i < inventory.getSizeInventory(); i++) {
-			cachedInventory.add(inventory.getStackInSlot(i));
+			cachedInventory.add(inventory.getStackInSlot(i).copy());
 		}
 		
 		cachedInventories = new ArrayList<>();

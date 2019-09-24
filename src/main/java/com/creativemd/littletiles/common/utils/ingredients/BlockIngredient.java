@@ -147,15 +147,13 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
 	@Override
 	public int getMinimumCount(BlockIngredient other, int availableCount) {
 		int count = -1;
-		if (this.isVolumeLimited() || other.isVolumeLimited()) {
-			LinkedHashMapDouble<BlockIngredientEntry> thisEntries = getCombinedEntries();
-			LinkedHashMapDouble<BlockIngredientEntry> otherEntries = other.getCombinedEntries();
-			
-			for (Entry<BlockIngredientEntry, Double> entry : thisEntries.entrySet()) {
-				Double value = otherEntries.get(entry.getKey());
-				if (value != null)
-					count = (int) Math.ceil(Math.max(count, entry.getValue() / value));
-			}
+		LinkedHashMapDouble<BlockIngredientEntry> thisEntries = getCombinedEntries();
+		LinkedHashMapDouble<BlockIngredientEntry> otherEntries = other.getCombinedEntries();
+		
+		for (Entry<BlockIngredientEntry, Double> entry : thisEntries.entrySet()) {
+			Double value = otherEntries.get(entry.getKey());
+			if (value != null)
+				count = (int) Math.ceil(Math.max(count, entry.getValue() / value));
 		}
 		return Math.min(count, availableCount);
 	}
@@ -188,5 +186,10 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
 			objects.add(stack);
 		}
 		return message;
+	}
+	
+	@Override
+	public String toString() {
+		return content.toString();
 	}
 }

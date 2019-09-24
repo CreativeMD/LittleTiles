@@ -65,4 +65,5 @@ public class StackIngredientEntry {
 	public void scale(int count) {
 		this.count *= count;
 	}
+	
 }

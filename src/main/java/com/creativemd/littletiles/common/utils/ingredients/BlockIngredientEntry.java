@@ -87,4 +87,9 @@ public class BlockIngredientEntry {
 		value *= count;
 	}
 	
+	@Override
+	public String toString() {
+		return "[" + block.getRegistryName() + "," + meta + "," + value + "]";
+	}
+	
 }

@@ -163,15 +163,13 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
 	@Override
 	public int getMinimumCount(StackIngredient other, int availableCount) {
 		int count = -1;
-		if (this.isStackLimited() || other.isStackLimited()) {
-			LinkedHashMapInteger<StackIngredientEntry> thisEntries = getCombinedEntries();
-			LinkedHashMapInteger<StackIngredientEntry> otherEntries = other.getCombinedEntries();
-			
-			for (Entry<StackIngredientEntry, Integer> entry : thisEntries.entrySet()) {
-				Integer value = otherEntries.get(entry.getKey());
-				if (value != null)
-					count = (int) Math.ceil(Math.max(count, entry.getValue() / value));
-			}
+		LinkedHashMapInteger<StackIngredientEntry> thisEntries = getCombinedEntries();
+		LinkedHashMapInteger<StackIngredientEntry> otherEntries = other.getCombinedEntries();
+		
+		for (Entry<StackIngredientEntry, Integer> entry : thisEntries.entrySet()) {
+			Integer value = otherEntries.get(entry.getKey());
+			if (value != null)
+				count = (int) Math.ceil(Math.max(count, entry.getValue() / value));
 		}
 		return Math.min(count, availableCount);
 	}
@@ -199,4 +197,8 @@ public class StackIngredient extends LittleIngredient<StackIngredient> implement
 		return message;
 	}
 	
+	@Override
+	public String toString() {
+		return content.toString();
+	}
 }
