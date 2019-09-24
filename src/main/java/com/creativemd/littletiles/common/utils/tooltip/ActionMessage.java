@@ -56,6 +56,9 @@ public class ActionMessage {
 			i++;
 		}
 		
+		if (first != i)
+			lineObjects.add(text.substring(first, i));
+		
 		if (!lineObjects.isEmpty()) {
 			ActionLine line = new ActionLine(new ArrayList<>(lineObjects));
 			tempWidth = Math.max(tempWidth, line.width);
