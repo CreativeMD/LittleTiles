@@ -188,12 +188,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				return true;
 			}
 		} catch (LittleActionException e) {
-			ActionMessage message = e.getActionMessage();
-			if (message != null)
-				LittleTilesClient.overlay.addMessage(message);
-			else
-				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
-			return false;
+			handleExceptionClient(e);
 		}
 		
 		return false;
@@ -211,6 +206,15 @@ public abstract class LittleAction extends CreativeCorePacket {
 		} catch (LittleActionException e) {
 			player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public static void handleExceptionClient(LittleActionException e) {
+		ActionMessage message = e.getActionMessage();
+		if (message != null)
+			LittleTilesClient.overlay.addMessage(message);
+		else
+			Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 	}
 	
 	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state) {

@@ -38,7 +38,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult.Type;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
@@ -71,7 +70,7 @@ public class PreviewRenderer {
 				if (LittleAction.canUseUndoOrRedo(player))
 					LittleAction.undo();
 			} catch (LittleActionException e) {
-				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+				LittleAction.handleExceptionClient(e);
 			}
 		}
 		
@@ -80,7 +79,7 @@ public class PreviewRenderer {
 				if (LittleAction.canUseUndoOrRedo(player))
 					LittleAction.redo();
 			} catch (LittleActionException e) {
-				player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
+				LittleAction.handleExceptionClient(e);
 			}
 		}
 	}
