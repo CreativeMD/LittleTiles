@@ -171,7 +171,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				context = ((TileEntityLittleTiles) tileEntity).getContext();
 			}
 			
-			if (give(player, new LittleInventory(player), action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
+			if (checkAndGive(player, new LittleInventory(player), action(player, (TileEntityLittleTiles) tileEntity, boxes, true, context)))
 				action(player, (TileEntityLittleTiles) tileEntity, boxes, false, context);
 			
 			((TileEntityLittleTiles) tileEntity).combineTiles();
