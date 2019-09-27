@@ -208,8 +208,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute, newDoor.getAbsoluteIdentifier());
 		
 		// Move animated worlds
-		transferChildrenToAnimation(animation);
-		transformAnimation(transformation);
+		newDoor.transferChildrenToAnimation(animation);
+		newDoor.transformAnimation(transformation);
 		
 		if (parent != null) {
 			LittleStructure parentStructure = parent.getStructure(world);
