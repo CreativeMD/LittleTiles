@@ -49,12 +49,12 @@ public abstract class LittleDoor extends LittleStructure {
 		}
 		
 		if (!loadChildren()) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
 			return false;
 		}
 		
 		if (!loadParent()) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
 			return false;
 		}
 		
