@@ -321,7 +321,7 @@ public abstract class LittleStructure {
 			tiles.add(entry.getKey(), entry.getValue());
 		for (IStructureChildConnector child : children)
 			if (!child.isLinkToAnotherWorld())
-				child.getStructure(getWorld()).getAllTiles(tiles);
+				child.getStructure(getWorld()).getAllTilesSameWorld(tiles);
 		return tiles;
 	}
 	
