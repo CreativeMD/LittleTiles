@@ -180,7 +180,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	protected abstract boolean run(EntityAnimationController controller);
 	
 	@SideOnly(Side.CLIENT)
-	public void prepareInGui(LittlePreviews previews, EntityAnimation animation, AnimationGuiHandler handler) {
+	public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
 		
 	}
 	

@@ -77,21 +77,24 @@ public class ChildActivateEvent extends AnimationEvent {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void prepareInGui(LittlePreviews previews, EntityAnimation animation, AnimationGuiHandler handler) {
-		if (animation.structure.children.size() <= childId)
+	public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {
+		if (structure.children.size() <= childId)
 			return;
-		IStructureChildConnector connector = animation.structure.children.get(childId);
-		if (connector != null && connector.isConnected(animation.world) && connector.getStructureWithoutLoading() instanceof LittleDoor) {
+		
+		IStructureChildConnector connector = structure.children.get(childId);
+		if (connector != null && connector.isConnected(structure.getWorld()) && connector.getStructureWithoutLoading() instanceof LittleDoor) {
 			LittleDoor child = (LittleDoor) connector.getStructureWithoutLoading();
 			EntityAnimation childAnimation;
 			if (!connector.isLinkToAnotherWorld())
 				childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT);
-			else
+			else if (child instanceof IAnimatedStructure)
 				childAnimation = ((IAnimatedStructure) child).getAnimation();
+			else
+				childAnimation = null;
+			
 			GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
 			};
-			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(getTick(), handler), childAnimation);
-			holder.handler.takeInitialState(childAnimation);
+			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(getTick(), handler), child, childAnimation);
 			LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
 			parser.createControls(holder.previews, holder.previews.getStructure());
 			if (holder.handler.hasTimeline())

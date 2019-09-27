@@ -132,7 +132,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 				parser.onLoaded(animationPreview);
 		}
 		if (animationPreview != null)
-			handler.tick(animationPreview.previews, animationPreview.animation);
+			handler.tick(animationPreview.previews, animationPreview.animation.structure, animationPreview.animation);
 	}
 	
 	@Override

@@ -3,10 +3,12 @@ package com.creativemd.littletiles.common.utils.animation;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
@@ -105,7 +107,7 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		return tick;
 	}
 	
-	public void tick(LittlePreviews previews, EntityAnimation animation) {
+	public void tick(LittlePreviews previews, LittleStructure structure, EntityAnimation animation) {
 		if (timeline == null)
 			return;
 		
@@ -126,23 +128,26 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		if (eventsChanged) {
 			for (AnimationGuiHolder holder : subHolders) {
 				holder.handler.stop();
-				holder.handler.updateTick(holder.animation);
-				holder.handler.updateTick(holder.animation);
+				if (holder.animation != null) {
+					holder.handler.updateTick(holder.animation);
+					holder.handler.updateTick(holder.animation);
+				}
 			}
 			subHolders.clear();
 			for (AnimationEvent event : events)
-				event.prepareInGui(previews, animation, this);
+				event.prepareInGui(previews, structure, animation, this);
 			hasChanged = true;
 			eventsChanged = false;
 		}
 		
 		for (AnimationGuiHolder holder : subHolders)
-			holder.handler.tick(holder.previews, holder.animation);
+			holder.handler.tick(holder.previews, holder.structure, holder.animation);
 		
 		if (hasChanged)
 			updateTimeline();
 		
-		updateTick(animation);
+		if (animation != null)
+			updateTick(animation);
 	}
 	
 	public void updateTick(EntityAnimation animation) {
@@ -198,12 +203,17 @@ public class AnimationGuiHandler implements IAnimationHandler {
 		
 		public final LittlePreviews previews;
 		public final AnimationGuiHandler handler;
+		public final LittleStructure structure;
+		@Nullable
 		public final EntityAnimation animation;
 		
-		public AnimationGuiHolder(LittlePreviews previews, AnimationGuiHandler handler, EntityAnimation animation) {
+		public AnimationGuiHolder(LittlePreviews previews, AnimationGuiHandler handler, LittleStructure structure, @Nullable EntityAnimation animation) {
 			this.previews = previews;
 			this.handler = handler;
+			this.structure = structure;
 			this.animation = animation;
+			if (animation != null)
+				handler.takeInitialState(animation);
 		}
 	}
 }
