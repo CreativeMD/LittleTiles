@@ -116,7 +116,8 @@ public class EntityAnimation extends Entity {
 		
 		addDoor();
 		preventPush = true;
-		onUpdateForReal();
+		updateTickState();
+		updateBoundingBox();
 		this.initalOffX = origin.offX();
 		this.initalOffY = origin.offY();
 		this.initalOffZ = origin.offZ();
@@ -188,6 +189,8 @@ public class EntityAnimation extends Entity {
 	public IVecOrigin origin;
 	public EntityAnimationController controller;
 	
+	public boolean enteredAsChild = false;
+	
 	// ================Axis================
 	
 	public void setCenter(StructureAbsolute center) {
@@ -206,11 +209,13 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void setParentWorld(World world) {
+		this.enteredAsChild = this.world instanceof CreativeWorld && !(world instanceof CreativeWorld);
 		this.world = world;
 		if (fakeWorld instanceof SubWorld)
 			((SubWorld) fakeWorld).parentWorld = world;
 		this.fakeWorld.setOrigin(center.rotationCenter);
 		this.origin = this.fakeWorld.getOrigin();
+		hasOriginChanged = true;
 	}
 	
 	public LittleStructure structure;
@@ -659,6 +664,7 @@ public class EntityAnimation extends Entity {
 		Vector3d rotation = state.getRotation();
 		moveAndRotateAnimation(offset.x - origin.offX(), offset.y - origin.offY(), offset.z - origin.offZ(), rotation.x - origin.rotX(), rotation.y - origin.rotY(), rotation.z - origin.rotZ());
 		origin.tick();
+		hasOriginChanged = true;
 	}
 	
 	public void onTick() {
@@ -718,11 +724,15 @@ public class EntityAnimation extends Entity {
 		
 		updateBoundingBox();
 		
-		for (TileEntity te : fakeWorld.loadedTileEntityList) {
+		List<BlockPos> positions = new ArrayList<>();
+		
+		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
+			TileEntity te = iterator.next();
 			List<LittleTile> updateTiles = ((TileEntityLittleTiles) te).getUpdateTiles();
 			if (updateTiles != null && !updateTiles.isEmpty())
 				for (LittleTile tile : updateTiles)
 					tile.updateEntity();
+				
 		}
 		
 		prevPosX = center.baseOffset.getX() + origin.offXLast();
