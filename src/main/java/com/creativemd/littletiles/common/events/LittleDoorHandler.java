@@ -155,7 +155,7 @@ public class LittleDoorHandler {
 			return;
 		if (event.getTarget() instanceof EntityAnimation && ((EntityAnimation) event.getTarget()).controller.activator() != event.getEntityPlayer()) {
 			EntityAnimation animation = (EntityAnimation) event.getTarget();
-			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound())), (EntityPlayerMP) event.getEntityPlayer());
+			PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), animation.enteredAsChild), (EntityPlayerMP) event.getEntityPlayer());
 		}
 	}
 	

@@ -21,31 +21,33 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	public UUID uuid;
 	public NBTTagCompound nbt;
+	public boolean enteredAsChild;
 	
-	public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt) {
+	public LittleEntityRequestPacket(UUID uuid, NBTTagCompound nbt, boolean enteredAsChild) {
 		this.uuid = uuid;
 		this.nbt = nbt;
+		this.enteredAsChild = enteredAsChild;
 	}
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writeString(buf, uuid.toString());
 		writeNBT(buf, nbt);
+		buf.writeBoolean(enteredAsChild);
 	}
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
 		uuid = UUID.fromString(readString(buf));
 		nbt = readNBT(buf);
+		enteredAsChild = buf.readBoolean();
 	}
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
 		EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
 		if (animation != null) {
-			animation.isDead = false;
-			animation.readFromNBT(nbt);
-			animation.updateTickState();
+			updateAnimation(animation);
 			return;
 		}
 		
@@ -60,15 +62,21 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 			Entity entity = iterator.next();
 			if (entity instanceof EntityAnimation && entity.getUniqueID().equals(uuid)) {
 				animation = (EntityAnimation) entity;
-				animation.isDead = false;
-				animation.readFromNBT(nbt);
-				animation.updateTickState();
+				updateAnimation(animation);
 				if (!animation.isDoorAdded())
 					animation.addDoor();
 				return;
 			}
 		}
 		System.out.println("Entity not found!");
+	}
+	
+	public void updateAnimation(EntityAnimation animation) {
+		animation.isDead = false;
+		if (animation.enteredAsChild != this.enteredAsChild) {
+			animation.readFromNBT(nbt);
+			animation.updateTickState();
+		}
 	}
 	
 	@Override
