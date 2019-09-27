@@ -1076,4 +1076,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn), true);
 		updateTiles();
 	}
+	
+	@Override
+	public String toString() {
+		return pos.toString();
+	}
 }

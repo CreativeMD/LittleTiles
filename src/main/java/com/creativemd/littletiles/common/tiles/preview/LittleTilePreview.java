@@ -243,6 +243,13 @@ public class LittleTilePreview implements ICombinable {
 		return preview;
 	}
 	
+	// ================Common================
+	
+	@Override
+	public String toString() {
+		return box.toString();
+	}
+	
 	// ================Placing================
 	
 	/** Used for placing the tile **/

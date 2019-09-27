@@ -242,6 +242,7 @@ public class DoorController extends EntityAnimationController {
 		
 		LittlePlaceResult result;
 		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
+			
 			if (parent.structure.parent != null && parent.structure.parent.isConnected(world)) {
 				LittleStructure parentStructure = parent.structure.parent.getStructureWithoutLoading();
 				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
