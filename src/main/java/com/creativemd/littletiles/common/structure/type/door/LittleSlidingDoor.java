@@ -128,9 +128,11 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			}
 		}
 		
+		@Override
 		@CustomEventSubscribe
 		@SideOnly(Side.CLIENT)
 		public void onChanged(GuiControlChangedEvent event) {
+			super.onChanged(event);
 			if (event.source.is("distance"))
 				updateTimeline();
 		}

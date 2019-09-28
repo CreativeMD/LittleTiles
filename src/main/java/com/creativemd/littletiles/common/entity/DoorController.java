@@ -223,12 +223,12 @@ public class DoorController extends EntityAnimationController {
 		}
 		
 		if (!parent.structure.loadChildren()) {
-			System.out.println(new TextComponentTranslation("exception.door.brokenparent").getFormattedText());
+			System.out.println(new TextComponentTranslation("exception.door.brokenchild").getFormattedText());
 			return;
 		}
 		
 		if (!parent.structure.loadParent()) {
-			System.out.println(new TextComponentTranslation("exception.door.brokenchild").getFormattedText());
+			System.out.println(new TextComponentTranslation("exception.door.brokenparent").getFormattedText());
 			return;
 		}
 		
@@ -243,8 +243,8 @@ public class DoorController extends EntityAnimationController {
 		LittlePlaceResult result;
 		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
 			
-			if (parent.structure.parent != null && parent.structure.parent.isConnected(world)) {
-				LittleStructure parentStructure = parent.structure.parent.getStructureWithoutLoading();
+			if (parent.structure.parent != null) {
+				LittleStructure parentStructure = parent.structure.parent.getStructure(world);
 				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
