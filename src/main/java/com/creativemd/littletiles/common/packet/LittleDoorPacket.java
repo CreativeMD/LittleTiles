@@ -104,7 +104,7 @@ public class LittleDoorPacket extends CreativeCorePacket {
 					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
 					return;
 				}
-				EntityAnimation animation = door.openDoor(player, new UUIDSupplier(uuid), doorResult);
+				EntityAnimation animation = door.openDoor(player, new UUIDSupplier(uuid), doorResult, false);
 				if (animation != null && !doorResult.equals(result)) {
 					System.out.println("Different door opening results client: " + result + ", server: " + doorResult + ". Send animation data to " + player.getDisplayNameString());
 					PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);

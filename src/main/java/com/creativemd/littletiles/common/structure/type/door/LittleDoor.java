@@ -74,7 +74,7 @@ public abstract class LittleDoor extends LittleStructure {
 		if (getWorld().isRemote)
 			PacketHandler.sendPacketToServer(new LittleDoorPacket(getMainTile(), uuid.uuid, result));
 		
-		openDoor(player, uuid, result);
+		openDoor(player, uuid, result, false);
 		return true;
 	}
 	
@@ -140,7 +140,7 @@ public abstract class LittleDoor extends LittleStructure {
 		return true;
 	}
 	
-	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result);
+	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce);
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
 	

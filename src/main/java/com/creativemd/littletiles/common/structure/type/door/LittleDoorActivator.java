@@ -49,9 +49,9 @@ public class LittleDoorActivator extends LittleDoor {
 	}
 	
 	@Override
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
+	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) {
 		for (int i : toActivate) {
-			EntityAnimation childAnimation = ((LittleDoor) children.get(i).getStructure(getWorld())).openDoor(player, uuid, result);
+			EntityAnimation childAnimation = ((LittleDoor) children.get(i).getStructure(getWorld())).openDoor(player, uuid, result, tickOnce);
 			if (childAnimation != null)
 				childAnimation.controller.onServerApproves();
 		}

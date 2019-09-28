@@ -62,9 +62,10 @@ public class ChildActivateEvent extends AnimationEvent {
 		if (result == null)
 			return true;
 		
-		EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, result);
+		EntityAnimation childAnimation = door.openDoor(null, ((DoorController) controller).supplier, result, true);
 		if (childAnimation != null)
 			childAnimation.controller.onServerApproves();
+		
 		return true;
 	}
 	
@@ -86,7 +87,7 @@ public class ChildActivateEvent extends AnimationEvent {
 			LittleDoor child = (LittleDoor) connector.getStructureWithoutLoading();
 			EntityAnimation childAnimation;
 			if (!connector.isLinkToAnotherWorld())
-				childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT);
+				childAnimation = child.openDoor(null, new UUIDSupplier(), LittleDoor.EMPTY_OPENING_RESULT, false);
 			else if (child instanceof IAnimatedStructure)
 				childAnimation = ((IAnimatedStructure) child).getAnimation();
 			else

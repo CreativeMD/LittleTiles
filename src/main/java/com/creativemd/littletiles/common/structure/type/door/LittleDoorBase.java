@@ -181,7 +181,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		return null;
 	}
 	
-	public EntityAnimation place(World world, @Nullable EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation) {
+	public EntityAnimation place(World world, @Nullable EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) {
 		List<PlacePreviewTile> placePreviews = new ArrayList<>();
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
@@ -218,6 +218,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		}
 		
 		world.spawnEntity(animation);
+		
+		if (tickOnce)
+			animation.onUpdateForReal();
 		return animation;
 	}
 	
@@ -242,9 +245,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result) {
+	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) {
 		if (isAnimated()) {
 			((DoorController) animation.controller).activate();
+			if (tickOnce)
+				animation.onUpdateForReal();
 			return animation;
 		}
 		
@@ -261,7 +266,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			entry.getKey().removeTiles(entry.getValue());
 		}
 		
-		return place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform);
+		return place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 	}
 	
 	public abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration);
