@@ -14,7 +14,8 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 	
 	public LittleIngredients(LittleIngredient... ingredients) {
 		for (int i = 0; i < ingredients.length; i++) {
-			set(ingredients[i]);
+			if (ingredients[i] != null)
+				set(ingredients[i]);
 		}
 	}
 	
