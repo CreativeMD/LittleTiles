@@ -37,7 +37,8 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 	}
 	
 	public void set(LittleIngredient ingredient) {
-		content[LittleIngredient.indexOf(ingredient)] = ingredient;
+		if (ingredient != null)
+			content[LittleIngredient.indexOf(ingredient)] = ingredient;
 	}
 	
 	public LittleIngredient add(LittleIngredient ingredient) {
