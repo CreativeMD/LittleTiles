@@ -167,7 +167,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 			
 			HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
-			if (LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this))) {
+			if (LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this), true)) {
 				if (transformations.length == 1)
 					return result;
 				
@@ -241,7 +241,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
-		return LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this));
+		return LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this), true);
 	}
 	
 	@Override
