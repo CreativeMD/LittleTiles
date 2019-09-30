@@ -364,10 +364,10 @@ public class LittleActionPlaceStack extends LittleAction {
 	}
 	
 	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode) {
-		return canPlaceTiles(player, world, splitted, coordsToCheck, mode, null);
+		return canPlaceTiles(player, world, splitted, coordsToCheck, mode, null, false);
 	}
 	
-	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode, Predicate<LittleTile> predicate) {
+	public static boolean canPlaceTiles(EntityPlayer player, World world, HashMap<BlockPos, PlacePreviews> splitted, List<BlockPos> coordsToCheck, PlacementMode mode, Predicate<LittleTile> predicate, boolean includeWorldBoundaries) {
 		for (BlockPos pos : splitted.keySet()) {
 			if (!isAllowedToInteract(world, player, pos, true, EnumFacing.EAST)) {
 				sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
@@ -379,7 +379,7 @@ public class LittleActionPlaceStack extends LittleAction {
 			for (BlockPos pos : coordsToCheck) {
 				PlacePreviews tiles = splitted.get(pos);
 				
-				if (tiles == null)
+				if (tiles == null || tiles.isEmpty())
 					continue;
 				
 				boolean needsCollisionCheck = false;
@@ -393,7 +393,7 @@ public class LittleActionPlaceStack extends LittleAction {
 				if (!needsCollisionCheck)
 					continue;
 				
-				if (pos.getY() < 0 && pos.getY() >= 256)
+				if (includeWorldBoundaries && (pos.getY() < 0 || pos.getY() >= 256))
 					return false;
 				
 				TileEntityLittleTiles te = loadTe(player, world, pos, false);
