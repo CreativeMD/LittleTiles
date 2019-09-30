@@ -219,7 +219,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 		for (int i = 0; i < inventoriesId.size(); i++) {
 			int index = inventoriesId.get(i);
 			ItemStack stack = get(index);
-			((ILittleInventory) stack.getItem()).setInventory(stack, simulate ? cachedInventories.get(index) : inventories.get(index));
+			((ILittleInventory) stack.getItem()).setInventory(stack, simulate ? cachedInventories.get(i) : inventories.get(i));
 		}
 	}
 	
