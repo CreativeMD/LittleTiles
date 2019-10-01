@@ -161,7 +161,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public void take(LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		for (LittleIngredient ingredient : ingredients.getContent())
 			if (ingredient != null)
-				ingredients.set(take(ingredient));
+				ingredients.set(ingredient.getClass(), take(ingredient));
 			
 		if (!ingredients.isEmpty()) { // Try to drain remaining ingredients from inventory
 			LittleIngredients overflow = new LittleIngredients();
@@ -216,7 +216,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 		LittleIngredients remainings = new LittleIngredients();
 		for (LittleIngredient ingredient : ingredients.getContent())
 			if (ingredient != null)
-				remainings.set(give(ingredient));
+				remainings.set(ingredient.getClass(), give(ingredient));
 			
 		if (!remainings.isEmpty())
 			throw new NotEnoughSpaceException(remainings);

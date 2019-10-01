@@ -122,13 +122,13 @@ public class LittleActionSaw extends LittleActionInteract {
 				if (block != null) {
 					block.value = amount;
 					blocks.add(block);
-					ingredients.set(blocks);
+					ingredients.set(blocks.getClass(), blocks);
 					
 					ColorIngredient unit = null;
 					if (preview.hasColor()) {
 						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
-						ingredients.set(unit);
+						ingredients.set(unit.getClass(), unit);
 					}
 					
 					if (secondMode)
@@ -239,13 +239,13 @@ public class LittleActionSaw extends LittleActionInteract {
 					LittleInventory inventory = new LittleInventory(player);
 					block.value = amount;
 					blocks.add(block);
-					ingredients.set(blocks);
+					ingredients.set(blocks.getClass(), blocks);
 					
 					ColorIngredient unit = null;
 					if (preview.hasColor()) {
 						unit = ColorIngredient.getColors(preview.getColor());
 						unit.scaleLoose(amount);
-						ingredients.set(unit);
+						ingredients.set(unit.getClass(), unit);
 					}
 					
 					if (oldBox.getVolume() < tile.box.getVolume())

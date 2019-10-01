@@ -15,7 +15,7 @@ public class NotEnoughIngredientsException extends LittleActionException {
 	protected NotEnoughIngredientsException(String msg, LittleIngredient ingredient) {
 		super(msg);
 		this.ingredients = new LittleIngredients();
-		this.ingredients.set(ingredient);
+		this.ingredients.set(ingredient.getClass(), ingredient);
 	}
 	
 	protected NotEnoughIngredientsException(String msg, LittleIngredients ingredients) {

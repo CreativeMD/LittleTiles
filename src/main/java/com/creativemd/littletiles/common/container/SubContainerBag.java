@@ -52,7 +52,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 					}
 				}
 				
-				bag.set(blocks);
+				bag.set(blocks.getClass(), blocks);
 				((ItemBag) stack.getItem()).setInventory(stack, bag);
 				
 				reloadControls();

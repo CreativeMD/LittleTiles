@@ -15,7 +15,7 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 	public LittleIngredients(LittleIngredient... ingredients) {
 		for (int i = 0; i < ingredients.length; i++) {
 			if (ingredients[i] != null)
-				set(ingredients[i]);
+				set(ingredients[i].getClass(), ingredients[i]);
 		}
 	}
 	
@@ -36,9 +36,8 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 		return (T) content[LittleIngredient.indexOf(type)];
 	}
 	
-	public void set(LittleIngredient ingredient) {
-		if (ingredient != null)
-			content[LittleIngredient.indexOf(ingredient)] = ingredient;
+	public void set(Class<? extends LittleIngredient> type, LittleIngredient ingredient) {
+		content[LittleIngredient.indexOf(type)] = ingredient;
 	}
 	
 	public LittleIngredient add(LittleIngredient ingredient) {

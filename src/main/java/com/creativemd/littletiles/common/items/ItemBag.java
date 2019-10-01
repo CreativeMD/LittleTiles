@@ -89,14 +89,14 @@ public class ItemBag extends Item implements IGuiCreator, ILittleInventory {
 			if (ingredient != null && ingredient.value >= LittleGridContext.getMax().minimumTileSize)
 				blocks.add(ingredient);
 		}
-		ingredients.set(blocks);
+		ingredients.set(blocks.getClass(), blocks);
 		
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
 		ColorIngredient color = new ColorIngredient(stack.getTagCompound().getInteger("black"), stack.getTagCompound().getInteger("cyan"), stack.getTagCompound().getInteger("magenta"), stack.getTagCompound().getInteger("yellow"));
 		color.setLimit(colorUnitMaximum);
-		ingredients.set(color);
+		ingredients.set(color.getClass(), color);
 		return ingredients;
 	}
 	
