@@ -197,7 +197,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	protected LittleIngredient give(LittleIngredient ingredient) throws NotEnoughSpaceException {
 		List<LittleIngredients> inv = simulate ? cachedInventories : inventories;
 		for (LittleIngredients ingredients : inv) {
-			ingredient = ingredient.add(ingredient);
+			ingredient = ingredients.add(ingredient);
 			if (ingredient == null)
 				return null;
 		}
