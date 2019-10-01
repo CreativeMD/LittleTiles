@@ -18,6 +18,11 @@ public class NotEnoughIngredientsException extends LittleActionException {
 		this.ingredients.set(ingredient);
 	}
 	
+	protected NotEnoughIngredientsException(String msg, LittleIngredients ingredients) {
+		super(msg);
+		this.ingredients = ingredients;
+	}
+	
 	public NotEnoughIngredientsException(LittleIngredient ingredient) {
 		this("exception.ingredient.missing", ingredient);
 	}
@@ -50,6 +55,10 @@ public class NotEnoughIngredientsException extends LittleActionException {
 		
 		public NotEnoughSpaceException(LittleIngredient ingredient) {
 			super("exception.ingredient.space", ingredient);
+		}
+		
+		public NotEnoughSpaceException(LittleIngredients ingredients) {
+			super("exception.ingredient.space", ingredients);
 		}
 		
 		public NotEnoughSpaceException(ItemStack stack) {

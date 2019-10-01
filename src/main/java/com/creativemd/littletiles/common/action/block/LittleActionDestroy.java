@@ -112,7 +112,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			} else {
 				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
 				
-				give(player, inventory, getIngredients(destroyedTiles));
+				checkAndGive(player, inventory, getIngredients(destroyedTiles));
 				
 				tile.destroy();
 			}

@@ -194,24 +194,33 @@ public class LittleInventory implements Iterable<ItemStack> {
 		saveInventories();
 	}
 	
-	protected void give(LittleIngredient ingredient) throws NotEnoughSpaceException {
+	protected LittleIngredient give(LittleIngredient ingredient) throws NotEnoughSpaceException {
 		List<LittleIngredients> inv = simulate ? cachedInventories : inventories;
 		for (LittleIngredients ingredients : inv) {
 			ingredient = ingredient.add(ingredient);
 			if (ingredient == null)
-				return;
+				return null;
 		}
 		
-		List<ItemStack> stacks = LittleIngredient.handleOverflow(ingredient);
-		if (stacks != null)
-			addOrDropStacks(stacks);
+		try {
+			List<ItemStack> stacks = LittleIngredient.handleOverflow(ingredient);
+			if (stacks != null)
+				addOrDropStacks(stacks);
+			return null;
+		} catch (NotEnoughSpaceException e) {
+			return ingredient;
+		}
 	}
 	
 	public void give(LittleIngredients ingredients) throws NotEnoughSpaceException {
+		LittleIngredients remainings = new LittleIngredients();
 		for (LittleIngredient ingredient : ingredients.getContent())
 			if (ingredient != null)
-				give(ingredient);
+				remainings.set(give(ingredient));
 			
+		if (!remainings.isEmpty())
+			throw new NotEnoughSpaceException(remainings);
+		
 		saveInventories();
 	}
 	
