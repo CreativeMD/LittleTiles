@@ -25,7 +25,7 @@ public class OverlayRenderer {
 	protected static ScaledResolution scaledResolution;
 	
 	private OverlayGui gui = new OverlayGui();
-	private GuiActionDisplay actionDisplay = new GuiActionDisplay("action", 0, 0, 100).setMessageCount(1);
+	private GuiActionDisplay actionDisplay = new GuiActionDisplay("action", 0, 0, 100).setMessageCount(1).setLinesCount(4);
 	
 	public OverlayRenderer() {
 		add(new OverlayControl(actionDisplay, OverlayPositionType.ACTION_BAR) {
