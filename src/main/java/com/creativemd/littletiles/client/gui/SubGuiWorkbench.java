@@ -82,10 +82,10 @@ public class SubGuiWorkbench extends SubGui {
 							}
 							
 							StackIngredient stacks = missing.get(StackIngredient.class);
-							for (StackIngredientEntry stack : stacks) {
-								listBox.add(stack.count + "", stack.stack);
-							}
-							
+							if (stacks != null)
+								for (StackIngredientEntry stack : stacks)
+									listBox.add(stack.count + "", stack.stack);
+								
 						}
 						
 					} else {
