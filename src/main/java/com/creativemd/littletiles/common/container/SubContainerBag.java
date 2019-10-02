@@ -61,22 +61,24 @@ public class SubContainerBag extends SubContainerHeldItem {
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
 				
 				LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
-				ingredients.scale(input.getCount());
-				
-				if (bag.add(ingredients) == null) {
-					((ItemBag) stack.getItem()).setInventory(stack, bag);
-					if (ingredients.contains(BlockIngredient.class)) {
-						updateSlots();
-						player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
-					}
+				if (ingredients != null) {
+					ingredients.scale(input.getCount());
 					
-					if (ingredients.contains(ColorIngredient.class)) {
-						reloadControls();
-						player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
-					}
-					
-				} else
-					bag = ((ItemBag) stack.getItem()).getInventory(stack);
+					if (bag.add(ingredients) == null) {
+						((ItemBag) stack.getItem()).setInventory(stack, bag);
+						if (ingredients.contains(BlockIngredient.class)) {
+							updateSlots();
+							player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
+						}
+						
+						if (ingredients.contains(ColorIngredient.class)) {
+							reloadControls();
+							player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
+						}
+						
+					} else
+						bag = ((ItemBag) stack.getItem()).getInventory(stack);
+				}
 			}
 			
 		}
