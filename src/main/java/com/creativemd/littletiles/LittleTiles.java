@@ -90,7 +90,7 @@ import com.creativemd.littletiles.common.mods.warpdrive.TileEntityLittleTilesTra
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleDoorPacket;
+import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
@@ -469,7 +469,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
 		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
 		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
-		CreativeCorePacket.registerPacket(LittleDoorPacket.class, "LittleDoor");
+		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class, "LittleDoor");
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
 		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
 		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");

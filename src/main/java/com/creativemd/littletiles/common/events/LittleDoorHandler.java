@@ -16,6 +16,7 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -92,17 +93,16 @@ public class LittleDoorHandler {
 		return doors;
 	}
 	
-	public List<EntityAnimation> findDoors(World world, BlockPos pos) {
+	public List<LittleDoor> findDoors(World world, BlockPos pos) {
 		if (openDoors.isEmpty())
 			return Collections.emptyList();
 		
 		AxisAlignedBB box = new AxisAlignedBB(pos);
 		
-		List<EntityAnimation> doors = new ArrayList<>();
-		for (EntityAnimation door : openDoors) {
-			if (door.world == world && door.getEntityBoundingBox().intersects(box))
-				doors.add(door);
-		}
+		List<LittleDoor> doors = new ArrayList<>();
+		for (EntityAnimation door : openDoors)
+			if (door.world == world && door.structure instanceof LittleDoor && door.getEntityBoundingBox().intersects(box) && !doors.contains(door.structure))
+				doors.add(((LittleDoor) door.structure).getParentDoor());
 		return doors;
 	}
 	
@@ -324,13 +324,13 @@ public class LittleDoorHandler {
 	
 	@SubscribeEvent
 	public void chunkUnload(ChunkEvent.Unload event) {
-		/*for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
-			for (Entity entity : map) {
-				if (entity instanceof EntityAnimation && ((EntityAnimation) entity).isDoorAdded()) {
-					((EntityAnimation) entity).markRemoved();
-				}
-			}
-		}*/
+		/* for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
+		 * for (Entity entity : map) {
+		 * if (entity instanceof EntityAnimation && ((EntityAnimation) entity).isDoorAdded()) {
+		 * ((EntityAnimation) entity).markRemoved();
+		 * }
+		 * }
+		 * } */
 		
 		if (event.getWorld().isRemote != side.isClient())
 			return;

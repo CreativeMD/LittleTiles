@@ -15,6 +15,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
@@ -24,6 +25,7 @@ import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -55,6 +57,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -120,6 +123,13 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		for (AnimationEvent event : events)
 			event.invert(this, duration);
 		events.sort(null);
+	}
+	
+	@Override
+	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
+		super.sendActivationToClient(activator, uuid, result);
+		if (isAnimated())
+			PacketHandler.sendPacketToTrackingPlayersExcept(new LittleActivateDoorPacket(getMainTile(), uuid, result), getAnimation(), activator, (WorldServer) getAnimation().fakeWorld.getRealWorld());
 	}
 	
 	@Override

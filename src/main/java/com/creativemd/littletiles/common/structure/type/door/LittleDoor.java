@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -8,7 +9,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleDoorPacket;
+import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -42,46 +43,50 @@ public abstract class LittleDoor extends LittleStructure {
 			nbt.setBoolean("activateParent", activateParent);
 	}
 	
-	public boolean activate(@Nullable EntityPlayer player, BlockPos pos, @Nullable LittleTile tile) {
+	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) {
 		if (!hasLoaded()) {
 			player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
-			return false;
+			return null;
 		}
 		
 		if (!loadChildren()) {
 			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
-			return false;
+			return null;
 		}
 		
 		if (!loadParent()) {
 			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
-			return false;
+			return null;
 		}
 		
 		if (activateParent && parent != null) {
 			LittleStructure parentStructure = parent.getStructureWithoutLoading();
 			if (parentStructure instanceof LittleDoor)
-				return ((LittleDoor) parentStructure).activate(player, pos, null);
-			return false;
+				return ((LittleDoor) parentStructure).activate(player, null, uuid, sendUpdate);
+			return null;
 		}
 		
 		DoorOpeningResult result = canOpenDoor(player);
 		if (result == null)
-			return false;
+			return null;
 		
-		UUIDSupplier uuid = new UUIDSupplier();
+		if (uuid == null)
+			uuid = UUID.randomUUID();
 		
-		if (getWorld().isRemote)
-			PacketHandler.sendPacketToServer(new LittleDoorPacket(getMainTile(), uuid.uuid, result));
+		if (sendUpdate) {
+			if (getWorld().isRemote)
+				sendActivationToServer(player, uuid, result);
+			else
+				sendActivationToClient(player, uuid, result);
+		}
 		
-		openDoor(player, uuid, result, false);
-		return true;
+		return new DoorActivationResult(openDoor(player, new UUIDSupplier(uuid), result, false), result);
 	}
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (world.isRemote) {
-			activate(player, pos, tile);
+			activate(player, tile, null, true);
 			action.preventInteraction = true;
 		}
 		return true;
@@ -96,6 +101,14 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public void onFinished(EntityAnimation animation) {
+		
+	}
+	
+	public void sendActivationToServer(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
+		PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(getMainTile(), uuid, result));
+	}
+	
+	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
 		
 	}
 	
@@ -140,6 +153,12 @@ public abstract class LittleDoor extends LittleStructure {
 		return true;
 	}
 	
+	public LittleDoor getParentDoor() {
+		if (activateParent && parent != null)
+			return ((LittleDoor) parent.getStructure(getWorld())).getParentDoor();
+		return this;
+	}
+	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce);
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
@@ -173,4 +192,17 @@ public abstract class LittleDoor extends LittleStructure {
 			return "" + nbt;
 		}
 	}
+	
+	public static class DoorActivationResult {
+		
+		public final DoorOpeningResult result;
+		public final EntityAnimation animation;
+		
+		public DoorActivationResult(EntityAnimation animation, DoorOpeningResult result) {
+			this.animation = animation;
+			this.result = result;
+		}
+		
+	}
+	
 }

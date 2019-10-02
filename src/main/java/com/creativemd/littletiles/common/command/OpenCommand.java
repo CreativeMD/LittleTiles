@@ -6,10 +6,9 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -57,29 +56,30 @@ public class OpenCommand extends CommandBase {
 		BlockPos blockpos = parseBlockPos(sender, args, 0, false);
 		World world = sender.getEntityWorld();
 		
-		for (EntityAnimation animation : LittleDoorHandler.server.findDoors(world, blockpos)) {
-			if (animation.structure instanceof LittleDoorBase && checkStructureName(animation.structure, args))
-				((LittleDoorBase) animation.structure).activate(null, animation.structure.getMainTile().te.getPos(), animation.structure.getMainTile());
-		}
+		List<LittleDoor> doors = new ArrayList<>();
+		doors.addAll(LittleDoorHandler.server.findDoors(world, blockpos));
 		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
-			List<LittleDoorBase> doors = new ArrayList<>();
 			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity).getTiles()) {
 				if (!tile.isConnectedToStructure())
 					continue;
 				
 				LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
-				if (structure instanceof LittleDoorBase && checkStructureName(structure, args) && !doors.contains(structure))
-					if (structure.hasLoaded())
-						doors.add((LittleDoorBase) structure);
-					else
-						notifyCommandListener(sender, this, "commands.open.notloaded");
+				if (structure instanceof LittleDoor) {
+					structure = ((LittleDoor) structure).getParentDoor();
+					if (checkStructureName(structure, args) && !doors.contains(structure)) {
+						if (structure.hasLoaded())
+							doors.add((LittleDoor) structure);
+						else
+							notifyCommandListener(sender, this, "commands.open.notloaded");
+					}
+				}
 			}
-			
-			for (LittleDoorBase door : doors) {
-				door.activate(null, blockpos, null);
-			}
+		}
+		
+		for (LittleDoor door : doors) {
+			door.activate(null, null, null, true);
 		}
 		
 	}

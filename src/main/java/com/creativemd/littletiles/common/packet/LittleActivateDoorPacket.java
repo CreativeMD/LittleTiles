@@ -4,13 +4,13 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivationResult;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
@@ -23,14 +23,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleDoorPacket extends CreativeCorePacket {
+public class LittleActivateDoorPacket extends CreativeCorePacket {
 	
 	public LittleTileIdentifierAbsolute coord;
 	public UUID worldUUID;
 	public UUID uuid;
 	public DoorOpeningResult result;
 	
-	public LittleDoorPacket(LittleTile tile, UUID uuid, DoorOpeningResult result) {
+	public LittleActivateDoorPacket(LittleTile tile, UUID uuid, DoorOpeningResult result) {
 		this.coord = new LittleTileIdentifierAbsolute(tile);
 		this.uuid = uuid;
 		this.result = result;
@@ -38,7 +38,7 @@ public class LittleDoorPacket extends CreativeCorePacket {
 			this.worldUUID = ((CreativeWorld) tile.te.getWorld()).parent.getUniqueID();
 	}
 	
-	public LittleDoorPacket() {
+	public LittleActivateDoorPacket() {
 		
 	}
 	
@@ -74,11 +74,28 @@ public class LittleDoorPacket extends CreativeCorePacket {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void executeClient(EntityPlayer player) {
-		// Only send if door failed to open on server side but was opened on client side
-		EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
-		if (animation != null)
-			animation.isDead = true;
+	public void executeClient(EntityPlayer player) { // Note it does not take care of synchronization, just sends an activation to the client, only used for already animated doors
+		World world = player.world;
+		
+		if (worldUUID != null) {
+			EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(worldUUID);
+			if (animation == null)
+				return;
+			
+			world = animation.fakeWorld;
+			
+			try {
+				LittleTile tile = LittleAction.getTile(world, coord);
+				
+				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
+					LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
+					door.activate(null, tile, uuid, false);
+				}
+				
+			} catch (LittleActionException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	@Override
@@ -98,16 +115,16 @@ public class LittleDoorPacket extends CreativeCorePacket {
 			tile = LittleAction.getTile(world, coord);
 			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
 				LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
-				DoorOpeningResult doorResult = door.canOpenDoor(player);
-				if (doorResult == null) {
+				DoorActivationResult activationResult = door.activate(player, tile, uuid, true);
+				if (activationResult == null) {
 					PacketHandler.sendPacketToPlayer(this, (EntityPlayerMP) player);
 					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
 					return;
 				}
-				EntityAnimation animation = door.openDoor(player, new UUIDSupplier(uuid), doorResult, false);
-				if (animation != null && !doorResult.equals(result)) {
-					System.out.println("Different door opening results client: " + result + ", server: " + doorResult + ". Send animation data to " + player.getDisplayNameString());
-					PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
+				
+				if (activationResult.animation != null && !activationResult.result.equals(this.result)) {
+					System.out.println("Different door opening results client: " + this.result + ", server: " + activationResult.result + ". Send animation data to " + player.getDisplayNameString());
+					PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(activationResult.animation.getUniqueID(), activationResult.animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
 				}
 			}
 		} catch (LittleActionException e) {
