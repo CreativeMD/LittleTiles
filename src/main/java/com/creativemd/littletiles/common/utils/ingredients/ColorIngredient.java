@@ -191,13 +191,13 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	@Override
 	public int getMinimumCount(ColorIngredient other, int availableCount) {
 		int count = -1;
-		if (this.black > 0)
+		if (this.black > 0 && other.black > 0)
 			count = Math.max(count, this.black / other.black);
-		if (this.cyan > 0)
+		if (this.cyan > 0 && other.cyan > 0)
 			count = Math.max(count, this.cyan / other.cyan);
-		if (this.magenta > 0)
+		if (this.magenta > 0 && other.magenta > 0)
 			count = Math.max(count, this.magenta / other.magenta);
-		if (this.yellow > 0)
+		if (this.yellow > 0 && other.yellow > 0)
 			count = Math.max(count, this.yellow / other.yellow);
 		return Math.min(availableCount, count);
 	}
