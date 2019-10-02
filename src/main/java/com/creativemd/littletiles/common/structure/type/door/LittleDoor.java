@@ -32,13 +32,6 @@ public abstract class LittleDoor extends LittleStructure {
 	public boolean activateParent = false;
 	
 	@Override
-	public void placedStructure(ItemStack stack) {
-		super.placedStructure(stack);
-		if (activateParent && parent == null)
-			activateParent = false;
-	}
-	
-	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		activateParent = nbt.getBoolean("activateParent");
 	}
@@ -65,7 +58,7 @@ public abstract class LittleDoor extends LittleStructure {
 			return false;
 		}
 		
-		if (activateParent) {
+		if (activateParent && parent != null) {
 			LittleStructure parentStructure = parent.getStructureWithoutLoading();
 			if (parentStructure instanceof LittleDoor)
 				return ((LittleDoor) parentStructure).activate(player, pos, null);
