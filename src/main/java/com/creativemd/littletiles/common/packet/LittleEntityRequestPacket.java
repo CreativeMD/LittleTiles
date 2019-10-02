@@ -73,7 +73,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	public void updateAnimation(EntityAnimation animation) {
 		animation.isDead = false;
-		if (animation.enteredAsChild != this.enteredAsChild) {
+		if (!this.enteredAsChild || animation.enteredAsChild != this.enteredAsChild) {
 			animation.readFromNBT(nbt);
 			animation.updateTickState();
 		}
