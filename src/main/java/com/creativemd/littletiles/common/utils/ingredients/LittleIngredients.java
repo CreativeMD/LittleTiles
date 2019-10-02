@@ -88,6 +88,10 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 		for (int i = 0; i < content.length; i++) {
 			LittleIngredient existing = content[i];
 			LittleIngredient toAdd = ingredient.content[i];
+			
+			if (toAdd == null || toAdd.isEmpty())
+				continue;
+			
 			if (existing == null) {
 				if (canAddNewIngredients())
 					content[i] = toAdd;
@@ -117,6 +121,10 @@ public class LittleIngredients extends LittleIngredientBase<LittleIngredients> i
 		for (int i = 0; i < content.length; i++) {
 			LittleIngredient existing = content[i];
 			LittleIngredient toSub = ingredient.content[i];
+			
+			if (toSub == null || toSub.isEmpty())
+				continue;
+			
 			if (existing == null) {
 				if (remains == null)
 					remains = new LittleIngredients();
