@@ -283,8 +283,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	
 	@Override
 	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
-		return new LittleTransformation[] {
-		        new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 	}
 	
 	@Override
@@ -487,9 +486,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 					GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 					
 					int tick = selected.tick;
-					selected.tick = Integer.parseInt(((GuiTextfield) event.source).text);
-					if (tick != selected.tick)
-						timeline.adjustKeysPositionX();
+					int newTick = Integer.parseInt(((GuiTextfield) event.source).text);
+					if (selected.channel.isSpaceFor(selected, newTick)) {
+						selected.tick = newTick;
+						selected.channel.movedKey(selected);
+						if (tick != selected.tick)
+							timeline.adjustKeysPositionX();
+					}
 				} catch (NumberFormatException e) {
 					
 				}
