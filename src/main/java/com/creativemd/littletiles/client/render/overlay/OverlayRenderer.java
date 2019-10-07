@@ -69,6 +69,7 @@ public class OverlayRenderer {
 			gui.renderControl(GuiRenderHelper.instance, 1F, GuiControl.getScreenRect());
 			GlStateManager.popMatrix();
 			
+			GL11.glClear(GL11.GL_STENCIL_BUFFER_BIT);
 		}
 	}
 	
