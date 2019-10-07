@@ -185,9 +185,13 @@ public class LittleInventory implements Iterable<ItemStack> {
 				throw new NotEnoughIngredientsException(ingredients);
 			
 			if (!overflow.isEmpty()) {
-				List<ItemStack> stacks = overflow.handleOverflow();
-				if (stacks != null && !stacks.isEmpty())
-					addOrDropStacks(stacks);
+				try {
+					give(overflow);
+				} catch (NotEnoughSpaceException e) {
+					List<ItemStack> stacks = overflow.handleOverflow();
+					if (stacks != null && !stacks.isEmpty())
+						addOrDropStacks(stacks);
+				}
 			}
 		}
 		
