@@ -45,7 +45,7 @@ public class LittleChunkDispatcher {
 	
 	private static Method setLayerUseMethod = ReflectionHelper.findMethod(CompiledChunk.class, "setLayerUsed", "func_178486_a", BlockRenderLayer.class);
 	
-	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, "setTileEntities", "field_181056_j");
+	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, new String[] { "setTileEntities", "field_181056_j" });
 	
 	private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
 	private static Field dynamicLightUpdate = ReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");

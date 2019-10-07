@@ -119,7 +119,7 @@ public class TileEntityParticle extends TileEntityCreative implements ITickable 
 			spawnParticle0 = ReflectionHelper.findMethod(RenderGlobal.class, "spawnParticle0", "func_190571_b", int.class, boolean.class, boolean.class, double.class, double.class, double.class, double.class, double.class, double.class, int[].class);
 		
 		if (particleMaxAge == null)
-			particleMaxAge = ReflectionHelper.findField(Particle.class, "particleMaxAge", "field_70547_e");
+			particleMaxAge = ReflectionHelper.findField(Particle.class, new String[] { "particleMaxAge", "field_70547_e" });
 		
 		try {
 			Vector3d pos = new Vector3d(getPos().getX() + offset.x, getPos().getY() + offset.y, getPos().getZ() + offset.z);

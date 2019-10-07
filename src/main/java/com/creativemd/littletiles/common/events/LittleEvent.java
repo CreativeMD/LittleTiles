@@ -295,7 +295,7 @@ public class LittleEvent {
 			RenderingThread.chunks.clear();
 			
 			if (setTileEntitiesField == null)
-				setTileEntitiesField = ReflectionHelper.findField(RenderGlobal.class, "setTileEntities", "field_181024_n");
+				setTileEntitiesField = ReflectionHelper.findField(RenderGlobal.class, new String[] { "setTileEntities", "field_181024_n" });
 			
 			try {
 				Set<TileEntity> set = (Set<TileEntity>) setTileEntitiesField.get(Minecraft.getMinecraft().renderGlobal);
@@ -492,9 +492,9 @@ public class LittleEvent {
 			
 			if (mc.player != null && mc.renderGlobal != null) {
 				if (prevRenderSortX == null) {
-					prevRenderSortX = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortX", "field_147596_f");
-					prevRenderSortY = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortY", "field_147597_g");
-					prevRenderSortZ = ReflectionHelper.findField(RenderGlobal.class, "prevRenderSortZ", "field_147602_h");
+					prevRenderSortX = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortX", "field_147596_f" });
+					prevRenderSortY = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortY", "field_147597_g" });
+					prevRenderSortZ = ReflectionHelper.findField(RenderGlobal.class, new String[] { "prevRenderSortZ", "field_147602_h" });
 				}
 				
 				Entity entityIn = mc.getRenderViewEntity();
@@ -571,7 +571,7 @@ public class LittleEvent {
 		}
 	}
 	
-	private static Field entitiesById = ReflectionHelper.findField(World.class, "entitiesById", "field_175729_l");
+	private static Field entitiesById = ReflectionHelper.findField(World.class, new String[] { "entitiesById", "field_175729_l" });
 	
 	@SideOnly(Side.CLIENT)
 	public static boolean cancelEntitySpawn(WorldClient world, int entityID, Entity entity) {

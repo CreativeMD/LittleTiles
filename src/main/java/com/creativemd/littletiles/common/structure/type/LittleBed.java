@@ -129,8 +129,8 @@ public class LittleBed extends LittleStructure {
 	
 	public static Method setSize = ReflectionHelper.findMethod(Entity.class, "setSize", "func_70105_a", float.class, float.class);
 	
-	public static Field sleeping = ReflectionHelper.findField(EntityPlayer.class, "sleeping", "field_71083_bS");
-	public static Field sleepTimer = ReflectionHelper.findField(EntityPlayer.class, "sleepTimer", "field_71076_b");
+	public static Field sleeping = ReflectionHelper.findField(EntityPlayer.class, new String[] { "sleeping", "field_71083_bS" });
+	public static Field sleepTimer = ReflectionHelper.findField(EntityPlayer.class, new String[] { "sleepTimer", "field_71076_b" });
 	
 	public static Field littleBed = ReflectionHelper.findField(EntityPlayer.class, "littleBed");;
 	
@@ -150,7 +150,7 @@ public class LittleBed extends LittleStructure {
 			
 			double d0 = 8.0D;
 			double d1 = 5.0D;
-			List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB((double) highest.x - 8.0D, (double) highest.y - 5.0D, (double) highest.z - 8.0D, (double) highest.x + 8.0D, (double) highest.y + 5.0D, (double) highest.z + 8.0D));
+			List<EntityMob> list = player.world.<EntityMob>getEntitiesWithinAABB(EntityMob.class, new AxisAlignedBB(highest.x - 8.0D, highest.y - 5.0D, highest.z - 8.0D, highest.x + 8.0D, highest.y + 5.0D, highest.z + 8.0D));
 			
 			if (!list.isEmpty()) {
 				return EntityPlayer.SleepResult.NOT_SAFE;
@@ -176,12 +176,12 @@ public class LittleBed extends LittleStructure {
 			e.printStackTrace();
 		}
 		
-		float f1 = 0.5F + (float) direction.getFrontOffsetX() * 0.8F;
-		float f = 0.5F + (float) direction.getFrontOffsetZ() * 0.8F;
+		float f1 = 0.5F + direction.getFrontOffsetX() * 0.8F;
+		float f = 0.5F + direction.getFrontOffsetZ() * 0.8F;
 		
-		player.renderOffsetX = -1.8F * (float) direction.getFrontOffsetX();
-		player.renderOffsetZ = -1.8F * (float) direction.getFrontOffsetZ();
-		player.setPosition((double) ((float) highest.x - 0.5F + f1), (double) ((float) highest.y), (double) ((float) highest.z - 0.5F + f));
+		player.renderOffsetX = -1.8F * direction.getFrontOffsetX();
+		player.renderOffsetZ = -1.8F * direction.getFrontOffsetZ();
+		player.setPosition((float) highest.x - 0.5F + f1, ((float) highest.y), (float) highest.z - 0.5F + f);
 		
 		try {
 			sleeping.setBoolean(player, true);

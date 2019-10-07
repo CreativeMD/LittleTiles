@@ -229,6 +229,7 @@ public abstract class LittleTile implements ICombinable {
 		}
 	}
 	
+	@Override
 	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
 		box.fillInSpace(otherBox, filled);
 	}
@@ -348,7 +349,7 @@ public abstract class LittleTile implements ICombinable {
 	
 	// ================Packets================
 	
-	protected static Field playerInChunkMapEntry = ReflectionHelper.findField(PlayerChunkMapEntry.class, "players", "field_187283_c");
+	protected static Field playerInChunkMapEntry = ReflectionHelper.findField(PlayerChunkMapEntry.class, new String[] { "players", "field_187283_c" });
 	
 	/** Only works for tiles which support update packets. Example: LittleTileTE
 	 * 
@@ -517,8 +518,7 @@ public abstract class LittleTile implements ICombinable {
 				} else {
 					if (nbt.hasKey("coX")) {
 						LittleTilePosition pos = new LittleTilePosition(nbt);
-						connection = new StructureLinkTile(te, pos.coord, LittleGridContext.get(), new int[] {
-						        pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE, this);
+						connection = new StructureLinkTile(te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z }, LittleStructureAttribute.NONE, this);
 						System.out.println("Converting old positioning to new relative coordinates " + pos + " to " + connection);
 					} else
 						connection = new StructureLinkTile(nbt, this);
@@ -557,6 +557,7 @@ public abstract class LittleTile implements ICombinable {
 	
 	// ================Copy================
 	
+	@Override
 	public LittleTile copy() {
 		LittleTile tile = null;
 		try {

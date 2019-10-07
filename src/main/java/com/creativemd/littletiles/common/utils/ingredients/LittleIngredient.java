@@ -163,7 +163,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			}
 		}, new IngredientConvertionHandler<ColorIngredient>() {
 			
-			Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, "colorValue", "field_193351_w");
+			Field dyeColor = ReflectionHelper.findField(EnumDyeColor.class, new String[] { "colorValue", "field_193351_w" });
 			
 			@Override
 			public ColorIngredient extract(ItemStack stack) {

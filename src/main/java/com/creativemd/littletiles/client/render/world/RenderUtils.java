@@ -27,7 +27,7 @@ public class RenderUtils {
 	
 	public static ViewFrustum getViewFrustum() {
 		if (viewFrustumField == null)
-			viewFrustumField = ReflectionHelper.findField(RenderGlobal.class, "viewFrustum", "field_175008_n");
+			viewFrustumField = ReflectionHelper.findField(RenderGlobal.class, new String[] { "viewFrustum", "field_175008_n" });
 		try {
 			return (ViewFrustum) viewFrustumField.get(mc.renderGlobal);
 		} catch (IllegalArgumentException | IllegalAccessException e) {

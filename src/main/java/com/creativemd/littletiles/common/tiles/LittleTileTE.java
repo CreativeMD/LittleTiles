@@ -51,7 +51,7 @@ public class LittleTileTE extends LittleTileBlock {
 		this.tileEntity = tileEntity;
 	}
 	
-	private static Field metadataField = ReflectionHelper.findField(TileEntity.class, "blockMetadata", "field_145847_g");
+	private static Field metadataField = ReflectionHelper.findField(TileEntity.class, new String[] { "blockMetadata", "field_145847_g" });
 	
 	protected void setTEMetadata(int meta) {
 		try {
@@ -143,7 +143,7 @@ public class LittleTileTE extends LittleTileBlock {
 				int i = te.getWorld().getCombinedLight(te.getPos(), 0);
 				int j = i % 65536;
 				int k = i / 65536;
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, (float) j, (float) k);
+				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, j, k);
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				BlockPos blockpos = te.getPos();
 				
