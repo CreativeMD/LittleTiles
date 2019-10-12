@@ -252,7 +252,7 @@ public class LittleActionPlaceStack extends LittleAction {
 					if (te != null) {
 						te.preventUpdate = true;
 						
-						if (te.getTiles().isEmpty())
+						if (te.isEmpty())
 							requiresCollisionTest = false;
 						
 						placeTiles.ensureBothAreEqual(te);
@@ -282,7 +282,7 @@ public class LittleActionPlaceStack extends LittleAction {
 						if (parentStructure == null) {
 							te.combineTiles();
 							
-							if (te.getTiles().size() == 1 && te.convertBlockToVanilla())
+							if (te.size() == 1 && te.convertBlockToVanilla())
 								placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)
 						} else
 							te.combineTiles(parentStructure);

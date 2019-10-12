@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 
@@ -361,7 +363,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null && te.getTiles().size() == 0)
+		if (te != null && te.size() == 0)
 			super.breakBlock(world, pos, state);
 	}
 	
@@ -479,7 +481,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public boolean isReplaceable(IBlockAccess world, BlockPos pos) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			return te.getTiles().size() == 0;
+			return te.size() == 0;
 		return true;
 	}
 	
@@ -500,7 +502,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (result.isComplete()) {
 			if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player))) {
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-				LittleTilePreview.saveTiles(world, result.te.getContext(), result.te.getTiles(), drop);
+				LittleTilePreview.saveTiles(world, result.te.getContext(), StreamSupport.stream(result.te.getTiles().spliterator(), false)
+						.collect(Collectors.toList()), drop);
 				return drop;
 			}
 			ArrayList<ItemStack> drops = result.tile.getDrops();

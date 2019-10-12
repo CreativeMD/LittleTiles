@@ -365,7 +365,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean isTileStillInPlace(LittleTile tile) {
-		return tile.te.getTiles().contains(tile);
+		return tile.te.contains(tile);
 	}
 	
 	public static LittleTile getTile(World world, LittleTileIdentifierAbsolute coord) throws LittleActionException {

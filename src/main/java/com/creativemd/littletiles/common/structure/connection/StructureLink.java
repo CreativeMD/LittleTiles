@@ -114,7 +114,9 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 	public void destroyStructure() {
 		if (!isChild() && connectedStructure.hasLoaded() && connectedStructure.loadChildren()) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : connectedStructure.getEntrySet()) {
-				entry.getKey().removeTiles(entry.getValue());
+				entry.getKey().updateTiles((tilesTe) -> {
+					tilesTe.removeTiles(entry.getValue());
+				});
 			}
 			for (IStructureChildConnector child : connectedStructure.children)
 				child.destroyStructure();

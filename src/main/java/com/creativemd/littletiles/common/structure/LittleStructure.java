@@ -689,7 +689,7 @@ public abstract class LittleStructure {
 		
 		if (hasLoaded() && loadChildren()) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
-				entry.getKey().removeTiles(entry.getValue());
+				entry.getKey().updateTiles((tilesTe) -> tilesTe.removeTiles(entry.getValue()));
 			
 			for (IStructureChildConnector child : children)
 				child.destroyStructure();

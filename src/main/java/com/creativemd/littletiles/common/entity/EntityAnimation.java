@@ -34,6 +34,7 @@ import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.tileentity.MutableTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
@@ -886,7 +887,7 @@ public class EntityAnimation extends Entity {
 		List<BlockPos> positions = new ArrayList<>();
 		for (TileEntity te : fakeWorld.loadedTileEntityList) {
 			if (te instanceof TileEntityLittleTiles) {
-				((TileEntityLittleTiles) te).getTiles().clear();
+				((TileEntityLittleTiles) te).updateTiles(MutableTiles::clear);
 				positions.add(te.getPos());
 			}
 		}

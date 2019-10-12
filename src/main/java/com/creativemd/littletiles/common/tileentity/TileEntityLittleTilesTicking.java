@@ -10,13 +10,13 @@ public class TileEntityLittleTilesTicking extends TileEntityLittleTiles implemen
 	
 	@Override
 	public void update() {
-		if (updateTiles.isEmpty() && !world.isRemote) {
+		if (getUpdateTiles().isEmpty() && !world.isRemote) {
 			customTilesUpdate();
 			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return;
 		}
 		
-		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = getUpdateTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.updateEntity();
 		}

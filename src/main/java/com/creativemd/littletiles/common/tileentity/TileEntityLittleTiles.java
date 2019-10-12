@@ -3,13 +3,15 @@ package com.creativemd.littletiles.common.tileentity;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import javax.annotation.Nullable;
 
@@ -60,14 +62,16 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Interface(iface = "elucent.albedo.lighting.ILightProvider", modid = "albedo")
 public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider {
+	private final TilesImpl tiles = new TilesImpl(this::isClientSide);
+
 	public TileEntityLittleTiles() {
 	}
 
-	public static CopyOnWriteArrayList<LittleTile> createTileList() {
-		return new CopyOnWriteArrayList<LittleTile>();
+	static CopyOnWriteArrayList<LittleTile> createTileList() {
+		return new CopyOnWriteArrayList<>();
 	}
-	
-	protected void assign(TileEntityLittleTiles te) {
+
+	private void assign(TileEntityLittleTiles te) {
 		try {
 			for (Field field : TileEntityLittleTiles.class.getDeclaredFields()) {
 				if (!Modifier.isStatic(field.getModifiers()))
@@ -77,94 +81,99 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			e.printStackTrace();
 		}
 	}
-	
+
 	protected LittleGridContext context = LittleGridContext.getMin();
-	
+
 	public LittleGridContext getContext() {
 		return context;
 	}
-	
+
 	public void ensureMinContext(LittleGridContext context) {
 		if (context.size > this.context.size)
 			convertTo(context);
 	}
-	
+
 	public void convertToSmallest() {
 		LittleGridContext smallest = getSmallest();
 		if (smallest.size < context.size)
 			convertTo(smallest);
 	}
-	
+
 	public LittleGridContext getSmallest() {
 		int size = LittleGridContext.minSize;
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			size = Math.max(size, tile.getSmallestContext(context));
 		}
-		
+
 		return LittleGridContext.get(size);
 	}
-	
+
 	public void convertTo(LittleGridContext newContext) {
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			tile.convertTo(context, newContext);
 		}
 		this.context = newContext;
 	}
-	
-	protected CopyOnWriteArrayList<LittleTile> tiles = createTileList();
-	protected CopyOnWriteArrayList<LittleTile> updateTiles = createTileList();
-	
+
 	@SideOnly(Side.CLIENT)
-	protected CopyOnWriteArrayList<LittleTile> renderTiles;
-	
-	@SideOnly(Side.CLIENT)
-	public CopyOnWriteArrayList<LittleTile> getRenderTiles() {
-		if (renderTiles == null)
-			renderTiles = createTileList();
-		return renderTiles;
+	public Iterable<LittleTile> getRenderTiles() {
+		return tiles.getRenderTiles();
 	}
-	
-	public CopyOnWriteArrayList<LittleTile> getTiles() {
+
+	public Tiles getTiles() {
 		return tiles;
 	}
-	
-	public CopyOnWriteArrayList<LittleTile> getUpdateTiles() {
-		return updateTiles;
+
+	public boolean contains(LittleTile tile) {
+		return tiles.contains(tile);
 	}
-	
+
+	public void updateTiles(Consumer<MutableTiles> action) {
+		this.preventUpdate = true;
+
+		action.accept(tiles);
+
+		this.preventUpdate = false;
+		this.updateTiles();
+	}
+
+	public CopyOnWriteArrayList<LittleTile> getUpdateTiles() {
+		return tiles.getUpdateTiles();
+	}
+
 	private boolean hasLoaded = false;
-	
+
 	public boolean hasLoaded() {
 		return hasLoaded;
 	}
-	
+
 	public void setLoaded() {
 		hasLoaded = true;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public int renderIndex;
-	
+
 	@SideOnly(Side.CLIENT)
 	public boolean hasLightChanged;
-	
+
 	@SideOnly(Side.CLIENT)
 	public boolean hasNeighborChanged;
-	
+
 	public int collisionChecks = 0;
-	
+
 	public SideSolidCache sideCache = new SideSolidCache();
-	
+
 	public boolean shouldCheckForCollision() {
 		return collisionChecks > 0;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public List<EntityAnimation> waitingAnimation;
-	
+
 	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
-	
+
 	@SideOnly(Side.CLIENT)
 	public void clearWaitingAnimations() {
 		if (waitingAnimation != null) {
@@ -176,7 +185,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			}
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void addWaitingAnimation(EntityAnimation animation) {
 		if (waitingAnimation == null)
@@ -185,29 +194,29 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			waitingAnimation.add(animation);
 		}
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(RenderChunk chunk) {
 		lastRenderedChunk = chunk;
-		
+
 		if (renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
 			getCubeCache().clearCache();
-		
+
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
-		
+
 		hasLightChanged = false;
 		hasNeighborChanged = false;
-		
+
 		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate() && !inRenderingQueue.get())
 			clearWaitingAnimations();
-		
+
 		if (doesNeedUpdate)
 			addToRenderUpdate();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	private AtomicReference<BlockLayerRenderBuffer> buffer;
-	
+
 	@SideOnly(Side.CLIENT)
 	public void setBuffer(BlockLayerRenderBuffer buffer) {
 		if (this.buffer == null)
@@ -215,124 +224,68 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		else
 			this.buffer.set(buffer);
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public BlockLayerRenderBuffer getBuffer() {
 		if (buffer == null)
 			buffer = new AtomicReference<>(null);
 		return buffer.get();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	private RenderCubeLayerCache cubeCache;
-	
+
 	public RenderCubeLayerCache getCubeCache() {
 		if (cubeCache == null)
 			cubeCache = new RenderCubeLayerCache();
 		return cubeCache;
 	}
-	
-	private boolean removeLittleTile(LittleTile tile) {
-		boolean result = tiles.remove(tile);
-		updateTiles.remove(tile);
-		if (isClientSide())
-			removeLittleTileClient(tile);
-		return result;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private void removeLittleTileClient(LittleTile tile) {
-		synchronized (getRenderTiles()) {
-			getRenderTiles().remove(tile);
-		}
-	}
-	
-	public void removeTiles(Collection<LittleTile> tiles) {
-		for (LittleTile tile : tiles) {
-			removeLittleTile(tile);
-		}
-		updateTiles();
-	}
-	
-	public boolean removeTile(LittleTile tile) {
-		boolean result = removeLittleTile(tile);
-		updateTiles();
-		return result;
-	}
-	
-	@SideOnly(Side.CLIENT)
-	private void addLittleTileClient(LittleTile tile) {
-		if (tile.needCustomRendering()) {
-			synchronized (getRenderTiles()) {
-				getRenderTiles().add(tile);
-			}
-		}
-	}
-	
-	private boolean addLittleTile(LittleTile tile) {
-		if (isClientSide())
-			addLittleTileClient(tile);
-		if (tile.shouldTick())
-			updateTiles.add(tile);
-		return tiles.add(tile);
-	}
-	
-	public void addTiles(Collection<LittleTile> tiles) {
-		for (LittleTile tile : tiles) {
-			addLittleTile(tile);
-		}
-		updateTiles();
-	}
-	
-	public boolean addTile(LittleTile tile) {
-		boolean result = addLittleTile(tile);
-		updateTiles();
-		return result;
-	}
-	
+
+
 	public void updateLighting() {
 		world.checkLight(getPos());
 	}
-	
+
 	protected boolean hasRendered() {
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			if (tile.needCustomRendering())
 				return true;
 		}
 		return false;
 	}
-	
+
 	protected void customTilesUpdate() {
 		if (world.isRemote)
 			return;
 		boolean rendered = hasRendered();
-		if (updateTiles.isEmpty() == isTicking() || rendered != isRendered()) {
+		if (tiles.getUpdateTiles().isEmpty() == isTicking() || rendered != isRendered()) {
 			TileEntityLittleTiles newTe;
 			if (rendered)
-				if (updateTiles.isEmpty())
+				if (tiles.getUpdateTiles().isEmpty())
 					newTe = new TileEntityLittleTilesRendered();
 				else
 					newTe = new TileEntityLittleTilesTickingRendered();
-			else if (updateTiles.isEmpty())
+			else if (tiles.getUpdateTiles().isEmpty())
 				newTe = new TileEntityLittleTiles();
 			else
 				newTe = new TileEntityLittleTilesTicking();
-			
+
 			newTe.assign(this);
-			
-			world.setBlockState(pos, BlockTile.getState(!updateTiles.isEmpty(), rendered), 2);
+
+			world.setBlockState(pos, BlockTile.getState(!tiles.getUpdateTiles().isEmpty(), rendered), 2);
 			world.setTileEntity(pos, newTe);
 		}
 	}
-	
+
+	@Deprecated
 	public void updateTiles() {
 		if (preventUpdate)
 			return;
-		
+
 		sideCache.reset();
-		
+
 		updateCollisionCache();
-		
+
 		if (world != null) {
 			updateBlock();
 			updateNeighbor();
@@ -340,62 +293,62 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		if (isClientSide())
 			updateCustomRenderer();
-		
+
 		if (!world.isRemote && tiles.isEmpty())
 			world.setBlockToAir(getPos());
-		
+
 		if (world instanceof CreativeWorld)
 			((CreativeWorld) world).hasChanged = true;
-		
+
 		customTilesUpdate();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void updateCustomRenderer() {
 		updateRenderBoundingBox();
 		updateRenderDistance();
 		if (inRenderingQueue == null || !inRenderingQueue.get())
 			getCubeCache().clearCache();
-		
+
 		addToRenderUpdate();
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void onNeighBorChangedClient() {
 		addToRenderUpdate();
 		hasNeighborChanged = true;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public AtomicBoolean inRenderingQueue;
-	
+
 	@SideOnly(Side.CLIENT)
 	public AtomicBoolean buildingCache;
-	
+
 	@SideOnly(Side.CLIENT)
 	public boolean rebuildRenderingCache;
-	
+
 	@SideOnly(Side.CLIENT)
 	public void addToRenderUpdate() {
 		if (inRenderingQueue == null) {
 			inRenderingQueue = new AtomicBoolean();
 			buildingCache = new AtomicBoolean();
 		}
-		
+
 		if (inRenderingQueue.compareAndSet(false, true))
 			RenderingThread.addCoordToUpdate(this);
 		else if (buildingCache.get())
 			rebuildRenderingCache = true;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	public void resetRenderingState() {
 		inRenderingQueue.set(false);
 		buildingCache.set(false);
 	}
-	
+
 	/** Tries to convert the TileEntity to a vanilla block
-	 * 
+	 *
 	 * @return whether it could convert it or not */
 	public boolean convertBlockToVanilla() {
 		LittleTile firstTile = null;
@@ -403,23 +356,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			world.setBlockToAir(pos);
 			return true;
 		} else if (tiles.size() == 1) {
-			if (!tiles.get(0).canBeConvertedToVanilla() || !tiles.get(0).doesFillEntireBlock())
+			if (!tiles.first().canBeConvertedToVanilla() || !tiles.first().doesFillEntireBlock())
 				return false;
-			firstTile = tiles.get(0);
+			firstTile = tiles.first();
 		} else {
 			boolean[][][] filled = new boolean[context.size][context.size][context.size];
-			for (LittleTile tile : tiles) {
+			for (LittleTile tile : tiles.getTiles()) {
 				if (firstTile == null) {
 					if (tile.canBeConvertedToVanilla())
 						return false;
-					
+
 					firstTile = tile;
 				} else if (!firstTile.canBeCombined(tile) || !tile.canBeCombined(firstTile))
 					return false;
-				
+
 				tile.fillInSpace(filled);
 			}
-			
+
 			for (int x = 0; x < filled.length; x++) {
 				for (int y = 0; y < filled[x].length; y++) {
 					for (int z = 0; z < filled[x][y].length; z++) {
@@ -429,20 +382,20 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				}
 			}
 		}
-		
+
 		world.setBlockState(pos, ((LittleTileBlock) firstTile).getBlockState());
-		
+
 		return true;
 	}
-	
+
 	public boolean isBoxFilled(LittleTileBox box) {
 		LittleTileSize size = box.getSize();
 		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
-		
-		for (LittleTile tile : tiles) {
+
+		for (LittleTile tile : tiles.getTiles()) {
 			tile.fillInSpace(box, filled);
 		}
-		
+
 		for (int x = 0; x < filled.length; x++) {
 			for (int y = 0; y < filled[x].length; y++) {
 				for (int z = 0; z < filled[x][y].length; z++) {
@@ -453,9 +406,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		return true;
 	}
-	
+
 	public void updateNeighbor() {
-		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getUpdateTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			tile.onNeighborChangeInside();
 		}
@@ -463,26 +416,26 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			hasNeighborChanged = true;
 		world.notifyNeighborsOfStateChange(getPos(), getBlockType(), true);
 	}
-	
+
 	@Override
 	public boolean shouldRenderInPass(int pass) {
-		return pass == 0 && getRenderTiles().size() > 0;
+		return pass == 0 && tiles.getRenderTiles().size() > 0;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	private double cachedRenderDistance;
-	
+
 	@SideOnly(Side.CLIENT)
 	public void updateRenderDistance() {
 		cachedRenderDistance = 0;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public double getMaxRenderDistanceSquared() {
 		if (cachedRenderDistance == 0) {
 			double renderDistance = 262144; // 512 blocks
-			for (Iterator iterator = getRenderTiles().iterator(); iterator.hasNext();) {
+			for (Iterator iterator = tiles.getRenderTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
 			}
@@ -490,23 +443,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		return cachedRenderDistance;
 	}
-	
+
 	@Override
 	public boolean hasFastRenderer() {
 		return false;
 	}
-	
+
 	@SideOnly(Side.CLIENT)
 	private AxisAlignedBB cachedRenderBoundingBox;
-	
+
 	@SideOnly(Side.CLIENT)
 	private boolean requireRenderingBoundingBoxUpdate;
-	
+
 	@SideOnly(Side.CLIENT)
 	public void updateRenderBoundingBox() {
 		requireRenderingBoundingBoxUpdate = true;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox() {
@@ -518,7 +471,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			double maxY = Double.MIN_VALUE;
 			double maxZ = Double.MIN_VALUE;
 			boolean found = false;
-			for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+			for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 				LittleTile tile = (LittleTile) iterator.next();
 				if (tile.needCustomRendering()) {
 					AxisAlignedBB box = tile.getRenderBoundingBox().offset(pos);
@@ -535,12 +488,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
 			else
 				cachedRenderBoundingBox = new AxisAlignedBB(pos);
-			
+
 			requireRenderingBoundingBoxUpdate = false;
 		}
 		return cachedRenderBoundingBox;
 	}
-	
+
 	public AxisAlignedBB getSelectionBox() {
 		int minX = context.size;
 		int minY = context.size;
@@ -548,7 +501,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		int maxX = context.minPos;
 		int maxY = context.minPos;
 		int maxZ = context.minPos;
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			LittleTileBox box = tile.getCompleteBox();
 			minX = Math.min(box.minX, minX);
 			minY = Math.min(box.minY, minY);
@@ -559,137 +512,137 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
 	}
-	
+
 	public boolean preventUpdate = false;
-	
+
 	/** Used for rendering */
 	@SideOnly(Side.CLIENT)
 	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileFace face, LittleTile rendered) {
 		face.ensureContext(context);
-		
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (tile != rendered && (tile.doesProvideSolidFace(facing) || tile.canBeRenderCombined(rendered)))
 				tile.fillFace(face);
 		}
-		
+
 		return !face.isFilled();
 	}
-	
+
 	/** @param box
 	 * @param cutout
 	 *            filled with all boxes which are cutout by tiles
 	 * @return all boxes which are not cutout by other tiles */
 	public List<LittleTileBox> cutOut(LittleTileBox box, List<LittleTileBox> cutout) {
 		List<LittleTileBox> cutting = new ArrayList<>();
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			tile.getCuttingBoxes(cutting);
 		}
 		return box.cutOut(cutting, cutout);
 	}
-	
+
 	public boolean isSpaceForLittleTileStructure(LittleTileBox box, Predicate<LittleTile> predicate) {
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (predicate != null && !predicate.test(tile))
 				continue;
 			if ((tile.isChildOfStructure() || !tile.canBeSplitted()) && tile.intersectsWith(box))
 				return false;
-			
+
 		}
 		return true;
 	}
-	
+
 	public boolean isSpaceForLittleTileStructure(LittleTileBox box) {
 		return isSpaceForLittleTileStructure(box, null);
 	}
-	
+
 	public boolean isSpaceForLittleTile(LittleTileBox box, Predicate<LittleTile> predicate) {
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (predicate != null && !predicate.test(tile))
 				continue;
 			if (tile.intersectsWith(box))
 				return false;
-			
+
 		}
 		return true;
 	}
-	
+
 	public boolean isSpaceForLittleTile(LittleTileBox box) {
 		return isSpaceForLittleTile(box, null);
 	}
-	
+
 	public boolean isSpaceForLittleTileIgnore(LittleTileBox box, LittleTile ignoreTile) {
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (ignoreTile != tile && tile.intersectsWith(box))
 				return false;
 		}
 		return true;
 	}
-	
+
 	public LittleTile getIntersectingTile(LittleTileBox box, LittleTile ignoreTile) {
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (ignoreTile != tile && tile.intersectsWith(box))
 				return tile;
 		}
 		return null;
 	}
-	
+
 	@Override
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
-		
-		tiles.clear();
-		updateTiles.clear();
-		collisionChecks = 0;
-		preventUpdate = true;
-		
-		context = LittleGridContext.get(nbt);
-		
-		if (nbt.hasKey("tilesCount")) {
-			int count = nbt.getInteger("tilesCount");
-			for (int i = 0; i < count; i++) {
-				NBTTagCompound tileNBT = new NBTTagCompound();
-				tileNBT = nbt.getCompoundTag("t" + i);
-				LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
-				if (tile != null)
-					addLittleTile(tile);
+
+		updateTiles((tiles) -> {
+			tiles.clear();
+			tiles.getUpdateTiles().clear();
+			collisionChecks = 0;
+
+			context = LittleGridContext.get(nbt);
+
+			if (nbt.hasKey("tilesCount")) {
+				int count = nbt.getInteger("tilesCount");
+				for (int i = 0; i < count; i++) {
+					NBTTagCompound tileNBT = new NBTTagCompound();
+					tileNBT = nbt.getCompoundTag("t" + i);
+					LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+					if (tile != null)
+						tiles.addLittleTile(tile);
+				}
+			} else {
+				List<LittleTile> readTiles = LittleNBTCompressionTools.readTiles(nbt.getTagList("tiles", 10), this);
+
+				for (LittleTile readTile : readTiles) {
+					tiles.addLittleTile(readTile);
+				}
 			}
-		} else {
-			List<LittleTile> tiles = LittleNBTCompressionTools.readTiles(nbt.getTagList("tiles", 10), this);
-			
-			for (int i = 0; i < tiles.size(); i++) {
-				addLittleTile(tiles.get(i));
+
+			if (world != null && !world.isRemote) {
+				updateBlock();
 			}
-		}
-		
-		preventUpdate = false;
-		if (world != null && !world.isRemote) {
-			updateBlock();
-			customTilesUpdate();
-		}
-		
+
+		});
+
 		deleteTempWorld();
 	}
-	
+
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
 		context.set(nbt);
-		nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(tiles));
+		nbt.setTag("tiles", LittleNBTCompressionTools.writeTiles(tiles.getTiles()));
 		return nbt;
 	}
-	
+
 	@Override
 	public void getDescriptionNBT(NBTTagCompound nbt) {
 		context.set(nbt);
-		
+
 		int i = 0;
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
+
+		for (LittleTile tile : tiles.getTiles()) {
 			NBTTagCompound tileNBT = new NBTTagCompound();
 			NBTTagCompound packet = new NBTTagCompound();
 			tile.saveTile(tileNBT);
@@ -699,106 +652,104 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				else
 					tileNBT.setTag("update", tile.getUpdateNBT());
 			}
-			
+
 			nbt.setTag("t" + i, tileNBT);
 			i++;
 		}
+
 		nbt.setInteger("tilesCount", tiles.size());
 	}
-	
+
 	@Override
 	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		handleUpdatePacket(net, pkt.getNbtCompound());
 		super.onDataPacket(net, pkt);
 	}
-	
+
 	public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
-		preventUpdate = true;
-		
-		LittleGridContext context = LittleGridContext.get(nbt);
-		
-		if (context != this.context)
-			convertTo(context);
-		
-		ArrayList<LittleTile> exstingTiles = new ArrayList<LittleTile>();
-		ArrayList<LittleTile> tilesToAdd = new ArrayList<LittleTile>();
-		exstingTiles.addAll(tiles);
-		int count = nbt.getInteger("tilesCount");
-		for (int i = 0; i < count; i++) {
-			NBTTagCompound tileNBT = new NBTTagCompound();
-			tileNBT = nbt.getCompoundTag("t" + i);
-			
-			LittleTile tile = null;
-			if (tileNBT.hasKey("box"))
-				tile = getTile(getContext(), LittleTileBox.createBox(tileNBT.getIntArray("box")).getIdentifier());
-			
-			if (!exstingTiles.contains(tile))
-				tile = null;
-			
-			boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
-			if (isIdentical) {
-				if (tile.supportsUpdatePacket() && tileNBT.hasKey("update"))
-					tile.receivePacket(tileNBT.getCompoundTag("update"), net);
-				else
-					tile.loadTile(this, tileNBT);
-				
-				exstingTiles.remove(tile);
-			} else {
-				LittleStructure structure = null;
-				if (tile != null && tile.isConnectedToStructure()) {
-					structure = tile.connection.getStructure(world);
-					structure.removeTile(tile);
-				}
-				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
-				if (tile != null) {
-					tilesToAdd.add(tile);
-					if (structure != null)
-						structure.addTile(tile);
-				}
-			}
-		}
-		
-		synchronized (tiles) {
-			synchronized (updateTiles) {
-				for (int i = 0; i < exstingTiles.size(); i++) {
-					if (exstingTiles.get(i).isConnectedToStructure())
-						exstingTiles.get(i).connection.getStructure(world).removeTile(exstingTiles.get(i));
-					removeLittleTile(exstingTiles.get(i));
-				}
-				for (int i = 0; i < tilesToAdd.size(); i++) {
-					addLittleTile(tilesToAdd.get(i));
+
+		updateTiles(tiles -> {
+			LittleGridContext context = LittleGridContext.get(nbt);
+
+			if (context != this.context)
+				convertTo(context);
+
+			ArrayList<LittleTile> tilesToAdd = new ArrayList<LittleTile>();
+
+			ArrayList<LittleTile> exstingTiles = StreamSupport.stream(tiles.getTiles().spliterator(), false)
+					.collect(Collectors.toCollection(ArrayList::new));
+
+			int count = nbt.getInteger("tilesCount");
+			for (int i = 0; i < count; i++) {
+				NBTTagCompound tileNBT = new NBTTagCompound();
+				tileNBT = nbt.getCompoundTag("t" + i);
+
+				LittleTile tile = null;
+				if (tileNBT.hasKey("box"))
+					tile = getTile(getContext(), LittleTileBox.createBox(tileNBT.getIntArray("box")).getIdentifier());
+
+				if (!exstingTiles.contains(tile))
+					tile = null;
+
+				boolean isIdentical = tile != null ? tile.isIdenticalToNBT(tileNBT) : false;
+				if (isIdentical) {
+					if (tile.supportsUpdatePacket() && tileNBT.hasKey("update"))
+						tile.receivePacket(tileNBT.getCompoundTag("update"), net);
+					else
+						tile.loadTile(this, tileNBT);
+
+					exstingTiles.remove(tile);
+				} else {
+					LittleStructure structure = null;
+					if (tile != null && tile.isConnectedToStructure()) {
+						structure = tile.connection.getStructure(world);
+						structure.removeTile(tile);
+					}
+					tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+					if (tile != null) {
+						tilesToAdd.add(tile);
+						if (structure != null)
+							structure.addTile(tile);
+					}
 				}
 			}
-		}
-		
-		preventUpdate = false;
-		
-		updateTiles();
+
+			for (LittleTile exstingTile : exstingTiles) {
+				if (exstingTile.isConnectedToStructure())
+					exstingTile.connection.getStructure(world).removeTile(exstingTile);
+				tiles.removeLittleTile(exstingTile);
+			}
+			for (LittleTile littleTile : tilesToAdd) {
+				tiles.addLittleTile(littleTile);
+			}
+		});
+
+
 	}
-	
+
 	/** uses the corner and is therefore faster */
 	public LittleTile getTile(LittleGridContext context, int[] identifier) {
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			if (tile.is(context, identifier))
 				return tile;
 		}
 		return null;
 	}
-	
+
 	public RayTraceResult rayTrace(EntityPlayer player) {
 		RayTraceResult hit = null;
-		
+
 		Vec3d pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		return rayTrace(pos, vec32);
 	}
-	
+
 	public RayTraceResult rayTrace(Vec3d pos, Vec3d look) {
 		RayTraceResult hit = null;
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			RayTraceResult Temphit = tile.rayTrace(pos, look);
 			if (Temphit != null) {
@@ -809,7 +760,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		return hit;
 	}
-	
+
 	public LittleTile getFocusedTile(EntityPlayer player, float partialTickTime) {
 		if (!isClientSide())
 			return null;
@@ -817,20 +768,20 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
 		Vec3d look = player.getLook(partialTickTime);
 		Vec3d vec32 = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
-		
+
 		if (world != player.world && world instanceof CreativeWorld) {
 			pos = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(pos);
 			vec32 = ((CreativeWorld) world).getOrigin().transformPointToFakeWorld(vec32);
 		}
-		
+
 		return getFocusedTile(pos, vec32);
 	}
-	
+
 	public LittleTile getFocusedTile(Vec3d pos, Vec3d look) {
 		LittleTile tileFocus = null;
 		RayTraceResult hit = null;
 		double distance = 0;
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = (LittleTile) iterator.next();
 			RayTraceResult Temphit = tile.rayTrace(pos, look);
 			if (Temphit != null) {
@@ -843,57 +794,62 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		return tileFocus;
 	}
-	
+
 	@Override
 	public void onLoad() {
 		setLoaded();
 	}
-	
+
 	public boolean isTicking() {
 		return false;
 	}
-	
+
 	public boolean isRendered() {
 		return false;
 	}
-	
+
 	public IBlockState getBlockTileState() {
 		return BlockTile.getState(this);
 	}
-	
+
 	public void combineTiles(LittleStructure structure) {
-		BasicCombiner.combineTiles(tiles, structure);
-		
-		convertToSmallest();
-		updateTiles();
+		updateTiles(tiles -> {
+			BasicCombiner.combineTiles(tiles.getTiles(), structure);
+
+			convertToSmallest();
+		});
 	}
-	
+
 	public void updateCollisionCache() {
 		collisionChecks = 0;
-		for (Iterator<LittleTile> iterator = tiles.iterator(); iterator.hasNext();) {
+		for (Iterator<LittleTile> iterator = tiles.getTiles().iterator(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			if (tile.shouldCheckForCollision())
 				collisionChecks++;
 		}
 	}
-	
+
 	public void combineTiles() {
-		combineTilesList(tiles);
-		
+		combineTilesList(tiles.getTiles());
+
 		convertToSmallest();
 		updateTiles();
 	}
-	
+
 	public static void combineTilesList(List<LittleTile> tiles) {
 		BasicCombiner.combineTiles(tiles);
 	}
-	
+
 	@Override
 	@Method(modid = ChiselsAndBitsManager.chiselsandbitsID)
 	public Object getVoxelBlob(boolean force) throws Exception {
 		return ChiselsAndBitsManager.getVoxelBlob(this, force);
 	}
-	
+
+	public int size() {
+		return tiles.size();
+	}
+
 	public class SideSolidCache {
 		Boolean DOWN;
 		Boolean UP;
@@ -901,7 +857,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		Boolean SOUTH;
 		Boolean WEST;
 		Boolean EAST;
-		
+
 		public void reset() {
 			DOWN = null;
 			UP = null;
@@ -910,7 +866,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			WEST = null;
 			EAST = null;
 		}
-		
+
 		protected boolean calculate(EnumFacing facing) {
 			LittleTileBox box;
 			switch (facing) {
@@ -938,10 +894,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			}
 			return TileEntityLittleTiles.this.isBoxFilled(box);
 		}
-		
+
 		public boolean get(EnumFacing facing) {
 			Boolean result;
-			
+
 			switch (facing) {
 			case DOWN:
 				result = DOWN;
@@ -964,15 +920,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			default:
 				result = false;
 			}
-			
+
 			if (result == null) {
 				result = calculate(facing);
 				set(facing, result);
 			}
-			
+
 			return result;
 		}
-		
+
 		public void set(EnumFacing facing, boolean value) {
 			switch (facing) {
 			case DOWN:
@@ -995,15 +951,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				break;
 			}
 		}
-		
+
 	}
-	
+
 	@Override
 	@Nullable
 	public IBlockState getState(AxisAlignedBB box, boolean realistic) {
 		if (realistic) {
 			box = box.expand(0, -context.gridMCLength, 0);
-			for (LittleTile tile : tiles) {
+			for (LittleTile tile : tiles.getTiles()) {
 				if (tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
 					return ((LittleTileBlock) tile).getBlockState();
 			}
@@ -1011,14 +967,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		box = box.expand(0, -1, 0);
 		LittleTileBlock highest = null;
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles.getTiles()) {
 			if (tile instanceof LittleTileBlock && (highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersects(box))
 				highest = (LittleTileBlock) tile;
-			
+
 		}
 		return highest != null ? highest.getBlockState() : null;
 	}
-	
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	@Method(modid = "albedo")
@@ -1026,7 +982,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (ColoredLightsManager.isInstalled()) {
 			AxisAlignedBB box = null;
 			int color = -1;
-			for (LittleTile tile : tiles) {
+			for (LittleTile tile : tiles.getTiles()) {
 				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
 					int tileColor = ColoredLightsManager.getColorFromBlock(((LittleTileBlock) tile).getBlockState());
 					if (tile instanceof LittleTileBlockColored)
@@ -1040,24 +996,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 					}
 				}
 			}
-			
+
 			if (box != null)
 				return new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build();
 		}
 		return null;
 	}
-	
+
 	public boolean isEmpty() {
 		return tiles.isEmpty();
 	}
-	
+
 	@Override
 	public void onChunkUnload() {
 		super.onChunkUnload();
 		if (world.isRemote) {
-			tiles = null;
-			updateTiles = null;
-			renderTiles = null;
+			tiles.dispose();
 			buffer = null;
 			cubeCache = null;
 			sideCache = null;
@@ -1066,19 +1020,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			cachedRenderBoundingBox = null;
 		}
 	}
-	
+
 	@Override
 	public void rotate(Rotation rotationIn) {
 		LittleBlockTransformer.rotateTE(this, RotationUtils.getRotation(rotationIn), RotationUtils.getRotationCount(rotationIn), true);
 		updateTiles();
 	}
-	
+
 	@Override
 	public void mirror(Mirror mirrorIn) {
 		LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn), true);
 		updateTiles();
 	}
-	
+
 	@Override
 	public String toString() {
 		return pos.toString();

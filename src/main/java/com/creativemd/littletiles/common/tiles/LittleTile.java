@@ -542,7 +542,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public void place() {
-		te.addTile(this);
+		te.updateTiles((tilesTe) -> tilesTe.addTile(this));
 	}
 	
 	// ================Destroying================
@@ -552,7 +552,7 @@ public abstract class LittleTile implements ICombinable {
 			if (isConnectedToStructure())
 				connection.getStructure(te.getWorld()).onLittleTileDestroy();
 		} else
-			te.removeTile(this);
+			te.updateTiles((tilesTe) -> tilesTe.removeTile(this));
 	}
 	
 	// ================Copy================

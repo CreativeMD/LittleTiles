@@ -81,9 +81,11 @@ public class LittleActionDestroy extends LittleActionInteract {
 							if (!teLoaded)
 								toRemove.add(teTile);
 						}
-						tile.te.removeTiles(toRemove);
+						te.updateTiles(teTiles -> {
+							teTiles.removeTiles(toRemove);
+						});
 					} else
-						tile.te.removeTile(tile);
+						tile.te.updateTiles((tilesTe) -> tilesTe.removeTile(tile));
 				}
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
@@ -105,10 +107,11 @@ public class LittleActionDestroy extends LittleActionInteract {
 				giveOrDrop(player, inventory, tiles);
 				
 				tiles.clear();
-				
-				te.getTiles().clear();
-				te.getTiles().addAll(remains);
-				te.updateTiles();
+
+				te.updateTiles(teTiles -> {
+					teTiles.clear();
+					teTiles.addAll(remains);
+				});
 			} else {
 				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
 				
