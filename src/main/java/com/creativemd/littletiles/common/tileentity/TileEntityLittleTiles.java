@@ -24,6 +24,7 @@ import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
+import com.creativemd.littletiles.common.api.events.LittleTileUpdateEvent;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -55,6 +56,7 @@ import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
@@ -129,6 +131,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 
 	public void updateTiles(Consumer<MutableTiles> action) {
+		updateTilesQuietly(action);
+
+		LittleTileUpdateEvent event = new LittleTileUpdateEvent(getWorld(), this.pos);
+		MinecraftForge.EVENT_BUS.post(event);
+
+		System.out.println("event = " + event);
+	}
+
+	private void updateTilesQuietly(Consumer<MutableTiles> action) {
 		this.preventUpdate = true;
 
 		action.accept(tiles);
@@ -595,7 +606,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void readFromNBT(NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
 
-		updateTiles((tiles) -> {
+		updateTilesQuietly((tiles) -> {
 			tiles.clear();
 			tiles.getUpdateTiles().clear();
 			collisionChecks = 0;
@@ -668,7 +679,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 
 	public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
 
-		updateTiles(tiles -> {
+		updateTilesQuietly(tiles -> {
 			LittleGridContext context = LittleGridContext.get(nbt);
 
 			if (context != this.context)

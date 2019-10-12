@@ -1,19 +1,10 @@
 package com.creativemd.littletiles.common.action.block;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.api.events.BoxPlacedEvent;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -32,7 +23,6 @@ import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
@@ -49,6 +39,13 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.world.BlockEvent.MultiPlaceEvent;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.function.Predicate;
 
 public class LittleActionPlaceStack extends LittleAction {
 	
@@ -316,9 +313,6 @@ public class LittleActionPlaceStack extends LittleAction {
 
 	private static void placeTile(LittlePlaceResult placed, LittleTile tile, EntityPlayer player) {
 		placed.addPlacedTile(tile);
-
-		MinecraftForge.EVENT_BUS.post(new BoxPlacedEvent(player, tile, placed));
-
 	}
 
 	public static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {

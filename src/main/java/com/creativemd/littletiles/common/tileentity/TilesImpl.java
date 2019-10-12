@@ -95,7 +95,7 @@ public class TilesImpl implements MutableTiles {
     public void removeTiles(Collection<LittleTile> tiles) {
         for (LittleTile tile : tiles) {
             removeLittleTile(tile);
-        }
+    }
     }
 
     @Override
