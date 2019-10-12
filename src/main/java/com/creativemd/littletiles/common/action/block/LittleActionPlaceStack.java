@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.api.events.BoxPlacedEvent;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -271,8 +272,8 @@ public class LittleActionPlaceStack extends LittleAction {
 											placeTile.structurePreview.getStructure().addTile(LT);
 										}
 									}
-									
-									placed.addPlacedTile(LT);
+
+									placeTile(placed, LT, player);
 								}
 							}
 						}
@@ -291,8 +292,9 @@ public class LittleActionPlaceStack extends LittleAction {
 			
 			for (LastPlacedTile lastPlacedTile : lastPlacedTiles) {
 				for (LittleTile tile : lastPlacedTile.tile.placeTile(player, stack, lastPlacedTile.pos, lastPlacedTile.context, null, unplaceableTiles, removedTiles, mode, facing, true)) {
-					if (tile != null)
-						placed.addPlacedTile(tile);
+					if (tile != null) {
+						placeTile(placed, tile, player);
+					}
 				}
 			}
 			
@@ -311,7 +313,14 @@ public class LittleActionPlaceStack extends LittleAction {
 		}
 		return null;
 	}
-	
+
+	private static void placeTile(LittlePlaceResult placed, LittleTile tile, EntityPlayer player) {
+		placed.addPlacedTile(tile);
+
+		MinecraftForge.EVENT_BUS.post(new BoxPlacedEvent(player, tile, placed));
+
+	}
+
 	public static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
 		if (player != null) {
 			if (SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)

@@ -60,7 +60,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Interface(iface = "elucent.albedo.lighting.ILightProvider", modid = "albedo")
 public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider {
-	
+	public TileEntityLittleTiles() {
+	}
+
 	public static CopyOnWriteArrayList<LittleTile> createTileList() {
 		return new CopyOnWriteArrayList<LittleTile>();
 	}
