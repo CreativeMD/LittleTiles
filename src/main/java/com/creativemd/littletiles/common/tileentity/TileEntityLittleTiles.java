@@ -264,8 +264,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 
 	protected void customTilesUpdate() {
-		if (world.isRemote)
+		if (world == null || world.isRemote) {
 			return;
+		}
 		boolean rendered = hasRendered();
 		if (tiles.getUpdateTiles().isEmpty() == isTicking() || rendered != isRendered()) {
 			TileEntityLittleTiles newTe;
@@ -303,7 +304,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (isClientSide())
 			updateCustomRenderer();
 
-		if (!world.isRemote && tiles.isEmpty())
+		if (world != null && !world.isRemote && tiles.isEmpty())
 			world.setBlockToAir(getPos());
 
 		if (world instanceof CreativeWorld)

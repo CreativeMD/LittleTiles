@@ -247,7 +247,6 @@ public class LittleActionPlaceStack extends LittleAction {
 					
 					TileEntityLittleTiles te = loadTe(player, world, coord, mode.shouldConvertBlock());
 					if (te != null) {
-						te.preventUpdate = true;
 						
 						if (te.isEmpty())
 							requiresCollisionTest = false;
@@ -274,8 +273,6 @@ public class LittleActionPlaceStack extends LittleAction {
 								}
 							}
 						}
-						
-						te.preventUpdate = false;
 						if (parentStructure == null) {
 							te.combineTiles();
 							
