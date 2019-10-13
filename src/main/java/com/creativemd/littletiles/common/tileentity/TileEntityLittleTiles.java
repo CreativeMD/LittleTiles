@@ -135,8 +135,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 
 		LittleTileUpdateEvent event = new LittleTileUpdateEvent(getWorld(), this.pos);
 		MinecraftForge.EVENT_BUS.post(event);
-
-		System.out.println("event = " + event);
 	}
 
 	private void updateTilesQuietly(Consumer<MutableTiles> action) {
