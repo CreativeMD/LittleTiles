@@ -1,4 +1,8 @@
 {
+    "ingredients":
+    {
+        "structure": "com.creativemd.littletiles.common.recipes.StructureIngredientFactory"
+    },
     "recipes":
     {
         "crafting_shaped_premade": "com.creativemd.littletiles.common.recipes.PremadeRecipeFactory"

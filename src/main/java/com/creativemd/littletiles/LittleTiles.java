@@ -87,10 +87,10 @@ import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.items.ItemUtilityKnife;
 import com.creativemd.littletiles.common.mods.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mods.warpdrive.TileEntityLittleTilesTransformer;
+import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
-import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
@@ -513,6 +513,7 @@ public class LittleTiles {
 			TileEntityLittleTilesTransformer.init();
 		
 		TheOneProbeManager.init();
+		
 	}
 	
 	@EventHandler
