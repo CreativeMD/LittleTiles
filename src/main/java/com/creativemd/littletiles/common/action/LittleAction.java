@@ -567,7 +567,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
-				inventory.take(ingredients);
+				inventory.take(ingredients.copy());
 				return true;
 			} finally {
 				inventory.stopSimulation();
@@ -580,18 +580,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
-				inventory.take(ingredients);
+				inventory.take(ingredients.copy());
 			} finally {
 				inventory.stopSimulation();
 			}
-			inventory.take(ingredients);
+			inventory.take(ingredients.copy());
 		}
 		return true;
 	}
 	
 	public static boolean take(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player))
-			inventory.take(ingredients);
+			inventory.take(ingredients.copy());
 		return true;
 	}
 	
@@ -613,7 +613,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
-				inventory.give(ingredients);
+				inventory.give(ingredients.copy());
 				return true;
 			} finally {
 				inventory.stopSimulation();
@@ -626,18 +626,18 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (needIngredients(player)) {
 			try {
 				inventory.startSimulation();
-				inventory.give(ingredients);
+				inventory.give(ingredients.copy());
 			} finally {
 				inventory.stopSimulation();
 			}
-			inventory.give(ingredients);
+			inventory.give(ingredients.copy());
 		}
 		return true;
 	}
 	
 	public static boolean give(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player))
-			inventory.give(ingredients);
+			inventory.give(ingredients.copy());
 		return true;
 	}
 	
