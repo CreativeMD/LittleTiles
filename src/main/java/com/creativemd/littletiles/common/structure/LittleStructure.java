@@ -435,16 +435,6 @@ public abstract class LittleStructure {
 		return true;
 	}
 	
-	public boolean isChildMoving() {
-		for (IStructureChildConnector child : children) {
-			if (child.isLinkToAnotherWorld())
-				return true;
-			if (child.getStructure(getWorld()).isChildMoving())
-				return true;
-		}
-		return false;
-	}
-	
 	public LinkedHashMap<BlockPos, Integer> tilesToLoad = null;
 	
 	public void loadStructure(LittleTile mainTile) {
@@ -469,8 +459,7 @@ public abstract class LittleStructure {
 				LittleTileIdentifierRelative coord = null;
 				if (nbt.hasKey("i" + i + "coX")) {
 					LittleTilePosition pos = new LittleTilePosition("i" + i, nbt);
-					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] {
-					        pos.position.x, pos.position.y, pos.position.z });
+					coord = new LittleTileIdentifierRelative(mainTile.te, pos.coord, LittleGridContext.get(), new int[] { pos.position.x, pos.position.y, pos.position.z });
 				} else {
 					coord = LittleTileIdentifierRelative.loadIdentifierOld("i" + i, nbt);
 				}
@@ -601,8 +590,7 @@ public abstract class LittleStructure {
 			for (Iterator<Entry<BlockPos, Integer>> iterator = positions.entrySet().iterator(); iterator.hasNext();) {
 				Entry<BlockPos, Integer> entry = iterator.next();
 				RelativeBlockPos pos = new RelativeBlockPos(mainTile.te, entry.getKey());
-				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(),
-				        pos.getRelativePos().getZ(), entry.getValue() }));
+				list.appendTag(new NBTTagIntArray(new int[] { pos.getRelativePos().getX(), pos.getRelativePos().getY(), pos.getRelativePos().getZ(), entry.getValue() }));
 			}
 			nbt.setTag("tiles", list);
 		}

@@ -115,9 +115,10 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 			tile = LittleAction.getTile(world, coord);
 			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
 				LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
+				
 				DoorActivationResult activationResult = door.activate(player, tile, uuid, true);
 				if (activationResult == null) {
-					PacketHandler.sendPacketToPlayer(this, (EntityPlayerMP) player);
+					PacketHandler.sendPacketToPlayer(new LittleResetAnimationPacket(uuid), (EntityPlayerMP) player);
 					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
 					return;
 				}

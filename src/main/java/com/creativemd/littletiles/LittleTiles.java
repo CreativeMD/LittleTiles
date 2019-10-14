@@ -94,6 +94,7 @@ import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleResetAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
@@ -476,6 +477,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
 		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "Selection");
 		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
+		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class, "RA");
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		
