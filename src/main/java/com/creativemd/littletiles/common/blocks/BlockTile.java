@@ -529,8 +529,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			
 			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
-				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] {
-				        Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
+				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
 		}
 		return true;
 	}
@@ -923,7 +922,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && !world.isRemote) {
-			float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, "size", "field_77280_f");
+			float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, new String[] { "size", "field_77280_f" });
 			Vec3d center = explosion.getPosition();
 			ArrayList<LittleTile> removeTiles = new ArrayList<>();
 			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
@@ -1063,6 +1062,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return false;
 	}
 	
+	@Override
 	public float getBlockLiquidHeight(World world, BlockPos pos, IBlockState state, Material material) {
 		float height = 0;
 		TileEntityLittleTiles te = loadTe(world, pos);

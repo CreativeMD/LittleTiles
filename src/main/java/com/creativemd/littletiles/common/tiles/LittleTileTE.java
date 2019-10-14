@@ -76,7 +76,7 @@ public class LittleTileTE extends LittleTileBlock {
 	@Override
 	public NBTTagCompound getUpdateNBT() {
 		tileEntity.setWorld(te.getWorld());
-		return ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, getTileEntity().getUpdatePacket(), "nbt", "field_148860_e");
+		return ReflectionHelper.getPrivateValue(SPacketUpdateTileEntity.class, getTileEntity().getUpdatePacket(), new String[] { "nbt", "field_148860_e" });
 	}
 	
 	@Override
