@@ -47,7 +47,7 @@ public class LittleVolumes {
 		if (context.size < this.context.size)
 			volume *= this.context.size / context.size;
 		
-		LittleVolume type = new LittleVolume(preview.getPreviewBlock(), preview.getPreviewBlockMeta());
+		LittleVolume type = new LittleVolume(preview.getBlock(), preview.getMeta());
 		Double exist = volumes.get(type);
 		if (exist == null)
 			exist = volume;

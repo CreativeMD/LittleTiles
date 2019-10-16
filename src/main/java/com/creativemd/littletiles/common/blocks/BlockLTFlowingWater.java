@@ -183,6 +183,19 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		return false;
 	}
 	
+	@Override
+	public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
+		preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
+	}
+	
+	@Override
+	public void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
+		EnumFacing facing = EnumFacing.getFront(preview.getMeta());
+		if (facing.getAxis() == axis)
+			facing = facing.getOpposite();
+		preview.getTileData().setInteger("meta", facing.ordinal());
+	}
+	
 	public static class LittleFlowingWaterPreview extends LittleTilePreview {
 		
 		public LittleFlowingWaterPreview(NBTTagCompound nbt) {
@@ -191,21 +204,6 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 		
 		public LittleFlowingWaterPreview(LittleTileBox box, NBTTagCompound tileData) {
 			super(box, tileData);
-		}
-		
-		@Override
-		public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
-			super.rotatePreview(rotation, doubledCenter);
-			getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(getPreviewBlockMeta()), rotation).ordinal());
-		}
-		
-		@Override
-		public void flipPreview(Axis axis, LittleTileVec doubledCenter) {
-			super.flipPreview(axis, doubledCenter);
-			EnumFacing facing = EnumFacing.getFront(getPreviewBlockMeta());
-			if (facing.getAxis() == axis)
-				facing = facing.getOpposite();
-			getTileData().setInteger("meta", facing.ordinal());
 		}
 	}
 	

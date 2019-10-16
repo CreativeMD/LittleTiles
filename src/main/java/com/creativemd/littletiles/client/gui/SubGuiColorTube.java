@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -27,7 +27,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
 	}
 	
 	public LittleGridContext getContext() {
-		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
+		return ((IBoxSelector) stack.getItem()).getContext(stack);
 	}
 	
 	@Override

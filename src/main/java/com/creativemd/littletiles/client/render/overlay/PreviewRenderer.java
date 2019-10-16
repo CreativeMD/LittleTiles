@@ -144,9 +144,7 @@ public class PreviewRenderer {
 									shifthandlers.addAll(result.placePreviews.get(i).preview.fixedhandlers);
 								
 							for (int i = 0; i < shifthandlers.size(); i++) {
-								// GL11.glPushMatrix();
 								shifthandlers.get(i).handleRendering(result.context, mc, x, y, z);
-								// GL11.glPopMatrix();
 							}
 						}
 					}

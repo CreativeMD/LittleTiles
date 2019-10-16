@@ -35,8 +35,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.Littl
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
-import com.creativemd.littletiles.common.api.blocks.DefaultBlockHandler;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava;
@@ -112,7 +111,6 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.rules.IngredientRules;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -238,11 +236,11 @@ public class LittleTiles {
 		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
 		
-		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock", LittleTilePreviewHandler.defaultHandler);
-		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity", LittleTilePreviewHandler.defaultHandler);
-		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
+		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity");
+		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
 		
-		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle", LittleTilePreviewHandler.defaultHandler);
+		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
 		
 		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
 		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
@@ -319,8 +317,8 @@ public class LittleTiles {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				if (iTile != null)
 					return iTile.getConfigureGUI(player, stack);
-				else if (stack.getItem() instanceof ISpecialBlockSelector)
-					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(player, stack);
+				else if (stack.getItem() instanceof IBoxSelector)
+					return ((IBoxSelector) stack.getItem()).getConfigureGUI(player, stack);
 				return null;
 			}
 			
@@ -330,8 +328,8 @@ public class LittleTiles {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				if (iTile != null)
 					return iTile.getConfigureContainer(player, stack);
-				else if (stack.getItem() instanceof ISpecialBlockSelector)
-					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainer(player, stack);
+				else if (stack.getItem() instanceof IBoxSelector)
+					return ((IBoxSelector) stack.getItem()).getConfigureContainer(player, stack);
 				return null;
 			}
 		});
@@ -345,8 +343,8 @@ public class LittleTiles {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				if (iTile != null)
 					return iTile.getConfigureGUIAdvanced(player, stack);
-				else if (stack.getItem() instanceof ISpecialBlockSelector)
-					return ((ISpecialBlockSelector) stack.getItem()).getConfigureGUIAdvanced(player, stack);
+				else if (stack.getItem() instanceof IBoxSelector)
+					return ((IBoxSelector) stack.getItem()).getConfigureGUIAdvanced(player, stack);
 				return null;
 			}
 			
@@ -356,8 +354,8 @@ public class LittleTiles {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				if (iTile != null)
 					return iTile.getConfigureContainerAdvanced(player, stack);
-				else if (stack.getItem() instanceof ISpecialBlockSelector)
-					return ((ISpecialBlockSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
+				else if (stack.getItem() instanceof IBoxSelector)
+					return ((IBoxSelector) stack.getItem()).getConfigureContainerAdvanced(player, stack);
 				return null;
 			}
 		});
@@ -503,8 +501,6 @@ public class LittleTiles {
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityOldDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
 		
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
-		
-		DefaultBlockHandler.initVanillaBlockHandlers();
 		
 		proxy.loadSidePost();
 		

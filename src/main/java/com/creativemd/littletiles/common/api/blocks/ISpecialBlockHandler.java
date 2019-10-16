@@ -5,9 +5,11 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -15,6 +17,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -71,6 +74,14 @@ public interface ISpecialBlockHandler {
 	}
 	
 	public default void onEntityCollidedWithBlock(World worldIn, LittleTileBlock tile, BlockPos pos, IBlockState state, Entity entityIn) {
+		
+	}
+	
+	public default void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
+		
+	}
+	
+	public default void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
 		
 	}
 	

@@ -24,7 +24,7 @@ import net.minecraft.nbt.NBTTagString;
 
 public class LittleSubGuiUtils {
 	
-	public static class LittleBlockSelector extends GuiStackSelectorAll.BlockSelector {
+	public static class LittleBlockSelector extends GuiStackSelectorAll.GuiBlockSelector {
 		
 		@Override
 		public boolean allow(ItemStack stack) {

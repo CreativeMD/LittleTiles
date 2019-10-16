@@ -18,7 +18,7 @@ import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
@@ -88,7 +88,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleEvent {
 	
 	public static ItemStack lastSelectedItem = null;
-	public static ISpecialBlockSelector blockSelector = null;
+	public static IBoxSelector blockSelector = null;
 	public static ILittleTile iLittleTile = null;
 	
 	@SideOnly(Side.CLIENT)
@@ -140,11 +140,11 @@ public class LittleEvent {
 					lastSelectedItem = null;
 				}
 				
-				if (stack.getItem() instanceof ISpecialBlockSelector) {
-					if (((ISpecialBlockSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTilePos(ray, ((ISpecialBlockSelector) stack.getItem()).getContext(stack))))
+				if (stack.getItem() instanceof IBoxSelector) {
+					if (((IBoxSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTilePos(ray, ((IBoxSelector) stack.getItem()).getContext(stack))))
 						;
 					event.setCanceled(true);
-					blockSelector = (ISpecialBlockSelector) stack.getItem();
+					blockSelector = (IBoxSelector) stack.getItem();
 					lastSelectedItem = stack;
 				}
 				
@@ -158,7 +158,7 @@ public class LittleEvent {
 				
 				leftClicked = true;
 			}
-		} else if (event.getItemStack().getItem() instanceof ISpecialBlockSelector)
+		} else if (event.getItemStack().getItem() instanceof IBoxSelector)
 			event.setCanceled(true);
 	}
 	
@@ -217,7 +217,7 @@ public class LittleEvent {
 	@SubscribeEvent
 	public void breakSpeed(BreakSpeed event) {
 		ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
-		if (stack.getItem() instanceof ISpecialBlockSelector)
+		if (stack.getItem() instanceof IBoxSelector)
 			event.setNewSpeed(0);
 	}
 	
@@ -336,8 +336,8 @@ public class LittleEvent {
 			BlockPos pos = event.getTarget().getBlockPos();
 			IBlockState state = world.getBlockState(pos);
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-			if (stack.getItem() instanceof ISpecialBlockSelector) {
-				ISpecialBlockSelector selector = (ISpecialBlockSelector) stack.getItem();
+			if (stack.getItem() instanceof IBoxSelector) {
+				IBoxSelector selector = (IBoxSelector) stack.getItem();
 				LittleTilePos result = new LittleTilePos(event.getTarget(), selector.getContext(stack));
 				if (selector.hasCustomBox(world, stack, player, state, event.getTarget(), result)) {
 					while (LittleTilesClient.flip.isPressed()) {
@@ -383,7 +383,7 @@ public class LittleEvent {
 					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
 					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
 					double d2 = player.lastTickPosZ + (player.posZ - player.lastTickPosZ) * event.getPartialTicks();
-					LittleBoxes boxes = ((ISpecialBlockSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), result);
+					LittleBoxes boxes = ((IBoxSelector) stack.getItem()).getBox(world, stack, player, event.getTarget(), result);
 					// box.addOffset(new LittleTileVec(pos));
 					
 					GlStateManager.enableBlend();
@@ -548,8 +548,8 @@ public class LittleEvent {
 						SubGui gui = iTile.getConfigureGUI(mc.player, stack);
 						if (gui != null)
 							GuiHandler.openGui("configure", new NBTTagCompound());
-					} else if (stack.getItem() instanceof ISpecialBlockSelector) {
-						SubGui gui = ((ISpecialBlockSelector) stack.getItem()).getConfigureGUI(mc.player, stack);
+					} else if (stack.getItem() instanceof IBoxSelector) {
+						SubGui gui = ((IBoxSelector) stack.getItem()).getConfigureGUI(mc.player, stack);
 						if (gui != null)
 							GuiHandler.openGui("configure", new NBTTagCompound());
 					}
@@ -561,8 +561,8 @@ public class LittleEvent {
 						SubGui gui = iTile.getConfigureGUIAdvanced(mc.player, stack);
 						if (gui != null)
 							GuiHandler.openGui("configureadvanced", new NBTTagCompound());
-					} else if (stack.getItem() instanceof ISpecialBlockSelector) {
-						SubGui gui = ((ISpecialBlockSelector) stack.getItem()).getConfigureGUIAdvanced(mc.player, stack);
+					} else if (stack.getItem() instanceof IBoxSelector) {
+						SubGui gui = ((IBoxSelector) stack.getItem()).getConfigureGUIAdvanced(mc.player, stack);
 						if (gui != null)
 							GuiHandler.openGui("configureadvanced", new NBTTagCompound());
 					}

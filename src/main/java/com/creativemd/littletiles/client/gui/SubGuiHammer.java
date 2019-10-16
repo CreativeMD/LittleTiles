@@ -6,7 +6,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.items.ItemHammer;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
@@ -22,7 +22,7 @@ public class SubGuiHammer extends SubGuiConfigure {
 	}
 	
 	public LittleGridContext getContext() {
-		return ((ISpecialBlockSelector) stack.getItem()).getContext(stack);
+		return ((IBoxSelector) stack.getItem()).getContext(stack);
 	}
 	
 	@Override

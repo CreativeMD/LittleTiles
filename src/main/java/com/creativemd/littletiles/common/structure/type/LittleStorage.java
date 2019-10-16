@@ -98,7 +98,7 @@ public class LittleStorage extends LittleStructure {
 		double size = 0;
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
 		for (int i = 0; i < previews.size(); i++) {
-			if (previews.get(i).getPreviewBlockName().equals(name))
+			if (previews.get(i).getBlockName().equals(name))
 				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * SpecialServerConfig.storagePerPixel;
 		}
 		return (int) size;
@@ -132,7 +132,7 @@ public class LittleStorage extends LittleStructure {
 			LittleStorage storage = createStructure(LittleStorage.class);
 			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
 			for (int i = 0; i < previews.size(); i++) {
-				if (previews.get(i).getPreviewBlock() instanceof BlockStorageTile)
+				if (previews.get(i).getBlock() instanceof BlockStorageTile)
 					previews.get(i).setInvisibile(storage.invisibleStorageTiles);
 			}
 			storage.inventorySize = getSizeOfInventory(previews);

@@ -24,7 +24,6 @@ import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreviewHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
@@ -66,7 +65,6 @@ public abstract class LittleTile implements ICombinable {
 	
 	private static HashMap<Class<? extends LittleTile>, String> tileIDs = new HashMap<Class<? extends LittleTile>, String>();
 	private static HashMap<String, Class<? extends LittleTile>> invTileIDs = new HashMap<String, Class<? extends LittleTile>>();
-	private static HashMap<String, LittleTilePreviewHandler> previewHandlers = new HashMap<String, LittleTilePreviewHandler>();
 	
 	public static Class<? extends LittleTile> getClassByID(String id) {
 		return invTileIDs.get(id);
@@ -76,19 +74,10 @@ public abstract class LittleTile implements ICombinable {
 		return tileIDs.get(LittleClass);
 	}
 	
-	public static LittleTilePreviewHandler getPreviewHandler(LittleTile tile) {
-		return getPreviewHandler(tile.getID());
-	}
-	
-	public static LittleTilePreviewHandler getPreviewHandler(String id) {
-		return previewHandlers.getOrDefault(id, LittleTilePreviewHandler.defaultHandler);
-	}
-	
 	/** The id has to be unique and cannot be changed! **/
-	public static void registerLittleTile(Class<? extends LittleTile> LittleClass, String id, LittleTilePreviewHandler handler) {
+	public static void registerLittleTile(Class<? extends LittleTile> LittleClass, String id) {
 		tileIDs.put(LittleClass, id);
 		invTileIDs.put(id, LittleClass);
-		previewHandlers.put(id, handler);
 	}
 	
 	public static LittleTile CreateEmptyTile(String id) {

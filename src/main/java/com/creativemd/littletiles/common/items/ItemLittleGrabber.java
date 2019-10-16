@@ -129,7 +129,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			GrabberMode mode = getMode(stack);
 			if (mode.renderBlockSeparately(stack)) {
 				LittleTilePreview preview = mode.getSeparateRenderingPreview(stack);
-				ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
+				ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
 				model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 				if (!(model instanceof CreativeBakedModel))
 					ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);

@@ -11,7 +11,10 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
+import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
@@ -23,6 +26,7 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -68,8 +72,6 @@ public class LittleTilePreview implements ICombinable {
 	
 	public List<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
 	
-	public final LittleTilePreviewHandler handler;
-	
 	// ================Constructors================
 	
 	/** This constructor needs to be implemented in every subclass **/
@@ -89,54 +91,59 @@ public class LittleTilePreview implements ICombinable {
 			tileData.removeTag("bBox");
 			tileData.removeTag("size");
 		}
-		
-		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
 	
 	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData) {
 		this.box = box;
 		this.tileData = tileData;
-		this.handler = LittleTile.getPreviewHandler(tileData.getString("tID"));
 	}
-	
-	/* public LittleTilePreview(LittleTileSize size, NBTTagCompound tileData) {
-	 * this.size = size; this.tileData = tileData; this.handler =
-	 * LittleTile.getPreviewHandler(tileData.getString("tID")); } */
 	
 	// ================Preview================
 	
 	public boolean canBeConvertedToBlockEntry() {
-		return handler.canBeConvertedToBlockEntry(this) && hasBlockIngredient();
+		return hasBlockIngredient();
 	}
 	
-	public String getPreviewBlockName() {
-		return handler.getPreviewBlockName(this);
+	public String getBlockName() {
+		return tileData.getString("block");
 	}
 	
-	public Block getPreviewBlock() {
-		return handler.getPreviewBlock(this);
+	public Block getBlock() {
+		return Block.getBlockFromName(tileData.getString("block"));
 	}
 	
-	public int getPreviewBlockMeta() {
-		return handler.getPreviewBlockMeta(this);
+	public int getMeta() {
+		return tileData.getInteger("meta");
 	}
 	
 	public boolean hasColor() {
-		return handler.hasColor(this);
+		return tileData.hasKey("color");
 	}
 	
 	public int getColor() {
-		return handler.getColor(this);
+		if (tileData.hasKey("color"))
+			return tileData.getInteger("color");
+		return -1;
 	}
 	
 	public void setColor(int color) {
-		handler.setColor(this, color);
+		if (ColorUtils.isWhite(color) && !ColorUtils.isTransparent(color)) {
+			if (tileData.getString("tID").equals("BlockTileColored"))
+				tileData.setString("tID", "BlockTileBlock");
+			tileData.removeTag("color");
+		} else {
+			if (tileData.getString("tID").equals("BlockTileBlock"))
+				tileData.setString("tID", "BlockTileColored");
+			tileData.setInteger("color", color);
+		}
 	}
 	
 	/** Rendering inventory **/
 	@SideOnly(Side.CLIENT)
 	public RenderCubeObject getCubeBlock(LittleGridContext context) {
-		return handler.getCubeBlock(context, this);
+		RenderCubeObject cube = box.getRenderingCube(context, getBlock(), getMeta());
+		cube.color = getColor();
+		return cube;
 	}
 	
 	public boolean isInvisible() {
@@ -157,16 +164,14 @@ public class LittleTilePreview implements ICombinable {
 	
 	@Nullable
 	public BlockIngredientEntry getBlockIngredient(LittleGridContext context) {
-		if (hasBlockIngredient())
-			return handler.getBlockIngredient(context, this);
-		return null;
+		return IngredientUtils.getBlockIngredient(getBlock(), getMeta(), getPercentVolume(context));
 	}
 	
 	/** @param context
 	 * @return An ordinary itemstack of the block, not taking care of actual preview
 	 *         size (it's always a full cube). */
 	public ItemStack getBlockStack() {
-		return handler.getBlockStack(this);
+		return new ItemStack(getBlock(), 1, getMeta());
 	}
 	
 	public double getPercentVolume(LittleGridContext context) {
@@ -190,7 +195,7 @@ public class LittleTilePreview implements ICombinable {
 	}
 	
 	public boolean canBeCombined(LittleTilePreview preview) {
-		return handler.canBeCombined(this, preview);
+		return tileData.equals(preview.getTileData());
 	}
 	
 	@Override
@@ -245,6 +250,10 @@ public class LittleTilePreview implements ICombinable {
 	
 	// ================Common================
 	
+	public ISpecialBlockHandler getSpecialHandler() {
+		return SpecialBlockHandler.getSpecialBlockHandler(getBlock(), getMeta());
+	}
+	
 	@Override
 	public String toString() {
 		return box.toString();
@@ -267,15 +276,13 @@ public class LittleTilePreview implements ICombinable {
 	// ================Rotating/Flipping================
 	
 	public void flipPreview(Axis axis, LittleTileVec doubledCenter) {
-		if (box != null)
-			box.flipBox(axis, doubledCenter);
-		handler.flipPreview(axis, this, doubledCenter);
+		box.flipBox(axis, doubledCenter);
+		getSpecialHandler().flipPreview(axis, this, doubledCenter);
 	}
 	
 	public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
 		box.rotateBox(rotation, doubledCenter);
-		
-		handler.rotatePreview(rotation, this, doubledCenter);
+		getSpecialHandler().rotatePreview(rotation, this, doubledCenter);
 	}
 	
 	// ================Save & Loading================
@@ -322,7 +329,7 @@ public class LittleTilePreview implements ICombinable {
 	}
 	
 	public boolean canBeNBTGrouped(LittleTilePreview preview) {
-		return handler.canBeNBTGrouped() && this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
+		return this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
 	}
 	
 	public NBTTagCompound startNBTGrouping() {

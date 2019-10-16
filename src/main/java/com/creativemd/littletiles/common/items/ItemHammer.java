@@ -13,7 +13,7 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
@@ -38,7 +38,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemHammer extends Item implements ISpecialBlockSelector {
+public class ItemHammer extends Item implements IBoxSelector {
 	
 	private static boolean activeFilter = false;
 	private static TileSelector currentFilter = null;

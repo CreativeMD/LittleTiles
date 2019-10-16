@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
@@ -47,8 +47,8 @@ public class LittleFlipPacket extends CreativeCorePacket {
 				itile.flipLittlePreview(player, stack, axis);
 		}
 		
-		if (stack.getItem() instanceof ISpecialBlockSelector) {
-			((ISpecialBlockSelector) stack.getItem()).flipLittlePreview(stack, axis);
+		if (stack.getItem() instanceof IBoxSelector) {
+			((IBoxSelector) stack.getItem()).flipLittlePreview(stack, axis);
 		}
 	}
 	

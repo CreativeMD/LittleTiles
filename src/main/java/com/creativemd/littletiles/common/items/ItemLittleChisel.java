@@ -172,7 +172,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			GlStateManager.scale(0.7, 0.7, 0.7);
 			
 			LittleTilePreview preview = getPreview(stack);
-			ItemStack blockStack = new ItemStack(preview.getPreviewBlock(), 1, preview.getPreviewBlockMeta());
+			ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
 			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 			if (!(model instanceof CreativeBakedModel))
 				ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);

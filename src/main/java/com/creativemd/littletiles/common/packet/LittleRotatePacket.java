@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 
 import io.netty.buffer.ByteBuf;
@@ -54,8 +54,8 @@ public class LittleRotatePacket extends CreativeCorePacket {
 				itile.rotateLittlePreview(player, stack, rotation);
 		}
 		
-		if (stack.getItem() instanceof ISpecialBlockSelector) {
-			((ISpecialBlockSelector) stack.getItem()).rotateLittlePreview(stack, rotation);
+		if (stack.getItem() instanceof IBoxSelector) {
+			((IBoxSelector) stack.getItem()).rotateLittlePreview(stack, rotation);
 		}
 	}
 	

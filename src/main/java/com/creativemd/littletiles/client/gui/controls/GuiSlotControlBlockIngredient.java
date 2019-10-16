@@ -25,7 +25,7 @@ public class GuiSlotControlBlockIngredient extends GuiSlotControl {
 		if (stack.getItem() instanceof ItemBlockTiles) {
 			if (stack.getCount() >= LittleGridContext.get().maxTilesPerBlock) {
 				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
-				stack = new ItemStack(preview.getPreviewBlock(), stack.getCount() / LittleGridContext.get().maxTilesPerBlock, preview.getPreviewBlockMeta());
+				stack = new ItemStack(preview.getBlock(), stack.getCount() / LittleGridContext.get().maxTilesPerBlock, preview.getMeta());
 			} else {
 				stack = stack.copy();
 				stack.setCount(1);

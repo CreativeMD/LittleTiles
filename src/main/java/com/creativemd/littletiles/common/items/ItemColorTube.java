@@ -15,7 +15,7 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiGridSelector;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import com.creativemd.littletiles.common.api.ISpecialBlockSelector;
+import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
@@ -46,7 +46,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemColorTube extends Item implements ISpecialBlockSelector {
+public class ItemColorTube extends Item implements IBoxSelector {
 	
 	public ItemColorTube() {
 		setCreativeTab(LittleTiles.littleTab);
