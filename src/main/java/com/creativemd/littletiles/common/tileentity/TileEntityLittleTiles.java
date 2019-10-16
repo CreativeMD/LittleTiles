@@ -999,6 +999,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	@Nullable
 	public IBlockState getState(AxisAlignedBB box, boolean realistic) {
+		if (tiles == null)
+			return null;
+		
 		if (realistic) {
 			box = box.expand(0, -context.gridMCLength, 0);
 			for (LittleTile tile : tiles) {
