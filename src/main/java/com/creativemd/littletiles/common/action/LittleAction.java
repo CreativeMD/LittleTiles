@@ -52,6 +52,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBreakable;
 import net.minecraft.block.BlockGlass;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.BlockStainedGlass;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -670,6 +671,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean isBlockValid(Block block) {
+		if (block instanceof BlockSlab)
+			return false;
 		return block.isNormalCube(block.getDefaultState()) || block.isFullCube(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
 	}
 	
