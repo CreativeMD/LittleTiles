@@ -1,8 +1,10 @@
 package com.creativemd.littletiles.common.utils.ingredients.rules;
 
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector;
+import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorAnd;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorBlock;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorClass;
+import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorProperty;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
@@ -50,6 +52,6 @@ public class IngredientRules {
 				return state.getValue(BlockNewLog.VARIANT).ordinal();
 			}
 		});
-		registerBlockRule(new BlockSelectorClass(BlockHorizontal.class, BlockRotatedPillar.class), new BlockIngredientRuleFixedMeta(0));
+		registerBlockRule(new BlockSelectorAnd(new BlockSelectorClass(BlockHorizontal.class, BlockRotatedPillar.class), new BlockSelectorProperty(BlockHorizontal.FACING, BlockRotatedPillar.AXIS)), new BlockIngredientRuleFixedMeta(0));
 	}
 }
