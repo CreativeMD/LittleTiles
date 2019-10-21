@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
@@ -116,20 +117,38 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	protected CopyOnWriteArrayList<LittleTile> renderTiles;
 	
 	@SideOnly(Side.CLIENT)
-	public CopyOnWriteArrayList<LittleTile> getRenderTiles() {
+	public Iterable<LittleTile> getRenderTiles() {
 		if (renderTiles == null)
 			renderTiles = createTileList();
 		return renderTiles;
 	}
 	
-	public CopyOnWriteArrayList<LittleTile> getTiles() {
+	public Iterable<LittleTile> getTiles() {
 		return tiles;
 	}
 	
-	public CopyOnWriteArrayList<LittleTile> getUpdateTiles() {
+	public Iterable<LittleTile> getUpdateTiles() {
 		return updateTiles;
 	}
-	
+
+	public void updateTiles (Consumer<List<LittleTile>> action) {
+		preventUpdate = true;
+
+		action.accept(tiles);
+
+		preventUpdate = false;
+
+		updateTiles();
+	}
+
+	public boolean contains(LittleTile tile) {
+		return tiles.contains(tile);
+	}
+
+	public int size() {
+		return tiles.size();
+	}
+
 	private boolean hasLoaded = false;
 	
 	public boolean hasLoaded() {
@@ -241,7 +260,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@SideOnly(Side.CLIENT)
 	private void removeLittleTileClient(LittleTile tile) {
 		synchronized (getRenderTiles()) {
-			getRenderTiles().remove(tile);
+			renderTiles.remove(tile);
 		}
 	}
 	
@@ -262,7 +281,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	private void addLittleTileClient(LittleTile tile) {
 		if (tile.needCustomRendering()) {
 			synchronized (getRenderTiles()) {
-				getRenderTiles().add(tile);
+				renderTiles.add(tile);
 			}
 		}
 	}
@@ -323,7 +342,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 	}
 	
-	public void updateTiles() {
+	private void updateTiles() {
 		if (preventUpdate)
 			return;
 		
@@ -464,7 +483,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@Override
 	public boolean shouldRenderInPass(int pass) {
-		return pass == 0 && getRenderTiles().size() > 0;
+		return pass == 0 && renderTiles.size() > 0;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -558,7 +577,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
 	}
 	
-	public boolean preventUpdate = false;
+	private boolean preventUpdate = false;
 	
 	/** Used for rendering */
 	@SideOnly(Side.CLIENT)
@@ -1051,7 +1070,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public boolean isEmpty() {
 		return tiles.isEmpty();
 	}
-	
+
+	public LittleTile first() {
+		return tiles.isEmpty() ? null : tiles.get(0);
+	}
+
 	@Override
 	public void onChunkUnload() {
 		super.onChunkUnload();
