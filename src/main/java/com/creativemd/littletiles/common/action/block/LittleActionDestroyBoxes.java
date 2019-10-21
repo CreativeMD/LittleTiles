@@ -239,8 +239,6 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	}
 	
 	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut, boolean preventUpdate) {
-		if (preventUpdate)
-		
 		if (context != te.getContext()) {
 			if (context.size > te.getContext().size)
 				te.convertTo(context);
