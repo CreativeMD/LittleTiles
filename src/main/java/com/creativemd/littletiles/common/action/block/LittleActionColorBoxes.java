@@ -229,8 +229,6 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			List<BlockIngredientEntry> entries = new ArrayList<>();
 			
-			te.preventUpdate = true;
-			
 			ColorIngredient gained = new ColorIngredient();
 			
 			ColorIngredient toDrain = action(te, boxes, gained, true, context);
@@ -248,8 +246,6 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			give(player, inventory, gainedIngredients);
 			take(player, inventory, drainedIngredients);
 			action(te, boxes, gained, false, context);
-			
-			te.preventUpdate = false;
 			
 			te.combineTiles();
 			
