@@ -106,7 +106,7 @@ public class ChiselsAndBitsInteractor {
 		te.convertTo(context);
 		
 		VoxelBlob blob = new VoxelBlob();
-		for (LittleTile tile : te.getTiles()) {
+		for (LittleTile tile : te) {
 			boolean convert;
 			if (tile.getClass() == LittleTileBlock.class)
 				convert = true;

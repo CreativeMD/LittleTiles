@@ -608,9 +608,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt) {
 			LittlePreviews previews = new LittlePreviews(te.getContext());
 			if (nbt.getBoolean("secondMode")) {
-				for (LittleTile tileFromTE : te.getTiles()) {
+				for (LittleTile tileFromTE : te)
 					previews.addWithoutCheckingPreview(tileFromTE.getPreviewTile());
-				}
 			} else
 				previews.addWithoutCheckingPreview(tile.getPreviewTile());
 			ItemLittleGrabber.PlacePreviewMode.setPreview(stack, previews);

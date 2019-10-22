@@ -468,6 +468,14 @@ public class LittleTilePreview implements ICombinable {
 			stack.getTagCompound().removeTag("children");
 	}
 	
+	public static void saveTiles(World world, LittleGridContext context, TileEntityLittleTiles te, ItemStack stack) {
+		stack.setTagCompound(new NBTTagCompound());
+		
+		LittlePreviews previews = new LittlePreviews(context);
+		previews.addTiles(te);
+		savePreview(previews, stack);
+	}
+	
 	public static void saveTiles(World world, LittleGridContext context, List<LittleTile> tiles, ItemStack stack) {
 		stack.setTagCompound(new NBTTagCompound());
 		

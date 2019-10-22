@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseR
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
@@ -530,18 +531,18 @@ public abstract class LittleTile implements ICombinable {
 		onNeighborChangeInside();
 	}
 	
-	public void place() {
-		te.addTile(this);
+	public void place(TileList list) {
+		list.add(this);
 	}
 	
 	// ================Destroying================
 	
-	public void destroy() {
+	public void destroy(TileList list) {
 		if (isChildOfStructure()) {
 			if (isConnectedToStructure())
 				connection.getStructure(te.getWorld()).onLittleTileDestroy();
 		} else
-			te.removeTile(this);
+			list.remove(this);
 	}
 	
 	// ================Copy================
@@ -738,7 +739,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean shouldCheckForCollision() {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isConnectedToStructure() && connection.getStructure(te.getWorld()).shouldCheckForCollision())
+		if (getStructureAttribute() == LittleStructureAttribute.COLLISION)
 			return true;
 		return false;
 	}

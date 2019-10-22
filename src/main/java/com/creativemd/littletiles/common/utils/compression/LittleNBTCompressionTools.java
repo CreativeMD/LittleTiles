@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.utils.compression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -20,10 +21,8 @@ public class LittleNBTCompressionTools {
 	public static NBTTagList writeTiles(List<LittleTile> tiles) {
 		HashMapList<Class<? extends LittleTile>, LittleTile> groups = new HashMapList<>();
 		
-		for (Iterator iterator = tiles.iterator(); iterator.hasNext();) {
-			LittleTile littleTile = (LittleTile) iterator.next();
-			groups.add(littleTile.getClass(), littleTile);
-		}
+		for (LittleTile tile : tiles)
+			groups.add(tile.getClass(), tile);
 		
 		NBTTagList list = new NBTTagList();
 		

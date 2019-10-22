@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.events;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -17,8 +16,8 @@ import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
-import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
@@ -172,7 +171,7 @@ public class LittleEvent {
 			TileEntity te = player.world.getTileEntity(blockpos);
 			if (te instanceof TileEntityLittleTiles) {
 				AxisAlignedBB bb = player.getEntityBoundingBox();
-				for (LittleTile tile : ((TileEntityLittleTiles) te).getTiles()) {
+				for (LittleTile tile : ((TileEntityLittleTiles) te)) {
 					if (tile instanceof LittleTileBlockColored && tile.isMaterial(Material.WATER) && tile.box.getBox(tile.getContext(), blockpos).intersects(bb)) {
 						Vec3d color = ColorUtils.IntToVec(((LittleTileBlockColored) tile).color);
 						// GlStateManager.color((float) color.x, (float) color.y, (float) color.z);
@@ -459,8 +458,7 @@ public class LittleEvent {
 		if (event.getEntityPlayer().world.getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
 			TileEntityLittleTiles te = BlockTile.loadTe(event.getEntityPlayer().world, event.getPos());
 			if (te != null) {
-				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
+				for (LittleTile tile : te) {
 					if (!tile.isConnectedToStructure())
 						continue;
 					

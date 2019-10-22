@@ -50,7 +50,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 	public void render(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
 		
-		for (LittleTile tile : te.getRenderTiles()) {
+		for (LittleTile tile : te.getRenderingTiles()) {
 			tile.renderTick(x, y, z, partialTicks);
 		}
 		

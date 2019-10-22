@@ -142,7 +142,7 @@ public class LittleActionSaw extends LittleActionInteract {
 					LittleTile newTile = tile.copy();
 					newTile.box = box;
 					newTile.te = te;
-					newTile.place();
+					te.updateTiles((x) -> newTile.place(x));
 					te.updateBlock();
 					newBoxes = new LittleBoxes(te.getPos(), te.getContext());
 					newBoxes.addBox(newTile);

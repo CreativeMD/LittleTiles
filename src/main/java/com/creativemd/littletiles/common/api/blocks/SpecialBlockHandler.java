@@ -83,7 +83,7 @@ public class SpecialBlockHandler {
 					if (!worldIn.isRemote) {
 						explodeTile(tile, playerIn, false);
 					}
-					tile.destroy();
+					tile.te.updateTiles((x) -> tile.destroy(x));
 					
 					if (heldItem.getItem() == Items.FLINT_AND_STEEL) {
 						heldItem.damageItem(1, playerIn);

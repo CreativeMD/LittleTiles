@@ -72,18 +72,18 @@ public class LittleActionDestroy extends LittleActionInteract {
 					structurePreview = new StructurePreview(tile.connection.getStructure(world));
 					if (needIngredients(player) && !player.world.isRemote)
 						WorldUtils.dropItem(world, tile.connection.getStructure(world).getStructureDrop(), pos);
-					tile.destroy();
+					tile.te.updateTiles((x) -> tile.destroy(x));
 				} else {
 					if (secondMode) {
 						List<LittleTile> toRemove = new ArrayList<>();
-						for (LittleTile teTile : tile.te.getTiles()) {
+						for (LittleTile teTile : tile.te) {
 							boolean teLoaded = teTile.isChildOfStructure() && teTile.isConnectedToStructure() && teTile.connection.getStructure(world).hasLoaded() && teTile.connection.getStructure(world).loadChildren();
 							if (!teLoaded)
 								toRemove.add(teTile);
 						}
-						tile.te.removeTiles(toRemove);
+						tile.te.updateTiles((x) -> x.removeAll(toRemove));
 					} else
-						tile.te.removeTile(tile);
+						tile.te.updateTiles((x) -> x.remove(tile));
 				}
 			} else
 				throw new LittleActionException.StructureNotLoadedException();
@@ -94,7 +94,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			
 			if (BlockTile.selectEntireBlock(player, secondMode)) {
 				List<LittleTile> remains = new ArrayList<>();
-				for (LittleTile toDestory : te.getTiles()) {
+				for (LittleTile toDestory : te) {
 					if (!toDestory.isChildOfStructure()) {
 						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one block
 						tiles.add(toDestory);
@@ -104,17 +104,17 @@ public class LittleActionDestroy extends LittleActionInteract {
 				
 				giveOrDrop(player, inventory, tiles);
 				
-				tiles.clear();
+				te.updateTiles((x) -> {
+					x.clear();
+					x.addAll(remains);
+				});
 				
-				te.getTiles().clear();
-				te.getTiles().addAll(remains);
-				te.updateTiles();
 			} else {
 				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
 				
 				checkAndGive(player, inventory, getIngredients(destroyedTiles));
 				
-				tile.destroy();
+				tile.te.updateTiles((x) -> tile.destroy(x));
 			}
 		}
 		

@@ -22,7 +22,7 @@ public class LittleBlockTransformer {
 		if (axis == null)
 			return;
 		
-		for (LittleTile tile : te.getTiles())
+		for (LittleTile tile : te)
 			flipTile(tile, axis, connected);
 	}
 	
@@ -30,7 +30,7 @@ public class LittleBlockTransformer {
 		if (rotation == null)
 			return;
 		
-		for (LittleTile tile : te.getTiles())
+		for (LittleTile tile : te)
 			for (int rotationStep = 0; rotationStep < steps; rotationStep++)
 				rotateTile(tile, rotation, connected);
 	}

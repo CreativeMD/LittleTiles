@@ -267,8 +267,7 @@ public class EntityAnimation extends Entity {
 				
 				ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 				
-				for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
-					LittleTile tile = iterator2.next();
+				for (LittleTile tile : te) {
 					List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
 					for (LittleTileBox box : tileBoxes) {
 						boxes.add(box.getBox(te.getContext(), te.getPos()));
@@ -728,9 +727,9 @@ public class EntityAnimation extends Entity {
 		
 		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 			TileEntity te = iterator.next();
-			List<LittleTile> updateTiles = ((TileEntityLittleTiles) te).getUpdateTiles();
-			if (updateTiles != null && !updateTiles.isEmpty())
-				for (LittleTile tile : updateTiles)
+			List<LittleTile> tickingTiles = ((TileEntityLittleTiles) te).getTickingTiles();
+			if (!tickingTiles.isEmpty())
+				for (LittleTile tile : tickingTiles)
 					tile.updateEntity();
 				
 		}
@@ -886,7 +885,7 @@ public class EntityAnimation extends Entity {
 		List<BlockPos> positions = new ArrayList<>();
 		for (TileEntity te : fakeWorld.loadedTileEntityList) {
 			if (te instanceof TileEntityLittleTiles) {
-				((TileEntityLittleTiles) te).getTiles().clear();
+				((TileEntityLittleTiles) te).updateTilesSecretly((x) -> x.clear());
 				positions.add(te.getPos());
 			}
 		}
@@ -925,8 +924,7 @@ public class EntityAnimation extends Entity {
 	private LittleStructure searchForParent() {
 		for (TileEntity te : fakeWorld.loadedTileEntityList) {
 			if (te instanceof TileEntityLittleTiles) {
-				for (Iterator<LittleTile> iterator = ((TileEntityLittleTiles) te).getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = iterator.next();
+				for (LittleTile tile : (TileEntityLittleTiles) te) {
 					if (!tile.connection.isLink()) {
 						LittleStructure structure = tile.connection.getStructureWithoutLoading();
 						if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
@@ -1032,8 +1030,7 @@ public class EntityAnimation extends Entity {
 		
 		compound.setTag("tileEntity", list);
 		
-		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(),
-		        absolutePreviewPos.getZ() });
+		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(), absolutePreviewPos.getZ() });
 		
 		compound.setTag("identifier", structureIdentifier.writeToNBT(new NBTTagCompound()));
 		

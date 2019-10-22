@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.blocks;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
@@ -233,13 +232,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				}
 			}
 			if (bed != null)
-				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
+				for (LittleTile tile : te) {
 					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()) == bed)
 						return true;
 				}
 			else
-				for (LittleTile tile : te.getTiles()) {
+				for (LittleTile tile : te) {
 					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()).isBed(world, pos, (EntityLivingBase) player))
 						return true;
 				}
@@ -299,8 +297,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				if (tile.isLadder()) {
 					List<LittleTileBox> collision = tile.getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
@@ -347,13 +344,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if (te != null) {
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				List<LittleTileBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
 					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
 				}
-				
 			}
 		}
 	}
@@ -361,7 +356,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public void breakBlock(World world, BlockPos pos, IBlockState state) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null && te.getTiles().size() == 0)
+		if (te != null && te.isEmpty())
 			super.breakBlock(world, pos, state);
 	}
 	
@@ -371,10 +366,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (LittleTilesConfig.rendering.enableRandomDisplayTick) {
 			TileEntityLittleTiles te = loadTe(worldIn, pos);
 			if (te != null) {
-				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
+				for (LittleTile tile : te)
 					tile.randomDisplayTick(stateIn, worldIn, pos, rand);
-				}
 			}
 		}
 	}
@@ -404,7 +397,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te) {
 				for (LittleTileBox box : tile.getCollisionBoxes()) {
 					if (box.getBox(te.getContext(), pos).intersects(bb)) {
 						slipperiness = Math.min(slipperiness, tile.getSlipperiness(entity));
@@ -432,8 +425,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return 0;
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				first = false;
 				int tempLight = tile.getLightValue(state, world, pos);
 				first = true;
@@ -479,7 +471,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public boolean isReplaceable(IBlockAccess world, BlockPos pos) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			return te.getTiles().size() == 0;
+			return te.isEmpty();
 		return true;
 	}
 	
@@ -500,7 +492,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (result.isComplete()) {
 			if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player))) {
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-				LittleTilePreview.saveTiles(world, result.te.getContext(), result.te.getTiles(), drop);
+				LittleTilePreview.saveTiles(world, result.te.getContext(), result.te, drop);
 				return drop;
 			}
 			ArrayList<ItemStack> drops = result.tile.getDrops();
@@ -517,8 +509,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			int heighest = 0;
 			LittleTile heighestTile = null;
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				List<LittleTileBox> collision = tile.getCollisionBoxes();
 				for (int i = 0; i < collision.size(); i++) {
 					if (collision.get(i).maxY > heighest) {
@@ -540,8 +531,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			int heighest = 0;
 			LittleTile heighestTile = null;
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				List<LittleTileBox> collision = tile.getCollisionBoxes();
 				for (int i = 0; i < collision.size(); i++) {
 					if (collision.get(i).maxY > heighest) {
@@ -656,8 +646,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (te != null) {
 				int heighest = 0;
 				LittleTile heighestTile = null;
-				for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
+				for (LittleTile tile : te) {
 					List<LittleTileBox> collision = tile.getCollisionBoxes();
 					for (int i = 0; i < collision.size(); i++) {
 						if (collision.get(i).maxY > heighest) {
@@ -699,12 +688,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public float getEnchantPowerBonus(World world, BlockPos pos) {
 		float bonus = 0F;
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+		if (te != null)
+			for (LittleTile tile : te)
 				bonus += tile.getEnchantPowerBonus(world, pos) * tile.getPercentVolume();
-			}
-		}
 		return bonus;
 	}
 	
@@ -757,15 +743,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
-		if (te != null && te.shouldCheckForCollision()) {
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
-				if (tile.shouldCheckForCollision()) {
+		if (te != null && te.shouldCheckForCollision())
+			for (LittleTile tile : te)
+				if (tile.shouldCheckForCollision())
 					if (tile.box.getBox(te.getContext()).offset(pos).intersects(entityIn.getEntityBoundingBox()))
 						tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
-				}
-			}
-		}
 	}
 	
 	@Override
@@ -877,8 +859,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				return cachedCubes;
 			}
 			
-			for (Iterator iterator = tileEntity.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : tileEntity) {
 				if (tile.shouldBeRenderedInLayer(layer)) {
 					// Check for sides which does not need to be rendered
 					List<LittleRenderingCube> tileCubes = tile.getRenderingCubes();
@@ -925,8 +906,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, new String[] { "size", "field_77280_f" });
 			Vec3d center = explosion.getPosition();
 			ArrayList<LittleTile> removeTiles = new ArrayList<>();
-			for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = (LittleTile) iterator.next();
+			for (LittleTile tile : te) {
 				if (!tile.isChildOfStructure()) {
 					LittleTileVec vec = tile.getCenter();
 					Vec3d newVec = new Vec3d(pos);
@@ -935,31 +915,24 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					int explosionStrength = (int) ((50D / center.distanceTo(newVec)) * size);
 					double random = Math.random() * explosionStrength;
 					if (random > tile.getExplosionResistance()) {
+						tile.onTileExplodes(explosion);
 						removeTiles.add(tile);
 					}
 				}
 			}
-			for (int i = 0; i < removeTiles.size(); i++) {
-				removeTiles.get(i).onTileExplodes(explosion);
-				removeTiles.get(i).destroy();
-				// te.removeTile(removeTiles.get(i));
-			}
-			te.updateTiles();
+			te.updateTiles((x) -> x.removeAll(removeTiles));
 		}
-		/* world.setBlockToAir(pos); onBlockDestroyedByExplosion(world, pos, explosion); */
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
-			for (LittleTile tile : te.getTiles()) {
+		if (te != null)
+			for (LittleTile tile : te)
 				if (tile.box.getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
 					return tile.getFogColor(world, pos, state, entity, originalColor, partialTicks);
-			}
-		}
-		
+				
 		return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 	}
 	
@@ -1019,7 +992,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
 			Vec3d vec = Vec3d.ZERO;
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te) {
 				if (tile.box.getBox(te.getContext(), pos).intersects(boundingBox)) {
 					Vec3d tileMotion = tile.modifyAcceleration(world, pos, entityIn, motion);
 					if (tileMotion != null)
@@ -1042,7 +1015,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te) {
 				if (tile.isMaterial(materialIn) && tile.box.getBox(te.getContext(), pos).intersects(boundingBox))
 					return true;
 			}
@@ -1054,7 +1027,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public Boolean isAABBInsideLiquid(World world, BlockPos pos, AxisAlignedBB boundingBox) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te) {
 				if (tile.isLiquid() && tile.box.getBox(te.getContext(), pos).intersects(boundingBox))
 					return true;
 			}
@@ -1067,7 +1040,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		float height = 0;
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			for (LittleTile tile : te.getTiles())
+			for (LittleTile tile : te)
 				if (tile.isMaterial(material))
 					height = Math.max(height, (float) te.getContext().toVanillaGrid(tile.getMaxY()));
 		return height;
@@ -1085,7 +1058,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
 			IBlockState lookingFor = ChiselManager.isInstalled() ? ChiselManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te) {
 				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == lookingFor.getBlock() && ((LittleTileBlock) tile).getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
 					return lookingFor;
 			}

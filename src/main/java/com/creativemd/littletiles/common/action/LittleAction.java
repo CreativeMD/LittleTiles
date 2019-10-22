@@ -244,12 +244,14 @@ public abstract class LittleAction extends CreativeCorePacket {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
 		if (!(tileEntity instanceof TileEntityLittleTiles)) {
-			List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(tileEntity);
-			LittleGridContext context = tiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
-			if (tileEntity == null && tiles == null) {
+			List<LittleTile> tiles = new ArrayList<>();
+			List<LittleTile> chiselTiles = ChiselsAndBitsManager.getTiles(tileEntity);
+			LittleGridContext context = chiselTiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
+			if (chiselTiles != null)
+				tiles.addAll(tiles);
+			else if (tileEntity == null) {
 				IBlockState state = world.getBlockState(pos);
 				if (shouldConvert && isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)) {
-					tiles = new ArrayList<>();
 					
 					context = LittleGridContext.get(LittleGridContext.minSize);
 					
@@ -268,12 +270,15 @@ public abstract class LittleAction extends CreativeCorePacket {
 			
 			if (tiles != null && tiles.size() > 0) {
 				world.setBlockState(pos, BlockTile.getState(tiles));
-				tileEntity = world.getTileEntity(pos);
+				TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
 				((TileEntityLittleTiles) tileEntity).convertTo(context);
-				for (LittleTile tile : tiles) {
-					tile.te = (TileEntityLittleTiles) tileEntity;
-					tile.place();
-				}
+				((TileEntityLittleTiles) tileEntity).updateTiles((x) -> {
+					for (LittleTile tile : tiles) {
+						tile.te = te;
+						tile.place(x);
+					}
+				});
+				
 			}
 		}
 		
@@ -366,7 +371,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static boolean isTileStillInPlace(LittleTile tile) {
-		return tile.te.getTiles().contains(tile);
+		return tile.te.contains(tile);
 	}
 	
 	public static LittleTile getTile(World world, LittleTileIdentifierAbsolute coord) throws LittleActionException {

@@ -1,9 +1,9 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
@@ -80,119 +81,129 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	public boolean doneSomething;
 	
+	private double colorVolume;
+	
 	public ColorIngredient action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorIngredient gained, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
-		double colorVolume = 0;
+		colorVolume = 0;
 		
-		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
+		Consumer<TileList> consumer = x -> {
 			
-			if (shouldSkipTile(tile))
-				continue;
-			
-			LittleTileBox intersecting = null;
-			boolean intersects = false;
-			for (int j = 0; j < boxes.size(); j++) {
-				if (tile.intersectsWith(boxes.get(j))) {
-					intersects = true;
-					intersecting = boxes.get(j);
-					break;
-				}
-			}
-			
-			if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).hasLoaded())))
-				continue;
-			
-			if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
-				continue;
-			
-			doneSomething = true;
-			
-			if (tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
-				if (simulate) {
-					double volume = 0;
-					List<LittleTileBox> cutout = new ArrayList<>();
-					tile.cutOut(boxes, cutout);
-					for (LittleTileBox box2 : cutout) {
-						colorVolume += box2.getPercentVolume(context);
-						volume += box2.getPercentVolume(context);
-					}
-					
-					gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
-					
-				} else {
-					List<LittleTileBox> cutout = new ArrayList<>();
-					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-					
-					if (newBoxes != null) {
-						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
-						
-						LittleTile tempTile = tile.copy();
-						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
-						if (changedTile == null)
-							changedTile = tempTile;
-						
-						if (tile.isConnectedToStructure())
-							tile.connection.getStructure(te.getWorld()).removeTile(tile);
-						
-						for (int i = 0; i < newBoxes.size(); i++) {
-							LittleTile newTile = tile.copy();
-							newTile.box = newBoxes.get(i);
-							newTile.place();
-							if (tile.isConnectedToStructure())
-								tile.connection.getStructure(te.getWorld()).addTile(newTile);
-						}
-						
-						for (int i = 0; i < cutout.size(); i++) {
-							LittleTile newTile = changedTile.copy();
-							newTile.box = cutout.get(i);
-							newTile.place();
-							if (tile.isConnectedToStructure())
-								tile.connection.getStructure(te.getWorld()).addTile(newTile);
-						}
-						
-						if (tile.isConnectedToStructure()) {
-							if (tile.connection.isLink())
-								tile.connection.getStructure(te.getWorld()).updateStructure();
-							else
-								tile.connection.getStructureWithoutLoading().selectMainTile();
-						}
-						
-						tile.connection = null;
-						tile.destroy();
+			for (LittleTile tile : te) {
+				
+				if (shouldSkipTile(tile))
+					continue;
+				
+				LittleTileBox intersecting = null;
+				boolean intersects = false;
+				for (int j = 0; j < boxes.size(); j++) {
+					if (tile.intersectsWith(boxes.get(j))) {
+						intersects = true;
+						intersecting = boxes.get(j);
+						break;
 					}
 				}
-			} else {
-				if (simulate) {
-					colorVolume += tile.getPercentVolume();
-					gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
-				} else {
-					List<LittleTileBox> oldBoxes = new ArrayList<>();
-					oldBoxes.add(tile.box);
-					
-					addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
-					
-					LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
-					if (changedTile != null) {
-						changedTile.place();
+				
+				if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).hasLoaded())))
+					continue;
+				
+				if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
+					continue;
+				
+				doneSomething = true;
+				
+				if (tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
+					if (simulate) {
+						double volume = 0;
+						List<LittleTileBox> cutout = new ArrayList<>();
+						tile.cutOut(boxes, cutout);
+						for (LittleTileBox box2 : cutout) {
+							colorVolume += box2.getPercentVolume(context);
+							volume += box2.getPercentVolume(context);
+						}
 						
-						if (tile.isChildOfStructure()) {
-							changedTile.connection = tile.connection.copy(changedTile);
-							LittleStructure structure = tile.connection.getStructure(te.getWorld());
-							structure.removeTile(tile);
-							structure.addTile(changedTile);
-							structure.updateStructure();
+						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
+						
+					} else {
+						List<LittleTileBox> cutout = new ArrayList<>();
+						List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+						
+						if (newBoxes != null) {
+							addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
 							
-							if (!tile.connection.isLink())
-								structure.setMainTile(changedTile);
+							LittleTile tempTile = tile.copy();
+							LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
+							if (changedTile == null)
+								changedTile = tempTile;
+							
+							if (tile.isConnectedToStructure())
+								tile.connection.getStructure(te.getWorld()).removeTile(tile);
+							
+							for (int i = 0; i < newBoxes.size(); i++) {
+								LittleTile newTile = tile.copy();
+								newTile.box = newBoxes.get(i);
+								newTile.place(x);
+								if (tile.isConnectedToStructure())
+									tile.connection.getStructure(te.getWorld()).addTile(newTile);
+							}
+							
+							for (int i = 0; i < cutout.size(); i++) {
+								LittleTile newTile = changedTile.copy();
+								newTile.box = cutout.get(i);
+								newTile.place(x);
+								if (tile.isConnectedToStructure())
+									tile.connection.getStructure(te.getWorld()).addTile(newTile);
+							}
+							
+							if (tile.isConnectedToStructure()) {
+								if (tile.connection.isLink())
+									tile.connection.getStructure(te.getWorld()).updateStructure();
+								else
+									tile.connection.getStructureWithoutLoading().selectMainTile();
+							}
+							
+							tile.connection = null;
+							tile.destroy(x);
 						}
+					}
+				} else {
+					if (simulate) {
+						colorVolume += tile.getPercentVolume();
+						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
+					} else {
+						List<LittleTileBox> oldBoxes = new ArrayList<>();
+						oldBoxes.add(tile.box);
 						
-						tile.connection = null;
-						tile.destroy();
+						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
+						
+						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
+						if (changedTile != null) {
+							changedTile.place(x);
+							
+							if (tile.isChildOfStructure()) {
+								changedTile.connection = tile.connection.copy(changedTile);
+								LittleStructure structure = tile.connection.getStructure(te.getWorld());
+								structure.removeTile(tile);
+								structure.addTile(changedTile);
+								structure.updateStructure();
+								
+								if (!tile.connection.isLink())
+									structure.setMainTile(changedTile);
+							}
+							
+							tile.connection = null;
+							tile.destroy(x);
+						}
 					}
 				}
 			}
-		}
+		};
+		
+		if (simulate)
+			te.updateTilesSecretly(consumer);
+		else
+			te.updateTiles(consumer);
+		
 		ColorIngredient toDrain = ColorIngredient.getColors(color);
 		toDrain.scale(colorVolume);
 		

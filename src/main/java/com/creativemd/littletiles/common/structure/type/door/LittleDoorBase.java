@@ -272,9 +272,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		LittleAbsolutePreviewsStructure previews = getDoorPreviews(transform);
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : getAllTilesSameWorld(new HashMapList<>()).entrySet()) {
-			entry.getKey().removeTiles(entry.getValue());
-		}
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : getAllTilesSameWorld(new HashMapList<>()).entrySet())
+			entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
 		
 		return place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 	}

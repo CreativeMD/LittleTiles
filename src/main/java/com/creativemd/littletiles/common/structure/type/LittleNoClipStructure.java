@@ -35,11 +35,6 @@ public class LittleNoClipStructure extends LittleStructure {
 	}
 	
 	@Override
-	public boolean shouldCheckForCollision() {
-		return true;
-	}
-	
-	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		if (web)
 			entityIn.setInWeb();

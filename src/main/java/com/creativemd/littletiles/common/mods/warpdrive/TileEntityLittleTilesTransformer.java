@@ -55,7 +55,7 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 		TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 		NBTTagCompound nbt = new NBTTagCompound();
 		List<StructureLinkTile> connectors = new ArrayList<>();
-		for (LittleTile tile : te.getTiles()) {
+		for (LittleTile tile : te) {
 			if (tile.isChildOfStructure() && tile.isConnectedToStructure() && tile.connection instanceof LittleTileIdentifierRelative && !connectors.contains(tile.connection))
 				connectors.add((StructureLinkTile) tile.connection);
 		}
@@ -105,7 +105,7 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 			contextes.add(context);
 		}
 		
-		for (LittleTile tile : te.getTiles()) {
+		for (LittleTile tile : te) {
 			if (tile.isChildOfStructure() && tile.connection instanceof StructureLinkBaseRelative) {
 				@SuppressWarnings("unlikely-arg-type")
 				int index = connectors.indexOf(tile.connection);

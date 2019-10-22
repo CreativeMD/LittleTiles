@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
+import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -260,8 +261,8 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@Override
-	public void place() {
-		super.place();
+	public void place(TileList list) {
+		super.place(list);
 		block.onBlockAdded(te.getWorld(), te.getPos(), getBlockState());
 	}
 	

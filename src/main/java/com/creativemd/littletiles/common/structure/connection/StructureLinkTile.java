@@ -54,7 +54,7 @@ public class StructureLinkTile extends StructureLinkBaseRelative<LittleTile> {
 	@Override
 	protected void failedConnect(World world) {
 		new RuntimeException("Failed to connect to structure coord " + this + "!").printStackTrace();
-		parent.te.removeTile(parent);
+		parent.te.updateTiles((x) -> x.remove(parent));
 		parent.te.updateBlock();
 	}
 	

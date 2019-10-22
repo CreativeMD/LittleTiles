@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.items;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -88,8 +87,8 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 					TileEntity tileEntity = world.getTileEntity(newPos);
 					if (tileEntity instanceof TileEntityLittleTiles) {
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-						for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-							LittleTilePreview preview = previews.addPreview(null, ((LittleTile) iterator.next()).getPreviewTile(), te.getContext());
+						for (LittleTile tile : te) {
+							LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
 							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 						continue;
@@ -105,6 +104,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 			}
 		}
 		return previews;
+		
 	}
 	
 	public void saveRecipe(World world, EntityPlayer player, ItemStack stack, BlockPos second) {

@@ -250,44 +250,51 @@ public class LittleActionPlaceStack extends LittleAction {
 					TileEntityLittleTiles te = loadTe(player, world, coord, mode.shouldConvertBlock());
 					if (te != null) {
 						
-						if (te.getTiles().isEmpty())
+						if (te.isEmpty())
 							requiresCollisionTest = false;
+						
+						final boolean collsionTest = requiresCollisionTest;
 						
 						placeTiles.ensureBothAreEqual(te);
 						
-						for (PlacePreviewTile placeTile : placeTiles) {
-							for (LittleTile LT : placeTile.placeTile(player, stack, coord, te.getContext(), te, unplaceableTiles, removedTiles, mode, facing, requiresCollisionTest)) {
-								if (placeTile.structurePreview == null || placeTile.structurePreview.getStructure().shouldPlaceTile(LT)) {
-									if (!soundsToBePlayed.contains(LT.getSound()))
-										soundsToBePlayed.add(LT.getSound());
-									
-									if (placeTile.structurePreview != null) {
-										if (!placeTile.structurePreview.getStructure().hasMainTile())
-											placeTile.structurePreview.getStructure().setMainTile(LT);
-										else {
-											LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
-											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure());
-											placeTile.structurePreview.getStructure().addTile(LT);
+						te.updateTiles((x) -> {
+							
+							for (PlacePreviewTile placeTile : placeTiles) {
+								for (LittleTile LT : placeTile.placeTile(player, stack, coord, te.getContext(), te, x, unplaceableTiles, removedTiles, mode, facing, collsionTest)) {
+									if (placeTile.structurePreview == null || placeTile.structurePreview.getStructure().shouldPlaceTile(LT)) {
+										if (!soundsToBePlayed.contains(LT.getSound()))
+											soundsToBePlayed.add(LT.getSound());
+										
+										if (placeTile.structurePreview != null) {
+											if (!placeTile.structurePreview.getStructure().hasMainTile())
+												placeTile.structurePreview.getStructure().setMainTile(LT);
+											else {
+												LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
+												LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure());
+												placeTile.structurePreview.getStructure().addTile(LT);
+											}
 										}
+										
+										placed.addPlacedTile(LT);
 									}
-									
-									placed.addPlacedTile(LT);
 								}
 							}
-						}
+						});
+						
 						if (parentStructure == null) {
 							te.combineTiles();
 							
-							if (te.getTiles().size() == 1 && te.convertBlockToVanilla())
+							if (te.size() == 1 && te.convertBlockToVanilla())
 								placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)
 						} else
 							te.combineTiles(parentStructure);
+						
 					}
 				}
 			}
 			
 			for (LastPlacedTile lastPlacedTile : lastPlacedTiles) {
-				for (LittleTile tile : lastPlacedTile.tile.placeTile(player, stack, lastPlacedTile.pos, lastPlacedTile.context, null, unplaceableTiles, removedTiles, mode, facing, true)) {
+				for (LittleTile tile : lastPlacedTile.tile.placeTile(player, stack, lastPlacedTile.pos, lastPlacedTile.context, null, null, unplaceableTiles, removedTiles, mode, facing, true)) {
 					if (tile != null)
 						placed.addPlacedTile(tile);
 				}

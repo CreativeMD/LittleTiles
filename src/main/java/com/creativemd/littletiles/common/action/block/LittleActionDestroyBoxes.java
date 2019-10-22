@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
@@ -69,81 +70,85 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		LittleIngredients ingredients = new LittleIngredients();
 		
-		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
+		Consumer<TileList> consumer = x -> {
 			
-			if (shouldSkipTile(tile))
-				continue;
-			
-			LittleTileBox intersecting = null;
-			boolean intersects = false;
-			for (int j = 0; j < boxes.size(); j++) {
-				if (tile.intersectsWith(boxes.get(j))) {
-					intersects = true;
-					intersecting = boxes.get(j);
-					break;
+			for (LittleTile tile : te) {
+				
+				if (shouldSkipTile(tile))
+					continue;
+				
+				LittleTileBox intersecting = null;
+				boolean intersects = false;
+				for (int j = 0; j < boxes.size(); j++) {
+					if (tile.intersectsWith(boxes.get(j))) {
+						intersects = true;
+						intersecting = boxes.get(j);
+						break;
+					}
 				}
-			}
-			
-			if (!intersects)
-				continue;
-			
-			doneSomething = true;
-			if (!tile.isChildOfStructure() && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
-				double volume = 0;
-				LittleTilePreview preview = tile.getPreviewTile();
 				
-				List<LittleTileBox> cutout = new ArrayList<>();
-				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+				if (!intersects)
+					continue;
 				
-				if (newBoxes != null) {
-					if (!simulate) {
-						for (int i = 0; i < newBoxes.size(); i++) {
-							LittleTile newTile = tile.copy();
-							newTile.box = newBoxes.get(i);
-							newTile.place();
+				doneSomething = true;
+				if (!tile.isChildOfStructure() && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
+					double volume = 0;
+					LittleTilePreview preview = tile.getPreviewTile();
+					
+					List<LittleTileBox> cutout = new ArrayList<>();
+					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+					
+					if (newBoxes != null) {
+						if (!simulate) {
+							for (int i = 0; i < newBoxes.size(); i++) {
+								LittleTile newTile = tile.copy();
+								newTile.box = newBoxes.get(i);
+								newTile.place(x);
+							}
+							
+							tile.destroy(x);
 						}
 						
-						tile.destroy();
+						for (int l = 0; l < cutout.size(); l++) {
+							volume += cutout.get(l).getPercentVolume(context);
+							if (!simulate) {
+								LittleTilePreview preview2 = preview.copy();
+								preview2.box = cutout.get(l).copy();
+								previews.addPreview(te.getPos(), preview2, te.getContext());
+							}
+						}
 					}
 					
-					for (int l = 0; l < cutout.size(); l++) {
-						volume += cutout.get(l).getPercentVolume(context);
-						if (!simulate) {
-							LittleTilePreview preview2 = preview.copy();
-							preview2.box = cutout.get(l).copy();
-							previews.addPreview(te.getPos(), preview2, te.getContext());
+					if (volume > 0)
+						ingredients.add(getIngredients(preview, volume));
+				} else {
+					if (!tile.isChildOfStructure())
+						ingredients.add(getIngredients(tile));
+					
+					if (!simulate) {
+						if (tile.isChildOfStructure()) {
+							LittleStructure structure;
+							if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).hasLoaded() && !containsStructure(structure)) {
+								destroyedStructures.add(new StructurePreview(structure));
+								ItemStack drop = structure.getStructureDrop();
+								if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
+									WorldUtils.dropItem(player.world, drop, tile.te.getPos());
+								
+								tile.destroy(x);
+							}
+						} else {
+							previews.addTile(tile);
+							tile.destroy(x);
 						}
 					}
+					
 				}
-				
-				if (volume > 0)
-					ingredients.add(getIngredients(preview, volume));
-			} else {
-				if (!tile.isChildOfStructure())
-					ingredients.add(getIngredients(tile));
-				
-				if (!simulate) {
-					if (tile.isChildOfStructure()) {
-						LittleStructure structure;
-						if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).hasLoaded() && !containsStructure(structure)) {
-							destroyedStructures.add(new StructurePreview(structure));
-							ItemStack drop = structure.getStructureDrop();
-							if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
-								WorldUtils.dropItem(player.world, drop, tile.te.getPos());
-							
-							tile.destroy();
-							
-							// tile.structure.removeWorldProperties();
-						}
-					} else {
-						previews.addTile(tile);
-						tile.destroy();
-					}
-				}
-				
 			}
-		}
+		};
+		if (simulate)
+			te.updateTilesSecretly(consumer);
+		else
+			te.updateTiles(consumer);
 		
 		return ingredients;
 	}
@@ -238,7 +243,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 	}
 	
-	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut, boolean preventUpdate) {
+	public static List<LittleTile> removeBox(TileEntityLittleTiles te, LittleGridContext context, LittleTileBox toCut, boolean update) {
 		if (context != te.getContext()) {
 			if (context.size > te.getContext().size)
 				te.convertTo(context);
@@ -250,43 +255,45 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		List<LittleTile> removed = new ArrayList<>();
 		
-		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			
-			if (!tile.intersectsWith(toCut) || tile.isChildOfStructure() || !tile.canBeSplitted())
-				continue;
-			
-			tile.destroy();
-			
-			if (!tile.equalsBox(toCut)) {
-				double volume = 0;
-				LittleTilePreview preview = tile.getPreviewTile();
+		Consumer<TileList> consumer = x -> {
+			for (LittleTile tile : te) {
 				
-				List<LittleTileBox> cutout = new ArrayList<>();
-				List<LittleTileBox> boxes = new ArrayList<>();
-				boxes.add(toCut);
-				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+				if (!tile.intersectsWith(toCut) || tile.isChildOfStructure() || !tile.canBeSplitted())
+					continue;
 				
-				if (newBoxes != null) {
-					for (LittleTileBox box : newBoxes) {
-						LittleTile copy = tile.copy();
-						copy.box = box;
-						copy.place();
-					}
+				tile.destroy(x);
+				
+				if (!tile.equalsBox(toCut)) {
+					double volume = 0;
+					LittleTilePreview preview = tile.getPreviewTile();
 					
-					for (LittleTileBox box : cutout) {
-						LittleTile copy = tile.copy();
-						copy.box = box;
-						removed.add(copy);
+					List<LittleTileBox> cutout = new ArrayList<>();
+					List<LittleTileBox> boxes = new ArrayList<>();
+					boxes.add(toCut);
+					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+					
+					if (newBoxes != null) {
+						for (LittleTileBox box : newBoxes) {
+							LittleTile copy = tile.copy();
+							copy.box = box;
+							copy.place(x);
+						}
+						
+						for (LittleTileBox box : cutout) {
+							LittleTile copy = tile.copy();
+							copy.box = box;
+							removed.add(copy);
+						}
 					}
-				}
-			} else
-				removed.add(tile);
-		}
+				} else
+					removed.add(tile);
+			}
+		};
 		
-		if (preventUpdate) {
-			te.combineTiles();
-		}
+		if (update)
+			te.updateTiles(consumer);
+		else
+			te.updateTilesSecretly(consumer);
 		return removed;
 	}
 	
@@ -302,52 +309,51 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			}
 		}
 		List<LittleTile> removed = new ArrayList<>();
-		
-		for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-			LittleTile tile = iterator.next();
-			
-			LittleTileBox intersecting = null;
-			boolean intersects = false;
-			for (int j = 0; j < boxes.size(); j++) {
-				if (tile.intersectsWith(boxes.get(j))) {
-					intersects = true;
-					intersecting = boxes.get(j);
-					break;
-				}
-			}
-			
-			if (!intersects)
-				continue;
-			
-			if (tile.isChildOfStructure() || !tile.canBeSplitted())
-				continue;
-			
-			tile.destroy();
-			
-			if (!tile.equalsBox(intersecting)) {
-				double volume = 0;
-				LittleTilePreview preview = tile.getPreviewTile();
+		te.updateTiles(x -> {
+			for (LittleTile tile : te) {
 				
-				List<LittleTileBox> cutout = new ArrayList<>();
-				List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
-				
-				if (newBoxes != null) {
-					for (LittleTileBox box : newBoxes) {
-						LittleTile copy = tile.copy();
-						copy.box = box;
-						copy.place();
+				LittleTileBox intersecting = null;
+				boolean intersects = false;
+				for (int j = 0; j < boxes.size(); j++) {
+					if (tile.intersectsWith(boxes.get(j))) {
+						intersects = true;
+						intersecting = boxes.get(j);
+						break;
 					}
+				}
+				
+				if (!intersects)
+					continue;
+				
+				if (tile.isChildOfStructure() || !tile.canBeSplitted())
+					continue;
+				
+				tile.destroy(x);
+				
+				if (!tile.equalsBox(intersecting)) {
+					double volume = 0;
+					LittleTilePreview preview = tile.getPreviewTile();
 					
-					for (LittleTileBox box : cutout) {
-						LittleTile copy = tile.copy();
-						copy.box = box;
-						removed.add(copy);
+					List<LittleTileBox> cutout = new ArrayList<>();
+					List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+					
+					if (newBoxes != null) {
+						for (LittleTileBox box : newBoxes) {
+							LittleTile copy = tile.copy();
+							copy.box = box;
+							copy.place(x);
+						}
+						
+						for (LittleTileBox box : cutout) {
+							LittleTile copy = tile.copy();
+							copy.box = box;
+							removed.add(copy);
+						}
 					}
-				}
-			} else
-				removed.add(tile);
-		}
-		te.combineTiles();
+				} else
+					removed.add(tile);
+			}
+		});
 		
 		return removed;
 	}

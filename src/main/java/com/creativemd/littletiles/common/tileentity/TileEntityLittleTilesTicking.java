@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.tileentity;
 
-import java.util.Iterator;
-
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.util.ITickable;
@@ -10,16 +8,14 @@ public class TileEntityLittleTilesTicking extends TileEntityLittleTiles implemen
 	
 	@Override
 	public void update() {
-		if (updateTiles.isEmpty() && !world.isRemote) {
+		if (!tiles.hasTicking() && !world.isRemote) {
 			customTilesUpdate();
 			System.out.println("Ticking tileentity which shouldn't " + pos);
 			return;
 		}
 		
-		for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) {
-			LittleTile tile = (LittleTile) iterator.next();
+		for (LittleTile tile : tiles.getTickingTiles())
 			tile.updateEntity();
-		}
 	}
 	
 	@Override

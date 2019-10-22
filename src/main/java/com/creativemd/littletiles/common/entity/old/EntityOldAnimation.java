@@ -13,11 +13,11 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
-import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
+import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
+import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
+import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
+import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
@@ -146,7 +146,7 @@ public abstract class EntityOldAnimation extends Entity {
 	public double worldRotZ = 0;
 	
 	public Vec3d getRotVector(float partialTicks) {
-		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * (double) partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * (double) partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * (double) partialTicks);
+		return new Vec3d(this.prevWorldRotX + (this.worldRotX - this.prevWorldRotX) * partialTicks, this.prevWorldRotY + (this.worldRotY - this.prevWorldRotY) * partialTicks, this.prevWorldRotZ + (this.worldRotZ - this.prevWorldRotZ) * partialTicks);
 	}
 	
 	// ================Collision================
@@ -189,8 +189,7 @@ public abstract class EntityOldAnimation extends Entity {
 			
 			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 			
-			for (Iterator<LittleTile> iterator2 = te.getTiles().iterator(); iterator2.hasNext();) {
-				LittleTile tile = iterator2.next();
+			for (LittleTile tile : te) {
 				List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
 				for (LittleTileBox box : tileBoxes) {
 					boxes.add(box.getBox(te.getContext(), te.getPos()));
@@ -776,7 +775,7 @@ public abstract class EntityOldAnimation extends Entity {
 	public EntityOldAnimation copy() {
 		EntityOldAnimation animation = null;
 		try {
-			animation = (EntityOldAnimation) this.getClass().getConstructor(World.class).newInstance(this.world);
+			animation = this.getClass().getConstructor(World.class).newInstance(this.world);
 		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
 			e.printStackTrace();
 		}
@@ -820,8 +819,7 @@ public abstract class EntityOldAnimation extends Entity {
 	
 	public LittleStructure getParentStructure() {
 		for (TileEntityLittleTiles te : blocks) {
-			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = iterator.next();
+			for (LittleTile tile : te) {
 				if (!tile.connection.isLink()) {
 					LittleStructure structure = tile.connection.getStructureWithoutLoading();
 					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
@@ -844,8 +842,7 @@ public abstract class EntityOldAnimation extends Entity {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) TileEntity.create(fakeWorld, nbt);
 			te.setWorld(fakeWorld);
 			blocks.add(te);
-			for (Iterator<LittleTile> iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = iterator.next();
+			for (LittleTile tile : te) {
 				if (!tile.connection.isLink()) {
 					LittleStructure structure = tile.connection.getStructureWithoutLoading();
 					if (structure.parent == null || structure.parent.isLinkToAnotherWorld())

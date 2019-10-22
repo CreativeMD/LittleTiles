@@ -119,10 +119,9 @@ public abstract class TileSelector {
 					if (te == null)
 						continue;
 					
-					for (LittleTile tile : te.getTiles()) {
+					for (LittleTile tile : te)
 						if (selector.is(tile))
 							boxes.addBox(tile);
-					}
 				}
 			}
 		}
@@ -133,7 +132,7 @@ public abstract class TileSelector {
 	public static List<LittleTileBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
 		List<LittleTileBox> boxes = new ArrayList<>();
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-		for (LittleTile tile : te.getTiles()) {
+		for (LittleTile tile : te) {
 			if (selector.is(tile))
 				boxes.add(tile.box);
 		}

@@ -629,8 +629,7 @@ public abstract class LittleStructure {
 				if (tiles.keySet().contains(tileEntity))
 					tiles.removeKey((TileEntityLittleTiles) tileEntity);
 				
-				for (Iterator iterator = ((TileEntityLittleTiles) tileEntity).getTiles().iterator(); iterator.hasNext();) {
-					LittleTile tile = (LittleTile) iterator.next();
+				for (LittleTile tile : (TileEntityLittleTiles) tileEntity) {
 					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
 						tiles.add((TileEntityLittleTiles) tileEntity, tile);
 						if (tile.connection.isLink())
@@ -677,8 +676,7 @@ public abstract class LittleStructure {
 		
 		if (hasLoaded() && loadChildren()) {
 			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
-				entry.getKey().removeTiles(entry.getValue());
-			
+				entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
 			for (IStructureChildConnector child : children)
 				child.destroyStructure();
 		}
@@ -951,10 +949,6 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player) {
-		return false;
-	}
-	
-	public boolean shouldCheckForCollision() {
 		return false;
 	}
 	

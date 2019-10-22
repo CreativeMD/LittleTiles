@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.utils.selection.mode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -129,9 +128,7 @@ public class AreaSelectionMode extends SelectionMode {
 						if (includeLT) {
 							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-								for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-									LittleTile tile = ((LittleTile) iterator.next());
-									
+								for (LittleTile tile : te) {
 									if (rememberStructure && tile.isConnectedToStructure()) {
 										LittleStructure structure = tile.connection.getStructure(world);
 										while (structure.parent != null) {

@@ -38,10 +38,9 @@ public class ConnectedTexturesModifier {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
-				for (LittleTile tile : te.getTiles()) {
+				for (LittleTile tile : te)
 					if (tile instanceof LittleTileBlock && (Boolean) match.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState())))
 						return true;
-				}
 				return false;
 			}
 			return (boolean) match.invoke(properties, (Integer) getBlockID.invoke(state));
@@ -55,10 +54,9 @@ public class ConnectedTexturesModifier {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
-				for (LittleTile tile : te.getTiles()) {
+				for (LittleTile tile : te)
 					if (tile instanceof LittleTileBlock && (Boolean) matchMeta.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState()), metadata))
 						return true;
-				}
 				return false;
 			}
 			return (boolean) matchMeta.invoke(properties, Block.getStateId(world.getBlockState(pos)), metadata);
@@ -73,10 +71,9 @@ public class ConnectedTexturesModifier {
 		if (te != null) {
 			Block block = state.getBlock();
 			int meta = block.getMetaFromState(state);
-			for (LittleTile tile : te.getTiles()) {
+			for (LittleTile tile : te)
 				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == block && ((LittleTileBlock) tile).getMeta() == meta)
 					return true;
-			}
 		}
 		return false;
 	}

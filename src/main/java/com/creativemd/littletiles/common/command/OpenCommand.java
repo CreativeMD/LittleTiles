@@ -61,7 +61,7 @@ public class OpenCommand extends CommandBase {
 		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
-			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity).getTiles()) {
+			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity)) {
 				if (!tile.isConnectedToStructure())
 					continue;
 				

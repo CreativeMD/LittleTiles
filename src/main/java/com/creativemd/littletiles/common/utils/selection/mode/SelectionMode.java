@@ -70,7 +70,7 @@ public abstract class SelectionMode {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityLittleTiles) {
 				ltBlocks++;
-				ltTiles += ((TileEntityLittleTiles) te).getTiles().size();
+				ltTiles += ((TileEntityLittleTiles) te).size();
 				if (minLtContext == null)
 					minLtContext = ((TileEntityLittleTiles) te).getContext();
 				else

@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;
@@ -272,6 +273,15 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			return;
 		
 		for (LittleTile tile : tiles) {
+			addTile(tile);
+		}
+	}
+	
+	public void addTiles(TileEntityLittleTiles te) {
+		if (te.isEmpty())
+			return;
+		
+		for (LittleTile tile : te) {
 			addTile(tile);
 		}
 	}

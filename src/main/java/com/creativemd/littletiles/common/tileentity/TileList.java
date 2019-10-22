@@ -1,10 +1,14 @@
 package com.creativemd.littletiles.common.tileentity;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Spliterator;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
 
@@ -17,7 +21,7 @@ public class TileList implements List<LittleTile> {
 	private final CopyOnWriteArrayList<LittleTile> ticking = new CopyOnWriteArrayList<LittleTile>();
 	
 	@SideOnly(Side.CLIENT)
-	protected CopyOnWriteArrayList<LittleTile> render;
+	private CopyOnWriteArrayList<LittleTile> render;
 	
 	private int collisionChecks = 0;
 	
@@ -77,6 +81,13 @@ public class TileList implements List<LittleTile> {
 	
 	public LittleTile first() {
 		return isEmpty() ? null : content.get(0);
+	}
+	
+	private void reset() {
+		ticking.clear();
+		if (client)
+			render.clear();
+		collisionChecks = 0;
 	}
 	
 	@Override
@@ -147,22 +158,29 @@ public class TileList implements List<LittleTile> {
 	}
 	
 	@Override
-	public boolean removeAll(Collection<?> c) {
-		if (content.removeAll(c)) {
-			ticking.removeAll(c);
-			if (client)
-				render.removeAll(c);
+	public boolean removeIf(Predicate<? super LittleTile> filter) {
+		if (content.removeIf(filter)) {
+			reset();
+			for (LittleTile tile : content)
+				added(tile);
 			return true;
 		}
 		return false;
 	}
 	
 	@Override
+	public boolean removeAll(Collection<?> c) {
+		boolean changed = false;
+		for (Object object : c)
+			if (remove(object))
+				changed = true;
+		return changed;
+	}
+	
+	@Override
 	public void clear() {
 		content.clear();
-		ticking.clear();
-		if (client)
-			render.clear();
+		reset();
 	}
 	
 	@Override
@@ -183,14 +201,11 @@ public class TileList implements List<LittleTile> {
 	@Override
 	public boolean retainAll(Collection<?> c) {
 		if (content.retainAll(c)) {
-			ticking.clear();
-			if (client)
-				render.clear();
-			
+			reset();
 			for (LittleTile tile : content)
 				added(tile);
+			return true;
 		}
-		
 		return false;
 	}
 	
@@ -229,7 +244,25 @@ public class TileList implements List<LittleTile> {
 	}
 	
 	@Override
+	public void sort(Comparator<? super LittleTile> c) {
+		content.sort(c);
+	}
+	
+	@Override
+	public void replaceAll(UnaryOperator<LittleTile> operator) {
+		content.replaceAll(operator);
+		reset();
+		for (LittleTile tile : content)
+			added(tile);
+	}
+	
+	@Override
 	public List<LittleTile> subList(int fromIndex, int toIndex) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public Spliterator<LittleTile> spliterator() {
 		throw new UnsupportedOperationException();
 	}
 	

@@ -90,7 +90,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
 			List<PlacePreviewTile> previews = new ArrayList<>();
 			
-			for (LittleTile toDestroy : te.getTiles()) {
+			for (LittleTile toDestroy : te) {
 				if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
 					replacedTiles.addTile(toDestroy);
 					boxes.addBox(toDestroy);
@@ -117,8 +117,10 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			for (LittleTile toDestroy : toRemove)
-				toDestroy.destroy();
+			te.updateTiles((x) -> {
+				for (LittleTile toDestroy : toRemove)
+					toDestroy.destroy(x);
+			});
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
@@ -144,7 +146,7 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			tile.destroy();
+			te.updateTiles((x) -> tile.destroy(x));
 			
 			List<PlacePreviewTile> previews = new ArrayList<>();
 			previews.add(toReplace.getPlaceableTile(null, true, null, null));
