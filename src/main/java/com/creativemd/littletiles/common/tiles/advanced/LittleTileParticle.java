@@ -18,6 +18,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -41,9 +42,9 @@ public class LittleTileParticle extends LittleTileTE {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getInternalRenderingCubes() {
+	public List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
 		if (!LittleTilesConfig.rendering.hideParticleBlock)
-			return super.getInternalRenderingCubes();
+			return super.getInternalRenderingCubes(layer);
 		return new ArrayList<>();
 	}
 	

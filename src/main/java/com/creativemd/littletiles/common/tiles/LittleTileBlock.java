@@ -39,7 +39,6 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -94,7 +93,7 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	protected boolean translucent;
+	protected byte cachedTranslucent;
 	protected IBlockState state = null;
 	
 	public IBlockState getBlockState() {
@@ -112,8 +111,6 @@ public class LittleTileBlock extends LittleTile {
 	public LittleTileBlock(Block block, int meta) {
 		super();
 		setBlock(block, meta);
-		if (FMLCommonHandler.instance().getSide().isClient())
-			updateClient();
 	}
 	
 	public LittleTileBlock(Block block) {
@@ -124,13 +121,18 @@ public class LittleTileBlock extends LittleTile {
 		super();
 	}
 	
-	public void updateClient() {
-		updateTranslucent();
+	public boolean isTranslucent() {
+		if (cachedTranslucent == 0)
+			updateTranslucent();
+		return cachedTranslucent == 2;
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void updateTranslucent() {
-		translucent = getBlockState().isTranslucent() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT);
+		if (getBlockState().isTranslucent() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT))
+			cachedTranslucent = 2;
+		else
+			cachedTranslucent = 1;
 	}
 	
 	@Override
@@ -144,8 +146,6 @@ public class LittleTileBlock extends LittleTile {
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
 		setBlock(nbt.getString("block"), Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
-		if (te.isClientSide())
-			updateClient();
 	}
 	
 	@Override
@@ -156,9 +156,6 @@ public class LittleTileBlock extends LittleTile {
 			thisTile.handler = this.handler;
 			thisTile.block = this.block;
 			thisTile.meta = this.meta;
-			// thisTile.setBlock(block, meta);
-			if (FMLCommonHandler.instance().getEffectiveSide().isClient())
-				thisTile.translucent = translucent;
 		}
 	}
 	
@@ -178,7 +175,7 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getInternalRenderingCubes() {
+	public List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		if (block != Blocks.BARRIER)
 			cubes.add(box.getRenderingCube(getContext(), block, meta));
@@ -280,23 +277,27 @@ public class LittleTileBlock extends LittleTile {
 	
 	@Override
 	public boolean canBeCombined(LittleTile tile) {
-		if (super.canBeCombined(tile) && tile instanceof LittleTileBlock) {
+		if (super.canBeCombined(tile) && tile instanceof LittleTileBlock)
 			return block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta;
-		}
 		return false;
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
-		return super.doesProvideSolidFace(facing) && !translucent && block != Blocks.BARRIER;
+		return super.doesProvideSolidFace(facing) && !isTranslucent() && block != Blocks.BARRIER;
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile tile) {
-		if (super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock)
-			return (block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER) || (hasSpecialBlockHandler() && handler.canBeRenderCombined(this, (LittleTileBlock) tile));
+		if (super.canBeRenderCombined(tile) && tile instanceof LittleTileBlock) {
+			if (block == ((LittleTileBlock) tile).block && meta == ((LittleTileBlock) tile).meta && block != Blocks.BARRIER && ((LittleTileBlock) tile).block != Blocks.BARRIER)
+				return true;
+			
+			if (hasSpecialBlockHandler() && handler.canBeRenderCombined(this, (LittleTileBlock) tile))
+				return true;
+		}
 		return false;
 	}
 	

@@ -36,12 +36,12 @@ public class LittleTileBlockColored extends LittleTileBlock {
 	public void updateTranslucent() {
 		super.updateTranslucent();
 		if (ColorUtils.isTransparent(color))
-			translucent = true;
+			cachedTranslucent = 2;
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getInternalRenderingCubes() {
-		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes();
+	public List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
+		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes(layer);
 		int color = this.color;
 		for (int i = 0; i < cubes.size(); i++) {
 			cubes.get(i).color = color;

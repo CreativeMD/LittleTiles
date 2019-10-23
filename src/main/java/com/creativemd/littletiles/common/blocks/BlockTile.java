@@ -819,7 +819,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public static List<LittleRenderingCube> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
 		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
 		if (te instanceof TileEntityLittleTiles) {
-			
 			HashMap<EnumFacing, Boolean> neighbors = new HashMap<>();
 			HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles = new HashMap<>();
 			
@@ -862,7 +861,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			for (LittleTile tile : tileEntity) {
 				if (tile.shouldBeRenderedInLayer(layer)) {
 					// Check for sides which does not need to be rendered
-					List<LittleRenderingCube> tileCubes = tile.getRenderingCubes();
+					List<LittleRenderingCube> tileCubes = tile.getRenderingCubes(layer);
 					for (int j = 0; j < tileCubes.size(); j++) {
 						LittleRenderingCube cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {

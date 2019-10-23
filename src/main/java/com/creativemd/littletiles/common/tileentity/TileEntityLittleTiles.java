@@ -418,7 +418,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@Override
 	public boolean shouldRenderInPass(int pass) {
-		return pass == 0 && tiles.hasRendered();
+		return pass == 0 && tiles != null && tiles.hasRendered();
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -627,8 +627,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			NBTTagCompound packet = new NBTTagCompound();
 			tile.saveTile(tileNBT);
 			if (tile.supportsUpdatePacket()) {
-				if (tile.needsFullUpdate)
-					tile.needsFullUpdate = false;
+				if (tile.requiresCompleteUpdate())
+					tile.setCompleteUpdate(false);
 				else
 					tileNBT.setTag("update", tile.getUpdateNBT());
 			}

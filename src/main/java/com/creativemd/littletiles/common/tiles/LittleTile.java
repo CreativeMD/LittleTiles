@@ -366,7 +366,15 @@ public abstract class LittleTile implements ICombinable {
 	
 	/** Can be used to force a complete update on client for tiles which support
 	 * update packet (example: LittleTileTE) */
-	public boolean needsFullUpdate = false;
+	public boolean requiresCompleteUpdate() {
+		return false;
+	}
+	
+	/** Can be used to force a complete update on client for tiles which support
+	 * update packet (example: LittleTileTE) */
+	public void setCompleteUpdate(boolean value) {
+		
+	}
 	
 	public boolean supportsUpdatePacket() {
 		return false;
@@ -631,14 +639,14 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public final List<LittleRenderingCube> getRenderingCubes() {
+	public final List<LittleRenderingCube> getRenderingCubes(BlockRenderLayer layer) {
 		if (invisible)
 			return new ArrayList<>();
-		return getInternalRenderingCubes();
+		return getInternalRenderingCubes(layer);
 	}
 	
 	@SideOnly(Side.CLIENT)
-	protected abstract List<LittleRenderingCube> getInternalRenderingCubes();
+	protected abstract List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer);
 	
 	@SideOnly(Side.CLIENT)
 	public void renderTick(double x, double y, double z, float partialTickTime) {
