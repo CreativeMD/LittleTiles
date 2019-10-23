@@ -61,7 +61,7 @@ public class SubGuiScrewdriver extends SubGui {
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
 		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
 		
-		controls.add(new GuiCheckBox("remove", "Remove (cannot be undone)", 5, 57, false));
+		controls.add(new GuiCheckBox("remove", "Remove", 5, 57, false));
 		
 		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
 		
