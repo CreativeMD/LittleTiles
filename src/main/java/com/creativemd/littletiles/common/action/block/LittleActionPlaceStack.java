@@ -425,7 +425,7 @@ public class LittleActionPlaceStack extends LittleAction {
 					if (state.getMaterial().isReplaceable())
 						return false;
 					if (!(state.getBlock() instanceof BlockTile))
-						if (mode.checkAll() || !(isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)))
+						if (mode.checkAll() || !(isBlockValid(state) && canConvertBlock(player, world, pos, state)))
 							return false;
 				}
 			}

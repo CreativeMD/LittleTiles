@@ -164,7 +164,7 @@ public class AreaSelectionMode extends SelectionMode {
 					
 					if (includeVanilla) {
 						IBlockState state = world.getBlockState(newPos);
-						if (LittleAction.isBlockValid(state.getBlock())) {
+						if (LittleAction.isBlockValid(state)) {
 							LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 							tile.box = new LittleTileBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
 							LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());

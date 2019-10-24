@@ -116,7 +116,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 	
 	@Override
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit) {
-		return LittleAction.isBlockValid(state.getBlock()) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
+		return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
 	}
 	
 	@Override

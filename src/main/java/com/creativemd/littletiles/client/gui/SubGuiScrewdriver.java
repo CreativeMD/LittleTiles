@@ -162,7 +162,7 @@ public class SubGuiScrewdriver extends SubGui {
 				ItemStack stackReplace = replacement.getSelected();
 				if (stackReplace != null) {
 					Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
-					if (!LittleAction.isBlockValid(replacementBlock)) {
+					if (!LittleAction.isBlockValid(replacementBlock.getStateFromMeta(stackReplace.getMetadata()))) {
 						openButtonDialogDialog("Invalid replacement block!", "ok");
 						return null;
 					}

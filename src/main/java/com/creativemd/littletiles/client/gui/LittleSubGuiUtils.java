@@ -31,7 +31,7 @@ public class LittleSubGuiUtils {
 			if (super.allow(stack)) {
 				Block block = Block.getBlockFromItem(stack.getItem());
 				if (block != null && !(block instanceof BlockAir))
-					return LittleAction.isBlockValid(block);
+					return LittleAction.isBlockValid(block.getStateFromMeta(stack.getMetadata()));
 			}
 			return false;
 		}

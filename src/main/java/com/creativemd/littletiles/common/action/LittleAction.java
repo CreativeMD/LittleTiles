@@ -251,7 +251,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				tiles.addAll(tiles);
 			else if (tileEntity == null) {
 				IBlockState state = world.getBlockState(pos);
-				if (shouldConvert && isBlockValid(state.getBlock()) && canConvertBlock(player, world, pos, state)) {
+				if (shouldConvert && isBlockValid(state) && canConvertBlock(player, world, pos, state)) {
 					
 					context = LittleGridContext.get(LittleGridContext.minSize);
 					
@@ -675,10 +675,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
 	}
 	
-	public static boolean isBlockValid(Block block) {
-		if (block instanceof BlockSlab)
+	public static boolean isBlockValid(IBlockState state) {
+		Block block = state.getBlock();
+		if (block.hasTileEntity(state) || block instanceof BlockSlab)
 			return false;
-		return block.isNormalCube(block.getDefaultState()) || block.isFullCube(block.getDefaultState()) || block.isFullBlock(block.getDefaultState()) || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
+		return state.isNormalCube() || state.isFullCube() || state.isFullBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;
 	}
 	
 }

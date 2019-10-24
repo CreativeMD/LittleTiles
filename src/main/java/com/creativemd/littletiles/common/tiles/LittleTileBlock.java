@@ -12,7 +12,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
@@ -199,7 +198,7 @@ public class LittleTileBlock extends LittleTile {
 		}
 	}
 	
-	@Override
+	/*@Override
 	public void onPlaced(EntityPlayer player, ItemStack stack, EnumFacing facing) {
 		super.onPlaced(player, stack, facing);
 		try {
@@ -207,7 +206,7 @@ public class LittleTileBlock extends LittleTile {
 		} catch (Exception e) {
 			
 		}
-	}
+	}*/
 	
 	@Override
 	public SoundType getSound() {
@@ -257,11 +256,11 @@ public class LittleTileBlock extends LittleTile {
 		return true;
 	}
 	
-	@Override
+	/*@Override
 	public void place(TileList list) {
 		super.place(list);
 		block.onBlockAdded(te.getWorld(), te.getPos(), getBlockState());
-	}
+	}*/
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {

@@ -88,7 +88,7 @@ public abstract class SelectionMode {
 			}
 			
 			IBlockState state = world.getBlockState(pos);
-			if (LittleAction.isBlockValid(state.getBlock()))
+			if (LittleAction.isBlockValid(state))
 				blocks++;
 		}
 		

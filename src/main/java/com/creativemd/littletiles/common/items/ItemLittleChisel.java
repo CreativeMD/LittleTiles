@@ -340,7 +340,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	@SideOnly(Side.CLIENT)
 	public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 		IBlockState state = player.world.getBlockState(result.getBlockPos());
-		if (LittleAction.isBlockValid(state.getBlock())) {
+		if (LittleAction.isBlockValid(state)) {
 			PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL));
 			return true;
 		} else if (state.getBlock() instanceof BlockTile) {

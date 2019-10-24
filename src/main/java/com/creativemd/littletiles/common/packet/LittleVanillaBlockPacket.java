@@ -54,7 +54,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			
 			@Override
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
-				if (LittleAction.isBlockValid(state.getBlock())) {
+				if (LittleAction.isBlockValid(state)) {
 					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 					tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 					ItemLittleChisel.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
@@ -66,7 +66,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			
 			@Override
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
-				if (LittleAction.isBlockValid(state.getBlock())) {
+				if (LittleAction.isBlockValid(state)) {
 					ItemStack stack = player.getHeldItemMainhand();
 					GrabberMode mode = ItemLittleGrabber.getMode(stack);
 					mode.vanillaBlockAction(world, stack, pos, state);

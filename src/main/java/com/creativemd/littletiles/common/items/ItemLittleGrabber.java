@@ -355,7 +355,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@SideOnly(Side.CLIENT)
 		public boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
 			IBlockState state = world.getBlockState(result.getBlockPos());
-			if (LittleAction.isBlockValid(state.getBlock())) {
+			if (LittleAction.isBlockValid(state)) {
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.GRABBER));
 				return true;
 			} else if (state.getBlock() instanceof BlockTile) {
