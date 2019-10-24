@@ -47,6 +47,8 @@ public class SubContainerStorage extends SubContainer {
 		super(player);
 		this.storage = storage;
 		this.size = StorageSize.getSizeFromInventory(storage.inventory);
+		if (!player.world.isRemote)
+			this.storage.openContainers.add(this);
 	}
 	
 	@Override
@@ -89,6 +91,13 @@ public class SubContainerStorage extends SubContainer {
 			packet.setTag("inventory", InventoryUtils.saveInventoryBasic(storage.inventory));
 			sendNBTUpdate(packet);
 		}
+	}
+	
+	@Override
+	public void onClosed() {
+		super.onClosed();
+		if (storage != null && !player.world.isRemote)
+			storage.openContainers.remove(this);
 	}
 	
 }

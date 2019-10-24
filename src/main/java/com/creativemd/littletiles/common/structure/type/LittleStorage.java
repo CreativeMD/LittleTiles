@@ -1,16 +1,22 @@
 package com.creativemd.littletiles.common.structure.type;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
+import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -23,6 +29,7 @@ import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryBasic;
 import net.minecraft.item.ItemStack;
@@ -37,6 +44,8 @@ public class LittleStorage extends LittleStructure {
 	public LittleStorage(LittleStructureType type) {
 		super(type);
 	}
+	
+	public List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
 	
 	public static int maxSlotStackSize = 64;
 	
@@ -92,6 +101,19 @@ public class LittleStorage extends LittleStructure {
 		super.addIngredients(ingredients);
 		if (inventory != null)
 			ingredients.add(new StackIngredient(inventory));
+	}
+	
+	@Override
+	public void onStructureDestroyed() {
+		super.onStructureDestroyed();
+		if (!getWorld().isRemote) {
+			for (SubContainerStorage container : openContainers) {
+				container.storage = null;
+				NBTTagCompound nbt = new NBTTagCompound();
+				PacketHandler.sendPacketToPlayer(new GuiLayerPacket(nbt, container.getLayerID(), true), (EntityPlayerMP) container.player);
+				container.closeLayer(nbt, true);
+			}
+		}
 	}
 	
 	public static int getSizeOfInventory(LittlePreviews previews) {

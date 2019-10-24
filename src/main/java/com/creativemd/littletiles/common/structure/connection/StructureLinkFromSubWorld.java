@@ -87,6 +87,7 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	public void destroyStructure() {
 		SubWorld fakeWorld = (SubWorld) parent.getWorld();
 		fakeWorld.parent.isDead = true;
+		parent.onStructureDestroyed();
 	}
 	
 	@Override

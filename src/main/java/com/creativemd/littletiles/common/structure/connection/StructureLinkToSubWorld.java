@@ -89,6 +89,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	public void destroyStructure() {
+		connectedStructure.onStructureDestroyed();
 		EntityAnimation animation = LittleDoorHandler.getHandler(connectedStructure.getWorld()).findDoor(entityUUID);
 		if (animation != null)
 			animation.isDead = true;
