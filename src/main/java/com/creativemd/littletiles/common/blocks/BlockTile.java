@@ -194,7 +194,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	
 	@Override
 	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state;// new TileEntityState(state, world.getTileEntity(pos));
+		return state;
 	}
 	
 	@Override

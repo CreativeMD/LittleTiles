@@ -261,7 +261,6 @@ public abstract class LittleAction extends CreativeCorePacket {
 					tile.box = box;
 					tiles.add(tile);
 				} else if (state.getMaterial().isReplaceable()) {
-					// new TileEntityLittleTiles();
 					if (!world.setBlockState(pos, BlockTile.getState(false, false)))
 						return null;
 					tileEntity = world.getTileEntity(pos);

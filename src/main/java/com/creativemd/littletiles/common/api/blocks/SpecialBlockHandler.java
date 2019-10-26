@@ -158,9 +158,10 @@ public class SpecialBlockHandler {
 			
 			@Override
 			public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
-				Axis axis = logAxisToNormal(preview.getBlock().getStateFromMeta(preview.getMeta()).getValue(BlockLog.LOG_AXIS));
+				IBlockState state = preview.getBlock().getStateFromMeta(preview.getMeta());
+				Axis axis = logAxisToNormal(state.getValue(BlockLog.LOG_AXIS));
 				if (axis != null)
-					preview.getTileData().setInteger("meta", BlockLog.EnumAxis.fromFacingAxis(RotationUtils.rotate(axis, rotation)).ordinal());
+					preview.getTileData().setInteger("meta", preview.getBlock().getMetaFromState(state.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.fromFacingAxis(RotationUtils.rotate(axis, rotation)))));
 			}
 			
 		});
