@@ -278,7 +278,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 						tile.place(x);
 					}
 				});
-				
+				tileEntity = te;
 			}
 		}
 		
