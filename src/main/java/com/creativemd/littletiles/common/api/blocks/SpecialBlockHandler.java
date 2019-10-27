@@ -5,9 +5,10 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector;
+import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorAnd;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorBlock;
-import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorBlocks;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorClass;
+import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorProperty;
 import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelectorState;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
@@ -141,7 +142,7 @@ public class SpecialBlockHandler {
 			
 		});
 		
-		SpecialBlockHandler.registerSpecialHandler(new BlockSelectorBlocks(Blocks.LOG, Blocks.LOG2), new ISpecialBlockHandler() {
+		SpecialBlockHandler.registerSpecialHandler(new BlockSelectorAnd(new BlockSelectorClass(BlockLog.class), new BlockSelectorProperty(BlockLog.LOG_AXIS)), new ISpecialBlockHandler() {
 			
 			public Axis logAxisToNormal(BlockLog.EnumAxis axis) {
 				switch (axis) {
@@ -166,7 +167,7 @@ public class SpecialBlockHandler {
 			
 		});
 		
-		SpecialBlockHandler.registerSpecialHandler(new BlockSelectorClass(BlockRotatedPillar.class), new ISpecialBlockHandler() {
+		SpecialBlockHandler.registerSpecialHandler(new BlockSelectorAnd(new BlockSelectorClass(BlockRotatedPillar.class), new BlockSelectorProperty(BlockRotatedPillar.AXIS)), new ISpecialBlockHandler() {
 			
 			@Override
 			public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
