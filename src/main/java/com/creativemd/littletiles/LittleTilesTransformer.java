@@ -129,6 +129,16 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(start, new InsnNode(Opcodes.ICONST_0));
 				m.instructions.insertBefore(start, new FieldInsnNode(Opcodes.PUTFIELD, patchClassName("net/minecraft/client/renderer/BufferBuilder"), "littleTilesAdded", "Z"));
 				
+				m = findMethod(node, "getDistanceSq", "(Ljava/nio/FloatBuffer;FFFII)F");
+				m.instructions.clear();
+				m.instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.add(new VarInsnNode(Opcodes.FLOAD, 1));
+				m.instructions.add(new VarInsnNode(Opcodes.FLOAD, 2));
+				m.instructions.add(new VarInsnNode(Opcodes.FLOAD, 3));
+				m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 4));
+				m.instructions.add(new VarInsnNode(Opcodes.ILOAD, 5));
+				m.instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "getDistanceSq", "(Ljava/nio/FloatBuffer;FFFII)F", false));
+				m.instructions.add(new InsnNode(Opcodes.FRETURN));
 			}
 		});
 		
