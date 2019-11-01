@@ -89,7 +89,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		LittleTilePreview preview;
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else
@@ -115,7 +115,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		ItemStack selected = selector.getSelected();
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else

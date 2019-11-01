@@ -46,7 +46,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		ItemStack stackFilter = filter.getSelected();
 		Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 		boolean meta = ((GuiCheckBox) get("meta")).value;
-		selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new TileSelectorBlock(filterBlock);
+		selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
 		
 		saveConfiguration(context, activeFilter, selector);
 	}

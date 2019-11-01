@@ -17,8 +17,8 @@ public class ItemBlockFlowingWater extends ItemBlock {
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 		String name = "default";
-		if (stack.getItemDamage() < BlockLTFlowingWater.DIRECTION.getAllowedValues().size())
-			name = EnumFacing.getFront(stack.getItemDamage()).getName();
+		if (stack.getMetadata() < BlockLTFlowingWater.DIRECTION.getAllowedValues().size())
+			name = EnumFacing.getFront(stack.getMetadata()).getName();
 		return getUnlocalizedName() + "." + name;
 	}
 	

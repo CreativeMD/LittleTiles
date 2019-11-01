@@ -495,7 +495,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					ItemStack selected = selector.getSelected();
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 						tile.box = new LittleTileBox(context.minPos, context.minPos, context.minPos, context.size, context.size, context.size);
 						return tile.getPreviewTile();
 					} else
@@ -727,7 +727,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					ItemStack selected = selector.getSelected();
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getItemDamage());
+						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
 						return tile.getPreviewTile();
 					} else

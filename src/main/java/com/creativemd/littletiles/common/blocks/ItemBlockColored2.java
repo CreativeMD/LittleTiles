@@ -16,8 +16,8 @@ public class ItemBlockColored2 extends ItemBlock {
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
 		String name = "default";
-		if (stack.getItemDamage() < BlockLTColored2.EnumType.values().length)
-			name = BlockLTColored2.EnumType.values()[stack.getItemDamage()].getName();
+		if (stack.getMetadata() < BlockLTColored2.EnumType.values().length)
+			name = BlockLTColored2.EnumType.values()[stack.getMetadata()].getName();
 		return getUnlocalizedName() + "." + name;
 	}
 	

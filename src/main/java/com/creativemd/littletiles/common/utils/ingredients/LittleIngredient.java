@@ -126,7 +126,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				Block block = Block.getBlockFromItem(stack.getItem());
 				if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(block.getStateFromMeta(stack.getMetadata()))) {
 					BlockIngredient ingredient = new BlockIngredient();
-					ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getItemDamage(), 1));
+					ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getMetadata(), 1));
 					return ingredient;
 				}
 				return null;

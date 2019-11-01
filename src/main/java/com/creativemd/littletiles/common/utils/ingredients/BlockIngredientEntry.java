@@ -61,7 +61,7 @@ public class BlockIngredientEntry {
 	}
 	
 	public boolean is(ItemStack stack) {
-		return Block.getBlockFromItem(stack.getItem()) == this.block && stack.getItemDamage() == this.meta;
+		return Block.getBlockFromItem(stack.getItem()) == this.block && stack.getMetadata() == this.meta;
 	}
 	
 	public BlockIngredientEntry copy() {

@@ -138,7 +138,7 @@ public class SubGuiScrewdriver extends SubGui {
 			ItemStack stackFilter = filter.getSelected();
 			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 			boolean meta = ((GuiCheckBox) get("meta")).value;
-			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getItemDamage())) : new TileSelectorBlock(filterBlock);
+			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
 		}
 		
 		selector = new AndSelector(new NoStructureSelector(), selector);
@@ -169,7 +169,7 @@ public class SubGuiScrewdriver extends SubGui {
 					actions.add(new LittleActionDestroyBoxes(boxes));
 					LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
 					for (LittleTileBox box : boxes) {
-						LittleTileBlock tile = new LittleTileBlock(replacementBlock, stackReplace.getItemDamage());
+						LittleTileBlock tile = new LittleTileBlock(replacementBlock, stackReplace.getMetadata());
 						tile.box = box;
 						previews.addPreview(pos, tile.getPreviewTile(), boxes.context);
 					}
