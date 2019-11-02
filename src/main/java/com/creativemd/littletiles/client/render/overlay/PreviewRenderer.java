@@ -8,6 +8,7 @@ import org.lwjgl.opengl.GL11;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
@@ -34,6 +35,7 @@ import net.minecraft.client.renderer.tileentity.TileEntityRendererDispatcher;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult.Type;
@@ -47,6 +49,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {
+	
+	private static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.modid, "textures/preview.png");
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
@@ -113,7 +117,9 @@ public class PreviewRenderer {
 					GL11.glEnable(GL11.GL_BLEND);
 					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 					GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
-					GL11.glDisable(GL11.GL_TEXTURE_2D);
+					GlStateManager.enableTexture2D();
+					//GlStateManager.disableTexture2D();
+					mc.renderEngine.bindTexture(WHITE_TEXTURE);
 					GL11.glDepthMask(false);
 					
 					boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
@@ -150,7 +156,7 @@ public class PreviewRenderer {
 					}
 					
 					GL11.glDepthMask(true);
-					GL11.glEnable(GL11.GL_TEXTURE_2D);
+					GlStateManager.enableTexture2D();
 					GL11.glDisable(GL11.GL_BLEND);
 				}
 			} else
