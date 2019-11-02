@@ -28,6 +28,11 @@ tile.LTColoredBlock.light_clean.name=染色方块（照明清澈）
 tile.LTColoredBlock.plank.name=染色木板
 tile.LTColoredBlock.lava.name=岩浆方块
 tile.LTColoredBlock.white_lava.name=岩浆方块（白色）
+tile.LTColoredBlock2.gravel.name=染色方块（砾石）
+tile.LTColoredBlock2.sand.name=染色方块（砂子）
+tile.LTColoredBlock2.stone.name=染色方块（原石）
+tile.LTColoredBlock2.wood.name=染色方块（原木）
+tile.LTColoredBlock2.white_opaque_water.name=不透明水（白色）
 
 tile.LTTransparentColoredBlock.clean.name=染色方块（清澈）
 tile.LTTransparentColoredBlock.thick.name=染色方块（浓）
@@ -64,11 +69,8 @@ action.entity.notfound=未找到实体
 action.structure.notloaded=结构尚未加载
 action.revert.notavailable=行为无法复原
 
-exception.ingredient.color=没有足够的颜料
-exception.ingredient.volume=没有足够的材料
-exception.ingredient.space.volume=没有足够的空间放置材料
-exception.ingredient.space.color=没有足够空间填涂颜料
-exception.ingredient.stack=丢失
+exception.ingredient.missing=没有足够的材料
+exception.ingredient.space=没有足够的空间
 exception.permission.edit=不允许编辑超过%s的方块
 exception.permission.place.color=没有权限放置透明度低于%s的方块
 exception.permission.place=不能放置%s以上的方块
@@ -82,6 +84,13 @@ color.unit.magenta=品红
 color.unit.yellow=黄色
 color.unit.single=部件
 color.unit.multiple=部件
+
+volume.unit.big.single=方块
+volume.unit.big.multiple=方块
+volume.unit.big.short=b
+volume.unit.small.single=像素
+volume.unit.small.multiple=像素
+volume.unit.small.short=p
 
 selector.ingredients=结构要素
 
@@ -102,6 +111,7 @@ markmode.gui.switchpos=切换位置
 
 commands.open.usage=在给定坐标处打开所有门
 commands.open.notloaded=结构未加载
+commands.open.tovanilla=如果可能的话，将所有已加载的 LT方块 转换为 MC方块
 
 item.LTPremade.workbench.name=工作台
 item.LTPremade.importer.name=输入台
@@ -132,6 +142,7 @@ structure.noclip.name=穿透
 structure.door.name=转轴门
 structure.slidingDoor.name=推拉门
 structure.advancedDoor.name=门（高级）
+structure.doorActivator.name=门（触发器）
 
 structure.category.simple=简易
 structure.category.door=门
@@ -141,3 +152,17 @@ gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
 gui.door.children=子级
 gui.structure.hierarchy=层级
+
+animation.event.child.name=激活子级
+
+config.littletiles.invertStickToGrid=反转网格
+config.littletiles.maxSavedActions=已保存动作的最大数量
+config.littletiles.useALTForEverything=ALT键 在所有情况下可用
+config.littletiles.useAltWhenFlying=ALT键 在飞行时可用
+config.littletiles.hideParticleBlock=隐藏粒子方块
+config.littletiles.renderingThreadCount=渲染线程数
+config.littletiles.highlightStructureBox=高亮结构边界框
+config.littletiles.previewLines=线预览
+config.littletiles.enableRandomDisplayTick=启用随机显示刻度
+config.littletiles.useQuadCache=启用 四级缓存
+config.littletiles.useCubeCache=启用 三级缓存
