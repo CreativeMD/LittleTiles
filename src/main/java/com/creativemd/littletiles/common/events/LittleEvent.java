@@ -388,7 +388,8 @@ public class LittleEvent {
 					GlStateManager.enableBlend();
 					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 					GlStateManager.glLineWidth(4.0F);
-					GlStateManager.disableTexture2D();
+					GlStateManager.enableTexture2D();
+					Minecraft.getMinecraft().renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
 					GlStateManager.depthMask(false);
 					for (int i = 0; i < boxes.size(); i++) {
 						RenderGlobal.drawSelectionBoundingBox(boxes.get(i).getBox(boxes.context).offset(boxes.pos).grow(0.0020000000949949026D).offset(-d0, -d1, -d2), 0.0F, 0.0F, 0.0F, 0.4F);

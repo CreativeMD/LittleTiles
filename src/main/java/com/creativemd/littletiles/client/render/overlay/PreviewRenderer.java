@@ -50,7 +50,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class PreviewRenderer {
 	
-	private static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.modid, "textures/preview.png");
+	public static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.modid, "textures/preview.png");
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
@@ -118,7 +118,6 @@ public class PreviewRenderer {
 					OpenGlHelper.glBlendFunc(770, 771, 1, 0);
 					GL11.glColor4f(0.0F, 0.0F, 0.0F, 0.4F);
 					GlStateManager.enableTexture2D();
-					//GlStateManager.disableTexture2D();
 					mc.renderEngine.bindTexture(WHITE_TEXTURE);
 					GL11.glDepthMask(false);
 					
@@ -276,7 +275,8 @@ public class PreviewRenderer {
 					GlStateManager.enableBlend();
 					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 					GlStateManager.glLineWidth(2.0F);
-					GlStateManager.disableTexture2D();
+					GlStateManager.enableTexture2D();
+					mc.renderEngine.bindTexture(WHITE_TEXTURE);
 					GlStateManager.depthMask(false);
 					
 					double x = position.pos.getX();

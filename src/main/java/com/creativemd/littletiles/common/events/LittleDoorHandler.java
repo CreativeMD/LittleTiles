@@ -14,6 +14,7 @@ import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.client.render.entity.RenderAnimation;
+import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
@@ -450,7 +451,8 @@ public class LittleDoorHandler {
 		GlStateManager.enableBlend();
 		GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		GlStateManager.glLineWidth(2.0F);
-		GlStateManager.disableTexture2D();
+		GlStateManager.enableTexture2D();
+		mc.renderEngine.bindTexture(PreviewRenderer.WHITE_TEXTURE);
 		GlStateManager.depthMask(false);
 		GlStateManager.enableRescaleNormal();
 		
