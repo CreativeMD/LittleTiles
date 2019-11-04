@@ -249,13 +249,14 @@ public class DoorController extends EntityAnimationController {
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
 			
-			parent.fakeWorld.loadedEntityList.removeIf((x) -> {
-				if (x instanceof EntityAnimation && ((EntityAnimation) x).controller.isWaitingForRender()) {
-					((EntityAnimation) x).markRemoved();
-					return true;
-				}
-				return false;
-			});
+			if (world.isRemote)
+				parent.fakeWorld.loadedEntityList.removeIf((x) -> {
+					if (x instanceof EntityAnimation && ((EntityAnimation) x).controller.isWaitingForRender()) {
+						((EntityAnimation) x).markRemoved();
+						return true;
+					}
+					return false;
+				});
 			
 			newDoor.transferChildrenFromAnimation(parent);
 		} else {
