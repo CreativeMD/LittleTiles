@@ -49,6 +49,7 @@ public class LittleChunkDispatcher {
 	private static Field setTileEntities = ReflectionHelper.findField(RenderChunk.class, new String[] { "setTileEntities", "field_181056_j" });
 	
 	private static Field littleTiles = ReflectionHelper.findField(RenderChunk.class, "littleTiles");
+	private static Field updateQueue = ReflectionHelper.findField(RenderChunk.class, "updateQueue");
 	private static Field dynamicLightUpdate = ReflectionHelper.findField(RenderChunk.class, "dynamicLightUpdate");
 	
 	private static Minecraft mc = Minecraft.getMinecraft();
@@ -62,6 +63,7 @@ public class LittleChunkDispatcher {
 	public static void onDoneRendering(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
 		try {
 			littleTiles.set(chunk, tiles);
+			updateQueue.setInt(chunk, updateQueue.getInt(chunk) + 1);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -189,7 +191,13 @@ public class LittleChunkDispatcher {
 				return;
 		}
 		
-		onDoneRendering(chunk, null); // Clear LTTiles cache
+		try {
+			updateQueue.setInt(chunk, updateQueue.getInt(chunk) - 1);
+			if (updateQueue.getInt(chunk) == 0)
+				littleTiles.set(chunk, null); // Clear LTTiles cache
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static BufferBuilder.State emptyState = loadEmptyState();
