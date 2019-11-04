@@ -153,7 +153,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@SideOnly(Side.CLIENT)
-	IBakedModel model;
+	public static IBakedModel model;
 	
 	@Override
 	@SideOnly(Side.CLIENT)

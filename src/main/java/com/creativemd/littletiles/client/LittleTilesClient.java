@@ -17,6 +17,7 @@ import com.creativemd.littletiles.client.render.overlay.OverlayControl;
 import com.creativemd.littletiles.client.render.overlay.OverlayRenderer;
 import com.creativemd.littletiles.client.render.overlay.OverlayRenderer.OverlayPositionType;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
+import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
@@ -28,6 +29,10 @@ import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
+import com.creativemd.littletiles.common.items.ItemLittleChisel;
+import com.creativemd.littletiles.common.items.ItemLittleGrabber;
+import com.creativemd.littletiles.common.items.ItemRecipe;
+import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
@@ -40,6 +45,9 @@ import net.minecraft.client.renderer.color.IItemColor;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
+import net.minecraft.client.resources.IReloadableResourceManager;
+import net.minecraft.client.resources.IResourceManager;
+import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
@@ -241,6 +249,18 @@ public class LittleTilesClient extends LittleTilesServer {
 		MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
 		
 		overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis", 0, 0), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
+		
+		IReloadableResourceManager reloadableResourceManager = (IReloadableResourceManager) mc.getResourceManager();
+		reloadableResourceManager.registerReloadListener(new IResourceManagerReloadListener() {
+			@Override
+			public void onResourceManagerReload(IResourceManager resourceManager) {
+				LittleChunkDispatcher.currentRenderIndex.incrementAndGet();
+				ItemLittleChisel.model = null;
+				ItemLittleGrabber.model = null;
+				ItemRecipe.model = null;
+				ItemRecipeAdvanced.model = null;
+			}
+		});
 	}
 	
 	@Override

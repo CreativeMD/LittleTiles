@@ -122,7 +122,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@SideOnly(Side.CLIENT)
-	IBakedModel model;
+	public static IBakedModel model;
 	
 	@Override
 	@SideOnly(Side.CLIENT)

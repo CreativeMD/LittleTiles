@@ -187,6 +187,9 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		return new ModelResourceLocation(LittleTiles.modid + ":recipe_background", "inventory");
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public static IBakedModel model;
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
@@ -196,10 +199,16 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		if (cameraTransformType == TransformType.GUI || !stack.hasTagCompound() || !stack.getTagCompound().hasKey("tiles")) {
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.disableDepth();
-			IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(getBackgroundLocation());
+			if (model == null)
+				model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(getBackgroundLocation());
 			ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 			
-			mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+			try {
+				mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
+			} catch (Exception e) {
+				model = null;
+				return;
+			}
 			
 			if (cameraTransformType == TransformType.GUI)
 				GlStateManager.enableDepth();

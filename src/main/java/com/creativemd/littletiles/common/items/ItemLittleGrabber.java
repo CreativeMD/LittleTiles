@@ -111,13 +111,16 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		return getMode(stack).getRenderingCubes(stack);
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public static IBakedModel model;
+	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		Minecraft mc = Minecraft.getMinecraft();
 		GlStateManager.pushMatrix();
 		
-		IBakedModel model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
+		model = mc.getRenderItem().getItemModelMesher().getModelManager().getModel(new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
 		ForgeHooksClient.handleCameraTransforms(model, cameraTransformType, false);
 		
 		mc.getRenderItem().renderItem(new ItemStack(Items.PAPER), model);
