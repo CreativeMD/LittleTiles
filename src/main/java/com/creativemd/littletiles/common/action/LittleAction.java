@@ -64,7 +64,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -248,7 +247,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			List<LittleTile> chiselTiles = ChiselsAndBitsManager.getTiles(tileEntity);
 			LittleGridContext context = chiselTiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
 			if (chiselTiles != null)
-				tiles.addAll(tiles);
+				tiles.addAll(chiselTiles);
 			else if (tileEntity == null) {
 				IBlockState state = world.getBlockState(pos);
 				if (shouldConvert && isBlockValid(state) && canConvertBlock(player, world, pos, state)) {
@@ -267,7 +266,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 				}
 			}
 			
-			if (tiles != null && tiles.size() > 0) {
+			if (tiles != null && !tiles.isEmpty()) {
 				world.setBlockState(pos, BlockTile.getState(tiles));
 				TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
 				te.convertTo(context);
@@ -277,6 +276,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 						tile.place(x);
 					}
 				});
+				te.convertToSmallest();
 				tileEntity = te;
 			}
 		}
@@ -669,13 +669,10 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return inventories;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public static boolean doesBlockSupportedTranslucent(Block block) {
-		return block.getBlockLayer() == BlockRenderLayer.SOLID || block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
-	}
-	
 	public static boolean isBlockValid(IBlockState state) {
 		Block block = state.getBlock();
+		if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
+			return true;
 		if (block.hasTileEntity(state) || block instanceof BlockSlab)
 			return false;
 		return state.isNormalCube() || state.isFullCube() || state.isFullBlock() || block instanceof BlockGlass || block instanceof BlockStainedGlass || block instanceof BlockBreakable;

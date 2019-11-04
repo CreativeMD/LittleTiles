@@ -28,6 +28,17 @@ import net.minecraft.tileentity.TileEntity;
 
 public class ChiselsAndBitsInteractor {
 	
+	public static boolean isChiselsAndBitsStructure(IBlockState state) {
+		Block block = state.getBlock();
+		Map blocks = ChiselsAndBits.getBlocks().getConversions();
+		for (Iterator iterator = blocks.values().iterator(); iterator.hasNext();) {
+			Block block2 = (Block) iterator.next();
+			if (block == block2)
+				return true;
+		}
+		return false;
+	}
+	
 	public static boolean isChiselsAndBitsStructure(ItemStack stack) {
 		Block block = Block.getBlockFromItem(stack.getItem());
 		Map blocks = ChiselsAndBits.getBlocks().getConversions();

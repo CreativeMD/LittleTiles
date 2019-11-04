@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.fml.common.Loader;
@@ -27,6 +28,12 @@ public class ChiselsAndBitsManager {
 		if (isInstalled())
 			return ChiselsAndBitsInteractor.getPreviews(stack);
 		return null;
+	}
+	
+	public static boolean isChiselsAndBitsStructure(IBlockState state) {
+		if (isInstalled())
+			return ChiselsAndBitsInteractor.isChiselsAndBitsStructure(state);
+		return false;
 	}
 	
 	public static boolean isChiselsAndBitsStructure(ItemStack stack) {
