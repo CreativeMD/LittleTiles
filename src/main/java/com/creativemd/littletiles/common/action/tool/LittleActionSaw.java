@@ -113,7 +113,7 @@ public class LittleActionSaw extends LittleActionInteract {
 			}
 			
 			if (box != null) {
-				double amount = Math.abs(box.getPercentVolume(te.getContext()) - tile.box.getPercentVolume(te.getContext()));
+				double amount = outside ? box.getPercentVolume(te.getContext()) : Math.abs(box.getPercentVolume(te.getContext()) - tile.box.getPercentVolume(te.getContext()));
 				LittleIngredients ingredients = new LittleIngredients();
 				LittleInventory inventory = new LittleInventory(player);
 				BlockIngredient blocks = new BlockIngredient();
