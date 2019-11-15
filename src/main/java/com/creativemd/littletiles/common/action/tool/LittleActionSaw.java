@@ -24,6 +24,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class LittleActionSaw extends LittleActionInteract {
@@ -52,7 +53,7 @@ public class LittleActionSaw extends LittleActionInteract {
 	public EnumFacing facing;
 	
 	@Override
-	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile) {
+	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile, Vec3d pos, Vec3d look) {
 		return new LittleTileBox(tile.box).calculateIntercept(te.getContext(), te.getPos(), pos, look);
 	}
 	

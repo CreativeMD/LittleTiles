@@ -108,7 +108,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			
 			if (tile != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				RayTraceResult moving = rayTrace(te, tile);
+				RayTraceResult moving = rayTrace(te, tile, pos, look);
 				if (moving != null)
 					return action(world, te, tile, stack, player, moving, blockPos, secondMode);
 			} else
@@ -119,7 +119,7 @@ public abstract class LittleActionInteract extends LittleAction {
 		
 	}
 	
-	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile) {
+	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile, Vec3d pos, Vec3d look) {
 		return te.rayTrace(pos, look);
 	}
 	
