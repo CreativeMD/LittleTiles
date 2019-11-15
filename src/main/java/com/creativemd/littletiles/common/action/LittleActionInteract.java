@@ -78,6 +78,9 @@ public abstract class LittleActionInteract extends LittleAction {
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		World world = player.world;
 		
+		Vec3d pos = this.pos;
+		Vec3d look = this.look;
+		
 		if (uuid != null) {
 			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
 			if (animation == null)
