@@ -143,6 +143,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		return intersectsWithOrdinaryTwoAxis(other);
 	}
 	
+	@Override
 	public double calculateYOffsetStepUp(AxisAlignedBB other, AxisAlignedBB otherY, double offset) {
 		if (!slice.isFacingPositive(Axis.Y)) {
 			Axis axis = Axis.Y;
@@ -166,10 +167,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 	
 	public double calculateAxisOffset(AxisAlignedBB other, Axis axis, double offset) {
 		if (intersectsTwoSides(axis, other)) {
-			boolean isOrdinary = slice.axis == axis || (slice.isFacingPositive(axis) == (offset > 0)); // (slice.isFacingPositive(axis)
-			                                                                                           // !=
-			                                                                                           // LittleUtils.smallerThanAndEquals(offset,
-			                                                                                           // 0));
+			boolean isOrdinary = slice.axis == axis || (slice.isFacingPositive(axis) == (offset > 0)); // (slice.isFacingPositive(axis) != LittleUtils.smallerThanAndEquals(offset, 0));
 			if (isOrdinary) {
 				if (offset > 0.0D && getMax(other, axis) <= getMin(axis)) // && getMax(other, axis) <= getMin(axis))
 				{
@@ -179,8 +177,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 						return d1;
 					}
 					return offset;
-				} else if (offset < 0.0D && getMin(other, axis) >= getMax(axis)) // && getMin(other, axis) >=
-				                                                                 // getMax(axis))
+				} else if (offset < 0.0D && getMin(other, axis) >= getMax(axis)) // && getMin(other, axis) >= getMax(axis))
 				{
 					double d0 = getMax(axis) - getMin(other, axis);
 					
@@ -389,7 +386,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		
 		for (EnumFacing facing : EnumFacing.VALUES) {
 			if (slice.emptySideOne != facing && slice.emptySideTwo != facing) {
-				Vec3d temp = collideWithPlane(facing.getAxis(), (double) getValueOfFacing(facing), vecA, vecB);
+				Vec3d temp = collideWithPlane(facing.getAxis(), getValueOfFacing(facing), vecA, vecB);
 				if (temp != null && isClosest(vecA, collision, temp)) {
 					collided = facing;
 					collision = temp;

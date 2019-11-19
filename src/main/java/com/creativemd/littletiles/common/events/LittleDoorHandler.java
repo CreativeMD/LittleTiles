@@ -325,14 +325,6 @@ public class LittleDoorHandler {
 	
 	@SubscribeEvent
 	public void chunkUnload(ChunkEvent.Unload event) {
-		/* for (ClassInheritanceMultiMap<Entity> map : event.getChunk().getEntityLists()) {
-		 * for (Entity entity : map) {
-		 * if (entity instanceof EntityAnimation && ((EntityAnimation) entity).isDoorAdded()) {
-		 * ((EntityAnimation) entity).markRemoved();
-		 * }
-		 * }
-		 * } */
-		
 		if (event.getWorld().isRemote != side.isClient())
 			return;
 		
