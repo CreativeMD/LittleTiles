@@ -497,8 +497,13 @@ public class LittleDoorHandler {
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
+		if (boxes.isEmpty())
+			return true;
 		
-		return boxes.isEmpty();
+		for (int i = 0; i < boxes.size(); i++)
+			if (!(boxes.get(i) instanceof OrientatedBoundingBox))
+				return false;
+		return true;
 	}
 	
 }

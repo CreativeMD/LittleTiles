@@ -305,6 +305,8 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
+		if(x == 0 && y == 0 && z == 0 && rotX == 0&& rotY == 0 && rotZ == 0)
+			return ;
 		World world = getRealWorld();
 		
 		boolean moved = false;
