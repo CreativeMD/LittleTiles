@@ -66,9 +66,14 @@ public abstract class LittleDoor extends LittleStructure {
 			return null;
 		}
 		
-		DoorOpeningResult result = canOpenDoor(player);
-		if (result == null)
+		if (isInMotion())
 			return null;
+		
+		DoorOpeningResult result = canOpenDoor(player);
+		if (result == null) {
+			player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
+			return null;
+		}
 		
 		if (uuid == null)
 			uuid = UUID.randomUUID();

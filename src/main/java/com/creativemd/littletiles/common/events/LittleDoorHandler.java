@@ -221,7 +221,7 @@ public class LittleDoorHandler {
 	
 	@SubscribeEvent
 	public void rightClick(PlayerInteractEvent event) {
-		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific || event instanceof EntityInteract) {
+		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific/* || event instanceof EntityInteract*/) {
 			if (!event.getWorld().isRemote)
 				return;
 			
@@ -295,10 +295,9 @@ public class LittleDoorHandler {
 				pointedEntity = (EntityAnimation) selectedEntity;
 			
 			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null || selectedEntity == pointedEntity)) {
-				pointedEntity.onRightClick(entity, vec3d, vec3d2);
-				
-				if (event instanceof RightClickBlock)
-					event.setCanceled(true);
+				if (pointedEntity.onRightClick(entity, vec3d, vec3d2))
+					if (event instanceof RightClickBlock)
+						event.setCanceled(true);
 			}
 		}
 	}
