@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.action;
 
 import java.util.UUID;
 
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
@@ -31,9 +32,9 @@ public abstract class LittleActionInteract extends LittleAction {
 	public LittleActionInteract(World world, BlockPos blockPos, EntityPlayer player) {
 		super();
 		this.blockPos = blockPos;
-		this.pos = player.getPositionEyes(1.0F);
+		this.pos = player.getPositionEyes(TickUtils.getPartialTickTime());
 		double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
-		Vec3d look = player.getLook(1.0F);
+		Vec3d look = player.getLook(TickUtils.getPartialTickTime());
 		this.look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
 		this.secondMode = isUsingSecondMode(player);
 		if (world instanceof CreativeWorld)
