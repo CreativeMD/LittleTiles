@@ -485,7 +485,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	
 	@Override
 	public boolean onKeyPressed(char character, int key) {
-		if (isAnyControlFocused())
+		if (isAnyControlFocused() || !visibleAxis)
 			return false;
 		
 		if (key == Keyboard.KEY_ADD) {
