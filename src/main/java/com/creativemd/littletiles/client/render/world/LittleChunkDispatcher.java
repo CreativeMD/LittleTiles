@@ -158,7 +158,7 @@ public class LittleChunkDispatcher {
 						BufferBuilderUtils.addBuffer(buffer, teBuffer);
 				}
 				
-				if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null) {
+				if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
 					Entity entity = mc.getRenderViewEntity();
 					float x = (float) entity.posX;
 					float y = (float) entity.posY + entity.getEyeHeight();
