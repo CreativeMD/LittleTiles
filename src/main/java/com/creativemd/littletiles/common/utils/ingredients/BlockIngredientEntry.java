@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.ingredients;
 
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
@@ -57,7 +58,7 @@ public class BlockIngredientEntry {
 	}
 	
 	public IBlockState getState() {
-		return block.getStateFromMeta(meta);
+		return BlockUtils.getState(block, meta);
 	}
 	
 	public boolean is(ItemStack stack) {

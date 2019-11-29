@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.common.items.ItemMultiTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -46,7 +47,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		ItemStack stackFilter = filter.getSelected();
 		Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 		boolean meta = ((GuiCheckBox) get("meta")).value;
-		selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
+		selector = meta ? new StateSelector(BlockUtils.getState(filterBlock, stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
 		
 		saveConfiguration(context, activeFilter, selector);
 	}

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.selection.selector;
 
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 
@@ -39,7 +40,7 @@ public class StateSelector extends TileSelectorBlock {
 	
 	@Override
 	public IBlockState getState() {
-		return block.getStateFromMeta(meta);
+		return BlockUtils.getState(block, meta);
 	}
 	
 }

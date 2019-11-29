@@ -13,6 +13,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.SearchSelector;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
@@ -138,7 +139,7 @@ public class SubGuiScrewdriver extends SubGui {
 			ItemStack stackFilter = filter.getSelected();
 			Block filterBlock = Block.getBlockFromItem(stackFilter.getItem());
 			boolean meta = ((GuiCheckBox) get("meta")).value;
-			selector = meta ? new StateSelector(filterBlock.getStateFromMeta(stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
+			selector = meta ? new StateSelector(BlockUtils.getState(filterBlock, stackFilter.getMetadata())) : new TileSelectorBlock(filterBlock);
 		}
 		
 		selector = new AndSelector(new NoStructureSelector(), selector);
@@ -162,7 +163,7 @@ public class SubGuiScrewdriver extends SubGui {
 				ItemStack stackReplace = replacement.getSelected();
 				if (stackReplace != null) {
 					Block replacementBlock = Block.getBlockFromItem(stackReplace.getItem());
-					if (!LittleAction.isBlockValid(replacementBlock.getStateFromMeta(stackReplace.getMetadata()))) {
+					if (!LittleAction.isBlockValid(BlockUtils.getState(replacementBlock, stackReplace.getMetadata()))) {
 						openButtonDialogDialog("Invalid replacement block!", "ok");
 						return null;
 					}

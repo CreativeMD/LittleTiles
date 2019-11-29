@@ -6,6 +6,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackCollector;
 import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelectorAll.StackSelector;
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleInventory;
@@ -14,8 +15,6 @@ import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -28,11 +27,8 @@ public class LittleSubGuiUtils {
 		
 		@Override
 		public boolean allow(ItemStack stack) {
-			if (super.allow(stack)) {
-				Block block = Block.getBlockFromItem(stack.getItem());
-				if (block != null && !(block instanceof BlockAir))
-					return LittleAction.isBlockValid(block.getStateFromMeta(stack.getMetadata()));
-			}
+			if (super.allow(stack))
+				return LittleAction.isBlockValid(BlockUtils.getState(stack));
 			return false;
 		}
 		

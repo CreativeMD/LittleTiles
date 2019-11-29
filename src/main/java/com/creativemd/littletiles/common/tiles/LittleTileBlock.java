@@ -7,6 +7,7 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
@@ -102,7 +103,7 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	public void updateBlockState() {
-		state = block.getStateFromMeta(meta);
+		state = BlockUtils.getState(block, meta);
 		if (state == null)
 			state = block.getDefaultState();
 	}

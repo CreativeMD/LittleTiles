@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
@@ -124,7 +125,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			@Override
 			public BlockIngredient extract(ItemStack stack) {
 				Block block = Block.getBlockFromItem(stack.getItem());
-				if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(block.getStateFromMeta(stack.getMetadata()))) {
+				if (block != null && !(block instanceof BlockAir) && LittleAction.isBlockValid(BlockUtils.getState(block, stack.getMetadata()))) {
 					BlockIngredient ingredient = new BlockIngredient();
 					ingredient.add(IngredientUtils.getBlockIngredient(block, stack.getMetadata(), 1));
 					return ingredient;

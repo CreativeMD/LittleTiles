@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.utils.ingredients.rules;
 
+import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 
@@ -45,7 +46,7 @@ public abstract class BlockIngredientRule {
 		
 		@Override
 		public BlockIngredientEntry getBlockIngredient(Block block, int meta, double value) {
-			return IngredientUtils.create(block, getMeta(block.getStateFromMeta(meta), value), value);
+			return IngredientUtils.create(block, getMeta(BlockUtils.getState(block, meta), value), value);
 		}
 		
 		public abstract int getMeta(IBlockState state, double value);
