@@ -77,6 +77,7 @@ exception.permission.place=不能放置%s以上的方块
 exception.door.notloaded=无法与门互动（并非所有方块都已加载）
 exception.door.brokenparent=无法与门互动（已断开与父级的连接）
 exception.door.brokenchild=无法与门互动（已断开与子级的连接）
+exception.door.notenoughspace=有其他方块挡住了
 
 color.unit.black=黑色
 color.unit.cyan=青色
