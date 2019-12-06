@@ -2,7 +2,7 @@ item.LTHammer.name=Маленький молоток
 item.LTMultiTiles.name=Мульти-тайл структура
 item.LTRecipe.name=Маленький рецепт
 item.LTSaw.name=Маленькая пила
-item.LTContainer.name=Маленький контейнер
+item.LTContainer.name=Маленькая сумка
 item.LTWrench.name=Маленький гаечный ключ
 item.LTChisel.name=Маленькое долото
 item.LTScrewdriver.name=Маленькая отвертка
@@ -10,6 +10,7 @@ item.LTRubberMallet.name=Маленький резиновый молоток
 item.LTColorTube.name=Маленькая кисть
 item.LTUtilityKnife.name=Маленький универсальный нож
 item.LTGrabber.name=Маленькая перчатка
+item.LTRecipeAdvanced.name=Продвинутый рецепт
 
 tile.LTParticleBlock.name=Маленький блок частиц
 tile.LTColoredBlock.clean.name=Чистый цветной блок 
@@ -26,6 +27,12 @@ tile.LTColoredBlock.clay.name=Цветной глиняный блок
 tile.LTColoredBlock.light_clean.name=Цветной светящийся чистый блок
 tile.LTColoredBlock.plank.name=Цветные деревянные доски
 tile.LTColoredBlock.lava.name=Блок лавы
+tile.LTColoredBlock.white_lava.name=Белый блок лавы
+tile.LTColoredBlock2.gravel.name=Цветной блок гравия
+tile.LTColoredBlock2.sand.name=Цветной блок песка
+tile.LTColoredBlock2.stone.name=Цветной блок камня
+tile.LTColoredBlock2.wood.name=Цветной блок дерева
+tile.LTColoredBlock2.white_opaque_water.name=Белая непрозрачная вода
 
 tile.LTTransparentColoredBlock.clean.name=Чистый цветной блок 
 tile.LTTransparentColoredBlock.thick.name=Толстый цветной блок
@@ -33,10 +40,21 @@ tile.LTTransparentColoredBlock.thin.name=Тонкий цветной блок
 tile.LTTransparentColoredBlock.thinner.name=Тоньший цветной блок
 tile.LTTransparentColoredBlock.thinnest.name=Самый тонкий цветной блок
 tile.LTTransparentColoredBlock.water.name=Вода
+tile.LTTransparentColoredBlock.white_water.name=Белая вода
 
-tile.LTStorageBlockTile.name=Блок малого хранилища
+tile.LTStorageBlockTile.name=Маленький блок хранилища
 
 key.categories.littletiles=Настройки LittleTiles
+key.little.flip=Перевернуть предварительный просмотр
+key.little.mark=Отметить предварительный просмотр
+key.little.config.item=Настроить инструмент
+key.little.config=Configure Advanced
+key.rotatedown=Развернуть вниз
+key.rotateleft=Развернуть влево
+key.rotateright=Развернуть вправо
+key.rotateup=Развернуть вверх
+key.little.redo=Вперёд
+key.little.undo=Назад
 
 itemGroup.littletiles=LittleTiles
 
@@ -46,17 +64,20 @@ grabber.mode.replace=Режим замены
 
 action.tile.notthere=Тайл отсутствует
 action.tile.notfound=Тайл не найден
-action.tileentity.notfound=ТайлЭнтити не найдено
+action.tileentity.notfound=Тайл-сущность не найдено
+action.entity.notfound=Сущность не найдена
 action.structure.notloaded=Структура не загружена
 action.revert.notavailable=Действие не может быть отменено
 
-exception.ingredient.color=Недостаточно цвета
-exception.ingredient.volume=Недостаточно материала
-exception.ingredient.space.volume=Недостаточно места для материала
-exception.ingredient.space.color=Недостаточно места для цвета
-exception.ingredient.stack=Отсутствует
+exception.ingredient.missing=Недостаточно ингредиентов
+exception.ingredient.space=Недостаточно места для
 exception.permission.edit=Вы не можете редактировать более чем %s блоков за раз
+exception.permission.place.color=You are not allowed to place something with alpha below %s
 exception.permission.place=Вы не можете ставить более чем %s блоков за раз
+exception.door.notloaded=Не может взаимодействовать с дверью (загружены не все тайлы)
+exception.door.brokenparent=Cannot interact with door (broken connection to parent)
+exception.door.brokenchild=Cannot interact with door (broken connection to child)
+exception.door.notenoughspace=Что-то мешает
 
 color.unit.black=черный
 color.unit.red=красный
@@ -64,3 +85,85 @@ color.unit.green=зеленый
 color.unit.blue=синий
 color.unit.single=единица
 color.unit.multiple=единицы
+
+volume.unit.big.single=блок
+volume.unit.big.multiple=блоков
+volume.unit.big.short=б
+volume.unit.small.single=пиксель
+volume.unit.small.multiple=пикселей
+volume.unit.small.short=п
+
+selector.ingredients=Ингредиенты
+
+placement.mode.default=Режим по умолчанию
+placement.mode.default.tooltip=Может быть размещено, только если есть место для всех тайлов в намеченном блоке.
+placement.mode.placestructure=Можно разместить структуры.
+placement.mode.fill=Режим заполнения
+placement.mode.fill.tooltip=Постарается заполнить тайлы, если они не вмещаются.
+placement.mode.all=Все режим
+placement.mode.all.tooltip=Можно разместить, только если есть место для всех тайлов.
+placement.mode.overwrite=Режим перезаписи
+placement.mode.overwrite.tooltip=Поместит все тайлы и удалит перекрывающиеся области. \nНе удаляются тайлы структуры.
+placement.mode.replace=Режим замещения
+placement.mode.replace.tooltip=Поместит тайлы только в перекрывающееся пространство. \nНе удаляются тайлы структуры.
+
+markmode.gui.allowlowresolution=Низкое разрешение
+markmode.gui.switchpos=Сменить позицию
+
+commands.open.usage=Открывает все двери по заданной координате
+commands.open.notloaded=Структура не загружена
+commands.open.tovanilla=Конвертирует все загруженные тайл-сущности в ванильные блоки, если возможно
+
+item.LTPremade.workbench.name=Маленький верстак
+item.LTPremade.importer.name=Маленький импортер
+item.LTPremade.exporter.name=Маленький экспортёр
+
+selection.clear=очистить
+selection.dialog.clear=Вы действительно хотите очистить всё содержимое?
+selection.structure.name=имя структуры
+selection.structure.tiles=тайлы
+selection.structure.tile=тайл
+selection.include.vanilla=Обычные блоки
+selection.include.cb=C&B блоки
+selection.include.lt=LittleTiles блоки
+selection.include.structure=Запомнить структуры
+selection.mode.area.pos.first=Первая позиция выбрана [%s,%s,%s]
+selection.mode.area.pos.second=Вторая позиция выбрана [%s,%s,%s]
+selection.save=Сохранить
+selection.scale=Масштаб
+mode.selection.area=Область
+
+structure.none.name=Нет
+structure.fixed.name=Fixed
+structure.chair.name=Стул
+structure.ladder.name=Лестница
+structure.bed.name=Кровать
+structure.storage.name=Хранилище
+structure.noclip.name=No-clip
+structure.door.name=Axis Door
+structure.slidingDoor.name=Sliding Door
+structure.advancedDoor.name=Advanced Door
+structure.doorActivator.name=Door Activator
+
+structure.category.simple=Simple
+structure.category.door=Двери
+
+gui.door.duration=Длительность
+gui.door.stayAnimated=Оставить анимированным
+gui.door.stayAnimatedTooltip=Используйте только при необходимости, это повлияет на ваш FPS
+gui.door.children=Children
+gui.structure.hierarchy=Иерархия
+
+animation.event.child.name=Activate Child
+
+config.littletiles.invertStickToGrid=Invert stick to grid
+config.littletiles.maxSavedActions=Максимальное количество сохраненных действий
+config.littletiles.useALTForEverything=Использовать ALT для всего
+config.littletiles.useAltWhenFlying=Использовать ALT в полёте
+config.littletiles.hideParticleBlock=Скрыть блоки частиц
+config.littletiles.renderingThreadCount=Количество потоков рендеринга
+config.littletiles.highlightStructureBox=Выделять контуры структуры
+config.littletiles.previewLines=Line Preview
+config.littletiles.enableRandomDisplayTick=Enable Random Display Tick
+config.littletiles.useQuadCache=Use Quad-Cache
+config.littletiles.useCubeCache=Use Cube-Cache
