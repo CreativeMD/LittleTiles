@@ -661,6 +661,10 @@ public abstract class LittleStructure {
 		return count;
 	}
 	
+	public void finializePreview(LittlePreviews previews) {
+		
+	}
+	
 	// ====================LittleTile-Stuff====================
 	
 	public World getWorld() {

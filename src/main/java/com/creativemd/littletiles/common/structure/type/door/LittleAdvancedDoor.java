@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.CoreControl;
@@ -45,8 +44,6 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
-import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
-import com.creativemd.littletiles.common.utils.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -549,20 +546,6 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
 			door.stayAnimated = checkBox.value;
 			door.events = button.events;
-			List<LittlePreviews> previewChildren = previews.getChildren();
-			
-			if (!previewChildren.isEmpty()) {
-				BitSet set = new BitSet(previewChildren.size());
-				for (AnimationEvent event : door.events)
-					if (event instanceof ChildActivateEvent)
-						set.set(((ChildActivateEvent) event).childId);
-					
-				for (int i = 0; i < previewChildren.size(); i++)
-					if (set.get(i))
-						previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
-					else
-						previewChildren.get(i).getStructureData().removeTag("activateParent");
-			}
 			
 			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
 			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());

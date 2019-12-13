@@ -183,6 +183,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				savePreview();
+				finializePreview(previews);
 				
 				stack.setTagCompound(new NBTTagCompound());
 				LittleTilePreview.savePreview(previews, stack);
@@ -274,6 +275,20 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 			parser = null;
 		
 		get("name").setEnabled(parser != null);
+	}
+	
+	public void finializePreview(LittlePreviews previews) {
+		if (previews.hasStructure()) {
+			
+			LittleStructure structure = previews.getStructure();
+			structure.finializePreview(previews);
+			
+			if (previews.hasChildren())
+				for (LittlePreviews child : previews.getChildren())
+					finializePreview(child);
+				
+		} else if (previews.hasChildren())
+			throw new RuntimeException("None structures cannot have children!");
 	}
 	
 	public void savePreview() {

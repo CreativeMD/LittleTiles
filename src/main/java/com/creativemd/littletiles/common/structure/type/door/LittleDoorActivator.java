@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -82,6 +83,12 @@ public class LittleDoorActivator extends LittleDoor {
 		return false;
 	}
 	
+	@Override
+	protected void fillActivateChildren(BitSet set) {
+		for (int i : toActivate)
+			set.set(i);
+	}
+	
 	public static class LittleDoorActivatorParser extends LittleStructureGuiParser {
 		
 		public LittleDoorActivatorParser(GuiParent parent, AnimationGuiHandler handler) {
@@ -151,15 +158,6 @@ public class LittleDoorActivator extends LittleDoor {
 			for (int i = 0; i < activator.toActivate.length; i++)
 				activator.toActivate[i] = toActivate.get(i);
 			
-			List<LittlePreviews> previewChildren = previews.getChildren();
-			
-			if (!previewChildren.isEmpty()) {
-				for (int i = 0; i < previewChildren.size(); i++)
-					if (ArrayUtils.contains(activator.toActivate, i))
-						previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
-					else
-						previewChildren.get(i).getStructureData().removeTag("activateParent");
-			}
 			return activator;
 		}
 		

@@ -306,6 +306,13 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		return animation;
 	}
 	
+	@Override
+	protected void fillActivateChildren(BitSet set) {
+		for (AnimationEvent event : events)
+			if (event instanceof ChildActivateEvent)
+				set.set(((ChildActivateEvent) event).childId);
+	}
+	
 	public static void initDoors() {
 		LittleStructureRegistry.registerStructureType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE, LittleAxisDoorParser.class);
 		LittleStructureRegistry.registerStructureType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE, LittleSlidingDoorParser.class);
@@ -348,20 +355,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			door.duration = duration;
 			door.stayAnimated = stayAnimated;
 			door.events = button.events;
-			List<LittlePreviews> previewChildren = previews.getChildren();
 			
-			if (!previewChildren.isEmpty()) {
-				BitSet set = new BitSet(previewChildren.size());
-				for (AnimationEvent event : door.events)
-					if (event instanceof ChildActivateEvent)
-						set.set(((ChildActivateEvent) event).childId);
-					
-				for (int i = 0; i < previewChildren.size(); i++)
-					if (set.get(i))
-						previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
-					else
-						previewChildren.get(i).getStructureData().removeTag("activateParent");
-			}
 			return door;
 		}
 		

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure.type.door;
 
+import java.util.BitSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,6 +14,7 @@ import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,17 +47,20 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) {
 		if (!hasLoaded()) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
+			if (player != null)
+				player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
 			return null;
 		}
 		
 		if (!loadChildren()) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
+			if (player != null)
+				player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
 			return null;
 		}
 		
 		if (!loadParent()) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
+			if (player != null)
+				player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
 			return null;
 		}
 		
@@ -71,7 +76,8 @@ public abstract class LittleDoor extends LittleStructure {
 		
 		DoorOpeningResult result = canOpenDoor(player);
 		if (result == null) {
-			player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
+			if (player != null)
+				player.sendStatusMessage(new TextComponentTranslation("exception.door.notenoughspace"), true);
 			return null;
 		}
 		
@@ -162,6 +168,24 @@ public abstract class LittleDoor extends LittleStructure {
 		if (activateParent && parent != null)
 			return ((LittleDoor) parent.getStructure(getWorld())).getParentDoor();
 		return this;
+	}
+	
+	protected abstract void fillActivateChildren(BitSet set);
+	
+	@Override
+	public void finializePreview(LittlePreviews previews) {
+		List<LittlePreviews> previewChildren = previews.getChildren();
+		
+		if (!previewChildren.isEmpty()) {
+			BitSet set = new BitSet(previewChildren.size());
+			fillActivateChildren(set);
+			
+			for (int i = 0; i < previewChildren.size(); i++)
+				if (set.get(i))
+					previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
+				else
+					previewChildren.get(i).getStructureData().removeTag("activateParent");
+		}
 	}
 	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce);
