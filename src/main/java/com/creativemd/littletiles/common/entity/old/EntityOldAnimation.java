@@ -7,17 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.UUID;
 
-import javax.vecmath.Matrix3d;
 import javax.vecmath.Vector3d;
 
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.BoxPlane;
-import com.creativemd.creativecore.common.utils.math.box.BoxUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
-import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
-import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils;
-import com.creativemd.creativecore.common.utils.math.collision.MatrixUtils.MatrixLookupTable;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
@@ -25,7 +17,6 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.AABBCombiner;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
@@ -37,16 +28,12 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.MoverType;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -252,312 +239,15 @@ public abstract class EntityOldAnimation extends Entity {
 	}
 	
 	public void moveAndRotateAnimation(double x, double y, double z, double rotX, double rotY, double rotZ) {
-		boolean moved = false;
-		if (!preventPush) {
-			// Create rotation matrix to transform to caclulate surrounding box
-			Matrix3d rotationX = rotX != 0 ? MatrixUtils.createRotationMatrixX(rotX) : null;
-			Matrix3d rotationY = rotY != 0 ? MatrixUtils.createRotationMatrixY(rotY) : null;
-			Matrix3d rotationZ = rotZ != 0 ? MatrixUtils.createRotationMatrixZ(rotZ) : null;
-			Vector3d translation = x != 0 || y != 0 || z != 0 ? new Vector3d(x, y, z) : null;
-			
-			if (rotationX != null || rotationY != null || rotationZ != null || translation != null) {
-				AxisAlignedBB moveBB = BoxUtils.getRotatedSurrounding(worldBoundingBox, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation);
-				
-				noCollision = true;
-				
-				List<Entity> entities = world.getEntitiesWithinAABB(Entity.class, moveBB, EntityOldAnimation.NO_ANIMATION);
-				if (!entities.isEmpty()) {
-					// PHASE ONE
-					List<AxisAlignedBB> surroundingBoxes = new ArrayList<>(worldCollisionBoxes.size());
-					for (OrientatedBoundingBox box : worldCollisionBoxes) {
-						
-						if (box.cache == null)
-							box.buildCache();
-						box.cache.reset();
-						
-						surroundingBoxes.add(BoxUtils.getRotatedSurrounding(box, origin, rotationX, rotX, rotationY, rotY, rotationZ, rotZ, translation));
-					}
-					
-					// PHASE TWO
-					MatrixLookupTable table = new MatrixLookupTable(x, y, z, rotX, rotY, rotZ, rotationCenter, origin);
-					
-					PushCache[] caches = new PushCache[entities.size()];
-					
-					for (int j = 0; j < entities.size(); j++) {
-						Entity entity = entities.get(j);
-						AxisAlignedBB entityBox = entity.getEntityBoundingBox();
-						Vector3d center = new Vector3d(entityBox.minX + (entityBox.maxX - entityBox.minX) * 0.5D, entityBox.minY + (entityBox.maxY - entityBox.minY) * 0.5D, entityBox.minZ + (entityBox.maxZ - entityBox.minZ) * 0.5D);
-						
-						Vector3d temp = new Vector3d(entityBox.minX, entityBox.minY, entityBox.minZ);
-						temp.sub(center);
-						double radius = temp.lengthSquared();
-						
-						origin.transformPointToFakeWorld(center);
-						
-						Double t = null;
-						OrientatedBoundingBox pushingBox = null;
-						EnumFacing facing = null;
-						
-						checking_all_boxes: for (int i = 0; i < surroundingBoxes.size(); i++) {
-							if (surroundingBoxes.get(i).intersects(entityBox)) {
-								// Check for earliest hit
-								OrientatedBoundingBox box = worldCollisionBoxes.get(i);
-								
-								if (!box.cache.isCached())
-									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
-								
-								// Binary search
-								for (CollidingPlane plane : box.cache.planes) {
-									Double tempT = plane.binarySearch(t, entityBox, radius, center, table);
-									if (tempT != null) {
-										t = tempT;
-										pushingBox = box;
-										facing = plane.facing;
-										if (t == 0)
-											break checking_all_boxes;
-									}
-								}
-							}
-						}
-						
-						// Applying found t
-						if (t != null) {
-							PushCache cache = new PushCache();
-							cache.facing = facing;
-							
-							Vector3d newCenter = new Vector3d(center);
-							table.transform(newCenter, 1 - t);
-							
-							origin.transformPointToWorld(center);
-							origin.transformPointToWorld(newCenter);
-							
-							cache.pushBox = pushingBox;
-							cache.entityBox = entityBox.offset(newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);
-							caches[j] = cache;
-						}
-					}
-					
-					posX += x;
-					posY += y;
-					posZ += z;
-					
-					worldRotX += rotX;
-					worldRotY += rotY;
-					worldRotZ += rotZ;
-					
-					updateOrigin();
-					moved = true;
-					
-					// PHASE THREE
-					for (int i = 0; i < entities.size(); i++) {
-						Entity entity = entities.get(i);
-						PushCache cache = caches[i];
-						
-						boolean cached = cache != null;
-						if (!cached) {
-							cache = new PushCache();
-							cache.entityBox = entity.getEntityBoundingBox();
-						}
-						
-						Vector3d[] corners = BoxUtils.getCorners(cache.entityBox);
-						
-						double minX = Double.MAX_VALUE;
-						double minY = Double.MAX_VALUE;
-						double minZ = Double.MAX_VALUE;
-						double maxX = -Double.MAX_VALUE;
-						double maxY = -Double.MAX_VALUE;
-						double maxZ = -Double.MAX_VALUE;
-						
-						for (int h = 0; h < corners.length; h++) {
-							Vector3d vec = corners[h];
-							vec.sub(origin.translation());
-							
-							vec.sub(rotationCenter);
-							origin.rotationInv().transform(vec);
-							vec.add(rotationCenter);
-							
-							minX = Math.min(minX, vec.x);
-							minY = Math.min(minY, vec.y);
-							minZ = Math.min(minZ, vec.z);
-							maxX = Math.max(maxX, vec.x);
-							maxY = Math.max(maxY, vec.y);
-							maxZ = Math.max(maxZ, vec.z);
-						}
-						
-						OrientatedBoundingBox fakeBox = new OrientatedBoundingBox(origin, minX, minY, minZ, maxX, maxY, maxZ);
-						Vector3d center = fakeBox.getCenter3d();
-						
-						Axis one = cached ? RotationUtils.getDifferentAxisFirst(cache.facing.getAxis()) : null;
-						Axis two = cached ? RotationUtils.getDifferentAxisSecond(cache.facing.getAxis()) : null;
-						
-						boolean ignoreOne = false;
-						Boolean positiveOne = null;
-						boolean ignoreTwo = false;
-						Boolean positiveTwo = null;
-						
-						double maxVolume = 0;
-						
-						List<OrientatedBoundingBox> intersecting = new ArrayList<>();
-						List<EnumFacing> intersectingFacing = new ArrayList<>();
-						
-						if (cached) {
-							intersecting.add(cache.pushBox);
-							intersectingFacing.add(cache.facing);
-						}
-						
-						for (OrientatedBoundingBox box : worldCollisionBoxes) {
-							if ((!cached || box != cache.pushBox) && box.intersects(fakeBox)) {
-								if (!box.cache.isCached())
-									box.cache.planes = CollidingPlane.getPlanes(box, box.cache, table);
-								
-								boolean add = !cached;
-								EnumFacing facing = CollidingPlane.getDirection(box, box.cache.planes, center);
-								
-								if (facing == null || (!table.hasOneRotation && RotationUtils.get(facing.getAxis(), translation) == 0))
-									continue;
-								
-								if (cached) {
-									if (facing == cache.facing)
-										add = true;
-									else if (!ignoreOne && facing.getAxis() == one) {
-										add = true;
-										if (positiveOne == null)
-											positiveOne = facing.getAxisDirection() == AxisDirection.POSITIVE;
-										else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne) {
-											ignoreOne = true;
-											add = false;
-										}
-									} else if (!ignoreTwo && facing.getAxis() == two) {
-										add = true;
-										if (positiveTwo == null)
-											positiveTwo = facing.getAxisDirection() == AxisDirection.POSITIVE;
-										else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo) {
-											ignoreTwo = true;
-											add = false;
-										}
-									}
-								}
-								
-								if (add) {
-									double intersectingVolume = box.getIntersectionVolume(fakeBox);
-									
-									if (intersectingVolume > maxVolume) {
-										cache.pushBox = box;
-										maxVolume = intersectingVolume;
-										cache.facing = facing;
-									}
-									
-									intersecting.add(box);
-									intersectingFacing.add(facing);
-								}
-							}
-						}
-						
-						if (intersecting.isEmpty())
-							continue;
-						
-						if (!cached) {
-							one = RotationUtils.getDifferentAxisFirst(cache.facing.getAxis());
-							two = RotationUtils.getDifferentAxisSecond(cache.facing.getAxis());
-							
-							positiveOne = null;
-							positiveTwo = null;
-							
-							for (EnumFacing facing : intersectingFacing) {
-								
-								if (!ignoreOne && facing.getAxis() == one) {
-									if (positiveOne == null)
-										positiveOne = facing.getAxisDirection() == AxisDirection.POSITIVE;
-									else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveOne)
-										ignoreOne = true;
-								} else if (!ignoreTwo && facing.getAxis() == two) {
-									if (positiveTwo == null)
-										positiveTwo = facing.getAxisDirection() == AxisDirection.POSITIVE;
-									else if (facing.getAxisDirection() == AxisDirection.POSITIVE != positiveTwo)
-										ignoreTwo = true;
-								}
-								
-								if (ignoreOne && ignoreTwo)
-									break;
-							}
-						}
-						
-						// Now things are ready. Go through all intersecting ones and push the box out
-						Vector3d pushVec = new Vector3d();
-						RotationUtils.setValue(pushVec, cache.facing.getAxisDirection().getOffset(), cache.facing.getAxis());
-						if (!ignoreOne && positiveOne != null)
-							RotationUtils.setValue(pushVec, positiveOne ? 1 : -1, one);
-						if (!ignoreTwo && positiveTwo != null)
-							RotationUtils.setValue(pushVec, positiveTwo ? 1 : -1, two);
-						
-						Vector3d pushInv = new Vector3d(-pushVec.x, -pushVec.y, -pushVec.z);
-						
-						Vector3d rotatedVec = new Vector3d(pushVec);
-						origin.rotation().transform(rotatedVec);
-						
-						BoxPlane xPlane = BoxPlane.createOppositePlane(Axis.X, rotatedVec, corners);
-						BoxPlane yPlane = BoxPlane.createOppositePlane(Axis.Y, rotatedVec, corners);
-						BoxPlane zPlane = BoxPlane.createOppositePlane(Axis.Z, rotatedVec, corners);
-						
-						double scale = 0;
-						
-						for (int j = 0; j < intersecting.size(); j++) {
-							
-							EnumFacing facing = intersectingFacing.get(j);
-							
-							if ((ignoreOne && facing.getAxis() == one) || (ignoreTwo && facing.getAxis() == two))
-								continue;
-							
-							scale = intersecting.get(j).getPushOutScale(scale, fakeBox, cache.entityBox, pushVec, pushInv, xPlane, yPlane, zPlane);
-						}
-						
-						boolean collidedHorizontally = entity.collidedHorizontally;
-						boolean collidedVertically = entity.collidedVertically;
-						boolean onGround = entity.onGround;
-						
-						AxisAlignedBB originalBox = entity.getEntityBoundingBox();
-						
-						double moveX = cache.entityBox.minX - originalBox.minX + rotatedVec.x * scale;
-						double moveY = cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale;
-						double moveZ = cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale;
-						
-						entity.move(MoverType.PISTON, moveX, moveY, moveZ);
-						
-						if (entity instanceof EntityPlayerMP)
-							LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
-						
-						/* entity.motionX += moveX; entity.motionY += moveY; entity.motionZ += moveZ; */
-						
-						if (moveX != 0 || moveZ != 0)
-							collidedHorizontally = true;
-						if (moveY != 0) {
-							collidedVertically = true;
-							onGround = true;
-						}
-						
-						entity.collidedHorizontally = collidedHorizontally;
-						entity.collidedVertically = collidedVertically;
-						entity.onGround = onGround;
-						entity.collided = collidedHorizontally || collidedVertically;
-						
-					}
-				}
-				
-				noCollision = false;
-			}
-		}
+		posX += x;
+		posY += y;
+		posZ += z;
 		
-		if (!moved) {
-			posX += x;
-			posY += y;
-			posZ += z;
-			
-			worldRotX += rotX;
-			worldRotY += rotY;
-			worldRotZ += rotZ;
-			
-			updateOrigin();
-		}
+		worldRotX += rotX;
+		worldRotY += rotY;
+		worldRotZ += rotZ;
+		
+		updateOrigin();
 	}
 	
 	public void moveXTo(double x) {
