@@ -278,17 +278,12 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 	}
 	
 	public void finializePreview(LittlePreviews previews) {
-		if (previews.hasStructure()) {
-			
-			LittleStructure structure = previews.getStructure();
-			structure.finializePreview(previews);
-			
-			if (previews.hasChildren())
-				for (LittlePreviews child : previews.getChildren())
-					finializePreview(child);
-				
-		} else if (previews.hasChildren())
-			throw new RuntimeException("None structures cannot have children!");
+		if (previews.hasStructure())
+			previews.getStructure().finializePreview(previews);
+		
+		if (previews.hasChildren())
+			for (LittlePreviews child : previews.getChildren())
+				finializePreview(child);
 	}
 	
 	public void savePreview() {
