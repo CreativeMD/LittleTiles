@@ -23,6 +23,7 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
+import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
@@ -201,7 +202,10 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		if (world.isRemote)
 			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
-		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
+		LittlePlaceResult result = LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
+		
+		if (result == null)
+			throw new RuntimeException("Something went wrong during placing the door!");
 		
 		controller.activator = player;
 		
@@ -272,10 +276,19 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		LittleAbsolutePreviewsStructure previews = getDoorPreviews(transform);
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : getAllTilesSameWorld(new HashMapList<>()).entrySet())
-			entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
+		HashMapList<TileEntityLittleTiles, LittleTile> allTilesFromWorld = getAllTilesSameWorld(new HashMapList<>());
+		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : allTilesFromWorld.entrySet()) {
+			entry.getKey().updateTilesSecretly((x) -> x.removeAll(entry.getValue()));
+		}
 		
-		return place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
+		EntityAnimation animation = place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
+		
+		World world = getWorld();
+		if (!world.isRemote && world instanceof WorldServer)
+			for (TileEntityLittleTiles te : allTilesFromWorld.keySet())
+				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
+			
+		return animation;
 	}
 	
 	public abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration);
