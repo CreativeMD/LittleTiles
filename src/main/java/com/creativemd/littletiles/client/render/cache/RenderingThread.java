@@ -379,7 +379,6 @@ public class RenderingThread extends Thread {
 		te.lastRenderedChunk = null;
 		te.inRenderingQueue.set(false);
 		te.buildingCache.set(false);
-		te.clearWaitingAnimations();
 		
 		synchronized (chunks) {
 			AtomicInteger count = chunks.get(data.chunk);
