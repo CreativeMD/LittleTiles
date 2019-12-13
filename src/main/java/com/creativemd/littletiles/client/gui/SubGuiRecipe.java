@@ -242,7 +242,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		GuiComboBoxCategory<Class<? extends LittleStructureGuiParser>> types = (GuiComboBoxCategory) get("types");
 		Pair<String, Class<? extends LittleStructureGuiParser>> selected = types.getSelected();
 		
-		if (selected.value == null && this.selected.parent != null) {
+		/*if (selected.value == null && this.selected.parent != null) {
 			int index = 0;
 			for (Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>> category : craftables) {
 				int currentIndex = category.value.indexOfKey("structure." + (structure != null ? structure.type.id : "none") + ".name");
@@ -253,7 +253,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 				index += category.value.size();
 			}
 			return;
-		}
+		}*/
 		
 		if (parser != null)
 			removeListener(parser);

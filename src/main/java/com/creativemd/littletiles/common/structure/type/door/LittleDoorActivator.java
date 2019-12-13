@@ -49,10 +49,23 @@ public class LittleDoorActivator extends LittleDoor {
 		toActivate = nbt.getIntArray("activate");
 	}
 	
+	public LittleDoor getChildrenDoor(int index) {
+		if (index >= 0 && index < children.size()) {
+			LittleStructure structure = children.get(index).getStructure(getWorld());
+			if (structure instanceof LittleDoor)
+				return (LittleDoor) structure;
+			return null;
+		}
+		return null;
+	}
+	
 	@Override
 	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) {
 		for (int i : toActivate) {
-			EntityAnimation childAnimation = ((LittleDoor) children.get(i).getStructure(getWorld())).openDoor(player, uuid, result, tickOnce);
+			LittleDoor child = getChildrenDoor(i);
+			if (child == null)
+				continue;
+			EntityAnimation childAnimation = child.openDoor(player, uuid, result, tickOnce);
 			if (childAnimation != null)
 				childAnimation.controller.onServerApproves();
 		}
@@ -62,24 +75,36 @@ public class LittleDoorActivator extends LittleDoor {
 	@Override
 	public int getCompleteDuration() {
 		int duration = 0;
-		for (int i : toActivate)
-			duration = Math.max(duration, ((LittleDoor) children.get(i).getStructure(getWorld())).getCompleteDuration());
+		for (int i : toActivate) {
+			LittleDoor child = getChildrenDoor(i);
+			if (child == null)
+				continue;
+			duration = Math.max(duration, child.getCompleteDuration());
+		}
 		return duration;
 	}
 	
 	@Override
 	public List<LittleDoor> collectDoorsToCheck() {
 		List<LittleDoor> doors = new ArrayList<>();
-		for (int i : toActivate)
-			doors.add((LittleDoor) children.get(i).getStructure(getWorld()));
+		for (int i : toActivate) {
+			LittleDoor child = getChildrenDoor(i);
+			if (child == null)
+				continue;
+			doors.add(child);
+		}
 		return doors;
 	}
 	
 	@Override
 	public boolean isInMotion() {
-		for (int i : toActivate)
-			if (((LittleDoor) children.get(i).getStructure(getWorld())).isInMotion())
+		for (int i : toActivate) {
+			LittleDoor child = getChildrenDoor(i);
+			if (child == null)
+				continue;
+			if (child.isInMotion())
 				return true;
+		}
 		return false;
 	}
 	
@@ -116,7 +141,8 @@ public class LittleDoorActivator extends LittleDoor {
 			int i = 0;
 			int added = 0;
 			for (LittlePreviews child : previews.getChildren()) {
-				if (LittleDoor.class.isAssignableFrom(LittleStructureRegistry.getStructureClass(child.getStructureId()))) {
+				Class clazz = LittleStructureRegistry.getStructureClass(child.getStructureId());
+				if (clazz != null && LittleDoor.class.isAssignableFrom(clazz)) {
 					box.addControl(new GuiCheckBox("" + i, getDisplayName(child, i), 0, added * 20, activator != null && ArrayUtils.contains(activator.toActivate, i)));
 					possibleChildren.add(i);
 					added++;

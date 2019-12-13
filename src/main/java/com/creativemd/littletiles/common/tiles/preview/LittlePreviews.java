@@ -291,8 +291,14 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews.iterator();
 	}
 	
-	public static LittlePreviewsStructure getChild(LittleGridContext context, NBTTagCompound nbt) {
-		LittlePreviewsStructure previews = (LittlePreviewsStructure) LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(nbt.getCompoundTag("structure"), context), nbt.getTagList("tiles", 10));
+	public static LittlePreviews getChild(LittleGridContext context, NBTTagCompound nbt) {
+		LittlePreviews previews;
+		if (nbt.hasKey("structure"))
+			previews = new LittlePreviewsStructure(nbt.getCompoundTag("structure"), context);
+		else
+			previews = new LittlePreviews(context);
+		
+		previews = LittleNBTCompressionTools.readPreviews(previews, nbt.getTagList("tiles", 10));
 		if (nbt.hasKey("children")) {
 			NBTTagList list = nbt.getTagList("children", 10);
 			for (int i = 0; i < list.tagCount(); i++) {

@@ -180,11 +180,14 @@ public abstract class LittleDoor extends LittleStructure {
 			BitSet set = new BitSet(previewChildren.size());
 			fillActivateChildren(set);
 			
-			for (int i = 0; i < previewChildren.size(); i++)
+			for (int i = 0; i < previewChildren.size(); i++) {
+				if (!previewChildren.get(i).hasStructure())
+					continue;
 				if (set.get(i))
 					previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
 				else
 					previewChildren.get(i).getStructureData().removeTag("activateParent");
+			}
 		}
 	}
 	

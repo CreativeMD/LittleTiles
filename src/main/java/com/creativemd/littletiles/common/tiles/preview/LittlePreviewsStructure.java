@@ -22,7 +22,7 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	
 	@Override
 	public boolean hasStructure() {
-		return true;
+		return nbt.getSize() > 0;
 	}
 	
 	@Override
