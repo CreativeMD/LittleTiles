@@ -34,7 +34,7 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	@Override
 	public void addChild(LittlePreviews child) {
 		super.addChild(child);
-		if (structure != null)
+		if (structure != null && child.hasStructure())
 			structure.addTempChild(child.getStructure());
 	}
 	
@@ -44,7 +44,8 @@ public class LittlePreviewsStructure extends LittlePreviews {
 			structure = LittleStructure.createAndLoadStructure(nbt, null);
 			structure.createTempChildList();
 			for (LittlePreviews child : getChildren()) {
-				structure.addTempChild(child.getStructure());
+				if (child.hasStructure())
+					structure.addTempChild(child.getStructure());
 			}
 		}
 		return structure;
