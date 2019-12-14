@@ -394,7 +394,7 @@ public class EntityAnimation extends Entity {
 				
 				OrientatedBoundingBox fakeBox = coordinator.origin.getOrientatedBox(cache.entityBox);
 				Vector3d center = new Vector3d(cache.entityBox.minX + (cache.entityBox.maxX - cache.entityBox.minX) * 0.5D, cache.entityBox.minY + (cache.entityBox.maxY - cache.entityBox.minY) * 0.5D, cache.entityBox.minZ + (cache.entityBox.maxZ - cache.entityBox.minZ) * 0.5D);
-				//coordinator.origin.transformPointToFakeWorld(center);
+				coordinator.origin.transformPointToFakeWorld(center);
 				
 				Axis one = cached ? RotationUtils.getDifferentAxisFirst(cache.facing.getAxis()) : null;
 				Axis two = cached ? RotationUtils.getDifferentAxisSecond(cache.facing.getAxis()) : null;
@@ -418,7 +418,7 @@ public class EntityAnimation extends Entity {
 					if ((!cached || box != cache.pushBox) && box.intersects(fakeBox)) {
 						box.cache.planes = CollidingPlane.getPlanes(box, box.cache, coordinator);
 						
-						EnumFacing facing = CollidingPlane.getDirection(box, box.cache.planes, center);
+						EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
 						
 						if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils.get(facing.getAxis(), coordinator.translation) == 0)))
 							continue;
