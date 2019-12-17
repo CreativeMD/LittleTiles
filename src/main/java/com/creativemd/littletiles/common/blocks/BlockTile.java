@@ -25,7 +25,7 @@ import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
-import com.creativemd.littletiles.common.mods.chisel.ChiselManager;
+import com.creativemd.littletiles.common.mods.ctm.CTMManager;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
@@ -1046,17 +1046,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
-	@Method(modid = "ctm")
+	@Method(modid = CTMManager.ctmID)
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side) {
 		return world.getBlockState(pos);
 	}
 	
 	@Override
-	@Method(modid = "ctm")
+	@Method(modid = CTMManager.ctmID)
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side, BlockPos connection) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			IBlockState lookingFor = ChiselManager.isInstalled() ? ChiselManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
+			IBlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
 			for (LittleTile tile : te) {
 				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == lookingFor.getBlock() && ((LittleTileBlock) tile).getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
 					return lookingFor;

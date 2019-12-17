@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.mods.chisel;
+package com.creativemd.littletiles.common.mods.ctm;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -10,11 +10,11 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
-public class ChiselManager {
+public class CTMManager {
 	
-	public static final String chiselID = "chisel";
+	public static final String ctmID = "ctm";
 	
-	private static boolean isinstalled = Loader.isModLoaded(chiselID);
+	private static boolean isinstalled = Loader.isModLoaded(ctmID);
 	
 	public static boolean isInstalled() {
 		return isinstalled;
