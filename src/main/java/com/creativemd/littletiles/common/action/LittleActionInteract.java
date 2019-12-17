@@ -83,7 +83,7 @@ public abstract class LittleActionInteract extends LittleAction {
 		Vec3d look = this.look;
 		
 		if (uuid != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+			EntityAnimation animation = LittleDoorHandler.getHandler(player.world.isRemote).findDoor(uuid);
 			if (animation == null)
 				onEntityNotFound();
 			

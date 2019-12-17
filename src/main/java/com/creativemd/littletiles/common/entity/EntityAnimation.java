@@ -148,7 +148,7 @@ public class EntityAnimation extends Entity {
 		if (!shouldAddDoor())
 			return;
 		if (!addedDoor) {
-			LittleDoorHandler.getHandler(world).createDoor(this);
+			LittleDoorHandler.getHandler(world.isRemote).createDoor(this);
 			addedDoor = true;
 		}
 	}

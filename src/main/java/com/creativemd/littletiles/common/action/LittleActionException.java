@@ -19,6 +19,22 @@ public class LittleActionException extends Exception {
 		return I18n.translateToLocal(getMessage());
 	}
 	
+	public boolean isHidden() {
+		return false;
+	}
+	
+	public static class LittleActionExceptionHidden extends LittleActionException {
+		
+		public LittleActionExceptionHidden(String msg) {
+			super(msg);
+		}
+		
+		@Override
+		public boolean isHidden() {
+			return true;
+		}
+	}
+	
 	public static class TileNotThereException extends LittleActionException {
 		
 		public TileNotThereException() {

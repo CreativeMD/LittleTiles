@@ -33,7 +33,7 @@ public class LittleResetAnimationPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(animationUUID);
+		EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(animationUUID);
 		if (animation == null)
 			return;
 		animation.isDead = true;

@@ -66,10 +66,10 @@ public class LittleDoorHandler {
 	public static LittleDoorHandler client;
 	public static LittleDoorHandler server;
 	
-	public static LittleDoorHandler getHandler(World world) {
-		if (world.isRemote)
-			return client;
-		return server;
+	public static LittleDoorHandler getHandler(boolean client) {
+		if (client)
+			return LittleDoorHandler.client;
+		return LittleDoorHandler.server;
 	}
 	
 	public final Side side;

@@ -69,6 +69,8 @@ public abstract class EntityAnimationController extends AnimationController {
 	
 	public abstract void transform(LittleTransformation transformation);
 	
+	public abstract void onPlacedByServer();
+	
 	public static EntityAnimationController parseController(EntityAnimation animation, NBTTagCompound nbt) {
 		Class<? extends EntityAnimationController> controllerType = controllerTypes.get(nbt.getString("id"));
 		if (controllerType == null)

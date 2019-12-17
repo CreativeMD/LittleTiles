@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
@@ -79,7 +80,10 @@ public class OpenCommand extends CommandBase {
 		}
 		
 		for (LittleDoor door : doors) {
-			door.activate(null, null, null, true);
+			try {
+				door.activate(null, null, null, true);
+			} catch (LittleActionException e) {
+			}
 		}
 		
 	}

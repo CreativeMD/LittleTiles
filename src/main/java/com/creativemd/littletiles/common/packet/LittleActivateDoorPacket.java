@@ -78,7 +78,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 		World world = player.world;
 		
 		if (worldUUID != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(worldUUID);
+			EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(worldUUID);
 			if (animation == null)
 				return;
 			
@@ -105,7 +105,7 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 			World world = player.world;
 			
 			if (worldUUID != null) {
-				EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(worldUUID);
+				EntityAnimation animation = LittleDoorHandler.getHandler(false).findDoor(worldUUID);
 				if (animation == null)
 					return;
 				

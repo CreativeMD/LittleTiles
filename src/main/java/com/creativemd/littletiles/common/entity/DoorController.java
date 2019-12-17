@@ -5,11 +5,14 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
+import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
@@ -30,6 +33,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -49,6 +53,8 @@ public class DoorController extends EntityAnimationController {
 	public EntityPlayer activator;
 	public DoorOpeningResult result;
 	public UUIDSupplier supplier;
+	
+	public boolean serverPlaced = false;
 	
 	protected boolean modifiedTransition;
 	
@@ -232,6 +238,13 @@ public class DoorController extends EntityAnimationController {
 			return;
 		}
 		
+		if (serverPlaced) {
+			placed = true;
+			waitingForRender = null;
+			parent.isDead = true;
+			return;
+		}
+		
 		World world = parent.world;
 		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
@@ -239,7 +252,8 @@ public class DoorController extends EntityAnimationController {
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
 		LittleStructure newDoor = previews.getStructure();
-		
+		if (!(world instanceof CreativeWorld) && world.isRemote)
+			((LittleDoor) newDoor).waitingForApproval = true;
 		LittlePlaceResult result;
 		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
 			
@@ -266,9 +280,11 @@ public class DoorController extends EntityAnimationController {
 			return;
 		}
 		
-		if (!world.isRemote)
+		if (!world.isRemote) {
 			parent.isDead = true;
-		else {
+			if (!(world instanceof CreativeWorld))
+				PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(parent.getUniqueID(), newDoor.getMainTile()), parent, null, (WorldServer) parent.world);
+		} else {
 			waitingForRender = new ArrayList<>();
 			synchronized (waitingForRender) {
 				for (TileEntityLittleTiles te : result.tileEntities) {
@@ -354,6 +370,11 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void onServerApproves() {
 		isWaitingForApprove = false;
+	}
+	
+	@Override
+	public void onPlacedByServer() {
+		serverPlaced = true;
 	}
 	
 	@Override

@@ -34,8 +34,8 @@ import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone.LittleActionGlowstoneRevert;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
-import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava;
@@ -90,9 +90,11 @@ import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleResetAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
@@ -464,18 +466,20 @@ public class LittleTiles {
 			}
 		});
 		
-		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "LittleBlock");
-		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "LittleRotate");
-		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "LittleFlip");
-		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "LittleNeighbor");
-		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class, "LittleDoor");
-		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "EntityRequest");
-		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LittleBed");
-		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TileUpdate");
-		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VanillaBlock");
-		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "Selection");
+		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "B");
+		CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class, "BS");
+		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "R");
+		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "F");
+		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "N");
+		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class, "LD");
+		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "ER");
+		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LB");
+		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TU");
+		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VB");
+		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "SM");
 		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
 		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class, "RA");
+		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class, "PA");
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		

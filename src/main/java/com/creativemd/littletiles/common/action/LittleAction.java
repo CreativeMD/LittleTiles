@@ -210,6 +210,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	@SideOnly(Side.CLIENT)
 	public static void handleExceptionClient(LittleActionException e) {
+		if (e.isHidden())
+			return;
+		
 		ActionMessage message = e.getActionMessage();
 		if (message != null)
 			LittleTilesClient.overlay.addMessage(message);

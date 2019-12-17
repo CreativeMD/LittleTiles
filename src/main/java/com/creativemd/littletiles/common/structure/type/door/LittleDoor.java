@@ -8,6 +8,8 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.action.LittleActionException.LittleActionExceptionHidden;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
@@ -33,6 +35,7 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public boolean activateParent = false;
+	public boolean waitingForApproval = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
@@ -45,7 +48,10 @@ public abstract class LittleDoor extends LittleStructure {
 			nbt.setBoolean("activateParent", activateParent);
 	}
 	
-	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) {
+	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+		if (waitingForApproval)
+			throw new LittleActionExceptionHidden("Door has not been approved yet!");
+		
 		if (!hasLoaded()) {
 			if (player != null)
 				player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
@@ -95,7 +101,7 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
 		if (world.isRemote) {
 			activate(player, tile, null, true);
 			action.preventInteraction = true;

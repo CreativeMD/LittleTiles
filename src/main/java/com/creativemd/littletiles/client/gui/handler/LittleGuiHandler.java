@@ -31,7 +31,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	public World getWorld(NBTTagCompound nbt, EntityPlayer player) {
 		if (nbt.hasKey("uuid")) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(UUID.fromString(nbt.getString("uuid")));
+			EntityAnimation animation = LittleDoorHandler.getHandler(player.world.isRemote).findDoor(UUID.fromString(nbt.getString("uuid")));
 			if (animation != null)
 				return animation.fakeWorld;
 			throw new RuntimeException("Could not find world " + nbt.getString("uuid"));

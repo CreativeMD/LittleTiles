@@ -53,7 +53,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	protected World getWorld(World world) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(world).findDoor(entityUUID);
+		EntityAnimation animation = LittleDoorHandler.getHandler(world.isRemote).findDoor(entityUUID);
 		if (animation != null)
 			return animation.fakeWorld;
 		return null;
@@ -90,7 +90,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	@Override
 	public void destroyStructure() {
 		connectedStructure.onStructureDestroyed();
-		EntityAnimation animation = LittleDoorHandler.getHandler(connectedStructure.getWorld()).findDoor(entityUUID);
+		EntityAnimation animation = LittleDoorHandler.getHandler(connectedStructure.getWorld().isRemote).findDoor(entityUUID);
 		if (animation != null)
 			animation.isDead = true;
 		for (IStructureChildConnector child : connectedStructure.children)

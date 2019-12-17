@@ -45,7 +45,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(player.world).findDoor(uuid);
+		EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(uuid);
 		if (animation != null) {
 			updateAnimation(animation);
 			return;
