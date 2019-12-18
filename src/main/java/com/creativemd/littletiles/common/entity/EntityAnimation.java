@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
@@ -299,7 +300,8 @@ public class EntityAnimation extends Entity {
 			return;
 		
 		CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, origin, origin);
-		moveAndRotateAnimation(coordinator);
+		if (SpecialServerConfig.enableAnimationCollision)
+			moveAndRotateAnimation(coordinator);
 		coordinator.move();
 	}
 	
@@ -488,9 +490,11 @@ public class EntityAnimation extends Entity {
 				if (entity instanceof EntityPlayerMP)
 					LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
 				
-				entity.motionX += moveX;
-				entity.motionY += moveY;
-				entity.motionZ += moveZ; //used to apply motion but this is broken for doors because they can be way too fast */
+				if (SpecialServerConfig.enableCollisionMotion) {
+					entity.motionX += moveX;
+					entity.motionY += moveY;
+					entity.motionZ += moveZ;
+				}
 				
 				if (moveX != 0 || moveZ != 0)
 					collidedHorizontally = true;

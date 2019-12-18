@@ -32,6 +32,9 @@ public class SpecialServerConfig {
 	
 	public static boolean enableBed = true;
 	
+	public static boolean enableAnimationCollision = true;
+	public static boolean enableCollisionMotion = true;
+	
 	public static boolean isEditLimited(EntityPlayer player) {
 		if (limitEditBlocksSurvival)
 			return !player.isCreative();
