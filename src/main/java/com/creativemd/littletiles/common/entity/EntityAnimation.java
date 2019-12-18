@@ -416,7 +416,7 @@ public class EntityAnimation extends Entity {
 						
 						double intersectingVolume = box.getIntersectionVolume(cache.entityBoxOrientated);
 						
-						if (intersectingVolume > maxVolume) {
+						if (maxVolume == 0 || intersectingVolume > maxVolume) {
 							maxVolume = intersectingVolume;
 							cache.facing = facing;
 						}
