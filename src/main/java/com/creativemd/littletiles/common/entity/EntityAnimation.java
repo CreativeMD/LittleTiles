@@ -135,7 +135,7 @@ public class EntityAnimation extends Entity {
 	
 	public World getRealWorld() {
 		if (world instanceof SubWorld)
-			return ((SubWorld) world).getParent();
+			return ((SubWorld) world).getRealWorld();
 		return world;
 	}
 	
