@@ -13,6 +13,7 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRen
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
@@ -701,7 +702,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (worldIn.isRemote)
 				te.onNeighBorChangedClient();
 			else
-				PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(worldIn, pos, fromPos), 100, pos);
+				PacketHandler.sendPacketToNearPlayers(worldIn instanceof CreativeWorld ? ((CreativeWorld) worldIn).getRealWorld() : worldIn, new LittleNeighborUpdatePacket(worldIn, pos, fromPos), 100, pos);
 		}
 	}
 	
