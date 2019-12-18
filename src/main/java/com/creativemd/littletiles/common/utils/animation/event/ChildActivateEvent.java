@@ -95,7 +95,7 @@ public class ChildActivateEvent extends AnimationEvent {
 			
 			GuiParent parent = new GuiParent("temp", 0, 0, 0, 0) {
 			};
-			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(getTick(), handler), child, childAnimation);
+			AnimationGuiHolder holder = new AnimationGuiHolder(previews.getChildren().get(childId), new AnimationGuiHandler(getTick(), handler), childAnimation.structure, childAnimation);
 			LittleStructureGuiParser parser = LittleStructureRegistry.getParser(parent, holder.handler, LittleStructureRegistry.getParserClass("structure." + child.type.id + ".name"));
 			parser.createControls(holder.previews, holder.previews.getStructure());
 			if (holder.handler.hasTimeline())
