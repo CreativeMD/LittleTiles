@@ -11,9 +11,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
@@ -27,7 +25,6 @@ import com.creativemd.littletiles.common.items.ItemLittleSaw;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.mods.ctm.CTMManager;
-import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -40,6 +37,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -702,7 +700,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (worldIn.isRemote)
 				te.onNeighBorChangedClient();
 			else
-				PacketHandler.sendPacketToNearPlayers(worldIn instanceof CreativeWorld ? ((CreativeWorld) worldIn).getRealWorld() : worldIn, new LittleNeighborUpdatePacket(worldIn, pos, fromPos), 100, pos);
+				LittleTilesServer.NEIGHBOR.add(worldIn, pos);
 		}
 	}
 	
@@ -716,11 +714,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			if (te.getWorld().isRemote)
 				te.onNeighBorChangedClient();
-			else {
-				/* for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				 * LittleTile tile = (LittleTile) iterator.next();
-				 * tile.onNeighborChangeOutside(); } */
-			}
 		}
 	}
 	

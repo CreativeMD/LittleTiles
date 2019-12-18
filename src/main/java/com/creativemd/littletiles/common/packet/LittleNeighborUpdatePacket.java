@@ -1,5 +1,7 @@
 package com.creativemd.littletiles.common.packet;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
@@ -17,12 +19,10 @@ import net.minecraft.world.World;
 public class LittleNeighborUpdatePacket extends CreativeCorePacket {
 	
 	public UUID uuid;
-	public BlockPos pos;
-	public BlockPos fromPos;
+	public List<BlockPos> positions;
 	
-	public LittleNeighborUpdatePacket(World world, BlockPos pos, BlockPos fromPos) {
-		this.pos = pos;
-		this.fromPos = fromPos;
+	public LittleNeighborUpdatePacket(World world, List<BlockPos> positions) {
+		this.positions = positions;
 		if (world instanceof CreativeWorld)
 			uuid = ((CreativeWorld) world).parent.getUniqueID();
 	}
@@ -33,8 +33,10 @@ public class LittleNeighborUpdatePacket extends CreativeCorePacket {
 	
 	@Override
 	public void writeBytes(ByteBuf buf) {
-		writePos(buf, pos);
-		writePos(buf, fromPos);
+		buf.writeInt(positions.size());
+		for (int i = 0; i < positions.size(); i++) {
+			writePos(buf, positions.get(i));
+		}
 		
 		if (uuid != null) {
 			buf.writeBoolean(true);
@@ -45,8 +47,11 @@ public class LittleNeighborUpdatePacket extends CreativeCorePacket {
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
-		pos = readPos(buf);
-		fromPos = readPos(buf);
+		int size = buf.readInt();
+		positions = new ArrayList<>(size);
+		for (int i = 0; i < size; i++) {
+			positions.add(readPos(buf));
+		}
 		
 		if (buf.readBoolean())
 			uuid = UUID.fromString(readString(buf));
@@ -65,9 +70,14 @@ public class LittleNeighborUpdatePacket extends CreativeCorePacket {
 			
 			world = animation.fakeWorld;
 		}
-		IBlockState state = world.getBlockState(pos);
-		if (state.getBlock() instanceof BlockTile)
-			state.getBlock().neighborChanged(state, world, pos, state.getBlock(), fromPos);
+		
+		for (int i = 0; i < positions.size(); i++) {
+			BlockPos pos = positions.get(i);
+			IBlockState state = world.getBlockState(pos);
+			if (state.getBlock() instanceof BlockTile)
+				state.getBlock().neighborChanged(state, world, pos, state.getBlock(), null);
+		}
+		
 	}
 	
 	@Override

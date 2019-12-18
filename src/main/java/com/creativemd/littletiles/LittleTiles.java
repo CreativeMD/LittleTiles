@@ -117,6 +117,7 @@ import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.rules.IngredientRules;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.server.LittleTilesServer;
+import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -507,6 +508,8 @@ public class LittleTiles {
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
 		
 		proxy.loadSidePost();
+		
+		LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
 		
 		if (Loader.isModLoaded("igcm"))
 			IGCMLoader.initIGCM();
