@@ -202,6 +202,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		if (world.isRemote)
 			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
+		fakeWorld.preventNeighborUpdate = true;
+		
 		LittlePlaceResult result = LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
 		
 		if (result == null)
@@ -216,6 +218,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 				if (te.waitingAnimation != null)
 					te.clearWaitingAnimations();
 		}
+		
+		fakeWorld.preventNeighborUpdate = false;
 		
 		LittleStructure newDoor = previews.getStructure();
 		
@@ -284,10 +288,13 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		EntityAnimation animation = place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 		
 		World world = getWorld();
-		if (!world.isRemote && world instanceof WorldServer)
-			for (TileEntityLittleTiles te : allTilesFromWorld.keySet())
+		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
+		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
+			te.updateTiles();
+			if (sendUpdate)
 				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
-			
+		}
+		
 		return animation;
 	}
 	

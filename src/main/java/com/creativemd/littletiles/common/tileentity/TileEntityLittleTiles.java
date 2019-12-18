@@ -464,9 +464,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			double minX = Double.MAX_VALUE;
 			double minY = Double.MAX_VALUE;
 			double minZ = Double.MAX_VALUE;
-			double maxX = Double.MIN_VALUE;
-			double maxY = Double.MIN_VALUE;
-			double maxZ = Double.MIN_VALUE;
+			double maxX = -Double.MAX_VALUE;
+			double maxY = -Double.MAX_VALUE;
+			double maxZ = -Double.MAX_VALUE;
 			boolean found = false;
 			for (LittleTile tile : tiles) {
 				if (tile.needCustomRendering()) {

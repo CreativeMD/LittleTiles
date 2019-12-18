@@ -38,6 +38,9 @@ public class IGCMLoader {
 				SpecialServerConfig.allowFlowingWater = (Boolean) getValue("allowFlowingWater");
 				SpecialServerConfig.allowFlowingLava = (Boolean) getValue("allowFlowingLava");
 				SpecialServerConfig.enableBed = (Boolean) getValue("enableBed");
+				
+				SpecialServerConfig.enableAnimationCollision = (Boolean) getValue("enableAnimationCollision");
+				SpecialServerConfig.enableCollisionMotion = (Boolean) getValue("enableCollisionMotion");
 			}
 			
 			@Override
@@ -92,6 +95,9 @@ public class IGCMLoader {
 				registerElement("allowFlowingWater", new BooleanSegment("Allow Flowing Water", true).setToolTip("If disabled the bucket cannot be used to change the water flow."));
 				registerElement("allowFlowingLava", new BooleanSegment("Allow Flowing Lava", true).setToolTip("If disabled the bucket cannot be used to change the lava flow."));
 				registerElement("enableBed", new BooleanSegment("Enable Bed", true).setToolTip("Whether players should be allowed to sleep in LT beds or not."));
+				
+				registerElement("enableAnimationCollision", new BooleanSegment("Enable Animation Collision", true).setToolTip("Whether animations should push entities (has performance impact)"));
+				registerElement("enableCollisionMotion", new BooleanSegment("Enable Collision Motion", true).setToolTip("Motion is applied to an entity when its moved by an animation"));
 			}
 		});
 	}

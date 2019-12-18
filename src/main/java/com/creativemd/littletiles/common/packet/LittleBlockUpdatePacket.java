@@ -54,11 +54,6 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 			writeString(buf, uuid.toString());
 		} else
 			buf.writeBoolean(false);
-		
-		if (buf.readBoolean())
-			uuid = UUID.fromString(readString(buf));
-		else
-			uuid = null;
 	}
 	
 	@Override
@@ -68,6 +63,11 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 		if (buf.readBoolean()) {
 			packet = (SPacketUpdateTileEntity) readPacket(buf);
 		}
+		
+		if (buf.readBoolean())
+			uuid = UUID.fromString(readString(buf));
+		else
+			uuid = null;
 	}
 	
 	@Override

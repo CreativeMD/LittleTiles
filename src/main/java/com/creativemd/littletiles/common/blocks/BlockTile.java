@@ -698,15 +698,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public void neighborChanged(IBlockState state, World worldIn, BlockPos pos, Block blockIn, BlockPos fromPos) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if (te != null) {
-			if (worldIn.isRemote) {
-				// System.out.println("Update Neighbor Changed");
+			if (worldIn.isRemote)
 				te.onNeighBorChangedClient();
-			} else {
-				PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(pos, fromPos), 100, pos);
-				/* for (Iterator iterator = te.getTiles().iterator(); iterator.hasNext();) {
-				 * LittleTile tile = (LittleTile) iterator.next();
-				 * tile.onNeighborChangeOutside();; } */
-			}
+			else
+				PacketHandler.sendPacketToNearPlayers(worldIn, new LittleNeighborUpdatePacket(worldIn, pos, fromPos), 100, pos);
 		}
 	}
 	
@@ -852,7 +847,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						}
 					}
 					
-					tileEntity.hasNeighborChanged = false;
+					if (!tileEntity.rebuildRenderingCache)
+						tileEntity.hasNeighborChanged = false;
 				}
 				
 				return cachedCubes;
