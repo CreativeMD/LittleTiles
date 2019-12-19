@@ -19,6 +19,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
@@ -291,6 +292,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
 			te.updateTiles();
+			if (world.isRemote && !(world instanceof IOrientatedWorld))
+				te.clearWaitingAnimations();
 			if (sendUpdate)
 				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
 		}

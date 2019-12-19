@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivationResult;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
@@ -118,8 +119,12 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 				
 				DoorActivationResult activationResult = door.activate(player, tile, uuid, true);
 				if (activationResult == null) {
-					PacketHandler.sendPacketToPlayer(new LittleResetAnimationPacket(uuid), (EntityPlayerMP) player);
-					LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
+					if (door instanceof IAnimatedStructure && ((IAnimatedStructure) door).isAnimated())
+						PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(((IAnimatedStructure) door).getAnimation().getUniqueID(), ((IAnimatedStructure) door).getAnimation().writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
+					else {
+						PacketHandler.sendPacketToPlayer(new LittleResetAnimationPacket(uuid), (EntityPlayerMP) player);
+						LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, door);
+					}
 					return;
 				}
 				
