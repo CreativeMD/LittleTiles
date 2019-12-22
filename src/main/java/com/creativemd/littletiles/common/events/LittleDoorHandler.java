@@ -226,63 +226,33 @@ public class LittleDoorHandler {
 				return;
 			
 			Minecraft mc = Minecraft.getMinecraft();
-			EntityPlayer entity = event.getEntityPlayer();
-			Vec3d vec3d = entity.getPositionEyes(TickUtils.getPartialTickTime());
-			double d0 = mc.playerController.getBlockReachDistance();
-			double d1 = d0;
-			boolean flag = false;
-			if (mc.playerController.extendedReach()) {
-				d1 = 6.0D;
-				d0 = d1;
-			} else {
-				if (d0 > 3.0D) {
-					flag = true;
-				}
-			}
 			
-			if (mc.objectMouseOver != null) {
-				d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
-			}
+			RayTraceResult target = (mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit == Type.BLOCK) ? mc.objectMouseOver : null;
+			EntityPlayer player = event.getEntityPlayer();
+			float partialTicks = TickUtils.getPartialTickTime();
 			
-			Vec3d vec3d1 = entity.getLook(TickUtils.getPartialTickTime());
-			Vec3d vec3d2 = vec3d.addVector(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
+			Vec3d pos = player.getPositionEyes(partialTicks);
+			double d0 = target != null ? pos.distanceTo(target.hitVec) : (player.capabilities.isCreativeMode ? 5.0 : 4.5);
+			Vec3d look = player.getLook(partialTicks);
+			look = pos.addVector(look.x * d0, look.y * d0, look.z * d0);
+			
+			AxisAlignedBB box = new AxisAlignedBB(pos, target != null ? target.hitVec : look);
+			World world = player.world;
+			
 			EntityAnimation pointedEntity = null;
-			Vec3d vec3d3 = null;
-			float f = 1.0F;
-			List<EntityAnimation> list = findDoors(entity.world, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0D, 1.0D, 1.0D));
-			double d2 = d1;
 			
-			for (int j = 0; j < list.size(); ++j) {
-				EntityAnimation entity1 = list.get(j);
-				AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow(entity1.getCollisionBorderSize());
-				RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
-				
-				if (axisalignedbb.contains(vec3d)) {
-					if (d2 >= 0.0D) {
-						pointedEntity = entity1;
-						vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
-						d2 = 0.0D;
-					}
-				} else if (raytraceresult != null) {
-					double d3 = vec3d.distanceTo(raytraceresult.hitVec);
-					
-					if (d3 < d2 || d2 == 0.0D) {
-						if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract()) {
-							if (d2 == 0.0D) {
-								pointedEntity = entity1;
-								vec3d3 = raytraceresult.hitVec;
-							}
-						} else {
-							pointedEntity = entity1;
-							vec3d3 = raytraceresult.hitVec;
-							d2 = d3;
-						}
-					}
+			RayTraceResult result = target;
+			double distance = result != null ? pos.distanceTo(result.hitVec) : 0;
+			for (EntityAnimation animation : findDoors(world, box)) {
+				RayTraceResult tempResult = getTarget(animation.fakeWorld, animation.origin.transformPointToFakeWorld(pos), animation.origin.transformPointToFakeWorld(look), pos, look);
+				if (tempResult == null || tempResult.typeOfHit != RayTraceResult.Type.BLOCK)
+					continue;
+				double tempDistance = pos.distanceTo(animation.origin.transformPointToWorld(tempResult.hitVec));
+				if (result == null || tempDistance < distance) {
+					result = tempResult;
+					distance = tempDistance;
+					pointedEntity = animation;
 				}
-			}
-			
-			if (pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0D) {
-				return;
 			}
 			
 			Entity selectedEntity = mc.objectMouseOver != null ? mc.objectMouseOver.entityHit : null;
@@ -294,8 +264,8 @@ public class LittleDoorHandler {
 			if (pointedEntity == null && selectedEntity instanceof EntityAnimation)
 				pointedEntity = (EntityAnimation) selectedEntity;
 			
-			if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null || selectedEntity == pointedEntity)) {
-				if (pointedEntity.onRightClick(entity, vec3d, vec3d2))
+			if (pointedEntity != null) {
+				if (pointedEntity.onRightClick(player, pos, look))
 					if (event instanceof RightClickBlock)
 						event.setCanceled(true);
 			}
