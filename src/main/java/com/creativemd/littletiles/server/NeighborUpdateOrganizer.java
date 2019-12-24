@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.packet.LittleNeighborUpdatePacket;
 
@@ -29,6 +30,8 @@ public class NeighborUpdateOrganizer {
 	}
 	
 	public void add(World world, BlockPos pos) {
+		if (world instanceof IOrientatedWorld)
+			return;
 		if (!positions.contains(world, pos))
 			positions.add(world, pos);
 	}
