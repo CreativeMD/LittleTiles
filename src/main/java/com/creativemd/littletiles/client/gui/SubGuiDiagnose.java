@@ -24,7 +24,13 @@ public class SubGuiDiagnose extends SubGui {
 	
 	@Override
 	public void createControls() {
-		controls.add(new GuiLabel(animation != null ? animation.getCachedUniqueIdString() : ChatFormatting.RED + "Could not find animation!", 0, 0));
+		if (animation == null)
+			controls.add(new GuiLabel(ChatFormatting.RED + "Could not find animation!", 0, 0));
+		else {
+			String text = animation.getCachedUniqueIdString();
+			controls.add(new GuiLabel(text.substring(0, 24), 0, 0));
+			controls.add(new GuiLabel(text.substring(24), 0, 10));
+		}
 		
 		controls.add(new GuiButton("Destroy animation", 0, 100) {
 			
