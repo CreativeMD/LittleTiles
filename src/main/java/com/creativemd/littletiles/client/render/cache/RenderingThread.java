@@ -168,7 +168,9 @@ public class RenderingThread extends Thread {
 						if (data.te.isInvalid())
 							throw new InvalidTileEntityException(data.te.getPos() + "");
 						
-						data.te.buildingCache.set(true);
+						synchronized (data.te.inRenderingQueue) {
+							data.te.buildingCache.set(true);
+						}
 						
 						BlockPos pos = data.te.getPos();
 						RenderCubeLayerCache cubeCache = data.te.getCubeCache();
@@ -367,18 +369,20 @@ public class RenderingThread extends Thread {
 	
 	public synchronized boolean setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
 		TileEntityLittleTiles te = data.te;
-		te.setBuffer(buffer);
 		
-		if (!te.isInvalid() && te.rebuildRenderingCache) {
-			te.rebuildRenderingCache = false;
-			te.getCubeCache().clearCache();
+		synchronized (te.inRenderingQueue) {
+			te.setBuffer(buffer);
+			if (!te.isInvalid() && te.rebuildRenderingCache) {
+				te.rebuildRenderingCache = false;
+				te.getCubeCache().clearCache();
+				te.buildingCache.set(false);
+				return false;
+			}
+			
+			te.lastRenderedChunk = null;
+			te.inRenderingQueue.set(false);
 			te.buildingCache.set(false);
-			return false;
 		}
-		
-		te.lastRenderedChunk = null;
-		te.inRenderingQueue.set(false);
-		te.buildingCache.set(false);
 		
 		synchronized (chunks) {
 			AtomicInteger count = chunks.get(data.chunk);

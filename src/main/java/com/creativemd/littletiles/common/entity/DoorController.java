@@ -10,6 +10,8 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
+import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
@@ -29,6 +31,7 @@ import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -285,6 +288,19 @@ public class DoorController extends EntityAnimationController {
 			if (!(world instanceof CreativeWorld))
 				PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(parent.getUniqueID(), newDoor.getMainTile()), parent, null, (WorldServer) parent.world);
 		} else {
+			if (world instanceof IOrientatedWorld) {
+				for (TileEntityLittleTiles te : result.tileEntities) {
+					TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
+					if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).inRenderingQueue != null && !((TileEntityLittleTiles) oldTE).inRenderingQueue.get() && te.inRenderingQueue != null)
+						synchronized (te.inRenderingQueue) {
+							if (te.inRenderingQueue.get() || te.getBuffer() == null || te.getBuffer().isEmpty()) {
+								te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
+								RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
+							}
+						}
+				}
+			}
+			
 			waitingForRender = new ArrayList<>();
 			synchronized (waitingForRender) {
 				for (TileEntityLittleTiles te : result.tileEntities) {
