@@ -147,7 +147,7 @@ public class LittleChunkDispatcher {
 						e1.printStackTrace();
 					}
 				
-				BufferBuilderUtils.growBuffer(buffer, buffer.getVertexFormat().getIntegerSize() * expanded * 4);
+				BufferBuilderUtils.growBufferSmall(buffer, buffer.getVertexFormat().getIntegerSize() * expanded * 4);
 				
 				for (TileEntityLittleTiles te : tiles) {
 					BlockLayerRenderBuffer blockLayerBuffer = te.getBuffer();
