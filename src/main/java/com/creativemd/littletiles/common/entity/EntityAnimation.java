@@ -858,6 +858,13 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
+		if (fakeWorld != null) {
+			for (Entity entity : fakeWorld.loadedEntityList) {
+				if (entity instanceof EntityAnimation)
+					((EntityAnimation) entity).markRemoved();
+			}
+		}
+		
 		setFakeWorld(compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote));
 		
 		this.initalOffX = compound.getDouble("initOffX");
