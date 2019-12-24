@@ -33,6 +33,8 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
 				previews.combinePreviewBlocks();
 			}
 			
+			previews.removeOffset();
+			
 			((ItemRecipeAdvanced) stack.getItem()).saveLittlePreview(stack, previews);
 			mode.clearSelection(stack);
 			

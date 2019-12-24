@@ -534,4 +534,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	public static void advancedScale(LittlePreviews previews, int from, int to) {
 		previews.advancedScale(from, to);
 	}
+	
+	public void removeOffset() {
+		LittleTileVec min = getMinVec();
+		for (LittleTilePreview preview : allPreviews())
+			preview.box.sub(min);
+	}
 }

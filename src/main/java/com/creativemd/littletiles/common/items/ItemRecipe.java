@@ -103,6 +103,8 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 				}
 			}
 		}
+		
+		previews.removeOffset();
 		return previews;
 		
 	}
