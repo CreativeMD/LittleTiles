@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
@@ -105,6 +106,24 @@ public class BlockLayerRenderBuffer {
 			super("Buffer is already rendering!");
 		}
 		
+	}
+	
+	public void combine(BlockLayerRenderBuffer buffer) {
+		this.solid = combine(this.solid, buffer.solid);
+		this.cutout_mipped = combine(this.cutout_mipped, buffer.cutout_mipped);
+		this.cutout = combine(this.cutout, buffer.cutout);
+		this.translucent = combine(this.translucent, buffer.translucent);
+	}
+	
+	public static BufferBuilder combine(BufferBuilder first, BufferBuilder second) {
+		if (first == null)
+			return second;
+		else if (second == null)
+			return first;
+		
+		BufferBuilderUtils.growBufferSmall(first, first.getVertexFormat().getIntegerSize() * second.getVertexCount() * 4);
+		BufferBuilderUtils.addBuffer(first, second);
+		return first;
 	}
 	
 }

@@ -84,19 +84,20 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 				return;
 			
 			world = animation.fakeWorld;
-			
-			try {
-				LittleTile tile = LittleAction.getTile(world, coord);
-				
-				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
-					LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
-					door.activate(null, tile, uuid, false);
-				}
-				
-			} catch (LittleActionException e) {
-				e.printStackTrace();
-			}
 		}
+		
+		try {
+			LittleTile tile = LittleAction.getTile(world, coord);
+			
+			if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleDoor) {
+				LittleDoor door = (LittleDoor) tile.connection.getStructureWithoutLoading();
+				door.activate(null, tile, uuid, false);
+			}
+			
+		} catch (LittleActionException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	@Override

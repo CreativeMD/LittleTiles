@@ -23,7 +23,6 @@ import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.blocks.BlockTile;
-import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mods.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -173,31 +172,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public List<EntityAnimation> waitingAnimation;
-	
-	@SideOnly(Side.CLIENT)
 	public RenderChunk lastRenderedChunk;
-	
-	@SideOnly(Side.CLIENT)
-	public void clearWaitingAnimations() {
-		if (waitingAnimation != null) {
-			synchronized (waitingAnimation) {
-				for (EntityAnimation animation : waitingAnimation) {
-					animation.controller.removeWaitingTe(this);
-				}
-				waitingAnimation = new ArrayList<>();
-			}
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void addWaitingAnimation(EntityAnimation animation) {
-		if (waitingAnimation == null)
-			waitingAnimation = new ArrayList<>();
-		synchronized (waitingAnimation) {
-			waitingAnimation.add(animation);
-		}
-	}
 	
 	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(RenderChunk chunk) {
@@ -210,9 +185,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		
 		hasLightChanged = false;
 		hasNeighborChanged = false;
-		
-		if (waitingAnimation != null && !getCubeCache().doesNeedUpdate() && !inRenderingQueue.get())
-			clearWaitingAnimations();
 		
 		if (doesNeedUpdate)
 			addToRenderUpdate();
@@ -976,7 +948,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			buffer = null;
 			cubeCache = null;
 			sideCache = null;
-			waitingAnimation = null;
 			lastRenderedChunk = null;
 			cachedRenderBoundingBox = null;
 		}
@@ -997,11 +968,5 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	public String toString() {
 		return pos.toString();
-	}
-	
-	@Override
-	public void invalidate() {
-		if (isClientSide())
-			clearWaitingAnimations();
 	}
 }

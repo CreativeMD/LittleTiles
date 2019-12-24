@@ -4,14 +4,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.animation.AnimationController;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class EntityAnimationController extends AnimationController {
 	
@@ -57,19 +54,7 @@ public abstract class EntityAnimationController extends AnimationController {
 		
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public void removeWaitingTe(TileEntityLittleTiles te) {
-		
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public boolean isWaitingForRender() {
-		return false;
-	}
-	
 	public abstract void transform(LittleTransformation transformation);
-	
-	public abstract void onPlacedByServer();
 	
 	public static EntityAnimationController parseController(EntityAnimation animation, NBTTagCompound nbt) {
 		Class<? extends EntityAnimationController> controllerType = controllerTypes.get(nbt.getString("id"));

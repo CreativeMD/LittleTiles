@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -28,6 +29,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -37,15 +39,12 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class DoorController extends EntityAnimationController {
 	
 	protected boolean isWaitingForApprove = false;
 	protected int ticksToWait = -1;
 	protected static final int waitTimeApprove = 300;
-	protected static final int waitTimeRender = 200;
 	protected Boolean placed = null;
 	
 	public static final String openedState = "opened";
@@ -57,12 +56,7 @@ public class DoorController extends EntityAnimationController {
 	public DoorOpeningResult result;
 	public UUIDSupplier supplier;
 	
-	public boolean serverPlaced = false;
-	
 	protected boolean modifiedTransition;
-	
-	@SideOnly(Side.CLIENT)
-	List<TileEntityLittleTiles> waitingForRender;
 	
 	public DoorController() {
 		
@@ -130,24 +124,6 @@ public class DoorController extends EntityAnimationController {
 		isWaitingForApprove = true;
 	}
 	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void removeWaitingTe(TileEntityLittleTiles te) {
-		if (!isWaitingForRender())
-			return;
-		synchronized (waitingForRender) {
-			waitingForRender.remove(te);
-			if (waitingForRender.isEmpty())
-				parent.isDead = true;
-		}
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean isWaitingForRender() {
-		return waitingForRender != null;
-	}
-	
 	public boolean activate() {
 		if (placed != null)
 			return false;
@@ -163,37 +139,15 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public AnimationState tick() {
 		if (parent.world.isRemote && placed != null) {
-			if (placed) {
-				ticksToWait--;
-				
-				/*if (ticksToWait % 10 == 0) {
-					synchronized (waitingForRender) {
-						for (Iterator iterator = waitingForRender.iterator(); iterator.hasNext();) {
-							TileEntityLittleTiles te = (TileEntityLittleTiles) iterator.next();
-							if (te != te.getWorld().getTileEntity(te.getPos())) {
-								iterator.remove();
-							}
-						}
-					}
-				}*/
-				
-				if (waitingForRender.size() == 0 || ticksToWait < 0) {
-					parent.getRenderChunkSuppilier().unloadRenderCache();
+			if (isWaitingForApprove) {
+				if (ticksToWait < 0)
+					ticksToWait = waitTimeApprove;
+				else if (ticksToWait == 0)
 					parent.isDead = true;
-				} else
-					parent.isDead = false;
-				
-			} else {
-				if (isWaitingForApprove) {
-					if (ticksToWait < 0)
-						ticksToWait = waitTimeApprove;
-					else if (ticksToWait == 0)
-						parent.isDead = true;
-					else
-						ticksToWait--;
-				} else
-					place();
-			}
+				else
+					ticksToWait--;
+			} else
+				place();
 		}
 		
 		if (isChanging()) {
@@ -241,13 +195,6 @@ public class DoorController extends EntityAnimationController {
 			return;
 		}
 		
-		if (serverPlaced) {
-			placed = true;
-			waitingForRender = null;
-			parent.isDead = true;
-			return;
-		}
-		
 		World world = parent.world;
 		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
@@ -266,15 +213,6 @@ public class DoorController extends EntityAnimationController {
 				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
 			}
 			
-			if (world.isRemote)
-				parent.fakeWorld.loadedEntityList.removeIf((x) -> {
-					if (x instanceof EntityAnimation && ((EntityAnimation) x).controller.isWaitingForRender()) {
-						((EntityAnimation) x).markRemoved();
-						return true;
-					}
-					return false;
-				});
-			
 			newDoor.transferChildrenFromAnimation(parent);
 		} else {
 			parent.isDead = true;
@@ -285,33 +223,48 @@ public class DoorController extends EntityAnimationController {
 		
 		if (!world.isRemote) {
 			parent.isDead = true;
-			if (!(world instanceof CreativeWorld))
-				PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(parent.getUniqueID(), newDoor.getMainTile()), parent, null, (WorldServer) parent.world);
+			WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
+			PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(newDoor.getMainTile()), parent.getAbsoluteParent(), null, serverWorld);
 		} else {
-			if (world instanceof IOrientatedWorld) {
-				for (TileEntityLittleTiles te : result.tileEntities) {
-					TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-					if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).inRenderingQueue != null && !((TileEntityLittleTiles) oldTE).inRenderingQueue.get() && te.inRenderingQueue != null)
-						synchronized (te.inRenderingQueue) {
-							if (te.inRenderingQueue.get() || te.getBuffer() == null || te.getBuffer().isEmpty()) {
-								te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
-								RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
-							}
+			boolean subWorld = world instanceof IOrientatedWorld;
+			List<RenderChunk> renderChunks = subWorld ? null : new ArrayList<>();
+			for (TileEntityLittleTiles te : result.tileEntities) {
+				TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
+				if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).getBuffer() != null) {
+					if (te.inRenderingQueue == null)
+						te.inRenderingQueue = new AtomicBoolean();
+					
+					((TileEntityLittleTiles) oldTE).invalidate();
+					synchronized (te.inRenderingQueue) {
+						if (!te.inRenderingQueue.get())
+							continue;
+						if (te.getBuffer() == null)
+							te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
+						else
+							te.getBuffer().combine(((TileEntityLittleTiles) oldTE).getBuffer());
+						
+						if (subWorld)
+							RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
+						else {
+							RenderChunk chunk = RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos());
+							if (!renderChunks.contains(chunk))
+								renderChunks.add(chunk);
 						}
+						
+					}
 				}
 			}
 			
-			waitingForRender = new ArrayList<>();
-			synchronized (waitingForRender) {
-				for (TileEntityLittleTiles te : result.tileEntities) {
-					te.addWaitingAnimation(parent);
-					waitingForRender.add(te);
+			if (!subWorld) {
+				for (int i = 0; i < renderChunks.size(); i++) {
+					renderChunks.get(i).needsImmediateUpdate();
 				}
 			}
-			ticksToWait = waitTimeRender;
-			parent.isDead = false;
+			
+			parent.isDead = true;
 			placed = true;
 		}
+		
 	}
 	
 	@Override
@@ -386,11 +339,6 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void onServerApproves() {
 		isWaitingForApprove = false;
-	}
-	
-	@Override
-	public void onPlacedByServer() {
-		serverPlaced = true;
 	}
 	
 	@Override

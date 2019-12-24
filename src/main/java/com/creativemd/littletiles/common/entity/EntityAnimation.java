@@ -120,6 +120,12 @@ public class EntityAnimation extends Entity {
 		origin.tick();
 	}
 	
+	public Entity getAbsoluteParent() {
+		if (world instanceof SubWorld)
+			return ((EntityAnimation) ((SubWorld) world).parent).getAbsoluteParent();
+		return this;
+	}
+	
 	public void setFakeWorld(CreativeWorld fakeWorld) {
 		this.fakeWorld = fakeWorld;
 		this.fakeWorld.parent = this;
@@ -693,7 +699,7 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public void setDead() {
-		if (!this.isDead && (!world.isRemote || controller == null || !controller.isWaitingForRender())) {
+		if (!this.isDead && (!world.isRemote || controller == null)) {
 			this.isDead = true;
 		}
 	}

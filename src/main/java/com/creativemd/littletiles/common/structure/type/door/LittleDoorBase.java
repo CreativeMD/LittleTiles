@@ -285,8 +285,6 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		World world = getWorld();
 		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
 			te.updateTiles();
-			if (world.isRemote)
-				te.clearWaitingAnimations();
 		}
 		
 		return animation;

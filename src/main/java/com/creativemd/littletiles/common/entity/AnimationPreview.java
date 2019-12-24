@@ -89,10 +89,6 @@ public class AnimationPreview {
 				
 			}
 			
-			@Override
-			public void onPlacedByServer() {
-				
-			}
 		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure == null ? null : structure.getAbsoluteIdentifier());
 		
 		previews.deleteCachedStructure();
