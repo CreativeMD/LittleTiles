@@ -443,10 +443,18 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
+	public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if (te != null)
+			return te.sideCache.get(face).doesBlockLight();
+		return false;
+	}
+	
+	@Override
 	public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			return te.sideCache.get(side);
+			return te.sideCache.get(side).isFilled();
 		return false;
 	}
 	
@@ -472,6 +480,20 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null)
 			return te.isEmpty();
 		return true;
+	}
+	
+	@Override
+	public IBlockState getStateAtViewpoint(IBlockState state, IBlockAccess world, BlockPos pos, Vec3d viewpoint) {
+		TileEntityLittleTiles te = loadTe(world, pos);
+		if (te != null) {
+			int x = te.getContext().toGrid(viewpoint.x);
+			int y = te.getContext().toGrid(viewpoint.y);
+			int z = te.getContext().toGrid(viewpoint.z);
+			for (LittleTile tile : te)
+				if (tile instanceof LittleTileBlock && tile.box.isVecInsideBox(x, y, z))
+					return ((LittleTileBlock) tile).getBlockState();
+		}
+		return state;
 	}
 	
 	@Override

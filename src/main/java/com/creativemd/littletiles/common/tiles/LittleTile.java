@@ -208,21 +208,25 @@ public abstract class LittleTile implements ICombinable {
 		box.fill(face);
 	}
 	
-	public void fillInSpace(boolean[][][] filled) {
+	public boolean fillInSpace(boolean[][][] filled) {
 		if (!box.isCompletelyFilled())
-			return;
+			return false;
+		
+		boolean changed = false;
 		for (int x = box.minX; x < box.maxX; x++) {
 			for (int y = box.minY; y < box.maxY; y++) {
 				for (int z = box.minZ; z < box.maxZ; z++) {
 					filled[x][y][z] = true;
+					changed = true;
 				}
 			}
 		}
+		return changed;
 	}
 	
 	@Override
-	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
-		box.fillInSpace(otherBox, filled);
+	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+		return box.fillInSpace(otherBox, filled);
 	}
 	
 	/** Cannot be overridden!
@@ -328,7 +332,6 @@ public abstract class LittleTile implements ICombinable {
 		this.combineTiles((LittleTile) combinable);
 	}
 	
-	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
 		return !invisible;
 	}
@@ -737,10 +740,14 @@ public abstract class LittleTile implements ICombinable {
 		return null;
 	}
 	
+	public boolean hasNoCollision() {
+		return getStructureAttribute() == LittleStructureAttribute.NOCOLLISION;
+	}
+	
 	// ================Collision================
 	
 	public List<LittleTileBox> getCollisionBoxes() {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION)
+		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
 			return new ArrayList<>();
 		List<LittleTileBox> boxes = new ArrayList<>();
 		boxes.add(box);
@@ -748,13 +755,13 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean shouldCheckForCollision() {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION)
+		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
 			return true;
 		return false;
 	}
 	
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (getStructureAttribute() == LittleStructureAttribute.COLLISION && isConnectedToStructure())
+		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION && isConnectedToStructure())
 			connection.getStructure(te.getWorld()).onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 	}
 	

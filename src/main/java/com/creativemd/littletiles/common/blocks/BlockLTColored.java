@@ -1,12 +1,8 @@
 package com.creativemd.littletiles.common.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -127,10 +123,8 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	}
 	
 	@Override
-	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
-		if (tile.getBlockState().getValue(VARIANT).isLava())
-			return new ArrayList<>();
-		return defaultBoxes;
+	public boolean canWalkThrough(LittleTileBlock tile) {
+		return tile.getBlockState().getValue(VARIANT).isLava();
 	}
 	
 	@Override

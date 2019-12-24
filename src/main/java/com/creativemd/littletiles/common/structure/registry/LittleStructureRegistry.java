@@ -123,7 +123,7 @@ public class LittleStructureRegistry {
 		registerStructureType("chair", "simple", LittleChair.class, LittleStructureAttribute.NONE, LittleChairParser.class);
 		
 		registerStructureType("storage", "simple", LittleStorage.class, LittleStructureAttribute.NONE, LittleStorageParser.class);
-		registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.COLLISION, LittleNoClipStructureParser.class);
+		registerStructureType("noclip", "simple", LittleNoClipStructure.class, LittleStructureAttribute.NOCOLLISION, LittleNoClipStructureParser.class);
 		
 		LittleDoorBase.initDoors();
 		

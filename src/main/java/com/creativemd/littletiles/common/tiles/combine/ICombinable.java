@@ -16,6 +16,6 @@ public interface ICombinable {
 	
 	public ICombinable copy();
 	
-	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled);
+	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled);
 	
 }

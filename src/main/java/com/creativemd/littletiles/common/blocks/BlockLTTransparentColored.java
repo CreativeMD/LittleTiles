@@ -1,13 +1,9 @@
 package com.creativemd.littletiles.common.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -77,7 +73,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	
 	@Override
 	public int damageDropped(IBlockState state) {
-		return ((BlockLTTransparentColored.EnumType) state.getValue(VARIANT)).getMetadata();
+		return state.getValue(VARIANT).getMetadata();
 	}
 	
 	@Override
@@ -87,7 +83,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	
 	@Override
 	public int getMetaFromState(IBlockState state) {
-		return ((BlockLTTransparentColored.EnumType) state.getValue(VARIANT)).getMetadata();
+		return state.getValue(VARIANT).getMetadata();
 	}
 	
 	@Override
@@ -135,10 +131,8 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	}
 	
 	@Override
-	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
-		if (tile.getBlockState().getValue(VARIANT).isWater())
-			return new ArrayList<>();
-		return defaultBoxes;
+	public boolean canWalkThrough(LittleTileBlock tile) {
+		return tile.getBlockState().getValue(VARIANT).isWater();
 	}
 	
 	@Override

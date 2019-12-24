@@ -776,13 +776,114 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return ChiselsAndBitsManager.getVoxelBlob(this, force);
 	}
 	
+	public static enum SideState {
+		EMPTY {
+			@Override
+			public boolean doesBlockCollision() {
+				return false;
+			}
+			
+			@Override
+			public boolean doesBlockLight() {
+				return false;
+			}
+			
+			@Override
+			public boolean isFilled() {
+				return false;
+			}
+		},
+		SEETHROUGH {
+			@Override
+			public boolean doesBlockCollision() {
+				return true;
+			}
+			
+			@Override
+			public boolean doesBlockLight() {
+				return false;
+			}
+			
+			@Override
+			public boolean isFilled() {
+				return true;
+			}
+		},
+		NOCLIP {
+			@Override
+			public boolean doesBlockCollision() {
+				return false;
+			}
+			
+			@Override
+			public boolean doesBlockLight() {
+				return true;
+			}
+			
+			@Override
+			public boolean isFilled() {
+				return true;
+			}
+		},
+		SEETHROUGH_NOCLIP {
+			@Override
+			public boolean doesBlockCollision() {
+				return false;
+			}
+			
+			@Override
+			public boolean doesBlockLight() {
+				return false;
+			}
+			
+			@Override
+			public boolean isFilled() {
+				return true;
+			}
+		},
+		SOLID {
+			@Override
+			public boolean doesBlockCollision() {
+				return true;
+			}
+			
+			@Override
+			public boolean doesBlockLight() {
+				return true;
+			}
+			
+			@Override
+			public boolean isFilled() {
+				return true;
+			}
+		};
+		
+		public abstract boolean isFilled();
+		
+		public abstract boolean doesBlockCollision();
+		
+		public abstract boolean doesBlockLight();
+		
+		public static SideState getState(boolean empty, boolean noclip, boolean translucent) {
+			if (empty)
+				return EMPTY;
+			if (noclip && translucent)
+				return SEETHROUGH_NOCLIP;
+			if (noclip)
+				return NOCLIP;
+			if (translucent)
+				return SideState.SEETHROUGH;
+			return SOLID;
+		}
+	}
+	
 	public class SideSolidCache {
-		Boolean DOWN;
-		Boolean UP;
-		Boolean NORTH;
-		Boolean SOUTH;
-		Boolean WEST;
-		Boolean EAST;
+		SideState DOWN;
+		SideState UP;
+		SideState NORTH;
+		SideState SOUTH;
+		SideState WEST;
+		SideState EAST;
 		
 		public void reset() {
 			DOWN = null;
@@ -793,7 +894,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			EAST = null;
 		}
 		
-		protected boolean calculate(EnumFacing facing) {
+		protected SideState calculate(EnumFacing facing) {
 			LittleTileBox box;
 			switch (facing) {
 			case EAST:
@@ -818,11 +919,37 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				box = null;
 				break;
 			}
-			return TileEntityLittleTiles.this.isBoxFilled(box);
+			return calculateState(facing, box);
 		}
 		
-		public boolean get(EnumFacing facing) {
-			Boolean result;
+		protected SideState calculateState(EnumFacing facing, LittleTileBox box) {
+			LittleTileSize size = box.getSize();
+			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+			
+			boolean translucent = false;
+			boolean noclip = false;
+			
+			for (LittleTile tile : TileEntityLittleTiles.this.tiles)
+				if (tile.fillInSpace(box, filled)) {
+					if (tile.doesProvideSolidFace(facing))
+						translucent = true;
+					if (tile.hasNoCollision())
+						noclip = true;
+				}
+			
+			for (int x = 0; x < filled.length; x++) {
+				for (int y = 0; y < filled[x].length; y++) {
+					for (int z = 0; z < filled[x][y].length; z++) {
+						if (!filled[x][y][z])
+							return SideState.EMPTY;
+					}
+				}
+			}
+			return SideState.getState(false, noclip, translucent);
+		}
+		
+		public SideState get(EnumFacing facing) {
+			SideState result;
 			
 			switch (facing) {
 			case DOWN:
@@ -844,18 +971,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				result = EAST;
 				break;
 			default:
-				result = false;
+				result = SideState.EMPTY;
 			}
 			
-			if (result == null) {
-				result = calculate(facing);
-				set(facing, result);
-			}
+			if (result == null)
+				set(facing, result = calculate(facing));
 			
 			return result;
 		}
 		
-		public void set(EnumFacing facing, boolean value) {
+		public void set(EnumFacing facing, SideState value) {
 			switch (facing) {
 			case DOWN:
 				DOWN = value;

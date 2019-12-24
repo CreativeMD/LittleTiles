@@ -56,12 +56,12 @@ public class LittleTileBox {
 	
 	public LittleTileBox(LittleTileVec center, LittleTileSize size) {
 		LittleTileVec offset = size.calculateCenter();
-		minX = (int) (center.x - offset.x);
-		minY = (int) (center.y - offset.y);
-		minZ = (int) (center.z - offset.z);
-		maxX = (int) (minX + size.sizeX);
-		maxY = (int) (minY + size.sizeY);
-		maxZ = (int) (minZ + size.sizeZ);
+		minX = center.x - offset.x;
+		minY = center.y - offset.y;
+		minZ = center.z - offset.z;
+		maxX = minX + size.sizeX;
+		maxY = minY + size.sizeY;
+		maxZ = minZ + size.sizeZ;
 	}
 	
 	public LittleTileBox(LittleGridContext context, CubeObject cube) {
@@ -203,16 +203,16 @@ public class LittleTileBox {
 	}
 	
 	public LittleTileSize getSize() {
-		return new LittleTileSize((int) (maxX - minX), (int) (maxY - minY), (int) (maxZ - minZ));
+		return new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ);
 	}
 	
 	public double getVolume() {
-		return (int) (maxX - minX) * (int) (maxY - minY) * (int) (maxZ - minZ);
+		return (maxX - minX) * (maxY - minY) * (maxZ - minZ);
 	}
 	
 	/** @return the volume in percent to a size of a normal block */
 	public double getPercentVolume(LittleGridContext context) {
-		return (double) getVolume() / (double) (context.maxTilesPerBlock);
+		return getVolume() / (context.maxTilesPerBlock);
 	}
 	
 	public int getValueOfFacing(EnumFacing facing) {
@@ -661,7 +661,8 @@ public class LittleTileBox {
 		return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
 	}
 	
-	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+		boolean changed = false;
 		int minX = Math.max(this.minX, otherBox.minX);
 		int maxX = Math.min(this.maxX, otherBox.maxX);
 		int minY = Math.max(this.minY, otherBox.minY);
@@ -673,6 +674,7 @@ public class LittleTileBox {
 				for (int y = minY; y < maxY; y++) {
 					for (int z = minZ; z < maxZ; z++) {
 						filled[x - otherBox.minX][y - otherBox.minY][z - otherBox.minZ] = true;
+						changed = true;
 					}
 				}
 			}
@@ -682,12 +684,15 @@ public class LittleTileBox {
 				for (int y = minY; y < maxY; y++) {
 					for (int z = minZ; z < maxZ; z++) {
 						vec.set(x, y, z);
-						if (isVecInsideBox(otherBox, vec))
+						if (isVecInsideBox(otherBox, vec)) {
 							filled[x - otherBox.minX][y - otherBox.minY][z - otherBox.minZ] = true;
+							changed = true;
+						}
 					}
 				}
 			}
 		}
+		return changed;
 	}
 	
 	// ================Vectors================
@@ -1136,7 +1141,7 @@ public class LittleTileBox {
 	public static LittleTileBox loadBox(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "minX") instanceof NBTTagByte) // very old pre 1.0.0
 		{
-			LittleTileBox box = new LittleTileBox((byte) nbt.getByte(name + "minX"), (byte) nbt.getByte(name + "minY"), (byte) nbt.getByte(name + "minZ"), (byte) nbt.getByte(name + "maxX"), (byte) nbt.getByte(name + "maxY"), (byte) nbt.getByte(name + "maxZ"));
+			LittleTileBox box = new LittleTileBox(nbt.getByte(name + "minX"), nbt.getByte(name + "minY"), nbt.getByte(name + "minZ"), nbt.getByte(name + "maxX"), nbt.getByte(name + "maxY"), nbt.getByte(name + "maxZ"));
 			nbt.removeTag(name + "minX");
 			nbt.removeTag(name + "minY");
 			nbt.removeTag(name + "minZ");

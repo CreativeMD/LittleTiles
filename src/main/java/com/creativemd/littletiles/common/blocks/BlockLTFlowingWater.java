@@ -1,8 +1,5 @@
 package com.creativemd.littletiles.common.blocks;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -112,8 +109,8 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
-		return new ArrayList<>();
+	public boolean canWalkThrough(LittleTileBlock tile) {
+		return true;
 	}
 	
 	@Override

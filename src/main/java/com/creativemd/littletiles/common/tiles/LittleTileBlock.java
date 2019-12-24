@@ -284,7 +284,6 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@Override
-	@SideOnly(Side.CLIENT)
 	public boolean doesProvideSolidFace(EnumFacing facing) {
 		return super.doesProvideSolidFace(facing) && !isTranslucent() && block != Blocks.BARRIER;
 	}
@@ -336,6 +335,15 @@ public class LittleTileBlock extends LittleTile {
 		if (hasSpecialBlockHandler())
 			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
+	}
+	
+	@Override
+	public boolean hasNoCollision() {
+		if (super.hasNoCollision())
+			return true;
+		if (hasSpecialBlockHandler())
+			return handler.canWalkThrough(this);
+		return false;
 	}
 	
 	@Override

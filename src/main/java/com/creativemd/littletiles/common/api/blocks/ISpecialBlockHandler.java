@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.api.blocks;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -33,7 +34,13 @@ public interface ISpecialBlockHandler {
 	}
 	
 	public default List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
+		if (canWalkThrough(tile))
+			return Collections.EMPTY_LIST;
 		return defaultBoxes;
+	}
+	
+	public default boolean canWalkThrough(LittleTileBlock tile) {
+		return false;
 	}
 	
 	public default boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {

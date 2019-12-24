@@ -224,8 +224,8 @@ public class LittleTilePreview implements ICombinable {
 	}
 	
 	@Override
-	public void fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
-		this.box.fillInSpace(otherBox, filled);
+	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+		return this.box.fillInSpace(otherBox, filled);
 	}
 	
 	// ================Copy================
