@@ -36,21 +36,26 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public boolean activateParent = false;
 	public boolean waitingForApproval = false;
+	public boolean disableRightClick = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		activateParent = nbt.getBoolean("activateParent");
+		disableRightClick = nbt.getBoolean("disableRightClick");
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		if (activateParent)
-			nbt.setBoolean("activateParent", activateParent);
+		nbt.setBoolean("activateParent", activateParent);
+		nbt.setBoolean("disableRightClick", disableRightClick);
 	}
 	
 	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
 		if (waitingForApproval)
 			throw new LittleActionExceptionHidden("Door has not been approved yet!");
+		
+		if (player != null && disableRightClick)
+			throw new LittleActionExceptionHidden("Door is locked!");
 		
 		if (!hasLoaded()) {
 			if (player != null)

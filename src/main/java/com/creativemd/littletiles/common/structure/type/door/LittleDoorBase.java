@@ -351,6 +351,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiSteppedSlider("duration_s", 140, 122, 50, 6, structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).duration : 50, 1, 500));
+			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 105, 90, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
 		}
@@ -359,13 +360,14 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		@SideOnly(Side.CLIENT)
 		public LittleDoorBase parseStructure(LittlePreviews previews) {
 			GuiSteppedSlider slider = (GuiSteppedSlider) parent.get("duration_s");
-			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
+			GuiCheckBox stayAnimated = (GuiCheckBox) parent.get("stayAnimated");
 			GuiDoorEventsButton button = (GuiDoorEventsButton) parent.get("children_activate");
+			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
 			int duration = (int) slider.value;
-			boolean stayAnimated = checkBox.value;
 			LittleDoorBase door = parseStructure();
 			door.duration = duration;
-			door.stayAnimated = stayAnimated;
+			door.stayAnimated = stayAnimated.value;
+			door.disableRightClick = !rightclick.value;
 			door.events = button.events;
 			
 			return door;

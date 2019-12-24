@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.ArrayUtils;
 
+import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
@@ -134,7 +135,9 @@ public class LittleDoorActivator extends LittleDoor {
 		
 		@Override
 		public void createControls(LittlePreviews previews, LittleStructure structure) {
-			GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 120);
+			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 120, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+			
+			GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 115);
 			parent.controls.add(box);
 			LittleDoorActivator activator = structure instanceof LittleDoorActivator ? (LittleDoorActivator) structure : null;
 			possibleChildren = new ArrayList<>();
@@ -173,6 +176,10 @@ public class LittleDoorActivator extends LittleDoor {
 		@Override
 		public LittleStructure parseStructure(LittlePreviews previews) {
 			LittleDoorActivator activator = createStructure(LittleDoorActivator.class);
+			
+			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
+			activator.disableRightClick = !rightclick.value;
+			
 			GuiScrollBox box = (GuiScrollBox) parent.get("content");
 			List<Integer> toActivate = new ArrayList<>();
 			for (Integer integer : possibleChildren) {

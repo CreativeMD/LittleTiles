@@ -371,11 +371,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiLabel("Position:", 90, 90));
 			parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
 			
-			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 100, 50, 10, previews.context, structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
+			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews.context, structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 10).setNumbersOnly());
+			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 105, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
 		}
@@ -544,8 +545,10 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			door.duration = timeline.getDuration();
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
+			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
 			door.stayAnimated = checkBox.value;
 			door.events = button.events;
+			door.disableRightClick = !rightclick.value;
 			
 			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
 			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());

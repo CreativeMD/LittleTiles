@@ -251,8 +251,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void writeToNBT(String name, NBTTagCompound nbt) {
-			nbt.setIntArray(name, new int[] { vec.x, vec.y, vec.z, context.size, additional.x, additional.y,
-			        additional.z });
+			nbt.setIntArray(name, new int[] { vec.x, vec.y, vec.z, context.size, additional.x, additional.y, additional.z });
 		}
 		
 		@Override
@@ -354,7 +353,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			}.setCustomTooltip("flip view"));
 			
-			parent.addControl(new GuiIconButton("up", 124, 63, 1) {
+			parent.addControl(new GuiIconButton("up", 124, 58, 1) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -362,7 +361,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("right", 141, 80, 0) {
+			parent.addControl(new GuiIconButton("right", 141, 75, 0) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -370,7 +369,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("left", 107, 80, 2) {
+			parent.addControl(new GuiIconButton("left", 107, 75, 2) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -378,7 +377,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.addControl(new GuiIconButton("down", 124, 80, 3) {
+			parent.addControl(new GuiIconButton("down", 124, 75, 3) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -386,9 +385,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 			});
 			
-			parent.controls.add(new GuiCheckBox("even", 147, 60, even));
+			parent.controls.add(new GuiCheckBox("even", 147, 55, even));
 			
-			GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 80, 20, 12, LittleGridContext.getNames().toArray(new String[0]));
+			GuiStateButton contextBox = new GuiStateButton("grid", LittleGridContext.getNames().indexOf(axisContext + ""), 170, 75, 20, 12, LittleGridContext.getNames().toArray(new String[0]));
 			parent.controls.add(contextBox);
 			
 			doorRotation.onSelected(viewer, typePanel);
@@ -652,8 +651,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
 			StructureAbsolute absolute = door.getAbsoluteAxis();
 			Rotation rotation = player != null ? getRotation(player, door, absolute) : getDefaultRotation(door, absolute);
-			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), rotation),
-			        new LittleTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), rotation), new LittleTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
 		}
 		
 	}
@@ -728,8 +726,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			return new LittleTransformation[] {
-			        new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 		}
 		
 	}
