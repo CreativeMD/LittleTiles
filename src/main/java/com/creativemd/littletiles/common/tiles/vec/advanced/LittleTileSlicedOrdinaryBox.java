@@ -367,7 +367,7 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	public boolean canFaceBeCombined(LittleTileBox other) {
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
-		return (other instanceof LittleTileSlicedOrdinaryBox) && ((LittleTileSlicedOrdinaryBox) other).getSliceAngle(one, two) == getSliceAngle(one, two);
+		return (other instanceof LittleTileSlicedOrdinaryBox) && ((LittleTileSlicedOrdinaryBox) other).slice == this.slice && ((LittleTileSlicedOrdinaryBox) other).getSliceAngle(one, two) == getSliceAngle(one, two);
 	}
 	
 	@Override
