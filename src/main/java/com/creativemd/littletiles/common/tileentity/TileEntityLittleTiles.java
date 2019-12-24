@@ -335,10 +335,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			buildingCache = new AtomicBoolean();
 		}
 		
-		if (inRenderingQueue.compareAndSet(false, true))
-			RenderingThread.addCoordToUpdate(this);
-		else if (buildingCache.get())
-			rebuildRenderingCache = true;
+		synchronized (inRenderingQueue) {
+			if (inRenderingQueue.compareAndSet(false, true))
+				RenderingThread.addCoordToUpdate(this);
+			else if (buildingCache.get())
+				rebuildRenderingCache = true;
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -995,5 +997,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	public String toString() {
 		return pos.toString();
+	}
+	
+	@Override
+	public void invalidate() {
+		if (isClientSide())
+			clearWaitingAnimations();
 	}
 }

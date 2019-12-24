@@ -145,6 +145,7 @@ public abstract class LittleStructure {
 	
 	public void setMainTile(LittleTile tile) {
 		this.mainTile = tile;
+		this.mainTile.connection = new StructureMainTile(mainTile, this);
 		
 		if (parent != null) {
 			LittleStructure parentStructure = parent.getStructure(getWorld());
@@ -157,9 +158,6 @@ public abstract class LittleStructure {
 			childStructure.updateParentConnection(child.getChildID(), this);
 			this.updateChildConnection(child.getChildID(), childStructure);
 		}
-		
-		this.mainTile.connection = new StructureMainTile(mainTile, this);
-		updateStructure();
 		
 		if (tiles == null) {
 			tiles = new HashMapList<>();
@@ -193,6 +191,8 @@ public abstract class LittleStructure {
 			}
 		}
 		lastMainTileVec = absolute;
+		
+		updateStructure();
 		
 	}
 	
