@@ -102,11 +102,13 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 	@Override
 	public void executeServer(EntityPlayer player) {
 		LittleTile tile;
+		EntityAnimation animation = null;
+		
 		try {
 			World world = player.world;
 			
 			if (worldUUID != null) {
-				EntityAnimation animation = LittleDoorHandler.getHandler(false).findDoor(worldUUID);
+				animation = LittleDoorHandler.getHandler(false).findDoor(worldUUID);
 				if (animation == null)
 					return;
 				
@@ -134,7 +136,11 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 				}
 			}
 		} catch (LittleActionException e) {
-			e.printStackTrace();
+			if (animation != null)
+				PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), (EntityPlayerMP) player);
+			else
+				PacketHandler.sendPacketToPlayer(new LittleResetAnimationPacket(uuid), (EntityPlayerMP) player);
+			
 		}
 	}
 	

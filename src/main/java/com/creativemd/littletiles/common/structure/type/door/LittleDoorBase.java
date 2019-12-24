@@ -19,7 +19,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
-import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
@@ -212,13 +211,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		controller.activator = player;
 		
-		if (world.isRemote) {
+		if (world.isRemote)
 			controller.markWaitingForApprove();
-			
-			for (TileEntityLittleTiles te : tiles.keySet())
-				if (te.waitingAnimation != null)
-					te.clearWaitingAnimations();
-		}
 		
 		fakeWorld.preventNeighborUpdate = false;
 		
@@ -289,13 +283,10 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		EntityAnimation animation = place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 		
 		World world = getWorld();
-		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
 			te.updateTiles();
-			if (world.isRemote && !(world instanceof IOrientatedWorld))
+			if (world.isRemote)
 				te.clearWaitingAnimations();
-			if (sendUpdate)
-				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
 		}
 		
 		return animation;
