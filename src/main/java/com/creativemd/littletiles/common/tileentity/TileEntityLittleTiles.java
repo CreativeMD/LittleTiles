@@ -931,7 +931,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 			for (LittleTile tile : TileEntityLittleTiles.this.tiles)
 				if (tile.fillInSpace(box, filled)) {
-					if (tile.doesProvideSolidFace(facing))
+					if (!tile.doesProvideSolidFace(facing))
 						translucent = true;
 					if (tile.hasNoCollision())
 						noclip = true;
