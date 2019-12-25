@@ -4,12 +4,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.utils.math.interpolation.HermiteInterpolation.Tension;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 
 public abstract class ValueTimeline {
 	
 	private static List<Class<? extends ValueTimeline>> valueTimelineTypes = new ArrayList<>();
+	public static String[] interpolationTypes = new String[] { "linear", "cosine", "cubic", "hermite" };
 	
 	public static void registerValueTimelineType(Class<? extends ValueTimeline> type) {
 		valueTimelineTypes.add(type);
@@ -45,6 +47,15 @@ public abstract class ValueTimeline {
 		}
 	}
 	
+	public static ValueTimeline create(int id) {
+		try {
+			return getType(id).getConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+	
 	public static ValueTimeline create(int id, PairList<Integer, ?> points) {
 		if (points == null)
 			return null;
@@ -67,6 +78,9 @@ public abstract class ValueTimeline {
 	
 	static {
 		registerValueTimelineType(LinearTimeline.class);
+		registerValueTimelineType(CosineTimeline.class);
+		registerValueTimelineType(CubicTimeline.class);
+		registerValueTimelineType(HermiteTimeline.class);
 	}
 	
 	protected PairList<Integer, Double> points = new PairList<>();
@@ -108,7 +122,31 @@ public abstract class ValueTimeline {
 		return this;
 	}
 	
-	public abstract double value(int tick);
+	public double value(int tick) {
+		if (tick < 0)
+			return 0;
+		
+		int higher = points.size();
+		for (int i = 0; i < points.size(); i++) {
+			int otherTick = points.get(i).key;
+			if (otherTick == tick)
+				return points.get(i).value;
+			if (otherTick > tick) {
+				higher = i;
+				break;
+			}
+		}
+		
+		if (higher == 0 || higher == points.size())
+			return points.get(higher == 0 ? 0 : points.size() - 1).value;
+		
+		Pair<Integer, Double> before = points.get(higher - 1);
+		Pair<Integer, Double> after = points.get(higher);
+		double percentage = (double) (tick - before.key) / (after.key - before.key);
+		return valueAt(percentage, before, higher - 1, after, higher);
+	}
+	
+	public abstract double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext);
 	
 	public double last() {
 		if (points.isEmpty())
@@ -137,7 +175,9 @@ public abstract class ValueTimeline {
 	
 	protected abstract void readAdditionalData(int[] array, int index);
 	
-	protected abstract void invertData(ValueTimeline original);
+	protected void invertData(ValueTimeline original) {
+		
+	}
 	
 	public ValueTimeline copy() {
 		return read(write());
@@ -154,7 +194,7 @@ public abstract class ValueTimeline {
 			ValueTimeline timeline = getClass().getConstructor().newInstance();
 			for (int i = points.size() - 1; i >= 0; i--) {
 				Pair<Integer, Double> pair = points.get(i);
-				timeline.points.add(duration - pair.key, pair.value);
+				timeline.addPoint(duration - pair.key, pair.value);
 			}
 			timeline.invertData(this);
 			return timeline;
@@ -165,26 +205,35 @@ public abstract class ValueTimeline {
 	
 	public static class LinearTimeline extends ValueTimeline {
 		
+		public LinearTimeline() {
+			
+		}
+		
 		@Override
-		public double value(int tick) {
-			int higher = points.size();
-			for (int i = 0; i < points.size(); i++) {
-				int otherTick = points.get(i).key;
-				if (otherTick == tick)
-					return points.get(i).value;
-				if (otherTick > tick) {
-					higher = i;
-					break;
-				}
-			}
+		public double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext) {
+			return (after.value - before.value) * mu + before.value;
+		}
+		
+		@Override
+		protected int getAdditionalDataSize() {
+			return 0;
+		}
+		
+		@Override
+		protected void writeAdditionalData(int[] array, int index) {
 			
-			if (higher == 0 || higher == points.size())
-				return points.get(higher == 0 ? 0 : points.size() - 1).value;
+		}
+		
+		@Override
+		protected void readAdditionalData(int[] array, int index) {
 			
-			Pair<Integer, Double> before = points.get(higher - 1);
-			Pair<Integer, Double> after = points.get(higher);
-			double percentage = (double) (tick - before.key) / (after.key - before.key);
-			return (after.value - before.value) * percentage + before.value;
+		}
+	}
+	
+	public static class CosineTimeline extends ValueTimeline {
+		
+		public CosineTimeline() {
+			
 		}
 		
 		@Override
@@ -203,10 +252,116 @@ public abstract class ValueTimeline {
 		}
 		
 		@Override
-		protected void invertData(ValueTimeline original) {
+		public double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext) {
+			double mu2 = (1 - Math.cos(mu * Math.PI)) / 2;
+			return (before.value * (1 - mu2) + after.value * mu2);
+		}
+		
+	}
+	
+	public static abstract class AdvancedValueTimeline extends ValueTimeline {
+		
+		protected double getValue(int index) {
+			if (index < 0)
+				return points.getFirst().getValue();
+			if (index >= points.size())
+				return points.getLast().getValue();
+			return points.get(index).getValue();
+		}
+	}
+	
+	public static class CubicTimeline extends AdvancedValueTimeline {
+		
+		public CubicTimeline() {
 			
 		}
 		
+		@Override
+		public double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext) {
+			double v0 = getValue(pointIndex - 1);
+			double v1 = getValue(pointIndex);
+			double v2 = getValue(pointIndexNext);
+			double v3 = getValue(pointIndexNext + 1);
+			
+			double a0, a1, a2, a3, mu2;
+			
+			mu2 = mu * mu;
+			a0 = v3 - v2 - v0 + v1;
+			a1 = v0 - v1 - a0;
+			a2 = v2 - v0;
+			a3 = v1;
+			
+			return (a0 * mu * mu2 + a1 * mu2 + a2 * mu + a3);
+		}
+		
+		@Override
+		protected int getAdditionalDataSize() {
+			return 0;
+		}
+		
+		@Override
+		protected void writeAdditionalData(int[] array, int index) {
+			
+		}
+		
+		@Override
+		protected void readAdditionalData(int[] array, int index) {
+			
+		}
+	}
+	
+	public static class HermiteTimeline extends AdvancedValueTimeline {
+		
+		public Tension tension;
+		public double bias;
+		
+		public HermiteTimeline() {
+			tension = Tension.Normal;
+			bias = 0;
+		}
+		
+		@Override
+		public double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext) {
+			double m0, m1, mu2, mu3;
+			double a0, a1, a2, a3;
+			
+			double v0 = getValue(pointIndex - 1);
+			double v1 = getValue(pointIndex);
+			double v2 = getValue(pointIndexNext);
+			double v3 = getValue(pointIndexNext + 1);
+			
+			mu2 = mu * mu;
+			mu3 = mu2 * mu;
+			m0 = (v1 - v0) * (1 + bias) * (1 - tension.value) / 2;
+			m0 += (v2 - v1) * (1 - bias) * (1 - tension.value) / 2;
+			m1 = (v2 - v1) * (1 + bias) * (1 - tension.value) / 2;
+			m1 += (v3 - v2) * (1 - bias) * (1 - tension.value) / 2;
+			a0 = 2 * mu3 - 3 * mu2 + 1;
+			a1 = mu3 - 2 * mu2 + mu;
+			a2 = mu3 - mu2;
+			a3 = -2 * mu3 + 3 * mu2;
+			
+			return (a0 * v1 + a1 * m0 + a2 * m1 + a3 * v2);
+		}
+		
+		@Override
+		protected int getAdditionalDataSize() {
+			return 3;
+		}
+		
+		@Override
+		protected void writeAdditionalData(int[] array, int index) {
+			array[index] = tension.ordinal();
+			long bits = Double.doubleToLongBits(bias);
+			array[index + 1] = (int) (bits >> 32);
+			array[index + 2] = (int) bits;
+		}
+		
+		@Override
+		protected void readAdditionalData(int[] array, int index) {
+			tension = Tension.values()[array[index]];
+			bias = Double.longBitsToDouble((((long) array[index + 1]) << 32) | (array[index + 2] & 0xffffffffL));
+		}
 	}
 	
 	public void offset(int offset) {

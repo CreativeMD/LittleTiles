@@ -145,7 +145,7 @@ public class LittleStorage extends LittleStructure {
 			boolean invisible = false;
 			if (structure instanceof LittleStorage)
 				invisible = ((LittleStorage) structure).invisibleStorageTiles;
-			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 15, invisible));
+			parent.controls.add(new GuiCheckBox("invisible", "invisible storage tiles", 5, 18, invisible));
 		}
 		
 		@Override

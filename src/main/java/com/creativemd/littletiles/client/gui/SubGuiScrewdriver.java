@@ -57,21 +57,21 @@ public class SubGuiScrewdriver extends SubGui {
 		if (stack.getTagCompound() == null)
 			stack.setTagCompound(new NBTTagCompound());
 		
-		controls.add(new GuiCheckBox("any", "any", 5, 5, false));
+		controls.add(new GuiCheckBox("any", "any", 5, 8, false));
 		controls.add(new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search", "", 40, 27, 140, 14));
-		controls.add(new GuiCheckBox("meta", "Metadata", 40, 45, true));
+		controls.add(new GuiCheckBox("meta", "Metadata", 40, 48, true));
 		
-		controls.add(new GuiCheckBox("remove", "Remove", 5, 57, false));
+		controls.add(new GuiCheckBox("remove", "Remove", 5, 60, false));
 		
-		controls.add(new GuiCheckBox("replace", "Replace with", 5, 70, false));
+		controls.add(new GuiCheckBox("replace", "Replace with", 5, 73, false));
 		
 		controls.add(new GuiStackSelectorAll("replacement", 40, 87, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), false));
 		controls.add(new GuiTextfield("search2", "", 40, 109, 140, 14));
-		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 130, true));
+		controls.add(new GuiCheckBox("metaR", "Force metadata", 40, 133, true));
 		
 		Color color = new Color(255, 255, 255, 255);
-		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 143, false));
+		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 146, false));
 		
 		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 		

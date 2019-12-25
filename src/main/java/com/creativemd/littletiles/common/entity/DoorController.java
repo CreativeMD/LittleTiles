@@ -54,6 +54,7 @@ public class DoorController extends EntityAnimationController {
 	public Boolean turnBack;
 	public int duration;
 	public int completeDuration;
+	public int interpolation;
 	public EntityPlayer activator;
 	public DoorOpeningResult result;
 	public UUIDSupplier supplier;
@@ -64,13 +65,15 @@ public class DoorController extends EntityAnimationController {
 		
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration) {
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
 		this.result = result;
 		this.supplier = supplier;
 		
 		this.turnBack = turnBack;
 		this.duration = duration;
 		this.completeDuration = completeDuration;
+		
+		this.interpolation = interpolation;
 		
 		addState(openedState, opened);
 		addStateAndSelect(closedState, closed);
@@ -82,13 +85,15 @@ public class DoorController extends EntityAnimationController {
 		startTransition(openedState);
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close) {
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
 		this.result = result;
 		this.supplier = supplier;
 		
 		this.turnBack = turnBack;
 		this.duration = duration;
 		this.completeDuration = completeDuration;
+		
+		this.interpolation = interpolation;
 		
 		addState(openedState, opened);
 		addStateAndSelect(closedState, closed);
@@ -106,8 +111,8 @@ public class DoorController extends EntityAnimationController {
 		return super.addTransition(from, to, animation);
 	}
 	
-	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration) {
-		this(result, supplier, new AnimationState(), opened, turnBack, duration, completeDuration);
+	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState opened, Boolean turnBack, int duration, int completeDuration, int interpolation) {
+		this(result, supplier, new AnimationState(), opened, turnBack, duration, completeDuration, interpolation);
 	}
 	
 	protected void stretchTransitions() {
@@ -115,6 +120,11 @@ public class DoorController extends EntityAnimationController {
 		for (AnimationTimeline timeline : stateTransition.values()) {
 			timeline.duration = completeDuration;
 		}
+	}
+	
+	@Override
+	public int getInterpolationType() {
+		return interpolation;
 	}
 	
 	@Override
@@ -280,6 +290,8 @@ public class DoorController extends EntityAnimationController {
 		nbt.setInteger("completeDuration", completeDuration);
 		nbt.setByte("turnBack", (byte) (turnBack == null ? 0 : (turnBack ? 1 : -1)));
 		
+		nbt.setInteger("interpolation", interpolation);
+		
 		if (modifiedTransition) {
 			NBTTagList list = new NBTTagList();
 			for (Entry<String, AnimationTimeline> entry : stateTransition.entrySet()) {
@@ -289,6 +301,7 @@ public class DoorController extends EntityAnimationController {
 			}
 			nbt.setTag("transitions", list);
 		}
+		
 	}
 	
 	@Override
@@ -304,6 +317,8 @@ public class DoorController extends EntityAnimationController {
 		
 		duration = nbt.getInteger("duration");
 		completeDuration = nbt.getInteger("completeDuration");
+		interpolation = nbt.getInteger("interpolation");
+		
 		if (nbt.hasKey("transitions")) {
 			NBTTagList list = nbt.getTagList("transitions", 10);
 			for (int i = 0; i < list.tagCount(); i++) {

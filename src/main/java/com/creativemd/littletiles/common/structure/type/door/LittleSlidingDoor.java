@@ -27,7 +27,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -68,8 +68,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
 		if (stayAnimated)
-			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration);
-		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration);
+			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
+		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration, interpolation);
 	}
 	
 	@Override
@@ -81,13 +81,11 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		if (stayAnimated)
-			return new LittleTransformation[] {
-			        new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+			return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
 		LittleTileVec offsetVec = new LittleTileVec(moveDirection);
 		offsetVec.scale(moveDistance);
 		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
-		return new LittleTransformation[] {
-		        new LittleTransformation(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)), 0, 0, 0, new LittleTileVec(0, 0, 0), offset) };
+		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)), 0, 0, 0, new LittleTileVec(0, 0, 0), offset) };
 	}
 	
 	@Override
@@ -244,13 +242,13 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		@SideOnly(Side.CLIENT)
 		public LittleSlidingDoor parseStructure() {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
-			
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
 			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class);
 			door.moveDirection = direction;
 			door.moveDistance = distance.getDistance();
 			door.moveContext = distance.getDistanceContext();
+			
 			return door;
 		}
 		
@@ -268,11 +266,11 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public void populateTimeline(AnimationTimeline timeline) {
+		public void populateTimeline(AnimationTimeline timeline, int interpolation) {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
-			timeline.values.add(AnimationKey.getOffset(direction.getAxis()), new LinearTimeline().addPoint(0, 0D).addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
+			timeline.values.add(AnimationKey.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
 		}
 	}
 	

@@ -44,7 +44,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -140,7 +140,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 	
 	@Override
 	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
-		return doorRotation.createController(result, supplier, transformation.getRotation(axis), this, completeDuration);
+		return doorRotation.createController(result, supplier, transformation.getRotation(axis), this, completeDuration, interpolation);
 	}
 	
 	@Override
@@ -457,14 +457,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public void populateTimeline(AnimationTimeline timeline) {
+		public void populateTimeline(AnimationTimeline timeline, int interpolation) {
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			GuiPanel typePanel = (GuiPanel) parent.get("typePanel");
-			
 			AxisDoorRotation doorRotation = createRotation(((GuiTabStateButton) parent.get("doorRotation")).getState());
 			doorRotation.parseGui(viewer, typePanel);
 			
-			doorRotation.populateTimeline(timeline, timeline.duration, AnimationKey.getRotation(viewer.getAxis()));
+			doorRotation.populateTimeline(timeline, timeline.duration, interpolation, AnimationKey.getRotation(viewer.getAxis()));
 		}
 		
 		@Override
@@ -531,7 +530,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		protected abstract boolean shouldRotatePreviews(LittleAxisDoor door);
 		
-		protected abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration);
+		protected abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation);
 		
 		protected abstract LittleTransformation[] getDoorTransformations(LittleAxisDoor door, @Nullable EntityPlayer player);
 		
@@ -544,7 +543,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@SideOnly(Side.CLIENT)
 		protected abstract void parseGui(GuiTileViewer viewer, GuiParent parent);
 		
-		public abstract void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key);
+		public abstract void populateTimeline(AnimationTimeline timeline, int duration, int interpolation, AnimationKey key);
 		
 	}
 	
@@ -602,10 +601,10 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration) {
+		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation) {
 			if (door.stayAnimated)
-				return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration);
-			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration, completeDuration);
+				return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? 90 : -90), null, door.duration, completeDuration, interpolation);
+			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(rotation.axis), rotation.clockwise ? -90 : 90), new AnimationState(), true, door.duration, completeDuration, interpolation);
 		}
 		
 		@Override
@@ -643,8 +642,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key) {
-			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, 90D));
+		public void populateTimeline(AnimationTimeline timeline, int duration, int interpolation, AnimationKey key) {
+			timeline.values.add(key, ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(duration, 90D));
 		}
 		
 		@Override
@@ -682,8 +681,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration) {
-			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration);
+		protected DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Rotation rotation, LittleAxisDoor door, int completeDuration, int interpolation) {
+			return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getRotation(door.axis), degree), door.stayAnimated ? null : false, door.duration, completeDuration, interpolation);
 		}
 		
 		@Override
@@ -720,8 +719,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 		}
 		
 		@Override
-		public void populateTimeline(AnimationTimeline timeline, int duration, AnimationKey key) {
-			timeline.values.add(key, new LinearTimeline().addPoint(0, 0D).addPoint(duration, degree));
+		public void populateTimeline(AnimationTimeline timeline, int duration, int interpolation, AnimationKey key) {
+			timeline.values.add(key, ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(duration, degree));
 		}
 		
 		@Override

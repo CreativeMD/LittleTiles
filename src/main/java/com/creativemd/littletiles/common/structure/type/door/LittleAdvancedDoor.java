@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.GuiTimeline.KeyDeselectedEvent;
@@ -43,7 +44,6 @@ import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
-import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -202,20 +202,20 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			}
 		} else { // before pre132
 			if (nbt.hasKey("rotX"))
-				rotX = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotX")));
+				rotX = ValueTimeline.create(interpolation).addPoints(loadPairListDouble(nbt.getIntArray("rotX")));
 			if (nbt.hasKey("rotY"))
-				rotY = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotY")));
+				rotY = ValueTimeline.create(interpolation).addPoints(loadPairListDouble(nbt.getIntArray("rotY")));
 			if (nbt.hasKey("rotZ"))
-				rotZ = new LinearTimeline().addPoints(loadPairListDouble(nbt.getIntArray("rotZ")));
+				rotZ = ValueTimeline.create(interpolation).addPoints(loadPairListDouble(nbt.getIntArray("rotZ")));
 			
 			if (nbt.hasKey("offGrid")) {
 				offGrid = LittleGridContext.get(nbt.getInteger("offGrid"));
 				if (nbt.hasKey("offX"))
-					offX = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offX")));
+					offX = ValueTimeline.create(interpolation).addPoints(loadPairListInteger(nbt.getIntArray("offX")));
 				if (nbt.hasKey("offY"))
-					offY = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offY")));
+					offY = ValueTimeline.create(interpolation).addPoints(loadPairListInteger(nbt.getIntArray("offY")));
 				if (nbt.hasKey("offZ"))
-					offZ = new LinearTimeline().addPoints(loadPairListInteger(nbt.getIntArray("offZ")));
+					offZ = ValueTimeline.create(interpolation).addPoints(loadPairListInteger(nbt.getIntArray("offZ")));
 			}
 		}
 	}
@@ -332,7 +332,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		return new DoorController(result, supplier, new AnimationState(), opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close));
+		return new DoorController(result, supplier, new AnimationState(), opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
 	}
 	
 	@Override
@@ -373,10 +373,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews.context, structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
-			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 120, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
+			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 123, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
-			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 10).setNumbersOnly());
-			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 105, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 8).setNumbersOnly());
+			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 108, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+			parent.controls.add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
 		}
@@ -385,28 +386,30 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			GuiDoorEventsButton children = (GuiDoorEventsButton) parent.get("children_activate");
 			AnimationTimeline animation = new AnimationTimeline(timeline.getDuration(), new PairList<>());
+			GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
+			int interpolation = interpolationButton.getState();
 			
-			ValueTimeline rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
+			ValueTimeline rotX = ValueTimeline.create(interpolation, timeline.channels.get(0).getPairs());
 			if (rotX != null)
 				animation.values.add(AnimationKey.rotX, rotX);
 			
-			ValueTimeline rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());
+			ValueTimeline rotY = ValueTimeline.create(interpolation, timeline.channels.get(1).getPairs());
 			if (rotY != null)
 				animation.values.add(AnimationKey.rotY, rotY);
 			
-			ValueTimeline rotZ = ValueTimeline.create(0, timeline.channels.get(2).getPairs());
+			ValueTimeline rotZ = ValueTimeline.create(interpolation, timeline.channels.get(2).getPairs());
 			if (rotZ != null)
 				animation.values.add(AnimationKey.rotZ, rotZ);
 			
-			ValueTimeline offX = ValueTimeline.create(0, timeline.channels.get(3).getPairs());
+			ValueTimeline offX = ValueTimeline.create(interpolation, timeline.channels.get(3).getPairs());
 			if (offX != null)
 				animation.values.add(AnimationKey.offX, offX.factor(context.gridMCLength));
 			
-			ValueTimeline offY = ValueTimeline.create(0, timeline.channels.get(4).getPairs());
+			ValueTimeline offY = ValueTimeline.create(interpolation, timeline.channels.get(4).getPairs());
 			if (offY != null)
 				animation.values.add(AnimationKey.offY, offY.factor(context.gridMCLength));
 			
-			ValueTimeline offZ = ValueTimeline.create(0, timeline.channels.get(5).getPairs());
+			ValueTimeline offZ = ValueTimeline.create(interpolation, timeline.channels.get(5).getPairs());
 			if (offZ != null)
 				animation.values.add(AnimationKey.offZ, offZ.factor(context.gridMCLength));
 			
@@ -546,9 +549,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.duration = timeline.getDuration();
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
 			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
+			GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
+			
 			door.stayAnimated = checkBox.value;
 			door.events = button.events;
 			door.disableRightClick = !rightclick.value;
+			door.interpolation = interpolationButton.getState();
 			
 			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
 			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());

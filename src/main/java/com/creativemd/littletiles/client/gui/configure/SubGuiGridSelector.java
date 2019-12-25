@@ -58,7 +58,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 		contextBox.select(ItemMultiTiles.currentContext.size + "");
 		controls.add(contextBox);
 		
-		controls.add(new GuiCheckBox("any", "any", 5, 5, selector == null || selector instanceof AnySelector || !activeFilter));
+		controls.add(new GuiCheckBox("any", "any", 5, 8, selector == null || selector instanceof AnySelector || !activeFilter));
 		
 		GuiStackSelectorAll guiSelector = new GuiStackSelectorAll("filter", 40, 5, 130, container.player, LittleSubGuiUtils.getCollector(getPlayer()), true);
 		if (selector instanceof TileSelectorBlock) {
@@ -66,7 +66,7 @@ public abstract class SubGuiGridSelector extends SubGuiConfigure {
 			guiSelector.setSelectedForce(new ItemStack(state.getBlock(), 1, state.getBlock().getMetaFromState(state)));
 		}
 		controls.add(guiSelector);
-		controls.add(new GuiCheckBox("meta", "Metadata", 40, 25, selector instanceof StateSelector));
+		controls.add(new GuiCheckBox("meta", "Metadata", 40, 28, selector instanceof StateSelector));
 	}
 	
 	@CustomEventSubscribe

@@ -5,7 +5,6 @@ import java.util.HashMap;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
-import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.util.EnumFacing.Axis;
@@ -55,6 +54,10 @@ public class AnimationController {
 		return aimedState;
 	}
 	
+	public int getInterpolationType() {
+		return 0;
+	}
+	
 	public AnimationController generateTransition(String from, String to, int duration) {
 		AnimationControllerState fromState = states.get(from);
 		if (fromState == null)
@@ -66,7 +69,7 @@ public class AnimationController {
 		
 		PairList<AnimationKey, ValueTimeline> values = new PairList<>();
 		for (Pair<AnimationKey, Double> pair : fromState.state.getValues()) {
-			LinearTimeline timeline = new LinearTimeline();
+			ValueTimeline timeline = ValueTimeline.create(getInterpolationType());
 			timeline.points.add(0, pair.value);
 			if (toState.state.getValues().containsKey(pair.key))
 				timeline.points.add(duration, toState.state.getValues().getValue(pair.key));
@@ -78,7 +81,7 @@ public class AnimationController {
 		for (Pair<AnimationKey, Double> pair : toState.state.getValues()) {
 			if (values.containsKey(pair.key))
 				continue;
-			LinearTimeline timeline = new LinearTimeline();
+			ValueTimeline timeline = ValueTimeline.create(getInterpolationType());
 			timeline.points.add(0, pair.key.getDefault());
 			timeline.points.add(duration, pair.value);
 			values.add(pair.key, timeline);

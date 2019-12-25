@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
+import com.creativemd.littletiles.common.utils.animation.ValueTimeline.CosineTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline.LinearTimeline;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,19 +64,19 @@ public class AnimationTimeline {
 			switch (type) {
 			case 0:
 				if (startX != 0 || endX != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startX);
 					timeline.addPoint(begin + (int) duration, endX);
 					values.add(AnimationKey.offX, timeline);
 				}
 				if (startY != 0 || endY != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startY);
 					timeline.addPoint(begin + (int) duration, endY);
 					values.add(AnimationKey.offY, timeline);
 				}
 				if (startZ != 0 || endZ != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startZ);
 					timeline.addPoint(begin + (int) duration, endZ);
 					values.add(AnimationKey.offZ, timeline);
@@ -84,19 +85,19 @@ public class AnimationTimeline {
 			case 1:
 				
 				if (startX != 0 || endX != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startX);
 					timeline.addPoint(begin + (int) duration, endX);
 					values.add(AnimationKey.rotX, timeline);
 				}
 				if (startY != 0 || endY != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startY);
 					timeline.addPoint(begin + (int) duration, endY);
 					values.add(AnimationKey.rotY, timeline);
 				}
 				if (startZ != 0 || endZ != 0) {
-					ValueTimeline timeline = new LinearTimeline();
+					ValueTimeline timeline = new CosineTimeline();
 					timeline.addPoint(begin, startZ);
 					timeline.addPoint(begin + (int) duration, endZ);
 					values.add(AnimationKey.rotZ, timeline);

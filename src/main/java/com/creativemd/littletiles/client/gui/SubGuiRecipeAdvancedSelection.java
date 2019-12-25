@@ -41,28 +41,28 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 		
 		result = mode.generateResult(getPlayer().world, stack);
 		
-		GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", translate("selection.include.vanilla"), 0, 20, false);
+		GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", translate("selection.include.vanilla"), 0, 23, false);
 		if (result != null && result.blocks > 0)
 			vanilla.setCustomTooltip(result.blocks + " block(s)");
 		else
 			vanilla.enabled = false;
 		controls.add(vanilla);
 		
-		GuiCheckBox cb = new GuiCheckBox("includeCB", translate("selection.include.cb"), 0, 40, true);
+		GuiCheckBox cb = new GuiCheckBox("includeCB", translate("selection.include.cb"), 0, 43, true);
 		if (result != null && result.cbBlocks > 0)
 			cb.setCustomTooltip(result.cbBlocks + " block(s)", result.cbTiles + " tile(s)", result.minCBContext.size + " grid");
 		else
 			cb.enabled = false;
 		controls.add(cb);
 		
-		GuiCheckBox lt = new GuiCheckBox("includeLT", translate("selection.include.lt"), 0, 60, true);
+		GuiCheckBox lt = new GuiCheckBox("includeLT", translate("selection.include.lt"), 0, 63, true);
 		if (result != null && result.ltBlocks > 0)
 			lt.setCustomTooltip(result.ltBlocks + " block(s)", result.ltTiles + " tile(s)", result.minLtContext.size + " grid");
 		else
 			lt.enabled = false;
 		controls.add(lt);
 		
-		controls.add((GuiControl) new GuiCheckBox("remember_structure", translate("selection.include.structure"), 0, 80, true));
+		controls.add(new GuiCheckBox("remember_structure", translate("selection.include.structure"), 0, 83, true));
 		// accurate
 		GuiLabel label = new GuiLabel("label_scale", translate("selection.scale") + ":", 0, 102);
 		controls.add(label);
