@@ -9,9 +9,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
+import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
@@ -227,40 +229,33 @@ public class DoorController extends EntityAnimationController {
 			PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(newDoor.getMainTile()), parent.getAbsoluteParent(), null, serverWorld);
 		} else {
 			boolean subWorld = world instanceof IOrientatedWorld;
-			List<RenderChunk> renderChunks = subWorld ? null : new ArrayList<>();
+			HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
 			for (TileEntityLittleTiles te : result.tileEntities) {
 				TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
 				if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).getBuffer() != null) {
 					if (te.inRenderingQueue == null)
 						te.inRenderingQueue = new AtomicBoolean();
 					
-					((TileEntityLittleTiles) oldTE).invalidate();
 					synchronized (te.inRenderingQueue) {
-						if (!te.inRenderingQueue.get())
-							continue;
-						if (te.getBuffer() == null)
-							te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
-						else
-							te.getBuffer().combine(((TileEntityLittleTiles) oldTE).getBuffer());
+						if (te.inRenderingQueue.get() || te.getBuffer().isEmpty()) {
+							if (te.getBuffer() == null)
+								te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
+							else
+								te.getBuffer().combine(((TileEntityLittleTiles) oldTE).getBuffer());
+						}
 						
 						if (subWorld)
 							RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
-						else {
-							RenderChunk chunk = RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos());
-							if (!renderChunks.contains(chunk))
-								renderChunks.add(chunk);
-						}
-						
+						else
+							chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), (TileEntityLittleTiles) oldTE);
 					}
 				}
 			}
 			
-			if (!subWorld) {
-				for (int i = 0; i < renderChunks.size(); i++) {
-					renderChunks.get(i).needsImmediateUpdate();
-				}
-			}
-			
+			if (!subWorld)
+				for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
+					RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
+				
 			parent.isDead = true;
 			placed = true;
 		}
