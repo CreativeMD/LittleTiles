@@ -375,7 +375,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 123, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
-			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 118, 40, 8).setNumbersOnly());
+			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 121, 40, 8).setNumbersOnly());
 			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 108, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
 			parent.controls.add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
@@ -504,7 +504,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				} catch (NumberFormatException e) {
 					
 				}
-			} else if (event.source.is("timeline") || event.source.is("children_activate"))
+			} else if (event.source.is("timeline") || event.source.is("children_activate") || event.source.is("interpolation"))
 				updateTimeline();
 		}
 		
@@ -556,12 +556,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.disableRightClick = !rightclick.value;
 			door.interpolation = interpolationButton.getState();
 			
-			door.rotX = ValueTimeline.create(0, timeline.channels.get(0).getPairs());
-			door.rotY = ValueTimeline.create(0, timeline.channels.get(1).getPairs());
-			door.rotZ = ValueTimeline.create(0, timeline.channels.get(2).getPairs());
-			door.offX = ValueTimeline.create(0, timeline.channels.get(3).getPairs());
-			door.offY = ValueTimeline.create(0, timeline.channels.get(4).getPairs());
-			door.offZ = ValueTimeline.create(0, timeline.channels.get(5).getPairs());
+			door.rotX = ValueTimeline.create(door.interpolation, timeline.channels.get(0).getPairs());
+			door.rotY = ValueTimeline.create(door.interpolation, timeline.channels.get(1).getPairs());
+			door.rotZ = ValueTimeline.create(door.interpolation, timeline.channels.get(2).getPairs());
+			door.offX = ValueTimeline.create(door.interpolation, timeline.channels.get(3).getPairs());
+			door.offY = ValueTimeline.create(door.interpolation, timeline.channels.get(4).getPairs());
+			door.offZ = ValueTimeline.create(door.interpolation, timeline.channels.get(5).getPairs());
 			door.offGrid = context;
 			return door;
 		}

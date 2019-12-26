@@ -347,7 +347,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		@SideOnly(Side.CLIENT)
 		@CustomEventSubscribe
 		public void onChanged(GuiControlChangedEvent event) {
-			if (event.source.is("duration_s") || event.source.is("children_activate"))
+			if (event.source.is("duration_s") || event.source.is("children_activate") || event.source.is("interpolation"))
 				updateTimeline();
 		}
 		

@@ -22,7 +22,10 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 	public UUID worldUUID;
 	public LittleTileIdentifierAbsolute identifier;
 	
-	public LittlePlacedAnimationPacket(LittleTile tile) {
+	public UUID previousAnimation;
+	
+	public LittlePlacedAnimationPacket(LittleTile tile, UUID previousAnimation) {
+		this.previousAnimation = previousAnimation;
 		this.identifier = new LittleTileIdentifierAbsolute(tile);
 		if (tile.te.getWorld() instanceof CreativeWorld)
 			this.worldUUID = ((CreativeWorld) tile.te.getWorld()).parent.getUniqueID();
@@ -35,6 +38,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writeNBT(buf, identifier.writeToNBT(new NBTTagCompound()));
+		writeString(buf, previousAnimation.toString());
 		
 		if (worldUUID != null) {
 			buf.writeBoolean(true);
@@ -46,6 +50,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 	@Override
 	public void readBytes(ByteBuf buf) {
 		identifier = new LittleTileIdentifierAbsolute(readNBT(buf));
+		previousAnimation = UUID.fromString(readString(buf));
 		
 		if (buf.readBoolean())
 			worldUUID = UUID.fromString(readString(buf));
@@ -70,7 +75,11 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 			if (tile.isChildOfStructure() && tile.connection.getStructure(world) instanceof LittleDoor)
 				((LittleDoor) tile.connection.getStructureWithoutLoading()).waitingForApproval = false;
 		} catch (LittleActionException e) {
-			e.printStackTrace();
+			EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(previousAnimation);
+			if (animation != null)
+				animation.controller.onServerPlaces();
+			else
+				e.printStackTrace();
 		}
 		
 	}

@@ -54,6 +54,10 @@ public abstract class EntityAnimationController extends AnimationController {
 		
 	}
 	
+	public void onServerPlaces() {
+		
+	}
+	
 	public abstract void transform(LittleTransformation transformation);
 	
 	public static EntityAnimationController parseController(EntityAnimation animation, NBTTagCompound nbt) {

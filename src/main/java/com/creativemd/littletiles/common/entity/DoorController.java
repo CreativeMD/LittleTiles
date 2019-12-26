@@ -44,6 +44,7 @@ import net.minecraft.world.WorldServer;
 
 public class DoorController extends EntityAnimationController {
 	
+	protected boolean placedOnServer = false;
 	protected boolean isWaitingForApprove = false;
 	protected int ticksToWait = -1;
 	protected static final int waitTimeApprove = 300;
@@ -214,7 +215,7 @@ public class DoorController extends EntityAnimationController {
 		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
 		
 		LittleStructure newDoor = previews.getStructure();
-		if (!(world instanceof CreativeWorld) && world.isRemote)
+		if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
 			((LittleDoor) newDoor).waitingForApproval = true;
 		LittlePlaceResult result;
 		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
@@ -236,7 +237,7 @@ public class DoorController extends EntityAnimationController {
 		if (!world.isRemote) {
 			parent.isDead = true;
 			WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
-			PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(newDoor.getMainTile()), parent.getAbsoluteParent(), null, serverWorld);
+			PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(newDoor.getMainTile(), parent.getUniqueID()), parent.getAbsoluteParent(), null, serverWorld);
 		} else {
 			boolean subWorld = world instanceof IOrientatedWorld;
 			HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
@@ -349,6 +350,11 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void onServerApproves() {
 		isWaitingForApprove = false;
+	}
+	
+	@Override
+	public void onServerPlaces() {
+		placedOnServer = true;
 	}
 	
 	@Override
