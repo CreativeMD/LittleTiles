@@ -289,8 +289,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		EntityAnimation animation = place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 		
 		World world = getWorld();
+		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
 			te.updateTiles();
+			if (sendUpdate)
+				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
 		}
 		
 		return animation;
