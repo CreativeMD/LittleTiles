@@ -95,6 +95,9 @@ public class RenderUploader {
 						ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, uploadedVertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null);
 						uploadBuffer.unbindBuffer();
 						
+						if (vanillaBuffer == null)
+							empty = true;
+						
 						toUpload = ByteBuffer.allocateDirect((empty ? 0 : vanillaBuffer.limit()) + expanded);
 						if (!empty)
 							toUpload.put(vanillaBuffer);
