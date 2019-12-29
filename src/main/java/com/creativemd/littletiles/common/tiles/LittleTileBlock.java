@@ -93,7 +93,6 @@ public class LittleTileBlock extends LittleTile {
 		return this.meta;
 	}
 	
-	@SideOnly(Side.CLIENT)
 	protected byte cachedTranslucent;
 	protected IBlockState state = null;
 	
@@ -128,7 +127,6 @@ public class LittleTileBlock extends LittleTile {
 		return cachedTranslucent == 2;
 	}
 	
-	@SideOnly(Side.CLIENT)
 	public void updateTranslucent() {
 		if (getBlockState().isTranslucent() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT))
 			cachedTranslucent = 2;
