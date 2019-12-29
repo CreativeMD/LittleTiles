@@ -21,6 +21,7 @@ import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
+import com.creativemd.littletiles.common.api.events.LittleTileUpdateEvent;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
@@ -52,6 +53,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
@@ -268,6 +270,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void updateTiles(Consumer<TileList> action) {
 		action.accept(tiles);
 		updateTiles();
+
+		MinecraftForge.EVENT_BUS.post(new LittleTileUpdateEvent(getWorld(), getPos()));
 	}
 	
 	/** Block will not update */
