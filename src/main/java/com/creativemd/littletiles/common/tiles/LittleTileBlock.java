@@ -128,7 +128,7 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	public void updateTranslucent() {
-		if (getBlockState().isTranslucent() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT))
+		if (!getBlockState().getMaterial().blocksLight() || !getBlockState().isOpaqueCube() || block.canRenderInLayer(getBlockState(), BlockRenderLayer.TRANSLUCENT) || block.canRenderInLayer(getBlockState(), BlockRenderLayer.CUTOUT))
 			cachedTranslucent = 2;
 		else
 			cachedTranslucent = 1;
