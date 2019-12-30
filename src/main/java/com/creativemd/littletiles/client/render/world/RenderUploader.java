@@ -7,6 +7,7 @@ import java.util.List;
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL30;
 
+import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -20,6 +21,7 @@ import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraftforge.fml.client.FMLClientHandler;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -35,6 +37,9 @@ public class RenderUploader {
 	private static Field formatField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "vertexFormat", "field_177363_b" });
 	
 	public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
+		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions())
+			return;
+		
 		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 			BlockRenderLayer layer = BlockRenderLayer.values()[i];
 			
@@ -95,14 +100,9 @@ public class RenderUploader {
 						ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, uploadedVertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null);
 						uploadBuffer.unbindBuffer();
 						
-						if (vanillaBuffer == null)
-							empty = true;
-						
-						toUpload = ByteBuffer.allocateDirect((empty ? 0 : vanillaBuffer.limit()) + expanded);
-						if (!empty)
+						toUpload = ByteBuffer.allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + expanded);
+						if (vanillaBuffer != null)
 							toUpload.put(vanillaBuffer);
-						
-						vanillaBuffer = null;
 						
 						for (TileEntityLittleTiles te : tiles) {
 							if (te.getBuffer() == null)

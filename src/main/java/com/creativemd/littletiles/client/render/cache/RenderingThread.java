@@ -249,21 +249,12 @@ public class RenderingThread extends Thread {
 											dx = OptifineHelper.getRenderChunkRegionX(chunk);
 											dz = OptifineHelper.getRenderChunkRegionZ(chunk);
 											
-											int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
-											int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
-											int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
-											int offsetX = -dx;
-											int offsetY = -dy;
-											int offsetZ = -dz;
-											buffer.setTranslation(offsetX, offsetY, offsetZ);
+											buffer.setTranslation(-dx, -dy, -dz);
 										} else {
 											int chunkX = MathHelper.intFloorDiv(pos.getX(), 16);
 											int chunkY = MathHelper.intFloorDiv(pos.getY(), 16);
 											int chunkZ = MathHelper.intFloorDiv(pos.getZ(), 16);
-											int offsetX = -chunkX * 16;
-											int offsetY = -chunkY * 16;
-											int offsetZ = -chunkZ * 16;
-											buffer.setTranslation(offsetX, offsetY, offsetZ);
+											buffer.setTranslation(-chunkX * 16, -chunkY * 16, -chunkZ * 16);
 										}
 										
 										boolean smooth = Minecraft.isAmbientOcclusionEnabled() && data.state.getLightValue(renderWorld, pos) == 0; //&& modelIn.isAmbientOcclusion(stateIn);
