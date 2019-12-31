@@ -7,9 +7,12 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
+import com.creativemd.littletiles.client.gui.controls.SubGuiSoundSelector.GuiPickSoundButton;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
@@ -80,8 +83,10 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	
 	public static AnimationEvent loadFromNBT(NBTTagCompound nbt) {
 		Class<? extends AnimationEvent> eventClass = getType(nbt.getString("id"));
-		if (eventClass == null)
-			throw new RuntimeException("Found invalid AnimationEvent type '" + nbt.getString("id") + "'!");
+		if (eventClass == null) {
+			System.out.println("Found invalid AnimationEvent type '" + nbt.getString("id") + "'!");
+			return null;
+		}
 		
 		try {
 			AnimationEvent event = eventClass.getConstructor(int.class).newInstance(nbt.getInteger("tick"));
@@ -128,6 +133,37 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 				if (child.lines.isEmpty())
 					return null;
 				return event;
+			}
+		});
+		
+		registerAnimationEventType("sound-event", PlaySoundEvent.class, new AnimationEventGuiParser<PlaySoundEvent>() {
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public void createControls(GuiParent parent, PlaySoundEvent event, LittlePreviews previews) {
+				parent.addControl(new GuiStateButton("opening", event != null ? (event.opening ? 0 : 1) : 0, 37, 0, 40, 7, GuiControl.translate("gui.door.open"), GuiControl.translate("gui.door.close")));
+				parent.addControl(new GuiPickSoundButton("sound", 86, 0, event));
+			}
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public PlaySoundEvent parse(GuiParent parent, PlaySoundEvent event) {
+				GuiPickSoundButton picker = (GuiPickSoundButton) parent.get("sound");
+				GuiStateButton opening = (GuiStateButton) parent.get("opening");
+				if (picker.selected != null) {
+					event.pitch = picker.pitch;
+					event.volume = picker.volume;
+					event.sound = picker.selected;
+					event.opening = opening.getState() == 0;
+					return event;
+				}
+				return null;
+			}
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public int getHeight() {
+				return 20;
 			}
 		});
 	}
@@ -178,6 +214,11 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	}
 	
 	protected abstract boolean run(EntityAnimationController controller);
+	
+	@SideOnly(Side.CLIENT)
+	public void runGui(AnimationGuiHandler handler) {
+		
+	}
 	
 	@SideOnly(Side.CLIENT)
 	public void prepareInGui(LittlePreviews previews, LittleStructure structure, EntityAnimation animation, AnimationGuiHandler handler) {

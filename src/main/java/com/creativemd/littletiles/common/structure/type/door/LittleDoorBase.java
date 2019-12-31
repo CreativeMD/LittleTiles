@@ -80,8 +80,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		super.loadFromNBTExtra(nbt);
 		events = new ArrayList<>();
 		NBTTagList list = nbt.getTagList("events", 10);
-		for (int i = 0; i < list.tagCount(); i++)
-			events.add(AnimationEvent.loadFromNBT(list.getCompoundTagAt(i)));
+		for (int i = 0; i < list.tagCount(); i++) {
+			AnimationEvent event = AnimationEvent.loadFromNBT(list.getCompoundTagAt(i));
+			if (event != null)
+				events.add(event);
+		}
 		if (nbt.hasKey("duration"))
 			duration = nbt.getInteger("duration");
 		else

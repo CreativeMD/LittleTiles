@@ -46,7 +46,9 @@ public class SubGuiDoorEvents extends SubGui {
 	public void addEntry(@Nullable AnimationEvent event, String type) {
 		GuiScrollBox box = (GuiScrollBox) get("content");
 		
-		GuiPanel panel = new GuiPanel(type, 2, 2, 158, 30);
+		AnimationEventGuiParser parser = AnimationEvent.getParser(type);
+		
+		GuiPanel panel = new GuiPanel(type, 2, 2, 158, parser.getHeight());
 		panel.addControl(new GuiTextfield("tick", "" + (event != null ? event.getTick() : 0), 0, 0, 30, 10).setNumbersOnly().setCustomTooltip("tick"));
 		panel.addControl(new GuiButton("x", 145, 0, 6, 6) {
 			
@@ -57,7 +59,6 @@ public class SubGuiDoorEvents extends SubGui {
 			}
 		});
 		
-		AnimationEventGuiParser parser = AnimationEvent.getParser(type);
 		parser.createControls(panel, event, button.previews);
 		
 		box.addControl(panel);
@@ -127,7 +128,7 @@ public class SubGuiDoorEvents extends SubGui {
 		public List<AnimationEvent> events;
 		
 		public GuiDoorEventsButton(String name, int x, int y, LittlePreviews previews, LittleDoorBase door) {
-			super(name, translate("gui.door.children"), x, y, 40, 7);
+			super(name, translate("gui.door.events"), x, y, 40, 7);
 			this.previews = previews;
 			this.activator = door;
 			if (activator != null)

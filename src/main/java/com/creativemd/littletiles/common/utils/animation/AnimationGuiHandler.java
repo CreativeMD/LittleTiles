@@ -112,6 +112,11 @@ public class AnimationGuiHandler implements IAnimationHandler {
 			return;
 		
 		if (playing) {
+			
+			for (AnimationEvent event : events)
+				if (event.getTick() == tick)
+					event.runGui(this);
+				
 			if (tick > timeline.duration) {
 				if (loop)
 					tick = 0;
