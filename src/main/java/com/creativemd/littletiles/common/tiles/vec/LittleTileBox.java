@@ -1013,6 +1013,10 @@ public class LittleTileBox {
 		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
 	}
 	
+	public boolean isFaceSolid(EnumFacing facing) {
+		return true;
+	}
+	
 	public boolean canFaceBeCombined(LittleTileBox other) {
 		return true;
 	}

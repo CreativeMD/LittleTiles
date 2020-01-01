@@ -745,6 +745,11 @@ public class LittleTileSlicedOrdinaryBox extends LittleTileBox {
 	// ================Faces================
 	
 	@Override
+	public boolean isFaceSolid(EnumFacing facing) {
+		return facing != slice.emptySideOne && facing != slice.emptySideTwo && facing.getAxis() != slice.axis;
+	}
+	
+	@Override
 	@Nullable
 	public LittleTileFace getFace(LittleGridContext context, EnumFacing facing) {
 		if (facing == slice.emptySideOne || facing == slice.emptySideTwo)

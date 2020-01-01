@@ -333,7 +333,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public boolean doesProvideSolidFace(EnumFacing facing) {
-		return !invisible;
+		return !invisible && box.isFaceSolid(facing);
 	}
 	
 	@SideOnly(Side.CLIENT)
