@@ -16,13 +16,14 @@ public class StructureCombiner extends AdvancedCombiner<LittleTile> {
 	protected boolean modifiedMainTile = false;
 	
 	@Override
-	public void combine() {
+	public boolean combine() {
 		if (!structure.hasLoaded())
-			return;
+			return false;
 		
-		super.combine();
+		boolean changed = super.combine();
 		if (modifiedMainTile)
 			structure.selectMainTile();
+		return changed;
 	}
 	
 	@Override

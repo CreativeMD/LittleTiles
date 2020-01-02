@@ -38,7 +38,8 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 	}
 	
 	@Override
-	public void combine() {
+	public boolean combine() {
+		int sizeBefore = tiles.size();
 		modified = true;
 		while (modified) {
 			modified = false;
@@ -78,8 +79,10 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 				i++;
 			}
 		}
+		boolean changed = sizeBefore != tiles.size();
 		this.tiles = null;
 		this.currentTile = null;
+		return changed;
 	}
 	
 	public void addCuttedTile(T cutTile) {

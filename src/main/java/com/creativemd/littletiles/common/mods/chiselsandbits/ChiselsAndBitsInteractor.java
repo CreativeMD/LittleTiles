@@ -11,6 +11,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -66,7 +67,7 @@ public class ChiselsAndBitsInteractor {
 				}
 			}
 		}
-		TileEntityLittleTiles.combineTilesList(tiles);
+		BasicCombiner.combineTiles(tiles);
 		return tiles;
 	}
 	

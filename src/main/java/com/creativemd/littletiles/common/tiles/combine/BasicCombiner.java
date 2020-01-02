@@ -11,20 +11,20 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 
 public class BasicCombiner {
 	
-	public static void combineBoxes(List<LittleTileBox> boxes) {
-		new BasicCombiner(boxes).combine();
+	public static boolean combineBoxes(List<LittleTileBox> boxes) {
+		return new BasicCombiner(boxes).combine();
 	}
 	
-	public static void combineTiles(List<LittleTile> tiles) {
-		new AdvancedCombiner<>(tiles).combine();
+	public static boolean combineTiles(List<LittleTile> tiles) {
+		return new AdvancedCombiner<>(tiles).combine();
 	}
 	
-	public static void combineTiles(List<LittleTile> tiles, LittleStructure structure) {
-		new StructureCombiner(tiles, structure).combine();
+	public static boolean combineTiles(List<LittleTile> tiles, LittleStructure structure) {
+		return new StructureCombiner(tiles, structure).combine();
 	}
 	
-	public static void combinePreviews(List<LittleTilePreview> previews) {
-		new AdvancedCombiner<>(previews).combine();
+	public static boolean combinePreviews(List<LittleTilePreview> previews) {
+		return new AdvancedCombiner<>(previews).combine();
 	}
 	
 	protected List<LittleTileBox> boxes;
@@ -47,7 +47,8 @@ public class BasicCombiner {
 		return boxes;
 	}
 	
-	public void combine() {
+	public boolean combine() {
+		int sizeBefore = boxes.size();
 		modified = true;
 		while (modified) {
 			modified = false;
@@ -71,7 +72,9 @@ public class BasicCombiner {
 				i++;
 			}
 		}
+		boolean changed = sizeBefore != boxes.size();
 		this.boxes = null;
+		return changed;
 	}
 	
 	public boolean cutOut(LittleTileBox searching) {

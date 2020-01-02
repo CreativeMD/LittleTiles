@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -13,7 +12,6 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
@@ -26,7 +24,6 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
 
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
@@ -58,15 +55,9 @@ public class AnimationPreview {
 		previews.deleteCachedStructure();
 		
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, pos);
-		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		
 		LittleStructure structure = previews.getStructure();
 		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, null);
-		for (Iterator iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
-			TileEntity te = (TileEntity) iterator.next();
-			if (te instanceof TileEntityLittleTiles)
-				blocks.add((TileEntityLittleTiles) te);
-		}
 		
 		entireBox = previews.getSurroundingBox();
 		context = previews.context;

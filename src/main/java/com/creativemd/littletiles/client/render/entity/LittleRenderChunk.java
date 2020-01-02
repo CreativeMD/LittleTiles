@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
@@ -46,10 +45,9 @@ public class LittleRenderChunk {
 	}
 	
 	protected boolean remove(TileEntityLittleTiles te) {
-		for (Iterator<TileEntityLittleTiles> iterator = tileEntities.iterator(); iterator.hasNext();) {
-			TileEntityLittleTiles teSearch = iterator.next();
-			if (te.getPos().equals(teSearch.getPos())) {
-				iterator.remove();
+		for (int i = 0; i < tileEntities.size(); i++) {
+			if (te.getPos().equals(tileEntities.get(i).getPos())) {
+				tileEntities.remove(i);
 				return true;
 			}
 		}
@@ -59,10 +57,9 @@ public class LittleRenderChunk {
 	public void deleteRenderData(TileEntityLittleTiles te) {
 		synchronized (tileEntities) {
 			remove(te);
+			complete = false;
+			modified = true;
 		}
-		
-		complete = false;
-		modified = true;
 	}
 	
 	public void addRenderData(TileEntityLittleTiles te) {
@@ -131,23 +128,20 @@ public class LittleRenderChunk {
 		for (int i = 0; i < queuedBuffers.length; i++) {
 			if (queuedBuffers[i] != null && !queuedBuffers[i].isEmpty()) {
 				int expand = 0;
-				for (BufferBuilder teBuffer : queuedBuffers[i]) {
+				for (BufferBuilder teBuffer : queuedBuffers[i])
 					expand += teBuffer.getVertexCount();
-				}
 				
 				BufferBuilder tempBuffer = tempBuffers[i];
 				if (tempBuffer == null) {
-					tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getIntegerSize() * expand * 4);
+					tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
 					tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
 					tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
 					tempBuffers[i] = tempBuffer;
-				} else {
-					BufferBuilderUtils.growBuffer(tempBuffer, tempBuffer.getVertexFormat().getIntegerSize() * expand * 4);
-				}
+				} else
+					BufferBuilderUtils.growBufferSmall(tempBuffer, tempBuffer.getVertexFormat().getNextOffset() * expand);
 				
-				for (BufferBuilder teBuffer : queuedBuffers[i]) {
+				for (BufferBuilder teBuffer : queuedBuffers[i])
 					BufferBuilderUtils.addBuffer(tempBuffer, teBuffer);
-				}
 				
 				queuedBuffers[i].clear();
 				bufferChanged[i] = true;
@@ -170,9 +164,8 @@ public class LittleRenderChunk {
 						queuedBuffers[i].clear();
 				}
 				modified = false;
-				for (TileEntityLittleTiles te : tileEntities) {
+				for (TileEntityLittleTiles te : tileEntities)
 					addRenderDataInternal(te);
-				}
 			}
 			
 			processQueue();
@@ -203,13 +196,17 @@ public class LittleRenderChunk {
 	}
 	
 	public void markCompleted() {
-		complete = true;
+		synchronized (tileEntities) {
+			complete = true;
+		}
 	}
 	
 	public void unload() {
-		for (int i = 0; i < vertexBuffers.length; i++) {
-			if (vertexBuffers[i] != null)
-				vertexBuffers[i].deleteGlBuffers();
+		synchronized (tileEntities) {
+			for (int i = 0; i < vertexBuffers.length; i++) {
+				if (vertexBuffers[i] != null)
+					vertexBuffers[i].deleteGlBuffers();
+			}
 		}
 	}
 }

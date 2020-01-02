@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
@@ -329,7 +330,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (tiles.isEmpty()) {
 			world.setBlockToAir(pos);
 			return true;
-		} else if (tiles.size() == 1) {
+		}
+		
+		if (world instanceof IOrientatedWorld)
+			return false;
+		
+		if (tiles.size() == 1) {
 			if (!tiles.first().canBeConvertedToVanilla() || !tiles.first().doesFillEntireBlock())
 				return false;
 			firstTile = tiles.first();
@@ -753,21 +759,19 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void combineTiles(LittleStructure structure) {
-		BasicCombiner.combineTiles(tiles, structure);
+		boolean changed = BasicCombiner.combineTiles(tiles, structure);
 		
 		convertToSmallest();
-		updateTiles();
+		if (changed)
+			updateTiles();
 	}
 	
 	public void combineTiles() {
-		combineTilesList(tiles);
+		boolean changed = BasicCombiner.combineTiles(tiles);
 		
 		convertToSmallest();
-		updateTiles();
-	}
-	
-	public static void combineTilesList(List<LittleTile> tiles) {
-		BasicCombiner.combineTiles(tiles);
+		if (changed)
+			updateTiles();
 	}
 	
 	@Override
