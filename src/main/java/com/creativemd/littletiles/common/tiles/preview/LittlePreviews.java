@@ -537,6 +537,9 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
 	public void removeOffset() {
 		LittleTileVec min = getMinVec();
+		min.x = context.toGrid(context.toBlockOffset(min.x));
+		min.y = context.toGrid(context.toBlockOffset(min.y));
+		min.z = context.toGrid(context.toBlockOffset(min.z));
 		for (LittleTilePreview preview : allPreviews())
 			preview.box.sub(min);
 	}
