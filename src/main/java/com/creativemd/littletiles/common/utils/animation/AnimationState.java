@@ -22,6 +22,9 @@ public class AnimationState {
 	}
 	
 	public AnimationState set(AnimationKey key, double value) {
+		if (key.getDefault() == value)
+			return this;
+		
 		Pair<AnimationKey, Double> pair = values.getPair(key);
 		if (pair != null)
 			pair.setValue(value);

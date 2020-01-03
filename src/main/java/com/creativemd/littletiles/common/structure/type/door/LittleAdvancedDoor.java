@@ -138,6 +138,13 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		return inverted;
 	}
 	
+	public static boolean isAligned(AnimationKey key, ValueTimeline timeline) {
+		if (timeline == null)
+			return true;
+		
+		return key.isAligned(timeline.first(key));
+	}
+	
 	public LittleAdvancedDoor(LittleStructureType type) {
 		super(type);
 	}
@@ -301,38 +308,51 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		PairList<AnimationKey, ValueTimeline> close = new PairList<>();
 		
 		AnimationState opened = new AnimationState();
+		AnimationState closed = new AnimationState();
 		if (offX != null) {
-			opened.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.last()));
+			opened.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.last(AnimationKey.offX)));
+			closed.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.first(AnimationKey.offX)));
+			
 			open.add(AnimationKey.offX, offX.copy().factor(offGrid.gridMCLength));
 			close.add(AnimationKey.offX, offX.invert(duration).factor(offGrid.gridMCLength));
 		}
 		if (offY != null) {
-			opened.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.last()));
+			opened.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.last(AnimationKey.offY)));
+			closed.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.first(AnimationKey.offY)));
+			
 			open.add(AnimationKey.offY, offY.copy().factor(offGrid.gridMCLength));
 			close.add(AnimationKey.offY, offY.invert(duration).factor(offGrid.gridMCLength));
 		}
 		if (offZ != null) {
-			opened.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.last()));
+			opened.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.last(AnimationKey.offZ)));
+			closed.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.first(AnimationKey.offZ)));
+			
 			open.add(AnimationKey.offZ, offZ.copy().factor(offGrid.gridMCLength));
 			close.add(AnimationKey.offZ, offZ.invert(duration).factor(offGrid.gridMCLength));
 		}
 		if (rotX != null) {
-			opened.set(AnimationKey.rotX, rotX.last());
+			opened.set(AnimationKey.rotX, rotX.last(AnimationKey.rotX));
+			closed.set(AnimationKey.rotX, rotX.first(AnimationKey.rotX));
+			
 			open.add(AnimationKey.rotX, rotX);
 			close.add(AnimationKey.rotX, rotX.invert(duration));
 		}
 		if (rotY != null) {
-			opened.set(AnimationKey.rotY, rotY.last());
+			opened.set(AnimationKey.rotY, rotY.last(AnimationKey.rotY));
+			closed.set(AnimationKey.rotY, rotY.first(AnimationKey.rotY));
+			
 			open.add(AnimationKey.rotY, rotY);
 			close.add(AnimationKey.rotY, rotY.invert(duration));
 		}
 		if (rotZ != null) {
-			opened.set(AnimationKey.rotZ, rotZ.last());
+			opened.set(AnimationKey.rotZ, rotZ.last(AnimationKey.rotZ));
+			closed.set(AnimationKey.rotZ, rotZ.first(AnimationKey.rotZ));
+			
 			open.add(AnimationKey.rotZ, rotZ);
 			close.add(AnimationKey.rotZ, rotZ.invert(duration));
 		}
 		
-		return new DoorController(result, supplier, new AnimationState(), opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
+		return new DoorController(result, supplier, closed, opened, stayAnimated ? null : false, duration, completeDuration, new AnimationTimeline(duration, open), new AnimationTimeline(duration, close), interpolation);
 	}
 	
 	@Override
@@ -355,12 +375,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		public void createControls(LittlePreviews previews, LittleStructure structure) {
 			LittleAdvancedDoor door = structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null;
 			List<TimelineChannel> channels = new ArrayList<>();
-			channels.add(new TimelineChannelDouble("rot X").addKeyFixed(0, 0D).addKeys(door != null && door.rotX != null ? door.rotX.getPointsCopy() : null));
-			channels.add(new TimelineChannelDouble("rot Y").addKeyFixed(0, 0D).addKeys(door != null && door.rotY != null ? door.rotY.getPointsCopy() : null));
-			channels.add(new TimelineChannelDouble("rot Z").addKeyFixed(0, 0D).addKeys(door != null && door.rotZ != null ? door.rotZ.getPointsCopy() : null));
-			channels.add(new TimelineChannelInteger("off X").addKeyFixed(0, 0).addKeys(door != null && door.offX != null ? door.offX.getRoundedPointsCopy() : null));
-			channels.add(new TimelineChannelInteger("off Y").addKeyFixed(0, 0).addKeys(door != null && door.offY != null ? door.offY.getRoundedPointsCopy() : null));
-			channels.add(new TimelineChannelInteger("off Z").addKeyFixed(0, 0).addKeys(door != null && door.offZ != null ? door.offZ.getRoundedPointsCopy() : null));
+			channels.add(new TimelineChannelDouble("rot X").addKeys(door != null && door.rotX != null ? door.rotX.getPointsCopy() : null));
+			channels.add(new TimelineChannelDouble("rot Y").addKeys(door != null && door.rotY != null ? door.rotY.getPointsCopy() : null));
+			channels.add(new TimelineChannelDouble("rot Z").addKeys(door != null && door.rotZ != null ? door.rotZ.getPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off X").addKeys(door != null && door.offX != null ? door.offX.getRoundedPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off Y").addKeys(door != null && door.offY != null ? door.offY.getRoundedPointsCopy() : null));
+			channels.add(new TimelineChannelInteger("off Z").addKeys(door != null && door.offZ != null ? door.offZ.getRoundedPointsCopy() : null));
 			parent.controls.add(new GuiTimeline("timeline", 0, 0, 190, 67, door != null ? door.duration : 50, channels, handler).setSidebarWidth(30));
 			parent.controls.add(new GuiLabel("tick", "0", 150, 75));
 			
@@ -414,6 +434,9 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				animation.values.add(AnimationKey.offZ, offZ.factor(context.gridMCLength));
 			
 			handler.setTimeline(animation, children.events);
+			
+			GuiCheckBox stayAnimated = (GuiCheckBox) parent.get("stayAnimated");
+			stayAnimated.enabled = animation.isFirstAligned();
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -550,8 +573,6 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
 			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
 			GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
-			
-			door.stayAnimated = checkBox.value;
 			door.events = button.events;
 			door.disableRightClick = !rightclick.value;
 			door.interpolation = interpolationButton.getState();
@@ -562,6 +583,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.offX = ValueTimeline.create(door.interpolation, timeline.channels.get(3).getPairs());
 			door.offY = ValueTimeline.create(door.interpolation, timeline.channels.get(4).getPairs());
 			door.offZ = ValueTimeline.create(door.interpolation, timeline.channels.get(5).getPairs());
+			
+			if (!isAligned(AnimationKey.offX, door.offX) || !isAligned(AnimationKey.offY, door.offY) || !isAligned(AnimationKey.offZ, door.offZ) || !isAligned(AnimationKey.rotX, door.rotX) || !isAligned(AnimationKey.rotY, door.rotY) || !isAligned(AnimationKey.rotZ, door.rotZ))
+				door.stayAnimated = true;
+			else
+				door.stayAnimated = checkBox.value;
 			door.offGrid = context;
 			return door;
 		}

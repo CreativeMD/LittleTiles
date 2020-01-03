@@ -148,9 +148,15 @@ public abstract class ValueTimeline {
 	
 	public abstract double valueAt(double mu, Pair<Integer, Double> before, int pointIndex, Pair<Integer, Double> after, int pointIndexNext);
 	
-	public double last() {
+	public double first(AnimationKey key) {
 		if (points.isEmpty())
-			return 0;
+			return key.getDefault();
+		return points.getFirst().value;
+	}
+	
+	public double last(AnimationKey key) {
+		if (points.isEmpty())
+			return key.getDefault();
 		return points.getLast().value;
 	}
 	

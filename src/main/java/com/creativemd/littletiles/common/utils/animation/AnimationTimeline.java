@@ -189,4 +189,12 @@ public class AnimationTimeline {
 		}
 		this.values = newPairs;
 	}
+	
+	public boolean isFirstAligned() {
+		for (Pair<AnimationKey, ValueTimeline> pair : values) {
+			if (!pair.key.isAligned(pair.value.first(pair.key)))
+				return false;
+		}
+		return true;
+	}
 }
