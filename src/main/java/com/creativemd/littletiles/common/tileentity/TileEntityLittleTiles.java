@@ -38,10 +38,12 @@ import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionT
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleBlockTransformer;
 
+import elucent.albedo.event.GatherLightsEvent;
 import elucent.albedo.lighting.ILightProvider;
 import elucent.albedo.lighting.Light;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.chunk.RenderChunk;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -1036,7 +1038,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	@SideOnly(Side.CLIENT)
 	@Method(modid = "albedo")
-	public Light provideLight() {
+	public void gatherLights(GatherLightsEvent event, Entity entity) {
 		if (ColoredLightsManager.isInstalled()) {
 			AxisAlignedBB box = null;
 			int color = -1;
@@ -1056,9 +1058,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			}
 			
 			if (box != null)
-				return new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build();
+				event.add(new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build());
 		}
-		return null;
 	}
 	
 	public boolean isEmpty() {
