@@ -416,8 +416,7 @@ public class EntityAnimation extends Entity {
 						//box.cache.planes = CollidingPlane.getPlanes(box, box.cache, coordinator);
 						
 						EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
-						
-						if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils.get(facing.getAxis(), coordinator.translation) == 0)))
+						if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils.getOffset(RotationUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
 							continue;
 						
 						double intersectingVolume = box.getIntersectionVolume(cache.entityBoxOrientated);
@@ -491,7 +490,7 @@ public class EntityAnimation extends Entity {
 				double moveY = cache.entityBox.minY - originalBox.minY + rotatedVec.y * scale;
 				double moveZ = cache.entityBox.minZ - originalBox.minZ + rotatedVec.z * scale;
 				
-				entity.move(MoverType.PISTON, moveX, moveY, moveZ);
+				entity.move(MoverType.SELF, moveX, moveY, moveZ);
 				
 				if (entity instanceof EntityPlayerMP)
 					LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
