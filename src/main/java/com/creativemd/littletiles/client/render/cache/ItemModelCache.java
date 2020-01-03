@@ -86,7 +86,7 @@ public class ItemModelCache {
 	
 	private static int ticker = 0;
 	public static int timeToExpire = 30000;
-	private static int timeToCheck = timeToExpire / 50;
+	private static int timeToCheck = 200;
 	
 	public static void tick(World world) {
 		if (world == null) {
