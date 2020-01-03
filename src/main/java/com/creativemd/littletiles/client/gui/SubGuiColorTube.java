@@ -36,7 +36,7 @@ public class SubGuiColorTube extends SubGuiConfigure {
 		// color.setAlpha(255);
 		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 		
-		ArrayList<String> shapes = new ArrayList<>(SelectShape.shapes.keySet());
+		ArrayList<String> shapes = new ArrayList<>(SelectShape.keys());
 		shapes.add(0, "tile");
 		GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
 		SelectShape shape = ItemColorTube.getShape(stack);

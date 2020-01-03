@@ -84,7 +84,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
-		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
+		return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
 	}
 	
 	@Override
@@ -93,9 +93,9 @@ public class ItemHammer extends Item implements IBoxSelector {
 		SelectShape shape = getShape(stack);
 		if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
 			if (isFiltered())
-				new LittleActionDestroyBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
+				new LittleActionDestroyBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getFilter()).execute();
 			else
-				new LittleActionDestroyBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack))).execute();
+				new LittleActionDestroyBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack))).execute();
 		return true;
 	}
 	

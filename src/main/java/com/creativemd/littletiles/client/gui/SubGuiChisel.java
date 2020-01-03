@@ -48,7 +48,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		
 		selector.setSelectedForce(preview.getBlockStack());
 		controls.add(selector);
-		GuiComboBox box = new GuiComboBox("shape", 0, 96, 134, new ArrayList<>(DragShape.shapes.keySet()));
+		GuiComboBox box = new GuiComboBox("shape", 0, 96, 134, new ArrayList<>(DragShape.keys()));
 		box.select(ItemLittleChisel.getShape(stack).key);
 		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 117, 133, 58);
 		controls.add(box);

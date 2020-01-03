@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils.shape;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -12,6 +13,7 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
+import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
@@ -24,6 +26,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -31,14 +34,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class SelectShape {
 	
-	public static LinkedHashMap<String, SelectShape> shapes = new LinkedHashMap<>();
+	private static LinkedHashMap<String, SelectShape> shapes = new LinkedHashMap<>();
+	
+	public static void registerShape(SelectShape shape) {
+		shapes.put(shape.key, shape);
+	}
+	
+	public static Set<String> keys() {
+		return shapes.keySet();
+	}
 	
 	public static SelectShape tileShape = new SelectShape("tile") {
-		
-		@Override
-		public boolean shouldBeRegistered() {
-			return false;
-		}
 		
 		@Override
 		public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
@@ -56,8 +62,8 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-			return getBoxes(player, nbt, result, context);
+		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			return getBoxes(world, pos, player, nbt, result, context);
 		}
 		
 		@Override
@@ -67,15 +73,19 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-			TEResult te = BlockTile.loadTeAndTile(player.world, result.getBlockPos(), player);
+		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			TEResult te = BlockTile.loadTeAndTile(world, pos, player);
 			
 			LittleBoxes boxes;
 			if (te.isComplete()) {
 				boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
+				if (te.tile.isChildOfStructure())
+					return boxes;
 				boxes.add(te.tile.box.copy());
-			} else
-				boxes = new LittleBoxes(result.getBlockPos(), context);
+			} else {
+				boxes = new LittleBoxes(pos, context);
+				boxes.add(new LittleTileBox(0, 0, 0, context.size, context.size, context.size));
+			}
 			
 			return boxes;
 		}
@@ -91,7 +101,70 @@ public abstract class SelectShape {
 		}
 	};
 	
-	public static BasicSelectShape CUBE = new BasicSelectShape("cube") {
+	public static final SelectShape TYPE = new SelectShape("type") {
+		
+		@Override
+		public boolean rightClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			return false;
+		}
+		
+		@Override
+		public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			return true;
+		}
+		
+		@Override
+		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			return getBoxes(world, pos, player, nbt, result, context);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
+			return new ArrayList<>();
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public void saveCustomSettings(GuiParent gui, NBTTagCompound nbt, LittleGridContext context) {
+			
+		}
+		
+		@Override
+		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+			TEResult te = BlockTile.loadTeAndTile(world, pos, player);
+			
+			LittleBoxes boxes;
+			if (te.isComplete()) {
+				LittleTile tile = te.tile;
+				boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
+				if (te.tile.isChildOfStructure())
+					return boxes;
+				boxes.add(te.tile.box.copy());
+				
+				for (LittleTile toDestroy : te.te)
+					if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile))
+						boxes.addBox(toDestroy);
+			} else {
+				boxes = new LittleBoxes(pos, context);
+				boxes.add(new LittleTileBox(0, 0, 0, context.size, context.size, context.size));
+			}
+			
+			return boxes;
+		}
+		
+		@Override
+		public void deselect(EntityPlayer player, NBTTagCompound nbt, LittleGridContext context) {
+			
+		}
+		
+		@Override
+		public void addExtraInformation(World world, NBTTagCompound nbt, List<String> list, LittleGridContext context) {
+			
+		}
+	};
+	
+	public static final BasicSelectShape CUBE = new BasicSelectShape("cube") {
 		
 		@Override
 		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
@@ -108,7 +181,7 @@ public abstract class SelectShape {
 		
 	};
 	
-	public static BasicSelectShape BAR = new BasicSelectShape("bar") {
+	public static final BasicSelectShape BAR = new BasicSelectShape("bar") {
 		
 		@Override
 		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
@@ -134,7 +207,7 @@ public abstract class SelectShape {
 		
 	};
 	
-	public static BasicSelectShape PLANE = new BasicSelectShape("plane") {
+	public static final BasicSelectShape PLANE = new BasicSelectShape("plane") {
 		
 		@Override
 		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
@@ -166,7 +239,9 @@ public abstract class SelectShape {
 		
 	};
 	
-	public static SelectShape defaultShape = CUBE;
+	public static final DragSelectShape DRAG_BOX = new DragSelectShape(DragShape.box);
+	
+	public static final SelectShape defaultShape = DRAG_BOX;
 	
 	public static SelectShape getShape(String name) {
 		SelectShape shape = SelectShape.shapes.get(name);
@@ -176,16 +251,12 @@ public abstract class SelectShape {
 	public final String key;
 	
 	public SelectShape(String name) {
-		if (shouldBeRegistered())
-			shapes.put(name, this);
 		this.key = name;
 	}
 	
-	public boolean shouldBeRegistered() {
-		return true;
-	}
+	public abstract LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
-	public abstract LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
+	public abstract LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
 	/** @return if the shape has been selected (information will then be send to the
 	 *         server) */
@@ -196,8 +267,6 @@ public abstract class SelectShape {
 	public abstract boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
 	public abstract void deselect(EntityPlayer player, NBTTagCompound nbt, LittleGridContext context);
-	
-	public abstract LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context);
 	
 	public abstract void addExtraInformation(World world, NBTTagCompound nbt, List<String> list, LittleGridContext context);
 	
@@ -236,7 +305,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			int thickness = nbt.getInteger("thick");
 			if (thickness > context.size)
 				nbt.setInteger("thick", thickness = context.size);
@@ -249,7 +318,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			int thickness = nbt.getInteger("thick");
 			if (thickness > context.size)
 				nbt.setInteger("thick", thickness = context.size);
@@ -303,7 +372,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getHighlightBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleTilePos vec = new LittleTilePos(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.contextVec.vec.sub(result.sideHit);
@@ -336,7 +405,7 @@ public abstract class SelectShape {
 		}
 		
 		@Override
-		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
+		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleTilePos vec = new LittleTilePos(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.contextVec.vec.sub(result.sideHit);
@@ -370,6 +439,18 @@ public abstract class SelectShape {
 			shape.rotate(nbt, rotation);
 		}
 		
+	}
+	
+	static {
+		for (DragShape shape : DragShape.shapes())
+			if (shape == DragShape.box)
+				registerShape(DRAG_BOX);
+			else
+				registerShape(new DragSelectShape(shape));
+		registerShape(TYPE);
+		registerShape(CUBE);
+		registerShape(BAR);
+		registerShape(PLANE);
 	}
 	
 }

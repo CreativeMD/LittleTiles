@@ -39,7 +39,7 @@ public class SubGuiHammer extends SubGuiConfigure {
 	
 	@Override
 	public void createControls() {
-		GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(SelectShape.shapes.keySet()));
+		GuiComboBox box = new GuiComboBox("shape", 0, 0, 134, new ArrayList<>(SelectShape.keys()));
 		box.select(ItemHammer.getShape(stack).key);
 		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 23, 134, 120);
 		controls.add(box);

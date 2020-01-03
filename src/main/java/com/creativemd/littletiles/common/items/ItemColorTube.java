@@ -137,7 +137,7 @@ public class ItemColorTube extends Item implements IBoxSelector {
 	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
-		return shape.getHighlightBoxes(player, stack.getTagCompound(), result, getContext(stack));
+		return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
 	}
 	
 	@Override
@@ -154,9 +154,9 @@ public class ItemColorTube extends Item implements IBoxSelector {
 				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.COLOR_TUBE));
 		} else if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack))) {
 			if (ItemHammer.isFiltered())
-				new LittleActionColorBoxesFiltered(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemHammer.getFilter()).execute();
+				new LittleActionColorBoxesFiltered(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false, ItemHammer.getFilter()).execute();
 			else
-				new LittleActionColorBoxes(shape.getBoxes(player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
+				new LittleActionColorBoxes(shape.getBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack)), getColor(stack), false).execute();
 		}
 		return true;
 	}

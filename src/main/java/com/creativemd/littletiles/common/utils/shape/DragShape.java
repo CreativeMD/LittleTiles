@@ -1,7 +1,9 @@
 package com.creativemd.littletiles.common.utils.shape;
 
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
@@ -19,17 +21,29 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class DragShape {
 	
-	public static LinkedHashMap<String, DragShape> shapes = new LinkedHashMap<>();
+	private static LinkedHashMap<String, DragShape> shapes = new LinkedHashMap<>();
 	
-	public static DragShape box = new DragShapeBox();
-	public static DragShape sphere = new DragShapeSphere();
-	public static DragShape cylinder = new DragShapeCylinder();
-	public static DragShape wall = new DragShapeWall();
-	public static DragShape line = new DragShapeLine();
+	public static Collection<DragShape> shapes() {
+		return shapes.values();
+	}
 	
-	public static DragShape slice = new DragShapeSliced();
+	public static Set<String> keys() {
+		return shapes.keySet();
+	}
 	
-	public static DragShape defaultShape = box;
+	public static void registerDragShape(DragShape shape) {
+		shapes.put(shape.key, shape);
+	}
+	
+	public static final DragShape box = new DragShapeBox();
+	public static final DragShape sphere = new DragShapeSphere();
+	public static final DragShape cylinder = new DragShapeCylinder();
+	public static final DragShape wall = new DragShapeWall();
+	public static final DragShape line = new DragShapeLine();
+	
+	public static final DragShape slice = new DragShapeSliced();
+	
+	public static final DragShape defaultShape = box;
 	
 	public static DragShape getShape(String name) {
 		DragShape shape = DragShape.shapes.get(name);
@@ -39,9 +53,7 @@ public abstract class DragShape {
 	public final String key;
 	
 	public DragShape(String name) {
-		shapes.put(name, this);
 		this.key = name;
-		new SelectShape.DragSelectShape(this);
 	}
 	
 	public abstract LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax);
@@ -57,5 +69,14 @@ public abstract class DragShape {
 	public abstract void rotate(NBTTagCompound nbt, Rotation rotation);
 	
 	public abstract void flip(NBTTagCompound nbt, Axis axis);
+	
+	static {
+		registerDragShape(box);
+		registerDragShape(sphere);
+		registerDragShape(cylinder);
+		registerDragShape(wall);
+		registerDragShape(line);
+		registerDragShape(slice);
+	}
 	
 }
