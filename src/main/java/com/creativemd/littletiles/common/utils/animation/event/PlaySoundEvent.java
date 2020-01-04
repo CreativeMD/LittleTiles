@@ -11,6 +11,8 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class PlaySoundEvent extends AnimationEvent {
 	
@@ -46,12 +48,18 @@ public class PlaySoundEvent extends AnimationEvent {
 	
 	@Override
 	protected boolean run(EntityAnimationController controller) {
-		if (!controller.parent.world.isRemote && controller.getAimedState().name.equals(DoorController.openedState) == opening)
-			GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundCategory.NEUTRAL));
+		if (controller.parent.world.isRemote && controller.getAimedState().name.equals(DoorController.openedState) == opening)
+			playSound(controller);
 		return true;
 	}
 	
+	@SideOnly(Side.CLIENT)
+	public void playSound(EntityAnimationController controller) {
+		GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundCategory.NEUTRAL));
+	}
+	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public void runGui(AnimationGuiHandler handler) {
 		if (opening)
 			GuiControl.playSound(sound, volume, pitch);
