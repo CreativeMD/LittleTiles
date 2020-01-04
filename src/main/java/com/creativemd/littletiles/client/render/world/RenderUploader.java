@@ -61,6 +61,9 @@ public class RenderUploader {
 					CompiledChunk compiled = chunk.getCompiledChunk();
 					VertexBuffer uploadBuffer = chunk.getVertexBufferByLayer(i);
 					
+					if (uploadBuffer == null)
+						return;
+					
 					if (layer == BlockRenderLayer.TRANSLUCENT) {
 						
 						boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
