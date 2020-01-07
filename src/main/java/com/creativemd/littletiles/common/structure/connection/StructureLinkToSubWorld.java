@@ -3,11 +3,11 @@ package com.creativemd.littletiles.common.structure.connection;
 import java.util.UUID;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -53,7 +53,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	
 	@Override
 	protected World getWorld(World world) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(world.isRemote).findDoor(entityUUID);
+		EntityAnimation animation = WorldAnimationHandler.getHandler(world).findAnimation(entityUUID);
 		if (animation != null)
 			return animation.fakeWorld;
 		return null;
@@ -90,7 +90,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 	@Override
 	public void destroyStructure() {
 		connectedStructure.onStructureDestroyed();
-		EntityAnimation animation = LittleDoorHandler.getHandler(connectedStructure.getWorld().isRemote).findDoor(entityUUID);
+		EntityAnimation animation = WorldAnimationHandler.getHandler(connectedStructure.getWorld()).findAnimation(entityUUID);
 		if (animation != null)
 			animation.isDead = true;
 		for (IStructureChildConnector child : connectedStructure.children)

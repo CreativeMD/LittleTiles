@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.client;
 
+import java.lang.reflect.Field;
 import java.util.Iterator;
 import java.util.UUID;
 
@@ -27,7 +28,6 @@ import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
@@ -36,6 +36,7 @@ import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
 
@@ -87,6 +88,14 @@ public class LittleTilesClient extends LittleTilesServer {
 	
 	public static OverlayRenderer overlay;
 	
+	private static Field entityUUIDField = ReflectionHelper.findField(EntitySpawnMessage.class, "entityUUID");
+	private static Field entityIdField = ReflectionHelper.findField(EntityMessage.class, "entityId");
+	private static Field rawXField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawX");
+	private static Field rawYField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawY");
+	private static Field rawZField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawZ");
+	private static Field scaledYawField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledYaw");
+	private static Field scaledPitchField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledPitch");
+	
 	@Override
 	public void loadSidePre() {
 		RenderingRegistry.registerEntityRenderingHandler(EntitySizedTNTPrimed.class, new IRenderFactory<EntitySizedTNTPrimed>() {
@@ -131,7 +140,6 @@ public class LittleTilesClient extends LittleTilesServer {
 		
 		MinecraftForge.EVENT_BUS.register(overlay = new OverlayRenderer());
 		MinecraftForge.EVENT_BUS.register(new PreviewRenderer());
-		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.client = new LittleDoorHandler(Side.CLIENT));
 		
 		up = new ExtendedKeyBinding("key.rotateup", Keyboard.KEY_UP, "key.categories.littletiles");
 		down = new ExtendedKeyBinding("key.rotatedown", Keyboard.KEY_DOWN, "key.categories.littletiles");
@@ -159,33 +167,37 @@ public class LittleTilesClient extends LittleTilesServer {
 		ClientRegistry.registerKeyBinding(redo);
 		
 		EntityRegistry.instance().lookupModSpawn(EntityAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
-			
 			@Override
 			public Entity apply(EntitySpawnMessage input) {
-				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
-				EntityAnimation animation = LittleDoorHandler.client.findDoor(uuid);
-				
-				boolean alreadyExisted = animation != null;
-				if (animation == null) {
-					animation = new EntityAnimation(mc.world);
-					animation.setUniqueId(uuid);
-				} else {
-					animation.spawnedInWorld = true;
-					animation.controller.onServerApproves();
+				try {
+					UUID uuid = (UUID) entityUUIDField.get(input);
+					EntityAnimation animation = WorldAnimationHandler.getHandlerClient().findAnimation(uuid);
+					
+					boolean alreadyExisted = animation != null;
+					if (animation == null) {
+						animation = new EntityAnimation(mc.world);
+						animation.setUniqueId(uuid);
+					} else {
+						animation.spawnedInWorld = true;
+						animation.controller.onServerApproves();
+					}
+					
+					if (animation != null) {
+						animation.setEntityId(entityIdField.getInt(input));
+						double rawX = rawXField.getDouble(input);
+						double rawY = rawYField.getDouble(input);
+						double rawZ = rawZField.getDouble(input);
+						float scaledYaw = scaledYawField.getFloat(input);
+						float scaledPitch = scaledPitchField.getFloat(input);
+						if (!alreadyExisted)
+							animation.setInitialPosition(rawX, rawY, rawZ);
+					}
+					
+					return animation;
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					throw new RuntimeException(e);
 				}
 				
-				if (animation != null) {
-					animation.setEntityId(ReflectionHelper.getPrivateValue(EntityMessage.class, input, "entityId"));
-					double rawX = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawX");
-					double rawY = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawY");
-					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
-					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
-					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
-					if (!alreadyExisted)
-						animation.setInitialPosition(rawX, rawY, rawZ);
-				}
-				
-				return animation;
 			}
 			
 		}, false);

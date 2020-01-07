@@ -10,9 +10,9 @@ import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -139,7 +139,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
 		GlStateManager.translate(0, -75, 0);
 		
-		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
+		LittleAnimationHandlerClient.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
 		
 		GlStateManager.popMatrix();
 		

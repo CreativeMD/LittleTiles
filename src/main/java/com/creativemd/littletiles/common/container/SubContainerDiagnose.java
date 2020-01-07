@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -22,7 +22,7 @@ public class SubContainerDiagnose extends SubContainer {
 	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		EntityAnimation animation = LittleDoorHandler.server.findDoor(UUID.fromString(nbt.getString("uuid")));
+		EntityAnimation animation = WorldAnimationHandler.getHandler(player.world).findAnimation(UUID.fromString(nbt.getString("uuid")));
 		if (animation != null)
 			animation.destroyAnimation();
 	}

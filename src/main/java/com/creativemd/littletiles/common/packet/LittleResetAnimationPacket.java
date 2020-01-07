@@ -4,7 +4,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -33,7 +33,7 @@ public class LittleResetAnimationPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(animationUUID);
+		EntityAnimation animation = WorldAnimationHandler.findAnimation(true, animationUUID);
 		if (animation == null)
 			return;
 		animation.isDead = true;

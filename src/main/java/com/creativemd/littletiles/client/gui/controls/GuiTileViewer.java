@@ -17,9 +17,9 @@ import com.creativemd.creativecore.common.utils.math.SmoothValue;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
@@ -300,7 +300,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		
 		GlStateManager.translate(TileEntityRendererDispatcher.staticPlayerX, TileEntityRendererDispatcher.staticPlayerY, TileEntityRendererDispatcher.staticPlayerZ);
 		GlStateManager.translate(0, -75, 0);
-		LittleDoorHandler.client.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
+		LittleAnimationHandlerClient.render.doRender(animation, 0, 0, 0, 0, TickUtils.getPartialTickTime());
 		
 		GlStateManager.cullFace(GlStateManager.CullFace.BACK);
 		GlStateManager.disableBlend();

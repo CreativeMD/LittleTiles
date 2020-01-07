@@ -7,10 +7,10 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -63,7 +63,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 		World world = player.world;
 		
 		if (worldUUID != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(worldUUID);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, worldUUID);
 			if (animation == null)
 				return;
 			
@@ -75,7 +75,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 			if (tile.isChildOfStructure() && tile.connection.getStructure(world) instanceof LittleDoor)
 				((LittleDoor) tile.connection.getStructureWithoutLoading()).waitingForApproval = false;
 		} catch (LittleActionException e) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(previousAnimation);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, previousAnimation);
 			if (animation != null)
 				animation.controller.onServerPlaces();
 			else

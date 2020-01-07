@@ -36,7 +36,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			@Override
 			public void transform(ClassNode classNode) {
 				MethodNode m = findMethod(classNode, "renderEntities", "(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;F)V");
-				m.instructions.insertBefore(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleDoorHandler", "renderTick", "()V", false));
+				m.instructions.insertBefore(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/world/LittleAnimationHandlerClient", "renderTick", "()V", false));
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher") {
@@ -277,10 +277,23 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			public void transform(ClassNode node) {
 				MethodNode m = findMethod(node, "middleClickMouse", "()V");
 				String className = patchClassName("net/minecraft/client/Minecraft");
+				
+				LabelNode first = (LabelNode) m.instructions.getFirst();
+				
+				m.instructions.insertBefore(first, new LabelNode());
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("player"), patchDESC("Lnet/minecraft/client/entity/EntityPlayerSP;")));
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("world"), patchDESC("Lnet/minecraft/client/multiplayer/WorldClient;")));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/event/InputEventHandler", "onMouseWheelClick", patchDESC("(Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
+				m.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, first));
+				m.instructions.insertBefore(first, new LabelNode());
+				m.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
+				
 				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
 					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
 					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESTATIC && ((MethodInsnNode) insn).owner.equals("net/minecraftforge/common/ForgeHooks") && ((MethodInsnNode) insn).name.equals("onPickBlock") && ((MethodInsnNode) insn).desc.equals(patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"))) {
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "onMouseWheelClick", patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/event/InputEventHandler", "onPickBlock", patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
 						m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFNE, findNextLabel(insn)));
 						m.instructions.insertBefore(insn, new LabelNode());
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
@@ -290,6 +303,49 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("world"), patchDESC("Lnet/minecraft/client/multiplayer/WorldClient;")));
 						break;
+					}
+				}
+				
+				m = findMethod(node, "processKeyBinds", "()V");
+				
+				String clickMouse = patchMethodName("clickMouse", "()V");
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESPECIAL && ((MethodInsnNode) insn).owner.equals(className) && ((MethodInsnNode) insn).name.equals(clickMouse) && ((MethodInsnNode) insn).desc.equals("()V")) {
+						
+						AbstractInsnNode after = insn.getNext();
+						insn = insn.getPrevious();
+						
+						LabelNode elseNode = new LabelNode();
+						
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("objectMouseOver"), patchDESC("Lnet/minecraft/util/math/RayTraceResult;")));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("player"), patchDESC("Lnet/minecraft/client/entity/EntityPlayerSP;")));
+						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
+						m.instructions.insertBefore(insn, new FieldInsnNode(Opcodes.GETFIELD, className, patchFieldName("world"), patchDESC("Lnet/minecraft/client/multiplayer/WorldClient;")));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/event/InputEventHandler", "onMouseClick", patchDESC("(Lnet/minecraft/util/math/RayTraceResult;Lnet/minecraft/entity/player/EntityPlayer;Lnet/minecraft/world/World;)Z"), false));
+						
+						m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFNE, elseNode));
+						
+						m.instructions.insertBefore(after, elseNode);
+						
+						break;
+						
+					}
+				}
+				
+				String sendClickBlockToController = patchMethodName("sendClickBlockToController", "(Z)V");
+				
+				for (Iterator iterator = m.instructions.iterator(); iterator.hasNext();) {
+					AbstractInsnNode insn = (AbstractInsnNode) iterator.next();
+					
+					if (insn instanceof MethodInsnNode && insn.getOpcode() == Opcodes.INVOKESPECIAL && ((MethodInsnNode) insn).owner.equals(className) && ((MethodInsnNode) insn).name.equals(sendClickBlockToController) && ((MethodInsnNode) insn).desc.equals("(Z)V")) {
+						((MethodInsnNode) insn).owner = "com/creativemd/littletiles/client/event/InputEventHandler";
+						((MethodInsnNode) insn).setOpcode(Opcodes.INVOKESTATIC);
+						((MethodInsnNode) insn).name = "onHoldClick";
+						((MethodInsnNode) insn).desc = "(Z)V";
 					}
 				}
 			}
@@ -432,7 +488,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						
 						MethodInsnNode mInsn = (MethodInsnNode) insn;
 						mInsn.setOpcode(Opcodes.INVOKESTATIC);
-						mInsn.owner = "com/creativemd/littletiles/common/events/LittleDoorHandler";
+						mInsn.owner = "com/creativemd/littletiles/common/world/WorldAnimationHandler";
 						mInsn.name = "checkIfEmpty";
 						mInsn.desc = patchDESC("(Ljava/util/List;Lnet/minecraft/entity/player/EntityPlayerMP;)Z");
 						mInsn.itf = false;

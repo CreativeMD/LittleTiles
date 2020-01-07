@@ -12,4 +12,6 @@ public interface IAnimatedStructure {
 	
 	public boolean isAnimated();
 	
+	public void destroyAnimation();
+	
 }

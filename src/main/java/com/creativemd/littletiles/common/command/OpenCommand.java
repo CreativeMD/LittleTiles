@@ -7,11 +7,11 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
@@ -58,7 +58,7 @@ public class OpenCommand extends CommandBase {
 		World world = sender.getEntityWorld();
 		
 		List<LittleDoor> doors = new ArrayList<>();
-		doors.addAll(LittleDoorHandler.server.findDoors(world, blockpos));
+		doors.addAll(WorldAnimationHandler.getHandler(world).findAnimations(blockpos));
 		
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		if (tileEntity instanceof TileEntityLittleTiles) {

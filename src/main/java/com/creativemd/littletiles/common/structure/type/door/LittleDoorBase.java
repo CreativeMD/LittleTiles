@@ -331,6 +331,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
+	public void destroyAnimation() {
+		animation.isDead = true;
+	}
+	
+	@Override
 	protected void fillActivateChildren(BitSet set) {
 		for (AnimationEvent event : events)
 			if (event instanceof ChildActivateEvent)

@@ -27,7 +27,6 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -45,6 +44,7 @@ import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.vec.LittleRayTraceResult;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
 
 import net.minecraft.block.state.IBlockState;
@@ -153,7 +153,7 @@ public class EntityAnimation extends Entity {
 		if (!shouldAddDoor())
 			return;
 		if (!addedDoor) {
-			LittleDoorHandler.getHandler(world.isRemote).createDoor(this);
+			WorldAnimationHandler.getHandler(world).createDoor(this);
 			addedDoor = true;
 		}
 	}
@@ -493,7 +493,7 @@ public class EntityAnimation extends Entity {
 				entity.move(MoverType.SELF, moveX, moveY, moveZ);
 				
 				if (entity instanceof EntityPlayerMP)
-					LittleDoorHandler.setPushedByDoor((EntityPlayerMP) entity);
+					WorldAnimationHandler.setPushedByDoor((EntityPlayerMP) entity);
 				
 				if (SpecialServerConfig.enableCollisionMotion) {
 					entity.motionX += moveX;
@@ -709,7 +709,7 @@ public class EntityAnimation extends Entity {
 	
 	@Override
 	public boolean canBeCollidedWith() {
-		return true;
+		return false;
 	}
 	
 	@Override

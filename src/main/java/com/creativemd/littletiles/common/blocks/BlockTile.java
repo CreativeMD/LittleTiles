@@ -192,11 +192,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
-	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
-		return state;
-	}
-	
-	@Override
 	public boolean canRenderInLayer(IBlockState state, BlockRenderLayer layer) {
 		return true;
 	}

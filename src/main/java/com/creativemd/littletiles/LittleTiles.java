@@ -67,7 +67,6 @@ import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -116,6 +115,7 @@ import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.rules.IngredientRules;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.creativemd.littletiles.server.NeighborUpdateOrganizer;
 
@@ -369,7 +369,7 @@ public class LittleTiles {
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				UUID uuid = UUID.fromString(nbt.getString("uuid"));
-				return new SubGuiDiagnose(uuid, LittleDoorHandler.client.findDoor(uuid));
+				return new SubGuiDiagnose(uuid, WorldAnimationHandler.client.findAnimation(uuid));
 			}
 			
 			@Override
@@ -497,7 +497,7 @@ public class LittleTiles {
 		LittleAction.registerLittleAction("rep", LittleActionReplace.class);
 		
 		MinecraftForge.EVENT_BUS.register(new LittleEvent());
-		MinecraftForge.EVENT_BUS.register(LittleDoorHandler.server = new LittleDoorHandler(Side.SERVER));
+		MinecraftForge.EVENT_BUS.register(WorldAnimationHandler.class);
 		// MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 		// Entity

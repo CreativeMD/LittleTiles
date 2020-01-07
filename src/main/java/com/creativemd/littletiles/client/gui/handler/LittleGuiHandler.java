@@ -10,9 +10,9 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,7 +31,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	public World getWorld(NBTTagCompound nbt, EntityPlayer player) {
 		if (nbt.hasKey("uuid")) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(player.world.isRemote).findDoor(UUID.fromString(nbt.getString("uuid")));
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(player.world.isRemote, UUID.fromString(nbt.getString("uuid")));
 			if (animation != null)
 				return animation.fakeWorld;
 			throw new RuntimeException("Could not find world " + nbt.getString("uuid"));

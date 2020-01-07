@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
@@ -75,7 +75,7 @@ public class LittleBlockUpdatePacket extends CreativeCorePacket {
 		World world = player.world;
 		
 		if (uuid != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(uuid);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
 			if (animation == null)
 				return;
 			

@@ -765,7 +765,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, RayTraceResult result) {
-			if (PlacementHelper.canBlockBeUsed(player.world, result.getBlockPos()))
+			if (PlacementHelper.canBlockBeUsed(world, result.getBlockPos()))
 				new LittleActionReplace(world, result.getBlockPos(), player, getPreview(stack)).execute();
 			return false;
 		}

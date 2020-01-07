@@ -5,7 +5,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.google.common.base.Predicate;
 
 import io.netty.buffer.ByteBuf;
@@ -45,7 +45,7 @@ public class LittleEntityRequestPacket extends CreativeCorePacket {
 	
 	@Override
 	public void executeClient(EntityPlayer player) {
-		EntityAnimation animation = LittleDoorHandler.getHandler(true).findDoor(uuid);
+		EntityAnimation animation = WorldAnimationHandler.findAnimation(true, uuid);
 		if (animation != null) {
 			updateAnimation(animation);
 			return;

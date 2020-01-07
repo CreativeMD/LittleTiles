@@ -5,9 +5,9 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -83,7 +83,7 @@ public abstract class LittleActionInteract extends LittleAction {
 		Vec3d look = this.look;
 		
 		if (uuid != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(player.world.isRemote).findDoor(uuid);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(player.world.isRemote, uuid);
 			if (animation == null)
 				onEntityNotFound();
 			

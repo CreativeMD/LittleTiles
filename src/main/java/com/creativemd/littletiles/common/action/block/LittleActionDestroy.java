@@ -39,7 +39,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	
 	@Override
 	public boolean canBeReverted() {
-		return destroyedTiles != null;
+		return destroyedTiles != null || structurePreview != null;
 	}
 	
 	public LittleAbsolutePreviews destroyedTiles;

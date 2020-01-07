@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.LittleTilesClient;
+import com.creativemd.littletiles.client.event.PickBlockEvent;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
@@ -93,15 +94,15 @@ public class LittleEvent {
 	@SideOnly(Side.CLIENT)
 	private boolean leftClicked;
 	
+	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static boolean onMouseWheelClick(RayTraceResult result, EntityPlayer player, World world) {
-		if (result.typeOfHit == Type.BLOCK) {
-			ItemStack stack = player.getHeldItemMainhand();
+	public void onMouseWheelClick(PickBlockEvent event) {
+		if (event.result != null && event.result.typeOfHit == Type.BLOCK) {
+			ItemStack stack = event.player.getHeldItemMainhand();
 			ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-			if (iTile != null)
-				return iTile.onMouseWheelClickBlock(world, player, stack, result);
+			if (iTile != null && iTile.onMouseWheelClickBlock(event.world, event.player, stack, event.result))
+				event.setCanceled(true);
 		}
-		return false;
 	}
 	
 	@SubscribeEvent

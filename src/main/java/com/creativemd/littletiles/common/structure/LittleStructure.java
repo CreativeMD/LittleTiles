@@ -681,8 +681,12 @@ public abstract class LittleStructure {
 		
 		if (hasLoaded() && loadChildren()) {
 			onStructureDestroyed();
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
-				entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
+			
+			if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
+				((IAnimatedStructure) this).destroyAnimation();
+			else
+				for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
+					entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
 			for (IStructureChildConnector child : children)
 				child.destroyStructure();
 		}

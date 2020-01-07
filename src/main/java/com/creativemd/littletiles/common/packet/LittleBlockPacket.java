@@ -8,7 +8,6 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleDoorHandler;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
@@ -19,6 +18,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -154,7 +154,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		World world = player.world;
 		
 		if (uuid != null) {
-			EntityAnimation animation = LittleDoorHandler.getHandler(false).findDoor(uuid);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(false, uuid);
 			if (animation == null)
 				return;
 			
