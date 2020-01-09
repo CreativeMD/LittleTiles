@@ -332,7 +332,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	
 	@Override
 	public void destroyAnimation() {
-		animation.isDead = true;
+		animation.markRemoved();
 	}
 	
 	@Override

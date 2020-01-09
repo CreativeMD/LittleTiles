@@ -92,7 +92,7 @@ public class StructureLinkToSubWorld extends StructureLinkBaseAbsolute<LittleStr
 		connectedStructure.onStructureDestroyed();
 		EntityAnimation animation = WorldAnimationHandler.getHandler(connectedStructure.getWorld()).findAnimation(entityUUID);
 		if (animation != null)
-			animation.isDead = true;
+			animation.markRemoved();
 		for (IStructureChildConnector child : connectedStructure.children)
 			child.destroyStructure();
 	}
