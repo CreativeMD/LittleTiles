@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.client.render.cache;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
@@ -42,6 +44,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.FMLClientHandler;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.optifine.shaders.SVertexBuilder;
@@ -358,6 +361,8 @@ public class RenderingThread extends Thread {
 		}
 	}
 	
+	private static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });
+	
 	public synchronized boolean setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
 		TileEntityLittleTiles te = data.te;
 		
@@ -375,6 +380,8 @@ public class RenderingThread extends Thread {
 			te.buildingCache.set(false);
 		}
 		
+		boolean updateOutside = false;
+		
 		synchronized (chunks) {
 			AtomicInteger count = chunks.get(data.chunk);
 			if (count != null)
@@ -388,10 +395,8 @@ public class RenderingThread extends Thread {
 				if (data.subWorld) {
 					LittleTilesProfilerOverlay.ltChunksUpdates++;
 					((LittleRenderChunk) data.chunk).markCompleted();
-				} else {
-					LittleTilesProfilerOverlay.vanillaChunksUpdates++;
-					((RenderChunk) data.chunk).setNeedsUpdate(false);
-				}
+				} else
+					updateOutside = true;
 			}
 			
 			boolean finished = true;
@@ -403,6 +408,33 @@ public class RenderingThread extends Thread {
 			}
 			if (finished)
 				chunks.clear();
+		}
+		
+		if (updateOutside) {
+			LittleTilesProfilerOverlay.vanillaChunksUpdates++;
+			RenderChunk chunk = (RenderChunk) data.chunk;
+			try {
+				ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
+				boolean updated = false;
+				chunk.getLockCompileTask().lock();
+				if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING) {
+					compileTask.addFinishRunnable(new Runnable() {
+						
+						@Override
+						public void run() {
+							chunk.setNeedsUpdate(false);
+						}
+					});
+					updated = true;
+				}
+				chunk.getLockCompileTask().unlock();
+				
+				if (!updated)
+					chunk.setNeedsUpdate(false);
+				
+			} catch (IllegalArgumentException | IllegalAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return true;
