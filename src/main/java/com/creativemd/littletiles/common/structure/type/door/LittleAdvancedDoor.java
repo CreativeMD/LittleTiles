@@ -233,20 +233,29 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		switch (axis) {
 		case X:
-			if (rotX != null)
-				rotX.flip();
+			if (rotY != null)
+				rotY.flip();
+			if (rotZ != null)
+				rotZ.flip();
+			
 			if (offX != null)
 				offX.flip();
 			break;
 		case Y:
-			if (rotY != null)
-				rotY.flip();
+			if (rotX != null)
+				rotX.flip();
+			if (rotZ != null)
+				rotZ.flip();
+			
 			if (offY != null)
 				offY.flip();
 			break;
 		case Z:
-			if (rotZ != null)
-				rotZ.flip();
+			if (rotX != null)
+				rotX.flip();
+			if (rotY != null)
+				rotY.flip();
+			
 			if (offZ != null)
 				offZ.flip();
 			break;
