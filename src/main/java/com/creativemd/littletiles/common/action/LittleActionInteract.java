@@ -26,8 +26,14 @@ public abstract class LittleActionInteract extends LittleAction {
 	public BlockPos blockPos;
 	public Vec3d pos;
 	public Vec3d look;
+	
+	public Vec3d transformedPos;
+	public Vec3d transformedLook;
+	
 	public boolean secondMode;
 	public UUID uuid;
+	
+	public boolean transformedCoordinates = false;
 	
 	public LittleActionInteract(World world, BlockPos blockPos, EntityPlayer player) {
 		super();
@@ -48,8 +54,8 @@ public abstract class LittleActionInteract extends LittleAction {
 	@Override
 	public void writeBytes(ByteBuf buf) {
 		writePos(buf, blockPos);
-		writeVec3d(pos, buf);
-		writeVec3d(look, buf);
+		writeVec3d(transformedPos, buf);
+		writeVec3d(transformedLook, buf);
 		buf.writeBoolean(secondMode);
 		
 		if (uuid != null) {
@@ -69,6 +75,8 @@ public abstract class LittleActionInteract extends LittleAction {
 			uuid = UUID.fromString(readString(buf));
 		else
 			uuid = null;
+		
+		transformedCoordinates = true;
 	}
 	
 	protected abstract boolean isRightClick();
@@ -79,8 +87,8 @@ public abstract class LittleActionInteract extends LittleAction {
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		World world = player.world;
 		
-		Vec3d pos = this.pos;
-		Vec3d look = this.look;
+		transformedPos = this.pos;
+		transformedLook = this.look;
 		
 		if (uuid != null) {
 			EntityAnimation animation = WorldAnimationHandler.findAnimation(player.world.isRemote, uuid);
@@ -93,14 +101,16 @@ public abstract class LittleActionInteract extends LittleAction {
 			}
 			
 			world = animation.fakeWorld;
-			pos = animation.origin.transformPointToFakeWorld(pos);
-			look = animation.origin.transformPointToFakeWorld(look);
+			if (!transformedCoordinates) {
+				transformedPos = animation.origin.transformPointToFakeWorld(transformedPos);
+				transformedLook = animation.origin.transformPointToFakeWorld(transformedLook);
+			}
 		}
 		
 		TileEntity tileEntity = world.getTileEntity(blockPos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-			LittleTile tile = te.getFocusedTile(pos, look);
+			LittleTile tile = te.getFocusedTile(transformedPos, transformedLook);
 			
 			if (!isAllowedToInteract(world, player, blockPos, isRightClick(), EnumFacing.EAST)) {
 				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
@@ -109,7 +119,7 @@ public abstract class LittleActionInteract extends LittleAction {
 			
 			if (tile != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
-				RayTraceResult moving = rayTrace(te, tile, pos, look);
+				RayTraceResult moving = rayTrace(te, tile, transformedPos, transformedLook);
 				if (moving != null)
 					return action(world, te, tile, stack, player, moving, blockPos, secondMode);
 			} else
