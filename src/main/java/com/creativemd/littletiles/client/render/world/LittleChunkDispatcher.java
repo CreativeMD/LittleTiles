@@ -120,7 +120,7 @@ public class LittleChunkDispatcher {
 						te.updateQuadCache(chunk);
 					}
 					
-					BlockLayerRenderBuffer blockLayerBuffer = te.getBuffer();
+					BlockLayerRenderBuffer blockLayerBuffer = te.buffer;
 					if (blockLayerBuffer != null) {
 						BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
 						if (teBuffer != null)
@@ -150,7 +150,7 @@ public class LittleChunkDispatcher {
 				BufferBuilderUtils.growBufferSmall(buffer, buffer.getVertexFormat().getNextOffset() * expanded + buffer.getVertexFormat().getNextOffset());
 				
 				for (TileEntityLittleTiles te : tiles) {
-					BlockLayerRenderBuffer blockLayerBuffer = te.getBuffer();
+					BlockLayerRenderBuffer blockLayerBuffer = te.buffer;
 					if (blockLayerBuffer == null)
 						continue;
 					BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);

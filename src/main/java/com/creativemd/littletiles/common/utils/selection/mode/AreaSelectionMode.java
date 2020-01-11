@@ -137,7 +137,7 @@ public class AreaSelectionMode extends SelectionMode {
 											structure = structure.parent.getStructure(world);
 										}
 										
-										if (structure.hasLoaded() && structure.loadChildren() && !structures.contains(structure)) {
+										if (structure.load() && structure.loadChildren() && !structures.contains(structure)) {
 											previews.addChild(structure.getPreviews(center));
 											structures.add(structure);
 										}

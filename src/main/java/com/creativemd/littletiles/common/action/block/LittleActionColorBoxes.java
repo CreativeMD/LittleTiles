@@ -104,7 +104,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					}
 				}
 				
-				if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).hasLoaded())))
+				if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).load())))
 					continue;
 				
 				if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
@@ -137,14 +137,14 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 								changedTile = tempTile;
 							
 							if (tile.isConnectedToStructure())
-								tile.connection.getStructure(te.getWorld()).removeTile(tile);
+								tile.connection.getStructure(te.getWorld()).remove(tile);
 							
 							for (int i = 0; i < newBoxes.size(); i++) {
 								LittleTile newTile = tile.copy();
 								newTile.box = newBoxes.get(i);
 								newTile.place(x);
 								if (tile.isConnectedToStructure())
-									tile.connection.getStructure(te.getWorld()).addTile(newTile);
+									tile.connection.getStructure(te.getWorld()).add(newTile);
 							}
 							
 							for (int i = 0; i < cutout.size(); i++) {
@@ -152,7 +152,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 								newTile.box = cutout.get(i);
 								newTile.place(x);
 								if (tile.isConnectedToStructure())
-									tile.connection.getStructure(te.getWorld()).addTile(newTile);
+									tile.connection.getStructure(te.getWorld()).add(newTile);
 							}
 							
 							if (tile.isConnectedToStructure()) {
@@ -183,8 +183,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 							if (tile.isChildOfStructure()) {
 								changedTile.connection = tile.connection.copy(changedTile);
 								LittleStructure structure = tile.connection.getStructure(te.getWorld());
-								structure.removeTile(tile);
-								structure.addTile(changedTile);
+								structure.remove(tile);
+								structure.add(changedTile);
 								structure.updateStructure();
 								
 								if (!tile.connection.isLink())

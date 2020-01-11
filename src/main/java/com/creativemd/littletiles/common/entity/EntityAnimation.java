@@ -166,6 +166,8 @@ public class EntityAnimation extends Entity {
 		for (Entity entity : fakeWorld.loadedEntityList)
 			if (entity instanceof EntityAnimation)
 				((EntityAnimation) entity).markRemoved();
+		if (world.isRemote)
+			getRenderChunkSuppilier().unloadRenderCache();
 	}
 	
 	@Override
@@ -796,7 +798,7 @@ public class EntityAnimation extends Entity {
 	// ================Saving & Loading================
 	
 	public void transformWorld(LittleTransformation transformation) {
-		if (!structure.loadTiles() || !structure.loadChildren() || !structure.loadParent())
+		if (!structure.load() || !structure.loadChildren() || !structure.loadParent())
 			return;
 		LittleAbsolutePreviewsStructure previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
 		transformation.transform(previews);

@@ -57,7 +57,7 @@ public abstract class LittleDoor extends LittleStructure {
 		if (player != null && disableRightClick)
 			throw new LittleActionExceptionHidden("Door is locked!");
 		
-		if (!hasLoaded()) {
+		if (!load()) {
 			if (player != null)
 				player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
 			return null;

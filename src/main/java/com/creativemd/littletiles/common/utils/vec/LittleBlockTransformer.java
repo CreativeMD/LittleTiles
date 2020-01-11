@@ -68,7 +68,7 @@ public class LittleBlockTransformer {
 				newTilesToLoad.put(pos, entry.getValue());
 			}
 			structure.tilesToLoad = newTilesToLoad;
-			structure.setTiles(null);
+			structure.removeTileList();
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
@@ -97,7 +97,7 @@ public class LittleBlockTransformer {
 				newTilesToLoad.put(pos, entry.getValue());
 			}
 			structure.tilesToLoad = newTilesToLoad;
-			structure.setTiles(null);
+			structure.removeTileList();
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();

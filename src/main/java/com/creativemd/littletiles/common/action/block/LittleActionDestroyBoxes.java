@@ -128,7 +128,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					if (!simulate) {
 						if (tile.isChildOfStructure()) {
 							LittleStructure structure;
-							if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).hasLoaded() && !containsStructure(structure)) {
+							if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).load() && !containsStructure(structure)) {
 								destroyedStructures.add(new StructurePreview(structure));
 								ItemStack drop = structure.getStructureDrop();
 								if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))

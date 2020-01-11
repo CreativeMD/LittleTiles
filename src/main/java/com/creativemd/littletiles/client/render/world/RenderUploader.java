@@ -46,10 +46,10 @@ public class RenderUploader {
 			int expanded = 0;
 			
 			for (TileEntityLittleTiles te : tiles) {
-				if (te.getBuffer() == null)
+				if (te.buffer == null)
 					continue;
 				
-				BufferBuilder teBufferBuilder = te.getBuffer().getBufferByLayer(layer);
+				BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
 				if (teBufferBuilder != null)
 					expanded += teBufferBuilder.getByteBuffer().limit();
 			}
@@ -76,10 +76,10 @@ public class RenderUploader {
 							builder.setVertexState(compiled.getState());
 						
 						for (TileEntityLittleTiles te : tiles) {
-							if (te.getBuffer() == null)
+							if (te.buffer == null)
 								continue;
 							
-							BufferBuilder teBufferBuilder = te.getBuffer().getBufferByLayer(layer);
+							BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
 							if (teBufferBuilder != null)
 								BufferBuilderUtils.addBuffer(builder, teBufferBuilder);
 						}
@@ -108,10 +108,10 @@ public class RenderUploader {
 							toUpload.put(vanillaBuffer);
 						
 						for (TileEntityLittleTiles te : tiles) {
-							if (te.getBuffer() == null)
+							if (te.buffer == null)
 								continue;
 							
-							BufferBuilder teBufferBuilder = te.getBuffer().getBufferByLayer(layer);
+							BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
 							if (teBufferBuilder != null) {
 								ByteBuffer buffer = teBufferBuilder.getByteBuffer();
 								buffer.position(0);

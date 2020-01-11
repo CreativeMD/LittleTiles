@@ -70,7 +70,7 @@ public class OpenCommand extends CommandBase {
 				if (structure instanceof LittleDoor) {
 					structure = ((LittleDoor) structure).getParentDoor();
 					if (checkStructureName(structure, args) && !doors.contains(structure)) {
-						if (structure.hasLoaded())
+						if (structure.load())
 							doors.add((LittleDoor) structure);
 						else
 							notifyCommandListener(sender, this, "commands.open.notloaded");

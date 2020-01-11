@@ -148,7 +148,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 		checkMode(previews);
 		if (previews.hasStructure())
-			previews.getStructure().setTiles(new HashMapList<>());
+			previews.getStructure().createTilesList();
 		
 		PreviewResult result = PlacementHelper.getPreviews(world, previews, iTile.getPreviewsContext(stack), stack, position, centered, fixed, false, mode);
 		
@@ -257,40 +257,45 @@ public class LittleActionPlaceStack extends LittleAction {
 						
 						placeTiles.ensureBothAreEqual(te);
 						
-						te.updateTiles((x) -> {
+						te.updateTilesSecretly((x) -> {
 							
 							for (PlacePreviewTile placeTile : placeTiles) {
 								for (LittleTile LT : placeTile.placeTile(player, stack, coord, te.getContext(), te, x, unplaceableTiles, removedTiles, mode, facing, collsionTest)) {
-									if (placeTile.structurePreview == null || placeTile.structurePreview.getStructure().shouldPlaceTile(LT)) {
-										if (!soundsToBePlayed.contains(LT.getSound()))
-											soundsToBePlayed.add(LT.getSound());
-										
-										if (placeTile.structurePreview != null) {
-											if (!placeTile.structurePreview.getStructure().hasMainTile())
-												placeTile.structurePreview.getStructure().setMainTile(LT);
-											else {
-												LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
-												LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure());
-												placeTile.structurePreview.getStructure().addTile(LT);
-											}
+									if (!soundsToBePlayed.contains(LT.getSound()))
+										soundsToBePlayed.add(LT.getSound());
+									
+									if (placeTile.structurePreview != null) {
+										if (!placeTile.structurePreview.getStructure().hasMainTile())
+											placeTile.structurePreview.getStructure().setMainTile(LT);
+										else {
+											LT.connection = placeTile.structurePreview.getStructure().getStructureLink(LT);
+											LT.connection.setLoadedStructure(placeTile.structurePreview.getStructure());
+											placeTile.structurePreview.getStructure().add(LT);
 										}
-										
-										placed.addPlacedTile(LT);
 									}
+									
+									placed.addPlacedTile(LT);
 								}
 							}
 						});
-						
-						if (parentStructure == null) {
-							te.combineTiles();
-							
-							if (te.size() == 1 && te.convertBlockToVanilla())
-								placed.tileEntities.remove(placed.tileEntities.size() - 1); // Remove the last tileentity (the current one)
-						} else
-							te.combineTiles(parentStructure);
-						
 					}
 				}
+			}
+			
+			int j = 0;
+			while (j < placed.tileEntities.size()) {
+				TileEntityLittleTiles te = placed.tileEntities.get(j);
+				if (parentStructure == null) {
+					boolean changed = te.combineTiles();
+					
+					if (te.size() == 1 && te.convertBlockToVanilla()) {
+						placed.tileEntities.remove(j); // Remove the last tileentity (the current one)
+						continue;
+					} else if (!changed)
+						te.updateTiles();
+				} else if (!te.combineTiles(parentStructure))
+					te.updateTiles();
+				j++;
 			}
 			
 			for (LastPlacedTile lastPlacedTile : lastPlacedTiles) {
@@ -307,9 +312,8 @@ public class LittleActionPlaceStack extends LittleAction {
 				parentStructure.placedStructure(stack);
 			}
 			
-			for (int i = 0; i < soundsToBePlayed.size(); i++) {
+			for (int i = 0; i < soundsToBePlayed.size(); i++)
 				world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
-			}
 			
 			return placed;
 		}

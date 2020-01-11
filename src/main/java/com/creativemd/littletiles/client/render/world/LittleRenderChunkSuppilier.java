@@ -39,4 +39,8 @@ public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
 		}
 	}
 	
+	@Override
+	protected void finalize() throws Throwable {
+		unloadRenderCache();
+	}
 }

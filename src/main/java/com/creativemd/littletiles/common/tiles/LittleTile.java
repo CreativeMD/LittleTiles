@@ -135,6 +135,16 @@ public abstract class LittleTile implements ICombinable {
 		return getIDByClass(this.getClass());
 	}
 	
+	// ================Basics================
+	
+	public World getWorld() {
+		return te.getWorld();
+	}
+	
+	public BlockPos getBlockPos() {
+		return te.getPos();
+	}
+	
 	// ================Position & Size================
 	
 	public LittleGridContext getContext() {
@@ -178,7 +188,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos) {
-		if (LittleTilesConfig.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().hasLoaded())
+		if (LittleTilesConfig.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().load())
 			return connection.getStructureWithoutLoading().getSurroundingBox();
 		return box.getSelectionBox(getContext(), pos);
 	}
@@ -306,9 +316,8 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public void combineTiles(LittleTile tile) {
-		if (isConnectedToStructure()) {
-			connection.getStructure(te.getWorld()).removeTile(tile);
-		}
+		if (isConnectedToStructure())
+			connection.getStructure(te.getWorld()).remove(tile);
 	}
 	
 	@Override

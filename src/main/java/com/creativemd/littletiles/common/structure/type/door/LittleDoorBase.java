@@ -31,6 +31,7 @@ import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.exception.MissingTileEntity;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -284,19 +285,23 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		LittleAbsolutePreviewsStructure previews = getDoorPreviews(transform);
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
-		HashMapList<TileEntityLittleTiles, LittleTile> allTilesFromWorld = getAllTilesSameWorld(new HashMapList<>());
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : allTilesFromWorld.entrySet()) {
-			entry.getKey().updateTilesSecretly((x) -> x.removeAll(entry.getValue()));
-		}
+		HashMapList<BlockPos, LittleTile> allTilesFromWorld = collectBlockTilesChildren(new HashMapList<>(), true);
 		
 		EntityAnimation animation = place(getWorld(), player, previews, createController(result, uuid, previews, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 		
 		World world = getWorld();
 		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
-		for (TileEntityLittleTiles te : allTilesFromWorld.keySet()) {
-			te.updateTiles();
-			if (sendUpdate)
-				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
+		
+		for (Entry<BlockPos, ArrayList<LittleTile>> entry : allTilesFromWorld.entrySet()) {
+			try {
+				TileEntityLittleTiles te = loadTE(entry.getKey());
+				te.updateTiles((x) -> x.removeAll(entry.getValue()));
+				
+				if (sendUpdate)
+					((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
+			} catch (MissingTileEntity e) {
+				e.printStackTrace();
+			}
 		}
 		
 		return animation;

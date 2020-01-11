@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -69,6 +68,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				if (!Modifier.isStatic(field.getModifiers()))
 					field.set(this, field.get(te));
 			}
+			
+			for (LittleTile tile : tiles)
+				tile.te = this;
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -194,22 +196,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private AtomicReference<BlockLayerRenderBuffer> buffer;
-	
-	@SideOnly(Side.CLIENT)
-	public void setBuffer(BlockLayerRenderBuffer buffer) {
-		if (this.buffer == null)
-			this.buffer = new AtomicReference<BlockLayerRenderBuffer>(buffer);
-		else
-			this.buffer.set(buffer);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public BlockLayerRenderBuffer getBuffer() {
-		if (buffer == null)
-			buffer = new AtomicReference<>(null);
-		return buffer.get();
-	}
+	public BlockLayerRenderBuffer buffer;
 	
 	@SideOnly(Side.CLIENT)
 	private RenderCubeLayerCache cubeCache;
@@ -282,10 +269,15 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void updateCustomRenderer() {
 		updateRenderBoundingBox();
 		updateRenderDistance();
-		if (inRenderingQueue == null || !inRenderingQueue.get())
-			getCubeCache().clearCache();
+		if (inRenderingQueue == null)
+			createRenderFields();
 		
-		addToRenderUpdate();
+		synchronized (inRenderingQueue) {
+			if (!inRenderingQueue.get() || !buildingCache)
+				getCubeCache().clearCache();
+			
+			addToRenderUpdate();
+		}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -298,22 +290,24 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public AtomicBoolean inRenderingQueue;
 	
 	@SideOnly(Side.CLIENT)
-	public AtomicBoolean buildingCache;
+	public boolean buildingCache;
 	
 	@SideOnly(Side.CLIENT)
 	public boolean rebuildRenderingCache;
 	
+	private synchronized void createRenderFields() {
+		inRenderingQueue = new AtomicBoolean();
+	}
+	
 	@SideOnly(Side.CLIENT)
 	public void addToRenderUpdate() {
-		if (inRenderingQueue == null) {
-			inRenderingQueue = new AtomicBoolean();
-			buildingCache = new AtomicBoolean();
-		}
+		if (inRenderingQueue == null)
+			createRenderFields();
 		
 		synchronized (inRenderingQueue) {
 			if (inRenderingQueue.compareAndSet(false, true))
 				RenderingThread.addCoordToUpdate(this);
-			else if (buildingCache.get())
+			else if (buildingCache)
 				rebuildRenderingCache = true;
 		}
 	}
@@ -321,7 +315,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@SideOnly(Side.CLIENT)
 	public void resetRenderingState() {
 		inRenderingQueue.set(false);
-		buildingCache.set(false);
+		buildingCache = false;
+		rebuildRenderingCache = false;
 	}
 	
 	/** Tries to convert the TileEntity to a vanilla block
@@ -659,13 +654,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				LittleStructure structure = null;
 				if (tile != null && tile.isConnectedToStructure()) {
 					structure = tile.connection.getStructure(world);
-					structure.removeTile(tile);
+					structure.remove(tile);
 				}
 				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
 				if (tile != null) {
 					tilesToAdd.add(tile);
 					if (structure != null)
-						structure.addTile(tile);
+						structure.add(tile);
 				}
 			}
 		}
@@ -760,20 +755,22 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return BlockTile.getState(this);
 	}
 	
-	public void combineTiles(LittleStructure structure) {
+	public boolean combineTiles(LittleStructure structure) {
 		boolean changed = BasicCombiner.combineTiles(tiles, structure);
 		
 		convertToSmallest();
 		if (changed)
 			updateTiles();
+		return changed;
 	}
 	
-	public void combineTiles() {
+	public boolean combineTiles() {
 		boolean changed = BasicCombiner.combineTiles(tiles);
 		
 		convertToSmallest();
 		if (changed)
 			updateTiles();
+		return changed;
 	}
 	
 	@Override

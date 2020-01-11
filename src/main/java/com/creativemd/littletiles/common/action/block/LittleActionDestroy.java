@@ -66,7 +66,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		}
 		
 		if (tile.isChildOfStructure()) {
-			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).hasLoaded() && tile.connection.getStructure(world).loadChildren();
+			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).load() && tile.connection.getStructure(world).loadChildren();
 			if (loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 				if (loaded) {
 					structurePreview = new StructurePreview(tile.connection.getStructure(world));
@@ -77,7 +77,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 					if (secondMode) {
 						List<LittleTile> toRemove = new ArrayList<>();
 						for (LittleTile teTile : tile.te) {
-							boolean teLoaded = teTile.isChildOfStructure() && teTile.isConnectedToStructure() && teTile.connection.getStructure(world).hasLoaded() && teTile.connection.getStructure(world).loadChildren();
+							boolean teLoaded = teTile.isChildOfStructure() && teTile.isConnectedToStructure() && teTile.connection.getStructure(world).load() && teTile.connection.getStructure(world).loadChildren();
 							if (!teLoaded)
 								toRemove.add(teTile);
 						}
@@ -135,7 +135,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
-			if (!structure.hasLoaded())
+			if (!structure.load())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
 			previews = structure.getAbsolutePreviews(structure.getMainTile().te.getPos());
 			requiresItemStack = structure.canOnlyBePlacedByItemStack();

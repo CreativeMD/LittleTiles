@@ -1,12 +1,8 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import java.util.ArrayList;
-import java.util.Map.Entry;
-
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -112,13 +108,8 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 	
 	@Override
 	public void destroyStructure() {
-		if (!isChild() && connectedStructure.hasLoaded() && connectedStructure.loadChildren()) {
-			connectedStructure.onStructureDestroyed();
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : connectedStructure.getEntrySet())
-				entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
-			for (IStructureChildConnector child : connectedStructure.children)
-				child.destroyStructure();
-		}
+		if (!isChild() && connectedStructure.load() && connectedStructure.loadChildren())
+			connectedStructure.removeStructure();
 	}
 	
 	@Override

@@ -41,14 +41,14 @@ public class StructureLinkTile extends StructureLinkBaseRelative<LittleTile> {
 		
 		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
-		if (connectedStructure == null || !this.connectedStructure.LoadList()) {
-			new RuntimeException("Failed to connect to structure because the list cannot be loaded!").printStackTrace();
+		if (connectedStructure == null) {
+			new RuntimeException("Failed to connect to structure!").printStackTrace();
 			connectedStructure = null;
 			return;
 		}
 		
-		if (!this.connectedStructure.containsTile(parent))
-			this.connectedStructure.addTile(parent);
+		if (!this.connectedStructure.contains(parent))
+			this.connectedStructure.add(parent);
 	}
 	
 	@Override

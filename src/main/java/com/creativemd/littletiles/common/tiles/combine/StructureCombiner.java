@@ -17,7 +17,7 @@ public class StructureCombiner extends AdvancedCombiner<LittleTile> {
 	
 	@Override
 	public boolean combine() {
-		if (!structure.hasLoaded())
+		if (!structure.load())
 			return false;
 		
 		boolean changed = super.combine();
@@ -47,12 +47,12 @@ public class StructureCombiner extends AdvancedCombiner<LittleTile> {
 	@Override
 	public void addCuttedTile(LittleTile cutTile) {
 		super.addCuttedTile(cutTile);
-		structure.addTile(cutTile);
+		structure.add(cutTile);
 	}
 	
 	@Override
 	protected void removeBox(int index) {
-		structure.removeTile(tiles.get(index));
+		structure.remove(tiles.get(index));
 		super.removeBox(index);
 	}
 }

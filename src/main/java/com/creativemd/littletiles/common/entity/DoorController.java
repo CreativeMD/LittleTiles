@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -193,7 +192,7 @@ public class DoorController extends EntityAnimationController {
 	}
 	
 	public void place() {
-		if (!parent.structure.hasLoaded()) {
+		if (!parent.structure.load()) {
 			System.out.println(new TextComponentTranslation("exception.door.notloaded").getFormattedText());
 			return;
 		}
@@ -228,14 +227,15 @@ public class DoorController extends EntityAnimationController {
 			
 			newDoor.transferChildrenFromAnimation(parent);
 		} else {
-			parent.isDead = true;
+			parent.markRemoved();
 			if (!world.isRemote)
 				WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
 			return;
 		}
 		
+		parent.markRemoved();
+		
 		if (!world.isRemote) {
-			parent.isDead = true;
 			WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
 			PacketHandler.sendPacketToTrackingPlayersExcept(new LittlePlacedAnimationPacket(newDoor.getMainTile(), parent.getUniqueID()), parent.getAbsoluteParent(), null, serverWorld);
 		} else {
@@ -243,16 +243,13 @@ public class DoorController extends EntityAnimationController {
 			HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
 			for (TileEntityLittleTiles te : result.tileEntities) {
 				TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-				if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).getBuffer() != null) {
-					if (te.inRenderingQueue == null)
-						te.inRenderingQueue = new AtomicBoolean();
-					
+				if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).buffer != null) {
 					synchronized (te.inRenderingQueue) {
-						if (te.inRenderingQueue.get() || te.getBuffer().isEmpty()) {
-							if (te.getBuffer() == null)
-								te.setBuffer(((TileEntityLittleTiles) oldTE).getBuffer());
+						if (te.inRenderingQueue.get() || te.buffer.isEmpty()) {
+							if (te.buffer == null)
+								te.buffer = ((TileEntityLittleTiles) oldTE).buffer;
 							else
-								te.getBuffer().combine(((TileEntityLittleTiles) oldTE).getBuffer());
+								te.buffer.combine(((TileEntityLittleTiles) oldTE).buffer);
 						}
 						
 						if (subWorld)
@@ -266,8 +263,6 @@ public class DoorController extends EntityAnimationController {
 			if (!subWorld)
 				for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
 					RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
-				
-			parent.isDead = true;
 			placed = true;
 		}
 		

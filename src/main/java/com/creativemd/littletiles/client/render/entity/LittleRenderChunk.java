@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
@@ -22,7 +23,7 @@ public class LittleRenderChunk {
 	protected List<BufferBuilder>[] queuedBuffers = new List[BlockRenderLayer.values().length];
 	protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
 	
-	private List<TileEntityLittleTiles> tileEntities = new ArrayList<>();
+	private LinkedHashMap<BlockPos, TileEntityLittleTiles> tileEntities = new LinkedHashMap<>();
 	/** if one of the blocks has been modified, which requires the chunk cache to be uploaded again */
 	private boolean modified = false;
 	private boolean complete = false;
@@ -33,53 +34,25 @@ public class LittleRenderChunk {
 	
 	public int transparencySortedIndex = 0;
 	
-	protected void add(TileEntityLittleTiles te) {
-		tileEntities.add(te);
-	}
-	
-	protected TileEntityLittleTiles get(BlockPos pos) {
-		for (TileEntityLittleTiles teSearch : tileEntities)
-			if (teSearch.getPos().equals(pos))
-				return teSearch;
-		return null;
-	}
-	
-	protected boolean remove(TileEntityLittleTiles te) {
-		for (int i = 0; i < tileEntities.size(); i++) {
-			if (te.getPos().equals(tileEntities.get(i).getPos())) {
-				tileEntities.remove(i);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	public void deleteRenderData(TileEntityLittleTiles te) {
-		synchronized (tileEntities) {
-			remove(te);
-			complete = false;
-			modified = true;
-		}
-	}
-	
 	public void addRenderData(TileEntityLittleTiles te) {
 		synchronized (tileEntities) {
 			
-			TileEntityLittleTiles existing = get(te.getPos());
+			TileEntityLittleTiles existing = tileEntities.get(te.getPos());
 			if (existing != null) {
 				if (existing != te) {
-					remove(te);
-					if (!te.isEmpty())
-						add(te);
+					if (te.isEmpty())
+						tileEntities.remove(te.getPos());
+					else
+						tileEntities.put(te.getPos(), te);
 				} else if (te.isEmpty())
-					remove(te);
+					tileEntities.remove(te.getPos());
 				
 				modified = true;
 			} else {
 				if (te.isEmpty())
 					return;
 				
-				add(te);
+				tileEntities.put(te.getPos(), te);
 				
 				if (!modified)
 					addRenderDataInternal(te);
@@ -91,7 +64,7 @@ public class LittleRenderChunk {
 	}
 	
 	private void addRenderDataInternal(TileEntityLittleTiles te) {
-		BlockLayerRenderBuffer layers = te.getBuffer();
+		BlockLayerRenderBuffer layers = te.buffer;
 		if (layers != null) {
 			for (int i = 0; i < BlockRenderLayer.values().length; i++) {
 				BlockRenderLayer layer = BlockRenderLayer.values()[i];
@@ -164,7 +137,7 @@ public class LittleRenderChunk {
 						queuedBuffers[i].clear();
 				}
 				modified = false;
-				for (TileEntityLittleTiles te : tileEntities)
+				for (TileEntityLittleTiles te : tileEntities.values())
 					addRenderDataInternal(te);
 			}
 			
@@ -207,6 +180,7 @@ public class LittleRenderChunk {
 				if (vertexBuffers[i] != null)
 					vertexBuffers[i].deleteGlBuffers();
 			}
+			tileEntities.clear();
 		}
 	}
 }

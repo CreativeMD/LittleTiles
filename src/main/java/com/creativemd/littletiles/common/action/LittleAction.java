@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.action;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -324,12 +324,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Set<TileEntityLittleTiles> tileEntities) {
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Collection<TileEntityLittleTiles> tileEntities) {
 		PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), player);
 	}
 	
 	public static void sendBlockResetToClient(World world, EntityPlayerMP player, LittleStructure structure) {
-		sendBlockResetToClient(world, player, structure.blocks());
+		sendBlockResetToClient(world, player, structure.collectBlocks());
 	}
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, EntityAnimation animation, boolean rightClick) {

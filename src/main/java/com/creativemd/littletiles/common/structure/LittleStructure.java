@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +25,7 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkFromS
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
+import com.creativemd.littletiles.common.structure.exception.MissingTileEntity;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
@@ -72,6 +72,22 @@ import net.minecraft.world.chunk.Chunk;
 
 public abstract class LittleStructure {
 	
+	private static final Iterator<LittleTile> EMPTY_ITERATOR = new Iterator<LittleTile>() {
+		
+		@Override
+		public boolean hasNext() {
+			return false;
+		}
+		
+		@Override
+		public LittleTile next() {
+			return null;
+		}
+		
+	};
+	
+	private static final HashMapList<BlockPos, LittleTile> EMPTY_HASHMAPLIST = new HashMapList<>();
+	
 	public static LittleStructure createAndLoadStructure(NBTTagCompound nbt, @Nullable LittleTile mainTile) {
 		if (nbt == null)
 			return null;
@@ -93,19 +109,405 @@ public abstract class LittleStructure {
 	public final LittleStructureType type;
 	public String name;
 	
+	/** The core of the structure. Handles saving & loading of the structures.
+	 * All tiles inside the structure connect to it in relative block positions and absolute identifier **/
+	private LittleTile mainTile;
+	protected LittleTilePos lastMainTileVec = null;
+	
+	protected HashMapList<BlockPos, LittleTile> tiles = null;
+	public LinkedHashMap<BlockPos, Integer> tilesToLoad = null;
+	
 	public IStructureChildConnector parent;
 	public List<IStructureChildConnector> children;
-	private List<LittleStructure> tempChildren;
 	
-	public LittleTilePos lastMainTileVec = null;
+	/** Used for placing and structures in item form */
+	private List<LittleStructure> tempChildren;
 	
 	public LittleStructure(LittleStructureType type) {
 		this.type = type;
 	}
 	
+	// ================Basics================
+	
+	public World getWorld() {
+		return mainTile.te.getWorld();
+	}
+	
 	public LittleStructureAttribute getAttribute() {
 		return type.attribute;
 	}
+	
+	// ================MainTile================
+	
+	/** The core of the structure. Handles saving & loading of the structures.
+	 * All tiles inside the structure connect to it in relative block positions and absolute identifier **/
+	public LittleTile getMainTile() {
+		return mainTile;
+	}
+	
+	public LittleTileIdentifierStructureAbsolute getAbsoluteIdentifier() {
+		return new LittleTileIdentifierStructureAbsolute(mainTile, getAttribute());
+	}
+	
+	public boolean hasMainTile() {
+		return mainTile != null;
+	}
+	
+	public boolean isStructurePlaced() {
+		return hasMainTile();
+	}
+	
+	public boolean selectMainTile() {
+		if (load()) {
+			LittleTile first = tiles.getFirst();
+			if (first != null) {
+				setMainTile(first);
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void setMainTile(LittleTile tile) {
+		if (isStructurePlaced())
+			checkLoaded();
+		
+		this.mainTile = tile;
+		this.mainTile.connection = new StructureMainTile(mainTile, this);
+		
+		World world = getWorld();
+		
+		if (parent != null) {
+			LittleStructure parentStructure = parent.getStructure(world);
+			parentStructure.updateChildConnection(parent.getChildID(), this);
+			this.updateParentConnection(parent.getChildID(), parentStructure);
+		}
+		
+		for (IStructureChildConnector child : children) {
+			LittleStructure childStructure = child.getStructure(world);
+			childStructure.updateParentConnection(child.getChildID(), this);
+			this.updateChildConnection(child.getChildID(), childStructure);
+		}
+		
+		if (tiles == null) {
+			tiles = new HashMapList<>();
+			tiles.add(mainTile.getBlockPos(), mainTile);
+		} else if (!contains(tile))
+			add(tile);
+		
+		for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet()) {
+			try {
+				TileEntityLittleTiles te = loadTE(entry.getKey());
+				world.markChunkDirty(entry.getKey(), te);
+				
+				for (LittleTile stTile : entry.getValue()) {
+					if (stTile != mainTile) {
+						stTile.connection = getStructureLink(stTile);
+						stTile.connection.setLoadedStructure(this);
+					}
+				}
+			} catch (MissingTileEntity e) {
+				markToBeLoaded(entry.getKey());
+				e.printStackTrace();
+			}
+			
+		}
+		
+		LittleTilePos absolute = tile.getAbsolutePos();
+		if (lastMainTileVec != null) {
+			LittleTileVecContext vec = lastMainTileVec.getRelative(absolute);
+			if (!lastMainTileVec.equals(absolute)) {
+				for (StructureTypeRelative relative : type.relatives) {
+					StructureRelative relativeST = relative.getRelative(this);
+					if (relativeST != null)
+						relativeST.onMove(this, vec.context, vec.vec);
+				}
+			}
+		}
+		lastMainTileVec = absolute;
+		
+		updateStructure();
+		
+	}
+	
+	public boolean doesLinkToMainTile(LittleTile tile) {
+		try {
+			return tile == getMainTile() || (tile.connection.isLink() && tile.connection.getStructurePosition().equals(mainTile.getBlockPos()) && tile.connection.is(mainTile));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+	
+	// ================Tiles================
+	
+	public boolean loaded() {
+		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0) && !isRelationToParentBroken() && !isRelationToChildrenBroken();
+	}
+	
+	protected void checkLoaded() {
+		if (!loaded())
+			throw new RuntimeException("Structure is not loaded cannot add tile!");
+	}
+	
+	protected boolean checkForTiles(World world, BlockPos pos, Integer expectedCount) {
+		Chunk chunk = world.getChunkFromBlockCoords(pos);
+		if (WorldUtils.checkIfChunkExists(chunk)) {
+			// chunk.isChunkLoaded
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				if (!((TileEntityLittleTiles) tileEntity).hasLoaded())
+					return false;
+				int found = 0;
+				
+				if (tiles.keySet().contains(pos))
+					tiles.removeKey(pos);
+				
+				for (LittleTile tile : (TileEntityLittleTiles) tileEntity) {
+					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
+						tiles.add(pos, tile);
+						if (tile.connection.isLink())
+							tile.connection.setLoadedStructure(this);
+						found++;
+					}
+				}
+				
+				if (found == expectedCount)
+					return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean load() {
+		if (mainTile != null) {
+			
+			if (tiles == null) {
+				tiles = new HashMapList<>();
+				add(mainTile);
+			}
+			
+			if (tilesToLoad == null)
+				return !isRelationToParentBroken() && !isRelationToChildrenBroken();
+			
+			for (Iterator<Entry<BlockPos, Integer>> iterator = tilesToLoad.entrySet().iterator(); iterator.hasNext();) {
+				Entry<BlockPos, Integer> entry = iterator.next();
+				if (checkForTiles(mainTile.te.getWorld(), entry.getKey(), entry.getValue()))
+					iterator.remove();
+			}
+			
+			if (!tiles.contains(mainTile))
+				add(mainTile);
+			
+			if (tilesToLoad.size() == 0)
+				tilesToLoad = null;
+			return loaded();
+		}
+		
+		return false;
+	}
+	
+	@Deprecated
+	public void removeTileList() {
+		this.tiles = null;
+	}
+	
+	public void createTilesList() {
+		if (isStructurePlaced())
+			throw new RuntimeException("Cannot create list, structure is placed already");
+		
+		this.tiles = new HashMapList<>();
+	}
+	
+	public List<TileEntityLittleTiles> collectBlocks() {
+		if (!load())
+			return Collections.EMPTY_LIST;
+		
+		World world = getWorld();
+		List<TileEntityLittleTiles> blocks = new ArrayList<>(tiles.size());
+		for (BlockPos pos : tiles.keySet())
+			blocks.add((TileEntityLittleTiles) world.getTileEntity(pos));
+		return blocks;
+	}
+	
+	public HashMapList<BlockPos, LittleTile> copyOfTiles() {
+		if (!load())
+			return EMPTY_HASHMAPLIST;
+		return new HashMapList<>(tiles);
+	}
+	
+	public Iterator<LittleTile> getTiles() {
+		if (!load())
+			return EMPTY_ITERATOR;
+		
+		return tiles.iterator();
+	}
+	
+	public TileEntityLittleTiles loadTE(BlockPos pos) throws MissingTileEntity {
+		TileEntity te = getWorld().getTileEntity(pos);
+		if (te == null || !(te instanceof TileEntityLittleTiles))
+			throw new MissingTileEntity(pos);
+		return (TileEntityLittleTiles) te;
+	}
+	
+	/*public HashMapList<TileEntityLittleTiles, LittleTile> loadTE(HashMapList<BlockPos, LittleTile> map) {
+		HashMapList<TileEntityLittleTiles, LittleTile> blocks = new HashMapList<>();
+		for (Entry<BlockPos, ArrayList<LittleTile>> entry : map.entrySet())
+			blocks.add(loadTE(entry.getKey()), entry.getValue());
+		return blocks;
+	}*/
+	
+	public HashMapList<BlockPos, LittleTile> blockTiles() {
+		if (!load())
+			return EMPTY_HASHMAPLIST;
+		return tiles;
+	}
+	
+	public HashMapList<BlockPos, LittleTile> collectBlockTilesChildren(HashMapList<BlockPos, LittleTile> tiles, boolean onlySameWorld) {
+		if (!load() || !loadChildren())
+			return tiles;
+		
+		tiles.addAll(this.tiles);
+		for (IStructureChildConnector child : children)
+			if (!onlySameWorld || !child.isLinkToAnotherWorld())
+				child.getStructure(getWorld()).collectBlockTilesChildren(tiles, onlySameWorld);
+		return tiles;
+	}
+	
+	public boolean contains(LittleTile tile) {
+		return tiles.contains(tile.getBlockPos(), tile);
+	}
+	
+	public void remove(LittleTile tile) {
+		checkLoaded();
+		
+		tiles.removeValue(tile.getBlockPos(), tile);
+		//if (tile == mainTile)
+		//selectMainTile();
+	}
+	
+	public void add(LittleTile tile) {
+		tiles.add(tile.getBlockPos(), tile);
+	}
+	
+	public void combineTiles() {
+		if (load()) {
+			for (TileEntityLittleTiles te : collectBlocks())
+				te.combineTiles(this);
+		}
+	}
+	
+	protected void markToBeLoaded(BlockPos pos) {
+		List<LittleTile> tiles = this.tiles.getValues(pos);
+		this.tiles.removeKey(pos);
+		
+		if (tiles != null && !tiles.isEmpty()) {
+			if (tilesToLoad == null)
+				tilesToLoad = new LinkedHashMap<>();
+			tilesToLoad.put(pos, tiles.size());
+		}
+	}
+	
+	public int count() {
+		int count = 0;
+		if (tilesToLoad != null)
+			for (Integer tiles : tilesToLoad.values())
+				count += tiles;
+			
+		if (tiles != null) {
+			for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet())
+				if (tilesToLoad == null || !tilesToLoad.containsKey(entry.getKey()))
+					count += entry.getValue().size();
+		}
+		return count;
+	}
+	
+	public boolean isChildOf(LittleStructure structure) {
+		if (parent != null && parent.isConnected(getWorld()))
+			return structure == parent.getStructureWithoutLoading() || parent.getStructureWithoutLoading().isChildOf(structure);
+		return false;
+	}
+	
+	// ================Connections================
+	
+	public LittleTileIdentifierStructureRelative getMainTileCoord(BlockPos pos) {
+		return new LittleTileIdentifierStructureRelative(pos, mainTile.getBlockPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute());
+	}
+	
+	public StructureLinkTile getStructureLink(LittleTile tile) {
+		return new StructureLinkTile(tile.te, mainTile.getBlockPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute(), tile);
+	}
+	
+	public boolean isRelationToParentBroken() {
+		return parent != null && !parent.isConnected(getWorld());
+	}
+	
+	public boolean isRelationToChildrenBroken() {
+		for (IStructureChildConnector child : children) {
+			if (!child.isConnected(getWorld()))
+				return true;
+		}
+		return false;
+	}
+	
+	public void updateChildConnection(int i, LittleStructure child) {
+		World world = getWorld();
+		World childWorld = child.getWorld();
+		
+		IStructureChildConnector<LittleStructure> connector;
+		if (childWorld == world)
+			connector = new StructureLink(this.mainTile.te, child.getMainTile().getBlockPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.getAttribute(), this, i, false);
+		else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
+			connector = new StructureLinkToSubWorld(child.getMainTile(), child.getAttribute(), this, i, ((SubWorld) childWorld).parent.getUniqueID());
+		else
+			throw new RuntimeException("Invalid connection between to structures!");
+		
+		connector.setLoadedStructure(child);
+		if (children.size() > i)
+			children.set(i, connector);
+		else if (children.size() == i)
+			children.add(connector);
+		else
+			throw new RuntimeException("Invalid childId " + children.size() + ".");
+	}
+	
+	public void updateParentConnection(int i, LittleStructure parent) {
+		World world = getWorld();
+		World parentWorld = parent.getWorld();
+		
+		IStructureChildConnector<LittleStructure> connector;
+		if (parentWorld == world)
+			connector = new StructureLink(this.mainTile.te, parent.getMainTile().getBlockPos(), parent.getMainTile().getContext(), parent.getMainTile().getIdentifier(), parent.getAttribute(), this, i, true);
+		else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
+			connector = new StructureLinkFromSubWorld(parent.getMainTile(), parent.getAttribute(), this, i);
+		else
+			throw new RuntimeException("Invalid connection between to structures!");
+		
+		connector.setLoadedStructure(parent);
+		this.parent = connector;
+	}
+	
+	public boolean loadParent() {
+		if (parent != null)
+			return parent.isConnected(getWorld());
+		return true;
+	}
+	
+	public boolean loadChildren() {
+		if (children == null)
+			children = new ArrayList<>();
+		
+		if (children.isEmpty())
+			return true;
+		
+		for (IStructureChildConnector child : children)
+			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().load() || !child.getStructureWithoutLoading().loadChildren())
+				return false;
+			
+		return true;
+	}
+	
+	// ================Placing================
 	
 	public void createTempChildList() {
 		this.tempChildren = new ArrayList<>();
@@ -138,312 +540,21 @@ public abstract class LittleStructure {
 		}
 	}
 	
+	// ================Synchronization================
+	
 	/** This will notify every client that the structure has changed */
 	public void updateStructure() {
 		mainTile.te.updateBlock();
 	}
 	
-	public void setMainTile(LittleTile tile) {
-		this.mainTile = tile;
-		this.mainTile.connection = new StructureMainTile(mainTile, this);
-		
-		if (parent != null) {
-			LittleStructure parentStructure = parent.getStructure(getWorld());
-			parentStructure.updateChildConnection(parent.getChildID(), this);
-			this.updateParentConnection(parent.getChildID(), parentStructure);
-		}
-		
-		for (IStructureChildConnector child : children) {
-			LittleStructure childStructure = child.getStructure(getWorld());
-			childStructure.updateParentConnection(child.getChildID(), this);
-			this.updateChildConnection(child.getChildID(), childStructure);
-		}
-		
-		if (tiles == null) {
-			tiles = new HashMapList<>();
-			tiles.add(mainTile.te, mainTile);
-		} else if (!containsTile(tile))
-			addTile(tile);
-		
-		for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
-			Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry = iterator.next();
-			entry.getKey().getWorld().markChunkDirty(entry.getKey().getPos(), entry.getKey());
-			
-			for (Iterator iterator2 = entry.getValue().iterator(); iterator2.hasNext();) {
-				LittleTile stTile = (LittleTile) iterator2.next();
-				
-				if (stTile != mainTile) {
-					stTile.connection = getStructureLink(stTile);
-					stTile.connection.setLoadedStructure(this);
-				}
-			}
-		}
-		
-		LittleTilePos absolute = tile.getAbsolutePos();
-		if (lastMainTileVec != null) {
-			LittleTileVecContext vec = lastMainTileVec.getRelative(absolute);
-			if (!lastMainTileVec.equals(absolute)) {
-				for (StructureTypeRelative relative : type.relatives) {
-					StructureRelative relativeST = relative.getRelative(this);
-					if (relativeST != null)
-						relativeST.onMove(this, vec.context, vec.vec);
-				}
-			}
-		}
-		lastMainTileVec = absolute;
-		
-		updateStructure();
-		
-	}
-	
-	public LittleTileIdentifierStructureRelative getMainTileCoord(BlockPos pos) {
-		return new LittleTileIdentifierStructureRelative(pos, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute());
-	}
-	
-	public StructureLinkTile getStructureLink(LittleTile tile) {
-		return new StructureLinkTile(tile.te, mainTile.te.getPos(), mainTile.getContext(), mainTile.getIdentifier(), getAttribute(), tile);
-	}
-	
-	public boolean hasMainTile() {
-		return mainTile != null;
-	}
-	
-	public boolean isPlaced() {
-		return hasMainTile();
-	}
-	
-	public void combineTiles() {
-		if (!hasLoaded())
-			return;
-		
-		BlockPos pos = null;
-		
-		for (Iterator<TileEntityLittleTiles> iterator = tiles.keySet().iterator(); iterator.hasNext();) {
-			iterator.next().combineTiles(this);
-		}
-	}
-	
-	public boolean selectMainTile() {
-		if (hasLoaded()) {
-			LittleTile first = tiles.getFirst();
-			if (first != null) {
-				setMainTile(first);
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private LittleTile mainTile;
-	
-	/** The core of the structure. Handles saving & loading of the structures. All
-	 * Tiles inside the structure are containing relative coordinates to this tile **/
-	public LittleTile getMainTile() {
-		return mainTile;
-	}
-	
-	protected HashMapList<TileEntityLittleTiles, LittleTile> tiles = null;
-	
-	public void setTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
-		this.tiles = tiles;
-	}
-	
-	public boolean LoadList() {
-		if (tiles == null)
-			return loadTiles();
-		return true;
-	}
-	
-	public boolean containsTile(LittleTile tile) {
-		return tiles.contains(tile.te, tile);
-	}
-	
-	public Set<TileEntityLittleTiles> blocks() {
-		if (tiles == null)
-			if (!loadTiles())
-				return Collections.EMPTY_SET;
-		return tiles.keySet();
-	}
-	
-	public HashMapList<TileEntityLittleTiles, LittleTile> copyOfTiles() {
-		if (tiles == null)
-			if (!loadTiles())
-				return new HashMapList<>();
-		return new HashMapList<>(tiles);
-	}
-	
-	public Set<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> getEntrySet() {
-		return tiles.entrySet();
-	}
-	
-	public Iterator<LittleTile> getTiles() {
-		if (tiles == null)
-			if (!loadTiles())
-				return new Iterator<LittleTile>() {
-					
-					@Override
-					public boolean hasNext() {
-						return false;
-					}
-					
-					@Override
-					public LittleTile next() {
-						return null;
-					}
-					
-				};
-			
-		return tiles.iterator();
-	}
-	
-	public Set<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> entrySet() {
-		if (tiles == null)
-			if (!loadTiles())
-				return Collections.EMPTY_SET;
-		return tiles.entrySet();
-	}
-	
-	public HashMapList<TileEntityLittleTiles, LittleTile> getAllTiles(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
-		if (!hasLoaded() || !loadChildren())
-			return tiles;
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet())
-			tiles.add(entry.getKey(), entry.getValue());
-		for (IStructureChildConnector child : children)
-			child.getStructure(getWorld()).getAllTiles(tiles);
-		return tiles;
-	}
-	
-	public HashMapList<TileEntityLittleTiles, LittleTile> getAllTilesSameWorld(HashMapList<TileEntityLittleTiles, LittleTile> tiles) {
-		if (!hasLoaded() || !loadChildren())
-			return tiles;
-		
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : this.tiles.entrySet())
-			tiles.add(entry.getKey(), entry.getValue());
-		for (IStructureChildConnector child : children)
-			if (!child.isLinkToAnotherWorld())
-				child.getStructure(getWorld()).getAllTilesSameWorld(tiles);
-		return tiles;
-	}
-	
-	public void removeTile(LittleTile tile) {
-		if (tiles != null)
-			tiles.removeValue(tile.te, tile);
-	}
-	
-	public void addTile(LittleTile tile) {
-		tiles.add(tile.te, tile);
-	}
-	
-	public boolean hasLoaded() {
-		loadTiles();
-		return mainTile != null && tiles != null && (tilesToLoad == null || tilesToLoad.size() == 0) && !isRelationToParentBroken() && !isRelationToChildrenBroken();
-	}
-	
-	public boolean isRelationToParentBroken() {
-		return parent != null && !parent.isConnected(getWorld());
-	}
-	
-	public boolean isRelationToChildrenBroken() {
-		for (IStructureChildConnector child : children) {
-			if (!child.isConnected(getWorld()))
-				return true;
-		}
-		return false;
-	}
-	
-	public void updateChildConnection(int i, LittleStructure child) {
-		World world = getWorld();
-		World childWorld = child.getWorld();
-		
-		IStructureChildConnector<LittleStructure> connector;
-		if (childWorld == world)
-			connector = new StructureLink(this.mainTile.te, child.getMainTile().te.getPos(), child.getMainTile().getContext(), child.getMainTile().getIdentifier(), child.getAttribute(), this, i, false);
-		else if (childWorld instanceof SubWorld && ((SubWorld) childWorld).parent != null)
-			connector = new StructureLinkToSubWorld(child.getMainTile(), child.getAttribute(), this, i, ((SubWorld) childWorld).parent.getUniqueID());
-		else
-			throw new RuntimeException("Invalid connection between to structures!");
-		
-		connector.setLoadedStructure(child);
-		if (children.size() > i)
-			children.set(i, connector);
-		else if (children.size() == i)
-			children.add(connector);
-		else
-			throw new RuntimeException("Invalid childId " + children.size() + ".");
-	}
-	
-	public void updateParentConnection(int i, LittleStructure parent) {
-		World world = getWorld();
-		World parentWorld = parent.getWorld();
-		
-		IStructureChildConnector<LittleStructure> connector;
-		if (parentWorld == world)
-			connector = new StructureLink(this.mainTile.te, parent.getMainTile().te.getPos(), parent.getMainTile().getContext(), parent.getMainTile().getIdentifier(), parent.getAttribute(), this, i, true);
-		else if (world instanceof SubWorld && ((SubWorld) world).parent != null)
-			connector = new StructureLinkFromSubWorld(parent.getMainTile(), parent.getAttribute(), this, i);
-		else
-			throw new RuntimeException("Invalid connection between to structures!");
-		
-		connector.setLoadedStructure(parent);
-		this.parent = connector;
-	}
-	
-	public boolean loadTiles() {
-		if (mainTile != null) {
-			if (tiles == null) {
-				tiles = new HashMapList<>();
-				addTile(mainTile);
-			}
-			
-			if (tilesToLoad == null)
-				return true;
-			
-			for (Iterator<Entry<BlockPos, Integer>> iterator = tilesToLoad.entrySet().iterator(); iterator.hasNext();) {
-				Entry<BlockPos, Integer> entry = iterator.next();
-				if (checkForTiles(mainTile.te.getWorld(), entry.getKey(), entry.getValue()))
-					iterator.remove();
-			}
-			
-			if (!tiles.contains(mainTile))
-				addTile(mainTile);
-			
-			if (tilesToLoad.size() == 0)
-				tilesToLoad = null;
-			return true;
-		}
-		return false;
-	}
-	
-	public boolean loadParent() {
-		if (parent != null)
-			return parent.isConnected(getWorld());
-		return true;
-	}
-	
-	public boolean loadChildren() {
-		if (children == null)
-			children = new ArrayList<>();
-		
-		if (children.isEmpty())
-			return true;
-		
-		for (IStructureChildConnector child : children) {
-			if (!child.isConnected(mainTile.te.getWorld()) || !child.getStructureWithoutLoading().hasLoaded() || !child.getStructureWithoutLoading().loadChildren())
-				return false;
-		}
-		
-		return true;
-	}
-	
-	public LinkedHashMap<BlockPos, Integer> tilesToLoad = null;
+	// ================Save and loading================
 	
 	public void loadStructure(LittleTile mainTile) {
 		this.mainTile = mainTile;
 		this.mainTile.connection = new StructureMainTile(mainTile, this);
 		
-		if (tiles != null && !containsTile(mainTile))
-			addTile(mainTile);
+		if (tiles != null && !contains(mainTile))
+			add(mainTile);
 	}
 	
 	public void loadFromNBT(NBTTagCompound nbt) {
@@ -474,6 +585,7 @@ public abstract class LittleStructure {
 				tilesToLoad.put(pos, insideBlock);
 			}
 			
+			tiles = new HashMapList<>();
 		} else if (nbt.hasKey("tiles")) { // new way
 			NBTTagList list = nbt.getTagList("tiles", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
@@ -484,6 +596,8 @@ public abstract class LittleStructure {
 				} else
 					System.out.println("Found invalid array! " + nbt);
 			}
+			
+			tiles = new HashMapList<>();
 		}
 		
 		if (nbt.hasKey("name"))
@@ -575,14 +689,11 @@ public abstract class LittleStructure {
 		
 		// SaveTiles
 		HashMap<BlockPos, Integer> positions = new HashMap<>();
-		if (tiles != null) {
-			for (Iterator<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> iterator = tiles.entrySet().iterator(); iterator.hasNext();) {
-				Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry = iterator.next();
+		if (tiles != null)
+			for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet())
 				if (entry.getValue().size() > 0)
-					positions.put(entry.getKey().getPos(), entry.getValue().size());
-			}
-		}
-		
+					positions.put(entry.getKey(), entry.getValue().size());
+				
 		if (tilesToLoad != null)
 			positions.putAll(tilesToLoad);
 		
@@ -608,69 +719,17 @@ public abstract class LittleStructure {
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
-	public boolean doesLinkToMainTile(LittleTile tile) {
-		try {
-			return tile == getMainTile() || (tile.connection.isLink() && tile.connection.getStructurePosition().equals(mainTile.te.getPos()) && tile.connection.is(mainTile));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
+	// ================Item Form================
 	
-	public boolean checkForTiles(World world, BlockPos pos, Integer expectedCount) {
-		Chunk chunk = world.getChunkFromBlockCoords(pos);
-		if (WorldUtils.checkIfChunkExists(chunk)) {
-			// chunk.isChunkLoaded
-			TileEntity tileEntity = world.getTileEntity(pos);
-			if (tileEntity instanceof TileEntityLittleTiles) {
-				if (!((TileEntityLittleTiles) tileEntity).hasLoaded())
-					return false;
-				int found = 0;
-				
-				if (tiles.keySet().contains(tileEntity))
-					tiles.removeKey((TileEntityLittleTiles) tileEntity);
-				
-				for (LittleTile tile : (TileEntityLittleTiles) tileEntity) {
-					if (tile.isChildOfStructure() && (tile.connection.getStructureWithoutLoading() == this || doesLinkToMainTile(tile))) {
-						tiles.add((TileEntityLittleTiles) tileEntity, tile);
-						if (tile.connection.isLink())
-							tile.connection.setLoadedStructure(this);
-						found++;
-					}
-				}
-				
-				if (found == expectedCount)
-					return true;
-			}
-		}
-		return false;
-	}
-	
-	public int countTiles() {
-		int count = 0;
-		if (tilesToLoad != null) {
-			for (Integer tiles : tilesToLoad.values()) {
-				count += tiles;
-			}
-		}
-		if (tiles != null) {
-			for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet()) {
-				if (tilesToLoad == null || !tilesToLoad.containsKey(entry.getKey().getPos()))
-					count += entry.getValue().size();
-			}
-		}
-		return count;
+	public void addIngredients(LittleIngredients ingredients) {
+		
 	}
 	
 	public void finializePreview(LittlePreviews previews) {
 		
 	}
 	
-	// ====================LittleTile-Stuff====================
-	
-	public World getWorld() {
-		return mainTile.te.getWorld();
-	}
+	// ====================Destroy====================
 	
 	public void onLittleTileDestroy() {
 		if (parent != null) {
@@ -679,26 +738,37 @@ public abstract class LittleStructure {
 			return;
 		}
 		
-		if (hasLoaded() && loadChildren()) {
-			onStructureDestroyed();
-			
-			if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
-				((IAnimatedStructure) this).destroyAnimation();
-			else
-				for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : tiles.entrySet())
-					entry.getKey().updateTiles((x) -> x.removeAll(entry.getValue()));
-			for (IStructureChildConnector child : children)
-				child.destroyStructure();
-		}
+		mainTile = null;
+		
+		if (load() && loadChildren())
+			removeStructure();
 	}
 	
+	public void removeStructure() {
+		checkLoaded();
+		
+		onStructureDestroyed();
+		
+		if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
+			((IAnimatedStructure) this).destroyAnimation();
+		else
+			for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet())
+				try {
+					loadTE(entry.getKey()).updateTiles((x) -> x.removeAll(entry.getValue()));
+				} catch (MissingTileEntity e) {
+					//e.printStackTrace();
+				}
+			
+		for (IStructureChildConnector child : children)
+			child.destroyStructure();
+	}
+	
+	/** Is called before the structure is removed */
 	public void onStructureDestroyed() {
 		
 	}
 	
-	public void addIngredients(LittleIngredients ingredients) {
-		
-	}
+	// ====================Previews====================
 	
 	public LittleGridContext getMinContext() {
 		LittleGridContext context = LittleGridContext.getMin();
@@ -740,7 +810,7 @@ public abstract class LittleStructure {
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			LittleTilePreview preview = previews.addTile(tile);
-			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
+			preview.box.add(new LittleTileVec(previews.context, tile.getBlockPos().subtract(pos)));
 		}
 		
 		for (IStructureChildConnector child : children)
@@ -779,7 +849,7 @@ public abstract class LittleStructure {
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			LittleTilePreview preview = previews.addTile(tile);
-			preview.box.add(new LittleTileVec(previews.context, tile.te.getPos().subtract(pos)));
+			preview.box.add(new LittleTileVec(previews.context, tile.getBlockPos().subtract(pos)));
 		}
 		
 		for (IStructureChildConnector child : children)
@@ -794,11 +864,12 @@ public abstract class LittleStructure {
 	}
 	
 	public MutableBlockPos getMinPos(MutableBlockPos pos) {
-		for (TileEntityLittleTiles te : tiles.keySet()) {
-			pos.setPos(Math.min(pos.getX(), te.getPos().getX()), Math.min(pos.getY(), te.getPos().getY()), Math.min(pos.getZ(), te.getPos().getZ()));
-		}
+		for (BlockPos tePos : tiles.keySet())
+			pos.setPos(Math.min(pos.getX(), tePos.getX()), Math.min(pos.getY(), tePos.getY()), Math.min(pos.getZ(), tePos.getZ()));
+		
 		for (IStructureChildConnector child : children)
 			child.getStructure(getWorld()).getMinPos(pos);
+		
 		return pos;
 	}
 	
@@ -822,34 +893,7 @@ public abstract class LittleStructure {
 		return relative.getPlacePreview(previews, type);
 	}
 	
-	public ItemStack getStructureDrop() {
-		if (parent != null) {
-			if (parent.isConnected(getWorld()))
-				return parent.getStructure(getWorld()).getStructureDrop();
-			return ItemStack.EMPTY;
-		}
-		
-		if (hasLoaded() && loadChildren()) {
-			BlockPos pos = getMinPos(new MutableBlockPos(getMainTile().te.getPos()));
-			
-			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
-			LittlePreviews previews = getPreviews(pos);
-			
-			LittleTilePreview.savePreview(previews, stack);
-			
-			if (name != null) {
-				NBTTagCompound display = new NBTTagCompound();
-				display.setString("Name", name);
-				stack.getTagCompound().setTag("display", display);
-			}
-			return stack;
-		}
-		return ItemStack.EMPTY;
-	}
-	
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-		return false;
-	}
+	// ====================Transform & Transfer====================
 	
 	public void transferChildrenToAnimation(EntityAnimation animation) {
 		for (IStructureChildConnector child : children) {
@@ -907,7 +951,7 @@ public abstract class LittleStructure {
 		}
 	}
 	
-	// ====================SORTING====================
+	// ====================Relatives====================
 	
 	public void onMove(LittleGridContext context, LittleTileVec offset) {
 		for (StructureTypeRelative relative : type.relatives) {
@@ -939,27 +983,52 @@ public abstract class LittleStructure {
 	// ====================Helpers====================
 	
 	public AxisAlignedBB getSurroundingBox() {
-		if (hasLoaded())
+		if (load())
 			return new SurroundingBox(true).add(tiles.entrySet()).getSurroundingBox();
 		return null;
 	}
 	
 	public Vec3d getHighestCenterVec() {
-		if (hasLoaded())
+		if (load())
 			return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterVec();
 		return null;
 	}
 	
 	public LittleTilePos getHighestCenterPoint() {
-		if (hasLoaded())
+		if (load())
 			return new SurroundingBox(true).add(tiles.entrySet()).getHighestCenterPoint();
 		return null;
 	}
 	
 	// ====================Extra====================
 	
-	public boolean shouldPlaceTile(LittleTile tile) {
-		return true;
+	public ItemStack getStructureDrop() {
+		if (parent != null) {
+			if (parent.isConnected(getWorld()))
+				return parent.getStructure(getWorld()).getStructureDrop();
+			return ItemStack.EMPTY;
+		}
+		
+		if (load() && loadChildren()) {
+			BlockPos pos = getMinPos(new MutableBlockPos(getMainTile().getBlockPos()));
+			
+			ItemStack stack = new ItemStack(LittleTiles.multiTiles);
+			LittlePreviews previews = getPreviews(pos);
+			
+			LittleTilePreview.savePreview(previews, stack);
+			
+			if (name != null) {
+				NBTTagCompound display = new NBTTagCompound();
+				display.setString("Name", name);
+				stack.getTagCompound().setTag("display", display);
+			}
+			return stack;
+		}
+		return ItemStack.EMPTY;
+	}
+	
+	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
+		return false;
 	}
 	
 	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player) {
@@ -974,11 +1043,7 @@ public abstract class LittleStructure {
 		
 	}
 	
-	public void removeWorldProperties() {
-		mainTile = null;
-		tiles = new HashMapList<>();
-		tilesToLoad = null;
-	}
+	// ====================Premade====================
 	
 	public boolean canOnlyBePlacedByItemStack() {
 		return false;
@@ -990,16 +1055,6 @@ public abstract class LittleStructure {
 	 * @return */
 	public String getStructureDropIdentifier() {
 		return null;
-	}
-	
-	public LittleTileIdentifierStructureAbsolute getAbsoluteIdentifier() {
-		return new LittleTileIdentifierStructureAbsolute(mainTile, getAttribute());
-	}
-	
-	public boolean isChildOf(LittleStructure structure) {
-		if (parent != null && parent.isConnected(getWorld()))
-			return structure == parent.getStructureWithoutLoading() || parent.getStructureWithoutLoading().isChildOf(structure);
-		return false;
 	}
 	
 }

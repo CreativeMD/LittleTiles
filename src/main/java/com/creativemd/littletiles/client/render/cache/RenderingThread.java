@@ -96,9 +96,9 @@ public class RenderingThread extends Thread {
 		RenderingThread renderer = getNextThread();
 		
 		Object chunk;
-		if (te.getWorld() instanceof IOrientatedWorld) {
+		if (te.getWorld() instanceof IOrientatedWorld)
 			chunk = RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos());
-		} else {
+		else {
 			chunk = te.lastRenderedChunk;
 			if (chunk == null) {
 				te.lastRenderedChunk = RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos());
@@ -111,18 +111,8 @@ public class RenderingThread extends Thread {
 			return;
 		}
 		
-		if (te.isEmpty() && (te.getBuffer() == null || !te.getBuffer().isEmpty())) {
-			if (te.getWorld() instanceof IOrientatedWorld)
-				RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).deleteRenderData(te);
-			te.setBuffer(new BlockLayerRenderBuffer());
-			te.inRenderingQueue.set(false);
-			synchronized (chunks) {
-				if (!renderer.chunks.containsKey(chunk))
-					if (te.getWorld() instanceof IOrientatedWorld)
-						((LittleRenderChunk) chunk).markCompleted();
-					else
-						((RenderChunk) chunk).setNeedsUpdate(false);
-			}
+		if (te.isEmpty()) {
+			setRendered(te, chunk, te.getWorld() instanceof IOrientatedWorld, (te.buffer != null && te.buffer.isEmpty()) ? te.buffer : new BlockLayerRenderBuffer(), false);
 			return;
 		}
 		
@@ -172,7 +162,7 @@ public class RenderingThread extends Thread {
 							throw new InvalidTileEntityException(data.te.getPos() + "");
 						
 						synchronized (data.te.inRenderingQueue) {
-							data.te.buildingCache.set(true);
+							data.te.buildingCache = true;
 						}
 						
 						BlockPos pos = data.te.getPos();
@@ -324,7 +314,7 @@ public class RenderingThread extends Thread {
 								
 								if (!LittleTilesConfig.rendering.useCubeCache)
 									cubeCache.clearCache();
-								if (!setRendered(data, layerBuffer))
+								if (!setRendered(data.te, data.chunk, data.subWorld, layerBuffer, true))
 									updateCoords.add(data);
 								
 							} catch (RenderOverlapException e) {
@@ -338,7 +328,7 @@ public class RenderingThread extends Thread {
 						} else
 							updateCoords.add(data);
 					} catch (InvalidTileEntityException e) {
-						setRendered(data, new BlockLayerRenderBuffer());
+						setRendered(data.te, data.chunk, data.subWorld, new BlockLayerRenderBuffer(), true);
 					} catch (Exception e) {
 						updateCoords.add(data);
 					} catch (OutOfMemoryError error) {
@@ -363,40 +353,33 @@ public class RenderingThread extends Thread {
 	
 	private static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });
 	
-	public synchronized boolean setRendered(RenderingData data, BlockLayerRenderBuffer buffer) {
-		TileEntityLittleTiles te = data.te;
-		
+	public static boolean setRendered(TileEntityLittleTiles te, Object chunk, boolean subWorld, BlockLayerRenderBuffer buffer, boolean inQueue) {
 		synchronized (te.inRenderingQueue) {
-			te.setBuffer(buffer);
-			if (!te.isInvalid() && te.rebuildRenderingCache) {
+			te.buffer = buffer;
+			te.buildingCache = false;
+			
+			if (!inQueue && !te.isInvalid() && te.rebuildRenderingCache) {
 				te.rebuildRenderingCache = false;
 				te.getCubeCache().clearCache();
-				te.buildingCache.set(false);
 				return false;
 			}
 			
+			te.hasNeighborChanged = false;
+			te.hasLightChanged = false;
 			te.lastRenderedChunk = null;
 			te.inRenderingQueue.set(false);
-			te.buildingCache.set(false);
 		}
 		
-		boolean updateOutside = false;
+		boolean complete = false;
 		
 		synchronized (chunks) {
-			AtomicInteger count = chunks.get(data.chunk);
-			if (count != null)
+			AtomicInteger count = chunks.get(chunk);
+			if (inQueue && count != null)
 				count.getAndDecrement();
 			
-			if (data.subWorld)
-				((LittleRenderChunk) data.chunk).addRenderData(te);
-			
 			if (count == null || count.intValue() <= 0) {
-				chunks.remove(data.chunk);
-				if (data.subWorld) {
-					LittleTilesProfilerOverlay.ltChunksUpdates++;
-					((LittleRenderChunk) data.chunk).markCompleted();
-				} else
-					updateOutside = true;
+				chunks.remove(chunk);
+				complete = true;
 			}
 			
 			boolean finished = true;
@@ -410,35 +393,46 @@ public class RenderingThread extends Thread {
 				chunks.clear();
 		}
 		
-		if (updateOutside) {
-			LittleTilesProfilerOverlay.vanillaChunksUpdates++;
-			RenderChunk chunk = (RenderChunk) data.chunk;
-			try {
-				ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
-				boolean updated = false;
-				chunk.getLockCompileTask().lock();
-				if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING) {
-					compileTask.addFinishRunnable(new Runnable() {
-						
-						@Override
-						public void run() {
-							chunk.setNeedsUpdate(false);
-						}
-					});
-					updated = true;
-				}
-				chunk.getLockCompileTask().unlock();
-				
-				if (!updated)
-					chunk.setNeedsUpdate(false);
-				
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
+		if (subWorld)
+			((LittleRenderChunk) chunk).addRenderData(te);
+		
+		if (complete) {
+			if (subWorld) {
+				LittleTilesProfilerOverlay.ltChunksUpdates++;
+				((LittleRenderChunk) chunk).markCompleted();
+			} else {
+				LittleTilesProfilerOverlay.vanillaChunksUpdates++;
+				markRenderUpdate((RenderChunk) chunk);
 			}
 		}
 		
 		return true;
 		
+	}
+	
+	public static void markRenderUpdate(RenderChunk chunk) {
+		try {
+			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
+			boolean updated = false;
+			chunk.getLockCompileTask().lock();
+			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING) {
+				compileTask.addFinishRunnable(new Runnable() {
+					
+					@Override
+					public void run() {
+						chunk.setNeedsUpdate(false);
+					}
+				});
+				updated = true;
+			}
+			chunk.getLockCompileTask().unlock();
+			
+			if (!updated)
+				chunk.setNeedsUpdate(false);
+			
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static class InvalidTileEntityException extends Exception {

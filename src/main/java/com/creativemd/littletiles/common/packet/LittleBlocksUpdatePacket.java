@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.packet;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
@@ -27,7 +27,7 @@ public class LittleBlocksUpdatePacket extends CreativeCorePacket {
 	public List<SPacketUpdateTileEntity> packets;
 	public UUID uuid;
 	
-	public LittleBlocksUpdatePacket(World world, Set<? extends TileEntity> tileEntities) {
+	public LittleBlocksUpdatePacket(World world, Collection<? extends TileEntity> tileEntities) {
 		positions = new ArrayList<>(tileEntities.size());
 		states = new ArrayList<>(tileEntities.size());
 		packets = new ArrayList<>(tileEntities.size());

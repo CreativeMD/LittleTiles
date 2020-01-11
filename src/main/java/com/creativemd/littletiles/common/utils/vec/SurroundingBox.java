@@ -92,19 +92,13 @@ public class SurroundingBox {
 		return true;
 	}
 	
-	/* public void add(TileEntityLittleTiles te) {
-	 * int modifier = 1;
-	 * if (!insertContext(te.getContext()))
-	 * modifier = this.context.size / te.getContext().size;
-	 * 
-	 * for (LittleTile tile : te.getTiles()) {
-	 * add(tile.box, modifier, te.getPos());
-	 * }
-	 * } */
-	
-	public SurroundingBox add(Set<Entry<TileEntityLittleTiles, ArrayList<LittleTile>>> entrySet) {
-		for (Entry<TileEntityLittleTiles, ArrayList<LittleTile>> entry : entrySet) {
-			add(entry.getKey().getContext(), entry.getKey().getPos(), entry.getValue());
+	public SurroundingBox add(Set<Entry<BlockPos, ArrayList<LittleTile>>> entrySet) {
+		for (Entry<BlockPos, ArrayList<LittleTile>> entry : entrySet) {
+			if (entry.getValue().isEmpty())
+				continue;
+			
+			TileEntityLittleTiles te = entry.getValue().get(0).te;
+			add(te.getContext(), entry.getKey(), entry.getValue());
 		}
 		return this;
 	}
@@ -122,13 +116,6 @@ public class SurroundingBox {
 			map.put(pos, tiles);
 		return this;
 	}
-	
-	/* public void add(LittleTile tile) {
-	 * int modifier = 1;
-	 * if (!insertContext(tile.getContext()))
-	 * modifier = this.context.size / tile.getContext().size;
-	 * add(tile.box, modifier, tile.te.getPos());
-	 * } */
 	
 	protected void add(LittleTileBox box, int modifier, BlockPos pos) {
 		minX = Math.min(minX, pos.getX() * context.size + box.minX * modifier);
