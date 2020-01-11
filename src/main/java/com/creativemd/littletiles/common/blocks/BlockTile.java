@@ -36,7 +36,6 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -70,7 +69,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.MinecraftForgeClient;
 import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.chisel.ctm.api.IFacade;
@@ -857,9 +855,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 							}
 						}
 					}
-					
-					if (!tileEntity.rebuildRenderingCache)
-						tileEntity.hasNeighborChanged = false;
 				}
 				
 				return cachedCubes;
@@ -906,27 +901,24 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
+	public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
+		TileEntityLittleTiles te = loadTe(world, pos);
+		double resistance = 0;
+		if (te != null)
+			for (LittleTile tile : te)
+				resistance += tile.getExplosionResistance() * tile.getPercentVolume();
+			
+		return (float) resistance;
+	}
+	
+	@Override
 	public void onBlockExploded(World world, BlockPos pos, Explosion explosion) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null && !world.isRemote) {
-			float size = ReflectionHelper.getPrivateValue(Explosion.class, explosion, new String[] { "size", "field_77280_f" });
-			Vec3d center = explosion.getPosition();
-			ArrayList<LittleTile> removeTiles = new ArrayList<>();
-			for (LittleTile tile : te) {
-				if (!tile.isChildOfStructure()) {
-					LittleTileVec vec = tile.getCenter();
-					Vec3d newVec = new Vec3d(pos);
-					newVec = newVec.add(vec.getVec(te.getContext()));
-					
-					int explosionStrength = (int) ((50D / center.distanceTo(newVec)) * size);
-					double random = Math.random() * explosionStrength;
-					if (random > tile.getExplosionResistance()) {
-						tile.onTileExplodes(explosion);
-						removeTiles.add(tile);
-					}
-				}
-			}
-			te.updateTiles((x) -> x.removeAll(removeTiles));
+		if (te != null) {
+			te.updateTiles((x) -> {
+				for (LittleTile tile : te)
+					tile.destroy(x);
+			});
 		}
 	}
 	
