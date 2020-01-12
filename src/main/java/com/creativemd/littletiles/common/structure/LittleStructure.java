@@ -738,8 +738,6 @@ public abstract class LittleStructure {
 			return;
 		}
 		
-		mainTile = null;
-		
 		if (load() && loadChildren())
 			removeStructure();
 	}
@@ -749,9 +747,12 @@ public abstract class LittleStructure {
 		
 		onStructureDestroyed();
 		
+		for (IStructureChildConnector child : children)
+			child.destroyStructure();
+		
 		if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
 			((IAnimatedStructure) this).destroyAnimation();
-		else
+		else if (mainTile.te.contains(mainTile))
 			for (Entry<BlockPos, ArrayList<LittleTile>> entry : tiles.entrySet())
 				try {
 					loadTE(entry.getKey()).updateTiles((x) -> x.removeAll(entry.getValue()));
@@ -759,8 +760,6 @@ public abstract class LittleStructure {
 					//e.printStackTrace();
 				}
 			
-		for (IStructureChildConnector child : children)
-			child.destroyStructure();
 	}
 	
 	/** Is called before the structure is removed */
