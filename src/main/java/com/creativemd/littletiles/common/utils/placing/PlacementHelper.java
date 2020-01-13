@@ -69,7 +69,7 @@ public class PlacementHelper {
 			double x = getPosX();
 			double y = getPosY();
 			double z = getPosZ();
-			return new AxisAlignedBB(x, y, z, x + getContext().gridMCLength, y + getContext().gridMCLength, z + getContext().gridMCLength);
+			return new AxisAlignedBB(x, y, z, x + getContext().pixelSize, y + getContext().pixelSize, z + getContext().pixelSize);
 		}
 		
 		public void subVec(LittleTileVec vec) {

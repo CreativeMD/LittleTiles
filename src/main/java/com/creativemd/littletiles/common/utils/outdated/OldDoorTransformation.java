@@ -155,7 +155,7 @@ public abstract class OldDoorTransformation {
 		
 		@Override
 		public void performTransformation(EntityOldDoorAnimation animation, double progress) {
-			double pushDistance = distance * context.gridMCLength * (1 - progress);
+			double pushDistance = distance * context.pixelSize * (1 - progress);
 			switch (direction) {
 			case EAST:
 				animation.moveXTo(animation.getAxisPos().getX() - pushDistance);

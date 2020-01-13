@@ -15,9 +15,11 @@ import com.creativemd.littletiles.client.event.PickBlockEvent;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
+import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.IBoxSelector;
+import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -31,6 +33,9 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock.MissingBlockHandl
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
+import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -45,6 +50,7 @@ import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.SleepResult;
 import net.minecraft.init.Items;
@@ -65,6 +71,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.event.DrawBlockHighlightEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent;
 import net.minecraftforge.client.event.RenderBlockOverlayEvent.OverlayType;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
@@ -451,6 +458,32 @@ public class LittleEvent {
 			LittleBed.littleBed.set(event.getEntityPlayer(), null);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
+		}
+	}
+	
+	@SubscribeEvent
+	public void onPickup(EntityItemPickupEvent event) {
+		EntityPlayer player = event.getEntityPlayer();
+		EntityItem entityItem = event.getItem();
+		ItemStack stack = entityItem.getItem();
+		
+		if (stack.getItem() instanceof ILittleInventory && ((ILittleInventory) stack.getItem()).shouldBeMerged()) {
+			LittleIngredients ingredients = ((ILittleInventory) stack.getItem()).getInventory(stack);
+			LittleInventory inventory = new LittleInventory(player);
+			
+			try {
+				if (LittleAction.canGive(player, inventory, ingredients)) {
+					LittleAction.give(player, inventory, ingredients);
+					
+					player.onItemPickup(entityItem, 1);
+					entityItem.setDead();
+					
+					event.setCanceled(true);
+					event.setResult(Result.DENY);
+				}
+			} catch (NotEnoughIngredientsException e1) {
+				
+			}
 		}
 	}
 	

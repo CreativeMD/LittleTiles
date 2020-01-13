@@ -248,6 +248,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.multiTiles);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.grabber);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.premade);
+		CreativeCoreClient.registerItemColorHandler(LittleTiles.blockIngredient);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileTicking);
 		CreativeCoreClient.registerBlockColorHandler(LittleTiles.blockTileNoTickingRendered);
@@ -311,6 +312,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.premade);
+		CreativeCoreClient.registerItemRenderer(LittleTiles.blockIngredient);
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		
@@ -331,6 +333,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		ModelLoader.setCustomModelResourceLocation(LittleTiles.grabber, 1, new ModelResourceLocation(LittleTiles.modid + ":grabber_background", "inventory"));
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.premade);
+		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.blockIngredient);
 	}
 	
 }

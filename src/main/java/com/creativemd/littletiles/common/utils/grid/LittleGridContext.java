@@ -84,14 +84,6 @@ public class LittleGridContext {
 		return context[context.length - 1];
 	}
 	
-	/* There is no use for it, so I rather comment it out before somebody (I'm talking about myself) does something wrong
-	 * 
-	 * public static LittleGridContext min(LittleGridContext context, LittleGridContext context2) {
-	 * if (context.size <= context2.size)
-	 * return context;
-	 * return context2;
-	 * } */
-	
 	public static LittleGridContext max(LittleGridContext context, LittleGridContext context2) {
 		if (context.size >= context2.size)
 			return context;
@@ -103,11 +95,12 @@ public class LittleGridContext {
 	}
 	
 	public final int size;
-	public final double gridMCLength;
 	public final int minPos;
 	public final int maxPos;
+	public final int maxTilesPerPlane;
 	public final int maxTilesPerBlock;
-	public final double minimumTileSize;
+	public final double pixelSize;
+	public final double pixelVolume;
 	public final boolean isDefault;
 	public final int index;
 	
@@ -119,11 +112,12 @@ public class LittleGridContext {
 	protected LittleGridContext(int gridSize, int index) {
 		this.index = index;
 		this.size = gridSize;
-		this.gridMCLength = 1D / gridSize;
+		this.pixelSize = 1D / gridSize;
 		this.minPos = 0;
 		this.maxPos = gridSize;
+		this.maxTilesPerPlane = gridSize * gridSize;
 		this.maxTilesPerBlock = gridSize * gridSize * gridSize;
-		this.minimumTileSize = 1D / this.maxTilesPerBlock;
+		this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / this.maxTilesPerBlock);
 		this.isDefault = this.defaultSize == gridSize;
 		
 		this.minSizes = new int[this.size];
@@ -154,19 +148,19 @@ public class LittleGridContext {
 	}
 	
 	public double toVanillaGrid(double grid) {
-		return grid * gridMCLength;
+		return grid * pixelSize;
 	}
 	
 	public float toVanillaGrid(float grid) {
-		return (float) (grid * gridMCLength);
+		return (float) (grid * pixelSize);
 	}
 	
 	public double toVanillaGrid(long grid) {
-		return grid * gridMCLength;
+		return grid * pixelSize;
 	}
 	
 	public double toVanillaGrid(int grid) {
-		return grid * gridMCLength;
+		return grid * pixelSize;
 	}
 	
 	public int toBlockOffset(long grid) {
@@ -182,7 +176,7 @@ public class LittleGridContext {
 	}
 	
 	public boolean isAtEdge(double pos) {
-		return pos % gridMCLength == 0;
+		return pos % pixelSize == 0;
 	}
 	
 	public int toGrid(int pos) {

@@ -86,7 +86,7 @@ public class ItemBag extends Item implements IGuiCreator, ILittleInventory {
 		for (int i = 0; i < size; i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			BlockIngredientEntry ingredient = IngredientUtils.loadBlockIngredient(nbt);
-			if (ingredient != null && ingredient.value >= LittleGridContext.getMax().minimumTileSize)
+			if (ingredient != null && ingredient.value >= LittleGridContext.getMax().pixelVolume)
 				blocks.add(ingredient);
 		}
 		ingredients.set(blocks.getClass(), blocks);
@@ -108,7 +108,7 @@ public class ItemBag extends Item implements IGuiCreator, ILittleInventory {
 		NBTTagList list = new NBTTagList();
 		int i = 0;
 		for (BlockIngredientEntry ingredient : ingredients.get(BlockIngredient.class).getContent()) {
-			if (ingredient.block instanceof BlockAir && ingredient.value < LittleGridContext.getMax().minimumTileSize)
+			if (ingredient.block instanceof BlockAir && ingredient.value < LittleGridContext.getMax().pixelVolume)
 				continue;
 			if (i >= inventorySize)
 				break;

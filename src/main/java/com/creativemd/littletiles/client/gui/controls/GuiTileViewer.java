@@ -319,12 +319,12 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			//GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
 			CubeObject cube = new CubeObject(box.getBox(axisContext));
 			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
-			normalCube.minX += axisContext.gridMCLength / 3;
-			normalCube.minY += axisContext.gridMCLength / 3;
-			normalCube.minZ += axisContext.gridMCLength / 3;
-			normalCube.maxX -= axisContext.gridMCLength / 3;
-			normalCube.maxY -= axisContext.gridMCLength / 3;
-			normalCube.maxZ -= axisContext.gridMCLength / 3;
+			normalCube.minX += axisContext.pixelSize / 3;
+			normalCube.minY += axisContext.pixelSize / 3;
+			normalCube.minZ += axisContext.pixelSize / 3;
+			normalCube.maxX -= axisContext.pixelSize / 3;
+			normalCube.maxY -= axisContext.pixelSize / 3;
+			normalCube.maxZ -= axisContext.pixelSize / 3;
 			normalCube.keepVU = true;
 			float min = (float) (-10000 * 1 / scale.aimed());
 			float max = -min;

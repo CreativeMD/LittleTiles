@@ -120,7 +120,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		
 		PairList<Integer, Double> converted = new PairList<>();
 		for (Pair<Integer, Integer> pair : list) {
-			converted.add(pair.key, offGrid.gridMCLength * pair.value);
+			converted.add(pair.key, offGrid.pixelSize * pair.value);
 		}
 		
 		return converted;
@@ -322,22 +322,22 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			opened.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.last(AnimationKey.offX)));
 			closed.set(AnimationKey.offX, offGrid.toVanillaGrid(offX.first(AnimationKey.offX)));
 			
-			open.add(AnimationKey.offX, offX.copy().factor(offGrid.gridMCLength));
-			close.add(AnimationKey.offX, offX.invert(duration).factor(offGrid.gridMCLength));
+			open.add(AnimationKey.offX, offX.copy().factor(offGrid.pixelSize));
+			close.add(AnimationKey.offX, offX.invert(duration).factor(offGrid.pixelSize));
 		}
 		if (offY != null) {
 			opened.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.last(AnimationKey.offY)));
 			closed.set(AnimationKey.offY, offGrid.toVanillaGrid(offY.first(AnimationKey.offY)));
 			
-			open.add(AnimationKey.offY, offY.copy().factor(offGrid.gridMCLength));
-			close.add(AnimationKey.offY, offY.invert(duration).factor(offGrid.gridMCLength));
+			open.add(AnimationKey.offY, offY.copy().factor(offGrid.pixelSize));
+			close.add(AnimationKey.offY, offY.invert(duration).factor(offGrid.pixelSize));
 		}
 		if (offZ != null) {
 			opened.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.last(AnimationKey.offZ)));
 			closed.set(AnimationKey.offZ, offGrid.toVanillaGrid(offZ.first(AnimationKey.offZ)));
 			
-			open.add(AnimationKey.offZ, offZ.copy().factor(offGrid.gridMCLength));
-			close.add(AnimationKey.offZ, offZ.invert(duration).factor(offGrid.gridMCLength));
+			open.add(AnimationKey.offZ, offZ.copy().factor(offGrid.pixelSize));
+			close.add(AnimationKey.offZ, offZ.invert(duration).factor(offGrid.pixelSize));
 		}
 		if (rotX != null) {
 			opened.set(AnimationKey.rotX, rotX.last(AnimationKey.rotX));
@@ -432,15 +432,15 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			ValueTimeline offX = ValueTimeline.create(interpolation, timeline.channels.get(3).getPairs());
 			if (offX != null)
-				animation.values.add(AnimationKey.offX, offX.factor(context.gridMCLength));
+				animation.values.add(AnimationKey.offX, offX.factor(context.pixelSize));
 			
 			ValueTimeline offY = ValueTimeline.create(interpolation, timeline.channels.get(4).getPairs());
 			if (offY != null)
-				animation.values.add(AnimationKey.offY, offY.factor(context.gridMCLength));
+				animation.values.add(AnimationKey.offY, offY.factor(context.pixelSize));
 			
 			ValueTimeline offZ = ValueTimeline.create(interpolation, timeline.channels.get(5).getPairs());
 			if (offZ != null)
-				animation.values.add(AnimationKey.offZ, offZ.factor(context.gridMCLength));
+				animation.values.add(AnimationKey.offZ, offZ.factor(context.pixelSize));
 			
 			handler.setTimeline(animation, children.events);
 			

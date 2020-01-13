@@ -20,9 +20,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	protected IInventory inventory;
 	protected List<LittleIngredients> inventories;
 	protected List<Integer> inventoriesId;
-	
 	protected List<ItemStack> cachedInventory;
-	protected List<LittleIngredients> cachedInventories;
 	
 	public LittleInventory(EntityPlayer player) {
 		this(player, player.inventory);
@@ -37,11 +35,21 @@ public class LittleInventory implements Iterable<ItemStack> {
 		this.inventory = inventory;
 		this.inventories = new ArrayList<>();
 		this.inventoriesId = new ArrayList<>();
-		for (int i = 0; i < inventory.getSizeInventory(); i++) {
-			ItemStack stack = inventory.getStackInSlot(i);
+		reloadInventories();
+	}
+	
+	public void reloadInventories() {
+		inventories.clear();
+		inventoriesId.clear();
+		
+		for (int i = 0; i < size(); i++) {
+			ItemStack stack = get(i);
 			if (stack.getItem() instanceof ILittleInventory) {
-				inventories.add(((ILittleInventory) stack.getItem()).getInventory(stack));
-				inventoriesId.add(i);
+				LittleIngredients ingredient = ((ILittleInventory) stack.getItem()).getInventory(stack);
+				if (ingredient != null) {
+					inventories.add(ingredient);
+					inventoriesId.add(i);
+				}
 			}
 		}
 	}
@@ -52,18 +60,18 @@ public class LittleInventory implements Iterable<ItemStack> {
 	
 	public void startSimulation() {
 		cachedInventory = new ArrayList<ItemStack>();
-		for (int i = 0; i < inventory.getSizeInventory(); i++) {
+		for (int i = 0; i < inventory.getSizeInventory(); i++)
 			cachedInventory.add(inventory.getStackInSlot(i).copy());
-		}
 		
-		cachedInventories = new ArrayList<>();
-		inventories.forEach((x) -> cachedInventories.add(x.copy()));
 		simulate = true;
+		reloadInventories();
 	}
 	
 	public void stopSimulation() {
 		simulate = false;
 		cachedInventory = null;
+		
+		reloadInventories();
 	}
 	
 	public boolean addStack(ItemStack stack) {
@@ -149,8 +157,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	}
 	
 	protected LittleIngredient take(LittleIngredient ingredient) throws NotEnoughIngredientsException {
-		List<LittleIngredients> inv = simulate ? cachedInventories : inventories;
-		for (LittleIngredients ingredients : inv) {
+		for (LittleIngredients ingredients : inventories) {
 			ingredient = ingredients.sub(ingredient);
 			if (ingredient == null)
 				return null;
@@ -199,8 +206,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	}
 	
 	protected LittleIngredient give(LittleIngredient ingredient) throws NotEnoughSpaceException {
-		List<LittleIngredients> inv = simulate ? cachedInventories : inventories;
-		for (LittleIngredients ingredients : inv) {
+		for (LittleIngredients ingredients : inventories) {
 			ingredient = ingredients.add(ingredient);
 			if (ingredient == null)
 				return null;
@@ -232,8 +238,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 		for (int i = 0; i < inventoriesId.size(); i++) {
 			int index = inventoriesId.get(i);
 			ItemStack stack = get(index);
-			((ILittleInventory) stack.getItem()).setInventory(stack, simulate ? cachedInventories.get(i) : inventories.get(i));
+			((ILittleInventory) stack.getItem()).setInventory(stack, inventories.get(i));
 		}
+		
+		reloadInventories();
 	}
 	
 }

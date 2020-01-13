@@ -137,7 +137,7 @@ public class SubGuiRecipeAdvancedSelection extends SubGuiConfigure {
 			
 			String[] values = new String[LittleGridContext.context.length];
 			for (LittleGridContext context : LittleGridContext.context) {
-				values[values.length - 1 - context.index] = minRequired.size + ":" + context.size + " x" + (context.gridMCLength / minRequired.gridMCLength) + "";
+				values[values.length - 1 - context.index] = minRequired.size + ":" + context.size + " x" + (context.pixelSize / minRequired.pixelSize) + "";
 			}
 			slider.setValues(values);
 			if (ArrayUtils.contains(values, value))

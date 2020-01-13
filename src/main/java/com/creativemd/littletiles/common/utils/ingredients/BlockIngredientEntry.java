@@ -38,10 +38,10 @@ public class BlockIngredientEntry {
 		nbt.setString("tID", "BlockTileBlock");
 		stack.setTagCompound(nbt);
 		
-		int count = (int) (value / LittleGridContext.get().minimumTileSize);
+		int count = (int) (value / LittleGridContext.get().pixelVolume);
 		if (count == 0) {
 			LittleGridContext.getMax().set(stack.getTagCompound());
-			count = (int) (value / LittleGridContext.getMax().minimumTileSize);
+			count = (int) (value / LittleGridContext.getMax().pixelVolume);
 		}
 		stack.setCount(count);
 		return stack;

@@ -1015,7 +1015,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			return null;
 		
 		if (realistic) {
-			box = box.expand(0, -context.gridMCLength, 0);
+			box = box.expand(0, -context.pixelSize, 0);
 			for (LittleTile tile : tiles) {
 				if (tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
 					return ((LittleTileBlock) tile).getBlockState();

@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
+import com.creativemd.littletiles.common.items.ItemBlockIngredient;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -20,6 +22,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.oredict.DyeUtils;
 
@@ -118,7 +121,14 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			
 			@Override
 			public List<ItemStack> handleOverflow(BlockIngredient overflow) throws NotEnoughSpaceException {
-				throw new NotEnoughSpaceException(overflow);
+				List<ItemStack> stacks = new ArrayList<>();
+				for (BlockIngredientEntry entry : overflow) {
+					ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
+					stack.setTagCompound(new NBTTagCompound());
+					ItemBlockIngredient.saveIngredient(stack, entry);
+					stacks.add(stack);
+				}
+				return stacks;
 			}
 		}, new IngredientConvertionHandler<BlockIngredient>() {
 			
