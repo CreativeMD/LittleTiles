@@ -4,11 +4,13 @@ import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
 import com.creativemd.creativecore.common.gui.client.style.DisplayStyle;
 import com.creativemd.creativecore.common.gui.client.style.Style;
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiProgressBar;
+import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
+import com.creativemd.littletiles.client.gui.controls.GuiColorProgressBar;
 import com.creativemd.littletiles.common.container.SubContainerBag;
 import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,10 +38,20 @@ public class SubGuiBag extends SubGui {
 		bag = ((ItemBag) stack.getItem()).getInventory(stack);
 		ColorIngredient unit = bag.get(ColorIngredient.class);
 		
-		controls.add(new GuiProgressBar("black", 120, 26, 45, 3, ItemBag.colorUnitMaximum, unit.black).setStyle(blackStyle));
-		controls.add(new GuiProgressBar("cyan", 120, 40, 45, 3, ItemBag.colorUnitMaximum, unit.cyan).setStyle(cyanStyle));
-		controls.add(new GuiProgressBar("magenta", 120, 54, 45, 3, ItemBag.colorUnitMaximum, unit.magenta).setStyle(magentaStyle));
-		controls.add(new GuiProgressBar("yellow", 120, 68, 45, 3, ItemBag.colorUnitMaximum, unit.yellow).setStyle(yellowStyle));
+		controls.add(new GuiColorProgressBar("black", 120, 26, 45, 3, ItemBag.colorUnitMaximum, unit.black).setStyle(blackStyle));
+		controls.add(new GuiColorProgressBar("cyan", 120, 40, 45, 3, ItemBag.colorUnitMaximum, unit.cyan).setStyle(cyanStyle));
+		controls.add(new GuiColorProgressBar("magenta", 120, 54, 45, 3, ItemBag.colorUnitMaximum, unit.magenta).setStyle(magentaStyle));
+		controls.add(new GuiColorProgressBar("yellow", 120, 68, 45, 3, ItemBag.colorUnitMaximum, unit.yellow).setStyle(yellowStyle));
+	}
+	
+	@CustomEventSubscribe
+	public void clicked(GuiControlClickEvent event) {
+		if (event.source instanceof GuiColorProgressBar) {
+			NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setBoolean("color", true);
+			nbt.setString("type", event.source.name);
+			sendPacketToServer(nbt);
+		}
 	}
 	
 	@Override

@@ -16,6 +16,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiChisel;
 import com.creativemd.littletiles.client.gui.SubGuiMarkMode;
@@ -44,7 +45,6 @@ import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
-import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

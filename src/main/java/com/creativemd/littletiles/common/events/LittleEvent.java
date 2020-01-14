@@ -470,6 +470,14 @@ public class LittleEvent {
 		if (stack.getItem() instanceof ILittleInventory && ((ILittleInventory) stack.getItem()).shouldBeMerged()) {
 			LittleIngredients ingredients = ((ILittleInventory) stack.getItem()).getInventory(stack);
 			LittleInventory inventory = new LittleInventory(player);
+			inventory.allowDrop = false;
+			
+			if (ingredients == null) {
+				entityItem.setDead();
+				event.setCanceled(true);
+				event.setResult(Result.DENY);
+				return;
+			}
 			
 			try {
 				if (LittleAction.canGive(player, inventory, ingredients)) {

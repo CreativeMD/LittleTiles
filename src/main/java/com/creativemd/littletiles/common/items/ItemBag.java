@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
@@ -101,7 +102,7 @@ public class ItemBag extends Item implements IGuiCreator, ILittleInventory {
 	}
 	
 	@Override
-	public void setInventory(ItemStack stack, LittleIngredients ingredients) {
+	public void setInventory(ItemStack stack, LittleIngredients ingredients, LittleInventory inventory) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		

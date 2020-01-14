@@ -2,7 +2,7 @@ package com.creativemd.littletiles.client.gui.controls;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.items.ItemBlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 
 import net.minecraft.entity.player.InventoryPlayer;
@@ -13,28 +13,19 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class SlotControlBlockIngredient extends SlotControl {
 	
-	public SlotControlBlockIngredient(Slot slot, BlockIngredientEntry ingredient) {
+	public SlotControlBlockIngredient(Slot slot) {
 		super(slot);
-		this.ingredient = ingredient;
 	}
 	
-	public BlockIngredientEntry ingredient;
+	public BlockIngredientEntry getIngredient() {
+		return ItemBlockIngredient.loadIngredient(slot.getStack());
+	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public GuiControl createGuiControl() {
-		GuiControl control = new GuiSlotControlBlockIngredient(slot.xPos, slot.yPos, this, ingredient);
+		GuiControl control = new GuiSlotControlBlockIngredient(slot.xPos, slot.yPos, this);
 		return control;
-	}
-	
-	@Override
-	public int getStackLimit(Slot slot, ItemStack stack) {
-		return LittleGridContext.get().maxTilesPerBlock;
-	}
-	
-	@Override
-	public int getItemStackLimit(ItemStack stack) {
-		return LittleGridContext.get().maxTilesPerBlock;
 	}
 	
 	@Override
@@ -42,66 +33,54 @@ public class SlotControlBlockIngredient extends SlotControl {
 		return super.canMergeIntoInventory(mergeSlot) && !mergeSlot.inventory.getName().equals("input");
 	}
 	
-	public boolean isFullItem() {
-		return slot.getStack().getCount() >= LittleGridContext.get().maxTilesPerBlock;
-	}
-	
-	public ItemStack getFullStack() {
-		if (ingredient != null) {
-			ItemStack stack = ingredient.getItemStack();
-			stack.setCount(slot.getStack().getCount() / LittleGridContext.get().maxTilesPerBlock);
-			return stack;
-		}
-		return ItemStack.EMPTY;
+	public boolean isEntireBlock() {
+		BlockIngredientEntry entry = getIngredient();
+		if (entry != null && entry.value >= 1)
+			return true;
+		return false;
 	}
 	
 	@Override
 	public void transferIntoOtherInventory(int amount) {
-		if (!isFullItem())
+		if (!isEntireBlock())
 			super.transferIntoOtherInventory(amount);
 		
-		ItemStack stack = getFullStack();
-		int countbefore = stack.getCount();
-		if (amount > stack.getCount())
-			amount = stack.getCount();
-		ItemStack copy = stack.copy();
-		copy.setCount(amount);
-		int minAmount = stack.getCount() - amount;
+		BlockIngredientEntry entry = getIngredient();
+		ItemStack stack = entry.getItemStack();
+		amount = Math.min(amount, (int) entry.value);
+		stack.setCount(amount);
 		
-		mergeToOtherInventory(copy, false);
-		if (!copy.isEmpty())
-			mergeToOtherInventory(copy, true);
+		mergeToOtherInventory(stack, false);
+		if (!stack.isEmpty())
+			mergeToOtherInventory(stack, true);
 		
-		if (copy.isEmpty())
-			stack.setCount(minAmount);
-		else
-			stack.shrink(amount - copy.getCount());
+		if (!stack.isEmpty())
+			amount -= stack.getCount();
 		
-		slot.getStack().shrink((countbefore - stack.getCount()) * LittleGridContext.get().maxTilesPerBlock);
+		entry.value -= amount;
+		ItemBlockIngredient.saveIngredient(slot.getStack(), entry);
 	}
 	
 	@Override
 	public void takeStack(boolean leftClick, InventoryPlayer inventoryplayer) {
-		if (!isFullItem()) {
+		if (!isEntireBlock()) {
 			super.takeStack(leftClick, inventoryplayer);
 			return;
 		}
 		
 		ItemStack hand = getPlayer().inventory.getItemStack();
-		ItemStack slotItem = getFullStack();
 		
-		int countbefore = slotItem.getCount();
+		BlockIngredientEntry entry = getIngredient();
+		ItemStack slotItem = entry.getItemStack();
+		slotItem.setCount((int) entry.value);
 		
 		if (leftClick) {
 			int stackSize = Math.min(Math.min(slotItem.getCount(), slotItem.getMaxStackSize()), slotItem.getCount());
-			ItemStack newHand = slotItem.copy();
-			newHand.setCount(stackSize);
-			inventoryplayer.setItemStack(newHand);
-			slotItem.shrink(stackSize);
+			slotItem.setCount(stackSize);
+			inventoryplayer.setItemStack(slotItem);
 			
-			slot.getStack().shrink((countbefore - slotItem.getCount()) * LittleGridContext.get().maxTilesPerBlock);
-			
-			slot.onTake(getPlayer(), inventoryplayer.getItemStack());
+			entry.value -= slotItem.getCount();
+			ItemBlockIngredient.saveIngredient(slot.getStack(), entry);
 		}
 	}
 }

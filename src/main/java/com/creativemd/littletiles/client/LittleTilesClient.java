@@ -312,7 +312,15 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeCoreClient.registerItemRenderer(LittleTiles.utilityKnife);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.grabber);
 		CreativeCoreClient.registerItemRenderer(LittleTiles.premade);
+		
 		CreativeCoreClient.registerItemRenderer(LittleTiles.blockIngredient);
+		
+		for (int i = 0; i <= 5; i++) {
+			ModelLoader.setCustomModelResourceLocation(LittleTiles.blackColorIngredient, i, new ModelResourceLocation(LittleTiles.blackColorIngredient.getRegistryName().toString() + i, "inventory"));
+			ModelLoader.setCustomModelResourceLocation(LittleTiles.cyanColorIngredient, i, new ModelResourceLocation(LittleTiles.cyanColorIngredient.getRegistryName().toString() + i, "inventory"));
+			ModelLoader.setCustomModelResourceLocation(LittleTiles.magentaColorIngredient, i, new ModelResourceLocation(LittleTiles.magentaColorIngredient.getRegistryName().toString() + i, "inventory"));
+			ModelLoader.setCustomModelResourceLocation(LittleTiles.yellowColorIngredient, i, new ModelResourceLocation(LittleTiles.yellowColorIngredient.getRegistryName().toString() + i, "inventory"));
+		}
 		
 		CreativeBlockRenderHelper.registerCreativeRenderedItem(LittleTiles.multiTiles);
 		

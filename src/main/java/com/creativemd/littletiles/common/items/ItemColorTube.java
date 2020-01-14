@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiColorTube;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -27,7 +28,6 @@ import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
-import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;

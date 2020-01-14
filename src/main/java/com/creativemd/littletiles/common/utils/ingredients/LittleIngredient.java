@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemBlockIngredient;
+import com.creativemd.littletiles.common.items.ItemColorIngredient;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -123,10 +124,20 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			public List<ItemStack> handleOverflow(BlockIngredient overflow) throws NotEnoughSpaceException {
 				List<ItemStack> stacks = new ArrayList<>();
 				for (BlockIngredientEntry entry : overflow) {
-					ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
-					stack.setTagCompound(new NBTTagCompound());
-					ItemBlockIngredient.saveIngredient(stack, entry);
-					stacks.add(stack);
+					double volume = entry.value;
+					if (volume >= 1) {
+						ItemStack stack = entry.getItemStack();
+						stack.setCount((int) volume);
+						volume -= stack.getCount();
+						stacks.add(stack);
+					}
+					
+					if (volume > 0) {
+						ItemStack stack = new ItemStack(LittleTiles.blockIngredient);
+						stack.setTagCompound(new NBTTagCompound());
+						ItemBlockIngredient.saveIngredient(stack, entry);
+						stacks.add(stack);
+					}
 				}
 				return stacks;
 			}
@@ -169,7 +180,33 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			
 			@Override
 			public List<ItemStack> handleOverflow(ColorIngredient overflow) throws NotEnoughSpaceException {
-				throw new NotEnoughSpaceException(overflow);
+				LittleIngredients ingredients = new LittleIngredients(overflow);
+				List<ItemStack> stacks = new ArrayList<>();
+				if (overflow.black > 0) {
+					ItemStack stack = new ItemStack(LittleTiles.blackColorIngredient);
+					stack.setTagCompound(new NBTTagCompound());
+					((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
+					stacks.add(stack);
+				}
+				if (overflow.cyan > 0) {
+					ItemStack stack = new ItemStack(LittleTiles.cyanColorIngredient);
+					stack.setTagCompound(new NBTTagCompound());
+					((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
+					stacks.add(stack);
+				}
+				if (overflow.magenta > 0) {
+					ItemStack stack = new ItemStack(LittleTiles.magentaColorIngredient);
+					stack.setTagCompound(new NBTTagCompound());
+					((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
+					stacks.add(stack);
+				}
+				if (overflow.yellow > 0) {
+					ItemStack stack = new ItemStack(LittleTiles.yellowColorIngredient);
+					stack.setTagCompound(new NBTTagCompound());
+					((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
+					stacks.add(stack);
+				}
+				return stacks;
 			}
 		}, new IngredientConvertionHandler<ColorIngredient>() {
 			

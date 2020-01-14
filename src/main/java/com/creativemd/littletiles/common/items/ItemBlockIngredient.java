@@ -14,8 +14,9 @@ import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.IngredientUtils;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
-import com.creativemd.littletiles.common.utils.tooltip.TooltipUtils;
+import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
@@ -65,7 +66,7 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		BlockIngredientEntry entry = loadIngredient(stack);
 		if (entry != null)
-			tooltip.add(TooltipUtils.printVolume(entry.value, false));
+			tooltip.add(BlockIngredient.printVolume(entry.value, false));
 	}
 	
 	@Override
@@ -90,13 +91,22 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
 	}
 	
 	@Override
-	public void setInventory(ItemStack stack, LittleIngredients ingredients) {
+	public void setInventory(ItemStack stack, LittleIngredients ingredients, LittleInventory inventory) {
 		BlockIngredient blocks = ingredients.get(BlockIngredient.class);
-		if (!blocks.isEmpty())
+		if (blocks != null && !blocks.isEmpty())
 			for (BlockIngredientEntry entry : blocks)
-				if (!entry.isEmpty()) {
-					saveIngredient(stack, entry);
-					return;
+				if (!entry.isEmpty() || entry.block instanceof BlockAir) {
+					if (inventory != null && entry.value > 1) {
+						ItemStack overflow = entry.getItemStack();
+						overflow.setCount((int) entry.value);
+						entry.value -= overflow.getCount();
+						inventory.addStack(overflow);
+					}
+					
+					if (entry.value > 0) {
+						saveIngredient(stack, entry);
+						return;
+					}
 				}
 			
 		stack.setTagCompound(null);

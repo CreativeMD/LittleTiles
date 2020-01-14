@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.utils.ingredients;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
+import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -11,7 +12,10 @@ import net.minecraft.util.text.translation.I18n;
 
 public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	
-	private int limit = -1;
+	private int limitBlack = -1;
+	private int limitCyan = -1;
+	private int limitMagenta = -1;
+	private int limitYellow = -1;
 	
 	public int black;
 	public int cyan;
@@ -39,7 +43,15 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	}
 	
 	public ColorIngredient setLimit(int limit) {
-		this.limit = limit;
+		this.limitBlack = this.limitCyan = this.limitMagenta = this.limitYellow = limit;
+		return this;
+	}
+	
+	public ColorIngredient setLimit(int black, int cyan, int magenta, int yellow) {
+		this.limitBlack = black;
+		this.limitCyan = cyan;
+		this.limitMagenta = magenta;
+		this.limitYellow = yellow;
 		return this;
 	}
 	
@@ -74,19 +86,19 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	}
 	
 	public String getBlackDescription() {
-		return black + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
+		return TooltipUtils.printNumber(black) + " " + ChatFormatting.DARK_GRAY + I18n.translateToLocal("color.unit.black") + ChatFormatting.WHITE + " " + getUnit(black);
 	}
 	
 	public String getCyanDescription() {
-		return cyan + " " + ChatFormatting.AQUA + I18n.translateToLocal("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
+		return TooltipUtils.printNumber(cyan) + " " + ChatFormatting.AQUA + I18n.translateToLocal("color.unit.cyan") + ChatFormatting.WHITE + " " + getUnit(cyan);
 	}
 	
 	public String getMagentaDescription() {
-		return magenta + " " + ChatFormatting.LIGHT_PURPLE + I18n.translateToLocal("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
+		return TooltipUtils.printNumber(magenta) + " " + ChatFormatting.LIGHT_PURPLE + I18n.translateToLocal("color.unit.magenta") + ChatFormatting.WHITE + " " + getUnit(magenta);
 	}
 	
 	public String getYellowDescription() {
-		return yellow + " " + ChatFormatting.YELLOW + I18n.translateToLocal("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
+		return TooltipUtils.printNumber(yellow) + " " + ChatFormatting.YELLOW + I18n.translateToLocal("color.unit.yellow") + ChatFormatting.WHITE + " " + getUnit(yellow);
 	}
 	
 	@Override
@@ -101,32 +113,33 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 		
 		ColorIngredient remaining = null;
 		this.black += ingredient.black;
-		if (this.limit > 0 && this.black > limit) {
+		if (this.limitBlack >= 0 && this.black > limitBlack) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
-			remaining.black = this.black - this.limit;
-			this.black = limit;
+			remaining.black = this.black - this.limitBlack;
+			this.black = limitBlack;
 		}
+		
 		this.cyan += ingredient.cyan;
-		if (this.limit > 0 && this.cyan > limit) {
+		if (this.limitCyan >= 0 && this.cyan > limitCyan) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
-			remaining.cyan = this.cyan - this.limit;
-			this.cyan = limit;
+			remaining.cyan = this.cyan - this.limitCyan;
+			this.cyan = limitCyan;
 		}
 		this.magenta += ingredient.magenta;
-		if (this.limit > 0 && this.magenta > limit) {
+		if (this.limitMagenta >= 0 && this.magenta > limitMagenta) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
-			remaining.magenta = this.magenta - this.limit;
-			this.magenta = limit;
+			remaining.magenta = this.magenta - this.limitMagenta;
+			this.magenta = limitMagenta;
 		}
 		this.yellow += ingredient.yellow;
-		if (this.limit > 0 && this.yellow > limit) {
+		if (this.limitYellow >= 0 && this.yellow > limitYellow) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
-			remaining.yellow = this.yellow - this.limit;
-			this.yellow = limit;
+			remaining.yellow = this.yellow - this.limitYellow;
+			this.yellow = limitYellow;
 		}
 		return remaining;
 	}
@@ -142,28 +155,28 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 			if (remaining == null)
 				remaining = new ColorIngredient();
 			remaining.black = -this.black;
-			this.black = limit;
+			this.black = limitBlack;
 		}
 		this.cyan -= ingredient.cyan;
 		if (this.cyan < 0) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
 			remaining.cyan = -this.cyan;
-			this.cyan = limit;
+			this.cyan = limitCyan;
 		}
 		this.magenta -= ingredient.magenta;
 		if (this.magenta < 0) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
 			remaining.magenta = -this.magenta;
-			this.magenta = limit;
+			this.magenta = limitMagenta;
 		}
 		this.yellow -= ingredient.yellow;
 		if (this.yellow < 0) {
 			if (remaining == null)
 				remaining = new ColorIngredient();
 			remaining.yellow = -this.yellow;
-			this.yellow = limit;
+			this.yellow = limitYellow;
 		}
 		return remaining;
 	}
@@ -171,7 +184,10 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	@Override
 	public ColorIngredient copy() {
 		ColorIngredient copy = new ColorIngredient(black, cyan, magenta, yellow);
-		copy.limit = limit;
+		copy.limitBlack = limitBlack;
+		copy.limitCyan = limitCyan;
+		copy.limitMagenta = limitMagenta;
+		copy.limitYellow = limitYellow;
 		return copy;
 	}
 	
@@ -231,6 +247,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	}
 	
 	public static float dyeToBlockPercentage = 4096;
+	public static int bottleSize = (int) (dyeToBlockPercentage * 64);
 	
 	public static ColorIngredient getColors(LittleTilePreview preview, double volume) {
 		if (preview.hasColor()) {

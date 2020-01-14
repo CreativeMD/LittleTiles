@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
@@ -21,6 +22,8 @@ public class LittleInventory implements Iterable<ItemStack> {
 	protected List<LittleIngredients> inventories;
 	protected List<Integer> inventoriesId;
 	protected List<ItemStack> cachedInventory;
+	
+	public boolean allowDrop = true;
 	
 	public LittleInventory(EntityPlayer player) {
 		this(player, player.inventory);
@@ -75,6 +78,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 	}
 	
 	public boolean addStack(ItemStack stack) {
+		return addStack(stack, false);
+	}
+	
+	public boolean addStack(ItemStack stack, boolean onlyMerge) {
 		for (int i = 0; i < size(); i++) {
 			ItemStack inventoryStack = get(i);
 			if (InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
@@ -89,8 +96,11 @@ public class LittleInventory implements Iterable<ItemStack> {
 						return true;
 				}
 			}
-			
 		}
+		
+		if (onlyMerge)
+			return false;
+		
 		for (int i = 0; i < size(); i++) {
 			if (get(i).isEmpty()) {
 				set(i, stack);
@@ -112,10 +122,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 		}
 		
 		if (toDrop != null) {
-			if (player == null)
+			if (player == null || !allowDrop)
 				throw new NotEnoughSpaceException(new StackIngredient(toDrop));
 			
-			if (!simulate)
+			if (!simulate && !player.world.isRemote)
 				WorldUtils.dropItem(player, toDrop);
 		}
 	}
@@ -132,6 +142,8 @@ public class LittleInventory implements Iterable<ItemStack> {
 	}
 	
 	public int size() {
+		if (inventory instanceof InventoryPlayer)
+			return 36;
 		return simulate ? cachedInventory.size() : inventory.getSizeInventory();
 	}
 	
@@ -238,7 +250,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 		for (int i = 0; i < inventoriesId.size(); i++) {
 			int index = inventoriesId.get(i);
 			ItemStack stack = get(index);
-			((ILittleInventory) stack.getItem()).setInventory(stack, inventories.get(i));
+			((ILittleInventory) stack.getItem()).setInventory(stack, inventories.get(i), this);
 		}
 		
 		reloadInventories();
