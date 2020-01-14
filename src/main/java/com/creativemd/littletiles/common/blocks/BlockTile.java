@@ -309,9 +309,44 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return 0.1F;
 	}
 	
+	public static boolean canHarvestBlock(EntityPlayer player, IBlockState state) {
+		if (state.getMaterial().isToolNotRequired()) {
+			return true;
+		}
+		
+		ItemStack stack = player.getHeldItemMainhand();
+		String tool = state.getBlock().getHarvestTool(state);
+		if (stack.isEmpty() || tool == null) {
+			return player.canHarvestBlock(state);
+		}
+		
+		int toolLevel = stack.getItem().getHarvestLevel(stack, tool, player, state);
+		if (toolLevel < 0) {
+			return player.canHarvestBlock(state);
+		}
+		
+		return toolLevel >= state.getBlock().getHarvestLevel(state);
+	}
+	
 	@Override
-	public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos) {
-		return super.getPlayerRelativeBlockHardness(state, player, worldIn, pos);
+	public float getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World world, BlockPos pos) {
+		TEResult result = loadTeAndTile(world, pos, player);
+		if (result.isComplete()) {
+			
+			if (result.tile instanceof LittleTileBlock)
+				state = ((LittleTileBlock) result.tile).getBlockState();
+			
+			float hardness = state.getBlockHardness(world, pos);
+			if (hardness < 0.0F)
+				return 0.0F;
+			
+			if (!canHarvestBlock(player, state)) {
+				return player.getDigSpeed(state, pos) / hardness / 40F;
+			} else {
+				return player.getDigSpeed(state, pos) / hardness / 20F;
+			}
+		} else
+			return super.getPlayerRelativeBlockHardness(state, player, world, pos);
 	}
 	
 	@Override
@@ -463,7 +498,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TEResult result = loadTeAndTile(world, pos, player, 1.0F);
 		if (result.isComplete())
 			return new LittleActionDestroy(world, pos, player).execute();
-		System.out.println("Somehow missed all tiles");
 		return false;
 	}
 	
@@ -574,36 +608,30 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int j = pos.getY();
 			int k = pos.getZ();
 			float f = 0.1F;
-			AxisAlignedBB axisalignedbb = result.tile.getSelectedBox(BlockPos.ORIGIN);
+			AxisAlignedBB axisalignedbb = result.tile.box.getSelectionBox(result.te.getContext(), BlockPos.ORIGIN);
 			double d0 = i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
 			double d1 = j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
 			double d2 = k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
 			EnumFacing side = target.sideHit;
-			if (side == EnumFacing.DOWN) {
+			if (side == EnumFacing.DOWN)
 				d1 = j + axisalignedbb.minY - 0.10000000149011612D;
-			}
 			
-			if (side == EnumFacing.UP) {
+			if (side == EnumFacing.UP)
 				d1 = j + axisalignedbb.maxY + 0.10000000149011612D;
-			}
 			
-			if (side == EnumFacing.NORTH) {
+			if (side == EnumFacing.NORTH)
 				d2 = k + axisalignedbb.minZ - 0.10000000149011612D;
-			}
 			
-			if (side == EnumFacing.SOUTH) {
+			if (side == EnumFacing.SOUTH)
 				d2 = k + axisalignedbb.maxZ + 0.10000000149011612D;
-			}
 			
-			if (side == EnumFacing.WEST) {
+			if (side == EnumFacing.WEST)
 				d0 = i + axisalignedbb.minX - 0.10000000149011612D;
-			}
 			
-			if (side == EnumFacing.EAST) {
+			if (side == EnumFacing.EAST)
 				d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
-			}
 			
-			manager.addEffect(((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F));
+			((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
 		}
 		return true;
 	}
@@ -632,10 +660,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					}
 				}
 			}
-			// overrideIcon = null;
-			return true;
 		}
-		return false;
+		return true;
 	}
 	
 	@SideOnly(Side.CLIENT)
