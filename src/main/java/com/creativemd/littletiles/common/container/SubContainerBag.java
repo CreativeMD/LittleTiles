@@ -36,6 +36,8 @@ public class SubContainerBag extends SubContainerHeldItem {
 	public SubContainerBag(EntityPlayer player, ItemStack stack, int index) {
 		super(player, stack, index);
 		
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
 		NBTTagCompound nbt = stack.getTagCompound().copy();
 		nbt.setBoolean("reload", true);
 		sendNBTToGui(nbt);
