@@ -415,7 +415,7 @@ public class RenderingThread extends Thread {
 			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
 			boolean updated = false;
 			chunk.getLockCompileTask().lock();
-			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING) {
+			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING || compileTask.getStatus() == ChunkCompileTaskGenerator.Status.COMPILING)) {
 				compileTask.addFinishRunnable(new Runnable() {
 					
 					@Override
