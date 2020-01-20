@@ -46,6 +46,9 @@ public class SlotControlBlockIngredient extends SlotControl {
 			super.transferIntoOtherInventory(amount);
 		
 		BlockIngredientEntry entry = getIngredient();
+		if (entry == null)
+			return;
+		
 		ItemStack stack = entry.getItemStack();
 		amount = Math.min(amount, (int) entry.value);
 		stack.setCount(amount);
