@@ -81,9 +81,8 @@ public class SubContainerWorkbench extends SubContainer {
 				}
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack1);
-				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced)) {
+				if (tile != null && !stack2.isEmpty() && (stack2.getItem() instanceof ItemRecipe || stack2.getItem() instanceof ItemRecipeAdvanced))
 					stack2.setTagCompound(stack1.getTagCompound().copy());
-				}
 			}
 		}
 	}
