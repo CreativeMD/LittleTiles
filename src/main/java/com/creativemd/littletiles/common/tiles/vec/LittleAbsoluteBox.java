@@ -10,6 +10,18 @@ public class LittleAbsoluteBox {
 	public LittleGridContext context;
 	public LittleTileBox box;
 	
+	public LittleAbsoluteBox(BlockPos pos) {
+		this.pos = pos;
+		this.context = LittleGridContext.getMin();
+		this.box = new LittleTileBox(0, 0, 0, context.size, context.size, context.size);
+	}
+	
+	public LittleAbsoluteBox(BlockPos pos, LittleTileBox box, LittleGridContext context) {
+		this.pos = pos;
+		this.box = box;
+		this.context = context;
+	}
+	
 	public void convertTo(LittleGridContext to) {
 		box.convertTo(this.context, to);
 		this.context = to;
