@@ -326,7 +326,7 @@ public class LittleEvent {
 		if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver)) {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
 				PlacementMode mode = iTile.getPlacementMode(stack).place();
-				new LittleActionPlaceStack(stack, iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
+				new LittleActionPlaceStack(iTile.getLittlePreview(stack, false, PreviewRenderer.marked != null), position, PreviewRenderer.isCentered(player, iTile), PreviewRenderer.isFixed(player, iTile), mode).execute();
 				
 				PreviewRenderer.marked = null;
 			}

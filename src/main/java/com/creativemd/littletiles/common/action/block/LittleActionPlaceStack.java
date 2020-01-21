@@ -22,6 +22,7 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
@@ -41,6 +42,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -57,7 +59,9 @@ public class LittleActionPlaceStack extends LittleAction {
 	public PlacementMode mode;
 	public LittlePreviews previews;
 	
-	public LittleActionPlaceStack(ItemStack stack, LittlePreviews previews, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
+	public LittlePlaceResult placedTiles;
+	
+	public LittleActionPlaceStack(LittlePreviews previews, PositionResult position, boolean centered, boolean fixed, PlacementMode mode) {
 		super();
 		this.position = position;
 		this.centered = centered;
@@ -167,7 +171,7 @@ public class LittleActionPlaceStack extends LittleAction {
 				canTake(player, inventory, getIngredients(result.previews));
 		}
 		
-		LittlePlaceResult placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
+		placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
 		
 		if (placedTiles != null) {
 			boxes = placedTiles.placedBoxes;
@@ -435,6 +439,13 @@ public class LittleActionPlaceStack extends LittleAction {
 			}
 		}
 		return true;
+	}
+	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		if (placedTiles == null)
+			return null;
+		return new LittleActionPlaceAbsolute(placedTiles.placedPreviews.copy(), mode);
 	}
 	
 	public static class LastPlacedTile {

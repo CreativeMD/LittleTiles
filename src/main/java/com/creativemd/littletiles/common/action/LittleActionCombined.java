@@ -1,9 +1,11 @@
 package com.creativemd.littletiles.common.action;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleActionCombined extends LittleAction {
 	
@@ -75,6 +77,14 @@ public class LittleActionCombined extends LittleAction {
 			packet.readBytes(buf);
 			actions[i] = packet;
 		}
+	}
+	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		LittleAction[] newActions = new LittleAction[actions.length];
+		for (int i = 0; i < actions.length; i++)
+			newActions[i] = actions[i].flip(axis, box);
+		return new LittleActionCombined(newActions);
 	}
 	
 }

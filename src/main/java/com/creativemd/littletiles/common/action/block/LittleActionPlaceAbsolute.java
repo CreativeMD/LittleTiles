@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -25,6 +26,7 @@ import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleActionPlaceAbsolute extends LittleAction {
 	
@@ -144,6 +146,23 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		checkMode();
 	}
 	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		LittleAbsolutePreviews newPreviews = previews.copy();
+		
+		if (newPreviews.context != box.context)
+			if (newPreviews.context.size > box.context.size)
+				box.convertTo(newPreviews.context);
+			else
+				newPreviews.convertTo(box.context);
+			
+		newPreviews.flipPreviews(axis, box.getDoubledCenter(newPreviews.pos));
+		
+		newPreviews.convertToSmallest();
+		box.convertToSmallest();
+		return new LittleActionPlaceAbsolute(newPreviews, mode, toVanilla);
+	}
+	
 	public static class LittleActionPlaceAbsolutePremade extends LittleActionPlaceAbsolute {
 		
 		public LittleActionPlaceAbsolutePremade(LittleAbsolutePreviews previews, PlacementMode mode, boolean toVanilla) {
@@ -171,6 +190,22 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 			}
 		}
 		
+		@Override
+		public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+			LittleAbsolutePreviews newPreviews = previews.copy();
+			
+			if (newPreviews.context != box.context)
+				if (newPreviews.context.size > box.context.size)
+					box.convertTo(newPreviews.context);
+				else
+					newPreviews.convertTo(box.context);
+				
+			newPreviews.flipPreviews(axis, box.getDoubledCenter(newPreviews.pos));
+			
+			newPreviews.convertToSmallest();
+			box.convertToSmallest();
+			return new LittleActionPlaceAbsolutePremade(newPreviews, mode, toVanilla);
+		}
 	}
 	
 }

@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -31,6 +32,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
@@ -288,6 +290,14 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		return new LittleActionCombined(actions.toArray(new LittleAction[0]));
 	}
 	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		LittleActionColorBoxes action = new LittleActionColorBoxes();
+		action.color = color;
+		action.toVanilla = toVanilla;
+		return assignFlip(action, axis, box);
+	}
+	
 	public static class LittleActionColorBoxesFiltered extends LittleActionColorBoxes {
 		
 		public TileSelector selector;
@@ -316,6 +326,15 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		@Override
 		public boolean shouldSkipTile(LittleTile tile) {
 			return !selector.is(tile);
+		}
+		
+		@Override
+		public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+			LittleActionColorBoxesFiltered action = new LittleActionColorBoxesFiltered();
+			action.selector = selector;
+			action.color = color;
+			action.toVanilla = toVanilla;
+			return assignFlip(action, axis, box);
 		}
 	}
 }

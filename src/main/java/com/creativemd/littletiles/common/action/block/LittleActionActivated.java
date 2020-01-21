@@ -6,10 +6,12 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -68,6 +70,11 @@ public class LittleActionActivated extends LittleActionInteract {
 	@Override
 	protected boolean isRightClick() {
 		return true;
+	}
+	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		return null;
 	}
 	
 }

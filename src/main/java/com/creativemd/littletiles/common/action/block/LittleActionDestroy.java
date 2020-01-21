@@ -14,12 +14,16 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -126,6 +130,24 @@ public class LittleActionDestroy extends LittleActionInteract {
 	@Override
 	protected boolean isRightClick() {
 		return false;
+	}
+	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		LittleBoxes boxes;
+		if (structurePreview != null) {
+			boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.context);
+			boxes.add(structurePreview.previews.get(0).box);
+		} else if (destroyedTiles != null) {
+			destroyedTiles.convertToSmallest();
+			boxes = new LittleBoxes(blockPos, destroyedTiles.context);
+			for (LittleTilePreview preview : destroyedTiles)
+				boxes.add(preview.box);
+		} else
+			return null;
+		
+		boxes.flip(axis, box);
+		return new LittleActionDestroyBoxes(boxes);
 	}
 	
 	public static class StructurePreview {

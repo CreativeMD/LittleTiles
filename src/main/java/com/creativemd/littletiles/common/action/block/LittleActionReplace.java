@@ -15,7 +15,9 @@ import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -25,6 +27,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -171,4 +174,17 @@ public class LittleActionReplace extends LittleActionInteract {
 		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
 	}
 	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox absoluteBox) {
+		LittleBoxes boxes = this.boxes.copy();
+		boxes.flip(axis, absoluteBox);
+		
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
+		for (LittleTileBox box : boxes) {
+			LittleTilePreview preview = toReplace.copy();
+			preview.box = box;
+			previews.addWithoutCheckingPreview(preview);
+		}
+		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(previews, PlacementMode.normal));
+	}
 }

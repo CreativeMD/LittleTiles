@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
 public class LittleBoxes extends ArrayList<LittleTileBox> {
@@ -34,11 +35,6 @@ public class LittleBoxes extends ArrayList<LittleTileBox> {
 		box.add(new LittleTileVec(context, pos.subtract(this.pos)));
 		add(box);
 	}
-	
-	/*
-	 * public void ensureContext(LittleGridContext context) { if(context.size >
-	 * this.context.size) convertTo(context); }
-	 */
 	
 	public void convertTo(LittleGridContext to) {
 		for (LittleTileBox box : this) {
@@ -86,6 +82,21 @@ public class LittleBoxes extends ArrayList<LittleTileBox> {
 			box.split(context, pos, map);
 		}
 		return map;
+	}
+	
+	public void flip(Axis axis, LittleAbsoluteBox absoluteBox) {
+		if (this.context != absoluteBox.context)
+			if (this.context.size > absoluteBox.context.size)
+				absoluteBox.convertTo(this.context);
+			else
+				convertTo(absoluteBox.context);
+			
+		LittleTileVec center = absoluteBox.getDoubledCenter(pos);
+		for (LittleTileBox box : this)
+			box.flipBox(axis, center);
+		
+		convertToSmallest();
+		absoluteBox.convertToSmallest();
 	}
 	
 	public LittleBoxes copy() {

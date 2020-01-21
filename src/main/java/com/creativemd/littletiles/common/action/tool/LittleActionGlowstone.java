@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
@@ -14,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -74,7 +76,13 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		throw new LittleActionException.TileNotThereException();
 	}
 	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		return null;
+	}
+	
 	public static class LittleActionGlowstoneRevert extends LittleAction {
+		
 		public LittleTileIdentifierAbsolute coord;
 		
 		public LittleTile changedTile;
@@ -134,6 +142,10 @@ public class LittleActionGlowstone extends LittleActionInteract {
 			coord = readAbsoluteCoord(buf);
 		}
 		
+		@Override
+		public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+			return null;
+		}
 	}
 	
 }

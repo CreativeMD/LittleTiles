@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
@@ -187,6 +188,11 @@ public class LittleActionSaw extends LittleActionInteract {
 		context = readContext(buf);
 	}
 	
+	@Override
+	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+		return null;
+	}
+	
 	public static class LittleActionSawRevert extends LittleAction {
 		
 		public LittleTileBox oldBox;
@@ -283,6 +289,11 @@ public class LittleActionSaw extends LittleActionInteract {
 			oldBox = readLittleBox(buf);
 			facing = readFacing(buf);
 			context = readContext(buf);
+		}
+		
+		@Override
+		public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
+			return null;
 		}
 	}
 }
