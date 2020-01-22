@@ -12,7 +12,7 @@ import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
@@ -49,7 +49,7 @@ public class SubGuiWorkbench extends SubGui {
 				
 				if (!stack1.isEmpty()) {
 					if (stack1.getItem() instanceof ItemRecipe || stack1.getItem() instanceof ItemRecipeAdvanced) {
-						LittlePreviews previews = LittleTilePreview.getPreview(stack1);
+						LittlePreviews previews = LittlePreview.getPreview(stack1);
 						
 						EntityPlayer player = getPlayer();
 						LittleInventory inventory = new LittleInventory(player);

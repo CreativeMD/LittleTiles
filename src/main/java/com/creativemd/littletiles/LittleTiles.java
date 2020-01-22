@@ -114,7 +114,7 @@ import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.LittleTileTE;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.rules.IngredientRules;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -262,8 +262,8 @@ public class LittleTiles {
 		
 		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
 		
-		LittleTilePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
-		LittleTilePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
+		LittlePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
+		LittlePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
 		
 		IngredientRules.loadRules();
 		

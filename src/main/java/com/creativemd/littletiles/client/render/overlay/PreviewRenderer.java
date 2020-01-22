@@ -17,8 +17,8 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.tiles.place.FixedHandler;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
+import com.creativemd.littletiles.common.tiles.place.fixed.FixedHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -126,13 +126,13 @@ public class PreviewRenderer {
 					
 					if (result != null) {
 						processMarkKey(player, iTile, stack, result, result.isAbsolute());
-						double x = position.pos.getX() - TileEntityRendererDispatcher.staticPlayerX;
-						double y = position.pos.getY() - TileEntityRendererDispatcher.staticPlayerY;
-						double z = position.pos.getZ() - TileEntityRendererDispatcher.staticPlayerZ;
+						double x = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
+						double y = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
+						double z = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
 						
 						for (int i = 0; i < result.placePreviews.size(); i++) {
 							
-							PlacePreviewTile preview = result.placePreviews.get(i);
+							PlacePreview preview = result.placePreviews.get(i);
 							List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 							for (LittleRenderingCube cube : cubes) {
 								GL11.glPushMatrix();
@@ -279,16 +279,16 @@ public class PreviewRenderer {
 					mc.renderEngine.bindTexture(WHITE_TEXTURE);
 					GlStateManager.depthMask(false);
 					
-					double x = position.pos.getX();
-					double y = position.pos.getY();
-					double z = position.pos.getZ();
+					double x = position.getPos().getX();
+					double y = position.getPos().getY();
+					double z = position.getPos().getZ();
 					
 					d0 -= x;
 					d1 -= y;
 					d2 -= z;
 					
 					for (int i = 0; i < result.placePreviews.size(); i++) {
-						PlacePreviewTile preview = result.placePreviews.get(i);
+						PlacePreview preview = result.placePreviews.get(i);
 						List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 						for (LittleRenderingCube cube : cubes) {
 							Vec3d color = ColorUtils.IntToVec(cube.color);

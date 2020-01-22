@@ -33,13 +33,13 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierStructureAbsolute;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.vec.LittleRayTraceResult;
@@ -78,7 +78,7 @@ public class EntityAnimation extends Entity {
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LittleTileIdentifierStructureAbsolute identifier) {
+	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LittleIdentifierStructureAbsolute identifier) {
 		this(world);
 		
 		this.structureIdentifier = identifier;
@@ -203,7 +203,7 @@ public class EntityAnimation extends Entity {
 				((ChildVecOrigin) ((EntityAnimation) entity).origin).parent = this.origin;
 	}
 	
-	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
+	public void setCenterVec(LittleAbsoluteVec axis, LittleVec additional) {
 		setCenter(new StructureAbsolute(axis, additional));
 	}
 	
@@ -218,7 +218,7 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public LittleStructure structure;
-	public LittleTileIdentifierStructureAbsolute structureIdentifier;
+	public LittleIdentifierStructureAbsolute structureIdentifier;
 	public StructureAbsolute center;
 	public BlockPos absolutePreviewPos;
 	
@@ -267,8 +267,8 @@ public class EntityAnimation extends Entity {
 				ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 				
 				for (LittleTile tile : te) {
-					List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
-					for (LittleTileBox box : tileBoxes) {
+					List<LittleBox> tileBoxes = tile.getCollisionBoxes();
+					for (LittleBox box : tileBoxes) {
 						boxes.add(box.getBox(te.getContext(), te.getPos()));
 					}
 				}
@@ -819,8 +819,8 @@ public class EntityAnimation extends Entity {
 		if (world.isRemote)
 			getRenderChunkSuppilier().unloadRenderCache();
 		
-		List<PlacePreviewTile> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 		
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		
@@ -884,7 +884,7 @@ public class EntityAnimation extends Entity {
 		fakeWorld.preventNeighborUpdate = true;
 		
 		if (compound.hasKey("axis"))
-			setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
+			setCenterVec(new LittleAbsoluteVec("axis", compound), new LittleVec("additional", compound));
 		else
 			setCenter(new StructureAbsolute("center", compound));
 		NBTTagList list = compound.getTagList("tileEntity", 10);
@@ -907,7 +907,7 @@ public class EntityAnimation extends Entity {
 			absolutePreviewPos = center.baseOffset;
 		
 		if (compound.hasKey("identifier")) {
-			structureIdentifier = new LittleTileIdentifierStructureAbsolute(compound.getCompoundTag("identifier"));
+			structureIdentifier = new LittleIdentifierStructureAbsolute(compound.getCompoundTag("identifier"));
 			try {
 				this.structure = LittleAction.getTile(fakeWorld, structureIdentifier).connection.getStructureWithoutLoading();
 			} catch (LittleActionException e) {

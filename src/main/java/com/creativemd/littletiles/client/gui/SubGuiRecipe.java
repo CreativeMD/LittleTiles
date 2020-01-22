@@ -26,7 +26,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -58,7 +58,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		craftables = new PairList<>(LittleStructureRegistry.getCraftables());
 		craftables.add(0, new Pair<String, PairList<String, Class<? extends LittleStructureGuiParser>>>("", noneCategory));
 		
-		previews = LittleTilePreview.getPreview(stack);
+		previews = LittlePreview.getPreview(stack);
 		
 		hierarchy = new ArrayList<>();
 		hierarchyStacks = new ArrayList<>();
@@ -78,7 +78,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
-		for (LittleTilePreview preview : previews) {
+		for (LittlePreview preview : previews) {
 			
 			newPreviews.addWithoutCheckingPreview(preview.copy());
 			minX = Math.min(minX, preview.box.minX);
@@ -89,10 +89,10 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 			minZ = Math.min(minZ, preview.box.maxZ);
 		}
 		
-		for (LittleTilePreview preview : newPreviews) {
+		for (LittlePreview preview : newPreviews) {
 			preview.box.sub(minX, minY, minZ);
 		}
-		LittleTilePreview.savePreview(newPreviews, stack);
+		LittlePreview.savePreview(newPreviews, stack);
 		stacks.add(stack);
 		holder.explicit = stack;
 		hierarchy.add(holder);
@@ -186,7 +186,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 				finializePreview(previews);
 				
 				stack.setTagCompound(new NBTTagCompound());
-				LittleTilePreview.savePreview(previews, stack);
+				LittlePreview.savePreview(previews, stack);
 				
 				NBTTagCompound nbt = new NBTTagCompound();
 				nbt.setBoolean("set_structure", true);

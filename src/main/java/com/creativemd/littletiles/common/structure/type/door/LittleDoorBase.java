@@ -42,11 +42,11 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
@@ -182,11 +182,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		LittleTransformation[] transformations = getDoorTransformations(player); // Only done if the door is placed down
 		for (LittleTransformation transformation : transformations) {
-			List<PlacePreviewTile> placePreviews = new ArrayList<>();
+			List<PlacePreview> placePreviews = new ArrayList<>();
 			
 			LittleAbsolutePreviewsStructure previews = getDoorPreviews(transformation);
 			
-			previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+			previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 			
 			HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 			if (LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this), true)) {
@@ -204,8 +204,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	public EntityAnimation place(World world, @Nullable EntityPlayer player, LittleAbsolutePreviewsStructure previews, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) {
-		List<PlacePreviewTile> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 		
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
@@ -258,11 +258,11 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		else
 			transform = getDoorTransformations(player)[0];
 		
-		List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		List<PlacePreview> placePreviews = new ArrayList<>();
 		
 		LittleAbsolutePreviewsStructure previews = getDoorPreviews(transform);
 		
-		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 		
 		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
 		return LittleActionPlaceStack.canPlaceTiles(player, getWorld(), splitted, PlacementMode.all.getCoordsToCheck(splitted, previews.pos), PlacementMode.all, (LittleTile x) -> !x.isChildOfStructure(this), true);

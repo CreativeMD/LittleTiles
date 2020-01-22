@@ -9,11 +9,10 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,24 +28,24 @@ public class DragShapeCylinder extends DragShape {
 	}
 	
 	@Override
-	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
-		LittleTileBox box = new LittleTileBox(min, max);
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
+		LittleBox box = new LittleBox(min, max);
 		
 		boolean hollow = nbt.getBoolean("hollow");
 		
 		int direction = nbt.getInteger("direction");
 		
-		LittleTileSize size = box.getSize();
+		LittleVec size = box.getSize();
 		
-		int sizeA = size.sizeX;
-		int sizeB = size.sizeZ;
+		int sizeA = size.x;
+		int sizeB = size.z;
 		
 		if (direction == 1) {
-			sizeA = size.sizeY;
-			sizeB = size.sizeZ;
+			sizeA = size.y;
+			sizeB = size.z;
 		} else if (direction == 2) {
-			sizeA = size.sizeX;
-			sizeB = size.sizeY;
+			sizeA = size.x;
+			sizeB = size.y;
 		}
 		
 		double a = Math.pow(Math.max(1, sizeA / 2), 2);
@@ -95,16 +94,16 @@ public class DragShapeCylinder extends DragShape {
 					double valueA2 = Math.pow(posA, 2) / a2;
 					double valueB2 = Math.pow(posB, 2) / b2;
 					if (!hollow || valueA2 + valueB2 > 1) {
-						LittleTileBox toAdd = null;
+						LittleBox toAdd = null;
 						switch (direction) {
 						case 0:
-							toAdd = new LittleTileBox(min.x + incA, min.y, min.z + incB, min.x + incA + 1, max.y, min.z + incB + 1);
+							toAdd = new LittleBox(min.x + incA, min.y, min.z + incB, min.x + incA + 1, max.y, min.z + incB + 1);
 							break;
 						case 1:
-							toAdd = new LittleTileBox(min.x, min.y + incA, min.z + incB, max.x, min.y + incA + 1, min.z + incB + 1);
+							toAdd = new LittleBox(min.x, min.y + incA, min.z + incB, max.x, min.y + incA + 1, min.z + incB + 1);
 							break;
 						case 2:
-							toAdd = new LittleTileBox(min.x + incA, min.y + incB, min.z, min.x + incA + 1, min.y + incB + 1, max.z);
+							toAdd = new LittleBox(min.x + incA, min.y + incB, min.z, min.x + incA + 1, min.y + incB + 1, max.z);
 							break;
 						}
 						boxes.add(toAdd);
@@ -113,7 +112,7 @@ public class DragShapeCylinder extends DragShape {
 			}
 		}
 		
-		LittleTileBox.combineBoxesBlocks(boxes);
+		LittleBox.combineBoxesBlocks(boxes);
 		
 		return boxes;
 	}

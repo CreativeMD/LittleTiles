@@ -14,8 +14,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -329,7 +329,7 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@Override
-	public List<LittleTileBox> getCollisionBoxes() {
+	public List<LittleBox> getCollisionBoxes() {
 		if (hasSpecialBlockHandler())
 			return handler.getCollisionBoxes(this, super.getCollisionBoxes());
 		return super.getCollisionBoxes();
@@ -352,9 +352,9 @@ public class LittleTileBlock extends LittleTile {
 	}
 	
 	@Override
-	public LittleTilePreview getPreviewTile() {
+	public LittlePreview getPreviewTile() {
 		if (hasSpecialBlockHandler()) {
-			LittleTilePreview preview = handler.getPreview(this);
+			LittlePreview preview = handler.getPreview(this);
 			if (preview != null)
 				return preview;
 		}

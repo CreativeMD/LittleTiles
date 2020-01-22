@@ -10,10 +10,9 @@ import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -42,7 +41,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return LittleTilePreview.getCubes(stack);
+		return LittlePreview.getCubes(stack);
 	}
 	
 	@Override
@@ -77,12 +76,12 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
-		return LittleTilePreview.getPreview(stack, false);
+		return LittlePreview.getPreview(stack, false);
 	}
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreview(previews, stack);
+		LittlePreview.savePreview(previews, stack);
 	}
 	
 	@Override
@@ -103,15 +102,15 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	}
 	
 	@Override
-	public LittleTileSize getCachedSize(ItemStack stack) {
+	public LittleVec getCachedSize(ItemStack stack) {
 		if (stack.getTagCompound().hasKey("size"))
-			return LittleTilePreview.getSize(stack);
+			return LittlePreview.getSize(stack);
 		return null;
 	}
 	
 	@Override
-	public LittleTileVec getCachedOffset(ItemStack stack) {
-		return LittleTilePreview.getOffset(stack);
+	public LittleVec getCachedOffset(ItemStack stack) {
+		return LittlePreview.getOffset(stack);
 	}
 	
 	public static String getPremadeID(ItemStack stack) {

@@ -33,9 +33,9 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -291,9 +291,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
 			for (LittleTile tile : te) {
 				if (tile.isLadder()) {
-					List<LittleTileBox> collision = tile.getCollisionBoxes();
+					List<LittleBox> collision = tile.getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
-						LittleTileBox box = collision.get(j).copy();
+						LittleBox box = collision.get(j).copy();
 						if (bb.intersects(box.getBox(te.getContext(), te.getPos())))
 							return true;
 					}
@@ -372,7 +372,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if (te != null) {
 			for (LittleTile tile : te) {
-				List<LittleTileBox> boxes = tile.getCollisionBoxes();
+				List<LittleBox> boxes = tile.getCollisionBoxes();
 				for (int i = 0; i < boxes.size(); i++) {
 					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
 				}
@@ -425,7 +425,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
 			for (LittleTile tile : te) {
-				for (LittleTileBox box : tile.getCollisionBoxes()) {
+				for (LittleBox box : tile.getCollisionBoxes()) {
 					if (box.getBox(te.getContext(), pos).intersects(bb)) {
 						slipperiness = Math.min(slipperiness, tile.getSlipperiness(entity));
 						found = true;
@@ -540,7 +540,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (result.isComplete()) {
 			if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(player))) {
 				ItemStack drop = new ItemStack(LittleTiles.multiTiles);
-				LittleTilePreview.saveTiles(world, result.te.getContext(), result.te, drop);
+				LittlePreview.saveTiles(world, result.te.getContext(), result.te, drop);
 				return drop;
 			}
 			ArrayList<ItemStack> drops = result.tile.getDrops();
@@ -558,7 +558,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int heighest = 0;
 			LittleTile heighestTile = null;
 			for (LittleTile tile : te) {
-				List<LittleTileBox> collision = tile.getCollisionBoxes();
+				List<LittleBox> collision = tile.getCollisionBoxes();
 				for (int i = 0; i < collision.size(); i++) {
 					if (collision.get(i).maxY > heighest) {
 						heighest = collision.get(i).maxY;
@@ -580,7 +580,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int heighest = 0;
 			LittleTile heighestTile = null;
 			for (LittleTile tile : te) {
-				List<LittleTileBox> collision = tile.getCollisionBoxes();
+				List<LittleBox> collision = tile.getCollisionBoxes();
 				for (int i = 0; i < collision.size(); i++) {
 					if (collision.get(i).maxY > heighest) {
 						heighest = collision.get(i).maxY;
@@ -687,7 +687,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				int heighest = 0;
 				LittleTile heighestTile = null;
 				for (LittleTile tile : te) {
-					List<LittleTileBox> collision = tile.getCollisionBoxes();
+					List<LittleBox> collision = tile.getCollisionBoxes();
 					for (int i = 0; i < collision.size(); i++) {
 						if (collision.get(i).maxY > heighest) {
 							heighest = collision.get(i).maxY;

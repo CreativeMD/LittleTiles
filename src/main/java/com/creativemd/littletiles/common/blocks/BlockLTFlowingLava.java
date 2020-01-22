@@ -8,9 +8,9 @@ import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTColored.EnumType;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -131,7 +131,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, LittleTileBlock tile, BlockPos pos, IBlockState state, Entity entityIn) {
 		AxisAlignedBB box = entityIn.getEntityBoundingBox();
-		LittleTileVec center = new LittleTileVec(tile.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos())));
+		LittleVec center = new LittleVec(tile.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos())));
 		
 		if (tile.box.isVecInsideBox(center.x, center.y, center.z)) {
 			double scale = 0.05;
@@ -169,7 +169,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	}
 	
 	@Override
-	public LittleTilePreview getPreview(LittleTileBlock tile) {
+	public LittlePreview getPreview(LittleTileBlock tile) {
 		NBTTagCompound nbt = new NBTTagCompound();
 		tile.saveTileExtra(nbt);
 		nbt.setString("tID", tile.getID());
@@ -201,25 +201,25 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	}
 	
 	@Override
-	public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
+	public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
 		preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
 	}
 	
 	@Override
-	public void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
+	public void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
 		EnumFacing facing = EnumFacing.getFront(preview.getMeta());
 		if (facing.getAxis() == axis)
 			facing = facing.getOpposite();
 		preview.getTileData().setInteger("meta", facing.ordinal());
 	}
 	
-	public static class LittleFlowingLavaPreview extends LittleTilePreview {
+	public static class LittleFlowingLavaPreview extends LittlePreview {
 		
 		public LittleFlowingLavaPreview(NBTTagCompound nbt) {
 			super(nbt);
 		}
 		
-		public LittleFlowingLavaPreview(LittleTileBox box, NBTTagCompound tileData) {
+		public LittleFlowingLavaPreview(LittleBox box, NBTTagCompound tileData) {
 			super(box, tileData);
 		}
 	}

@@ -20,9 +20,8 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -40,8 +39,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	
 	public EntityAnimation animation;
 	public LittleGridContext context;
-	public LittleTileSize size;
-	public LittleTileVec min;
+	public LittleVec size;
+	public LittleVec min;
 	
 	public SmoothValue scale = new SmoothValue(200, 40);
 	public SmoothValue offsetX = new SmoothValue(100);
@@ -63,11 +62,11 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	public SmoothValue rotY = new SmoothValue(400);
 	public SmoothValue rotZ = new SmoothValue(400);
 	
-	private LittleTileBox box;
+	private LittleBox box;
 	private LittleGridContext axisContext;
 	private boolean even;
 	
-	public LittleTileBox getBox() {
+	public LittleBox getBox() {
 		return box;
 	}
 	
@@ -75,7 +74,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		return axisContext;
 	}
 	
-	public void setAxis(LittleTileBox box, LittleGridContext context) {
+	public void setAxis(LittleBox box, LittleGridContext context) {
 		this.box = box.copy();
 		this.axisContext = context;
 		raiseEvent(new GuiTileViewerAxisChangedEvent(this));

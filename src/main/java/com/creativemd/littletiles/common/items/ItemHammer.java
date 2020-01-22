@@ -16,8 +16,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes.L
 import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
@@ -81,7 +81,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 	}
 	
 	@Override
-	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
+	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
 		return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
@@ -89,7 +89,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
+	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if (shape.leftClick(player, stack.getTagCompound(), result, getContext(stack)))
 			if (isFiltered())
@@ -115,7 +115,7 @@ public class ItemHammer extends Item implements IBoxSelector {
 	}
 	
 	@Override
-	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit) {
+	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		return LittleAction.isBlockValid(state) || world.getTileEntity(result.getBlockPos()) instanceof TileEntityLittleTiles;
 	}
 	

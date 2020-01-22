@@ -12,12 +12,12 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -31,7 +31,7 @@ public class AnimationPreview {
 	
 	public final EntityAnimation animation;
 	public final LittlePreviews previews;
-	public final LittleTileBox entireBox;
+	public final LittleBox entireBox;
 	public final LittleGridContext context;
 	public final AxisAlignedBB box;
 	
@@ -49,8 +49,8 @@ public class AnimationPreview {
 			previews = newPreviews;
 		}
 		
-		List<PlacePreviewTile> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 		
 		previews.deleteCachedStructure();
 		

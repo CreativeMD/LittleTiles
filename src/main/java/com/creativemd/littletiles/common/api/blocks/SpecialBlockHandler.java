@@ -15,9 +15,8 @@ import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
@@ -105,8 +104,8 @@ public class SpecialBlockHandler {
 			
 			public void explodeTile(LittleTileBlock tile, EntityLivingBase entity, boolean randomFuse) {
 				BlockPos pos = tile.te.getPos();
-				LittleTileSize size = tile.box.getSize();
-				LittleTileVec min = tile.box.getMinVec();
+				LittleVec size = tile.box.getSize();
+				LittleVec min = tile.box.getMinVec();
 				EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), pos.getX() + min.getPosX(tile.getContext()) + size.getPosX(tile.getContext()) / 2, pos.getY() + min.getPosY(tile.getContext()) + size.getPosY(tile.getContext()) / 2, pos.getZ() + min.getPosZ(tile.getContext()) + size.getPosZ(tile.getContext()) / 2, entity, tile.getContext(), size);
 				if (randomFuse)
 					entitytntprimed.setFuse((short) (tile.te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
@@ -159,7 +158,7 @@ public class SpecialBlockHandler {
 			}
 			
 			@Override
-			public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
+			public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
 				IBlockState state = BlockUtils.getState(preview.getBlock(), preview.getMeta());
 				Axis axis = logAxisToNormal(state.getValue(BlockLog.LOG_AXIS));
 				if (axis != null)
@@ -171,7 +170,7 @@ public class SpecialBlockHandler {
 		SpecialBlockHandler.registerSpecialHandler(new BlockSelectorAnd(new BlockSelectorClass(BlockRotatedPillar.class), new BlockSelectorProperty(BlockRotatedPillar.AXIS)), new ISpecialBlockHandler() {
 			
 			@Override
-			public void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
+			public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
 				preview.getTileData().setInteger("meta", RotationUtils.rotate(BlockUtils.getState(preview.getBlock(), preview.getMeta()).getValue(BlockRotatedPillar.AXIS), rotation).ordinal());
 			}
 			

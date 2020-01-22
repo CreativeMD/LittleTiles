@@ -5,7 +5,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierStructureAbsolute;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,7 +14,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 
-public abstract class StructureLinkBaseAbsolute<T> extends LittleTileIdentifierStructureAbsolute implements IStructureConnector<T> {
+public abstract class StructureLinkBaseAbsolute<T> extends LittleIdentifierStructureAbsolute implements IStructureConnector<T> {
 	
 	protected LittleStructure connectedStructure;
 	protected final T parent;

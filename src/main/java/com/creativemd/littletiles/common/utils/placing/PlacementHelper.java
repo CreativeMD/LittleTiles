@@ -11,15 +11,14 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.place.FixedHandler;
-import com.creativemd.littletiles.common.tiles.place.InsideFixedHandler;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
+import com.creativemd.littletiles.common.tiles.place.fixed.FixedHandler;
+import com.creativemd.littletiles.common.tiles.place.fixed.InsideFixedHandler;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
@@ -39,7 +38,7 @@ import net.minecraft.world.World;
  * preview and placing **/
 public class PlacementHelper {
 	
-	public static class PositionResult extends LittleTilePos {
+	public static class PositionResult extends LittleAbsoluteVec {
 		
 		public EnumFacing facing;
 		
@@ -47,7 +46,7 @@ public class PlacementHelper {
 			super((BlockPos) null, (LittleGridContext) null);
 		}
 		
-		public PositionResult(BlockPos pos, LittleGridContext context, LittleTileVec vec, EnumFacing facing) {
+		public PositionResult(BlockPos pos, LittleGridContext context, LittleVec vec, EnumFacing facing) {
 			super(pos, context, vec);
 			this.facing = facing;
 		}
@@ -60,9 +59,9 @@ public class PlacementHelper {
 			return result;
 		}
 		
-		public void assign(LittleTilePos pos) {
-			this.pos = pos.pos;
-			this.contextVec = pos.contextVec;
+		public void assign(LittleAbsoluteVec pos) {
+			this.pos = pos.getPos();
+			this.contextVec = pos.getVecContext();
 		}
 		
 		public AxisAlignedBB getBox() {
@@ -72,13 +71,13 @@ public class PlacementHelper {
 			return new AxisAlignedBB(x, y, z, x + getContext().pixelSize, y + getContext().pixelSize, z + getContext().pixelSize);
 		}
 		
-		public void subVec(LittleTileVec vec) {
-			contextVec.vec.add(vec);
+		public void subVec(LittleVec vec) {
+			contextVec.getVec().add(vec);
 			removeInternalBlockOffset();
 		}
 		
-		public void addVec(LittleTileVec vec) {
-			contextVec.vec.sub(vec);
+		public void addVec(LittleVec vec) {
+			contextVec.getVec().sub(vec);
 			removeInternalBlockOffset();
 		}
 		
@@ -88,6 +87,7 @@ public class PlacementHelper {
 			CreativeCorePacket.writeFacing(buf, facing);
 		}
 		
+		@Override
 		public PositionResult copy() {
 			PositionResult result = new PositionResult();
 			result.facing = facing;
@@ -99,14 +99,14 @@ public class PlacementHelper {
 	
 	public static class PreviewResult {
 		
-		public List<PlacePreviewTile> placePreviews = new ArrayList<>();
+		public List<PlacePreview> placePreviews = new ArrayList<>();
 		public LittlePreviews previews = null;
 		public LittleGridContext context;
-		public LittleTileBox box;
-		public LittleTileSize size;
+		public LittleBox box;
+		public LittleVec size;
 		public boolean singleMode = false;
 		public boolean placedFixed = false;
-		public LittleTilePos offset;
+		public LittleAbsoluteVec offset;
 		
 		public boolean isAbsolute() {
 			return previews.isAbsolute();
@@ -134,8 +134,8 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public static LittleTileVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, LittleGridContext original) {
-		LittleTileVec offset = iTile.getCachedOffset(stack);
+	public static LittleVec getInternalOffset(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, LittleGridContext original) {
+		LittleVec offset = iTile.getCachedOffset(stack);
 		if (offset != null) {
 			if (tiles.context != original)
 				offset.convertTo(original, tiles.context);
@@ -144,18 +144,18 @@ public class PlacementHelper {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
-		for (LittleTilePreview preview : tiles.allPreviews()) {
+		for (LittlePreview preview : tiles.allPreviews()) {
 			if (preview.box != null) {
 				minX = Math.min(minX, preview.box.minX);
 				minY = Math.min(minY, preview.box.minY);
 				minZ = Math.min(minZ, preview.box.minZ);
 			}
 		}
-		return new LittleTileVec(minX, minY, minZ);
+		return new LittleVec(minX, minY, minZ);
 	}
 	
-	public static LittleTileSize getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution, LittleGridContext original) {
-		LittleTileSize cached = iTile.getCachedSize(stack);
+	public static LittleVec getSize(ILittleTile iTile, ItemStack stack, LittlePreviews tiles, boolean allowLowResolution, LittleGridContext original) {
+		LittleVec cached = iTile.getCachedSize(stack);
 		if (cached != null) {
 			if (tiles.context != original)
 				cached.convertTo(original, tiles.context);
@@ -167,8 +167,8 @@ public class PlacementHelper {
 		int maxX = Integer.MIN_VALUE;
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
-		LittleTileSize size = new LittleTileSize(0, 0, 0);
-		for (LittleTilePreview preview : tiles.allPreviews()) {
+		LittleVec size = new LittleVec(0, 0, 0);
+		for (LittlePreview preview : tiles.allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
@@ -176,7 +176,7 @@ public class PlacementHelper {
 			maxY = Math.max(maxY, preview.box.maxY);
 			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
-		return new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ).max(size);
+		return new LittleVec(maxX - minX, maxY - minY, maxZ - minZ).max(size);
 	}
 	
 	public static void removeCache() {
@@ -226,7 +226,7 @@ public class PlacementHelper {
 		
 		result.facing = moving.sideHit;
 		result.assign(getHitVec(moving, context, canBePlacedInsideBlock));
-		result.pos = new BlockPos(x, y, z);
+		result.setPos(new BlockPos(x, y, z));
 		
 		return result;
 	}
@@ -278,7 +278,7 @@ public class PlacementHelper {
 				result.previews = tiles;
 				result.singleMode = false;
 				result.placedFixed = false;
-				result.offset = new LittleTilePos(tiles.getBlockPos(), result.context, LittleTileVec.ZERO);
+				result.offset = new LittleAbsoluteVec(tiles.getBlockPos(), result.context, LittleVec.ZERO);
 				position.assign(result.offset);
 				result.placePreviews = new ArrayList<>();
 				tiles.getPlacePreviews(result.placePreviews, null, true, null);
@@ -288,7 +288,7 @@ public class PlacementHelper {
 			
 			if (tiles.hasStructure()) {
 				LittleGridContext structureContext = tiles.getMinContext();
-				if (structureContext.size > position.contextVec.context.size)
+				if (structureContext.size > position.getContext().size)
 					position.convertTo(structureContext);
 			}
 			
@@ -318,14 +318,14 @@ public class PlacementHelper {
 			
 			if (fixed) {
 				if (!result.singleMode) {
-					Block block = world.getBlockState(position.pos).getBlock();
-					if (block.isReplaceable(world, position.pos) || block instanceof BlockTile) {
+					Block block = world.getBlockState(position.getPos()).getBlock();
+					if (block.isReplaceable(world, position.getPos()) || block instanceof BlockTile) {
 						canBePlaceFixed = true;
 						if (!mode.placeInside) {
-							TileEntity te = world.getTileEntity(position.pos);
+							TileEntity te = world.getTileEntity(position.getPos());
 							if (te instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
-								for (LittleTilePreview preview : tiles.allPreviews()) {
+								for (LittlePreview preview : tiles.allPreviews()) {
 									if (!teTiles.isSpaceForLittleTile(preview.box)) {
 										canBePlaceFixed = false;
 										break;
@@ -338,7 +338,7 @@ public class PlacementHelper {
 				
 				if (!canBePlaceFixed) {
 					for (int i = 0; i < shifthandlers.size(); i++) {
-						shifthandlers.get(i).init(world, position.pos);
+						shifthandlers.get(i).init(world, position.getPos());
 					}
 					
 					FixedHandler handler = null;
@@ -352,36 +352,36 @@ public class PlacementHelper {
 					}
 					
 					if (handler != null)
-						result.box = handler.getNewPosition(world, position.pos, context, result.box);
+						result.box = handler.getNewPosition(world, position.getPos(), context, result.box);
 				}
 			}
 			
-			LittleTilePos offset = new LittleTilePos(position.pos, context, result.box.getMinVec());
-			LittleTileVec internalOffset = getInternalOffset(iTile, stack, tiles, original);
+			LittleAbsoluteVec offset = new LittleAbsoluteVec(position.getPos(), context, result.box.getMinVec());
+			LittleVec internalOffset = getInternalOffset(iTile, stack, tiles, original);
 			internalOffset.invert();
-			offset.contextVec.vec.add(internalOffset);
+			offset.getVec().add(internalOffset);
 			
 			result.offset = offset;
 			
 			result.placedFixed = canBePlaceFixed;
 			
 			if ((canBePlaceFixed || (fixed && result.singleMode)) && mode.placeInside)
-				if (position.contextVec.vec.get(position.facing.getAxis()) % context.size == 0)
-					offset.contextVec.vec.add(position.facing.getOpposite());
+				if (position.getVec().get(position.facing.getAxis()) % context.size == 0)
+					offset.getVec().add(position.facing.getOpposite());
 				
 			// Generating placetiles
-			tiles.getPlacePreviews(result.placePreviews, result.box, canBePlaceFixed, offset.contextVec.vec);
+			tiles.getPlacePreviews(result.placePreviews, result.box, canBePlaceFixed, offset.getVec());
 			return result;
 		}
 		
 		return null;
 	}
 	
-	public static LittleTileBox getTilesBox(LittleTilePos pos, LittleTileSize size, boolean centered, @Nullable EnumFacing facing, PlacementMode mode) {
-		LittleTileVec temp = pos.contextVec.vec.copy();
+	public static LittleBox getTilesBox(LittleAbsoluteVec pos, LittleVec size, boolean centered, @Nullable EnumFacing facing, PlacementMode mode) {
+		LittleVec temp = pos.getVec().copy();
 		if (centered) {
-			LittleTileVec center = size.calculateCenter();
-			LittleTileVec centerInv = size.calculateInvertedCenter();
+			LittleVec center = size.calculateCenter();
+			LittleVec centerInv = size.calculateInvertedCenter();
 			
 			if (mode.placeInside)
 				facing = facing.getOpposite();
@@ -410,7 +410,7 @@ public class PlacementHelper {
 				break;
 			}
 		}
-		return new LittleTileBox(temp, size);
+		return new LittleBox(temp, size);
 	}
 	
 	public static boolean canBlockBeUsed(World world, BlockPos pos) {
@@ -439,11 +439,11 @@ public class PlacementHelper {
 		return false;
 	}
 	
-	public static LittleTilePos getHitVec(RayTraceResult result, LittleGridContext context, boolean isInsideOfBlock) {
-		LittleTilePos pos = new LittleTilePos(result, context);
+	public static LittleAbsoluteVec getHitVec(RayTraceResult result, LittleGridContext context, boolean isInsideOfBlock) {
+		LittleAbsoluteVec pos = new LittleAbsoluteVec(result, context);
 		
 		if (!isInsideOfBlock)
-			pos.contextVec.vec.set(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.size);
+			pos.getVec().set(result.sideHit.getAxis(), result.sideHit.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.size);
 		
 		return pos;
 	}

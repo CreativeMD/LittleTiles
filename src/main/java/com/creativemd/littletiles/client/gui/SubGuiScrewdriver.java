@@ -23,9 +23,9 @@ import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 import com.creativemd.littletiles.common.utils.selection.selector.AndSelector;
@@ -169,7 +169,7 @@ public class SubGuiScrewdriver extends SubGui {
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));
 					LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
-					for (LittleTileBox box : boxes) {
+					for (LittleBox box : boxes) {
 						LittleTileBlock tile = new LittleTileBlock(replacementBlock, stackReplace.getMetadata());
 						tile.box = box;
 						previews.addPreview(pos, tile.getPreviewTile(), boxes.context);

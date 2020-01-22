@@ -1,12 +1,11 @@
-package com.creativemd.littletiles.common.tiles.vec.advanced;
+package com.creativemd.littletiles.common.tiles.math.box;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 
-public class LittleTileCylinder extends LittleTileBox {
+public class LittleTileCylinder extends LittleBox {
 	
 	/** relative to min vec It is two times larger than ordinary grid to support in
 	 * between positions. In order to get the right position it has to be divided by
@@ -29,7 +28,7 @@ public class LittleTileCylinder extends LittleTileBox {
 		this.radius = radius;
 	}
 	
-	public LittleTileCylinder(LittleTileBox box, Axis axis, int centerOne, int centerTwo, int radius) {
+	public LittleTileCylinder(LittleBox box, Axis axis, int centerOne, int centerTwo, int radius) {
 		this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, axis, centerOne, centerTwo, radius);
 	}
 	

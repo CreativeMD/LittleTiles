@@ -18,11 +18,11 @@ import com.creativemd.littletiles.common.api.blocks.SpecialBlockHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
-import com.creativemd.littletiles.common.tiles.place.FixedHandler;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.old.LittleSize;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
+import com.creativemd.littletiles.common.tiles.place.fixed.FixedHandler;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
@@ -39,27 +39,27 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTilePreview implements ICombinable {
+public class LittlePreview implements ICombinable {
 	
 	// ================Type ID================
 	
-	private static HashMap<String, Class<? extends LittleTilePreview>> previewTypes = new HashMap<>();
+	private static HashMap<String, Class<? extends LittlePreview>> previewTypes = new HashMap<>();
 	
-	public static void registerPreviewType(String id, Class<? extends LittleTilePreview> type) {
+	public static void registerPreviewType(String id, Class<? extends LittlePreview> type) {
 		previewTypes.put(id, type);
 	}
 	
 	public String getTypeID() {
 		if (!isCustomPreview())
 			return "";
-		for (Entry<String, Class<? extends LittleTilePreview>> type : previewTypes.entrySet())
+		for (Entry<String, Class<? extends LittlePreview>> type : previewTypes.entrySet())
 			if (type.getValue() == this.getClass())
 				return type.getKey();
 		return "";
 	}
 	
 	public boolean isCustomPreview() {
-		return this.getClass() != LittleTilePreview.class;
+		return this.getClass() != LittlePreview.class;
 	}
 	
 	// ================Data================
@@ -68,21 +68,21 @@ public class LittleTilePreview implements ICombinable {
 	
 	protected NBTTagCompound tileData;
 	
-	public LittleTileBox box;
+	public LittleBox box;
 	
 	public List<FixedHandler> fixedhandlers = new ArrayList<FixedHandler>();
 	
 	// ================Constructors================
 	
 	/** This constructor needs to be implemented in every subclass **/
-	public LittleTilePreview(NBTTagCompound nbt) {
+	public LittlePreview(NBTTagCompound nbt) {
 		if (nbt.hasKey("bBoxminX") || nbt.hasKey("bBox")) {
-			box = LittleTileBox.loadBox("bBox", nbt);
+			box = LittleBox.loadBox("bBox", nbt);
 		} else if (nbt.hasKey("sizex") || nbt.hasKey("size")) {
-			LittleTileSize size = new LittleTileSize("size", nbt);
-			box = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
+			LittleVec size = LittleSize.loadSize("size", nbt);
+			box = new LittleBox(0, 0, 0, size.x, size.y, size.z);
 		} else
-			box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+			box = new LittleBox(0, 0, 0, 1, 1, 1);
 		
 		if (nbt.hasKey("tile")) // new way
 			tileData = nbt.getCompoundTag("tile");
@@ -93,7 +93,7 @@ public class LittleTilePreview implements ICombinable {
 		}
 	}
 	
-	public LittleTilePreview(LittleTileBox box, NBTTagCompound tileData) {
+	public LittlePreview(LittleBox box, NBTTagCompound tileData) {
 		this.box = box;
 		this.tileData = tileData;
 	}
@@ -194,17 +194,17 @@ public class LittleTilePreview implements ICombinable {
 		box.convertTo(from, to);
 	}
 	
-	public boolean canBeCombined(LittleTilePreview preview) {
+	public boolean canBeCombined(LittlePreview preview) {
 		return tileData.equals(preview.getTileData());
 	}
 	
 	@Override
-	public LittleTileBox getBox() {
+	public LittleBox getBox() {
 		return box;
 	}
 	
 	@Override
-	public void setBox(LittleTileBox box) {
+	public void setBox(LittleBox box) {
 		this.box = box;
 	}
 	
@@ -215,7 +215,7 @@ public class LittleTilePreview implements ICombinable {
 	
 	@Override
 	public boolean canCombine(ICombinable combinable) {
-		return canBeCombined((LittleTilePreview) combinable);
+		return canBeCombined((LittlePreview) combinable);
 	}
 	
 	@Override
@@ -224,21 +224,21 @@ public class LittleTilePreview implements ICombinable {
 	}
 	
 	@Override
-	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+	public boolean fillInSpace(LittleBox otherBox, boolean[][][] filled) {
 		return this.box.fillInSpace(otherBox, filled);
 	}
 	
 	// ================Copy================
 	
 	@Override
-	public LittleTilePreview copy() {
+	public LittlePreview copy() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		this.writeToNBT(nbt);
-		LittleTilePreview preview = loadPreviewFromNBT(nbt);
+		LittlePreview preview = loadPreviewFromNBT(nbt);
 		
 		if (preview == null) {
 			// if(this.box != null)
-			preview = new LittleTilePreview(box.copy(), tileData.copy()); // Maybe causes some crashes.
+			preview = new LittlePreview(box.copy(), tileData.copy()); // Maybe causes some crashes.
 			// else
 			// preview = new LittleTilePreview(size != null ? size.copy() : null,
 			// tileData.copy());
@@ -266,34 +266,34 @@ public class LittleTilePreview implements ICombinable {
 		return LittleTile.CreateandLoadTile(te, te.getWorld(), tileData);
 	}
 	
-	public PlacePreviewTile getPlaceableTile(LittleTileBox overallBox, boolean fixed, LittleTileVec offset, LittlePreviews previews) {
-		LittleTileBox newBox = this.box.copy();
+	public PlacePreview getPlaceableTile(LittleBox overallBox, boolean fixed, LittleVec offset, LittlePreviews previews) {
+		LittleBox newBox = this.box.copy();
 		if (!fixed)
 			newBox.add(offset);
-		return new PlacePreviewTile(newBox, this, previews);
+		return new PlacePreview(newBox, this, previews);
 	}
 	
 	// ================Rotating/Flipping================
 	
-	public void flipPreview(Axis axis, LittleTileVec doubledCenter) {
+	public void flipPreview(Axis axis, LittleVec doubledCenter) {
 		box.flipBox(axis, doubledCenter);
 		getSpecialHandler().flipPreview(axis, this, doubledCenter);
 	}
 	
-	public void rotatePreview(Rotation rotation, LittleTileVec doubledCenter) {
+	public void rotatePreview(Rotation rotation, LittleVec doubledCenter) {
 		box.rotateBox(rotation, doubledCenter);
 		getSpecialHandler().rotatePreview(rotation, this, doubledCenter);
 	}
 	
 	// ================Save & Loading================
 	
-	public static LittleTilePreview loadPreviewFromNBT(NBTTagCompound nbt) {
+	public static LittlePreview loadPreviewFromNBT(NBTTagCompound nbt) {
 		if (nbt == null)
 			return null;
 		if (nbt.hasKey("type")) {
-			Class<? extends LittleTilePreview> type = previewTypes.get(nbt.getString("type"));
+			Class<? extends LittlePreview> type = previewTypes.get(nbt.getString("type"));
 			if (type != null) {
-				LittleTilePreview preview = null;
+				LittlePreview preview = null;
 				try {
 					preview = type.getConstructor(NBTTagCompound.class).newInstance(nbt);
 				} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
@@ -302,7 +302,7 @@ public class LittleTilePreview implements ICombinable {
 				return preview;
 			}
 		} else
-			return new LittleTilePreview(nbt);
+			return new LittlePreview(nbt);
 		return null;
 	}
 	
@@ -328,7 +328,7 @@ public class LittleTilePreview implements ICombinable {
 		return tags;
 	}
 	
-	public boolean canBeNBTGrouped(LittleTilePreview preview) {
+	public boolean canBeNBTGrouped(LittlePreview preview) {
 		return this.box != null && preview.box != null && preview.canSplit == preview.canSplit && preview.getTileData().equals(this.getTileData());
 	}
 	
@@ -342,7 +342,7 @@ public class LittleTilePreview implements ICombinable {
 		return nbt;
 	}
 	
-	public void groupNBTTile(NBTTagCompound nbt, LittleTilePreview preview) {
+	public void groupNBTTile(NBTTagCompound nbt, LittlePreview preview) {
 		NBTTagList list = nbt.getTagList("boxes", 11);
 		list.appendTag(preview.box.getNBTIntArray());
 	}
@@ -359,15 +359,15 @@ public class LittleTilePreview implements ICombinable {
 		return LittlePreviews.getPreview(stack, allowLowResolution);
 	}
 	
-	public static LittleTileSize getSize(ItemStack stack) {
+	public static LittleVec getSize(ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("size"))
-			return new LittleTileSize("size", stack.getTagCompound());
-		return new LittleTileSize(1, 1, 1);
+			return LittleSize.loadSize("size", stack.getTagCompound());
+		return new LittleVec(1, 1, 1);
 	}
 	
-	public static LittleTileVec getOffset(ItemStack stack) {
+	public static LittleVec getOffset(ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("min"))
-			return new LittleTileVec("min", stack.getTagCompound());
+			return new LittleVec("min", stack.getTagCompound());
 		return null;
 	}
 	
@@ -423,7 +423,7 @@ public class LittleTilePreview implements ICombinable {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		for (LittleTilePreview preview : previews.allPreviews()) {
+		for (LittlePreview preview : previews.allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
@@ -432,8 +432,8 @@ public class LittleTilePreview implements ICombinable {
 			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
 		
-		new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ).writeToNBT("size", stack.getTagCompound());
-		new LittleTileVec(minX, minY, minZ).writeToNBT("min", stack.getTagCompound());
+		new LittleVec(maxX - minX, maxY - minY, maxZ - minZ).writeToNBT("size", stack.getTagCompound());
+		new LittleVec(minX, minY, minZ).writeToNBT("min", stack.getTagCompound());
 		
 		if (previews.totalSize() >= lowResolutionMode) {
 			NBTTagList list = new NBTTagList();
@@ -487,7 +487,7 @@ public class LittleTilePreview implements ICombinable {
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<RenderCubeObject> getCubes(LittlePreviews previews) {
 		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
-		for (LittleTilePreview preview : previews.allPreviews()) {
+		for (LittlePreview preview : previews.allPreviews()) {
 			cubes.add(preview.getCubeBlock(previews.context));
 		}
 		return cubes;
@@ -520,7 +520,7 @@ public class LittleTilePreview implements ICombinable {
 			}
 		} else {
 			LittlePreviews previews = getPreview(stack);
-			for (LittleTilePreview preview : previews.allPreviews()) {
+			for (LittlePreview preview : previews.allPreviews()) {
 				cubes.add(preview.getCubeBlock(previews.context));
 			}
 		}

@@ -8,12 +8,11 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,23 +28,23 @@ public class DragShapeSphere extends DragShape {
 	}
 	
 	@Override
-	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
-		LittleTileBox box = new LittleTileBox(min, max);
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
+		LittleBox box = new LittleBox(min, max);
 		
 		boolean hollow = nbt.getBoolean("hollow");
-		LittleTileSize size = box.getSize();
+		LittleVec size = box.getSize();
 		if (preview && size.getPercentVolume(boxes.context) > 4) {
 			boxes.add(box);
 			return boxes;
 		}
 		
-		LittleTileVec center = size.calculateCenter();
-		LittleTileVec invCenter = size.calculateInvertedCenter();
+		LittleVec center = size.calculateCenter();
+		LittleVec invCenter = size.calculateInvertedCenter();
 		invCenter.invert();
 		
-		double a = Math.pow(Math.max(1, size.sizeX / 2), 2);
-		double b = Math.pow(Math.max(1, size.sizeY / 2), 2);
-		double c = Math.pow(Math.max(1, size.sizeZ / 2), 2);
+		double a = Math.pow(Math.max(1, size.x / 2), 2);
+		double b = Math.pow(Math.max(1, size.y / 2), 2);
+		double c = Math.pow(Math.max(1, size.z / 2), 2);
 		
 		double a2 = 1;
 		double b2 = 1;
@@ -53,12 +52,12 @@ public class DragShapeSphere extends DragShape {
 		
 		int thickness = nbt.getInteger("thickness");
 		
-		if (hollow && size.sizeX > thickness * 2 && size.sizeY > thickness * 2 && size.sizeZ > thickness * 2) {
-			int all = size.sizeX + size.sizeY + size.sizeZ;
+		if (hollow && size.x > thickness * 2 && size.y > thickness * 2 && size.z > thickness * 2) {
+			int all = size.x + size.y + size.z;
 			
-			double sizeXValue = (double) size.sizeX / all;
-			double sizeYValue = (double) size.sizeY / all;
-			double sizeZValue = (double) size.sizeZ / all;
+			double sizeXValue = (double) size.x / all;
+			double sizeYValue = (double) size.y / all;
+			double sizeZValue = (double) size.z / all;
 			
 			if (sizeXValue > 0.5)
 				sizeXValue = 0.5;
@@ -73,19 +72,19 @@ public class DragShapeSphere extends DragShape {
 		} else
 			hollow = false;
 		
-		boolean stretchedX = size.sizeX % 2 == 0;
-		boolean stretchedY = size.sizeY % 2 == 0;
-		boolean stretchedZ = size.sizeZ % 2 == 0;
+		boolean stretchedX = size.x % 2 == 0;
+		boolean stretchedY = size.y % 2 == 0;
+		boolean stretchedZ = size.z % 2 == 0;
 		
-		double centerX = size.sizeX / 2;
-		double centerY = size.sizeY / 2;
-		double centerZ = size.sizeZ / 2;
+		double centerX = size.x / 2;
+		double centerY = size.y / 2;
+		double centerZ = size.z / 2;
 		
 		min = box.getMinVec();
 		
-		for (int x = 0; x < size.sizeX; x++) {
-			for (int y = 0; y < size.sizeY; y++) {
-				for (int z = 0; z < size.sizeZ; z++) {
+		for (int x = 0; x < size.x; x++) {
+			for (int y = 0; y < size.y; y++) {
+				for (int z = 0; z < size.z; z++) {
 					
 					double posX = x - centerX + (stretchedX ? 0.5 : 0);
 					double posY = y - centerY + (stretchedY ? 0.5 : 0);
@@ -100,15 +99,15 @@ public class DragShapeSphere extends DragShape {
 						double valueB2 = Math.pow(posY, 2) / b2;
 						double valueC2 = Math.pow(posZ, 2) / c2;
 						if (!hollow || valueA2 + valueB2 + valueC2 > 1)
-							boxes.add(new LittleTileBox(new LittleTileVec(min.x + x, min.y + y, min.z + z)));
+							boxes.add(new LittleBox(new LittleVec(min.x + x, min.y + y, min.z + z)));
 					}
 				}
 			}
 		}
 		
-		LittleTileBox.combineBoxesBlocks(boxes);
+		LittleBox.combineBoxesBlocks(boxes);
 		
-		if (preview && boxes.size() > LittleTilePreview.lowResolutionMode) {
+		if (preview && boxes.size() > LittlePreview.lowResolutionMode) {
 			boxes.clear();
 			boxes.add(box);
 		}

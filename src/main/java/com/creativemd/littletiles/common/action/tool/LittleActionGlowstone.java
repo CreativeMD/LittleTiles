@@ -6,8 +6,8 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import io.netty.buffer.ByteBuf;
@@ -83,12 +83,12 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	
 	public static class LittleActionGlowstoneRevert extends LittleAction {
 		
-		public LittleTileIdentifierAbsolute coord;
+		public LittleIdentifierAbsolute coord;
 		
 		public LittleTile changedTile;
 		
 		public LittleActionGlowstoneRevert(LittleTile tile) {
-			this.coord = new LittleTileIdentifierAbsolute(tile);
+			this.coord = new LittleIdentifierAbsolute(tile);
 		}
 		
 		public LittleActionGlowstoneRevert() {

@@ -35,10 +35,10 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -228,7 +228,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		super.onFlip(context, axis, doubledCenter);
 		
 		switch (axis) {
@@ -263,7 +263,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		super.onRotate(context, rotation, doubledCenter);
 		ValueTimeline rotX = this.rotX;
 		ValueTimeline rotY = this.rotY;
@@ -296,7 +296,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	
 	@Override
 	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
-		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 	}
 	
 	@Override

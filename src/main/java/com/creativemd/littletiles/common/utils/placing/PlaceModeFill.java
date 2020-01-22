@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -35,16 +35,16 @@ public class PlaceModeFill extends PlacementMode {
 			return tiles;
 		}
 		
-		List<LittleTileBox> cutout = new ArrayList<>();
-		List<LittleTileBox> boxes = te.cutOut(tile.box, cutout);
+		List<LittleBox> cutout = new ArrayList<>();
+		List<LittleBox> boxes = te.cutOut(tile.box, cutout);
 		
-		for (LittleTileBox box : boxes) {
+		for (LittleBox box : boxes) {
 			LittleTile newTile = tile.copy();
 			newTile.box = box;
 			tiles.add(newTile);
 		}
 		
-		for (LittleTileBox box : cutout) {
+		for (LittleBox box : cutout) {
 			LittleTile newTile = tile.copy();
 			newTile.box = box;
 			unplaceableTiles.add(newTile);

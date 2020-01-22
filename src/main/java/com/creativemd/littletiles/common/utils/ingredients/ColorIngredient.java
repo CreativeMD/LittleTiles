@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
@@ -249,7 +249,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 	public static float dyeToBlockPercentage = 4096;
 	public static int bottleSize = (int) (dyeToBlockPercentage * 64);
 	
-	public static ColorIngredient getColors(LittleTilePreview preview, double volume) {
+	public static ColorIngredient getColors(LittlePreview preview, double volume) {
 		if (preview.hasColor()) {
 			ColorIngredient color = getColors(preview.getColor());
 			color.scale(volume);
@@ -258,7 +258,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
 		return null;
 	}
 	
-	public static ColorIngredient getColors(LittleGridContext context, LittleTilePreview preview) {
+	public static ColorIngredient getColors(LittleGridContext context, LittlePreview preview) {
 		return getColors(preview, preview.getPercentVolume(context));
 	}
 	

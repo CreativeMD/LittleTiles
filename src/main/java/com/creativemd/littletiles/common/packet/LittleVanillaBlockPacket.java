@@ -9,7 +9,7 @@ import com.creativemd.littletiles.common.items.ItemLittleGrabber;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
@@ -56,7 +56,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
 				if (LittleAction.isBlockValid(state)) {
 					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-					tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+					tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 					ItemLittleChisel.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
 				}
 			}

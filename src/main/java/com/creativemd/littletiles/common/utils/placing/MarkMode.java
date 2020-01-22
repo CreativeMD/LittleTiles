@@ -4,7 +4,8 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.mc.GuiContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.littletiles.client.gui.SubGuiMarkMode;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PreviewResult;
@@ -35,39 +36,36 @@ public class MarkMode {
 	
 	public static PositionResult loadPosition(boolean absolute, PositionResult position, PreviewResult preview) {
 		if (!absolute) {
-			position.contextVec.vec = preview.box.getCenter();
-			position.contextVec.context = preview.context;
+			position.setVecContext(new LittleVecContext(preview.box.getCenter(), preview.context));
 			
-			LittleTileVec center = preview.size.calculateCenter();
-			LittleTileVec centerInv = preview.size.calculateInvertedCenter();
+			LittleVec center = preview.size.calculateCenter();
+			LittleVec centerInv = preview.size.calculateInvertedCenter();
 			
 			switch (position.facing) {
 			case EAST:
-				position.contextVec.vec.x -= center.x;
+				position.getVec().x -= center.x;
 				break;
 			case WEST:
-				position.contextVec.vec.x += centerInv.x;
+				position.getVec().x += centerInv.x;
 				break;
 			case UP:
-				position.contextVec.vec.y -= center.y;
+				position.getVec().y -= center.y;
 				break;
 			case DOWN:
-				position.contextVec.vec.y += centerInv.y;
+				position.getVec().y += centerInv.y;
 				break;
 			case SOUTH:
-				position.contextVec.vec.z -= center.z;
+				position.getVec().z -= center.z;
 				break;
 			case NORTH:
-				position.contextVec.vec.z += centerInv.z;
+				position.getVec().z += centerInv.z;
 				break;
 			default:
 				break;
 			}
 			
-			if (!preview.singleMode && preview.placedFixed) {
-				position.contextVec.ensureBothAreEqual(preview.offset.contextVec);
-				position.contextVec.vec.sub(preview.offset.contextVec.vec);
-			}
+			if (!preview.singleMode && preview.placedFixed)
+				position.sub(preview.offset.getVecContext());
 		}
 		return position;
 	}
@@ -97,7 +95,7 @@ public class MarkMode {
 	}
 	
 	public void move(LittleGridContext context, EnumFacing facing) {
-		LittleTileVec vec = new LittleTileVec(facing);
+		LittleVec vec = new LittleVec(facing);
 		vec.scale(GuiScreen.isCtrlKeyDown() ? context.size : 1);
 		position.subVec(vec);
 	}

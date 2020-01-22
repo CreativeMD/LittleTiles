@@ -5,13 +5,13 @@ import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 
 public class BasicCombiner {
 	
-	public static boolean combineBoxes(List<LittleTileBox> boxes) {
+	public static boolean combineBoxes(List<LittleBox> boxes) {
 		return new BasicCombiner(boxes).combine();
 	}
 	
@@ -23,27 +23,27 @@ public class BasicCombiner {
 		return new StructureCombiner(tiles, structure).combine();
 	}
 	
-	public static boolean combinePreviews(List<LittleTilePreview> previews) {
+	public static boolean combinePreviews(List<LittlePreview> previews) {
 		return new AdvancedCombiner<>(previews).combine();
 	}
 	
-	protected List<LittleTileBox> boxes;
+	protected List<LittleBox> boxes;
 	protected int i;
 	protected int j;
 	protected boolean modified;
 	
-	public BasicCombiner(List<LittleTileBox> boxes) {
+	public BasicCombiner(List<LittleBox> boxes) {
 		this.boxes = boxes;
 	}
 	
-	public void set(List<LittleTileBox> boxes) {
+	public void set(List<LittleBox> boxes) {
 		if (getClass() != BasicCombiner.class)
 			throw new RuntimeException("Illegal action! Boxes cannot be set for advanced combiners!");
 		
 		this.boxes = boxes;
 	}
 	
-	public List<LittleTileBox> getBoxes() {
+	public List<LittleBox> getBoxes() {
 		return boxes;
 	}
 	
@@ -57,7 +57,7 @@ public class BasicCombiner {
 				j = 0;
 				while (j < boxes.size()) {
 					if (i != j) {
-						LittleTileBox box = boxes.get(i).combineBoxes(boxes.get(j), this);
+						LittleBox box = boxes.get(i).combineBoxes(boxes.get(j), this);
 						if (box != null) {
 							boxes.set(i, box);
 							boxes.remove(j);
@@ -77,17 +77,17 @@ public class BasicCombiner {
 		return changed;
 	}
 	
-	public boolean cutOut(LittleTileBox searching) {
+	public boolean cutOut(LittleBox searching) {
 		boolean intersects = false;
-		for (LittleTileBox box : boxes) {
+		for (LittleBox box : boxes) {
 			if (searching.getClass() == box.getClass()) {
 				if (box.containsBox(searching)) {
-					List<LittleTileBox> cutOut = box.cutOut(searching);
+					List<LittleBox> cutOut = box.cutOut(searching);
 					if (cutOut != null)
 						boxes.addAll(cutOut);
 					removeBox(box);
 					return true;
-				} else if (LittleTileBox.intersectsWith(box, searching)) {
+				} else if (LittleBox.intersectsWith(box, searching)) {
 					intersects = true;
 					break;
 				}
@@ -95,13 +95,13 @@ public class BasicCombiner {
 		}
 		
 		if (intersects) {
-			LittleTileSize size = searching.getSize();
-			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+			LittleVec size = searching.getSize();
+			boolean[][][] filled = new boolean[size.x][size.y][size.z];
 			
-			for (Iterator<LittleTileBox> iterator = boxes.iterator(); iterator.hasNext();) {
-				LittleTileBox box = iterator.next();
+			for (Iterator<LittleBox> iterator = boxes.iterator(); iterator.hasNext();) {
+				LittleBox box = iterator.next();
 				
-				if (LittleTileBox.intersectsWith(box, searching) && searching.getClass() == box.getClass())
+				if (LittleBox.intersectsWith(box, searching) && searching.getClass() == box.getClass())
 					box.fillInSpace(searching, filled);
 			}
 			
@@ -116,10 +116,10 @@ public class BasicCombiner {
 			
 			int i = 0;
 			while (i < boxes.size()) {
-				LittleTileBox box = boxes.get(i);
+				LittleBox box = boxes.get(i);
 				
-				if (LittleTileBox.intersectsWith(box, searching) && searching.getClass() == box.getClass()) {
-					List<LittleTileBox> cutOut = box.cutOut(searching);
+				if (LittleBox.intersectsWith(box, searching) && searching.getClass() == box.getClass()) {
+					List<LittleBox> cutOut = box.cutOut(searching);
 					if (cutOut != null)
 						boxes.addAll(cutOut);
 					removeBox(box);
@@ -134,7 +134,7 @@ public class BasicCombiner {
 		return false;
 	}
 	
-	public void removeBox(LittleTileBox box) {
+	public void removeBox(LittleBox box) {
 		int index = boxes.indexOf(box);
 		if (index != -1) {
 			if (i > index)

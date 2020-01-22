@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTilesConfig;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
+import com.creativemd.littletiles.common.tiles.math.LittleUtils;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.google.common.math.IntMath;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -95,7 +95,6 @@ public class LittleGridContext {
 	}
 	
 	public final int size;
-	public final int minPos;
 	public final int maxPos;
 	public final int maxTilesPerPlane;
 	public final int maxTilesPerBlock;
@@ -105,7 +104,7 @@ public class LittleGridContext {
 	public final int index;
 	
 	/** doubled **/
-	public final LittleTileVec rotationCenter;
+	public final LittleVec rotationCenter;
 	
 	public final int[] minSizes;
 	
@@ -113,7 +112,6 @@ public class LittleGridContext {
 		this.index = index;
 		this.size = gridSize;
 		this.pixelSize = 1D / gridSize;
-		this.minPos = 0;
 		this.maxPos = gridSize;
 		this.maxTilesPerPlane = gridSize * gridSize;
 		this.maxTilesPerBlock = gridSize * gridSize * gridSize;
@@ -128,7 +126,7 @@ public class LittleGridContext {
 				this.minSizes[i] = this.size;
 		}
 		
-		this.rotationCenter = new LittleTileVec(this.size, this.size, this.size);
+		this.rotationCenter = new LittleVec(this.size, this.size, this.size);
 	}
 	
 	public void set(NBTTagCompound nbt) {

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math;
 
 public class LittleUtils {
 	

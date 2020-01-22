@@ -9,7 +9,7 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
@@ -20,13 +20,13 @@ import net.minecraft.world.World;
 public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 	
 	public UUID worldUUID;
-	public LittleTileIdentifierAbsolute identifier;
+	public LittleIdentifierAbsolute identifier;
 	
 	public UUID previousAnimation;
 	
 	public LittlePlacedAnimationPacket(LittleTile tile, UUID previousAnimation) {
 		this.previousAnimation = previousAnimation;
-		this.identifier = new LittleTileIdentifierAbsolute(tile);
+		this.identifier = new LittleIdentifierAbsolute(tile);
 		if (tile.te.getWorld() instanceof CreativeWorld)
 			this.worldUUID = ((CreativeWorld) tile.te.getWorld()).parent.getUniqueID();
 	}
@@ -49,7 +49,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 	
 	@Override
 	public void readBytes(ByteBuf buf) {
-		identifier = new LittleTileIdentifierAbsolute(readNBT(buf));
+		identifier = new LittleIdentifierAbsolute(readNBT(buf));
 		previousAnimation = UUID.fromString(readString(buf));
 		
 		if (buf.readBoolean())

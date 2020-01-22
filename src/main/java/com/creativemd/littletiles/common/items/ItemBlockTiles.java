@@ -10,10 +10,11 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.old.LittleSize;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -45,8 +46,8 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 	public String getItemStackDisplayName(ItemStack stack) {
 		String result = super.getItemStackDisplayName(stack);
 		if (stack.hasTagCompound()) {
-			LittleTileSize size = stack.getTagCompound().hasKey("size") ? new LittleTileSize("size", stack.getTagCompound()) : LittleTileBox.loadBox("bBox", stack.getTagCompound()).getSize();
-			result += " (x=" + size.sizeX + ",y=" + size.sizeY + ",z=" + size.sizeZ + ")";
+			LittleVec size = stack.getTagCompound().hasKey("size") ? LittleSize.loadSize("size", stack.getTagCompound()) : LittleBox.loadBox("bBox", stack.getTagCompound()).getSize();
+			result += " (x=" + size.x + ",y=" + size.y + ",z=" + size.z + ")";
 		}
 		return result;
 	}
@@ -78,17 +79,17 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		LittlePreviews previews = new LittlePreviews(getPreviewsContext(stack));
-		previews.addWithoutCheckingPreview(LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound()));
+		previews.addWithoutCheckingPreview(LittlePreview.loadPreviewFromNBT(stack.getTagCompound()));
 		return previews;
 	}
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
 		if (previews.size() > 0) {
-			LittleTilePreview preview = previews.get(0);
+			LittlePreview preview = previews.get(0);
 			NBTTagCompound nbt = preview.getTileData().copy();
 			previews.context.set(nbt);
-			LittleTileBox tempBox = preview.box;
+			LittleBox tempBox = preview.box;
 			preview.box = preview.box.copy();
 			preview.box.sub(preview.box.getMinVec());
 			preview.writeToNBT(nbt);
@@ -98,7 +99,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			stack.setTagCompound(new NBTTagCompound());
 	}
 	
-	public static ItemStack getStackFromPreview(LittleGridContext context, LittleTilePreview preview) {
+	public static ItemStack getStackFromPreview(LittleGridContext context, LittlePreview preview) {
 		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = preview.getTileData().copy();
 		
@@ -118,16 +119,16 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			if (stack.getTagCompound().hasKey("size")) {
 				Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
 				int meta = stack.getTagCompound().getInteger("meta");
-				LittleTileSize size = new LittleTileSize("size", stack.getTagCompound());
+				LittleVec size = new LittleVec("size", stack.getTagCompound());
 				if (!(block instanceof BlockAir)) {
-					LittleRenderingCube cube = new LittleTileBox(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ).getRenderingCube(LittleGridContext.get(), block, meta);
+					LittleRenderingCube cube = new LittleBox(0, 0, 0, size.x, size.y, size.z).getRenderingCube(LittleGridContext.get(), block, meta);
 					if (stack.getTagCompound().hasKey("color"))
 						cube.color = stack.getTagCompound().getInteger("color");
 					cubes.add(cube);
 				}
 			} else {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound());
+				LittlePreview preview = LittlePreview.loadPreviewFromNBT(stack.getTagCompound());
 				cubes.add((LittleRenderingCube) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
 			}
 		}

@@ -14,7 +14,7 @@ import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemBlockIngredient;
 import com.creativemd.littletiles.common.items.ItemColorIngredient;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -60,7 +60,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				extract(ingredients, child, onlyStructure);
 	}
 	
-	public static LittleIngredients extract(LittleTilePreview preview, double volume) {
+	public static LittleIngredients extract(LittlePreview preview, double volume) {
 		LittleIngredients ingredients = new LittleIngredients();
 		for (IngredientConvertionHandler handler : typesConverationHandler)
 			ingredients.add(handler.extract(preview, volume));
@@ -157,7 +157,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			@Override
 			public BlockIngredient extract(LittlePreviews previews) {
 				BlockIngredient ingredient = new BlockIngredient();
-				for (LittleTilePreview preview : previews)
+				for (LittlePreview preview : previews)
 					if (preview.canBeConvertedToBlockEntry())
 						ingredient.add(preview.getBlockIngredient(previews.context));
 					
@@ -167,7 +167,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			}
 			
 			@Override
-			public BlockIngredient extract(LittleTilePreview preview, double volume) {
+			public BlockIngredient extract(LittlePreview preview, double volume) {
 				BlockIngredient ingredient = new BlockIngredient();
 				BlockIngredientEntry entry = preview.getBlockIngredient(LittleGridContext.get());
 				entry.value = volume;
@@ -233,7 +233,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			@Override
 			public ColorIngredient extract(LittlePreviews previews) {
 				ColorIngredient ingredient = new ColorIngredient();
-				for (LittleTilePreview preview : previews)
+				for (LittlePreview preview : previews)
 					if (preview.canBeConvertedToBlockEntry())
 						ingredient.add(ColorIngredient.getColors(previews.context, preview));
 					
@@ -243,7 +243,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			}
 			
 			@Override
-			public ColorIngredient extract(LittleTilePreview preview, double volume) {
+			public ColorIngredient extract(LittlePreview preview, double volume) {
 				ColorIngredient ingredient = new ColorIngredient();
 				ingredient.add(ColorIngredient.getColors(preview, volume));
 				return ingredient;
@@ -304,7 +304,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		
 		public abstract T extract(LittlePreviews previews);
 		
-		public abstract T extract(LittleTilePreview preview, double volume);
+		public abstract T extract(LittlePreview preview, double volume);
 		
 	}
 	

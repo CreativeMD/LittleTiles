@@ -5,7 +5,7 @@ import com.creativemd.creativecore.client.rendering.RenderHelper3D;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.RenderGlobal;
@@ -16,9 +16,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class LittleRenderingCube extends RenderCubeObject {
 	
-	public LittleTileBox box;
+	public LittleBox box;
 	
-	public LittleRenderingCube(CubeObject cube, LittleTileBox box, Block block, int meta) {
+	public LittleRenderingCube(CubeObject cube, LittleBox box, Block block, int meta) {
 		super(cube, block, meta);
 		this.box = box;
 	}

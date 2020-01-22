@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.events.LittleEvent;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;

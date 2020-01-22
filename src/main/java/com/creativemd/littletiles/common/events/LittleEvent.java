@@ -30,9 +30,9 @@ import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock.MissingBlockHandler;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
@@ -148,7 +148,7 @@ public class LittleEvent {
 				}
 				
 				if (stack.getItem() instanceof IBoxSelector) {
-					if (((IBoxSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleTilePos(ray, ((IBoxSelector) stack.getItem()).getContext(stack))))
+					if (((IBoxSelector) stack.getItem()).onClickBlock(event.getWorld(), stack, event.getEntityPlayer(), ray, new LittleAbsoluteVec(ray, ((IBoxSelector) stack.getItem()).getContext(stack))))
 						;
 					event.setCanceled(true);
 					blockSelector = (IBoxSelector) stack.getItem();
@@ -345,7 +345,7 @@ public class LittleEvent {
 			ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 			if (stack.getItem() instanceof IBoxSelector) {
 				IBoxSelector selector = (IBoxSelector) stack.getItem();
-				LittleTilePos result = new LittleTilePos(event.getTarget(), selector.getContext(stack));
+				LittleAbsoluteVec result = new LittleAbsoluteVec(event.getTarget(), selector.getContext(stack));
 				if (selector.hasCustomBox(world, stack, player, state, event.getTarget(), result)) {
 					while (LittleTilesClient.flip.isPressed()) {
 						int i4 = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;

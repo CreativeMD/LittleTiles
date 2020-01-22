@@ -23,8 +23,8 @@ import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAct
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.VanillaBlockAction;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.utils.shape.SelectShape;
@@ -129,12 +129,12 @@ public class ItemColorTube extends Item implements IBoxSelector {
 	}
 	
 	@Override
-	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleTilePos absoluteHit) {
+	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		return getShape(stack) != null;
 	}
 	
 	@Override
-	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
+	public LittleBoxes getBox(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		SelectShape shape = getShape(stack);
 		
 		return shape.getHighlightBoxes(world, result.getBlockPos(), player, stack.getTagCompound(), result, getContext(stack));
@@ -142,7 +142,7 @@ public class ItemColorTube extends Item implements IBoxSelector {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleTilePos absoluteHit) {
+	public boolean onClickBlock(World world, ItemStack stack, EntityPlayer player, RayTraceResult result, LittleAbsoluteVec absoluteHit) {
 		SelectShape shape = getShape(stack);
 		if (LittleAction.isUsingSecondMode(player)) {
 			if (!world.isRemote)

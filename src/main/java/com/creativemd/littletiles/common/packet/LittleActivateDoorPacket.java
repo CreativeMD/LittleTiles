@@ -13,7 +13,7 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivationResult;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;
@@ -26,13 +26,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleActivateDoorPacket extends CreativeCorePacket {
 	
-	public LittleTileIdentifierAbsolute coord;
+	public LittleIdentifierAbsolute coord;
 	public UUID worldUUID;
 	public UUID uuid;
 	public DoorOpeningResult result;
 	
 	public LittleActivateDoorPacket(LittleTile tile, UUID uuid, DoorOpeningResult result) {
-		this.coord = new LittleTileIdentifierAbsolute(tile);
+		this.coord = new LittleIdentifierAbsolute(tile);
 		this.uuid = uuid;
 		this.result = result;
 		if (tile.te.getWorld() instanceof CreativeWorld)

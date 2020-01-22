@@ -18,12 +18,12 @@ import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
@@ -112,8 +112,8 @@ public class LittleActionPlaceStack extends LittleAction {
 		ItemStack stack = player.getHeldItemMainhand();
 		World world = player.world;
 		
-		if (!isAllowedToInteract(world, player, position.pos, true, EnumFacing.EAST)) {
-			sendBlockResetToClient(world, (EntityPlayerMP) player, position.pos);
+		if (!isAllowedToInteract(world, player, position.getPos(), true, EnumFacing.EAST)) {
+			sendBlockResetToClient(world, (EntityPlayerMP) player, position.getPos());
 			return false;
 		}
 		
@@ -171,7 +171,7 @@ public class LittleActionPlaceStack extends LittleAction {
 				canTake(player, inventory, getIngredients(result.previews));
 		}
 		
-		placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.pos, toPlace, unplaceableTiles, removedTiles, position.facing);
+		placedTiles = placeTiles(world, player, result.context, result.placePreviews, previews.getStructure(), mode, position.getPos(), toPlace, unplaceableTiles, removedTiles, position.facing);
 		
 		if (placedTiles != null) {
 			boxes = placedTiles.placedBoxes;
@@ -190,13 +190,13 @@ public class LittleActionPlaceStack extends LittleAction {
 			}
 			
 			if (!removedTiles.isEmpty()) {
-				destroyed = new LittleAbsolutePreviews(position.pos, result.context);
+				destroyed = new LittleAbsolutePreviews(position.getPos(), result.context);
 				for (LittleTile tile : removedTiles) {
 					destroyed.addTile(tile);
 				}
 			}
 		} else
-			boxes = new LittleBoxes(position.pos, result.context);
+			boxes = new LittleBoxes(position.getPos(), result.context);
 		
 		return placedTiles;
 	}
@@ -210,7 +210,7 @@ public class LittleActionPlaceStack extends LittleAction {
 		}
 	}
 	
-	public static LittlePlaceResult placeTilesWithoutPlayer(World world, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) {
+	public static LittlePlaceResult placeTilesWithoutPlayer(World world, LittleGridContext context, List<PlacePreview> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) {
 		try {
 			return placeTiles(world, null, context, previews, structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
 		} catch (LittleActionException e) {
@@ -263,7 +263,7 @@ public class LittleActionPlaceStack extends LittleAction {
 						
 						te.updateTilesSecretly((x) -> {
 							
-							for (PlacePreviewTile placeTile : placeTiles) {
+							for (PlacePreview placeTile : placeTiles) {
 								for (LittleTile LT : placeTile.placeTile(player, stack, coord, te.getContext(), te, x, unplaceableTiles, removedTiles, mode, facing, collsionTest)) {
 									if (!soundsToBePlayed.contains(LT.getSound()))
 										soundsToBePlayed.add(LT.getSound());
@@ -324,13 +324,13 @@ public class LittleActionPlaceStack extends LittleAction {
 		return null;
 	}
 	
-	public static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreviewTile> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
+	public static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreview> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
 		if (player != null) {
 			if (SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
 				throw new SpecialServerConfig.NotAllowedToPlaceException();
 			
 			if (SpecialServerConfig.isTransparencyRestricted(player))
-				for (PlacePreviewTile placePreview : previews)
+				for (PlacePreview placePreview : previews)
 					isAllowedToPlacePreview(player, placePreview.preview);
 		}
 		
@@ -353,23 +353,23 @@ public class LittleActionPlaceStack extends LittleAction {
 		return placeTiles(world, player, context, splitted, structure, mode, pos, stack, unplaceableTiles, removedTiles, facing);
 	}
 	
-	public static double getVolume(LittleGridContext context, List<PlacePreviewTile> tiles) {
+	public static double getVolume(LittleGridContext context, List<PlacePreview> tiles) {
 		double volume = 0;
-		for (PlacePreviewTile preview : tiles) {
+		for (PlacePreview preview : tiles) {
 			volume += preview.box.getPercentVolume(context);
 		}
 		return volume;
 	}
 	
-	public static HashMap<BlockPos, PlacePreviews> getSplittedTiles(LittleGridContext context, List<PlacePreviewTile> tiles, BlockPos pos) {
-		HashMapList<BlockPos, PlacePreviewTile> splitted = new HashMapList<BlockPos, PlacePreviewTile>();
+	public static HashMap<BlockPos, PlacePreviews> getSplittedTiles(LittleGridContext context, List<PlacePreview> tiles, BlockPos pos) {
+		HashMapList<BlockPos, PlacePreview> splitted = new HashMapList<BlockPos, PlacePreview>();
 		for (int i = 0; i < tiles.size(); i++) {
 			if (!tiles.get(i).split(context, splitted, pos))
 				return null;
 		}
 		
 		HashMap<BlockPos, PlacePreviews> previews = new HashMap<>();
-		for (Entry<BlockPos, ArrayList<PlacePreviewTile>> entry : splitted.entrySet()) {
+		for (Entry<BlockPos, ArrayList<PlacePreview>> entry : splitted.entrySet()) {
 			previews.put(entry.getKey(), new PlacePreviews(context, entry.getValue()));
 		}
 		return previews;
@@ -450,11 +450,11 @@ public class LittleActionPlaceStack extends LittleAction {
 	
 	public static class LastPlacedTile {
 		
-		public final PlacePreviewTile tile;
+		public final PlacePreview tile;
 		public final BlockPos pos;
 		public final LittleGridContext context;
 		
-		public LastPlacedTile(PlacePreviewTile tile, BlockPos pos, LittleGridContext context) {
+		public LastPlacedTile(PlacePreview tile, BlockPos pos, LittleGridContext context) {
 			this.tile = tile;
 			this.pos = pos;
 			this.context = context;

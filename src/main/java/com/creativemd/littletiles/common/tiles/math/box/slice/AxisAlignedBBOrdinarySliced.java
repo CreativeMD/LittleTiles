@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec.advanced;
+package com.creativemd.littletiles.common.tiles.math.box.slice;
 
 import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
-import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
+import com.creativemd.littletiles.common.tiles.math.LittleUtils;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -395,7 +395,7 @@ public class AxisAlignedBBOrdinarySliced extends CreativeAxisAlignedBB {
 		}
 		
 		EnumFacing diagonal = slice.getPreferedSide(getSize());
-		Vec3d temp = LittleTileSlicedOrdinaryBox.linePlaneIntersection(getCorner(BoxCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideTwo.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
+		Vec3d temp = LittleSlicedOrdinaryBox.linePlaneIntersection(getCorner(BoxCorner.getCornerUnsorted(RotationUtils.getFacing(slice.axis), slice.emptySideOne, slice.emptySideTwo.getOpposite())), slice.getNormalVec(), vecA, vecB.subtract(vecA));
 		if (temp != null && intersectsWithAxis(diagonal.getAxis(), temp) && isClosest(vecA, collision, temp)) {
 			collision = temp;
 			collided = diagonal.getAxisDirection() == AxisDirection.POSITIVE ? diagonal.getOpposite() : diagonal;

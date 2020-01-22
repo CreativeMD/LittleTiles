@@ -9,9 +9,9 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
@@ -37,7 +37,7 @@ public abstract class LittleActionBoxes extends LittleAction {
 		
 	}
 	
-	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException;
+	public abstract void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException;
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -52,10 +52,10 @@ public abstract class LittleActionBoxes extends LittleAction {
 				throw new SpecialServerConfig.NotAllowedToEditException();
 		}
 		
-		HashMapList<BlockPos, LittleTileBox> boxesMap = boxes.split();
+		HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();
 		
-		for (Iterator<Entry<BlockPos, ArrayList<LittleTileBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
-			Entry<BlockPos, ArrayList<LittleTileBox>> entry = iterator.next();
+		for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
+			Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
 			BlockPos pos = entry.getKey();
 			IBlockState state = world.getBlockState(pos);
 			if (!isAllowedToInteract(world, player, pos, false, EnumFacing.EAST)) {

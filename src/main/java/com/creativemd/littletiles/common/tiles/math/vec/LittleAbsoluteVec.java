@@ -1,7 +1,8 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.vec;
 
 import java.security.InvalidParameterException;
 
+import com.creativemd.littletiles.common.utils.grid.IGridBased;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,67 +11,68 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
-public class LittleTilePos {
+public class LittleAbsoluteVec implements IGridBased {
 	
-	public BlockPos pos;
-	public LittleTileVecContext contextVec;
+	protected BlockPos pos;
+	protected LittleVecContext contextVec;
 	
-	public LittleTilePos(String name, NBTTagCompound nbt) {
+	public LittleAbsoluteVec(String name, NBTTagCompound nbt) {
 		int[] array = nbt.getIntArray(name);
 		if (array.length == 3) // Loading vec
 		{
-			LittleTileVec vec = new LittleTileVec(name, nbt);
+			LittleVec vec = new LittleVec(name, nbt);
 			LittleGridContext context = LittleGridContext.get();
 			this.pos = vec.getBlockPos(context);
-			this.contextVec = new LittleTileVecContext(context, new LittleTileVec(vec.x - pos.getX() * context.size, vec.y - pos.getY() * context.size, vec.z - pos.getZ() * context.size));
+			this.contextVec = new LittleVecContext(new LittleVec(vec.x - pos.getX() * context.size, vec.y - pos.getY() * context.size, vec.z - pos.getZ() * context.size), context);
 		} else if (array.length == 7) {
 			this.pos = new BlockPos(array[0], array[1], array[2]);
-			this.contextVec = new LittleTileVecContext(LittleGridContext.get(array[3]), new LittleTileVec(array[4], array[5], array[6]));
+			this.contextVec = new LittleVecContext(new LittleVec(array[4], array[5], array[6]), LittleGridContext.get(array[3]));
 		} else
 			throw new InvalidParameterException("No valid coords given " + nbt);
 	}
 	
-	public LittleTilePos(RayTraceResult result, LittleGridContext context) {
+	public LittleAbsoluteVec(RayTraceResult result, LittleGridContext context) {
 		long x = context.toGridAccurate(result.hitVec.x);
 		long y = context.toGridAccurate(result.hitVec.y);
 		long z = context.toGridAccurate(result.hitVec.z);
 		this.pos = new BlockPos((int) Math.floor(context.toVanillaGrid(x)), (int) Math.floor(context.toVanillaGrid(y)), (int) Math.floor(context.toVanillaGrid(z)));
-		this.contextVec = new LittleTileVecContext(context, new LittleTileVec((int) (x - context.toGridAccurate(pos.getX())), (int) (y - context.toGridAccurate(pos.getY())), (int) (z - context.toGridAccurate(pos.getZ()))));
-		// if(result.sideHit.getAxisDirection() == AxisDirection.POSITIVE &&
-		// !context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(),
-		// result.hitVec)))
-		// contextVec.vec.setAxis(result.sideHit.getAxis(),
-		// contextVec.vec.getAxis(result.sideHit.getAxis()) + 1);
+		this.contextVec = new LittleVecContext(new LittleVec((int) (x - context.toGridAccurate(pos.getX())), (int) (y - context.toGridAccurate(pos.getY())), (int) (z - context.toGridAccurate(pos.getZ()))), context);
 	}
 	
-	public LittleTilePos(BlockPos pos, LittleGridContext context) {
-		this(pos, new LittleTileVecContext(context, new LittleTileVec(0, 0, 0)));
+	public LittleAbsoluteVec(BlockPos pos, LittleGridContext context) {
+		this(pos, new LittleVecContext(new LittleVec(0, 0, 0), context));
 	}
 	
-	public LittleTilePos(BlockPos pos, LittleGridContext context, LittleTileVec vec) {
-		this(pos, new LittleTileVecContext(context, vec));
+	public LittleAbsoluteVec(BlockPos pos, LittleGridContext context, LittleVec vec) {
+		this(pos, new LittleVecContext(vec, context));
 	}
 	
-	public LittleTilePos(BlockPos pos, LittleTileVecContext contextVec) {
+	public LittleAbsoluteVec(BlockPos pos, LittleVecContext contextVec) {
 		this.pos = pos;
 		this.contextVec = contextVec;
 	}
 	
+	public void setPos(BlockPos pos) {
+		this.pos = pos;
+	}
+	
+	public BlockPos getPos() {
+		return pos;
+	}
+	
+	@Override
 	public void convertToSmallest() {
 		this.contextVec.convertToSmallest();
 	}
 	
+	@Override
 	public void convertTo(LittleGridContext to) {
 		this.contextVec.convertTo(to);
 	}
 	
-	public void ensureBothAreEqual(LittleTilePos pos) {
-		this.contextVec.ensureBothAreEqual(pos.contextVec);
-	}
-	
-	public LittleTileVecContext getRelative(LittleTilePos pos) {
-		ensureBothAreEqual(pos);
-		LittleTileVecContext newVec = new LittleTileVecContext(getContext(), new LittleTileVec(getContext(), this.pos.subtract(pos.pos)));
+	public LittleVecContext getRelative(LittleAbsoluteVec pos) {
+		forceContext(pos);
+		LittleVecContext newVec = new LittleVecContext(new LittleVec(getContext(), this.pos.subtract(pos.pos)), getContext());
 		newVec.vec.add(this.contextVec.vec);
 		newVec.vec.sub(pos.contextVec.vec);
 		
@@ -79,22 +81,14 @@ public class LittleTilePos {
 		return newVec;
 	}
 	
-	public void add(LittleTilePos pos) {
+	public void add(LittleAbsoluteVec pos) {
 		this.pos = this.pos.add(pos.pos);
-		ensureBothAreEqual(pos);
-		this.contextVec.vec.add(pos.contextVec.vec);
-		
-		pos.convertToSmallest();
-		convertToSmallest();
+		ensureContext(pos, () -> this.contextVec.vec.add(pos.contextVec.vec));
 	}
 	
-	public void sub(LittleTilePos pos) {
+	public void sub(LittleAbsoluteVec pos) {
 		this.pos = this.pos.subtract(pos.pos);
-		ensureBothAreEqual(pos);
-		this.contextVec.vec.sub(pos.contextVec.vec);
-		
-		pos.convertToSmallest();
-		convertToSmallest();
+		ensureContext(pos, () -> this.contextVec.vec.sub(pos.contextVec.vec));
 	}
 	
 	public void add(Vec3i vec) {
@@ -105,11 +99,11 @@ public class LittleTilePos {
 		pos = pos.subtract(vec);
 	}
 	
-	public void add(LittleTileVecContext vec) {
+	public void add(LittleVecContext vec) {
 		contextVec.add(vec);
 	}
 	
-	public void sub(LittleTileVecContext vec) {
+	public void sub(LittleVecContext vec) {
 		contextVec.sub(vec);
 	}
 	
@@ -150,8 +144,8 @@ public class LittleTilePos {
 		}
 	}
 	
-	public LittleTilePos copy() {
-		return new LittleTilePos(pos, contextVec.copy());
+	public LittleAbsoluteVec copy() {
+		return new LittleAbsoluteVec(pos, contextVec.copy());
 	}
 	
 	public double getPosX() {
@@ -166,17 +160,17 @@ public class LittleTilePos {
 		return pos.getZ() + contextVec.getPosZ();
 	}
 	
-	public Vec3d getVec() {
+	public Vec3d getVec3d() {
 		return new Vec3d(getPosX(), getPosY(), getPosZ());
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
-		nbt.setIntArray(name, new int[] { pos.getX(), pos.getY(), pos.getZ(), contextVec.context.size, contextVec.vec.x,
-		        contextVec.vec.y, contextVec.vec.z });
+		nbt.setIntArray(name, new int[] { pos.getX(), pos.getY(), pos.getZ(), contextVec.context.size, contextVec.vec.x, contextVec.vec.y, contextVec.vec.z });
 	}
 	
+	@Override
 	public LittleGridContext getContext() {
-		return contextVec.context;
+		return contextVec.getContext();
 	}
 	
 	@Override
@@ -184,10 +178,27 @@ public class LittleTilePos {
 		return pos.hashCode();
 	}
 	
+	public LittleVecContext getVecContext() {
+		return contextVec;
+	}
+	
+	public LittleVec getVec() {
+		return contextVec.getVec();
+	}
+	
+	public void setVecContext(LittleVecContext vec) {
+		this.contextVec = vec;
+	}
+	
+	@Deprecated
+	public void overwriteContext(LittleGridContext context) {
+		contextVec.overwriteContext(context);
+	}
+	
 	@Override
 	public boolean equals(Object paramObject) {
-		if (paramObject instanceof LittleTilePos) {
-			LittleTilePos pos = (LittleTilePos) paramObject;
+		if (paramObject instanceof LittleAbsoluteVec) {
+			LittleAbsoluteVec pos = (LittleAbsoluteVec) paramObject;
 			LittleGridContext newContext = LittleGridContext.max(getContext(), pos.getContext());
 			
 			int multiplier = newContext.size / getContext().size;

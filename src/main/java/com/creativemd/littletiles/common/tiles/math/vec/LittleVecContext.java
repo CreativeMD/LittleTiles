@@ -1,91 +1,80 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.vec;
 
 import java.security.InvalidParameterException;
 
 import javax.vecmath.Vector3d;
 
+import com.creativemd.littletiles.common.utils.grid.IGridBased;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class LittleTileVecContext {
+public class LittleVecContext implements IGridBased {
 	
-	public LittleTileVec vec;
-	public LittleGridContext context;
+	protected LittleVec vec;
+	protected LittleGridContext context;
 	
-	public LittleTileVecContext() {
-		this(LittleGridContext.getMin(), new LittleTileVec(0, 0, 0));
+	public LittleVecContext() {
+		this(new LittleVec(0, 0, 0), LittleGridContext.getMin());
 	}
 	
-	public LittleTileVecContext(String name, NBTTagCompound nbt) {
-		loadFromNBT(name, nbt);
-	}
-	
-	protected void loadFromNBT(String name, NBTTagCompound nbt) {
+	public LittleVecContext(String name, NBTTagCompound nbt) {
 		int[] array = nbt.getIntArray(name);
 		if (array.length == 3) // Loading vec
 		{
-			LittleTileVec vec = new LittleTileVec(name, nbt);
+			LittleVec vec = new LittleVec(name, nbt);
 			this.context = LittleGridContext.get();
-			this.vec = new LittleTileVec(vec.x, vec.y, vec.z);
+			this.vec = new LittleVec(vec.x, vec.y, vec.z);
 		} else if (array.length == 4) {
-			this.vec = new LittleTileVec(array[0], array[1], array[2]);
+			this.vec = new LittleVec(array[0], array[1], array[2]);
 			this.context = LittleGridContext.get(array[3]);
 		} else
 			throw new InvalidParameterException("No valid coords given " + nbt);
 	}
 	
-	public LittleTileVecContext(LittleGridContext context, LittleTileVec vec) {
+	public LittleVecContext(LittleVec vec, LittleGridContext context) {
 		this.vec = vec;
 		this.context = context;
 	}
 	
+	@Override
+	public LittleGridContext getContext() {
+		return context;
+	}
+	
+	@Override
 	public void convertTo(LittleGridContext to) {
 		vec.convertTo(context, to);
 		this.context = to;
 	}
 	
+	@Override
 	public void convertToSmallest() {
 		int size = vec.getSmallestContext(context);
 		if (size < context.size)
 			convertTo(LittleGridContext.get(size));
 	}
 	
-	public void ensureBothAreEqual(LittleTileVecContext vec) {
-		if (context != vec.context) {
-			if (context.size > vec.context.size)
-				vec.convertTo(context);
-			else
-				this.convertTo(vec.context);
-		}
-	}
-	
-	public void add(LittleTileVecContext vec) {
-		ensureBothAreEqual(vec);
-		this.vec.add(vec.vec);
-		vec.convertToSmallest();
-		this.convertToSmallest();
+	public void add(LittleVecContext vec) {
+		ensureContext(vec, () -> this.vec.add(vec.vec));
 	}
 	
 	public void add(BlockPos pos) {
 		this.vec.add(pos, context);
 	}
 	
-	public void sub(LittleTileVecContext vec) {
-		ensureBothAreEqual(vec);
-		this.vec.sub(vec.vec);
-		vec.convertToSmallest();
-		this.convertToSmallest();
+	public void sub(LittleVecContext vec) {
+		ensureContext(vec, () -> this.vec.sub(vec.vec));
 	}
 	
 	public void sub(BlockPos pos) {
 		this.vec.sub(pos, context);
 	}
 	
-	public LittleTileVecContext copy() {
-		return new LittleTileVecContext(context, vec.copy());
+	public LittleVecContext copy() {
+		return new LittleVecContext(vec.copy(), context);
 	}
 	
 	public BlockPos getBlockPos() {
@@ -104,7 +93,11 @@ public class LittleTileVecContext {
 		return vec.getPosZ(context);
 	}
 	
-	public Vec3d getVec() {
+	public LittleVec getVec() {
+		return vec;
+	}
+	
+	public Vec3d getVec3d() {
 		return vec.getVec(context);
 	}
 	
@@ -112,10 +105,10 @@ public class LittleTileVecContext {
 		return vec.getVector(context);
 	}
 	
-	public LittleTileVec getVec(LittleGridContext context) {
+	public LittleVec getVec(LittleGridContext context) {
 		if (context == this.context)
 			return vec.copy();
-		LittleTileVec newVec = vec.copy();
+		LittleVec newVec = vec.copy();
 		newVec.convertTo(this.context, context);
 		return newVec;
 	}
@@ -129,14 +122,24 @@ public class LittleTileVecContext {
 		return vec.hashCode();
 	}
 	
+	@Deprecated
+	public void overwriteContext(LittleGridContext context) {
+		this.context = context;
+	}
+	
 	@Override
 	public boolean equals(Object paramObject) {
-		if (paramObject instanceof LittleTileVecContext) {
-			LittleTileVecContext otherVec = (LittleTileVecContext) paramObject;
+		if (paramObject instanceof LittleVecContext) {
+			LittleVecContext otherVec = (LittleVecContext) paramObject;
 			LittleGridContext oldContext = context;
 			LittleGridContext oldContextPos = otherVec.context;
 			
-			ensureBothAreEqual(otherVec);
+			if (getContext() != otherVec.getContext()) {
+				if (getContext().size > otherVec.getContext().size)
+					otherVec.convertTo(getContext());
+				else
+					convertTo(otherVec.getContext());
+			}
 			
 			boolean equal = context == otherVec.context && vec.equals(otherVec.vec);
 			

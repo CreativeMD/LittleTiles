@@ -43,10 +43,10 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -131,7 +131,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			
 			GrabberMode mode = getMode(stack);
 			if (mode.renderBlockSeparately(stack)) {
-				LittleTilePreview preview = mode.getSeparateRenderingPreview(stack);
+				LittlePreview preview = mode.getSeparateRenderingPreview(stack);
 				ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
 				model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 				if (!(model instanceof CreativeBakedModel))
@@ -338,7 +338,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		public abstract void setPreviews(LittlePreviews previews, ItemStack stack);
 		
-		public LittleTilePreview getSeparateRenderingPreview(ItemStack stack) {
+		public LittlePreview getSeparateRenderingPreview(ItemStack stack) {
 			return getPreviews(stack).get(0);
 		}
 		
@@ -400,7 +400,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
-			LittleTilePreview oldPreview = getPreview(stack);
+			LittlePreview oldPreview = getPreview(stack);
 			LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 			tile.box = oldPreview.box;
 			setPreview(stack, tile.getPreviewTile());
@@ -408,35 +408,35 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt) {
-			LittleTilePreview oldPreview = getPreview(stack);
-			LittleTilePreview preview = tile.getPreviewTile();
+			LittlePreview oldPreview = getPreview(stack);
+			LittlePreview preview = tile.getPreviewTile();
 			preview.box = oldPreview.box;
 			setPreview(stack, preview);
 		}
 		
-		public static LittleTilePreview getPreview(ItemStack stack) {
+		public static LittlePreview getPreview(ItemStack stack) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
 			if (stack.getTagCompound().hasKey("preview"))
 				return getPreview(stack.getTagCompound());
 			
-			LittleTilePreview preview = getPreview(stack.getTagCompound()); // Old way
+			LittlePreview preview = getPreview(stack.getTagCompound()); // Old way
 			setPreview(stack, preview);
 			return preview;
 		}
 		
-		public static LittleTilePreview getPreview(NBTTagCompound nbt) {
+		public static LittlePreview getPreview(NBTTagCompound nbt) {
 			if (nbt.hasKey("preview"))
-				return LittleTilePreview.loadPreviewFromNBT(nbt.getCompoundTag("preview"));
+				return LittlePreview.loadPreviewFromNBT(nbt.getCompoundTag("preview"));
 			
 			IBlockState state = nbt.hasKey("state") ? Block.getStateById(nbt.getInteger("state")) : Blocks.STONE.getDefaultState();
 			LittleTile tile = nbt.hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), nbt.getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, 1, 1, 1);
+			tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
 			return tile.getPreviewTile();
 		}
 		
-		public static void setPreview(ItemStack stack, LittleTilePreview preview) {
+		public static void setPreview(ItemStack stack, LittlePreview preview) {
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
@@ -456,14 +456,14 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@SideOnly(Side.CLIENT)
 		public SubGuiGrabber getGui(EntityPlayer player, ItemStack stack, LittleGridContext context) {
 			return new SubGuiGrabber(this, stack, 140, 140, context) {
-				public LittleTileSize size;
+				public LittleVec size;
 				public boolean isColored = false;
 				
 				@Override
 				public void createControls() {
 					super.createControls();
 					LittleGridContext oldContext = LittleGridContext.get(stack.getTagCompound());
-					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+					LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					preview.convertTo(oldContext, context);
 					if (preview.box.minX == preview.box.maxX)
 						preview.box.maxX++;
@@ -473,9 +473,9 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 						preview.box.maxZ++;
 					size = preview.box.getSize();
 					
-					controls.add(new GuiSteppedSlider("sizeX", 25, 20, 50, 10, size.sizeX, 1, context.size));
-					controls.add(new GuiSteppedSlider("sizeY", 25, 35, 50, 10, size.sizeY, 1, context.size));
-					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.sizeZ, 1, context.size));
+					controls.add(new GuiSteppedSlider("sizeX", 25, 20, 50, 10, size.x, 1, context.size));
+					controls.add(new GuiSteppedSlider("sizeY", 25, 35, 50, 10, size.y, 1, context.size));
+					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.z, 1, context.size));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
 					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
@@ -493,13 +493,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					updateLabel();
 				}
 				
-				public LittleTilePreview getPreview(LittleGridContext context) {
+				public LittlePreview getPreview(LittleGridContext context) {
 					GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 					ItemStack selected = selector.getSelected();
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-						tile.box = new LittleTileBox(context.minPos, context.minPos, context.minPos, context.size, context.size, context.size);
+						tile.box = new LittleBox(0, 0, 0, context.size, context.size, context.size);
 						return tile.getPreviewTile();
 					} else
 						return ItemLittleGrabber.SimpleMode.getPreview(stack);
@@ -508,11 +508,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				public void updateLabel() {
 					GuiAvatarLabel label = (GuiAvatarLabel) get("avatar");
 					
-					LittleTilePreview preview = getPreview(context);
+					LittlePreview preview = getPreview(context);
 					
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
-					preview.box.set(0, 0, 0, size.sizeX, size.sizeY, size.sizeZ);
+					preview.box.set(0, 0, 0, size.x, size.y, size.z);
 					
 					label.avatar = new AvatarItemStack(ItemBlockTiles.getStackFromPreview(context, preview));
 				}
@@ -544,16 +544,16 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				
 				@CustomEventSubscribe
 				public void onChange(GuiControlChangedEvent event) {
-					size.sizeX = (int) ((GuiSteppedSlider) get("sizeX")).value;
-					size.sizeY = (int) ((GuiSteppedSlider) get("sizeY")).value;
-					size.sizeZ = (int) ((GuiSteppedSlider) get("sizeZ")).value;
+					size.x = (int) ((GuiSteppedSlider) get("sizeX")).value;
+					size.y = (int) ((GuiSteppedSlider) get("sizeY")).value;
+					size.z = (int) ((GuiSteppedSlider) get("sizeZ")).value;
 					updateLabel();
 				}
 				
 				@Override
 				public void saveConfiguration() {
-					LittleTilePreview preview = getPreview(context);
-					preview.box.set(context.minPos, context.minPos, context.minPos, size.sizeX, size.sizeY, size.sizeZ);
+					LittlePreview preview = getPreview(context);
+					preview.box.set(0, 0, 0, size.x, size.y, size.z);
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
 					setPreview(stack, preview);
@@ -570,7 +570,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		public void addExtraInformation(NBTTagCompound nbt, List<String> tooltip) {
 			super.addExtraInformation(nbt, tooltip);
-			LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(nbt);
+			LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(nbt);
 			tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
 		}
 		
@@ -622,12 +622,12 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
-			LittlePreviews previews = LittleTilePreview.getPreview(stack);
+			LittlePreviews previews = LittlePreview.getPreview(stack);
 			if (previews.size() == 0) {
 				IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
 				LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-				tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, 1, 1, 1);
-				LittleTilePreview preview = tile.getPreviewTile();
+				tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
+				LittlePreview preview = tile.getPreviewTile();
 				
 				previews.addWithoutCheckingPreview(preview);
 				setPreview(stack, previews);
@@ -640,7 +640,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			if (!stack.hasTagCompound())
 				stack.setTagCompound(new NBTTagCompound());
 			
-			LittleTilePreview.savePreview(previews, stack);
+			LittlePreview.savePreview(previews, stack);
 		}
 		
 		public static BlockPos getOrigin(ItemStack stack) {
@@ -662,7 +662,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		@Override
 		@SideOnly(Side.CLIENT)
 		public List<RenderCubeObject> getRenderingCubes(ItemStack stack) {
-			return LittleTilePreview.getCubes(stack);
+			return LittlePreview.getCubes(stack);
 		}
 		
 		@Override
@@ -714,7 +714,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				
 				@Override
 				public void createControls() {
-					LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+					LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
 					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
@@ -725,13 +725,13 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					super.createControls();
 				}
 				
-				public LittleTilePreview getPreview(LittleGridContext context) {
+				public LittlePreview getPreview(LittleGridContext context) {
 					GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 					ItemStack selected = selector.getSelected();
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 						LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-						tile.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+						tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
 						return tile.getPreviewTile();
 					} else
 						return ItemLittleGrabber.SimpleMode.getPreview(stack);
@@ -739,11 +739,11 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				
 				@Override
 				public void saveConfiguration() {
-					LittleTilePreview preview = getPreview(context);
+					LittlePreview preview = getPreview(context);
 					GuiColorPicker picker = (GuiColorPicker) get("picker");
 					preview.setColor(ColorUtils.RGBAToInt(picker.color));
 					if (stack.getTagCompound().hasKey("preview")) {
-						LittleTilePreview oldPreview = LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
+						LittlePreview oldPreview = LittlePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
 						if (oldPreview != null)
 							preview.box = oldPreview.box;
 					}
@@ -771,7 +771,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		}
 		
 		@Override
-		public LittleTilePreview getSeparateRenderingPreview(ItemStack stack) {
+		public LittlePreview getSeparateRenderingPreview(ItemStack stack) {
 			return getPreview(stack);
 		}
 		

@@ -2,10 +2,10 @@ package com.creativemd.littletiles.common.structure.relative;
 
 import javax.vecmath.Vector3d;
 
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,7 +17,7 @@ public class StructureAbsolute extends StructureRelative {
 		return coord < 0 ? -((-coord - 1) / bucketSize) - 1 : coord / bucketSize;
 	}
 	
-	public final LittleTileVecContext inBlockOffset;
+	public final LittleVecContext inBlockOffset;
 	public final BlockPos baseOffset;
 	public final BlockPos chunkOffset;
 	public final BlockPos inChunkOffset;
@@ -25,10 +25,10 @@ public class StructureAbsolute extends StructureRelative {
 	public final Vector3d rotationCenter;
 	public final Vector3d rotationCenterInsideBlock;
 	
-	public StructureAbsolute(BlockPos pos, LittleTileBox box, LittleGridContext context) {
+	public StructureAbsolute(BlockPos pos, LittleBox box, LittleGridContext context) {
 		super(box, context);
 		
-		LittleTileVecContext minVec = getMinVec();
+		LittleVecContext minVec = getMinVec();
 		BlockPos minPosOffset = minVec.getBlockPos();
 		sub(minPosOffset);
 		
@@ -50,18 +50,18 @@ public class StructureAbsolute extends StructureRelative {
 		this.rotationCenter.z += baseOffset.getZ();
 	}
 	
-	public StructureAbsolute(LittleTilePos pos, LittleTileBox box, LittleGridContext context) {
+	public StructureAbsolute(LittleAbsoluteVec pos, LittleBox box, LittleGridContext context) {
 		super(box, context);
-		add(pos.contextVec);
+		add(pos.getVecContext());
 		
-		LittleTileVecContext minVec = getMinVec();
+		LittleVecContext minVec = getMinVec();
 		BlockPos minPosOffset = minVec.getBlockPos();
 		sub(minPosOffset);
 		minVec.sub(minPosOffset);
 		
 		this.inBlockOffset = minVec;
 		
-		this.baseOffset = pos.pos.add(minPosOffset);
+		this.baseOffset = pos.getPos().add(minPosOffset);
 		
 		this.chunkOffset = new BlockPos(baseOffset.getX() >> 4, baseOffset.getY() >> 4, baseOffset.getZ() >> 4);
 		int chunkX = intFloorDiv(baseOffset.getX(), 16);
@@ -77,35 +77,37 @@ public class StructureAbsolute extends StructureRelative {
 		this.rotationCenter.z += baseOffset.getZ();
 	}
 	
-	public StructureAbsolute(LittleTilePos pos, StructureRelative relative) {
+	public StructureAbsolute(LittleAbsoluteVec pos, StructureRelative relative) {
 		this(pos, relative.box.copy(), relative.context);
 	}
 	
 	public StructureAbsolute(String name, NBTTagCompound nbt) {
-		this(getPos(nbt.getIntArray(name + "_pos")), LittleTileBox.createBox(nbt.getIntArray(name + "_box")), LittleGridContext.get(nbt.getInteger(name + "_grid")));
+		this(getPos(nbt.getIntArray(name + "_pos")), LittleBox.createBox(nbt.getIntArray(name + "_box")), LittleGridContext.get(nbt.getInteger(name + "_grid")));
 	}
 	
-	public StructureAbsolute(LittleTilePos axis, LittleTileVec additional) {
-		this(axis.pos, convertAxisToBox(axis.contextVec, additional), axis.getContext());
+	public StructureAbsolute(LittleAbsoluteVec axis, LittleVec additional) {
+		this(axis.getPos(), convertAxisToBox(axis.getVecContext(), additional), axis.getContext());
 	}
 	
+	@Override
 	public void writeToNBT(String name, NBTTagCompound nbt) {
 		nbt.setIntArray(name + "_pos", new int[] { baseOffset.getX(), baseOffset.getY(), baseOffset.getZ() });
 		nbt.setInteger(name + "_grid", context.size);
 		nbt.setIntArray(name + "_box", box.getArray());
 	}
 	
-	public LittleTileVec getDoubledCenterVec() {
-		return new LittleTileVec((box.maxX * 2 - box.minX * 2) / 2, (box.maxY * 2 - box.minY * 2) / 2, (box.maxZ * 2 - box.minZ * 2) / 2);
+	@Override
+	public LittleVec getDoubledCenterVec() {
+		return new LittleVec((box.maxX * 2 - box.minX * 2) / 2, (box.maxY * 2 - box.minY * 2) / 2, (box.maxZ * 2 - box.minZ * 2) / 2);
 	}
 	
 	private static BlockPos getPos(int[] array) {
 		return new BlockPos(array[0], array[1], array[2]);
 	}
 	
-	public static LittleTileBox convertAxisToBox(LittleTileVecContext vec, LittleTileVec additional) {
+	public static LittleBox convertAxisToBox(LittleVecContext vec, LittleVec additional) {
 		if (additional.x == 0)
-			return new LittleTileBox(vec.vec.x - 1, vec.vec.y - 1, vec.vec.z - 1, vec.vec.x + 1, vec.vec.y + 1, vec.vec.z + 1);
-		return new LittleTileBox(additional.x > 0 ? vec.vec.x : vec.vec.x - 1, additional.y > 0 ? vec.vec.y : vec.vec.y - 1, additional.z > 0 ? vec.vec.z : vec.vec.z - 1, additional.x > 0 ? vec.vec.x + 1 : vec.vec.x, additional.y > 0 ? vec.vec.y + 1 : vec.vec.y, additional.z > 0 ? vec.vec.z + 1 : vec.vec.z);
+			return new LittleBox(vec.getVec().x - 1, vec.getVec().y - 1, vec.getVec().z - 1, vec.getVec().x + 1, vec.getVec().y + 1, vec.getVec().z + 1);
+		return new LittleBox(additional.x > 0 ? vec.getVec().x : vec.getVec().x - 1, additional.y > 0 ? vec.getVec().y : vec.getVec().y - 1, additional.z > 0 ? vec.getVec().z : vec.getVec().z - 1, additional.x > 0 ? vec.getVec().x + 1 : vec.getVec().x, additional.y > 0 ? vec.getVec().y + 1 : vec.getVec().y, additional.z > 0 ? vec.getVec().z + 1 : vec.getVec().z);
 	}
 }

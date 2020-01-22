@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.client.render.entity;
 
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
@@ -21,7 +21,7 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 	
 	@Override
 	public void doRender(EntityTNTPrimed entity, double x, double y, double z, float entityYaw, float partialTicks) {
-		LittleTileSize size = ((EntitySizedTNTPrimed) entity).size;
+		LittleVec size = ((EntitySizedTNTPrimed) entity).size;
 		BlockRendererDispatcher blockrendererdispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
 		GlStateManager.pushMatrix();
 		LittleGridContext context = ((EntitySizedTNTPrimed) entity).context;
@@ -29,8 +29,8 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 		
 		GlStateManager.scale(size.getPosX(context), size.getPosY(context), size.getPosZ(context));
 		
-		if ((float) entity.getFuse() - partialTicks + 1.0F < 10.0F) {
-			float f = 1.0F - ((float) entity.getFuse() - partialTicks + 1.0F) / 10.0F;
+		if (entity.getFuse() - partialTicks + 1.0F < 10.0F) {
+			float f = 1.0F - (entity.getFuse() - partialTicks + 1.0F) / 10.0F;
 			f = MathHelper.clamp(f, 0.0F, 1.0F);
 			f = f * f;
 			f = f * f;
@@ -38,7 +38,7 @@ public class RenderSizedTNTPrimed extends RenderTNTPrimed {
 			GlStateManager.scale(f1, f1, f1);
 		}
 		
-		float f2 = (1.0F - ((float) entity.getFuse() - partialTicks + 1.0F) / 100.0F) * 0.8F;
+		float f2 = (1.0F - (entity.getFuse() - partialTicks + 1.0F) / 100.0F) * 0.8F;
 		this.bindEntityTexture(entity);
 		GlStateManager.rotate(-90.0F, 0.0F, 1.0F, 0.0F);
 		GlStateManager.translate(-0.5F, -0.5F, 0.5F);

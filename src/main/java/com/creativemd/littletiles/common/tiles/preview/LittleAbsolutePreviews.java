@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.tiles.preview;
 
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.util.math.BlockPos;
@@ -39,7 +39,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	}
 	
 	@Override
-	public LittleTilePreview addPreview(BlockPos pos, LittleTilePreview preview, LittleGridContext context) {
+	public LittlePreview addPreview(BlockPos pos, LittlePreview preview, LittleGridContext context) {
 		if (this.context != context) {
 			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
@@ -47,23 +47,23 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 				convertTo(context);
 		}
 		
-		preview.box.add(new LittleTileVec(context, pos.subtract(this.pos)));
+		preview.box.add(new LittleVec(context, pos.subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
 	
 	@Override
-	public LittleTilePreview addTile(LittleTile tile) {
-		LittleTilePreview preview = getPreview(tile);
-		preview.box.add(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
+	public LittlePreview addTile(LittleTile tile) {
+		LittlePreview preview = getPreview(tile);
+		preview.box.add(new LittleVec(context, tile.te.getPos().subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
 	
 	@Override
-	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset) {
-		LittleTilePreview preview = getPreview(tile);
-		preview.box.add(new LittleTileVec(context, tile.te.getPos().subtract(this.pos)));
+	public LittlePreview addTile(LittleTile tile, LittleVec offset) {
+		LittlePreview preview = getPreview(tile);
+		preview.box.add(new LittleVec(context, tile.te.getPos().subtract(this.pos)));
 		preview.box.add(offset);
 		previews.add(preview);
 		return preview;

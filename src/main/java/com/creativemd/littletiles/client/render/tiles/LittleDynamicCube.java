@@ -6,8 +6,8 @@ import javax.vecmath.Vector3f;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
+import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlice;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;
@@ -16,31 +16,16 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleDynamicCube {
 	
-	public LittleDynamicCube(CubeObject defaultCube, LittleSlice slice, LittleTileSize size) {
+	public LittleDynamicCube(CubeObject defaultCube, LittleSlice slice, LittleVec size) {
 		this.defaultCube = defaultCube;
 		this.slice = slice;
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		this.line = new Ray2d(one, two, new Vector3d(defaultCube.getValueOfFacing(slice.start.x), defaultCube.getValueOfFacing(slice.start.y), defaultCube.getValueOfFacing(slice.start.z)), defaultCube.getSize(one) * slice.getDirectionScale(one), defaultCube.getSize(two) * slice.getDirectionScale(two));
 		this.preferedSide = slice.getPreferedSide(defaultCube.getSize());
-		/*
-		 * for (LittleCorner corner : LittleCorner.values()) {
-		 * if(slice.isCornerAffected(corner)) { Vector3f vec = new
-		 * Vector3f(defaultCube.getValueOfFacing(corner.x),
-		 * defaultCube.getValueOfFacing(corner.y),
-		 * defaultCube.getValueOfFacing(corner.z)); slice.sliceVector(corner, vec,
-		 * defaultCube, size); set(corner, vec); } }
-		 */
 	}
 	
 	public CubeObject defaultCube;
-	
-	// 1, 1, 1
-	/*
-	 * public Vector3f EUN; public Vector3f EUS; public Vector3f EDN; public
-	 * Vector3f EDS; public Vector3f WUN; public Vector3f WUS; public Vector3f WDN;
-	 * // 0, 0, 0 public Vector3f WDS;
-	 */
 	
 	public LittleSlice slice;
 	public EnumFacing preferedSide;

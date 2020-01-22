@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec.advanced;
+package com.creativemd.littletiles.common.tiles.math.box.slice;
 
 import java.util.List;
 
@@ -13,9 +13,9 @@ import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.client.render.tiles.LittleSlicedRenderingCube;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleUtils;
+import com.creativemd.littletiles.common.tiles.math.LittleUtils;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
@@ -29,7 +29,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
+public class LittleSlicedBox extends LittleSlicedOrdinaryBox {
 	
 	/** start vec (startOne/startTwo) of the slice. Relative to the min vec of the
 	 * box. One is the first different axis from slice.axis */
@@ -46,7 +46,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
 	// ================Constructors================
 	
-	public LittleTileSlicedBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
+	public LittleSlicedBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
 		super(minX, minY, minZ, maxX, maxY, maxZ, slice);
 		this.startOne = startOne;
 		this.startTwo = startTwo;
@@ -54,7 +54,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 		this.endTwo = endTwo;
 	}
 	
-	public LittleTileSlicedBox(LittleTileBox box, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
+	public LittleSlicedBox(LittleBox box, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
 		this(box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, slice, startOne, startTwo, endOne, endTwo);
 	}
 	
@@ -187,12 +187,12 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	// ================Block Integration================
 	
 	@Override
-	public LittleTileBox createOutsideBlockBox(LittleGridContext context, EnumFacing facing) {
+	public LittleBox createOutsideBlockBox(LittleGridContext context, EnumFacing facing) {
 		if (facing == slice.emptySideOne || facing == slice.emptySideTwo)
 			return null;
 		
 		if (facing.getAxis() == slice.axis) {
-			LittleTileSlicedBox box = this.copy();
+			LittleSlicedBox box = this.copy();
 			
 			switch (facing) {
 			case EAST:
@@ -239,27 +239,27 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	// ================Box to box================
 	
 	@Override
-	public LittleTileBox combineBoxes(LittleTileBox box, BasicCombiner combiner) {
-		if (box instanceof LittleTileSlicedOrdinaryBox && ((LittleTileSlicedOrdinaryBox) box).slice == slice) {
+	public LittleBox combineBoxes(LittleBox box, BasicCombiner combiner) {
+		if (box instanceof LittleSlicedOrdinaryBox && ((LittleSlicedOrdinaryBox) box).slice == slice) {
 			Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 			Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 			
-			if (!LittleUtils.equals(getSliceAngle(one, two), ((LittleTileSlicedOrdinaryBox) box).getSliceAngle(one, two)))
+			if (!LittleUtils.equals(getSliceAngle(one, two), ((LittleSlicedOrdinaryBox) box).getSliceAngle(one, two)))
 				return null;
 			
 			EnumFacing facing = sharedBoxFace(box);
 			if (facing != null) {
 				Axis axis = facing.getAxis();
 				
-				if (((LittleTileSlicedOrdinaryBox) box).isOrdinary())
+				if (((LittleSlicedOrdinaryBox) box).isOrdinary())
 					return null;
 				
 				if (axis == slice.axis) {
-					LittleTileSlicedBox slicedBox = (LittleTileSlicedBox) box;
+					LittleSlicedBox slicedBox = (LittleSlicedBox) box;
 					
 					if (!LittleUtils.equals(getMaxSlice(one), slicedBox.getMaxSlice(one)) || !LittleUtils.equals(getMinSlice(one), slicedBox.getMinSlice(one)) || !LittleUtils.equals(getMaxSlice(two), slicedBox.getMaxSlice(two)) || !LittleUtils.equals(getMinSlice(two), slicedBox.getMinSlice(two)))
 						return null;
-					LittleTileBox newBox = copy();
+					LittleBox newBox = copy();
 					if (facing.getAxisDirection() != AxisDirection.POSITIVE)
 						newBox.setMax(slice.axis, box.getMax(slice.axis));
 					else
@@ -267,7 +267,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					return newBox;
 				}
 				
-				LittleTileSlicedBox sliceBox = (LittleTileSlicedBox) box;
+				LittleSlicedBox sliceBox = (LittleSlicedBox) box;
 				
 				Axis other = axis == one ? two : one;
 				boolean facePositive = facing.getAxisDirection() == AxisDirection.POSITIVE;
@@ -294,7 +294,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					double endOne = slice.end.isFacingPositive(one) ? Math.max(getMaxSlice(one), sliceBox.getMaxSlice(one)) : Math.min(getMinSlice(one), sliceBox.getMinSlice(one));
 					double endTwo = slice.end.isFacingPositive(two) ? Math.max(getMaxSlice(two), sliceBox.getMaxSlice(two)) : Math.min(getMinSlice(two), sliceBox.getMinSlice(two));
 					
-					LittleTileSlicedBox newBox = copy();
+					LittleSlicedBox newBox = copy();
 					/*
 					 * if((facing.getAxis() == Axis.Y) == (facing.getAxisDirection() ==
 					 * AxisDirection.POSITIVE)) newBox.setMax(axis, box.getMax(axis)); else
@@ -313,19 +313,19 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					newBox.endTwo = (float) (endTwo - newBox.getMin(two));
 					
 					if (newBox.getMinSlice(one) == 0 && newBox.getMinSlice(two) == 0 && newBox.getMaxSlice(one) == newBox.getSize(one) && newBox.getMaxSlice(two) == newBox.getSize(two))
-						return new LittleTileSlicedOrdinaryBox(newBox, slice);
+						return new LittleSlicedOrdinaryBox(newBox, slice);
 					else
 						return newBox;
 				}
 				
 				return null;
 			} else if (getMin(slice.axis) == box.getMin(slice.axis) && getMax(slice.axis) == box.getMax(slice.axis)) {
-				LittleTileSlicedOrdinaryBox slicedBox = (LittleTileSlicedOrdinaryBox) box;
+				LittleSlicedOrdinaryBox slicedBox = (LittleSlicedOrdinaryBox) box;
 				
-				double minSliceOne = slicedBox.isOrdinary() ? slicedBox.getMin(one) : ((LittleTileSlicedBox) slicedBox).getMinSlice(one);
-				double minSliceTwo = slicedBox.isOrdinary() ? slicedBox.getMin(two) : ((LittleTileSlicedBox) slicedBox).getMinSlice(two);
-				double maxSliceOne = slicedBox.isOrdinary() ? slicedBox.getMax(one) : ((LittleTileSlicedBox) slicedBox).getMaxSlice(one);
-				double maxSliceTwo = slicedBox.isOrdinary() ? slicedBox.getMax(two) : ((LittleTileSlicedBox) slicedBox).getMaxSlice(two);
+				double minSliceOne = slicedBox.isOrdinary() ? slicedBox.getMin(one) : ((LittleSlicedBox) slicedBox).getMinSlice(one);
+				double minSliceTwo = slicedBox.isOrdinary() ? slicedBox.getMin(two) : ((LittleSlicedBox) slicedBox).getMinSlice(two);
+				double maxSliceOne = slicedBox.isOrdinary() ? slicedBox.getMax(one) : ((LittleSlicedBox) slicedBox).getMaxSlice(one);
+				double maxSliceTwo = slicedBox.isOrdinary() ? slicedBox.getMax(two) : ((LittleSlicedBox) slicedBox).getMaxSlice(two);
 				
 				boolean shareOnePostive = LittleUtils.equals(getMaxSlice(one), minSliceOne);
 				boolean shareOneNegative = LittleUtils.equals(getMinSlice(one), maxSliceOne);
@@ -364,7 +364,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					 * LittleUtils.equals(minSliceTwo, box.getMin(two))) return null;
 					 */
 					
-					LittleTileBox boxInBetween = new LittleTileBox(this);
+					LittleBox boxInBetween = new LittleBox(this);
 					if (shareOnePostive != postiveOne) {
 						boxInBetween.setMin(one, box.getMin(one));
 						boxInBetween.setMax(one, box.getMax(one));
@@ -386,7 +386,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 					}
 					
 					if (combiner.cutOut(boxInBetween)) {
-						LittleTileSlicedBox newBox = this.copy();
+						LittleSlicedBox newBox = this.copy();
 						newBox.minX = Math.min(newBox.minX, box.minX);
 						newBox.minY = Math.min(newBox.minY, box.minY);
 						newBox.minZ = Math.min(newBox.minZ, box.minZ);
@@ -405,7 +405,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 						newBox.endTwo = (float) (endTwo - newBox.getMin(two));
 						
 						if (newBox.getMinSlice(one) == 0 && newBox.getMinSlice(two) == 0 && newBox.getMaxSlice(one) == newBox.getSize(one) && newBox.getMaxSlice(two) == newBox.getSize(two))
-							return new LittleTileSlicedOrdinaryBox(newBox, slice);
+							return new LittleSlicedOrdinaryBox(newBox, slice);
 						else
 							return newBox;
 					}
@@ -417,7 +417,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
 	@Override
 	@Nullable
-	public EnumFacing sharedBoxFace(LittleTileBox box) {
+	public EnumFacing sharedBoxFace(LittleBox box) {
 		boolean x = slice.axis == Axis.X ? this.minX == box.minX && this.maxX == box.maxX : slice.isFacingPositive(Axis.X) ? this.minX == box.minX : this.maxX == box.maxX;
 		boolean y = slice.axis == Axis.Y ? this.minY == box.minY && this.maxY == box.maxY : slice.isFacingPositive(Axis.Y) ? this.minY == box.minY : this.maxY == box.maxY;
 		boolean z = slice.axis == Axis.Z ? this.minZ == box.minZ && this.maxZ == box.maxZ : slice.isFacingPositive(Axis.Z) ? this.minZ == box.minZ : this.maxZ == box.maxZ;
@@ -487,7 +487,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	protected boolean intersectsWithBetweenSliceAndBoxInternally(LittleTileBox box) {
+	protected boolean intersectsWithBetweenSliceAndBoxInternally(LittleBox box) {
 		EnumFacing ignoreFace = RotationUtils.getFacing(slice.axis);
 		
 		Axis axisOne = RotationUtils.getDifferentAxisFirst(slice.axis);
@@ -627,14 +627,14 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public boolean intersectsWithFace(EnumFacing facing, LittleTileVec vec, boolean completely) {
+	public boolean intersectsWithFace(EnumFacing facing, LittleVec vec, boolean completely) {
 		if (!super.intersectsWithFace(facing, vec, completely))
 			return false;
 		
 		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
-		LittleTileVec copy = vec.copy();
+		LittleVec copy = vec.copy();
 		
 		if (facing.getAxis() == slice.axis) {
 			if (completely == slice.isFacingPositive(one))
@@ -839,7 +839,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	// ================Rotation & Flip================
 	
 	@Override
-	public void rotateBox(Rotation rotation, LittleTileVec doubledCenter) {
+	public void rotateBox(Rotation rotation, LittleVec doubledCenter) {
 		Axis beforeOne = RotationUtils.getDifferentAxisFirst(slice.axis);
 		Axis beforeTwo = RotationUtils.getDifferentAxisSecond(slice.axis);
 		
@@ -891,7 +891,7 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public void flipBox(Axis axis, LittleTileVec doubledCenter) {
+	public void flipBox(Axis axis, LittleVec doubledCenter) {
 		if (axis == slice.axis) {
 			super.flipBox(axis, doubledCenter);
 			return;
@@ -916,8 +916,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof LittleTileSlicedBox)
-			return super.equals(object) && LittleUtils.equals(((LittleTileSlicedBox) object).startOne, startOne) && LittleUtils.equals(((LittleTileSlicedBox) object).startTwo, startTwo) && LittleUtils.equals(((LittleTileSlicedBox) object).endOne, endOne) && LittleUtils.equals(((LittleTileSlicedBox) object).endTwo, endTwo);
+		if (object instanceof LittleSlicedBox)
+			return super.equals(object) && LittleUtils.equals(((LittleSlicedBox) object).startOne, startOne) && LittleUtils.equals(((LittleSlicedBox) object).startTwo, startTwo) && LittleUtils.equals(((LittleSlicedBox) object).endOne, endOne) && LittleUtils.equals(((LittleSlicedBox) object).endTwo, endTwo);
 		return false;
 	}
 	
@@ -929,8 +929,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	// ================Special methods================
 	
 	@Override
-	public LittleTileSlicedBox copy() {
-		return new LittleTileSlicedBox(minX, minY, minZ, maxX, maxY, maxZ, slice, startOne, startTwo, endOne, endTwo);
+	public LittleSlicedBox copy() {
+		return new LittleSlicedBox(minX, minY, minZ, maxX, maxY, maxZ, slice, startOne, startTwo, endOne, endTwo);
 	}
 	
 	@Override
@@ -955,8 +955,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public LittleTileBox grow(EnumFacing direction) {
-		LittleTileSlicedBox box = (LittleTileSlicedBox) super.grow(direction);
+	public LittleBox grow(EnumFacing direction) {
+		LittleSlicedBox box = (LittleSlicedBox) super.grow(direction);
 		
 		double delta = (double) box.getSize(direction.getAxis()) / (double) getSize(direction.getAxis());
 		if (direction.getAxis() == RotationUtils.getDifferentAxisFirst(slice.axis)) {
@@ -970,8 +970,8 @@ public class LittleTileSlicedBox extends LittleTileSlicedOrdinaryBox {
 	}
 	
 	@Override
-	public LittleTileBox shrink(EnumFacing direction, boolean toLimit) {
-		LittleTileSlicedBox box = (LittleTileSlicedBox) super.shrink(direction, toLimit);
+	public LittleBox shrink(EnumFacing direction, boolean toLimit) {
+		LittleSlicedBox box = (LittleSlicedBox) super.shrink(direction, toLimit);
 		
 		if (box == null)
 			return null;

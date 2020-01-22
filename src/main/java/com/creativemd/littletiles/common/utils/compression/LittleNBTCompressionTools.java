@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -82,24 +82,24 @@ public class LittleNBTCompressionTools {
 	}
 	
 	public static NBTTagList writePreviews(LittlePreviews previews) {
-		HashMapList<String, LittleTilePreview> groups = new HashMapList<>();
+		HashMapList<String, LittlePreview> groups = new HashMapList<>();
 		
 		for (Iterator iterator = previews.iterator(); iterator.hasNext();) {
-			LittleTilePreview preview = (LittleTilePreview) iterator.next();
+			LittlePreview preview = (LittlePreview) iterator.next();
 			groups.add(preview.getTypeID(), preview);
 		}
 		
 		NBTTagList list = new NBTTagList();
 		
-		for (Iterator<ArrayList<LittleTilePreview>> iterator = groups.values().iterator(); iterator.hasNext();) {
-			ArrayList<LittleTilePreview> classList = iterator.next();
+		for (Iterator<ArrayList<LittlePreview>> iterator = groups.values().iterator(); iterator.hasNext();) {
+			ArrayList<LittlePreview> classList = iterator.next();
 			
 			while (classList.size() > 0) {
-				LittleTilePreview grouping = classList.remove(0);
+				LittlePreview grouping = classList.remove(0);
 				NBTTagCompound groupNBT = null;
 				
 				for (Iterator iterator2 = classList.iterator(); iterator2.hasNext();) {
-					LittleTilePreview preview = (LittleTilePreview) iterator2.next();
+					LittlePreview preview = (LittlePreview) iterator2.next();
 					if (grouping.canBeNBTGrouped(preview)) {
 						if (groupNBT == null)
 							groupNBT = grouping.startNBTGrouping();
@@ -173,12 +173,12 @@ public class LittleNBTCompressionTools {
 				
 				List<NBTTagCompound> nbts = handler.extractNBTFromGroup(nbt);
 				for (int j = 0; j < nbts.size(); j++) {
-					LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbts.get(j));
+					LittlePreview preview = LittlePreview.loadPreviewFromNBT(nbts.get(j));
 					if (preview != null)
 						previews.addWithoutCheckingPreview(preview);
 				}
 			} else {
-				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
+				LittlePreview preview = LittlePreview.loadPreviewFromNBT(nbt);
 				if (preview != null)
 					previews.addWithoutCheckingPreview(preview);
 			}

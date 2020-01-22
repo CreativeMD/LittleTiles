@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.vec;
 
 import java.security.InvalidParameterException;
 
@@ -22,15 +22,15 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
 
-public class LittleTileVec implements IVecInt {
+public class LittleVec implements IVecInt {
 	
-	public static final LittleTileVec ZERO = new LittleTileVec(0, 0, 0);
+	public static final LittleVec ZERO = new LittleVec(0, 0, 0);
 	
 	public int x;
 	public int y;
 	public int z;
 	
-	public LittleTileVec(String name, NBTTagCompound nbt) {
+	public LittleVec(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "x") instanceof NBTTagByte) {
 			set(nbt.getByte(name + "x"), nbt.getByte(name + "y"), nbt.getByte(name + "z"));
 			writeToNBT(name, nbt);
@@ -52,23 +52,23 @@ public class LittleTileVec implements IVecInt {
 		}
 	}
 	
-	public LittleTileVec(LittleGridContext context, RayTraceResult result) {
+	public LittleVec(LittleGridContext context, RayTraceResult result) {
 		this(context, result.hitVec, result.sideHit);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3d vec, EnumFacing facing) {
+	public LittleVec(LittleGridContext context, Vec3d vec, EnumFacing facing) {
 		this(context, vec);
 		if (facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
 			set(facing.getAxis(), get(facing.getAxis()) + 1);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3d vec) {
+	public LittleVec(LittleGridContext context, Vec3d vec) {
 		this.x = context.toGrid(vec.x);
 		this.y = context.toGrid(vec.y);
 		this.z = context.toGrid(vec.z);
 	}
 	
-	public LittleTileVec(EnumFacing facing) {
+	public LittleVec(EnumFacing facing) {
 		switch (facing) {
 		case EAST:
 			set(1, 0, 0);
@@ -94,11 +94,11 @@ public class LittleTileVec implements IVecInt {
 		}
 	}
 	
-	public LittleTileVec(int x, int y, int z) {
+	public LittleVec(int x, int y, int z) {
 		set(x, y, z);
 	}
 	
-	public LittleTileVec(LittleGridContext context, Vec3i vec) {
+	public LittleVec(LittleGridContext context, Vec3i vec) {
 		this(context.toGrid(vec.getX()), context.toGrid(vec.getY()), context.toGrid(vec.getZ()));
 	}
 	
@@ -158,7 +158,7 @@ public class LittleTileVec implements IVecInt {
 		set(facing.getAxis(), get(facing.getAxis()) + facing.getAxisDirection().getOffset());
 	}
 	
-	public void add(LittleTileVec vec) {
+	public void add(LittleVec vec) {
 		this.x += vec.x;
 		this.y += vec.y;
 		this.z += vec.z;
@@ -174,7 +174,7 @@ public class LittleTileVec implements IVecInt {
 		set(facing.getAxis(), get(facing.getAxis()) - facing.getAxisDirection().getOffset());
 	}
 	
-	public void sub(LittleTileVec vec) {
+	public void sub(LittleVec vec) {
 		this.x -= vec.x;
 		this.y -= vec.y;
 		this.z -= vec.z;
@@ -199,19 +199,19 @@ public class LittleTileVec implements IVecInt {
 		this.z = rotation.getMatrix().getZ(tempX, tempY, tempZ);
 	}
 	
-	public double distanceTo(LittleTileVec vec) {
+	public double distanceTo(LittleVec vec) {
 		return Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) + Math.pow(vec.z - this.z, 2));
 	}
 	
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof LittleTileVec)
-			return x == ((LittleTileVec) object).x && y == ((LittleTileVec) object).y && z == ((LittleTileVec) object).z;
+		if (object instanceof LittleVec)
+			return x == ((LittleVec) object).x && y == ((LittleVec) object).y && z == ((LittleVec) object).z;
 		return super.equals(object);
 	}
 	
-	public LittleTileVec copy() {
-		return new LittleTileVec(x, y, z);
+	public LittleVec copy() {
+		return new LittleVec(x, y, z);
 	}
 	
 	public void writeToNBT(String name, NBTTagCompound nbt) {
@@ -290,4 +290,29 @@ public class LittleTileVec implements IVecInt {
 			break;
 		}
 	}
+	
+	public int getVolume() {
+		return x * y * z;
+	}
+	
+	/** @return the volume in percent to a size of a normal block */
+	public double getPercentVolume(LittleGridContext context) {
+		return (double) getVolume() / (double) (context.maxTilesPerBlock);
+	}
+	
+	public LittleVec calculateInvertedCenter() {
+		return new LittleVec((int) Math.ceil(this.x / 2D), (int) Math.ceil(this.y / 2D), (int) Math.ceil(this.z / 2D));
+	}
+	
+	public LittleVec calculateCenter() {
+		return new LittleVec((int) Math.floor(this.x / 2D), (int) Math.floor(this.y / 2D), (int) Math.floor(this.z / 2D));
+	}
+	
+	public LittleVec max(LittleVec size) {
+		this.x = Math.max(this.x, size.x);
+		this.y = Math.max(this.y, size.y);
+		this.z = Math.max(this.z, size.z);
+		return this;
+	}
+	
 }

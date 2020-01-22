@@ -18,10 +18,9 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -71,17 +70,17 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreview(previews, stack);
+		LittlePreview.savePreview(previews, stack);
 	}
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
-		return LittleTilePreview.getPreview(stack);
+		return LittlePreview.getPreview(stack);
 	}
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
-		return LittleTilePreview.getPreview(stack, allowLowResolution);
+		return LittlePreview.getPreview(stack, allowLowResolution);
 	}
 	
 	@Override
@@ -117,7 +116,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	@SideOnly(Side.CLIENT)
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0)
-			return LittleTilePreview.getCubes(stack);
+			return LittlePreview.getCubes(stack);
 		return new ArrayList<RenderCubeObject>();
 	}
 	
@@ -145,7 +144,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 		GlStateManager.popMatrix();
 		
 		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0) {
-			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleVec size = LittlePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
 			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
@@ -216,15 +215,15 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@Override
-	public LittleTileSize getCachedSize(ItemStack stack) {
+	public LittleVec getCachedSize(ItemStack stack) {
 		if (stack.getTagCompound().hasKey("size"))
-			return LittleTilePreview.getSize(stack);
+			return LittlePreview.getSize(stack);
 		return null;
 	}
 	
 	@Override
-	public LittleTileVec getCachedOffset(ItemStack stack) {
-		return LittleTilePreview.getOffset(stack);
+	public LittleVec getCachedOffset(ItemStack stack) {
+		return LittlePreview.getOffset(stack);
 	}
 	
 	public static SelectionMode getSelectionMode(ItemStack stack) {

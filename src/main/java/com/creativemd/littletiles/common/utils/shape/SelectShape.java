@@ -14,11 +14,10 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.blocks.BlockTile.TEResult;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -84,7 +83,7 @@ public abstract class SelectShape {
 				boxes.add(te.tile.box.copy());
 			} else {
 				boxes = new LittleBoxes(pos, context);
-				boxes.add(new LittleTileBox(0, 0, 0, context.size, context.size, context.size));
+				boxes.add(new LittleBox(0, 0, 0, context.size, context.size, context.size));
 			}
 			
 			return boxes;
@@ -147,7 +146,7 @@ public abstract class SelectShape {
 						boxes.addBox(toDestroy);
 			} else {
 				boxes = new LittleBoxes(pos, context);
-				boxes.add(new LittleTileBox(0, 0, 0, context.size, context.size, context.size));
+				boxes.add(new LittleBox(0, 0, 0, context.size, context.size, context.size));
 			}
 			
 			return boxes;
@@ -167,14 +166,14 @@ public abstract class SelectShape {
 	public static final BasicSelectShape CUBE = new BasicSelectShape("cube") {
 		
 		@Override
-		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
-			LittleTileVec offset = new LittleTileVec(side);
+		public LittleBox getBox(LittleVec vec, int thickness, EnumFacing side, LittleGridContext context) {
+			LittleVec offset = new LittleVec(side);
 			offset.scale((thickness - 1) / 2);
 			vec.sub(offset);
 			if ((thickness & 1) == 0 && side.getAxisDirection() == AxisDirection.NEGATIVE)
 				vec.sub(side);
 			
-			LittleTileBox box = new LittleTileBox(vec, new LittleTileSize(thickness, thickness, thickness));
+			LittleBox box = new LittleBox(vec, thickness, thickness, thickness);
 			// box.makeItFitInsideBlock();
 			return box;
 		}
@@ -184,8 +183,8 @@ public abstract class SelectShape {
 	public static final BasicSelectShape BAR = new BasicSelectShape("bar") {
 		
 		@Override
-		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
-			LittleTileBox box = CUBE.getBox(vec, thickness, side, context);
+		public LittleBox getBox(LittleVec vec, int thickness, EnumFacing side, LittleGridContext context) {
+			LittleBox box = CUBE.getBox(vec, thickness, side, context);
 			
 			switch (side.getAxis()) {
 			case X:
@@ -210,8 +209,8 @@ public abstract class SelectShape {
 	public static final BasicSelectShape PLANE = new BasicSelectShape("plane") {
 		
 		@Override
-		public LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context) {
-			LittleTileBox box = CUBE.getBox(vec, thickness, side, context);
+		public LittleBox getBox(LittleVec vec, int thickness, EnumFacing side, LittleGridContext context) {
+			LittleBox box = CUBE.getBox(vec, thickness, side, context);
 			
 			switch (side.getAxis()) {
 			case X:
@@ -310,10 +309,10 @@ public abstract class SelectShape {
 			if (thickness > context.size)
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			LittleTilePos vec = new LittleTilePos(result, context);
+			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
-				vec.contextVec.vec.sub(result.sideHit);
-			boxes.add(getBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+				vec.getVec().sub(result.sideHit);
+			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
@@ -323,10 +322,10 @@ public abstract class SelectShape {
 			if (thickness > context.size)
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-			LittleTilePos vec = new LittleTilePos(result, context);
+			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
-				vec.contextVec.vec.sub(result.sideHit);
-			boxes.add(getBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+				vec.getVec().sub(result.sideHit);
+			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
@@ -335,7 +334,7 @@ public abstract class SelectShape {
 			list.add("thickness: " + Math.max(1, nbt.getInteger("thick")));
 		}
 		
-		public abstract LittleTileBox getBox(LittleTileVec vec, int thickness, EnumFacing side, LittleGridContext context);
+		public abstract LittleBox getBox(LittleVec vec, int thickness, EnumFacing side, LittleGridContext context);
 		
 		@Override
 		public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
@@ -362,23 +361,23 @@ public abstract class SelectShape {
 			this.shape = shape;
 		}
 		
-		public LittleTilePos first;
+		public LittleAbsoluteVec first;
 		
-		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, LittleTilePos min, LittleTilePos max, boolean preview, LittleGridContext context) {
-			min.ensureBothAreEqual(max);
-			LittleTilePos offset = new LittleTilePos(min.pos, min.getContext());
-			LittleTileBox box = new LittleTileBox(new LittleTileBox(min.getRelative(offset).getVec(context)), new LittleTileBox(max.getRelative(offset).getVec(context)));
-			return shape.getBoxes(new LittleBoxes(offset.pos, context), box.getMinVec(), box.getMaxVec(), player, nbt, preview, min, max);
+		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, LittleAbsoluteVec min, LittleAbsoluteVec max, boolean preview, LittleGridContext context) {
+			min.forceContext(max);
+			LittleAbsoluteVec offset = new LittleAbsoluteVec(min.getPos(), min.getContext());
+			LittleBox box = new LittleBox(new LittleBox(min.getRelative(offset).getVec(context)), new LittleBox(max.getRelative(offset).getVec(context)));
+			return shape.getBoxes(new LittleBoxes(offset.getPos(), context), box.getMinVec(), box.getMaxVec(), player, nbt, preview, min, max);
 		}
 		
 		@Override
 		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-			LittleTilePos vec = new LittleTilePos(result, context);
+			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
-				vec.contextVec.vec.sub(result.sideHit);
+				vec.getVec().sub(result.sideHit);
 			if (first == null) {
 				LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-				boxes.add(new LittleTileBox(vec.getRelative(new LittleTilePos(result.getBlockPos(), context)).getVec(context)));
+				boxes.add(new LittleBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context)));
 				return boxes;
 			}
 			return getBoxes(player, nbt, first, vec, true, context);
@@ -393,9 +392,9 @@ public abstract class SelectShape {
 		public boolean leftClick(EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			if (first != null)
 				return true;
-			first = new LittleTilePos(result, context);
+			first = new LittleAbsoluteVec(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
-				first.contextVec.vec.sub(result.sideHit);
+				first.getVec().sub(result.sideHit);
 			return false;
 		}
 		
@@ -406,9 +405,9 @@ public abstract class SelectShape {
 		
 		@Override
 		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
-			LittleTilePos vec = new LittleTilePos(result, context);
+			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
 			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
-				vec.contextVec.vec.sub(result.sideHit);
+				vec.getVec().sub(result.sideHit);
 			LittleBoxes boxes = getBoxes(player, nbt, first, vec, false, context);
 			first = null;
 			return boxes;

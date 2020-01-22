@@ -8,9 +8,9 @@ import java.util.Set;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.util.math.AxisAlignedBB;
@@ -117,7 +117,7 @@ public class SurroundingBox {
 		return this;
 	}
 	
-	protected void add(LittleTileBox box, int modifier, BlockPos pos) {
+	protected void add(LittleBox box, int modifier, BlockPos pos) {
 		minX = Math.min(minX, pos.getX() * context.size + box.minX * modifier);
 		minY = Math.min(minY, pos.getY() * context.size + box.minY * modifier);
 		minZ = Math.min(minZ, pos.getZ() * context.size + box.minZ * modifier);
@@ -136,7 +136,7 @@ public class SurroundingBox {
 		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
 	}
 	
-	public LittleTilePos getHighestCenterPoint() {
+	public LittleAbsoluteVec getHighestCenterPoint() {
 		int centerX = (int) Math.floor((minX + maxX) / (double) context.size / 2D);
 		int centerY = (int) Math.floor((minY + maxY) / (double) context.size / 2D);
 		int centerZ = (int) Math.floor((minZ + maxZ) / (double) context.size / 2D);
@@ -145,7 +145,7 @@ public class SurroundingBox {
 		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
 		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
 		
-		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
+		LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
 		
 		MutableBlockPos blockPos = new MutableBlockPos();
 		
@@ -156,7 +156,7 @@ public class SurroundingBox {
 				TileEntityLittleTiles te = tilesInCenter.get(0).te;
 				
 				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
+				LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
 				if (context.size <= centerTileX) {
 					box.minX = context.size - 1;
 					box.maxX = context.size;
@@ -169,12 +169,12 @@ public class SurroundingBox {
 				
 				// int highest = LittleTile.minPos;
 				for (int i = 0; i < tilesInCenter.size(); i++) {
-					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
+					List<LittleBox> collision = tilesInCenter.get(i).getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
-						LittleTileBox littleBox = collision.get(j);
-						if (LittleTileBox.intersectsWith(box, littleBox)) {
-							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
+						LittleBox littleBox = collision.get(j);
+						if (LittleBox.intersectsWith(box, littleBox)) {
+							pos.overwriteContext(te.getContext());
+							pos.getVec().y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.getVec().y);
 						}
 					}
 				}
@@ -196,7 +196,7 @@ public class SurroundingBox {
 		int centerTileY = (int) (Math.floor(minY + maxY) / 2D) - centerY * context.size;
 		int centerTileZ = (int) (Math.floor(minZ + maxZ) / 2D) - centerZ * context.size;
 		
-		LittleTilePos pos = new LittleTilePos(new BlockPos(centerX, minYPos, centerZ), context, new LittleTileVec(centerTileX, 0, centerTileZ));
+		LittleAbsoluteVec pos = new LittleAbsoluteVec(new BlockPos(centerX, minYPos, centerZ), context, new LittleVec(centerTileX, 0, centerTileZ));
 		
 		MutableBlockPos blockPos = new MutableBlockPos();
 		
@@ -205,7 +205,7 @@ public class SurroundingBox {
 			if (tilesInCenter != null && !tilesInCenter.isEmpty()) {
 				TileEntityLittleTiles te = tilesInCenter.get(0).te;
 				te.convertTo(context);
-				LittleTileBox box = new LittleTileBox(centerTileX, context.minPos, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
+				LittleBox box = new LittleBox(centerTileX, 0, centerTileZ, centerTileX + 1, context.maxPos, centerTileZ + 1);
 				if (context.size >= centerTileX) {
 					box.minX = context.size - 1;
 					box.maxX = context.size;
@@ -218,12 +218,12 @@ public class SurroundingBox {
 				
 				// int highest = LittleTile.minPos;
 				for (int i = 0; i < tilesInCenter.size(); i++) {
-					List<LittleTileBox> collision = tilesInCenter.get(i).getCollisionBoxes();
+					List<LittleBox> collision = tilesInCenter.get(i).getCollisionBoxes();
 					for (int j = 0; j < collision.size(); j++) {
-						LittleTileBox littleBox = collision.get(j);
-						if (LittleTileBox.intersectsWith(box, littleBox)) {
-							pos.contextVec.context = te.getContext();
-							pos.contextVec.vec.y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.contextVec.vec.y);
+						LittleBox littleBox = collision.get(j);
+						if (LittleBox.intersectsWith(box, littleBox)) {
+							pos.overwriteContext(te.getContext());
+							pos.getVec().y = Math.max((y - minYPos) * context.size + littleBox.maxY, pos.getVec().y);
 						}
 					}
 				}

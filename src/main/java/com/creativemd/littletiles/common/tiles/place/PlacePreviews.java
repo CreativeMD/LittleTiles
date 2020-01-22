@@ -6,11 +6,11 @@ import java.util.List;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
-public class PlacePreviews extends ArrayList<PlacePreviewTile> {
+public class PlacePreviews extends ArrayList<PlacePreview> {
 	
 	public LittleGridContext context;
 	
-	public PlacePreviews(LittleGridContext context, List<PlacePreviewTile> previews) {
+	public PlacePreviews(LittleGridContext context, List<PlacePreview> previews) {
 		super(previews);
 		this.context = context;
 		convertToSmallest();
@@ -30,7 +30,7 @@ public class PlacePreviews extends ArrayList<PlacePreviewTile> {
 	}
 	
 	public void convertTo(LittleGridContext to) {
-		for (PlacePreviewTile preview : this) {
+		for (PlacePreview preview : this) {
 			preview.convertTo(this.context, to);
 		}
 		this.context = to;
@@ -38,7 +38,7 @@ public class PlacePreviews extends ArrayList<PlacePreviewTile> {
 	
 	public void convertToSmallest() {
 		int size = LittleGridContext.minSize;
-		for (PlacePreviewTile preview : this) {
+		for (PlacePreview preview : this) {
 			size = Math.max(size, preview.getSmallestContext(context));
 		}
 		

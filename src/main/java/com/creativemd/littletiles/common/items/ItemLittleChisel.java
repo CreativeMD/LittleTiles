@@ -34,12 +34,12 @@ import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket.Vanilla
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -94,7 +94,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		DragShape shape = getShape(stack);
 		tooltip.add("shape: " + shape.key);
 		shape.addExtraInformation(stack.getTagCompound(), tooltip);
-		LittleTilePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
+		LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 		tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
 	}
 	
@@ -122,22 +122,24 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		stack.getTagCompound().setString("shape", shape.key);
 	}
 	
-	public static LittleTilePreview getPreview(ItemStack stack) {
+	public static LittlePreview getPreview(ItemStack stack) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
 		if (stack.getTagCompound().hasKey("preview"))
-			return LittleTilePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
+			return LittlePreview.loadPreviewFromNBT(stack.getTagCompound().getCompoundTag("preview"));
 		
 		IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
 		LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileBlockColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-		tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
-		LittleTilePreview preview = tile.getPreviewTile();
+		
+		LittleGridContext context = LittleGridContext.get();
+		tile.box = new LittleBox(0, 0, 0, context.size, context.size, context.size);
+		LittlePreview preview = tile.getPreviewTile();
 		setPreview(stack, preview);
 		return preview;
 	}
 	
-	public static void setPreview(ItemStack stack, LittleTilePreview preview) {
+	public static void setPreview(ItemStack stack, LittlePreview preview) {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
@@ -171,7 +173,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			GlStateManager.translate(0.1, 0.1, 0);
 			GlStateManager.scale(0.7, 0.7, 0.7);
 			
-			LittleTilePreview preview = getPreview(stack);
+			LittlePreview preview = getPreview(stack);
 			ItemStack blockStack = new ItemStack(preview.getBlock(), 1, preview.getMeta());
 			IBakedModel model = mc.getRenderItem().getItemModelWithOverrides(blockStack, mc.world, mc.player); // getItemModelMesher().getItemModel(blockStack);
 			if (!(model instanceof CreativeBakedModel))
@@ -209,7 +211,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		return true;
 	}
 	
-	private static LittleTilePos cachedPos;
+	private static LittleAbsoluteVec cachedPos;
 	private static LittleBoxes cachedShape;
 	private static boolean cachedLow;
 	private static NBTTagCompound cachedSettings;
@@ -233,12 +235,12 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			if (lastMax == null)
 				lastMax = min.copy();
 			
-			min.ensureBothAreEqual(lastMax);
+			min.forceContext(lastMax);
 			
 			LittleGridContext context = getPositionContext(stack);
 			if (context.size < min.getContext().size)
 				context = min.getContext();
-			LittleTilePos offset = new LittleTilePos(min.pos, context);
+			LittleAbsoluteVec offset = new LittleAbsoluteVec(min.getPos(), context);
 			if (lastMax == null)
 				lastMax = min.copy();
 			
@@ -246,8 +248,8 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			if (cachedPos == null || !cachedPos.equals(lastMax) || !cachedSettings.equals(stack.getTagCompound()) || cachedLow != allowLowResolution) {
 				
 				DragShape shape = getShape(stack);
-				LittleTileBox newBox = new LittleTileBox(new LittleTileBox(min.getRelative(offset).getVec(context)), new LittleTileBox(lastMax.getRelative(offset).getVec(context)));
-				boxes = shape.getBoxes(new LittleBoxes(offset.pos, context), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
+				LittleBox newBox = new LittleBox(new LittleBox(min.getRelative(offset).getVec(context)), new LittleBox(lastMax.getRelative(offset).getVec(context)));
+				boxes = shape.getBoxes(new LittleBoxes(offset.getPos(), context), newBox.getMinVec(), newBox.getMaxVec(), getPlayer(), stack.getTagCompound(), allowLowResolution, min, lastMax);
 				cachedPos = lastMax.copy();
 				cachedShape = boxes.copy();
 				cachedSettings = stack.getTagCompound().copy();
@@ -255,11 +257,11 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			} else
 				boxes = cachedShape;
 			
-			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.pos, boxes.context);
+			LittleAbsolutePreviews previews = new LittleAbsolutePreviews(offset.getPos(), boxes.context);
 			
-			LittleTilePreview preview = getPreview(stack);
+			LittlePreview preview = getPreview(stack);
 			for (int i = 0; i < boxes.size(); i++) {
-				LittleTilePreview newPreview = preview.copy();
+				LittlePreview newPreview = preview.copy();
 				newPreview.box = boxes.get(i);
 				previews.addWithoutCheckingPreview(newPreview);
 			}
@@ -314,7 +316,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		if (mode.placeInside)
 			facing = facing.getOpposite();
 		if (facing.getAxisDirection() == AxisDirection.NEGATIVE)
-			position.contextVec.vec.add(facing);
+			position.getVec().add(facing);
 		
 		return position;
 	}

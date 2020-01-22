@@ -33,13 +33,13 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType.
 import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTileRelativeAxis;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
+import com.creativemd.littletiles.common.tiles.place.PlacePreviewRelativeAxis;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -85,18 +85,18 @@ public class LittleAxisDoor extends LittleDoorBase {
 			
 			LittleRelativeDoubledAxis doubledRelativeAxis;
 			if (nbt.hasKey("ax")) {
-				LittleTileVecContext vec = new LittleTileVecContext("a", nbt);
+				LittleVecContext vec = new LittleVecContext("a", nbt);
 				if (getMainTile() != null)
-					vec.sub(new LittleTileVecContext(getMainTile().getContext(), getMainTile().getMinVec()));
-				doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, new LittleTileVec(1, 1, 1));
+					vec.sub(new LittleVecContext(getMainTile().getMinVec(), getMainTile().getContext()));
+				doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.getContext(), vec.getVec(), new LittleVec(1, 1, 1));
 				
 			} else if (nbt.hasKey("av")) {
-				LittleTileVecContext vec = new LittleTileVecContext("av", nbt);
-				doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.context, vec.vec, new LittleTileVec(1, 1, 1));
+				LittleVecContext vec = new LittleVecContext("av", nbt);
+				doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.getContext(), vec.getVec(), new LittleVec(1, 1, 1));
 			} else {
 				doubledRelativeAxis = new LittleRelativeDoubledAxis("avec", nbt);
 			}
-			axisCenter = new StructureRelative(StructureAbsolute.convertAxisToBox(doubledRelativeAxis.getNonDoubledVec(), doubledRelativeAxis.additional), doubledRelativeAxis.context);
+			axisCenter = new StructureRelative(StructureAbsolute.convertAxisToBox(doubledRelativeAxis.getNonDoubledVec(), doubledRelativeAxis.additional), doubledRelativeAxis.getContext());
 		} else
 			super.failedLoadingRelative(nbt, relative);
 	}
@@ -119,20 +119,20 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	protected PlacePreviewTile getPlacePreview(StructureRelative relative, StructureTypeRelative type, LittlePreviews previews) {
+	protected PlacePreview getPlacePreview(StructureRelative relative, StructureTypeRelative type, LittlePreviews previews) {
 		if (relative == axisCenter)
-			return new PlacePreviewTileRelativeAxis(relative.getBox(), previews, relative, type, axis);
+			return new PlacePreviewRelativeAxis(relative.getBox(), previews, relative, type, axis);
 		return super.getPlacePreview(relative, type, previews);
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		super.onFlip(context, axis, doubledCenter);
 		doorRotation.flip(this, axis);
 	}
 	
 	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		super.onRotate(context, rotation, doubledCenter);
 		this.axis = RotationUtils.rotate(axis, rotation);
 		doorRotation.rotate(this, rotation);
@@ -160,50 +160,47 @@ public class LittleAxisDoor extends LittleDoorBase {
 	}
 	
 	@Deprecated
-	public static class LittleRelativeDoubledAxis extends LittleTileVecContext {
+	public static class LittleRelativeDoubledAxis extends LittleVecContext {
 		
-		public LittleTileVec additional;
+		public LittleVec additional;
 		
-		public LittleRelativeDoubledAxis(LittleGridContext context, LittleTileVec vec, LittleTileVec additional) {
-			super(context, vec);
+		public LittleRelativeDoubledAxis(LittleGridContext context, LittleVec vec, LittleVec additional) {
+			super(vec, context);
 			this.additional = additional;
 		}
 		
 		public LittleRelativeDoubledAxis(String name, NBTTagCompound nbt) {
-			super(name, nbt);
-		}
-		
-		@Override
-		protected void loadFromNBT(String name, NBTTagCompound nbt) {
+			super();
+			
 			int[] array = nbt.getIntArray(name);
 			if (array.length == 3) {
-				this.vec = new LittleTileVec(array[0], array[1], array[2]);
+				this.vec = new LittleVec(array[0], array[1], array[2]);
 				this.context = LittleGridContext.get();
-				this.additional = new LittleTileVec(vec.x % 2, vec.y % 2, vec.z % 2);
+				this.additional = new LittleVec(vec.x % 2, vec.y % 2, vec.z % 2);
 				this.vec.x /= 2;
 				this.vec.y /= 2;
 				this.vec.z /= 2;
 			} else if (array.length == 4) {
-				this.vec = new LittleTileVec(array[0], array[1], array[2]);
+				this.vec = new LittleVec(array[0], array[1], array[2]);
 				this.context = LittleGridContext.get(array[3]);
-				this.additional = new LittleTileVec(vec.x % 2, vec.y % 2, vec.z % 2);
+				this.additional = new LittleVec(vec.x % 2, vec.y % 2, vec.z % 2);
 				this.vec.x /= 2;
 				this.vec.y /= 2;
 				this.vec.z /= 2;
 			} else if (array.length == 7) {
-				this.vec = new LittleTileVec(array[0], array[1], array[2]);
+				this.vec = new LittleVec(array[0], array[1], array[2]);
 				this.context = LittleGridContext.get(array[3]);
-				this.additional = new LittleTileVec(array[4], array[5], array[6]);
+				this.additional = new LittleVec(array[4], array[5], array[6]);
 			} else
 				throw new InvalidParameterException("No valid coords given " + nbt);
 		}
 		
-		public LittleTileVecContext getNonDoubledVec() {
-			return new LittleTileVecContext(context, vec.copy());
+		public LittleVecContext getNonDoubledVec() {
+			return new LittleVecContext(vec.copy(), context);
 		}
 		
-		public LittleTileVec getRotationVec() {
-			LittleTileVec vec = this.vec.copy();
+		public LittleVec getRotationVec() {
+			LittleVec vec = this.vec.copy();
 			vec.scale(2);
 			vec.add(additional);
 			return vec;
@@ -216,10 +213,10 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void convertTo(LittleGridContext to) {
-			LittleTileVec newVec = getRotationVec();
+			LittleVec newVec = getRotationVec();
 			newVec.convertTo(context, to);
 			super.convertTo(to);
-			additional = new LittleTileVec(newVec.x % 2, newVec.y % 2, newVec.z % 2);
+			additional = new LittleVec(newVec.x % 2, newVec.y % 2, newVec.z % 2);
 			vec = newVec;
 			vec.x /= 2;
 			vec.y /= 2;
@@ -307,7 +304,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				
 			} else {
 				viewer.setEven(false);
-				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
+				viewer.setAxis(new LittleBox(0, 0, 0, 1, 1, 1), viewer.context);
 				doorRotation = new PlayerOrientatedRotation();
 			}
 			viewer.visibleAxis = true;
@@ -425,7 +422,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 				}
 				
 				GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-				LittleTileBox box = viewer.getBox();
+				LittleBox box = viewer.getBox();
 				box.convertTo(viewer.getAxisContext(), context);
 				
 				if (viewer.isEven())
@@ -725,7 +722,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 		}
 		
 	}

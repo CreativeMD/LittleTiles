@@ -9,9 +9,9 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -40,7 +40,7 @@ public class StructureStringUtils {
 				return "";
 			
 			List<String> texturenames = new ArrayList<>();
-			List<? extends RenderCubeObject> cubes = LittleTilePreview.getCubes(stack, false);
+			List<? extends RenderCubeObject> cubes = LittlePreview.getCubes(stack, false);
 			JsonArray elements = new JsonArray();
 			for (int i = 0; i < cubes.size(); i++) {
 				RenderCubeObject cube = cubes.get(i);
@@ -127,7 +127,7 @@ public class StructureStringUtils {
 			LittlePreviews previews = null;
 			LittleStructure structure = null;
 			if (stack.getItem() instanceof ItemRecipe) {
-				previews = LittleTilePreview.getPreview(stack);
+				previews = LittlePreview.getPreview(stack);
 			} else {
 				ILittleTile tile = PlacementHelper.getLittleInterface(stack);
 				previews = tile.getLittlePreview(stack);
@@ -162,7 +162,7 @@ public class StructureStringUtils {
 				
 				if (entries.length >= 8) {
 					NBTTagCompound tileNBT = new NBTTagCompound();
-					LittleTileBox box = new LittleTileBox(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]), Integer.parseInt(entries[2]), Integer.parseInt(entries[3]), Integer.parseInt(entries[4]), Integer.parseInt(entries[5]));
+					LittleBox box = new LittleBox(Integer.parseInt(entries[0]), Integer.parseInt(entries[1]), Integer.parseInt(entries[2]), Integer.parseInt(entries[3]), Integer.parseInt(entries[4]), Integer.parseInt(entries[5]));
 					tileNBT.setString("block", names[Integer.parseInt(entries[6])]);
 					tileNBT.setInteger("meta", Integer.parseInt(entries[7]));
 					if (entries.length >= 9)

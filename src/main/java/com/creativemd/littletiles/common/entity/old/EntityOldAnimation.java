@@ -20,11 +20,11 @@ import com.creativemd.littletiles.common.entity.AABBCombiner;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.google.common.base.Predicate;
 
 import net.minecraft.entity.Entity;
@@ -61,13 +61,13 @@ public abstract class EntityOldAnimation extends Entity {
 		return p_76137_0_ < 0 ? -((-p_76137_0_ - 1) / p_76137_1_) - 1 : p_76137_0_ / p_76137_1_;
 	}
 	
-	public void setCenterVec(LittleTilePos axis, LittleTileVec additional) {
+	public void setCenterVec(LittleAbsoluteVec axis, LittleVec additional) {
 		axis.removeInternalBlockOffset();
 		
 		this.center = axis;
-		this.baseOffset = axis.pos;
+		this.baseOffset = axis.getPos();
 		
-		this.inBlockCenter = axis.contextVec;
+		this.inBlockCenter = axis.getVecContext();
 		this.chunkOffset = getRenderChunkPos(baseOffset);
 		
 		int chunkX = intFloorDiv(baseOffset.getX(), 16);
@@ -78,7 +78,7 @@ public abstract class EntityOldAnimation extends Entity {
 		this.additionalAxis = additional;
 		
 		this.rotationCenter = new Vector3d(axis.getPosX() + additionalAxis.getPosX(axis.getContext()) / 2, axis.getPosY() + additionalAxis.getPosY(axis.getContext()) / 2, axis.getPosZ() + additionalAxis.getPosZ(axis.getContext()) / 2);
-		this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX() + additionalAxis.getPosX(inBlockCenter.context) / 2, inBlockCenter.getPosY() + additionalAxis.getPosY(inBlockCenter.context) / 2, inBlockCenter.getPosZ() + additionalAxis.getPosZ(inBlockCenter.context) / 2);
+		this.rotationCenterInsideBlock = new Vector3d(inBlockCenter.getPosX() + additionalAxis.getPosX(inBlockCenter.getContext()) / 2, inBlockCenter.getPosY() + additionalAxis.getPosY(inBlockCenter.getContext()) / 2, inBlockCenter.getPosZ() + additionalAxis.getPosZ(inBlockCenter.getContext()) / 2);
 		
 		this.fakeWorld.setOrigin(rotationCenter);
 		this.origin = this.fakeWorld.getOrigin();
@@ -88,20 +88,20 @@ public abstract class EntityOldAnimation extends Entity {
 		return new BlockPos(blockPos.getX() >> 4, blockPos.getY() >> 4, blockPos.getZ() >> 4);
 	}
 	
-	protected LittleTilePos center;
-	protected LittleTileVecContext inBlockCenter;
+	protected LittleAbsoluteVec center;
+	protected LittleVecContext inBlockCenter;
 	protected BlockPos baseOffset;
 	protected BlockPos chunkOffset;
 	protected BlockPos inChunkOffset;
-	protected LittleTileVec additionalAxis;
+	protected LittleVec additionalAxis;
 	public Vector3d rotationCenter;
 	public Vector3d rotationCenterInsideBlock;
 	
-	public LittleTilePos getCenter() {
+	public LittleAbsoluteVec getCenter() {
 		return center;
 	}
 	
-	public LittleTileVecContext getInsideBlockCenter() {
+	public LittleVecContext getInsideBlockCenter() {
 		return inBlockCenter;
 	}
 	
@@ -177,8 +177,8 @@ public abstract class EntityOldAnimation extends Entity {
 			ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 			
 			for (LittleTile tile : te) {
-				List<LittleTileBox> tileBoxes = tile.getCollisionBoxes();
-				for (LittleTileBox box : tileBoxes) {
+				List<LittleBox> tileBoxes = tile.getCollisionBoxes();
+				for (LittleBox box : tileBoxes) {
 					boxes.add(box.getBox(te.getContext(), te.getPos()));
 				}
 			}
@@ -292,7 +292,7 @@ public abstract class EntityOldAnimation extends Entity {
 		super(worldIn);
 	}
 	
-	public EntityOldAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleTilePos center, LittleTileVec additional) {
+	public EntityOldAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleAbsoluteVec center, LittleVec additional) {
 		this(world);
 		
 		this.blocks = blocks;
@@ -523,7 +523,7 @@ public abstract class EntityOldAnimation extends Entity {
 	@Override
 	protected void readEntityFromNBT(NBTTagCompound compound) {
 		this.fakeWorld = compound.getBoolean("subworld") ? SubWorld.createFakeWorld(world) : FakeWorld.createFakeWorld(getCachedUniqueIdString(), world.isRemote);
-		setCenterVec(new LittleTilePos("axis", compound), new LittleTileVec("additional", compound));
+		setCenterVec(new LittleAbsoluteVec("axis", compound), new LittleVec("additional", compound));
 		NBTTagList list = compound.getTagList("tileEntity", compound.getId());
 		blocks = new ArrayList<>();
 		LittleStructure parent = null;

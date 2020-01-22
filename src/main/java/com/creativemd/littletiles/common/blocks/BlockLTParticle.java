@@ -15,8 +15,8 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.BlockContainer;
@@ -77,7 +77,7 @@ public class BlockLTParticle extends BlockContainer implements IGuiCreator, ILit
 		LittlePreviews previews = new LittlePreviews(LittleGridContext.get());
 		NBTTagCompound nbt = new NBTTagCompound();
 		LittleTileParticle particle = new LittleTileParticle(LittleTiles.particleBlock, 0, new TileEntityParticle());
-		particle.box = new LittleTileBox(0, 0, 0, 1, 1, 1);
+		particle.box = new LittleBox(0, 0, 0, 1, 1, 1);
 		previews.addWithoutCheckingPreview(particle.getPreviewTile());
 		return previews;
 	}

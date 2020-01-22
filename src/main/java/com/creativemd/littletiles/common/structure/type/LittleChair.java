@@ -9,8 +9,8 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
@@ -43,7 +43,7 @@ public class LittleChair extends LittleStructure {
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!world.isRemote) {
-			LittleTilePos vec = getHighestCenterPoint();
+			LittleAbsoluteVec vec = getHighestCenterPoint();
 			if (vec != null) {
 				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
 				player.startRiding(sit);

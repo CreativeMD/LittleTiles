@@ -6,10 +6,10 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,7 +24,7 @@ public class DragShapeLine extends DragShape {
 		super("line");
 	}
 	
-	public void visitAll(double gx0, double gy0, double gz0, double gx1, double gy1, double gz1, List<LittleTileBox> boxes) {
+	public void visitAll(double gx0, double gy0, double gz0, double gx1, double gy1, double gz1, List<LittleBox> boxes) {
 		
 		int gx0idx = (int) Math.floor(gx0);
 		int gy0idx = (int) Math.floor(gy0);
@@ -71,7 +71,7 @@ public class DragShapeLine extends DragShape {
 		
 		do {
 			// visitor(gx, gy, gz);
-			boxes.add(new LittleTileBox(gx, gy, gz, gx + 1, gy + 1, gz + 1));
+			boxes.add(new LittleBox(gx, gy, gz, gx + 1, gy + 1, gz + 1));
 			
 			if (gx == gx1idx && gy == gy1idx && gz == gz1idx)
 				break;
@@ -96,15 +96,15 @@ public class DragShapeLine extends DragShape {
 	}
 	
 	@Override
-	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
-		LittleTilePos absolute = new LittleTilePos(boxes.pos, boxes.context);
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
+		LittleAbsoluteVec absolute = new LittleAbsoluteVec(boxes.pos, boxes.context);
 		
-		LittleTileVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
-		LittleTileVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
+		LittleVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
+		LittleVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
 		
 		visitAll(originalMinVec.x + 0.5, originalMinVec.y + 0.5, originalMinVec.z + 0.5, originalMaxVec.x + 0.5, originalMaxVec.y + 0.5, originalMaxVec.z + 0.5, boxes);
 		
-		LittleTileBox.combineBoxesBlocks(boxes);
+		LittleBox.combineBoxesBlocks(boxes);
 		
 		return boxes;
 	}

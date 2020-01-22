@@ -8,11 +8,10 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,22 +27,20 @@ public class DragShapeWall extends DragShape {
 	}
 	
 	@Override
-	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
-		LittleTileBox box = new LittleTileBox(min, max);
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
+		LittleBox box = new LittleBox(min, max);
 		
 		int direction = nbt.getInteger("direction");
-		
-		LittleTileSize size = box.getSize();
 		
 		int thicknessXInv = 0;
 		int thicknessX = 0;
 		int thicknessYInv = nbt.getInteger("thickness") > 1 ? (int) Math.ceil((nbt.getInteger("thickness") - 1) / 2D) : 0;
 		int thicknessY = nbt.getInteger("thickness") > 1 ? (int) Math.floor((nbt.getInteger("thickness") - 1) / 2D) : 0;
 		
-		LittleTilePos absolute = new LittleTilePos(boxes.pos, boxes.context);
+		LittleAbsoluteVec absolute = new LittleAbsoluteVec(boxes.pos, boxes.context);
 		
-		LittleTileVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
-		LittleTileVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
+		LittleVec originalMinVec = originalMin.getRelative(absolute).getVec(boxes.context);
+		LittleVec originalMaxVec = originalMax.getRelative(absolute).getVec(boxes.context);
 		
 		int w = originalMaxVec.x - originalMinVec.x;
 		int h = originalMaxVec.z - originalMinVec.z;
@@ -95,16 +92,16 @@ public class DragShapeWall extends DragShape {
 		int numerator = longest >> 1;
 		for (int i = 0; i <= longest; i++) {
 			
-			LittleTileBox toAdd = null;
+			LittleBox toAdd = null;
 			switch (direction) {
 			case 0:
-				toAdd = new LittleTileBox(x - thicknessXInv, box.minY, y - thicknessYInv, x + thicknessX + 1, box.maxY, y + thicknessY + 1);
+				toAdd = new LittleBox(x - thicknessXInv, box.minY, y - thicknessYInv, x + thicknessX + 1, box.maxY, y + thicknessY + 1);
 				break;
 			case 1:
-				toAdd = new LittleTileBox(box.minX, x - thicknessXInv, y - thicknessYInv, box.maxX, x + thicknessX + 1, y + thicknessY + 1);
+				toAdd = new LittleBox(box.minX, x - thicknessXInv, y - thicknessYInv, box.maxX, x + thicknessX + 1, y + thicknessY + 1);
 				break;
 			case 2:
-				toAdd = new LittleTileBox(x - thicknessXInv, y - thicknessYInv, box.minZ, x + thicknessX + 1, y + thicknessY + 1, box.maxZ);
+				toAdd = new LittleBox(x - thicknessXInv, y - thicknessYInv, box.minZ, x + thicknessX + 1, y + thicknessY + 1, box.maxZ);
 				break;
 			}
 			boxes.add(toAdd);
@@ -120,7 +117,7 @@ public class DragShapeWall extends DragShape {
 			}
 		}
 		
-		LittleTileBox.combineBoxesBlocks(boxes);
+		LittleBox.combineBoxesBlocks(boxes);
 		
 		return boxes;
 	}

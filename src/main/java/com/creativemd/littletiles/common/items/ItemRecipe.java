@@ -18,10 +18,9 @@ import com.creativemd.littletiles.common.container.SubContainerRecipe;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
@@ -88,16 +87,16 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 					if (tileEntity instanceof TileEntityLittleTiles) {
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 						for (LittleTile tile : te) {
-							LittleTilePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
-							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
+							preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 						continue;
 					}
 					LittlePreviews specialPreviews = ChiselsAndBitsManager.getPreviews(tileEntity);
 					if (specialPreviews != null) {
 						for (int i = 0; i < specialPreviews.size(); i++) {
-							LittleTilePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-							preview.box.add(new LittleTileVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							LittlePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
+							preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
 						}
 					}
 				}
@@ -118,7 +117,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		stack.getTagCompound().removeTag("y");
 		stack.getTagCompound().removeTag("z");
 		
-		LittleTilePreview.savePreview(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
+		LittlePreview.savePreview(saveBlocks(world, stack, Math.min(firstX, second.getX()), Math.min(firstY, second.getY()), Math.min(firstZ, second.getZ()), Math.max(firstX, second.getX()), Math.max(firstY, second.getY()), Math.max(firstZ, second.getZ())), stack);
 	}
 	
 	@Override
@@ -181,7 +180,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	@SideOnly(Side.CLIENT)
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
-			return LittleTilePreview.getCubes(stack);
+			return LittlePreview.getCubes(stack);
 		return new ArrayList<RenderCubeObject>();
 	}
 	
@@ -218,7 +217,7 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 		GlStateManager.popMatrix();
 		
 		if (stack.hasTagCompound() && !stack.getTagCompound().hasKey("x")) {
-			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleVec size = LittlePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
 			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);

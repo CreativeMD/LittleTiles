@@ -1,7 +1,7 @@
-package com.creativemd.littletiles.common.tiles.place;
+package com.creativemd.littletiles.common.tiles.place.fixed;
 
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
@@ -14,15 +14,15 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class InsideFixedHandler extends FixedHandler {
 	
 	@Override
-	public double getDistance(LittleTilePos suggestedPos) {
+	public double getDistance(LittleAbsoluteVec suggestedPos) {
 		return 1;
 	}
 	
-	protected void updateBox(Axis axis, LittleGridContext context, LittleTileBox box) {
+	protected void updateBox(Axis axis, LittleGridContext context, LittleBox box) {
 		int offset = 0;
 		if (box.getSize(axis) <= context.size) {
-			if (box.getMin(axis) < context.minPos)
-				offset = context.minPos - box.getMin(axis);
+			if (box.getMin(axis) < 0)
+				offset = -box.getMin(axis);
 			
 			else if (box.getMax(axis) > context.maxPos)
 				offset = context.maxPos - box.getMax(axis);
@@ -32,7 +32,7 @@ public class InsideFixedHandler extends FixedHandler {
 	}
 	
 	@Override
-	protected LittleTileBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleTileBox suggested) {
+	protected LittleBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleBox suggested) {
 		updateBox(Axis.X, context, suggested);
 		updateBox(Axis.Y, context, suggested);
 		updateBox(Axis.Z, context, suggested);

@@ -4,7 +4,7 @@ import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
@@ -31,7 +31,7 @@ public class BlockIngredientEntry {
 	public ItemStack getTileItemStack() {
 		ItemStack stack = new ItemStack(LittleTiles.blockTileNoTicking);
 		NBTTagCompound nbt = new NBTTagCompound();
-		new LittleTileSize(1, 1, 1).writeToNBT("size", nbt);
+		new LittleVec(1, 1, 1).writeToNBT("size", nbt);
 		
 		LittleTile tile = new LittleTileBlock(block, meta);
 		tile.saveTileExtra(nbt);

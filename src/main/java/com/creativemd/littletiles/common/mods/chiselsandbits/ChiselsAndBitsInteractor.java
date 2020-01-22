@@ -12,9 +12,9 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -61,7 +61,7 @@ public class ChiselsAndBitsInteractor {
 						state = LittleTiles.transparentColoredBlock.getDefaultState().withProperty(BlockLTTransparentColored.VARIANT, BlockLTTransparentColored.EnumType.water);
 					if (state.getBlock() != Blocks.AIR) {
 						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
-						tile.box = new LittleTileBox(new LittleTileVec(x, y, z));
+						tile.box = new LittleBox(new LittleVec(x, y, z));
 						tiles.add(tile);
 					}
 				}
@@ -131,7 +131,7 @@ public class ChiselsAndBitsInteractor {
 				throw new Exception("Cannot convert " + tile.getClass() + " tile!");
 			
 			if (convert) {
-				if (!force && tile.box.getClass() != LittleTileBox.class)
+				if (!force && tile.box.getClass() != LittleBox.class)
 					throw new Exception("Cannot convert " + tile.box.getClass() + " box!");
 				
 				for (int x = tile.box.minX; x < tile.box.maxX; x++)

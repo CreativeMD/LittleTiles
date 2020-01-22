@@ -25,13 +25,12 @@ import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.combine.ICombinable;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
@@ -99,8 +98,8 @@ public abstract class LittleTile implements ICombinable {
 			if (nbt.hasKey("block")) {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
 				int meta = nbt.getInteger("meta");
-				LittleTileBox box = new LittleTileBox(new LittleTileVec("i", nbt), new LittleTileVec("a", nbt));
-				box.add(new LittleTileVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
+				LittleBox box = new LittleBox(new LittleVec("i", nbt), new LittleVec("a", nbt));
+				box.add(new LittleVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
 				LittleTileBlock tile = new LittleTileBlock(block, meta);
 				tile.box = box;
 				return tile;
@@ -163,23 +162,23 @@ public abstract class LittleTile implements ICombinable {
 		return !isChildOfStructure();
 	}
 	
-	public LittleTilePos getAbsolutePos() {
-		return new LittleTilePos(te.getPos(), getContext(), box.getMinVec());
+	public LittleAbsoluteVec getAbsolutePos() {
+		return new LittleAbsoluteVec(te.getPos(), getContext(), box.getMinVec());
 	}
 	
-	public LittleTileBox box;
+	public LittleBox box;
 	
 	@Override
-	public LittleTileBox getBox() {
+	public LittleBox getBox() {
 		return box;
 	}
 	
 	@Override
-	public void setBox(LittleTileBox box) {
+	public void setBox(LittleBox box) {
 		this.box = box;
 	}
 	
-	public LittleTileVec getMinVec() {
+	public LittleVec getMinVec() {
 		return box.getMinVec();
 	}
 	
@@ -201,7 +200,7 @@ public abstract class LittleTile implements ICombinable {
 		return box.getPercentVolume(getContext());
 	}
 	
-	public LittleTileSize getSize() {
+	public LittleVec getSize() {
 		return box.getSize();
 	}
 	
@@ -210,7 +209,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	public void fillFace(LittleTileFace face) {
-		LittleTileBox box = this.box;
+		LittleBox box = this.box;
 		if (face.context != getContext()) {
 			box = box.copy();
 			box.convertTo(getContext(), face.context);
@@ -235,7 +234,7 @@ public abstract class LittleTile implements ICombinable {
 	}
 	
 	@Override
-	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled) {
+	public boolean fillInSpace(LittleBox otherBox, boolean[][][] filled) {
 		return box.fillInSpace(otherBox, filled);
 	}
 	
@@ -250,7 +249,7 @@ public abstract class LittleTile implements ICombinable {
 	 * 
 	 * @return if the min vec of the box equals the given coordinates */
 	public boolean is(LittleGridContext context, int[] identifier) {
-		identifier = LittleTileIdentifierAbsolute.convertTo(identifier, context, getContext());
+		identifier = LittleIdentifierAbsolute.convertTo(identifier, context, getContext());
 		if (identifier == null)
 			return false;
 		return box.is(identifier);
@@ -263,27 +262,27 @@ public abstract class LittleTile implements ICombinable {
 		return box.isVecInsideBox(x, y, z);
 	}
 	
-	public boolean intersectsWith(LittleTileBox box) {
-		return LittleTileBox.intersectsWith(this.box, box);
+	public boolean intersectsWith(LittleBox box) {
+		return LittleBox.intersectsWith(this.box, box);
 	}
 	
-	public List<LittleTileBox> cutOut(LittleTileBox box) {
+	public List<LittleBox> cutOut(LittleBox box) {
 		return this.box.cutOut(box);
 	}
 	
-	public List<LittleTileBox> cutOut(List<LittleTileBox> boxes, List<LittleTileBox> cutout) {
+	public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout) {
 		return this.box.cutOut(boxes, cutout);
 	}
 	
-	public void getCuttingBoxes(List<LittleTileBox> boxes) {
+	public void getCuttingBoxes(List<LittleBox> boxes) {
 		boxes.add(box);
 	}
 	
-	public LittleTileBox getCompleteBox() {
+	public LittleBox getCompleteBox() {
 		return box;
 	}
 	
-	public LittleTileVec getCenter() {
+	public LittleVec getCenter() {
 		return box.getCenter();
 	}
 	
@@ -291,7 +290,7 @@ public abstract class LittleTile implements ICombinable {
 		return box.calculateIntercept(getContext(), te.getPos(), pos, look);
 	}
 	
-	public boolean equalsBox(LittleTileBox box) {
+	public boolean equalsBox(LittleBox box) {
 		return this.box.equals(box);
 	}
 	
@@ -494,12 +493,12 @@ public abstract class LittleTile implements ICombinable {
 		if (nbt.hasKey("bSize")) // Old (used till 1.4)
 		{
 			int count = nbt.getInteger("bSize");
-			box = LittleTileBox.loadBox("bBox" + 0, nbt);
+			box = LittleBox.loadBox("bBox" + 0, nbt);
 		} else if (nbt.hasKey("boxes")) { // Out of date (used in pre-releases of 1.5)
 			NBTTagList list = nbt.getTagList("boxes", 11);
-			box = LittleTileBox.createBox(list.getIntArrayAt(0));
+			box = LittleBox.createBox(list.getIntArrayAt(0));
 		} else if (nbt.hasKey("box")) { // Active one
-			box = LittleTileBox.createBox(nbt.getIntArray("box"));
+			box = LittleBox.createBox(nbt.getIntArray("box"));
 		}
 		
 		if (nbt.hasKey("structure", 10)) {
@@ -620,11 +619,11 @@ public abstract class LittleTile implements ICombinable {
 	
 	public abstract ItemStack getDrop();
 	
-	public LittleTilePreview getPreviewTile() {
+	public LittlePreview getPreviewTile() {
 		NBTTagCompound nbt = new NBTTagCompound();
 		saveTileExtra(nbt);
 		nbt.setString("tID", getID());
-		return new LittleTilePreview(box.copy(), nbt);
+		return new LittlePreview(box.copy(), nbt);
 	}
 	
 	// ================Notifcations/Events================
@@ -755,10 +754,10 @@ public abstract class LittleTile implements ICombinable {
 	
 	// ================Collision================
 	
-	public List<LittleTileBox> getCollisionBoxes() {
+	public List<LittleBox> getCollisionBoxes() {
 		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
 			return new ArrayList<>();
-		List<LittleTileBox> boxes = new ArrayList<>();
+		List<LittleBox> boxes = new ArrayList<>();
 		boxes.add(box);
 		return boxes;
 	}
@@ -792,16 +791,16 @@ public abstract class LittleTile implements ICombinable {
 	public static class LittleTilePosition {
 		
 		public BlockPos coord;
-		public LittleTileVec position;
+		public LittleVec position;
 		
-		public LittleTilePosition(BlockPos coord, LittleTileVec position) {
+		public LittleTilePosition(BlockPos coord, LittleVec position) {
 			this.coord = coord;
 			this.position = position;
 		}
 		
 		public LittleTilePosition(String id, NBTTagCompound nbt) {
 			coord = new BlockPos(nbt.getInteger(id + "coX"), nbt.getInteger(id + "coY"), nbt.getInteger(id + "coZ"));
-			position = new LittleTileVec(id + "po", nbt);
+			position = new LittleVec(id + "po", nbt);
 		}
 		
 		public LittleTilePosition(NBTTagCompound nbt) {

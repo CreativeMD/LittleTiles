@@ -9,7 +9,7 @@ import com.creativemd.littletiles.common.items.ItemRecipe;
 import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -56,7 +56,7 @@ public class SubContainerWorkbench extends SubContainer {
 						if (stack2.hasTagCompound() && !stack2.getTagCompound().hasKey("x") && stack1.getTagCompound().hasKey("structure"))
 							stack2.getTagCompound().setTag("structure", stack1.getTagCompound().getTag("structure"));
 					} else {
-						LittlePreviews tiles = LittleTilePreview.getPreview(stack1);
+						LittlePreviews tiles = LittlePreview.getPreview(stack1);
 						
 						try {
 							LittleInventory inventory = new LittleInventory(player);
@@ -75,7 +75,7 @@ public class SubContainerWorkbench extends SubContainer {
 				LittlePreviews previews = ChiselsAndBitsManager.getPreviews(stack1);
 				if (previews != null && !previews.isEmpty() && stack2.isEmpty()) {
 					stack2 = new ItemStack(LittleTiles.multiTiles);
-					LittleTilePreview.savePreview(previews, stack2);
+					LittlePreview.savePreview(previews, stack2);
 					basic.setInventorySlotContents(0, ItemStack.EMPTY);
 					basic.setInventorySlotContents(1, stack2);
 				}

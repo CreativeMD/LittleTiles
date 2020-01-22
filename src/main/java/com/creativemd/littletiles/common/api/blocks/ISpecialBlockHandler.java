@@ -8,9 +8,9 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -33,7 +33,7 @@ public interface ISpecialBlockHandler {
 		return true;
 	}
 	
-	public default List<LittleTileBox> getCollisionBoxes(LittleTileBlock tile, List<LittleTileBox> defaultBoxes) {
+	public default List<LittleBox> getCollisionBoxes(LittleTileBlock tile, List<LittleBox> defaultBoxes) {
 		if (canWalkThrough(tile))
 			return Collections.EMPTY_LIST;
 		return defaultBoxes;
@@ -67,7 +67,7 @@ public interface ISpecialBlockHandler {
 		return null;
 	}
 	
-	public default LittleTilePreview getPreview(LittleTileBlock tile) {
+	public default LittlePreview getPreview(LittleTileBlock tile) {
 		return null;
 	}
 	
@@ -84,11 +84,11 @@ public interface ISpecialBlockHandler {
 		
 	}
 	
-	public default void flipPreview(Axis axis, LittleTilePreview preview, LittleTileVec doubledCenter) {
+	public default void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
 		
 	}
 	
-	public default void rotatePreview(Rotation rotation, LittleTilePreview preview, LittleTileVec doubledCenter) {
+	public default void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
 		
 	}
 	

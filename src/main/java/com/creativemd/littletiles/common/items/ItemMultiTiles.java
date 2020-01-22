@@ -12,10 +12,9 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -84,7 +83,7 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittleTilePreview.savePreview(previews, stack);
+		LittlePreview.savePreview(previews, stack);
 	}
 	
 	@Override
@@ -94,24 +93,24 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
-		return LittleTilePreview.getPreview(stack);
+		return LittlePreview.getPreview(stack);
 	}
 	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
-		return LittleTilePreview.getPreview(stack, allowLowResolution);
+		return LittlePreview.getPreview(stack, allowLowResolution);
 	}
 	
 	@Override
 	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return LittleTilePreview.getCubes(stack);
+		return LittlePreview.getCubes(stack);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void applyCustomOpenGLHackery(ItemStack stack, TransformType cameraTransformType) {
 		if (stack.hasTagCompound()) {
-			LittleTileSize size = LittleTilePreview.getSize(stack);
+			LittleVec size = LittlePreview.getSize(stack);
 			LittleGridContext context = LittleGridContext.get(stack.getTagCompound());
 			double scaler = 1 / Math.max(1, Math.max(1, Math.max(size.getPosX(context), Math.max(size.getPosY(context), size.getPosZ(context)))));
 			GlStateManager.scale(scaler, scaler, scaler);
@@ -165,15 +164,15 @@ public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTi
 	}
 	
 	@Override
-	public LittleTileSize getCachedSize(ItemStack stack) {
+	public LittleVec getCachedSize(ItemStack stack) {
 		if (stack.getTagCompound().hasKey("size"))
-			return LittleTilePreview.getSize(stack);
+			return LittlePreview.getSize(stack);
 		return null;
 	}
 	
 	@Override
-	public LittleTileVec getCachedOffset(ItemStack stack) {
-		return LittleTilePreview.getOffset(stack);
+	public LittleVec getCachedOffset(ItemStack stack) {
+		return LittlePreview.getOffset(stack);
 	}
 	
 }

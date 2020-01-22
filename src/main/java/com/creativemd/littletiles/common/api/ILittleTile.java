@@ -3,9 +3,8 @@ package com.creativemd.littletiles.common.api;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
@@ -136,7 +135,7 @@ public interface ILittleTile {
 	 * 
 	 * @param stack
 	 * @return */
-	public default LittleTileSize getCachedSize(ItemStack stack) {
+	public default LittleVec getCachedSize(ItemStack stack) {
 		return null;
 	}
 	
@@ -145,7 +144,7 @@ public interface ILittleTile {
 	 * 
 	 * @param stack
 	 * @return */
-	public default LittleTileVec getCachedOffset(ItemStack stack) {
+	public default LittleVec getCachedOffset(ItemStack stack) {
 		return null;
 	}
 }

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.identifier;
 
 import java.security.InvalidParameterException;
 
@@ -9,27 +9,27 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class LittleTileIdentifierAbsolute {
+public class LittleIdentifierAbsolute {
 	
 	public BlockPos pos;
 	public LittleGridContext context;
 	public int[] identifier;
 	
-	public LittleTileIdentifierAbsolute(LittleTile tile) {
+	public LittleIdentifierAbsolute(LittleTile tile) {
 		this(tile.te, tile.getContext(), tile.getIdentifier());
 	}
 	
-	public LittleTileIdentifierAbsolute(TileEntity te, LittleGridContext context, int[] identifier) {
+	public LittleIdentifierAbsolute(TileEntity te, LittleGridContext context, int[] identifier) {
 		this(te.getPos(), context, identifier);
 	}
 	
-	public LittleTileIdentifierAbsolute(BlockPos pos, LittleGridContext context, int[] identifier) {
+	public LittleIdentifierAbsolute(BlockPos pos, LittleGridContext context, int[] identifier) {
 		this.pos = pos;
 		this.identifier = identifier;
 		this.context = context;
 	}
 	
-	public LittleTileIdentifierAbsolute(NBTTagCompound nbt) {
+	public LittleIdentifierAbsolute(NBTTagCompound nbt) {
 		int[] array = nbt.getIntArray("pos");
 		if (array.length == 3)
 			pos = new BlockPos(array[0], array[1], array[2]);

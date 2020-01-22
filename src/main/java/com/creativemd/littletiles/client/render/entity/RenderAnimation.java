@@ -67,7 +67,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 		
 		entity.origin.setupRendering(entity, partialTicks);
 		
-		LittleGridContext context = entity.center.inBlockOffset.context;
+		LittleGridContext context = entity.center.inBlockOffset.getContext();
 		
 		// SETUP OPENGL
 		

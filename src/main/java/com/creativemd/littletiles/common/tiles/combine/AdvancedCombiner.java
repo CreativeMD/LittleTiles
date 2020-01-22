@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 
 public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 	
@@ -60,7 +60,7 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 					
 					if (i != j && tiles.get(i).canCombine(tiles.get(j))) {
 						this.currentTile = tiles.get(i);
-						LittleTileBox box = tiles.get(i).getBox().combineBoxes(tiles.get(j).getBox(), this);
+						LittleBox box = tiles.get(i).getBox().combineBoxes(tiles.get(j).getBox(), this);
 						if (box != null) {
 							onCombined(tiles.get(i), tiles.get(j));
 							tiles.get(i).setBox(box);
@@ -93,17 +93,17 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 		return !tile.isChildOfStructure() && tile.canCombine(searching);
 	}
 	
-	public boolean cutOut(LittleTileBox searching, T toCombine) {
+	public boolean cutOut(LittleBox searching, T toCombine) {
 		boolean intersects = false;
 		for (T tile : tiles) {
 			if (tile.getBox().containsBox(searching)) {
 				boolean canBeCombined = canCutOut(tile, toCombine);
 				
 				if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
-					List<LittleTileBox> cutOut = tile.getBox().cutOut(searching);
+					List<LittleBox> cutOut = tile.getBox().cutOut(searching);
 					if (cutOut != null) {
 						boxes.addAll(cutOut);
-						for (LittleTileBox cutBox : cutOut) {
+						for (LittleBox cutBox : cutOut) {
 							T cutTile = (T) toCombine.copy();
 							cutTile.setBox(cutBox);
 							addCuttedTile(cutTile);
@@ -112,20 +112,20 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 					removeBox(tile.getBox());
 					return true;
 				}
-			} else if (LittleTileBox.intersectsWith(tile.getBox(), searching)) {
+			} else if (LittleBox.intersectsWith(tile.getBox(), searching)) {
 				intersects = true;
 				break;
 			}
 		}
 		
 		if (intersects) {
-			LittleTileSize size = searching.getSize();
-			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+			LittleVec size = searching.getSize();
+			boolean[][][] filled = new boolean[size.x][size.y][size.z];
 			
 			for (Iterator<T> iterator = tiles.iterator(); iterator.hasNext();) {
 				T tile = iterator.next();
 				
-				if (LittleTileBox.intersectsWith(tile.getBox(), searching)) {
+				if (LittleBox.intersectsWith(tile.getBox(), searching)) {
 					boolean canBeCombined = tile.canCombine(toCombine);
 					
 					if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
@@ -147,14 +147,14 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 			while (i < tiles.size()) {
 				T tile = tiles.get(i);
 				
-				if (LittleTileBox.intersectsWith(tile.getBox(), searching)) {
+				if (LittleBox.intersectsWith(tile.getBox(), searching)) {
 					boolean canBeCombined = canCutOut(tile, toCombine);
 					
 					if (canBeCombined && searching.getClass() == tile.getBox().getClass()) {
-						List<LittleTileBox> cutOut = tile.getBox().cutOut(searching);
+						List<LittleBox> cutOut = tile.getBox().cutOut(searching);
 						if (cutOut != null) {
 							boxes.addAll(cutOut);
-							for (LittleTileBox cutBox : cutOut) {
+							for (LittleBox cutBox : cutOut) {
 								T cutTile = (T) toCombine.copy();
 								cutTile.setBox(cutBox);
 								addCuttedTile(cutTile);
@@ -174,7 +174,7 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 	}
 	
 	@Override
-	public boolean cutOut(LittleTileBox searching) {
+	public boolean cutOut(LittleBox searching) {
 		if (currentTile != null)
 			return cutOut(searching, currentTile);
 		

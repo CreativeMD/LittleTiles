@@ -12,11 +12,11 @@ import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -141,7 +141,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		} else if (destroyedTiles != null) {
 			destroyedTiles.convertToSmallest();
 			boxes = new LittleBoxes(blockPos, destroyedTiles.context);
-			for (LittleTilePreview preview : destroyedTiles)
+			for (LittlePreview preview : destroyedTiles)
 				boxes.add(preview.box);
 		} else
 			return null;

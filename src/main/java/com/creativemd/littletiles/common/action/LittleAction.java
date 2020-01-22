@@ -29,18 +29,18 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
@@ -343,7 +343,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					
 					context = LittleGridContext.get(LittleGridContext.minSize);
 					
-					LittleTileBox box = new LittleTileBox(context.minPos, context.minPos, context.minPos, context.maxPos, context.maxPos, context.maxPos);
+					LittleBox box = new LittleBox(0, 0, 0, context.maxPos, context.maxPos, context.maxPos);
 					
 					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
 					tile.box = box;
@@ -448,7 +448,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return !player.getServer().isBlockProtected(player.world, pos, player);
 	}
 	
-	public static boolean isAllowedToPlacePreview(EntityPlayer player, LittleTilePreview preview) throws LittleActionException {
+	public static boolean isAllowedToPlacePreview(EntityPlayer player, LittlePreview preview) throws LittleActionException {
 		if (preview == null)
 			return true;
 		
@@ -462,7 +462,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return tile.te.contains(tile);
 	}
 	
-	public static LittleTile getTile(World world, LittleTileIdentifierAbsolute coord) throws LittleActionException {
+	public static LittleTile getTile(World world, LittleIdentifierAbsolute coord) throws LittleActionException {
 		TileEntity te = world.getTileEntity(coord.pos);
 		if (te instanceof TileEntityLittleTiles) {
 			LittleTile tile = ((TileEntityLittleTiles) te).getTile(coord.context, coord.identifier);
@@ -473,7 +473,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			throw new LittleActionException.TileEntityNotFoundException();
 	}
 	
-	public static void writeAbsoluteCoord(LittleTileIdentifierAbsolute coord, ByteBuf buf) {
+	public static void writeAbsoluteCoord(LittleIdentifierAbsolute coord, ByteBuf buf) {
 		writePos(buf, coord.pos);
 		buf.writeInt(coord.identifier.length);
 		for (int i = 0; i < coord.identifier.length; i++) {
@@ -482,13 +482,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 		writeContext(coord.context, buf);
 	}
 	
-	public static LittleTileIdentifierAbsolute readAbsoluteCoord(ByteBuf buf) {
+	public static LittleIdentifierAbsolute readAbsoluteCoord(ByteBuf buf) {
 		BlockPos pos = readPos(buf);
 		int[] identifier = new int[buf.readInt()];
 		for (int i = 0; i < identifier.length; i++) {
 			identifier[i] = buf.readInt();
 		}
-		return new LittleTileIdentifierAbsolute(pos, readContext(buf), identifier);
+		return new LittleIdentifierAbsolute(pos, readContext(buf), identifier);
 	}
 	
 	public static void writePreviews(LittlePreviews previews, ByteBuf buf) {
@@ -505,7 +505,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		NBTTagList children = new NBTTagList();
 		for (LittlePreviews child : previews.getChildren()) {
-			children.appendTag(LittleTilePreview.saveChildPreviews(child));
+			children.appendTag(LittlePreview.saveChildPreviews(child));
 		}
 		nbt.setTag("children", children);
 		
@@ -554,20 +554,20 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return LittleGridContext.get(buf.readInt());
 	}
 	
-	public static void writeLittleVecContext(LittleTileVecContext vec, ByteBuf buf) {
-		writeContext(vec.context, buf);
-		writeLittleVec(vec.vec, buf);
+	public static void writeLittleVecContext(LittleVecContext vec, ByteBuf buf) {
+		writeContext(vec.getContext(), buf);
+		writeLittleVec(vec.getVec(), buf);
 	}
 	
-	public static LittleTileVecContext readLittleVecContext(ByteBuf buf) {
-		return new LittleTileVecContext(readContext(buf), readLittleVec(buf));
+	public static LittleVecContext readLittleVecContext(ByteBuf buf) {
+		return new LittleVecContext(readLittleVec(buf), readContext(buf));
 	}
 	
 	public static void writeBoxes(LittleBoxes boxes, ByteBuf buf) {
 		writePos(buf, boxes.pos);
 		writeContext(boxes.context, buf);
 		buf.writeInt(boxes.size());
-		for (LittleTileBox box : boxes) {
+		for (LittleBox box : boxes) {
 			writeLittleBox(box, buf);
 		}
 	}
@@ -583,23 +583,23 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return boxes;
 	}
 	
-	public static void writeLittlePos(LittleTilePos pos, ByteBuf buf) {
-		writePos(buf, pos.pos);
-		writeLittleVecContext(pos.contextVec, buf);
+	public static void writeLittlePos(LittleAbsoluteVec pos, ByteBuf buf) {
+		writePos(buf, pos.getPos());
+		writeLittleVecContext(pos.getVecContext(), buf);
 	}
 	
-	public static LittleTilePos readLittlePos(ByteBuf buf) {
-		return new LittleTilePos(readPos(buf), readLittleVecContext(buf));
+	public static LittleAbsoluteVec readLittlePos(ByteBuf buf) {
+		return new LittleAbsoluteVec(readPos(buf), readLittleVecContext(buf));
 	}
 	
-	public static void writeLittleVec(LittleTileVec vec, ByteBuf buf) {
+	public static void writeLittleVec(LittleVec vec, ByteBuf buf) {
 		buf.writeInt(vec.x);
 		buf.writeInt(vec.y);
 		buf.writeInt(vec.z);
 	}
 	
-	public static LittleTileVec readLittleVec(ByteBuf buf) {
-		return new LittleTileVec(buf.readInt(), buf.readInt(), buf.readInt());
+	public static LittleVec readLittleVec(ByteBuf buf) {
+		return new LittleVec(buf.readInt(), buf.readInt(), buf.readInt());
 	}
 	
 	public static void writeSelector(TileSelector selector, ByteBuf buf) {
@@ -610,7 +610,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return TileSelector.loadSelector(readNBT(buf));
 	}
 	
-	public static void writeLittleBox(LittleTileBox box, ByteBuf buf) {
+	public static void writeLittleBox(LittleBox box, ByteBuf buf) {
 		int[] array = box.getArray();
 		buf.writeInt(array.length);
 		for (int i = 0; i < array.length; i++) {
@@ -618,12 +618,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static LittleTileBox readLittleBox(ByteBuf buf) {
+	public static LittleBox readLittleBox(ByteBuf buf) {
 		int[] array = new int[buf.readInt()];
 		for (int i = 0; i < array.length; i++) {
 			array[i] = buf.readInt();
 		}
-		return LittleTileBox.createBox(array);
+		return LittleBox.createBox(array);
 	}
 	
 	public static boolean needIngredients(EntityPlayer player) {
@@ -646,12 +646,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return LittleIngredient.extract(previews);
 	}
 	
-	public static LittleIngredients getIngredients(LittleTilePreview preview, double volume) {
+	public static LittleIngredients getIngredients(LittlePreview preview, double volume) {
 		return LittleIngredient.extract(preview, volume);
 	}
 	
 	public static void drop(EntityPlayer player, LittlePreviews previews) {
-		for (LittleTilePreview preview : previews) {
+		for (LittlePreview preview : previews) {
 			if (preview.hasBlockIngredient())
 				WorldUtils.dropItem(player, preview.getBlockIngredient(previews.context).getTileItemStack());
 		}

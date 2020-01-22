@@ -1,12 +1,12 @@
 package com.creativemd.littletiles.common.tiles.combine;
 
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 
 public interface ICombinable {
 	
-	public LittleTileBox getBox();
+	public LittleBox getBox();
 	
-	public void setBox(LittleTileBox box);
+	public void setBox(LittleBox box);
 	
 	public boolean isChildOfStructure();
 	
@@ -16,6 +16,6 @@ public interface ICombinable {
 	
 	public ICombinable copy();
 	
-	public boolean fillInSpace(LittleTileBox otherBox, boolean[][][] filled);
+	public boolean fillInSpace(LittleBox otherBox, boolean[][][] filled);
 	
 }

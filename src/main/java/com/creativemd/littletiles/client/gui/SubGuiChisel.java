@@ -19,8 +19,8 @@ import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -41,7 +41,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 	
 	@Override
 	public void createControls() {
-		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		LittlePreview preview = ItemLittleChisel.getPreview(stack);
 		Color color = ColorUtils.IntToRGBA(preview.getColor());
 		controls.add(new GuiColorPicker("picker", 2, 2, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
 		GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 75, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
@@ -86,11 +86,11 @@ public class SubGuiChisel extends SubGuiConfigure {
 		
 		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 		ItemStack selected = selector.getSelected();
-		LittleTilePreview preview;
+		LittlePreview preview;
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else
 			preview = ItemLittleChisel.getPreview(stack);
@@ -109,14 +109,14 @@ public class SubGuiChisel extends SubGuiConfigure {
 		DragShape shape = DragShape.getShape(box.caption);
 		
 		GuiColorPicker picker = (GuiColorPicker) get("picker");
-		LittleTilePreview preview = ItemLittleChisel.getPreview(stack);
+		LittlePreview preview = ItemLittleChisel.getPreview(stack);
 		
 		GuiStackSelectorAll selector = (GuiStackSelectorAll) get("preview");
 		ItemStack selected = selector.getSelected();
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-			tile.box = new LittleTileBox(LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().minPos, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else
 			preview = ItemLittleChisel.getPreview(stack);

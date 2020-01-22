@@ -10,9 +10,9 @@ import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -21,12 +21,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
-public class PlacePreviewTileRelative extends PlacePreviewTile {
+public class PlacePreviewRelative extends PlacePreview {
 	
 	public StructureTypeRelative relativeType;
 	public StructureRelative relative;
 	
-	public PlacePreviewTileRelative(LittleTileBox box, LittlePreviews structure, StructureRelative relative, StructureTypeRelative relativeType) {
+	public PlacePreviewRelative(LittleBox box, LittlePreviews structure, StructureRelative relative, StructureTypeRelative relativeType) {
 		super(box.copy(), null, structure);
 		this.relative = relative;
 		this.relativeType = relativeType;
@@ -43,8 +43,8 @@ public class PlacePreviewTileRelative extends PlacePreviewTile {
 	}
 	
 	@Override
-	public PlacePreviewTile copy() {
-		return new PlacePreviewTileRelative(box.copy(), this.structurePreview, relative, relativeType);
+	public PlacePreview copy() {
+		return new PlacePreviewRelative(box.copy(), this.structurePreview, relative, relativeType);
 	}
 	
 	@Override
@@ -63,7 +63,7 @@ public class PlacePreviewTileRelative extends PlacePreviewTile {
 			throw new RuntimeException("Invalid structure. Missing main tile!");
 		
 		relative.setBox(BlockPos.ORIGIN, box.copy(), context);
-		relative.add(new LittleTilePos(pos, context).getRelative(structure.getMainTile().getAbsolutePos()));
+		relative.add(new LittleAbsoluteVec(pos, context).getRelative(structure.getMainTile().getAbsolutePos()));
 		relativeType.setRelative(structure, relative);
 		return Collections.EMPTY_LIST;
 	}

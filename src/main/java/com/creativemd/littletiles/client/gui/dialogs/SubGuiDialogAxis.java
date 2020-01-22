@@ -17,7 +17,7 @@ import com.creativemd.littletiles.client.gui.controls.GuiTileViewer.GuiTileViewe
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -155,7 +155,7 @@ public class SubGuiDialogAxis extends SubGui {
 			}
 			
 			GuiTileViewer viewer = (GuiTileViewer) event.source.parent.get("tileviewer");
-			LittleTileBox box = viewer.getBox();
+			LittleBox box = viewer.getBox();
 			box.convertTo(viewer.getAxisContext(), context);
 			
 			if (viewer.isEven())
@@ -205,7 +205,7 @@ public class SubGuiDialogAxis extends SubGui {
 				
 			} else {
 				viewer.setEven(false);
-				viewer.setAxis(new LittleTileBox(0, 0, 0, 1, 1, 1), viewer.context);
+				viewer.setAxis(new LittleBox(0, 0, 0, 1, 1, 1), viewer.context);
 			}
 		}
 		

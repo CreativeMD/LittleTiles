@@ -14,9 +14,9 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.advanced.LittleSlice;
-import com.creativemd.littletiles.common.tiles.vec.advanced.LittleTileSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlice;
+import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -41,14 +41,14 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	
 	protected LittleDynamicCube dynamicCube;
 	
-	public LittleSlicedOrdinaryRenderingCube(CubeObject cube, LittleTileSlicedOrdinaryBox box, Block block, int meta) {
+	public LittleSlicedOrdinaryRenderingCube(CubeObject cube, LittleSlicedOrdinaryBox box, Block block, int meta) {
 		super(cube, box, block, meta);
 		dynamicCube = new LittleDynamicCube(this, box.slice, box.getSize());
 	}
 	
 	@Override
 	public CubeObject offset(BlockPos pos) {
-		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX - pos.getX(), minY - pos.getY(), minZ - pos.getZ(), maxX - pos.getX(), maxY - pos.getY(), maxZ - pos.getZ(), this), (LittleTileSlicedOrdinaryBox) this.box, block, meta);
+		return new LittleSlicedOrdinaryRenderingCube(new CubeObject(minX - pos.getX(), minY - pos.getY(), minZ - pos.getZ(), maxX - pos.getX(), maxY - pos.getY(), maxZ - pos.getZ(), this), (LittleSlicedOrdinaryBox) this.box, block, meta);
 	}
 	
 	@Override
@@ -56,8 +56,8 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x, y, z);
 		
-		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
-		LittleTileSize size = box.getSize();
+		LittleSlicedOrdinaryBox box = (LittleSlicedOrdinaryBox) this.box;
+		LittleVec size = box.getSize();
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
@@ -99,9 +99,9 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		
 		GlStateManager.color((float) color.x, (float) color.y, (float) color.z, (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5) * iTile.getPreviewAlphaFactor());
 		
-		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
+		LittleSlicedOrdinaryBox box = (LittleSlicedOrdinaryBox) this.box;
 		
-		LittleTileSize size = box.getSize();
+		LittleVec size = box.getSize();
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
 			EnumFacing facing = EnumFacing.VALUES[i];
@@ -130,6 +130,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 		GlStateManager.glEnd();
 	}
 	
+	@Override
 	public boolean intersectsWithFace(EnumFacing facing, float minX, float minY, float minZ, float maxX, float maxY, float maxZ, BlockPos offset) {
 		switch (facing.getAxis()) {
 		case X:
@@ -144,7 +145,7 @@ public class LittleSlicedOrdinaryRenderingCube extends LittleRenderingCube {
 	
 	@Override
 	public List<BakedQuad> getBakedQuad(IBlockAccess world, @Nullable BlockPos pos, BlockPos offset, IBlockState state, IBakedModel blockModel, EnumFacing facing, BlockRenderLayer layer, long rand, boolean overrideTint, int defaultColor) {
-		LittleTileSlicedOrdinaryBox box = (LittleTileSlicedOrdinaryBox) this.box;
+		LittleSlicedOrdinaryBox box = (LittleSlicedOrdinaryBox) this.box;
 		// LittleTileSize size = box.getSize();
 		
 		if (!box.slice.shouldRenderSide(facing, dynamicCube.defaultCube.getSize()))

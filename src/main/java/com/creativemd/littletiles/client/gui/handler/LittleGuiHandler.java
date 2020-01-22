@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public abstract class LittleGuiHandler extends CustomGuiHandler {
 	
 	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, LittleTile tile) {
-		new LittleTileIdentifierAbsolute(tile).writeToNBT(nbt);
+		new LittleIdentifierAbsolute(tile).writeToNBT(nbt);
 		if (tile.te.getWorld() instanceof CreativeWorld)
 			nbt.setString("uuid", ((CreativeWorld) tile.te.getWorld()).parent.getUniqueID().toString());
 		GuiHandler.openGui(id, nbt, player);
@@ -44,7 +44,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	@Override
 	public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt) {
 		try {
-			return getContainer(player, nbt, LittleAction.getTile(getWorld(nbt, player), new LittleTileIdentifierAbsolute(nbt)));
+			return getContainer(player, nbt, LittleAction.getTile(getWorld(nbt, player), new LittleIdentifierAbsolute(nbt)));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}
@@ -58,7 +58,7 @@ public abstract class LittleGuiHandler extends CustomGuiHandler {
 	@SideOnly(Side.CLIENT)
 	public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 		try {
-			return getGui(player, nbt, LittleAction.getTile(getWorld(nbt, player), new LittleTileIdentifierAbsolute(nbt)));
+			return getGui(player, nbt, LittleAction.getTile(getWorld(nbt, player), new LittleIdentifierAbsolute(nbt)));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}

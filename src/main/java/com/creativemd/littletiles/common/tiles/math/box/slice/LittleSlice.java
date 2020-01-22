@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.tiles.vec.advanced;
+package com.creativemd.littletiles.common.tiles.math.box.slice;
 
 import java.util.Arrays;
 
@@ -8,7 +8,7 @@ import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -158,8 +158,7 @@ public enum LittleSlice {
 	}
 	
 	public LittleSlice rotate(Rotation rotation) {
-		return getSliceFromNormal(new int[] { rotation.getMatrix().getX(normal), rotation.getMatrix().getY(normal),
-		        rotation.getMatrix().getZ(normal) });
+		return getSliceFromNormal(new int[] { rotation.getMatrix().getX(normal), rotation.getMatrix().getY(normal), rotation.getMatrix().getZ(normal) });
 	}
 	
 	public LittleSlice flip(Axis axis) {
@@ -168,7 +167,7 @@ public enum LittleSlice {
 		return getSliceFromNormal(newNormal);
 	}
 	
-	public EnumFacing getPreferedSide(LittleTileSize size) {
+	public EnumFacing getPreferedSide(LittleVec size) {
 		int sizeOne = size.get(emptySideOne.getAxis());
 		int sizeTwo = size.get(emptySideTwo.getAxis());
 		if (sizeOne > sizeTwo)
@@ -201,7 +200,7 @@ public enum LittleSlice {
 		return emptySideOne.getAxis() == Axis.Y ? emptySideOne : emptySideTwo;
 	}
 	
-	public boolean shouldRenderSide(EnumFacing facing, LittleTileSize size) {
+	public boolean shouldRenderSide(EnumFacing facing, LittleVec size) {
 		if (normal[facing.getAxis().ordinal()] == facing.getAxisDirection().getOffset()) {
 			Axis otherAxis = RotationUtils.getDifferentAxisFirst(axis);
 			if (otherAxis == facing.getAxis())

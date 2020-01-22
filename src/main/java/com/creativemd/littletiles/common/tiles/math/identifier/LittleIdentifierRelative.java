@@ -1,43 +1,44 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.identifier;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
 
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-public class LittleTileIdentifierRelative {
+public class LittleIdentifierRelative {
 	
 	public BlockPos coord;
 	public LittleGridContext context;
 	public int[] identifier;
 	
-	public LittleTileIdentifierRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier) {
+	public LittleIdentifierRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier) {
 		this(te.getPos().getX(), te.getPos().getY(), te.getPos().getZ(), coord, context, identifier);
 	}
 	
-	public LittleTileIdentifierRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier) {
+	public LittleIdentifierRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier) {
 		this(origin.getX(), origin.getY(), origin.getZ(), coord, context, identifier);
 	}
 	
-	public LittleTileIdentifierRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier) {
+	public LittleIdentifierRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier) {
 		this(coord.getX() - baseX, coord.getY() - baseY, coord.getZ() - baseZ, context, identifier);
 	}
 	
-	protected LittleTileIdentifierRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier) {
+	protected LittleIdentifierRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier) {
 		this.coord = new BlockPos(relativeX, relativeY, relativeZ);
 		this.context = context;
 		this.identifier = identifier;
 	}
 	
-	public static LittleTileIdentifierRelative loadIdentifierOld(String id, NBTTagCompound nbt) {
-		return new LittleTileIdentifierRelative(id, nbt);
+	public static LittleIdentifierRelative loadIdentifierOld(String id, NBTTagCompound nbt) {
+		return new LittleIdentifierRelative(id, nbt);
 	}
 	
-	private LittleTileIdentifierRelative(String id, NBTTagCompound nbt) {
+	private LittleIdentifierRelative(String id, NBTTagCompound nbt) {
 		if (nbt.hasKey(id + "coord")) {
 			int[] array = nbt.getIntArray(id + "coord");
 			if (array.length == 3)
@@ -49,14 +50,14 @@ public class LittleTileIdentifierRelative {
 		else
 			coord = new BlockPos(0, 0, 0);
 		if (nbt.hasKey(id + "pos")) {
-			LittleTileVec position = new LittleTileVec(id + "pos", nbt);
+			LittleVec position = new LittleVec(id + "pos", nbt);
 			identifier = new int[] { position.x, position.y, position.z };
 		} else
 			identifier = nbt.getIntArray("id");
 		context = LittleGridContext.get(nbt);
 	}
 	
-	public LittleTileIdentifierRelative(NBTTagCompound nbt) {
+	public LittleIdentifierRelative(NBTTagCompound nbt) {
 		if (nbt.hasKey("coord")) {
 			int[] array = nbt.getIntArray("coord");
 			if (array.length == 3)
@@ -68,7 +69,7 @@ public class LittleTileIdentifierRelative {
 		else
 			coord = new BlockPos(0, 0, 0);
 		if (nbt.hasKey("pos")) {
-			LittleTileVec position = new LittleTileVec("pos", nbt);
+			LittleVec position = new LittleVec("pos", nbt);
 			identifier = new int[] { position.x, position.y, position.z };
 		} else
 			identifier = nbt.getIntArray("id");
@@ -96,10 +97,10 @@ public class LittleTileIdentifierRelative {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof LittleTileIdentifierRelative) {
-			if (!coord.equals(((LittleTileIdentifierRelative) obj).coord))
+		if (obj instanceof LittleIdentifierRelative) {
+			if (!coord.equals(((LittleIdentifierRelative) obj).coord))
 				return false;
-			return Arrays.equals(identifier, LittleTileIdentifierAbsolute.convertTo(((LittleTileIdentifierRelative) obj).identifier, ((LittleTileIdentifierRelative) obj).context, context));
+			return Arrays.equals(identifier, LittleIdentifierAbsolute.convertTo(((LittleIdentifierRelative) obj).identifier, ((LittleIdentifierRelative) obj).context, context));
 		}
 		return false;
 	}
@@ -109,8 +110,8 @@ public class LittleTileIdentifierRelative {
 		return "coord:[" + coord.getX() + "," + coord.getY() + "," + coord.getZ() + "]|position:" + Arrays.toString(identifier);
 	}
 	
-	public LittleTileIdentifierRelative copy() {
-		return new LittleTileIdentifierRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone());
+	public LittleIdentifierRelative copy() {
+		return new LittleIdentifierRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone());
 	}
 	
 }

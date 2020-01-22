@@ -13,7 +13,7 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.client.gui.GuiScreen;
@@ -25,7 +25,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 	
 	public EntityAnimation animation;
 	public LittleGridContext context;
-	public LittleTileVec min;
+	public LittleVec min;
 	
 	public SmoothValue rotX = new SmoothValue(200);
 	public SmoothValue rotY = new SmoothValue(200);

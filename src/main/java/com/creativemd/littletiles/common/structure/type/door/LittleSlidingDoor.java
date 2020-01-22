@@ -18,11 +18,10 @@ import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVecContext;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationKey;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
@@ -81,21 +80,21 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		if (stayAnimated)
-			return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleTileVec(0, 0, 0), new LittleTileVecContext()) };
-		LittleTileVec offsetVec = new LittleTileVec(moveDirection);
+			return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
+		LittleVec offsetVec = new LittleVec(moveDirection);
 		offsetVec.scale(moveDistance);
-		LittleTileVecContext offset = new LittleTileVecContext(moveContext, offsetVec);
-		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos().add(offset.vec.getBlockPos(moveContext)), 0, 0, 0, new LittleTileVec(0, 0, 0), offset) };
+		LittleVecContext offset = new LittleVecContext(offsetVec, moveContext);
+		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos().add(offset.getBlockPos()), 0, 0, 0, new LittleVec(0, 0, 0), offset) };
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		if (axis == this.moveDirection.getAxis())
 			this.moveDirection = this.moveDirection.getOpposite();
 	}
 	
 	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		moveDirection = RotationUtils.rotate(moveDirection, rotation);
 	}
 	
@@ -170,7 +169,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			if (structure instanceof LittleSlidingDoor)
 				door = (LittleSlidingDoor) structure;
 			
-			LittleTileSize size = previews.getSize();
+			LittleVec size = previews.getSize();
 			
 			int index = EnumFacing.UP.ordinal();
 			if (door != null)
@@ -188,7 +187,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
 			parent.addControl(relativeDirection);
 			
-			int distance = size.getSizeOfAxis(direction.getAxis());
+			int distance = size.get(direction.getAxis());
 			if (door != null) {
 				distance = door.moveDistance;
 				context = door.moveContext;

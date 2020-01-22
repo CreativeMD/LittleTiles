@@ -8,11 +8,10 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,20 +27,20 @@ public class DragShapeBox extends DragShape {
 	}
 	
 	@Override
-	public LittleBoxes getBoxes(LittleBoxes boxes, LittleTileVec min, LittleTileVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleTilePos originalMin, LittleTilePos originalMax) {
-		LittleTileBox box = new LittleTileBox(min, max);
+	public LittleBoxes getBoxes(LittleBoxes boxes, LittleVec min, LittleVec max, EntityPlayer player, NBTTagCompound nbt, boolean preview, LittleAbsoluteVec originalMin, LittleAbsoluteVec originalMax) {
+		LittleBox box = new LittleBox(min, max);
 		if (nbt.getBoolean("hollow")) {
 			int thickness = nbt.getInteger("thickness");
-			LittleTileSize size = box.getSize();
-			if (thickness * 2 >= size.sizeX || thickness * 2 >= size.sizeY || thickness * 2 >= size.sizeZ)
+			LittleVec size = box.getSize();
+			if (thickness * 2 >= size.x || thickness * 2 >= size.y || thickness * 2 >= size.z)
 				boxes.add(box);
 			else {
-				boxes.add(new LittleTileBox(min.x, min.y, min.z, max.x, max.y, min.z + thickness));
-				boxes.add(new LittleTileBox(min.x, min.y + thickness, min.z + thickness, min.x + thickness, max.y - thickness, max.z - thickness));
-				boxes.add(new LittleTileBox(max.x - thickness, min.y + thickness, min.z + thickness, max.x, max.y - thickness, max.z - thickness));
-				boxes.add(new LittleTileBox(min.x, min.y, min.z + thickness, max.x, min.y + thickness, max.z - thickness));
-				boxes.add(new LittleTileBox(min.x, max.y - thickness, min.z + thickness, max.x, max.y, max.z - thickness));
-				boxes.add(new LittleTileBox(min.x, min.y, max.z - thickness, max.x, max.y, max.z));
+				boxes.add(new LittleBox(min.x, min.y, min.z, max.x, max.y, min.z + thickness));
+				boxes.add(new LittleBox(min.x, min.y + thickness, min.z + thickness, min.x + thickness, max.y - thickness, max.z - thickness));
+				boxes.add(new LittleBox(max.x - thickness, min.y + thickness, min.z + thickness, max.x, max.y - thickness, max.z - thickness));
+				boxes.add(new LittleBox(min.x, min.y, min.z + thickness, max.x, min.y + thickness, max.z - thickness));
+				boxes.add(new LittleBox(min.x, max.y - thickness, min.z + thickness, max.x, max.y, max.z - thickness));
+				boxes.add(new LittleBox(min.x, min.y, max.z - thickness, max.x, max.y, max.z));
 			}
 		} else
 			boxes.add(box);

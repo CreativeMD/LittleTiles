@@ -11,13 +11,13 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -37,9 +37,9 @@ import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 
 public class LittleActionReplace extends LittleActionInteract {
 	
-	public LittleTilePreview toReplace;
+	public LittlePreview toReplace;
 	
-	public LittleActionReplace(World world, BlockPos blockPos, EntityPlayer player, LittleTilePreview toReplace) {
+	public LittleActionReplace(World world, BlockPos blockPos, EntityPlayer player, LittlePreview toReplace) {
 		super(world, blockPos, player);
 		this.toReplace = toReplace;
 	}
@@ -59,7 +59,7 @@ public class LittleActionReplace extends LittleActionInteract {
 	@Override
 	public void readBytes(ByteBuf buf) {
 		super.readBytes(buf);
-		toReplace = LittleTilePreview.loadPreviewFromNBT(readNBT(buf));
+		toReplace = LittlePreview.loadPreviewFromNBT(readNBT(buf));
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class LittleActionReplace extends LittleActionInteract {
 		if (BlockTile.selectEntireBlock(player, secondMode)) {
 			List<LittleTile> toRemove = new ArrayList<>();
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			List<PlacePreviewTile> previews = new ArrayList<>();
+			List<PlacePreview> previews = new ArrayList<>();
 			
 			for (LittleTile toDestroy : te) {
 				if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
@@ -99,7 +99,7 @@ public class LittleActionReplace extends LittleActionInteract {
 					boxes.addBox(toDestroy);
 					
 					toBePlaced.addTile(toDestroy);
-					LittleTilePreview preview = toReplace.copy();
+					LittlePreview preview = toReplace.copy();
 					preview.box = toDestroy.box;
 					previews.add(preview.getPlaceableTile(null, true, null, null));
 					
@@ -151,7 +151,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			
 			te.updateTiles((x) -> tile.destroy(x));
 			
-			List<PlacePreviewTile> previews = new ArrayList<>();
+			List<PlacePreview> previews = new ArrayList<>();
 			previews.add(toReplace.getPlaceableTile(null, true, null, null));
 			
 			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
@@ -180,8 +180,8 @@ public class LittleActionReplace extends LittleActionInteract {
 		boxes.flip(axis, absoluteBox);
 		
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(boxes.pos, boxes.context);
-		for (LittleTileBox box : boxes) {
-			LittleTilePreview preview = toReplace.copy();
+		for (LittleBox box : boxes) {
+			LittlePreview preview = toReplace.copy();
 			preview.box = box;
 			previews.addWithoutCheckingPreview(preview);
 		}

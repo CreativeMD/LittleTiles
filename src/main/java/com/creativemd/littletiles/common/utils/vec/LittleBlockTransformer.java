@@ -10,7 +10,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType.
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
@@ -36,7 +36,7 @@ public class LittleBlockTransformer {
 	}
 	
 	public static void flipTile(LittleTile tile, Axis axis, boolean connected) {
-		LittleTileVec moved = tile.box.getMinVec();
+		LittleVec moved = tile.box.getMinVec();
 		tile.box.flipBox(axis, tile.getContext().rotationCenter);
 		moved.sub(tile.box.getMinVec());
 		if (!connected && tile.isChildOfStructure()) {
@@ -46,7 +46,7 @@ public class LittleBlockTransformer {
 	}
 	
 	public static void rotateTile(LittleTile tile, Rotation rotation, boolean connected) {
-		LittleTileVec moved = tile.box.getMinVec();
+		LittleVec moved = tile.box.getMinVec();
 		tile.box.rotateBox(rotation, tile.getContext().rotationCenter);
 		moved.sub(tile.box.getMinVec());
 		if (!connected && tile.isChildOfStructure()) {
@@ -55,7 +55,7 @@ public class LittleBlockTransformer {
 		}
 	}
 	
-	public static void flipStructure(LittleStructure structure, Axis axis, LittleTileVec moved) {
+	public static void flipStructure(LittleStructure structure, Axis axis, LittleVec moved) {
 		BlockPos mainPos = structure.getMainTile().te.getPos();
 		
 		if (structure.tilesToLoad != null) {
@@ -72,8 +72,8 @@ public class LittleBlockTransformer {
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
-		LittleTileVec center = context.rotationCenter.copy();
-		LittleTileVec offset = structure.getMainTile().getMinVec();
+		LittleVec center = context.rotationCenter.copy();
+		LittleVec offset = structure.getMainTile().getMinVec();
 		offset.scale(2);
 		center.sub(offset);
 		for (StructureTypeRelative relative : structure.type.relatives) {
@@ -85,7 +85,7 @@ public class LittleBlockTransformer {
 		}
 	}
 	
-	public static void rotateStructure(LittleStructure structure, Rotation rotation, LittleTileVec moved) {
+	public static void rotateStructure(LittleStructure structure, Rotation rotation, LittleVec moved) {
 		BlockPos mainPos = structure.getMainTile().te.getPos();
 		if (structure.tilesToLoad != null) {
 			LinkedHashMap<BlockPos, Integer> newTilesToLoad = new LinkedHashMap<>();
@@ -101,8 +101,8 @@ public class LittleBlockTransformer {
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
-		LittleTileVec center = context.rotationCenter.copy();
-		LittleTileVec offset = structure.getMainTile().getMinVec();
+		LittleVec center = context.rotationCenter.copy();
+		LittleVec offset = structure.getMainTile().getMinVec();
 		offset.scale(2);
 		center.sub(offset);
 		for (StructureTypeRelative relative : structure.type.relatives) {

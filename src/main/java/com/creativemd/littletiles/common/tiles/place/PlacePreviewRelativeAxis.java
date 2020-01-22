@@ -5,17 +5,17 @@ import java.util.List;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
 
-public class PlacePreviewTileRelativeAxis extends PlacePreviewTileRelative {
+public class PlacePreviewRelativeAxis extends PlacePreviewRelative {
 	
 	public Axis axis;
 	
-	public PlacePreviewTileRelativeAxis(LittleTileBox box, LittlePreviews structure, StructureRelative relative, StructureTypeRelative relativeType, Axis axis) {
+	public PlacePreviewRelativeAxis(LittleBox box, LittlePreviews structure, StructureRelative relative, StructureTypeRelative relativeType, Axis axis) {
 		super(box, structure, relative, relativeType);
 		this.axis = axis;
 	}

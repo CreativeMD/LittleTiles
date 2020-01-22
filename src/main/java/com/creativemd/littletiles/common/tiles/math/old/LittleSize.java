@@ -1,8 +1,9 @@
-package com.creativemd.littletiles.common.tiles.vec;
+package com.creativemd.littletiles.common.tiles.math.old;
 
 import java.security.InvalidParameterException;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagByte;
@@ -12,13 +13,19 @@ import net.minecraft.nbt.NBTTagIntArray;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.EnumFacing.Axis;
 
-public class LittleTileSize {
+@Deprecated
+public class LittleSize {
 	
 	public int sizeX;
 	public int sizeY;
 	public int sizeZ;
 	
-	public LittleTileSize(String name, NBTTagCompound nbt) {
+	public static LittleVec loadSize(String name, NBTTagCompound nbt) {
+		LittleSize size = new LittleSize(name, nbt);
+		return new LittleVec(size.sizeX, size.sizeY, size.sizeY);
+	}
+	
+	private LittleSize(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "x") instanceof NBTTagByte)
 			set(nbt.getByte(name + "x"), nbt.getByte(name + "y"), nbt.getByte(name + "z"));
 		else if (nbt.getTag(name + "x") instanceof NBTTagInt)
@@ -39,7 +46,7 @@ public class LittleTileSize {
 		}
 	}
 	
-	public LittleTileSize(String data) {
+	private LittleSize(String data) {
 		String[] coords = data.split("\\.");
 		try {
 			set(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]));
@@ -48,7 +55,7 @@ public class LittleTileSize {
 		}
 	}
 	
-	public LittleTileSize(int sizeX, int sizeY, int sizeZ) {
+	private LittleSize(int sizeX, int sizeY, int sizeZ) {
 		this.sizeX = sizeX;
 		this.sizeY = sizeY;
 		this.sizeZ = sizeZ;
@@ -62,8 +69,8 @@ public class LittleTileSize {
 	
 	@Override
 	public boolean equals(Object object) {
-		if (object instanceof LittleTileSize)
-			return sizeX == ((LittleTileSize) object).sizeX && sizeY == ((LittleTileSize) object).sizeY && sizeZ == ((LittleTileSize) object).sizeZ;
+		if (object instanceof LittleSize)
+			return sizeX == ((LittleSize) object).sizeX && sizeY == ((LittleSize) object).sizeY && sizeZ == ((LittleSize) object).sizeZ;
 		return super.equals(object);
 	}
 	
@@ -76,18 +83,18 @@ public class LittleTileSize {
 		return (double) getVolume() / (double) (context.maxTilesPerBlock);
 	}
 	
-	public LittleTileVec calculateInvertedCenter() {
+	public LittleVec calculateInvertedCenter() {
 		double x = sizeX / 2D;
 		double y = sizeY / 2D;
 		double z = sizeZ / 2D;
-		return new LittleTileVec((int) Math.ceil(x), (int) Math.ceil(y), (int) Math.ceil(z));
+		return new LittleVec((int) Math.ceil(x), (int) Math.ceil(y), (int) Math.ceil(z));
 	}
 	
-	public LittleTileVec calculateCenter() {
+	public LittleVec calculateCenter() {
 		double x = sizeX / 2D;
 		double y = sizeY / 2D;
 		double z = sizeZ / 2D;
-		return new LittleTileVec((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
+		return new LittleVec((int) Math.floor(x), (int) Math.floor(y), (int) Math.floor(z));
 	}
 	
 	public double getPosX(LittleGridContext context) {
@@ -114,8 +121,8 @@ public class LittleTileSize {
 		return 0;
 	}
 	
-	public LittleTileSize copy() {
-		return new LittleTileSize(sizeX, sizeY, sizeZ);
+	public LittleSize copy() {
+		return new LittleSize(sizeX, sizeY, sizeZ);
 	}
 	
 	public void rotateSize(Rotation rotation) {
@@ -136,7 +143,7 @@ public class LittleTileSize {
 		return sizeX + "." + sizeY + "." + sizeZ;
 	}
 	
-	public LittleTileSize max(LittleTileSize size) {
+	public LittleSize max(LittleSize size) {
 		this.sizeX = Math.max(this.sizeX, size.sizeX);
 		this.sizeY = Math.max(this.sizeY, size.sizeY);
 		this.sizeZ = Math.max(this.sizeZ, size.sizeZ);

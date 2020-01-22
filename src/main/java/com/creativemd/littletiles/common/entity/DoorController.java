@@ -21,9 +21,9 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationController;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
@@ -210,8 +210,8 @@ public class DoorController extends EntityAnimationController {
 		World world = parent.world;
 		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
-		List<PlacePreviewTile> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 		
 		LittleStructure newDoor = previews.getStructure();
 		if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)

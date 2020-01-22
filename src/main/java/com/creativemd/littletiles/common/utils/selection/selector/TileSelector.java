@@ -9,8 +9,8 @@ import java.util.Map.Entry;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -129,8 +129,8 @@ public abstract class TileSelector {
 		return boxes;
 	}
 	
-	public static List<LittleTileBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
-		List<LittleTileBox> boxes = new ArrayList<>();
+	public static List<LittleBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
+		List<LittleBox> boxes = new ArrayList<>();
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 		for (LittleTile tile : te) {
 			if (selector.is(tile))

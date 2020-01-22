@@ -30,10 +30,11 @@ import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
 import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.utils.grid.IGridBased;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleBlockTransformer;
 
@@ -60,7 +61,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @Interface(iface = "elucent.albedo.lighting.ILightProvider", modid = "albedo")
-public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider, Iterable<LittleTile> {
+public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider, Iterable<LittleTile>, IGridBased {
 	
 	protected void assign(TileEntityLittleTiles te) {
 		try {
@@ -112,30 +113,23 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	protected LittleGridContext context = LittleGridContext.getMin();
 	
+	@Override
 	public LittleGridContext getContext() {
 		return context;
 	}
 	
-	public void ensureMinContext(LittleGridContext context) {
-		if (context.size > this.context.size)
-			convertTo(context);
-	}
-	
+	@Override
 	public void convertToSmallest() {
-		LittleGridContext smallest = getSmallest();
-		if (smallest.size < context.size)
-			convertTo(smallest);
-	}
-	
-	public LittleGridContext getSmallest() {
 		int size = LittleGridContext.minSize;
 		for (LittleTile tile : tiles) {
 			size = Math.max(size, tile.getSmallestContext(context));
 		}
 		
-		return LittleGridContext.get(size);
+		if (size < context.size)
+			convertTo(LittleGridContext.get(size));
 	}
 	
+	@Override
 	public void convertTo(LittleGridContext newContext) {
 		for (LittleTile tile : tiles) {
 			tile.convertTo(context, newContext);
@@ -365,9 +359,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public boolean isBoxFilled(LittleTileBox box) {
-		LittleTileSize size = box.getSize();
-		boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+	public boolean isBoxFilled(LittleBox box) {
+		LittleVec size = box.getSize();
+		boolean[][][] filled = new boolean[size.x][size.y][size.z];
 		
 		for (LittleTile tile : tiles)
 			tile.fillInSpace(box, filled);
@@ -471,11 +465,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		int minX = context.size;
 		int minY = context.size;
 		int minZ = context.size;
-		int maxX = context.minPos;
-		int maxY = context.minPos;
-		int maxZ = context.minPos;
+		int maxX = 0;
+		int maxY = 0;
+		int maxZ = 0;
 		for (LittleTile tile : tiles) {
-			LittleTileBox box = tile.getCompleteBox();
+			LittleBox box = tile.getCompleteBox();
 			minX = Math.min(box.minX, minX);
 			minY = Math.min(box.minY, minY);
 			minZ = Math.min(box.minZ, minZ);
@@ -483,7 +477,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			maxY = Math.max(box.maxY, maxY);
 			maxZ = Math.max(box.maxZ, maxZ);
 		}
-		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
+		return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ).getBox(context, pos);
 	}
 	
 	/** Used for rendering */
@@ -502,14 +496,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	 * @param cutout
 	 *            filled with all boxes which are cutout by tiles
 	 * @return all boxes which are not cutout by other tiles */
-	public List<LittleTileBox> cutOut(LittleTileBox box, List<LittleTileBox> cutout) {
-		List<LittleTileBox> cutting = new ArrayList<>();
+	public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout) {
+		List<LittleBox> cutting = new ArrayList<>();
 		for (LittleTile tile : tiles)
 			tile.getCuttingBoxes(cutting);
 		return box.cutOut(cutting, cutout);
 	}
 	
-	public boolean isSpaceForLittleTileStructure(LittleTileBox box, Predicate<LittleTile> predicate) {
+	public boolean isSpaceForLittleTileStructure(LittleBox box, Predicate<LittleTile> predicate) {
 		for (LittleTile tile : tiles) {
 			if (predicate != null && !predicate.test(tile))
 				continue;
@@ -520,11 +514,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public boolean isSpaceForLittleTileStructure(LittleTileBox box) {
+	public boolean isSpaceForLittleTileStructure(LittleBox box) {
 		return isSpaceForLittleTileStructure(box, null);
 	}
 	
-	public boolean isSpaceForLittleTile(LittleTileBox box, Predicate<LittleTile> predicate) {
+	public boolean isSpaceForLittleTile(LittleBox box, Predicate<LittleTile> predicate) {
 		for (LittleTile tile : tiles) {
 			if (predicate != null && !predicate.test(tile))
 				continue;
@@ -535,11 +529,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public boolean isSpaceForLittleTile(LittleTileBox box) {
+	public boolean isSpaceForLittleTile(LittleBox box) {
 		return isSpaceForLittleTile(box, null);
 	}
 	
-	public boolean isSpaceForLittleTileIgnore(LittleTileBox box, LittleTile ignoreTile) {
+	public boolean isSpaceForLittleTileIgnore(LittleBox box, LittleTile ignoreTile) {
 		for (LittleTile tile : tiles) {
 			if (ignoreTile != tile && tile.intersectsWith(box))
 				return false;
@@ -547,7 +541,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public LittleTile getIntersectingTile(LittleTileBox box, LittleTile ignoreTile) {
+	public LittleTile getIntersectingTile(LittleBox box, LittleTile ignoreTile) {
 		for (LittleTile tile : tiles) {
 			if (ignoreTile != tile && tile.intersectsWith(box))
 				return tile;
@@ -637,7 +631,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 			LittleTile tile = null;
 			if (tileNBT.hasKey("box"))
-				tile = getTile(getContext(), LittleTileBox.createBox(tileNBT.getIntArray("box")).getIdentifier());
+				tile = getTile(getContext(), LittleBox.createBox(tileNBT.getIntArray("box")).getIdentifier());
 			
 			if (!exstingTiles.contains(tile))
 				tile = null;
@@ -898,25 +892,25 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		
 		protected SideState calculate(EnumFacing facing) {
-			LittleTileBox box;
+			LittleBox box;
 			switch (facing) {
 			case EAST:
-				box = new LittleTileBox(context.size - 1, 0, 0, context.size, context.size, context.size);
+				box = new LittleBox(context.size - 1, 0, 0, context.size, context.size, context.size);
 				break;
 			case WEST:
-				box = new LittleTileBox(0, 0, 0, 1, context.size, context.size);
+				box = new LittleBox(0, 0, 0, 1, context.size, context.size);
 				break;
 			case UP:
-				box = new LittleTileBox(0, context.size - 1, 0, context.size, context.size, context.size);
+				box = new LittleBox(0, context.size - 1, 0, context.size, context.size, context.size);
 				break;
 			case DOWN:
-				box = new LittleTileBox(0, 0, 0, context.size, 1, context.size);
+				box = new LittleBox(0, 0, 0, context.size, 1, context.size);
 				break;
 			case SOUTH:
-				box = new LittleTileBox(0, 0, context.size - 1, context.size, context.size, context.size);
+				box = new LittleBox(0, 0, context.size - 1, context.size, context.size, context.size);
 				break;
 			case NORTH:
-				box = new LittleTileBox(0, 0, 0, context.size, context.size, 1);
+				box = new LittleBox(0, 0, 0, context.size, context.size, 1);
 				break;
 			default:
 				box = null;
@@ -925,9 +919,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			return calculateState(facing, box);
 		}
 		
-		protected SideState calculateState(EnumFacing facing, LittleTileBox box) {
-			LittleTileSize size = box.getSize();
-			boolean[][][] filled = new boolean[size.sizeX][size.sizeY][size.sizeZ];
+		protected SideState calculateState(EnumFacing facing, LittleBox box) {
+			LittleVec size = box.getSize();
+			boolean[][][] filled = new boolean[size.x][size.y][size.z];
 			
 			boolean translucent = false;
 			boolean noclip = false;

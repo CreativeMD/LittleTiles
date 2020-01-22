@@ -23,10 +23,9 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -262,8 +261,8 @@ public class LittleBed extends LittleStructure {
 			SleepResult enumstatus = trySleep(player, vec);
 			if (enumstatus == SleepResult.OK) {
 				player.addStat(StatList.SLEEP_IN_BED);
-				PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
-				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleTileIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
 				return true;
 			} else {
 				if (enumstatus == SleepResult.NOT_POSSIBLE_NOW) {
@@ -279,13 +278,13 @@ public class LittleBed extends LittleStructure {
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleTileVec doubledCenter) {
+	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		if (axis == this.direction.getAxis())
 			this.direction = this.direction.getOpposite();
 	}
 	
 	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleTileVec doubledCenter) {
+	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		this.direction = RotationUtils.rotate(this.direction, rotation);
 	}
 	
@@ -313,9 +312,9 @@ public class LittleBed extends LittleStructure {
 			tile.setViewDirection(EnumFacing.UP);
 			parent.addControl(tile);
 			
-			LittleTileSize size = previews.getSize();
+			LittleVec size = previews.getSize();
 			int index = EnumFacing.EAST.getHorizontalIndex();
-			if (size.sizeX < size.sizeZ)
+			if (size.x < size.z)
 				index = EnumFacing.SOUTH.getHorizontalIndex();
 			if (structure instanceof LittleBed)
 				index = ((LittleBed) structure).direction.getHorizontalIndex();

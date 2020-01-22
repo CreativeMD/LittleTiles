@@ -17,9 +17,9 @@ import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
@@ -69,9 +69,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	public HashMapList<Integer, LittleBoxes> revertList;
 	
-	public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleTileBox> boxes) {
+	public void addRevert(int color, BlockPos pos, LittleGridContext context, List<LittleBox> boxes) {
 		LittleBoxes newBoxes = new LittleBoxes(pos, context);
-		for (LittleTileBox box : boxes) {
+		for (LittleBox box : boxes) {
 			newBoxes.add(box.copy());
 		}
 		revertList.add(color, newBoxes);
@@ -85,7 +85,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	private double colorVolume;
 	
-	public ColorIngredient action(TileEntityLittleTiles te, List<LittleTileBox> boxes, ColorIngredient gained, boolean simulate, LittleGridContext context) {
+	public ColorIngredient action(TileEntityLittleTiles te, List<LittleBox> boxes, ColorIngredient gained, boolean simulate, LittleGridContext context) {
 		doneSomething = false;
 		colorVolume = 0;
 		
@@ -96,7 +96,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				if (shouldSkipTile(tile))
 					continue;
 				
-				LittleTileBox intersecting = null;
+				LittleBox intersecting = null;
 				boolean intersects = false;
 				for (int j = 0; j < boxes.size(); j++) {
 					if (tile.intersectsWith(boxes.get(j))) {
@@ -117,9 +117,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 				if (tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
 					if (simulate) {
 						double volume = 0;
-						List<LittleTileBox> cutout = new ArrayList<>();
+						List<LittleBox> cutout = new ArrayList<>();
 						tile.cutOut(boxes, cutout);
-						for (LittleTileBox box2 : cutout) {
+						for (LittleBox box2 : cutout) {
 							colorVolume += box2.getPercentVolume(context);
 							volume += box2.getPercentVolume(context);
 						}
@@ -127,8 +127,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
 						
 					} else {
-						List<LittleTileBox> cutout = new ArrayList<>();
-						List<LittleTileBox> newBoxes = tile.cutOut(boxes, cutout);
+						List<LittleBox> cutout = new ArrayList<>();
+						List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
 						
 						if (newBoxes != null) {
 							addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
@@ -173,7 +173,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						colorVolume += tile.getPercentVolume();
 						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
 					} else {
-						List<LittleTileBox> oldBoxes = new ArrayList<>();
+						List<LittleBox> oldBoxes = new ArrayList<>();
 						oldBoxes.add(tile.box);
 						
 						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
@@ -213,7 +213,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	}
 	
 	@Override
-	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleTileBox> boxes, LittleGridContext context) throws LittleActionException {
+	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
 		if (ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparency(player))
 			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
 		
@@ -231,13 +231,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 			
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			
-			te.ensureMinContext(context);
-			
 			if (context != te.getContext()) {
-				for (LittleTileBox box : boxes) {
-					box.convertTo(context, te.getContext());
-				}
-				context = te.getContext();
+				if (context.size > te.getContext().size) {
+					for (LittleBox box : boxes)
+						box.convertTo(context, te.getContext());
+					context = te.getContext();
+				} else
+					te.convertTo(context);
 			}
 			
 			List<BlockIngredientEntry> entries = new ArrayList<>();

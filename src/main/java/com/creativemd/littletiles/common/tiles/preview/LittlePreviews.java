@@ -12,10 +12,9 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 import com.creativemd.littletiles.common.tiles.combine.AdvancedCombiner;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileSize;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -26,9 +25,9 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
-public class LittlePreviews implements Iterable<LittleTilePreview> {
+public class LittlePreviews implements Iterable<LittlePreview> {
 	
-	protected List<LittleTilePreview> previews;
+	protected List<LittlePreview> previews;
 	public LittleGridContext context;
 	
 	protected List<LittlePreviews> children = new ArrayList<>();
@@ -123,13 +122,13 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			child.convertTo(context);
 	}
 	
-	public void getPlacePreviews(List<PlacePreviewTile> placePreviews, LittleTileBox overallBox, boolean fixed, LittleTileVec offset) {
-		for (LittleTilePreview preview : this) {
+	public void getPlacePreviews(List<PlacePreview> placePreviews, LittleBox overallBox, boolean fixed, LittleVec offset) {
+		for (LittlePreview preview : this) {
 			placePreviews.add(preview.getPlaceableTile(overallBox, fixed, offset, this));
 		}
 		
 		if (hasStructure()) {
-			for (PlacePreviewTile placePreviewTile : getStructure().getSpecialTiles(this)) {
+			for (PlacePreview placePreviewTile : getStructure().getSpecialTiles(this)) {
 				if (!fixed)
 					placePreviewTile.add(offset);
 				placePreviews.add(placePreviewTile);
@@ -143,7 +142,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 	}
 	
-	public void movePreviews(LittleGridContext context, LittleTileVec offset) {
+	public void movePreviews(LittleGridContext context, LittleVec offset) {
 		if (context.size > this.context.size)
 			convertTo(context);
 		else if (context.size < this.context.size)
@@ -151,7 +150,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		
 		context = this.context;
 		
-		for (LittleTilePreview preview : previews) {
+		for (LittlePreview preview : previews) {
 			preview.box.add(offset);
 		}
 		if (hasStructure()) {
@@ -164,8 +163,8 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			}
 	}
 	
-	public void flipPreviews(Axis axis, LittleTileVec doubledCenter) {
-		for (LittleTilePreview preview : previews) {
+	public void flipPreviews(Axis axis, LittleVec doubledCenter) {
+		for (LittlePreview preview : previews) {
 			preview.flipPreview(axis, doubledCenter);
 		}
 		if (hasStructure()) {
@@ -179,8 +178,8 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			}
 	}
 	
-	public void rotatePreviews(Rotation rotation, LittleTileVec doubledCenter) {
-		for (LittleTilePreview preview : previews) {
+	public void rotatePreviews(Rotation rotation, LittleVec doubledCenter) {
+		for (LittlePreview preview : previews) {
 			preview.rotatePreview(rotation, doubledCenter);
 		}
 		if (hasStructure()) {
@@ -196,7 +195,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
 	public void convertTo(LittleGridContext to) {
 		if (context != to) {
-			for (LittleTilePreview preview : previews) {
+			for (LittlePreview preview : previews) {
 				preview.convertTo(this.context, to);
 			}
 		}
@@ -208,7 +207,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	
 	protected int getSmallestContext() {
 		int size = LittleGridContext.minSize;
-		for (LittleTilePreview preview : previews)
+		for (LittlePreview preview : previews)
 			size = Math.max(size, preview.getSmallestContext(context));
 		return size;
 	}
@@ -230,8 +229,8 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews;
 	}
 	
-	protected LittleTilePreview getPreview(LittleTile tile) {
-		LittleTilePreview preview = tile.getPreviewTile();
+	protected LittlePreview getPreview(LittleTile tile) {
+		LittlePreview preview = tile.getPreviewTile();
 		LittleGridContext context = tile.getContext();
 		if (this.context != context) {
 			if (this.context.size > context.size)
@@ -243,7 +242,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return preview;
 	}
 	
-	public LittleTilePreview addPreview(BlockPos pos, LittleTilePreview preview, LittleGridContext context) {
+	public LittlePreview addPreview(BlockPos pos, LittlePreview preview, LittleGridContext context) {
 		if (this.context != context) {
 			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
@@ -255,15 +254,15 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return preview;
 	}
 	
-	public LittleTilePreview addTile(LittleTile tile) {
-		LittleTilePreview preview = getPreview(tile);
+	public LittlePreview addTile(LittleTile tile) {
+		LittlePreview preview = getPreview(tile);
 		previews.add(preview);
 		return preview;
 		
 	}
 	
-	public LittleTilePreview addTile(LittleTile tile, LittleTileVec offset) {
-		LittleTilePreview preview = getPreview(tile);
+	public LittlePreview addTile(LittleTile tile, LittleVec offset) {
+		LittlePreview preview = getPreview(tile);
 		preview.box.add(offset);
 		return addPreview(null, tile.getPreviewTile(), tile.getContext());
 	}
@@ -287,7 +286,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	@Override
-	public Iterator<LittleTilePreview> iterator() {
+	public Iterator<LittlePreview> iterator() {
 		return previews.iterator();
 	}
 	
@@ -319,7 +318,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			int tiles = stack.getTagCompound().getInteger("tiles");
 			for (int i = 0; i < tiles; i++) {
 				NBTTagCompound nbt = stack.getTagCompound().getCompoundTag("tile" + i);
-				LittleTilePreview preview = LittleTilePreview.loadPreviewFromNBT(nbt);
+				LittlePreview preview = LittlePreview.loadPreviewFromNBT(nbt);
 				if (preview != null)
 					previews.previews.add(preview);
 			}
@@ -338,7 +337,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 				for (int i = 0; i < list.tagCount(); i++) {
 					int[] array = list.getIntArrayAt(i);
-					previews.previews.add(new LittleTilePreview(new LittleTileBox(array[0] * context.size, array[1] * context.size, array[2] * context.size, array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
+					previews.previews.add(new LittlePreview(new LittleBox(array[0] * context.size, array[1] * context.size, array[2] * context.size, array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
 				}
 				return previews;
 			}
@@ -357,16 +356,16 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		}
 	}
 	
-	public LittleTilePreview get(int index) {
+	public LittlePreview get(int index) {
 		return previews.get(index);
 	}
 	
-	protected Iterator<LittleTilePreview> allPreviewsIterator() {
+	protected Iterator<LittlePreview> allPreviewsIterator() {
 		if (hasChildren())
-			return new Iterator<LittleTilePreview>() {
+			return new Iterator<LittlePreview>() {
 				
 				public int i = -1;
-				public Iterator<LittleTilePreview> subIterator = previews.iterator();
+				public Iterator<LittlePreview> subIterator = previews.iterator();
 				public List<? extends LittlePreviews> children = getChildren();
 				
 				@Override
@@ -383,7 +382,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				}
 				
 				@Override
-				public LittleTilePreview next() {
+				public LittlePreview next() {
 					return subIterator.next();
 				}
 				
@@ -395,11 +394,11 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews.iterator();
 	}
 	
-	public Iterable<LittleTilePreview> allPreviews() {
-		return new Iterable<LittleTilePreview>() {
+	public Iterable<LittlePreview> allPreviews() {
+		return new Iterable<LittlePreview>() {
 			
 			@Override
-			public Iterator<LittleTilePreview> iterator() {
+			public Iterator<LittlePreview> iterator() {
 				return allPreviewsIterator();
 			}
 		};
@@ -428,7 +427,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		return previews.isEmpty();
 	}
 	
-	public void addWithoutCheckingPreview(LittleTilePreview preview) {
+	public void addWithoutCheckingPreview(LittlePreview preview) {
 		previews.add(preview);
 	}
 	
@@ -443,14 +442,14 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	public void combinePreviewBlocks() {
-		HashMapList<BlockPos, LittleTilePreview> chunked = new HashMapList<>();
+		HashMapList<BlockPos, LittlePreview> chunked = new HashMapList<>();
 		for (int i = 0; i < previews.size(); i++) {
 			chunked.add(previews.get(i).box.getMinVec().getBlockPos(context), previews.get(i));
 		}
 		previews.clear();
-		AdvancedCombiner<LittleTilePreview> combiner = new AdvancedCombiner(new ArrayList<>());
-		for (Iterator<ArrayList<LittleTilePreview>> iterator = chunked.values().iterator(); iterator.hasNext();) {
-			ArrayList<LittleTilePreview> list = iterator.next();
+		AdvancedCombiner<LittlePreview> combiner = new AdvancedCombiner(new ArrayList<>());
+		for (Iterator<ArrayList<LittlePreview>> iterator = chunked.values().iterator(); iterator.hasNext();) {
+			ArrayList<LittlePreview> list = iterator.next();
 			combiner.setCombinables(list);
 			combiner.combine();
 			previews.addAll(list);
@@ -462,7 +461,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	private void advancedScale(int from, int to) {
-		for (LittleTilePreview preview : previews) {
+		for (LittlePreview preview : previews) {
 			preview.convertTo(from, to);
 		}
 		
@@ -471,7 +470,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 				child.advancedScale(from, to);
 	}
 	
-	public LittleTileBox getSurroundingBox() {
+	public LittleBox getSurroundingBox() {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -479,7 +478,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		for (LittleTilePreview preview : allPreviews()) {
+		for (LittlePreview preview : allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
@@ -488,10 +487,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
 		
-		return new LittleTileBox(minX, minY, minZ, maxX, maxY, maxZ);
+		return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
 	}
 	
-	public LittleTileVec getMinVec() {
+	public LittleVec getMinVec() {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -499,7 +498,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		for (LittleTilePreview preview : allPreviews()) {
+		for (LittlePreview preview : allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
@@ -508,10 +507,10 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
 		
-		return new LittleTileVec(minX, minY, minZ);
+		return new LittleVec(minX, minY, minZ);
 	}
 	
-	public LittleTileSize getSize() {
+	public LittleVec getSize() {
 		int minX = Integer.MAX_VALUE;
 		int minY = Integer.MAX_VALUE;
 		int minZ = Integer.MAX_VALUE;
@@ -519,7 +518,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 		int maxY = Integer.MIN_VALUE;
 		int maxZ = Integer.MIN_VALUE;
 		
-		for (LittleTilePreview preview : allPreviews()) {
+		for (LittlePreview preview : allPreviews()) {
 			minX = Math.min(minX, preview.box.minX);
 			minY = Math.min(minY, preview.box.minY);
 			minZ = Math.min(minZ, preview.box.minZ);
@@ -528,7 +527,7 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 			maxZ = Math.max(maxZ, preview.box.maxZ);
 		}
 		
-		return new LittleTileSize(maxX - minX, maxY - minY, maxZ - minZ);
+		return new LittleVec(maxX - minX, maxY - minY, maxZ - minZ);
 	}
 	
 	public static void advancedScale(LittlePreviews previews, int from, int to) {
@@ -536,11 +535,11 @@ public class LittlePreviews implements Iterable<LittleTilePreview> {
 	}
 	
 	public void removeOffset() {
-		LittleTileVec min = getMinVec();
+		LittleVec min = getMinVec();
 		min.x = context.toGrid(context.toBlockOffset(min.x));
 		min.y = context.toGrid(context.toBlockOffset(min.y));
 		min.z = context.toGrid(context.toBlockOffset(min.z));
-		for (LittleTilePreview preview : allPreviews())
+		for (LittlePreview preview : allPreviews())
 			preview.box.sub(min);
 	}
 }

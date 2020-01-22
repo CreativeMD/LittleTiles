@@ -11,12 +11,12 @@ import com.creativemd.littletiles.common.structure.premade.LittleStructurePremad
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.vec.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
@@ -82,8 +82,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		LittleInventory inventory = new LittleInventory(player);
 		if (canDrainIngredientsBeforePlacing(player, inventory)) {
-			List<PlacePreviewTile> placePreviews = new ArrayList<>();
-			previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+			List<PlacePreview> placePreviews = new ArrayList<>();
+			previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 			
 			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
 			List<LittleTile> removedTiles = new ArrayList<LittleTile>();

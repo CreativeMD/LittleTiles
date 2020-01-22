@@ -12,10 +12,10 @@ import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleTilePreview;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
+import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -25,16 +25,16 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
-public class PlacePreviewTile {
+public class PlacePreview {
 	
 	public static final Vec3d white = new Vec3d(1, 1, 1);
 	
-	public LittleTileBox box;
-	public LittleTilePreview preview;
+	public LittleBox box;
+	public LittlePreview preview;
 	
 	public LittlePreviews structurePreview;
 	
-	public PlacePreviewTile(LittleTileBox box, LittleTilePreview preview, LittlePreviews previews) {
+	public PlacePreview(LittleBox box, LittlePreview preview, LittlePreviews previews) {
 		this.box = box;
 		this.preview = preview;
 		if (previews != null && previews.hasStructure())
@@ -42,8 +42,8 @@ public class PlacePreviewTile {
 	}
 	
 	/** NEEDS TO BE OVERRIDEN! ALWAYS! **/
-	public PlacePreviewTile copy() {
-		return new PlacePreviewTile(box.copy(), preview.copy(), structurePreview);
+	public PlacePreview copy() {
+		return new PlacePreview(box.copy(), preview.copy(), structurePreview);
 	}
 	
 	/** If false it will be placed after all regular tiles have been placed **/
@@ -75,13 +75,13 @@ public class PlacePreviewTile {
 		return tiles;
 	}
 	
-	public PlacePreviewTile copyWithBox(LittleTileBox box) {
-		PlacePreviewTile tile = this.copy();
+	public PlacePreview copyWithBox(LittleBox box) {
+		PlacePreview tile = this.copy();
 		tile.box = box;
 		return tile;
 	}
 	
-	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreviewTile> tiles, BlockPos pos) {
+	public boolean split(LittleGridContext context, HashMapList<BlockPos, PlacePreview> tiles, BlockPos pos) {
 		if (!requiresSplit()) {
 			tiles.add(pos, this);
 			return true;
@@ -90,10 +90,10 @@ public class PlacePreviewTile {
 		if (canSplit() && box.needsMultipleBlocks(context))
 			return false;
 		
-		HashMapList<BlockPos, LittleTileBox> boxes = new HashMapList<>();
+		HashMapList<BlockPos, LittleBox> boxes = new HashMapList<>();
 		this.box.split(context, pos, boxes);
-		for (Entry<BlockPos, ArrayList<LittleTileBox>> entry : boxes.entrySet()) {
-			for (LittleTileBox box : entry.getValue()) {
+		for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.entrySet()) {
+			for (LittleBox box : entry.getValue()) {
 				tiles.add(entry.getKey(), this.copyWithBox(box));
 			}
 		}
@@ -109,7 +109,7 @@ public class PlacePreviewTile {
 		return preview != null && !preview.canSplit;
 	}
 	
-	public void add(LittleTileVec vec) {
+	public void add(LittleVec vec) {
 		box.add(vec);
 	}
 	

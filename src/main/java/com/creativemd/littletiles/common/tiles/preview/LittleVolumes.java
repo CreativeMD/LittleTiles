@@ -31,18 +31,18 @@ public class LittleVolumes {
 	public void addPreviews(LittlePreviews previews) {
 		ensureContext(previews.context);
 		
-		for (LittleTilePreview preview : previews) {
+		for (LittlePreview preview : previews) {
 			addPreviewDirectly(context, preview);
 		}
 	}
 	
-	public void addPreview(LittleGridContext context, LittleTilePreview preview) {
+	public void addPreview(LittleGridContext context, LittlePreview preview) {
 		ensureContext(context);
 		
 		addPreviewDirectly(context, preview);
 	}
 	
-	private void addPreviewDirectly(LittleGridContext context, LittleTilePreview preview) {
+	private void addPreviewDirectly(LittleGridContext context, LittlePreview preview) {
 		double volume = preview.getVolume();
 		if (context.size < this.context.size)
 			volume *= this.context.size / context.size;

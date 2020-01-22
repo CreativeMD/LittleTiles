@@ -9,10 +9,10 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviewTile;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tiles.place.PlacePreview;
 import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.vec.LittleTilePos;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileVec;
 import com.creativemd.littletiles.common.utils.outdated.OldDoorTransformation;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 
@@ -58,7 +58,7 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 		super(worldIn);
 	}
 	
-	public EntityOldDoorAnimation(World world, CreativeWorld worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleTilePos axis, OldDoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleTileVec additionalAxis, int duration) {
+	public EntityOldDoorAnimation(World world, CreativeWorld worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleAbsoluteVec axis, OldDoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleVec additionalAxis, int duration) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
@@ -132,8 +132,8 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 			reloadPreviews(placedStructureParent, previews.pos);
 			
 			if (!world.isRemote || approved) {
-				List<PlacePreviewTile> placePreviews = new ArrayList<>();
-				previews.getPlacePreviews(placePreviews, null, true, LittleTileVec.ZERO);
+				List<PlacePreview> placePreviews = new ArrayList<>();
+				previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 				
 				LittleStructure newDoor = previews.getStructure();
 				

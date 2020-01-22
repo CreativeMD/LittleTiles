@@ -11,8 +11,8 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseR
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileBox;
-import com.creativemd.littletiles.common.tiles.vec.LittleTileIdentifierRelative;
+import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.vec.LittleBlockTransformer;
 
@@ -56,7 +56,7 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 		NBTTagCompound nbt = new NBTTagCompound();
 		List<StructureLinkTile> connectors = new ArrayList<>();
 		for (LittleTile tile : te) {
-			if (tile.isChildOfStructure() && tile.isConnectedToStructure() && tile.connection instanceof LittleTileIdentifierRelative && !connectors.contains(tile.connection))
+			if (tile.isChildOfStructure() && tile.isConnectedToStructure() && tile.connection instanceof LittleIdentifierRelative && !connectors.contains(tile.connection))
 				connectors.add((StructureLinkTile) tile.connection);
 		}
 		NBTTagList list = new NBTTagList();
@@ -89,14 +89,14 @@ public class TileEntityLittleTilesTransformer implements IBlockTransformer {
 		
 		TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 		NBTTagCompound nbt = (NBTTagCompound) nbtBase;
-		List<LittleTileIdentifierRelative> connectors = new ArrayList<>();
-		List<LittleTileBox> boxes = new ArrayList<>();
+		List<LittleIdentifierRelative> connectors = new ArrayList<>();
+		List<LittleBox> boxes = new ArrayList<>();
 		List<LittleGridContext> contextes = new ArrayList<>();
 		NBTTagList list = nbt.getTagList("connectors", 10);
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound connectorNBT = list.getCompoundTagAt(i);
-			connectors.add(new LittleTileIdentifierRelative(connectorNBT));
-			LittleTileBox box = LittleTileBox.createBox(connectorNBT.getIntArray("mainTileBox"));
+			connectors.add(new LittleIdentifierRelative(connectorNBT));
+			LittleBox box = LittleBox.createBox(connectorNBT.getIntArray("mainTileBox"));
 			LittleGridContext context = LittleGridContext.get(connectorNBT.getInteger("mainTileContext"));
 			for (int rotationStep = 0; rotationStep < count; rotationStep++)
 				box.rotateBox(rotation, context.rotationCenter);
