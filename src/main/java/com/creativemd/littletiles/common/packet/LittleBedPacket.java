@@ -5,8 +5,8 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;

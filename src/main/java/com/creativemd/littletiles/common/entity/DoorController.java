@@ -20,10 +20,10 @@ import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.place.PlacePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.utils.animation.AnimationController;
 import com.creativemd.littletiles.common.utils.animation.AnimationState;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
@@ -82,7 +82,6 @@ public class DoorController extends EntityAnimationController {
 		modifiedTransition = false;
 		
 		stretchTransitions();
-		startTransition(openedState);
 	}
 	
 	public DoorController(DoorOpeningResult result, UUIDSupplier supplier, AnimationState closed, AnimationState opened, Boolean turnBack, int duration, int completeDuration, AnimationTimeline open, AnimationTimeline close, int interpolation) {
@@ -102,7 +101,6 @@ public class DoorController extends EntityAnimationController {
 		addTransition("opened", "closed", close);
 		
 		stretchTransitions();
-		startTransition(openedState);
 	}
 	
 	@Override
@@ -177,12 +175,13 @@ public class DoorController extends EntityAnimationController {
 	@Override
 	public void startTransition(String key) {
 		super.startTransition(key);
+		((LittleDoor) parent.structure).startAnimation(parent);
 	}
 	
 	@Override
 	public void endTransition() {
 		super.endTransition();
-		((LittleDoor) parent.structure).onFinished(parent);
+		((LittleDoor) parent.structure).finishAnimation(parent);
 		if (turnBack != null && turnBack == currentState.name.equals(openedState)) {
 			if (isWaitingForApprove)
 				placed = false;

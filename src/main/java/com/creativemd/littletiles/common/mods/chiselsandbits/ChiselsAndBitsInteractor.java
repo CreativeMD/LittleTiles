@@ -7,14 +7,13 @@ import java.util.Map;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import mod.chiselsandbits.chiseledblock.TileEntityBlockChiseled;
@@ -60,7 +59,7 @@ public class ChiselsAndBitsInteractor {
 					if (state.getBlock() == Blocks.WATER)
 						state = LittleTiles.transparentColoredBlock.getDefaultState().withProperty(BlockLTTransparentColored.VARIANT, BlockLTTransparentColored.EnumType.water);
 					if (state.getBlock() != Blocks.AIR) {
-						LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+						LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 						tile.box = new LittleBox(new LittleVec(x, y, z));
 						tiles.add(tile);
 					}
@@ -120,10 +119,10 @@ public class ChiselsAndBitsInteractor {
 		VoxelBlob blob = new VoxelBlob();
 		for (LittleTile tile : te) {
 			boolean convert;
-			if (tile.getClass() == LittleTileBlock.class)
+			if (tile.getClass() == LittleTile.class)
 				convert = true;
 			else if (force) {
-				if (tile.getClass() == LittleTileBlockColored.class)
+				if (tile.getClass() == LittleTileColored.class)
 					convert = true;
 				else
 					continue;
@@ -138,7 +137,7 @@ public class ChiselsAndBitsInteractor {
 					for (int y = tile.box.minY; y < tile.box.maxY; y++)
 						for (int z = tile.box.minZ; z < tile.box.maxZ; z++)
 							if (tile.box.isCompletelyFilled() || tile.box.isVecInsideBox(x, y, z))
-								blob.set(x, y, z, Block.getStateId(((LittleTileBlock) tile).getBlockState()));
+								blob.set(x, y, z, Block.getStateId(tile.getBlockState()));
 			}
 		}
 		

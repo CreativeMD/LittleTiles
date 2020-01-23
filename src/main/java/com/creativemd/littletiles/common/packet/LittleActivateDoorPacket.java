@@ -12,8 +12,8 @@ import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivationResult;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import io.netty.buffer.ByteBuf;

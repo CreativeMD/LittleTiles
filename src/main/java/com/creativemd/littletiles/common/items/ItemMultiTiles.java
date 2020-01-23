@@ -12,9 +12,9 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
 

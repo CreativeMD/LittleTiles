@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.client.render.world;
 
+import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;

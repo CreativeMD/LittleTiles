@@ -1,16 +1,16 @@
 package com.creativemd.littletiles.common.utils.compression;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -63,17 +63,17 @@ public class LittleNBTCompressionTools {
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
 			if (nbt.getBoolean("group")) {
-				LittleTile create = LittleTile.CreateEmptyTile(nbt.getString("tID"));
+				LittleTile create = LittleTileRegistry.getTypeFromNBT(nbt).createTile();
 				if (create != null) {
 					List<NBTTagCompound> nbts = create.extractNBTFromGroup(nbt);
 					for (int j = 0; j < nbts.size(); j++) {
-						LittleTile tile = LittleTile.CreateandLoadTile(te, te.getWorld(), nbts.get(j));
+						LittleTile tile = LittleTileRegistry.loadTile(te, te.getWorld(), nbts.get(j));
 						if (tile != null)
 							tiles.add(tile);
 					}
 				}
 			} else {
-				LittleTile tile = LittleTile.CreateandLoadTile(te, te.getWorld(), nbt);
+				LittleTile tile = LittleTileRegistry.loadTile(te, te.getWorld(), nbt);
 				if (tile != null)
 					tiles.add(tile);
 			}
@@ -86,7 +86,7 @@ public class LittleNBTCompressionTools {
 		
 		for (Iterator iterator = previews.iterator(); iterator.hasNext();) {
 			LittlePreview preview = (LittlePreview) iterator.next();
-			groups.add(preview.getTypeID(), preview);
+			groups.add(preview.getTypeIdToSave(), preview);
 		}
 		
 		NBTTagList list = new NBTTagList();
@@ -173,12 +173,12 @@ public class LittleNBTCompressionTools {
 				
 				List<NBTTagCompound> nbts = handler.extractNBTFromGroup(nbt);
 				for (int j = 0; j < nbts.size(); j++) {
-					LittlePreview preview = LittlePreview.loadPreviewFromNBT(nbts.get(j));
+					LittlePreview preview = LittleTileRegistry.loadPreview(nbts.get(j));
 					if (preview != null)
 						previews.addWithoutCheckingPreview(preview);
 				}
 			} else {
-				LittlePreview preview = LittlePreview.loadPreviewFromNBT(nbt);
+				LittlePreview preview = LittleTileRegistry.loadPreview(nbt);
 				if (preview != null)
 					previews.addWithoutCheckingPreview(preview);
 			}

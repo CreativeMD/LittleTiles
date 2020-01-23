@@ -4,9 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.BlockStateBase;
@@ -39,7 +38,7 @@ public class ConnectedTexturesModifier {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
 				for (LittleTile tile : te)
-					if (tile instanceof LittleTileBlock && (Boolean) match.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState())))
+					if ((Boolean) match.invoke(properties, Block.getStateId(tile.getBlockState())))
 						return true;
 				return false;
 			}
@@ -55,7 +54,7 @@ public class ConnectedTexturesModifier {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
 				for (LittleTile tile : te)
-					if (tile instanceof LittleTileBlock && (Boolean) matchMeta.invoke(properties, Block.getStateId(((LittleTileBlock) tile).getBlockState()), metadata))
+					if ((Boolean) matchMeta.invoke(properties, Block.getStateId(tile.getBlockState()), metadata))
 						return true;
 				return false;
 			}
@@ -72,7 +71,7 @@ public class ConnectedTexturesModifier {
 			Block block = state.getBlock();
 			int meta = block.getMetaFromState(state);
 			for (LittleTile tile : te)
-				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == block && ((LittleTileBlock) tile).getMeta() == meta)
+				if (tile.getBlock() == block && tile.getMeta() == meta)
 					return true;
 		}
 		return false;

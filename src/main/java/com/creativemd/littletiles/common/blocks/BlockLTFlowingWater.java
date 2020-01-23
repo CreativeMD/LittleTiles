@@ -7,10 +7,10 @@ import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored.EnumType;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -109,22 +109,22 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public boolean canWalkThrough(LittleTileBlock tile) {
+	public boolean canWalkThrough(LittleTile tile) {
 		return true;
 	}
 	
 	@Override
-	public boolean isMaterial(LittleTileBlock tile, Material material) {
+	public boolean isMaterial(LittleTile tile, Material material) {
 		return material == Material.WATER;
 	}
 	
 	@Override
-	public boolean isLiquid(LittleTileBlock tile) {
+	public boolean isLiquid(LittleTile tile) {
 		return true;
 	}
 	
 	@Override
-	public Vec3d modifyAcceleration(LittleTileBlock tile, Entity entityIn, Vec3d motion) {
+	public Vec3d modifyAcceleration(LittleTile tile, Entity entityIn, Vec3d motion) {
 		AxisAlignedBB box = entityIn.getEntityBoundingBox();
 		LittleVec center = new LittleVec(tile.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos())));
 		
@@ -139,7 +139,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+	public boolean canBeConvertedToVanilla(LittleTile tile) {
 		return false;
 	}
 	
@@ -149,15 +149,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public LittlePreview getPreview(LittleTileBlock tile) {
-		NBTTagCompound nbt = new NBTTagCompound();
-		tile.saveTileExtra(nbt);
-		nbt.setString("tID", tile.getID());
-		return new LittleFlowingWaterPreview(tile.box.copy(), nbt);
-	}
-	
-	@Override
-	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && SpecialServerConfig.allowFlowingWater) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
@@ -172,7 +164,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile) {
+	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (tile.getBlock() == this)
 			return true;
 		if (tile.getBlock() == LittleTiles.transparentColoredBlock && EnumType.values()[tile.getMeta()].isWater())

@@ -27,15 +27,14 @@ import com.creativemd.littletiles.common.items.ItemRubberMallet;
 import com.creativemd.littletiles.common.mods.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.server.LittleTilesServer;
 
 import net.minecraft.block.Block;
@@ -333,8 +332,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TEResult result = loadTeAndTile(world, pos, player);
 		if (result.isComplete()) {
 			
-			if (result.tile instanceof LittleTileBlock)
-				state = ((LittleTileBlock) result.tile).getBlockState();
+			state = result.tile.getBlockState();
 			
 			float hardness = state.getBlockHardness(world, pos);
 			if (hardness < 0.0F)
@@ -517,8 +515,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int y = te.getContext().toGrid(viewpoint.y);
 			int z = te.getContext().toGrid(viewpoint.z);
 			for (LittleTile tile : te)
-				if (tile instanceof LittleTileBlock && tile.box.isVecInsideBox(x, y, z))
-					return ((LittleTileBlock) tile).getBlockState();
+				if (tile.box.isVecInsideBox(x, y, z))
+					return tile.getBlockState();
 		}
 		return state;
 	}
@@ -567,8 +565,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				}
 			}
 			
-			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
-				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()) });
+			if (heighestTile != null)
+				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(heighestTile.getBlockState()) });
 		}
 		return true;
 	}
@@ -590,8 +588,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			
 			Random random = new Random();
-			if (heighestTile != null && heighestTile instanceof LittleTileBlock)
-				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(((LittleTileBlock) heighestTile).getBlockState()));
+			if (heighestTile != null)
+				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(heighestTile.getBlockState()));
 			return true;
 		}
 		return false;
@@ -601,8 +599,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@SideOnly(Side.CLIENT)
 	public boolean addHitEffects(IBlockState oldstate, World worldObj, RayTraceResult target, net.minecraft.client.particle.ParticleManager manager) {
 		TEResult result = loadTeAndTile(worldObj, target.getBlockPos(), mc.player);
-		if (result.isComplete() && result.tile instanceof LittleTileBlock) {
-			IBlockState state = ((LittleTileBlock) result.tile).getBlockState();
+		if (result.isComplete()) {
+			IBlockState state = result.tile.getBlockState();
 			BlockPos pos = target.getBlockPos();
 			int i = pos.getX();
 			int j = pos.getY();
@@ -640,11 +638,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@SideOnly(Side.CLIENT)
 	public boolean addDestroyEffects(World world, BlockPos pos, net.minecraft.client.particle.ParticleManager manager) {
 		TEResult result = loadTeAndTile(world, pos, mc.player);
-		if (result.isComplete() && result.tile instanceof LittleTileBlock) {
-			// overrideIcon = tempEntity.loadedTile.block.getIcon(world, x, y, z, 0);
-			// AxisAlignedBB box = tempEntity.loadedTile.getSelectedBox();
-			IBlockState state = ((LittleTileBlock) result.tile).getBlockState();
-			// manager.addBlockDestroyEffects(pos, state);
+		if (result.isComplete()) {
+			IBlockState state = result.tile.getBlockState();
 			int i = 4;
 			
 			for (int j = 0; j < 1; ++j) {
@@ -654,9 +649,6 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						double d1 = pos.getY() + (k + 0.5D) / 4.0D;
 						double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
 						manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
-						// manager.addEffect((new ParticleDigging(world, d0, d1, d2, d0 -
-						// (double)pos.getX() - 0.5D, d1 - (double)pos.getY() - 0.5D, d2 -
-						// (double)pos.getZ() - 0.5D, state)).setBlockPos(pos));
 					}
 				}
 			}
@@ -1083,7 +1075,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			IBlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
 			for (LittleTile tile : te) {
-				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == lookingFor.getBlock() && ((LittleTileBlock) tile).getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
+				if (tile.getBlock() == lookingFor.getBlock() && tile.getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
 					return lookingFor;
 			}
 		}

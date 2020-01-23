@@ -26,13 +26,13 @@ import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mods.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.combine.BasicCombiner;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox.LittleTileFace;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.IGridBased;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
@@ -354,7 +354,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			}
 		}
 		
-		world.setBlockState(pos, ((LittleTileBlock) firstTile).getBlockState());
+		world.setBlockState(pos, firstTile.getBlockState());
 		
 		return true;
 	}
@@ -565,7 +565,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			for (int i = 0; i < count; i++) {
 				NBTTagCompound tileNBT = new NBTTagCompound();
 				tileNBT = nbt.getCompoundTag("t" + i);
-				LittleTile tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
+				LittleTile tile = LittleTileRegistry.loadTile(this, world, tileNBT);
 				if (tile != null)
 					tiles.add(tile);
 			}
@@ -646,16 +646,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				exstingTiles.remove(tile);
 			} else {
 				LittleStructure structure = null;
+				
+				LittleTile newTile = LittleTileRegistry.loadTile(this, world, tileNBT);
 				if (tile != null && tile.isConnectedToStructure()) {
 					structure = tile.connection.getStructure(world);
-					structure.remove(tile);
+					structure.replace(tile, newTile);
 				}
-				tile = LittleTile.CreateandLoadTile(this, world, tileNBT);
-				if (tile != null) {
-					tilesToAdd.add(tile);
-					if (structure != null)
-						structure.add(tile);
-				}
+				
+				tilesToAdd.add(newTile);
 			}
 		}
 		
@@ -1011,16 +1009,16 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (realistic) {
 			box = box.expand(0, -context.pixelSize, 0);
 			for (LittleTile tile : tiles) {
-				if (tile instanceof LittleTileBlock && tile.getSelectedBox(getPos()).intersects(box))
-					return ((LittleTileBlock) tile).getBlockState();
+				if (tile.getSelectedBox(getPos()).intersects(box))
+					return tile.getBlockState();
 			}
 			return null;
 		}
 		box = box.expand(0, -1, 0);
-		LittleTileBlock highest = null;
+		LittleTile highest = null;
 		for (LittleTile tile : tiles) {
-			if (tile instanceof LittleTileBlock && (highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersects(box))
-				highest = (LittleTileBlock) tile;
+			if ((highest == null || tile.getMaxY() > highest.getMaxY()) && tile.getSelectedBox(getPos()).intersects(box))
+				highest = tile;
 			
 		}
 		return highest != null ? highest.getBlockState() : null;
@@ -1034,10 +1032,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			AxisAlignedBB box = null;
 			int color = -1;
 			for (LittleTile tile : tiles) {
-				if (tile instanceof LittleTileBlock && ((LittleTileBlock) tile).getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
-					int tileColor = ColoredLightsManager.getColorFromBlock(((LittleTileBlock) tile).getBlockState());
-					if (tile instanceof LittleTileBlockColored)
-						tileColor = ColorUtils.blend(tileColor, ((LittleTileBlockColored) tile).color);
+				if (tile.getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
+					int tileColor = ColoredLightsManager.getColorFromBlock(tile.getBlockState());
+					if (tile instanceof LittleTileColored)
+						tileColor = ColorUtils.blend(tileColor, ((LittleTileColored) tile).color);
 					if (box == null) {
 						box = tile.getCompleteBox().getBox(context, pos);
 						color = tileColor;

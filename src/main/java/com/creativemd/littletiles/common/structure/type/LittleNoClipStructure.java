@@ -5,7 +5,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;

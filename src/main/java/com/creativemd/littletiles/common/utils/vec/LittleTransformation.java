@@ -2,9 +2,9 @@ package com.creativemd.littletiles.common.utils.vec;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;

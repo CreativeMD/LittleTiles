@@ -12,14 +12,13 @@ import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
 import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
@@ -106,10 +105,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					}
 				}
 				
-				if (!intersects || !(tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).load())))
+				if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).load())))
 					continue;
 				
-				if (!LittleTileBlockColored.needsToBeRecolored((LittleTileBlock) tile, color))
+				if (!LittleTileColored.needsToBeRecolored(tile, color))
 					continue;
 				
 				doneSomething = true;
@@ -131,10 +130,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
 						
 						if (newBoxes != null) {
-							addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, cutout);
+							addRevert(LittleTileColored.getColor(tile), te.getPos(), context, cutout);
 							
 							LittleTile tempTile = tile.copy();
-							LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tempTile, color);
+							LittleTile changedTile = LittleTileColored.setColor(tempTile, color);
 							if (changedTile == null)
 								changedTile = tempTile;
 							
@@ -176,9 +175,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 						List<LittleBox> oldBoxes = new ArrayList<>();
 						oldBoxes.add(tile.box);
 						
-						addRevert(LittleTileBlockColored.getColor((LittleTileBlock) tile), te.getPos(), context, oldBoxes);
+						addRevert(LittleTileColored.getColor(tile), te.getPos(), context, oldBoxes);
 						
-						LittleTile changedTile = LittleTileBlockColored.setColor((LittleTileBlock) tile, color);
+						LittleTile changedTile = LittleTileColored.setColor(tile, color);
 						if (changedTile != null) {
 							changedTile.place(x);
 							

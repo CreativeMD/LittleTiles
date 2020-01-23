@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ChatFormatting;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;

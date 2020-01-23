@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

@@ -11,12 +11,11 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.items.ItemColorTube;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
 import com.creativemd.littletiles.common.items.ItemLittleGrabber;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -45,10 +44,10 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		COLOR_TUBE(true) {
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
-				if ((tile.getClass() == LittleTileBlock.class || tile instanceof LittleTileBlockColored)) {
+				if ((tile.getClass() == LittleTile.class || tile instanceof LittleTileColored)) {
 					int color = ColorUtils.WHITE;
-					if (tile instanceof LittleTileBlockColored)
-						color = ((LittleTileBlockColored) tile).color;
+					if (tile instanceof LittleTileColored)
+						color = ((LittleTileColored) tile).color;
 					ItemColorTube.setColor(player.getHeldItemMainhand(), color);
 				}
 			}

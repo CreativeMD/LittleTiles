@@ -13,10 +13,10 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiParticle;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.container.SubContainerParticle;
+import com.creativemd.littletiles.common.tile.LittleTileParticle;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.BlockContainer;

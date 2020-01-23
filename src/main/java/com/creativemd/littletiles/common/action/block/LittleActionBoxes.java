@@ -9,9 +9,9 @@ import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;

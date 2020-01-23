@@ -14,9 +14,9 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlicedOrdinaryBox;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
+import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlicedOrdinaryBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

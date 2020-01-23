@@ -1,7 +1,7 @@
 package com.creativemd.littletiles.common.action;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;

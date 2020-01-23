@@ -10,15 +10,15 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.place.fixed.FixedHandler;
+import com.creativemd.littletiles.common.tile.place.fixed.InsideFixedHandler;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.place.PlacePreview;
-import com.creativemd.littletiles.common.tiles.place.fixed.FixedHandler;
-import com.creativemd.littletiles.common.tiles.place.fixed.InsideFixedHandler;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
@@ -306,7 +306,6 @@ public class PlacementHelper {
 			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 			
 			if (tiles.size() == 1) {
-				shifthandlers.addAll(tiles.get(0).fixedhandlers);
 				shifthandlers.add(new InsideFixedHandler());
 				result.singleMode = true;
 				centered = true;

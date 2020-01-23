@@ -39,9 +39,7 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.blocks.BlockLTColored;
 import com.creativemd.littletiles.common.blocks.BlockLTColored2;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava;
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava.LittleFlowingLavaPreview;
 import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater;
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater.LittleFlowingWaterPreview;
 import com.creativemd.littletiles.common.blocks.BlockLTParticle;
 import com.creativemd.littletiles.common.blocks.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.blocks.BlockStorageTile;
@@ -67,7 +65,7 @@ import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
-import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.events.LittleEventHandler;
 import com.creativemd.littletiles.common.items.ItemBag;
 import com.creativemd.littletiles.common.items.ItemBlockIngredient;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
@@ -104,17 +102,14 @@ import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTileParticle;
+import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.LittleTileBlockColored;
-import com.creativemd.littletiles.common.tiles.LittleTileTE;
-import com.creativemd.littletiles.common.tiles.advanced.LittleTileParticle;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.rules.IngredientRules;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -256,17 +251,8 @@ public class LittleTiles {
 		magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setUnlocalizedName("LTColorBottleMagenta").setRegistryName("bottle_magenta");
 		yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setUnlocalizedName("LTColorBottleYellow").setRegistryName("bottle_yellow");
 		
-		LittleTile.registerLittleTile(LittleTileBlock.class, "BlockTileBlock");
-		LittleTile.registerLittleTile(LittleTileTE.class, "BlockTileEntity");
-		LittleTile.registerLittleTile(LittleTileBlockColored.class, "BlockTileColored");
-		
-		LittleTile.registerLittleTile(LittleTileParticle.class, "BlockTileParticle");
-		
-		LittlePreview.registerPreviewType("water", LittleFlowingWaterPreview.class);
-		LittlePreview.registerPreviewType("lava", LittleFlowingLavaPreview.class);
-		
+		LittleTileRegistry.initTiles();
 		IngredientRules.loadRules();
-		
 		LittleStructureRegistry.initStructures();
 	}
 	
@@ -513,7 +499,7 @@ public class LittleTiles {
 		
 		LittleAction.registerLittleAction("rep", LittleActionReplace.class);
 		
-		MinecraftForge.EVENT_BUS.register(new LittleEvent());
+		MinecraftForge.EVENT_BUS.register(new LittleEventHandler());
 		MinecraftForge.EVENT_BUS.register(WorldAnimationHandler.class);
 		// MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		

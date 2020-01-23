@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.blocks;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -123,31 +123,31 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	}
 	
 	@Override
-	public boolean canWalkThrough(LittleTileBlock tile) {
+	public boolean canWalkThrough(LittleTile tile) {
 		return tile.getBlockState().getValue(VARIANT).isLava();
 	}
 	
 	@Override
-	public boolean isMaterial(LittleTileBlock tile, Material material) {
+	public boolean isMaterial(LittleTile tile, Material material) {
 		if (tile.getBlockState().getValue(VARIANT).isLava())
 			return material == Material.LAVA;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
 	}
 	
 	@Override
-	public boolean isLiquid(LittleTileBlock tile) {
+	public boolean isLiquid(LittleTile tile) {
 		if (tile.getBlockState().getValue(VARIANT).isLava())
 			return true;
 		return ISpecialBlockHandler.super.isLiquid(tile);
 	}
 	
 	@Override
-	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+	public boolean canBeConvertedToVanilla(LittleTile tile) {
 		return !tile.getBlockState().getValue(VARIANT).isLava();
 	}
 	
 	@Override
-	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (state.getValue(VARIANT).isLava() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
 			if (state.getValue(VARIANT) == EnumType.lava)
 				tile.setBlock(LittleTiles.flowingLava, 0);
@@ -161,7 +161,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile) {
+	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (EnumType.values()[thisTile.getMeta()].isLava())
 			return tile.getBlock() == LittleTiles.flowingLava;
 		return false;

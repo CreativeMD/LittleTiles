@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.api;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;

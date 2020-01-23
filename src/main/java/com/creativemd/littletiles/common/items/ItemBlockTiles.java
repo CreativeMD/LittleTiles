@@ -10,11 +10,12 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.old.LittleSize;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.old.LittleSize;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
 import com.creativemd.littletiles.common.utils.placing.PlacementMode;
@@ -79,7 +80,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		LittlePreviews previews = new LittlePreviews(getPreviewsContext(stack));
-		previews.addWithoutCheckingPreview(LittlePreview.loadPreviewFromNBT(stack.getTagCompound()));
+		previews.addWithoutCheckingPreview(LittleTileRegistry.loadPreview(stack.getTagCompound()));
 		return previews;
 	}
 	
@@ -128,7 +129,7 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 				}
 			} else {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
-				LittlePreview preview = LittlePreview.loadPreviewFromNBT(stack.getTagCompound());
+				LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
 				cubes.add((LittleRenderingCube) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
 			}
 		}

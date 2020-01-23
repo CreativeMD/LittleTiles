@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.utils.animation.event;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

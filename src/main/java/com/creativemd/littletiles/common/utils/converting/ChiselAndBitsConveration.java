@@ -5,8 +5,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.creativemd.littletiles.common.blocks.BlockTile;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.tileentity.TileEntity;

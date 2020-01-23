@@ -17,10 +17,9 @@ import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.items.ItemBlockTiles;
 import com.creativemd.littletiles.common.items.ItemLittleChisel;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.shape.DragShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -89,7 +88,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		LittlePreview preview;
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
+			LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else
@@ -115,7 +114,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		ItemStack selected = selector.getSelected();
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
-			LittleTile tile = new LittleTileBlock(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
+			LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
 			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
 			preview = tile.getPreviewTile();
 		} else

@@ -7,7 +7,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.nbt.NBTTagCompound;

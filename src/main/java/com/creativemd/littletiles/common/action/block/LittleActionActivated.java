@@ -3,10 +3,10 @@ package com.creativemd.littletiles.common.action.block;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
-import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.events.LittleEventHandler;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
@@ -51,7 +51,7 @@ public class LittleActionActivated extends LittleActionInteract {
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		if (!player.world.isRemote && uuid == null) // Block server right click event
-			LittleEvent.addBlockTilePrevent(player);
+			LittleEventHandler.addBlockTilePrevent(player);
 		if (preventInteraction)
 			return true;
 		return super.action(player);

@@ -8,7 +8,7 @@ import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleEvent;
+import com.creativemd.littletiles.common.events.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
@@ -217,7 +217,7 @@ public class RenderAnimation extends Render<EntityAnimation> {
 			for (LittleRenderChunk chunk : suppilier.renderChunks.values()) {
 				
 				if (layer == BlockRenderLayer.TRANSLUCENT)
-					chunk.resortTransparency(LittleEvent.transparencySortingIndex, f, f1, f2);
+					chunk.resortTransparency(LittleEventHandler.transparencySortingIndex, f, f1, f2);
 				
 				VertexBuffer buffer = chunk.getLayerBuffer(layer);
 				

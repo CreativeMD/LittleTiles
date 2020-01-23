@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.blocks;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -131,26 +131,26 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	}
 	
 	@Override
-	public boolean canWalkThrough(LittleTileBlock tile) {
+	public boolean canWalkThrough(LittleTile tile) {
 		return tile.getBlockState().getValue(VARIANT).isWater();
 	}
 	
 	@Override
-	public boolean isMaterial(LittleTileBlock tile, Material material) {
+	public boolean isMaterial(LittleTile tile, Material material) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
 			return material == Material.WATER;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
 	}
 	
 	@Override
-	public boolean isLiquid(LittleTileBlock tile) {
+	public boolean isLiquid(LittleTile tile) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
 			return true;
 		return ISpecialBlockHandler.super.isLiquid(tile);
 	}
 	
 	@Override
-	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+	public boolean canBeConvertedToVanilla(LittleTile tile) {
 		return !tile.getBlockState().getValue(VARIANT).isWater();
 	}
 	
@@ -162,7 +162,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	}
 	
 	@Override
-	public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (state.getValue(VARIANT).isWater() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
 			if (state.getValue(VARIANT) == EnumType.water)
 				tile.setBlock(LittleTiles.flowingWater, 0);
@@ -176,7 +176,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean canBeRenderCombined(LittleTileBlock thisTile, LittleTileBlock tile) {
+	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (EnumType.values()[thisTile.getMeta()].isWater())
 			return tile.getBlock() == LittleTiles.flowingWater;
 		return false;

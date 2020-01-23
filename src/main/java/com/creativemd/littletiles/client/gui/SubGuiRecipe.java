@@ -24,9 +24,9 @@ import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 

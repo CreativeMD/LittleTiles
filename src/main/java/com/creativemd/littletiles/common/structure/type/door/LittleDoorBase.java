@@ -40,13 +40,13 @@ import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor.
 import com.creativemd.littletiles.common.structure.type.door.LittleAxisDoor.LittleAxisDoorParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.place.PlacePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.place.PlacePreview;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.utils.animation.ValueTimeline;
@@ -120,6 +120,12 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
+	public void startAnimation(EntityAnimation animation) {
+		for (int i = 0; i < events.size(); i++)
+			events.get(i).reset();
+	}
+	
+	@Override
 	public void beforeTick(EntityAnimation animation, int tick) {
 		super.beforeTick(animation, tick);
 		DoorController controller = (DoorController) animation.controller;
@@ -129,7 +135,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	@Override
-	public void onFinished(EntityAnimation animation) {
+	public void finishAnimation(EntityAnimation animation) {
 		int duration = getCompleteDuration();
 		for (AnimationEvent event : events)
 			event.invert(this, duration);
@@ -227,7 +233,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		fakeWorld.preventNeighborUpdate = false;
 		
-		LittleStructure newDoor = previews.getStructure();
+		LittleDoorBase newDoor = (LittleDoorBase) previews.getStructure();
 		
 		EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, previews.pos, uuid, absolute, newDoor.getAbsoluteIdentifier());
 		
@@ -240,6 +246,8 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			parentStructure.updateChildConnection(parent.getChildID(), newDoor);
 			newDoor.updateParentConnection(parent.getChildID(), parentStructure);
 		}
+		
+		animation.controller.startTransition(DoorController.openedState);
 		
 		world.spawnEntity(animation);
 		

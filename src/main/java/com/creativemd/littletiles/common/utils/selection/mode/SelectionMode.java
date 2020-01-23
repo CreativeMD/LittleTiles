@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;

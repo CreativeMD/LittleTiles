@@ -26,21 +26,20 @@ import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManag
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.utils.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
@@ -345,7 +344,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					
 					LittleBox box = new LittleBox(0, 0, 0, context.maxPos, context.maxPos, context.maxPos);
 					
-					LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+					LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 					tile.box = box;
 					tiles.add(tile);
 				} else if (state.getMaterial().isReplaceable()) {
@@ -555,8 +554,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static void writeLittleVecContext(LittleVecContext vec, ByteBuf buf) {
-		writeContext(vec.getContext(), buf);
 		writeLittleVec(vec.getVec(), buf);
+		writeContext(vec.getContext(), buf);
 	}
 	
 	public static LittleVecContext readLittleVecContext(ByteBuf buf) {

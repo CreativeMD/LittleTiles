@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
+import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;

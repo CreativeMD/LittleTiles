@@ -6,13 +6,12 @@ import java.util.List;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.mods.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;
@@ -165,7 +164,7 @@ public class AreaSelectionMode extends SelectionMode {
 					if (includeVanilla) {
 						IBlockState state = world.getBlockState(newPos);
 						if (LittleAction.isBlockValid(state)) {
-							LittleTile tile = new LittleTileBlock(state.getBlock(), state.getBlock().getMetaFromState(state));
+							LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 							tile.box = new LittleBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
 							LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());
 							preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));

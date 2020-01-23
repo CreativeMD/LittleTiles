@@ -30,21 +30,21 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierRelative;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureAbsolute;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureRelative;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.math.vec.RelativeBlockPos;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.LittleTile.LittleTilePosition;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierRelative;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierStructureAbsolute;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierStructureRelative;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tiles.math.vec.RelativeBlockPos;
-import com.creativemd.littletiles.common.tiles.place.PlacePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittleAbsolutePreviewsStructure;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
 import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
@@ -378,12 +378,15 @@ public abstract class LittleStructure {
 		return tiles.contains(tile.getBlockPos(), tile);
 	}
 	
+	public void replace(LittleTile oldTile, LittleTile newTile) {
+		tiles.removeValue(oldTile.getBlockPos(), oldTile);
+		tiles.add(newTile.getBlockPos(), newTile);
+	}
+	
 	public void remove(LittleTile tile) {
 		checkLoaded();
 		
 		tiles.removeValue(tile.getBlockPos(), tile);
-		//if (tile == mainTile)
-		//selectMainTile();
 	}
 	
 	public void add(LittleTile tile) {

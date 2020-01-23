@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.utils.selection.selector;
 
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

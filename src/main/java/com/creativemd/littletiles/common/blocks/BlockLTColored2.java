@@ -5,8 +5,8 @@ import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.blocks.ISpecialBlockHandler;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -87,28 +87,28 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 	}
 	
 	@Override
-	public List<LittleBox> getCollisionBoxes(LittleTileBlock tile, List<LittleBox> defaultBoxes) {
+	public List<LittleBox> getCollisionBoxes(LittleTile tile, List<LittleBox> defaultBoxes) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
 			return new ArrayList<>();
 		return defaultBoxes;
 	}
 	
 	@Override
-	public boolean isMaterial(LittleTileBlock tile, Material material) {
+	public boolean isMaterial(LittleTile tile, Material material) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
 			return material == Material.WATER;
 		return ISpecialBlockHandler.super.isMaterial(tile, material);
 	}
 	
 	@Override
-	public boolean isLiquid(LittleTileBlock tile) {
+	public boolean isLiquid(LittleTile tile) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
 			return true;
 		return ISpecialBlockHandler.super.isLiquid(tile);
 	}
 	
 	@Override
-	public boolean canBeConvertedToVanilla(LittleTileBlock tile) {
+	public boolean canBeConvertedToVanilla(LittleTile tile) {
 		return !tile.getBlockState().getValue(VARIANT).isWater();
 	}
 	

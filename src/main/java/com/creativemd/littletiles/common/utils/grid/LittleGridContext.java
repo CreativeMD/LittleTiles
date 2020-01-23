@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTilesConfig;
-import com.creativemd.littletiles.common.tiles.math.LittleUtils;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.LittleUtils;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.google.common.math.IntMath;
 
 import net.minecraft.nbt.NBTTagCompound;

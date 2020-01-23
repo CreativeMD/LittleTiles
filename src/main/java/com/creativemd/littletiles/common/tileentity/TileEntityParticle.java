@@ -9,7 +9,7 @@ import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.common.items.ItemLittleWrench;
 import com.creativemd.littletiles.common.particles.LittleParticleType;
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.Particle;

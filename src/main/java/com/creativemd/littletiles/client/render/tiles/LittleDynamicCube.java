@@ -6,8 +6,8 @@ import javax.vecmath.Vector3f;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
-import com.creativemd.littletiles.common.tiles.math.box.slice.LittleSlice;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 
 import net.minecraft.client.renderer.EnumFaceDirection.VertexInformation;
 import net.minecraft.util.EnumFacing;

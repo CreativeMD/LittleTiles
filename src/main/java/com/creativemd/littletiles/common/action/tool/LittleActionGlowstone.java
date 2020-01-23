@@ -4,10 +4,10 @@ import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tiles.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.utils.ingredients.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import io.netty.buffer.ByteBuf;

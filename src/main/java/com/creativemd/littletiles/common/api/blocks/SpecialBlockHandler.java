@@ -14,9 +14,9 @@ import com.creativemd.creativecore.common.utils.sorting.BlockSelector.BlockSelec
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.tiles.LittleTileBlock;
-import com.creativemd.littletiles.common.tiles.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreview;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
@@ -79,7 +79,7 @@ public class SpecialBlockHandler {
 		SpecialBlockHandler.registerSpecialHandler(BlockTNT.class, new ISpecialBlockHandler() {
 			
 			@Override
-			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 				if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE)) {
 					if (!worldIn.isRemote) {
 						explodeTile(tile, playerIn, false);
@@ -98,11 +98,11 @@ public class SpecialBlockHandler {
 			}
 			
 			@Override
-			public void onTileExplodes(LittleTileBlock tile, Explosion explosion) {
+			public void onTileExplodes(LittleTile tile, Explosion explosion) {
 				explodeTile(tile, explosion.getExplosivePlacedBy(), true);
 			}
 			
-			public void explodeTile(LittleTileBlock tile, EntityLivingBase entity, boolean randomFuse) {
+			public void explodeTile(LittleTile tile, EntityLivingBase entity, boolean randomFuse) {
 				BlockPos pos = tile.te.getPos();
 				LittleVec size = tile.box.getSize();
 				LittleVec min = tile.box.getMinVec();
@@ -118,7 +118,7 @@ public class SpecialBlockHandler {
 		SpecialBlockHandler.registerSpecialHandler(Blocks.CRAFTING_TABLE, new ISpecialBlockHandler() {
 			
 			@Override
-			public boolean onBlockActivated(LittleTileBlock tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 				if (worldIn.isRemote) {
 					return true;
 				} else {

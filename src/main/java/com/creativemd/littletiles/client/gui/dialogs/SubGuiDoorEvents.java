@@ -19,7 +19,7 @@ import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.utils.animation.event.AnimationEventGuiParser;
 

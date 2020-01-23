@@ -447,7 +447,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 1));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 2));
-				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEvent", "cancelEntitySpawn", "(Lnet/minecraft/client/multiplayer/WorldClient;ILnet/minecraft/entity/Entity;)Z", false));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEventHandler", "cancelEntitySpawn", "(Lnet/minecraft/client/multiplayer/WorldClient;ILnet/minecraft/entity/Entity;)Z", false));
 				m.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, first));
 				m.instructions.insertBefore(first, new LabelNode());
 				m.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
@@ -570,7 +570,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 		 * m.instructions.insertBefore(insn, new LabelNode());
 		 * m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 		 * m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC,
-		 * "com/creativemd/littletiles/common/events/LittleEvent",
+		 * "com/creativemd/littletiles/common/events/LittleEventHandler",
 		 * "processStateUpdates", "(L" + worldClass + ";)V", false)); break; } } } }); */
 		/* addTransformer(new Transformer("net.minecraft.world.World") {
 		 * 

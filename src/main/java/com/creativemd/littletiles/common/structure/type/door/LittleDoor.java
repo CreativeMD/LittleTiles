@@ -15,8 +15,8 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -116,6 +116,10 @@ public abstract class LittleDoor extends LittleStructure {
 		return true;
 	}
 	
+	public void startAnimation(EntityAnimation animation) {
+		
+	}
+	
 	public void beforeTick(EntityAnimation animation, int tick) {
 		
 	}
@@ -124,7 +128,7 @@ public abstract class LittleDoor extends LittleStructure {
 		
 	}
 	
-	public void onFinished(EntityAnimation animation) {
+	public void finishAnimation(EntityAnimation animation) {
 		
 	}
 	

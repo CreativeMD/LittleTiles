@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.tileentity;
 
-import com.creativemd.littletiles.common.tiles.LittleTile;
+import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.util.ITickable;
 

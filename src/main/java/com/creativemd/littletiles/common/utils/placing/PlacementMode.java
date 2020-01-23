@@ -7,9 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.place.PlacePreviews;
 
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.translation.I18n;

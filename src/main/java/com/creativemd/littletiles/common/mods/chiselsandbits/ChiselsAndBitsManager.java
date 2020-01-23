@@ -2,9 +2,9 @@ package com.creativemd.littletiles.common.mods.chiselsandbits;
 
 import java.util.List;
 
+import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tiles.LittleTile;
-import com.creativemd.littletiles.common.tiles.preview.LittlePreviews;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;

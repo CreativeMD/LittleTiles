@@ -17,8 +17,8 @@ import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
-import com.creativemd.littletiles.common.tiles.place.PlacePreview;
-import com.creativemd.littletiles.common.tiles.place.fixed.FixedHandler;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.place.fixed.FixedHandler;
 import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
 import com.creativemd.littletiles.common.utils.placing.MarkMode;
 import com.creativemd.littletiles.common.utils.placing.PlacementHelper;
@@ -144,10 +144,6 @@ public class PreviewRenderer {
 						if (!result.isAbsolute() && marked == null && LittleAction.isUsingSecondMode(player) && result.singleMode) {
 							ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
 							
-							for (int i = 0; i < result.placePreviews.size(); i++)
-								if (result.placePreviews.get(i).preview != null)
-									shifthandlers.addAll(result.placePreviews.get(i).preview.fixedhandlers);
-								
 							for (int i = 0; i < shifthandlers.size(); i++) {
 								shifthandlers.get(i).handleRendering(result.context, mc, x, y, z);
 							}
