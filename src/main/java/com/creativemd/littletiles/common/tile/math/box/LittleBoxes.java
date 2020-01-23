@@ -5,8 +5,8 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.utils.grid.IGridBased;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.IGridBased;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;

@@ -7,9 +7,9 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.IBoxSelector;
-import com.creativemd.littletiles.common.items.ItemHammer;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.shape.SelectShape;
+import com.creativemd.littletiles.common.item.ItemHammer;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.action.block;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
-import com.creativemd.littletiles.common.events.LittleEventHandler;
+import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

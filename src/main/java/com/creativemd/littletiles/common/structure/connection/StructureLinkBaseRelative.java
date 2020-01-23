@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttr
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

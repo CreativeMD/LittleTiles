@@ -10,10 +10,10 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
-import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode.SelectionResult;
+import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
+import com.creativemd.littletiles.common.util.selection.mode.SelectionMode.SelectionResult;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

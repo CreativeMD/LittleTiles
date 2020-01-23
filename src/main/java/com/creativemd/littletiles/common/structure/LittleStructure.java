@@ -45,10 +45,10 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
-import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
-import com.creativemd.littletiles.common.utils.vec.SurroundingBox;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.util.vec.LittleTransformation;
+import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;

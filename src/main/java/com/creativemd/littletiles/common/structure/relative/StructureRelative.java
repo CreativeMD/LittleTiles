@@ -11,8 +11,8 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewRelative;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.grid.IGridBased;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.IGridBased;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;

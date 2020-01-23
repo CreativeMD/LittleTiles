@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tile.place;
 import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -13,8 +13,8 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

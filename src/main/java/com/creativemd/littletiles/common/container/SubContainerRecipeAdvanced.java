@@ -1,10 +1,10 @@
 package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
-import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.selection.mode.SelectionMode;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

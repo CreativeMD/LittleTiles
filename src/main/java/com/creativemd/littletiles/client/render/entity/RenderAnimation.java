@@ -8,9 +8,9 @@ import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.events.LittleEventHandler;
+import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;

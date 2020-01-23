@@ -15,7 +15,7 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
-import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.entity.AABBCombiner;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;

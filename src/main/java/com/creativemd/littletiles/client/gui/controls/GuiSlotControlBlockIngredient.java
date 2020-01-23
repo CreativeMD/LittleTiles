@@ -2,8 +2,8 @@ package com.creativemd.littletiles.client.gui.controls;
 
 import com.creativemd.creativecore.common.gui.controls.container.SlotControl;
 import com.creativemd.creativecore.common.gui.controls.container.client.GuiSlotControl;
-import com.creativemd.littletiles.common.items.ItemBlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
+import com.creativemd.littletiles.common.item.ItemBlockIngredient;
+import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 
 import net.minecraft.item.ItemStack;
 

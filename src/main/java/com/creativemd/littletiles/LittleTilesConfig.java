@@ -153,6 +153,11 @@ public class LittleTilesConfig {
 		@Config.LangKey("config.littletiles.enableRandomDisplayTick")
 		@Config.Comment("When set to true sand, gravel and redstone ore will spawn particles (also support other mods)")
 		public boolean enableRandomDisplayTick = false;
+		
+		@Config.Name("uploadToVBODirectly")
+		@Config.LangKey("config.littletiles.uploadToVBODirectly")
+		@Config.Comment("Used to smooth out placement of doors")
+		public boolean uploadToVBODirectly = true;
 	}
 	
 	@SubscribeEvent

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.Side;

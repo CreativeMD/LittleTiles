@@ -2,7 +2,7 @@ package com.creativemd.littletiles.client.render.entity;
 
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockRendererDispatcher;

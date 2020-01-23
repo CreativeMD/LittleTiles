@@ -6,12 +6,12 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
-import com.creativemd.littletiles.common.items.ItemMultiTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.selection.selector.AnySelector;
-import com.creativemd.littletiles.common.utils.selection.selector.StateSelector;
-import com.creativemd.littletiles.common.utils.selection.selector.TileSelector;
-import com.creativemd.littletiles.common.utils.selection.selector.TileSelectorBlock;
+import com.creativemd.littletiles.common.item.ItemMultiTiles;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.selection.selector.AnySelector;
+import com.creativemd.littletiles.common.util.selection.selector.StateSelector;
+import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
+import com.creativemd.littletiles.common.util.selection.selector.TileSelectorBlock;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;

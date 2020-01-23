@@ -7,9 +7,9 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.littletiles.client.gui.controls.GuiColorProgressBar;
 import com.creativemd.littletiles.common.container.SubContainerBag;
-import com.creativemd.littletiles.common.items.ItemBag;
-import com.creativemd.littletiles.common.utils.ingredients.ColorIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.item.ItemBag;
+import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

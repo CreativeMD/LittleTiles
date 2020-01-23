@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tile.math.identifier;
 import java.security.InvalidParameterException;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;

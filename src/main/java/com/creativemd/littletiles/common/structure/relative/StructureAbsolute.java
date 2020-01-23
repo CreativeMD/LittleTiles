@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;

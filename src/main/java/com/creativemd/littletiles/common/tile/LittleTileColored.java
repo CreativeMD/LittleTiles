@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tile;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;

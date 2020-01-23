@@ -22,7 +22,7 @@ import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.Li
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
-import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 public class LittleStructureRegistry {
 	

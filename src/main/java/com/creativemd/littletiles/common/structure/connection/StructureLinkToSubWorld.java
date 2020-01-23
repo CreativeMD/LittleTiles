@@ -6,7 +6,7 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.nbt.NBTTagCompound;

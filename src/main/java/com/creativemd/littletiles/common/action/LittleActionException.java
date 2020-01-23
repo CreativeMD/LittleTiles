@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.action;
 
-import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
 import net.minecraft.util.text.translation.I18n;
 

@@ -14,8 +14,8 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.common.particles.LittleParticleSettingType;
-import com.creativemd.littletiles.common.particles.LittleParticleType;
+import com.creativemd.littletiles.common.particle.LittleParticleSettingType;
+import com.creativemd.littletiles.common.particle.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 

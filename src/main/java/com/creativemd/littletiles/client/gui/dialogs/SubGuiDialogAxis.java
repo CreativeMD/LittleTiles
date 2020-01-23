@@ -18,8 +18,8 @@ import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.client.gui.GuiScreen;

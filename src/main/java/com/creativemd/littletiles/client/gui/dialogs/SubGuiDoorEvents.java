@@ -20,8 +20,8 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.animation.event.AnimationEvent;
-import com.creativemd.littletiles.common.utils.animation.event.AnimationEventGuiParser;
+import com.creativemd.littletiles.common.util.animation.event.AnimationEvent;
+import com.creativemd.littletiles.common.util.animation.event.AnimationEventGuiParser;
 
 import net.minecraft.nbt.NBTTagCompound;
 

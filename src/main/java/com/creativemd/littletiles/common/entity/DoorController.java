@@ -24,11 +24,11 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.animation.AnimationController;
-import com.creativemd.littletiles.common.utils.animation.AnimationState;
-import com.creativemd.littletiles.common.utils.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
+import com.creativemd.littletiles.common.util.animation.AnimationController;
+import com.creativemd.littletiles.common.util.animation.AnimationState;
+import com.creativemd.littletiles.common.util.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;

@@ -3,13 +3,13 @@ package com.creativemd.littletiles.common.packet;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.items.ItemColorTube;
-import com.creativemd.littletiles.common.items.ItemLittleChisel;
-import com.creativemd.littletiles.common.items.ItemLittleGrabber;
-import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
+import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.item.ItemLittleChisel;
+import com.creativemd.littletiles.common.item.ItemLittleGrabber;
+import com.creativemd.littletiles.common.item.ItemLittleGrabber.GrabberMode;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import mod.flatcoloredblocks.block.BlockFlatColored;

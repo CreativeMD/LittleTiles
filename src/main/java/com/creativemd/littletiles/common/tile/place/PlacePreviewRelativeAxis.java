@@ -2,12 +2,12 @@ package com.creativemd.littletiles.common.tile.place;
 
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
 

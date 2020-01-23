@@ -4,8 +4,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
-import com.creativemd.littletiles.common.utils.animation.AnimationController;
-import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
+import com.creativemd.littletiles.common.util.animation.AnimationController;
+import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;

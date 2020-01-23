@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 public class PlacePreviews extends ArrayList<PlacePreview> {
 	

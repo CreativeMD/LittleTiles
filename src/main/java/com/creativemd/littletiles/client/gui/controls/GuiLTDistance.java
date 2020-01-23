@@ -6,7 +6,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.ControlEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 public class GuiLTDistance extends GuiParent {
 	

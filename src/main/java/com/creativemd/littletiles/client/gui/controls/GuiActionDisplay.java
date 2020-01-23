@@ -6,7 +6,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
 import net.minecraft.client.renderer.GlStateManager;
 

@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.api;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
-import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 
 import net.minecraft.item.ItemStack;
 

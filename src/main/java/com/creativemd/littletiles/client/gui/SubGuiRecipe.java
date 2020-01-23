@@ -27,7 +27,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

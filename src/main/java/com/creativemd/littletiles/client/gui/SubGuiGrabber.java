@@ -4,9 +4,9 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.common.items.ItemLittleGrabber;
-import com.creativemd.littletiles.common.items.ItemLittleGrabber.GrabberMode;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.item.ItemLittleGrabber;
+import com.creativemd.littletiles.common.item.ItemLittleGrabber.GrabberMode;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

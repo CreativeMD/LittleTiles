@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 

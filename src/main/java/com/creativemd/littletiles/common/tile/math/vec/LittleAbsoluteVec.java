@@ -2,8 +2,8 @@ package com.creativemd.littletiles.common.tile.math.vec;
 
 import java.security.InvalidParameterException;
 
-import com.creativemd.littletiles.common.utils.grid.IGridBased;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.IGridBased;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;

@@ -12,7 +12,7 @@ import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;

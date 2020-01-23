@@ -17,11 +17,11 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
-import com.creativemd.littletiles.common.utils.ingredients.LittleInventory;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;

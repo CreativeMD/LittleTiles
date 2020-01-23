@@ -2,7 +2,7 @@ package com.creativemd.littletiles.client.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
-import com.creativemd.littletiles.common.utils.placing.MarkMode;
+import com.creativemd.littletiles.common.util.place.MarkMode;
 
 import net.minecraft.util.text.translation.I18n;
 

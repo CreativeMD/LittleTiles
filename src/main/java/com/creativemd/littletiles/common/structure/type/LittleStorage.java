@@ -14,7 +14,7 @@ import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.blocks.BlockStorageTile;
+import com.creativemd.littletiles.common.block.BlockStorageTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -22,10 +22,10 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
-import com.creativemd.littletiles.common.utils.ingredients.StackIngredient;
+import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.util.ingredient.StackIngredient;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;

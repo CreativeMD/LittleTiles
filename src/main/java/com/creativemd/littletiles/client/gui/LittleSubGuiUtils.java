@@ -10,10 +10,10 @@ import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleInventory;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredient;
-import com.creativemd.littletiles.common.utils.ingredients.BlockIngredientEntry;
-import com.creativemd.littletiles.common.utils.ingredients.LittleIngredients;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
+import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
+import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

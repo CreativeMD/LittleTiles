@@ -15,13 +15,13 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.items.ItemBlockTiles;
-import com.creativemd.littletiles.common.items.ItemLittleChisel;
+import com.creativemd.littletiles.common.item.ItemBlockTiles;
+import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.shape.DragShape;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.DragShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemBlock;

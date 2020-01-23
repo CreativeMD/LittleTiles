@@ -13,8 +13,8 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.outdated.OldDoorTransformation;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.util.outdated.OldDoorTransformation;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;

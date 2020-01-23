@@ -6,7 +6,7 @@ import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 

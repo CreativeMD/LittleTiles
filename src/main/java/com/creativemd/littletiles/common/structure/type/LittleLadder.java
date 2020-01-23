@@ -3,12 +3,12 @@ package com.creativemd.littletiles.common.structure.type;
 import javax.annotation.Nonnull;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.EntityLivingBase;

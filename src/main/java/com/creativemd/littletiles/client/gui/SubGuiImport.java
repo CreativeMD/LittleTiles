@@ -9,7 +9,7 @@ import java.awt.datatransfer.Transferable;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTException;

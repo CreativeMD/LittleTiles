@@ -18,10 +18,10 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
-import com.creativemd.littletiles.common.utils.animation.AnimationState;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
-import com.creativemd.littletiles.common.utils.vec.LittleTransformation;
+import com.creativemd.littletiles.common.util.animation.AnimationState;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.AxisAlignedBB;

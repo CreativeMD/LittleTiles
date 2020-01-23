@@ -23,10 +23,10 @@ import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
-import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;

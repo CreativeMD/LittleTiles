@@ -5,10 +5,10 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.placing.MarkMode;
-import com.creativemd.littletiles.common.utils.placing.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.utils.placing.PlacementMode;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.MarkMode;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

@@ -12,9 +12,9 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
-import com.creativemd.littletiles.common.items.ItemColorTube;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
-import com.creativemd.littletiles.common.utils.shape.SelectShape;
+import com.creativemd.littletiles.common.item.ItemColorTube;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.shape.SelectShape;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.item.ItemStack;

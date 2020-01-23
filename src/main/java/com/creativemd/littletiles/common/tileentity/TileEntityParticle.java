@@ -7,8 +7,8 @@ import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.common.items.ItemLittleWrench;
-import com.creativemd.littletiles.common.particles.LittleParticleType;
+import com.creativemd.littletiles.common.item.ItemLittleWrench;
+import com.creativemd.littletiles.common.particle.LittleParticleType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.client.Minecraft;

@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.client.render.world;
 
-import com.creativemd.littletiles.common.blocks.BlockTile;
+import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;

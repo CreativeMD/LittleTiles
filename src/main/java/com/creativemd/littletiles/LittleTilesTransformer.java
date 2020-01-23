@@ -388,7 +388,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
 						m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 9));
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"), false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mod/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Z"), false));
 						m.instructions.remove(insn);
 						break;
 					}
@@ -407,7 +407,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
 						m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 3));
 						
-						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
+						m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mod/optifine/ConnectedTexturesModifier", "matches", patchDESC("(Ljava/lang/Object;Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/util/math/BlockPos;I)Z"), false));
 						m.instructions.remove(insn);
 						break;
 					}
@@ -420,7 +420,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 1));
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 2));
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 3));
-				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "isNeighbour", patchDESC("(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;)Z"), false));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mod/optifine/ConnectedTexturesModifier", "isNeighbour", patchDESC("(Lnet/minecraft/world/IBlockAccess;Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/util/math/BlockPos;)Z"), false));
 				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
@@ -430,7 +430,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				insn = (LabelNode) m.instructions.getFirst();
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
-				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mods/optifine/ConnectedTexturesModifier", "isFullCube", patchDESC("(Lnet/minecraft/block/state/IBlockState;)Z"), false));
+				m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/mod/optifine/ConnectedTexturesModifier", "isFullCube", patchDESC("(Lnet/minecraft/block/state/IBlockState;)Z"), false));
 				m.instructions.insertBefore(insn, new JumpInsnNode(Opcodes.IFEQ, insn));
 				m.instructions.insertBefore(insn, new LabelNode());
 				m.instructions.insertBefore(insn, new InsnNode(Opcodes.ICONST_1));
@@ -447,7 +447,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ILOAD, 1));
 				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 2));
-				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/events/LittleEventHandler", "cancelEntitySpawn", "(Lnet/minecraft/client/multiplayer/WorldClient;ILnet/minecraft/entity/Entity;)Z", false));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/common/event/LittleEventHandler", "cancelEntitySpawn", "(Lnet/minecraft/client/multiplayer/WorldClient;ILnet/minecraft/entity/Entity;)Z", false));
 				m.instructions.insertBefore(first, new JumpInsnNode(Opcodes.IFEQ, first));
 				m.instructions.insertBefore(first, new LabelNode());
 				m.instructions.insertBefore(first, new InsnNode(Opcodes.RETURN));
@@ -570,7 +570,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 		 * m.instructions.insertBefore(insn, new LabelNode());
 		 * m.instructions.insertBefore(insn, new VarInsnNode(Opcodes.ALOAD, 0));
 		 * m.instructions.insertBefore(insn, new MethodInsnNode(Opcodes.INVOKESTATIC,
-		 * "com/creativemd/littletiles/common/events/LittleEventHandler",
+		 * "com/creativemd/littletiles/common/event/LittleEventHandler",
 		 * "processStateUpdates", "(L" + worldClass + ";)V", false)); break; } } } }); */
 		/* addTransformer(new Transformer("net.minecraft.world.World") {
 		 * 
@@ -589,7 +589,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 		 * ((MethodInsnNode) insn).owner.equals(className)) { VarInsnNode before =
 		 * (VarInsnNode) insn.getPrevious(); m.instructions.insert(insn, new
 		 * MethodInsnNode(Opcodes.INVOKESTATIC,
-		 * "com/creativemd/littletiles/common/utils/converting/ChiselAndBitsConveration",
+		 * "com/creativemd/littletiles/common/util/converation/ChiselAndBitsConveration",
 		 * "onAddedTileEntity", patchDESC("(Lnet/minecraft/tileentity/TileEntity;)V"),
 		 * false)); m.instructions.insert(insn, new VarInsnNode(Opcodes.ALOAD,
 		 * before.var)); return ; } } } }); */

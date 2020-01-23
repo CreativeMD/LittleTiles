@@ -2,9 +2,9 @@ package com.creativemd.littletiles.common.container;
 
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.items.ItemRecipe;
-import com.creativemd.littletiles.common.items.ItemRecipeAdvanced;
-import com.creativemd.littletiles.common.utils.converting.StructureStringUtils;
+import com.creativemd.littletiles.common.item.ItemRecipe;
+import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
+import com.creativemd.littletiles.common.util.converation.StructureStringUtils;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.InventoryBasic;

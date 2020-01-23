@@ -6,8 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.function.Predicate;
 
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingLava.LittleFlowingLavaPreview;
-import com.creativemd.littletiles.common.blocks.BlockLTFlowingWater.LittleFlowingWaterPreview;
+import com.creativemd.littletiles.common.block.BlockLTFlowingLava.LittleFlowingLavaPreview;
+import com.creativemd.littletiles.common.block.BlockLTFlowingWater.LittleFlowingWaterPreview;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.LittleTileParticle;
@@ -16,7 +16,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;

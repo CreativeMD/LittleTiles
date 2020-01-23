@@ -6,7 +6,7 @@ import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
-import com.creativemd.littletiles.common.utils.tooltip.ActionMessage;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;

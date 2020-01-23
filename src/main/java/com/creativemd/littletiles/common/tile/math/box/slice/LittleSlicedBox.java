@@ -10,13 +10,13 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.math.vec.Ray2d;
-import com.creativemd.littletiles.client.render.tiles.LittleRenderingCube;
-import com.creativemd.littletiles.client.render.tiles.LittleSlicedRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleSlicedRenderingCube;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.LittleUtils;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.utils.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.util.EnumFacing;
