@@ -180,3 +180,4 @@ config.littletiles.previewLines=Line Preview
 config.littletiles.enableRandomDisplayTick=Enable Random Display Tick
 config.littletiles.useQuadCache=Use Quad-Cache
 config.littletiles.useCubeCache=Use Cube-Cache
+config.littletiles.uploadToVBODirectly=Upload to VBO directly
