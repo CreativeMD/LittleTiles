@@ -174,10 +174,11 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public RenderChunk lastRenderedChunk;
 	
 	@SideOnly(Side.CLIENT)
-	public void updateQuadCache(RenderChunk chunk) {
-		lastRenderedChunk = chunk;
+	public void updateQuadCache(Object chunk) {
+		if (chunk instanceof RenderChunk)
+			lastRenderedChunk = (RenderChunk) chunk;
 		
-		if (renderIndex != LittleChunkDispatcher.currentRenderIndex.get())
+		if (renderIndex != LittleChunkDispatcher.currentRenderIndex)
 			getCubeCache().clearCache();
 		
 		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;

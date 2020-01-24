@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.renderer.BufferBuilder;
@@ -15,6 +16,8 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.BlockPos;
 
 public class LittleRenderChunk {
+	
+	protected int lastRenderIndex = LittleChunkDispatcher.currentRenderIndex;
 	
 	public final BlockPos pos;
 	protected final VertexBuffer[] vertexBuffers = new VertexBuffer[BlockRenderLayer.values().length];
@@ -160,6 +163,12 @@ public class LittleRenderChunk {
 					if (j != BlockRenderLayer.TRANSLUCENT.ordinal())
 						tempBuffers[j] = null;
 				complete = false;
+			}
+			
+			if (lastRenderIndex != LittleChunkDispatcher.currentRenderIndex) {
+				for (TileEntityLittleTiles te : tileEntities.values())
+					te.updateQuadCache(this);
+				tileEntities.clear();
 			}
 		}
 	}

@@ -267,7 +267,7 @@ public class LittleTilesClient extends LittleTilesServer {
 		reloadableResourceManager.registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
-				LittleChunkDispatcher.currentRenderIndex.incrementAndGet();
+				LittleChunkDispatcher.currentRenderIndex++;
 				ItemLittleChisel.model = null;
 				ItemLittleGrabber.model = null;
 				ItemRecipe.model = null;

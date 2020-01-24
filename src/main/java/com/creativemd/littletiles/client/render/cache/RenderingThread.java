@@ -209,7 +209,7 @@ public class RenderingThread extends Thread {
 						
 						BlockLayerRenderBuffer layerBuffer = new BlockLayerRenderBuffer();
 						if (!layerBuffer.isDrawing()) {
-							data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex.get();
+							data.te.renderIndex = LittleChunkDispatcher.currentRenderIndex;
 							try {
 								layerBuffer.setDrawing();
 								
@@ -358,7 +358,7 @@ public class RenderingThread extends Thread {
 			te.buffer = buffer;
 			te.buildingCache = false;
 			
-			if (!inQueue && !te.isInvalid() && te.rebuildRenderingCache) {
+			if (!inQueue && !te.isInvalid() && (te.rebuildRenderingCache || te.renderIndex != LittleChunkDispatcher.currentRenderIndex)) {
 				te.rebuildRenderingCache = false;
 				te.getCubeCache().clearCache();
 				return false;

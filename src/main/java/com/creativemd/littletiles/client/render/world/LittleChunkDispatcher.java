@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.FloatBuffer;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
@@ -27,11 +26,11 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class LittleChunkDispatcher {
 	
-	public static AtomicInteger currentRenderIndex = new AtomicInteger(0);
+	public static int currentRenderIndex = Integer.MIN_VALUE;
 	
 	public static void onReloadRenderers(RenderGlobal renderGlobal) {
 		if (mc.renderGlobal == renderGlobal) {
-			currentRenderIndex.incrementAndGet();
+			currentRenderIndex++;
 			mc.world.addEventListener(new LightChangeEventListener());
 		}
 	}
