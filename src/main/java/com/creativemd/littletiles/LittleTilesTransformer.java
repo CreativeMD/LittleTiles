@@ -37,6 +37,12 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			public void transform(ClassNode classNode) {
 				MethodNode m = findMethod(classNode, "renderEntities", "(Lnet/minecraft/entity/Entity;Lnet/minecraft/client/renderer/culling/ICamera;F)V");
 				m.instructions.insertBefore(m.instructions.getFirst(), new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/world/LittleAnimationHandlerClient", "renderTick", "()V", false));
+				
+				m = findMethod(classNode, "loadRenderers", "()V");
+				AbstractInsnNode first = m.instructions.getFirst();
+				m.instructions.insertBefore(first, new LabelNode());
+				m.instructions.insertBefore(first, new VarInsnNode(Opcodes.ALOAD, 0));
+				m.instructions.insertBefore(first, new MethodInsnNode(Opcodes.INVOKESTATIC, "com/creativemd/littletiles/client/render/world/LittleChunkDispatcher", "onReloadRenderers", patchDESC("(Lnet/minecraft/client/renderer/RenderGlobal;)V"), false));
 			}
 		});
 		addTransformer(new Transformer("net.minecraft.client.renderer.chunk.ChunkRenderDispatcher") {
