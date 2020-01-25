@@ -83,8 +83,6 @@ public class CTMManager {
 			}
 		}
 		
-		System.out.println(getRealWorld(world));
-		
 		return getRealWorld(world).getBlockState(pos);
 	}
 	
