@@ -31,7 +31,8 @@ public class LittleChunkDispatcher {
 	public static void onReloadRenderers(RenderGlobal renderGlobal) {
 		if (mc.renderGlobal == renderGlobal) {
 			currentRenderIndex++;
-			mc.world.addEventListener(new LightChangeEventListener());
+			if (mc.world != null)
+				mc.world.addEventListener(new LightChangeEventListener());
 		}
 	}
 	
