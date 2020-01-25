@@ -28,6 +28,11 @@ public interface IGridBased {
 		other.convertToSmallest();
 	}
 	
+	public default void convertToAtMinimum(LittleGridContext context) {
+		if (getContext().size < context.size)
+			convertTo(context);
+	}
+	
 	public void convertTo(LittleGridContext to);
 	
 	public void convertToSmallest();

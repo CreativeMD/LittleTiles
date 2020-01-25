@@ -800,7 +800,7 @@ public abstract class LittleStructure {
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 		
 		previews.convertToSmallest();
-		previews.ensureContext(getMinContext());
+		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
@@ -819,7 +819,7 @@ public abstract class LittleStructure {
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 		
 		previews.convertToSmallest();
-		previews.ensureContext(getMinContext());
+		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
@@ -839,7 +839,7 @@ public abstract class LittleStructure {
 				previews.getStructure().addTempChild(child.getStructure(getWorld()));
 			
 		previews.convertToSmallest();
-		previews.ensureContext(getMinContext());
+		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
@@ -861,7 +861,7 @@ public abstract class LittleStructure {
 				previews.getStructure().addTempChild(child.getStructure(getWorld()));
 			
 		previews.convertToSmallest();
-		previews.ensureContext(getMinContext());
+		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	

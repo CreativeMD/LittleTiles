@@ -72,12 +72,12 @@ public class PlacementHelper {
 		}
 		
 		public void subVec(LittleVec vec) {
-			contextVec.getVec().add(vec);
+			getVec().add(vec);
 			removeInternalBlockOffset();
 		}
 		
 		public void addVec(LittleVec vec) {
-			contextVec.getVec().sub(vec);
+			getVec().sub(vec);
 			removeInternalBlockOffset();
 		}
 		
@@ -292,9 +292,7 @@ public class PlacementHelper {
 					position.convertTo(structureContext);
 			}
 			
-			tiles.ensureContext(position.getContext());
-			if (position.getContext() != tiles.context)
-				position.convertTo(tiles.context);
+			tiles.forceContext(position);
 			
 			LittleGridContext context = tiles.context;
 			
@@ -409,7 +407,7 @@ public class PlacementHelper {
 				break;
 			}
 		}
-		return new LittleBox(temp, size);
+		return new LittleBox(temp, size.x, size.y, size.z);
 	}
 	
 	public static boolean canBlockBeUsed(World world, BlockPos pos) {

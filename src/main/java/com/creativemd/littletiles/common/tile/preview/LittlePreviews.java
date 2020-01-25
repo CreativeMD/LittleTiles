@@ -17,6 +17,7 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
+import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.item.ItemStack;
@@ -26,7 +27,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
-public class LittlePreviews implements Iterable<LittlePreview> {
+public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	protected List<LittlePreview> previews;
 	public LittleGridContext context;
@@ -194,6 +195,12 @@ public class LittlePreviews implements Iterable<LittlePreview> {
 			}
 	}
 	
+	@Override
+	public LittleGridContext getContext() {
+		return context;
+	}
+	
+	@Override
 	public void convertTo(LittleGridContext to) {
 		if (context != to) {
 			for (LittlePreview preview : previews) {
@@ -213,6 +220,7 @@ public class LittlePreviews implements Iterable<LittlePreview> {
 		return size;
 	}
 	
+	@Override
 	public void convertToSmallest() {
 		int size = getSmallestContext();
 		if (hasChildren())
@@ -416,11 +424,6 @@ public class LittlePreviews implements Iterable<LittlePreview> {
 			size += child.totalSize();
 		}
 		return size;
-	}
-	
-	public void ensureContext(LittleGridContext context) {
-		if (this.context.size < context.size)
-			convertTo(context);
 	}
 	
 	public boolean isEmpty() {
