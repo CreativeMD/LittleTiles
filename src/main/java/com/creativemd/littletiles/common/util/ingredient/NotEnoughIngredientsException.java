@@ -45,9 +45,8 @@ public class NotEnoughIngredientsException extends LittleActionException {
 	public ActionMessage getActionMessage() {
 		String message = getLocalizedMessage() + "\n";
 		List objects = new ArrayList();
-		for (LittleIngredient ingredient : ingredients) {
+		for (LittleIngredient ingredient : ingredients)
 			message += ingredient.print(objects);
-		}
 		return new ActionMessage(message, objects.toArray());
 	}
 	

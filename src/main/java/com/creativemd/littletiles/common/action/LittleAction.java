@@ -48,6 +48,7 @@ import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsExc
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.selection.selector.TileSelector;
 import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage.ActionMessageObjectType;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
@@ -299,7 +300,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		ActionMessage message = e.getActionMessage();
 		if (message != null)
-			LittleTilesClient.overlay.addMessage(message);
+			LittleTilesClient.displayActionMessage(message);
 		else
 			Minecraft.getMinecraft().player.sendStatusMessage(new TextComponentString(e.getLocalizedMessage()), true);
 	}
@@ -622,6 +623,26 @@ public abstract class LittleAction extends CreativeCorePacket {
 			array[i] = buf.readInt();
 		}
 		return LittleBox.createBox(array);
+	}
+	
+	public static void writeActionMessage(ActionMessage message, ByteBuf buf) {
+		writeString(buf, message.text);
+		buf.writeInt(message.objects.length);
+		for (int i = 0; i < message.objects.length; i++) {
+			ActionMessageObjectType type = ActionMessage.getType(message.objects[i]);
+			buf.writeInt(type.index());
+			type.write(message.objects[i], buf);
+		}
+	}
+	
+	public static ActionMessage readActionMessage(ByteBuf buf) {
+		String text = readString(buf);
+		Object[] objects = new Object[buf.readInt()];
+		for (int i = 0; i < objects.length; i++) {
+			ActionMessageObjectType type = ActionMessage.getType(buf.readInt());
+			objects[i] = type.read(buf);
+		}
+		return new ActionMessage(text, objects);
 	}
 	
 	public static boolean needIngredients(EntityPlayer player) {

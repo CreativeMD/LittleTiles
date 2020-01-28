@@ -20,6 +20,7 @@ import com.creativemd.littletiles.client.render.overlay.OverlayRenderer.OverlayP
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.TileEntityTilesRenderer;
+import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 import com.creativemd.littletiles.common.block.BlockLTColored;
 import com.creativemd.littletiles.common.block.BlockLTColored2;
 import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
@@ -36,6 +37,7 @@ import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.particle.LittleParticleType;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
+import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 import com.creativemd.littletiles.server.LittleTilesServer;
 import com.google.common.base.Function;
@@ -95,6 +97,10 @@ public class LittleTilesClient extends LittleTilesServer {
 	private static Field rawZField = ReflectionHelper.findField(EntitySpawnMessage.class, "rawZ");
 	private static Field scaledYawField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledYaw");
 	private static Field scaledPitchField = ReflectionHelper.findField(EntitySpawnMessage.class, "scaledPitch");
+	
+	public static void displayActionMessage(ActionMessage message) {
+		overlay.addMessage(new CompiledActionMessage(message));
+	}
 	
 	@Override
 	public void loadSidePre() {

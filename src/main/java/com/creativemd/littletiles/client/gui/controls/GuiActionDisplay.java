@@ -6,13 +6,13 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.littletiles.common.util.tooltip.ActionMessage;
+import com.creativemd.littletiles.client.tooltip.CompiledActionMessage;
 
 import net.minecraft.client.renderer.GlStateManager;
 
 public class GuiActionDisplay extends GuiControl {
 	
-	protected List<ActionMessage> messages = new ArrayList<>();
+	protected List<CompiledActionMessage> messages = new ArrayList<>();
 	
 	private int maxActions;
 	private int displayTime;
@@ -28,7 +28,7 @@ public class GuiActionDisplay extends GuiControl {
 	
 	public GuiActionDisplay setMessageCount(int count) {
 		this.maxActions = count;
-		List<ActionMessage> newMessages = new ArrayList<>();
+		List<CompiledActionMessage> newMessages = new ArrayList<>();
 		for (int i = 0; i < messages.size(); i++) {
 			if (i >= count)
 				break;
@@ -51,7 +51,7 @@ public class GuiActionDisplay extends GuiControl {
 		return this;
 	}
 	
-	public void addMessage(ActionMessage message) {
+	public void addMessage(CompiledActionMessage message) {
 		messages.add(0, message);
 		if (messages.size() > maxActions)
 			for (int i = maxActions; i < messages.size(); i++)
@@ -61,7 +61,7 @@ public class GuiActionDisplay extends GuiControl {
 	}
 	
 	public void addMessage(String text, Object... objects) {
-		addMessage(new ActionMessage(text, objects));
+		addMessage(new CompiledActionMessage(text, objects));
 	}
 	
 	protected void removeMessage(int index) {
@@ -87,7 +87,7 @@ public class GuiActionDisplay extends GuiControl {
 		GlStateManager.translate(width / 2, height - requiredHeight, 0);
 		
 		while (i < messages.size()) {
-			ActionMessage message = messages.get(i);
+			CompiledActionMessage message = messages.get(i);
 			
 			long timer = System.currentTimeMillis() - message.timestamp;
 			if (timer >= totalTime)

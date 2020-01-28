@@ -70,6 +70,7 @@ import com.creativemd.littletiles.common.item.ItemBag;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
+import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import com.creativemd.littletiles.common.item.ItemColorTube;
 import com.creativemd.littletiles.common.item.ItemHammer;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
@@ -83,9 +84,9 @@ import com.creativemd.littletiles.common.item.ItemRecipe;
 import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.item.ItemRubberMallet;
 import com.creativemd.littletiles.common.item.ItemUtilityKnife;
-import com.creativemd.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
+import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
@@ -484,6 +485,7 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
 		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class, "RA");
 		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class, "PA");
+		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class, "AM");
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		

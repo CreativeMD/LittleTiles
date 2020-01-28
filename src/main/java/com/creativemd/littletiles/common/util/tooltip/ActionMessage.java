@@ -1,122 +1,126 @@
 package com.creativemd.littletiles.common.util.tooltip;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
+import com.creativemd.littletiles.common.action.LittleAction;
 
+import io.netty.buffer.ByteBuf;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ActionMessage {
 	
-	public int height;
-	public int width;
-	public final List<ActionLine> lines;
-	public final long timestamp;
+	private static HashMap<Class, ActionMessageObjectType> typeClasses = new HashMap<>();
+	private static List<ActionMessageObjectType> types = new ArrayList<>();
 	
-	public ActionMessage(String text, Object... objects) {
-		lines = new ArrayList<>();
+	public static void registerType(ActionMessageObjectType type) {
+		type.index = types.size();
 		
-		List<Object> lineObjects = new ArrayList<>();
-		
-		int tempWidth = 0;
-		int first = 0;
-		
-		int i = 0;
-		while (i < text.length()) {
-			if (text.charAt(i) == '\n')
-				if (first == i)
-					first++;
-				else {
-					lineObjects.add(text.substring(first, i));
-					ActionLine line = new ActionLine(new ArrayList<>(lineObjects));
-					tempWidth = Math.max(tempWidth, line.width);
-					lines.add(line);
-					lineObjects.clear();
-					first = i + 1;
-				}
-			else if (text.charAt(i) == '{') {
-				for (int j = i + 1; j < text.length(); j++) {
-					if (Character.isDigit(text.charAt(j)))
-						continue;
-					else if (text.charAt(j) == '}') {
-						if (first != i)
-							lineObjects.add(text.substring(first, i));
-						lineObjects.add(objects[Integer.parseInt(text.substring(i + 1, j))]);
-						first = j + 1;
-						i = j;
-						break;
-					} else
-						break;
-				}
+		typeClasses.put(type.clazz, type);
+		types.add(type);
+	}
+	
+	public static ActionMessageObjectType getType(int index) {
+		return types.get(index);
+	}
+	
+	public static ActionMessageObjectType getType(Object object) {
+		ActionMessageObjectType type = typeClasses.get(object.getClass());
+		if (type == null)
+			throw new RuntimeException("Invalid object in action message " + object + " clazz: " + object.getClass());
+		return type;
+	}
+	
+	public String text;
+	public Object[] objects;
+	
+	public ActionMessage(String text, Object[] objects) {
+		this.text = text;
+		this.objects = objects;
+	}
+	
+	static {
+		registerType(new ActionMessageObjectType<String>(String.class) {
+			
+			@Override
+			public void write(String object, ByteBuf buf) {
+				LittleAction.writeString(buf, object);
 			}
-			i++;
-		}
-		
-		if (first != i)
-			lineObjects.add(text.substring(first, i));
-		
-		if (!lineObjects.isEmpty()) {
-			ActionLine line = new ActionLine(new ArrayList<>(lineObjects));
-			tempWidth = Math.max(tempWidth, line.width);
-			lines.add(line);
-		}
-		
-		this.width = tempWidth;
-		this.height = (GuiActionDisplay.font.FONT_HEIGHT + 3) * lines.size();
-		this.timestamp = System.currentTimeMillis();
-	}
-	
-	public void render(GuiRenderHelper helper, float alpha) {
-		GlStateManager.pushMatrix();
-		int color = ColorUtils.RGBAToInt(255, 255, 255, (int) (alpha * 255));
-		for (int i = 0; i < lines.size(); i++) {
-			ActionLine line = lines.get(i);
-			GlStateManager.pushMatrix();
-			GlStateManager.translate(-line.width / 2, 0, 0);
-			for (int j = 0; j < line.objects.size(); j++) {
-				Object obj = line.objects.get(j);
-				int objWidth;
-				if (obj instanceof String) {
-					helper.font.drawString((String) obj, 0, 0, color);
-					objWidth = helper.font.getStringWidth((String) obj);
-				} else if (obj instanceof ItemStack) {
-					objWidth = 20;
-					GlStateManager.color(1, 1, 1, alpha);
-					helper.drawItemStack((ItemStack) obj, 2, -4, 16, 16, 0, color);
-				} else
-					objWidth = 0;
-				GlStateManager.translate(objWidth, 0, 0);
+			
+			@Override
+			public String read(ByteBuf buf) {
+				return LittleAction.readString(buf);
 			}
-			GlStateManager.popMatrix();
-			GlStateManager.translate(0, GuiActionDisplay.font.FONT_HEIGHT + 3, 0);
-		}
-		GlStateManager.popMatrix();
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public int width(String object, GuiRenderHelper helper) {
+				return helper.font.getStringWidth(object);
+			}
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public void render(String object, GuiRenderHelper helper, int color, float alpha) {
+				helper.font.drawString(object, 0, 0, color);
+			}
+			
+		});
+		registerType(new ActionMessageObjectType<ItemStack>(ItemStack.class) {
+			
+			@Override
+			public void write(ItemStack object, ByteBuf buf) {
+				LittleAction.writeItemStack(buf, object);
+			}
+			
+			@Override
+			public ItemStack read(ByteBuf buf) {
+				return LittleAction.readItemStack(buf);
+			}
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public int width(ItemStack object, GuiRenderHelper helper) {
+				return 20;
+			}
+			
+			@Override
+			@SideOnly(Side.CLIENT)
+			public void render(ItemStack object, GuiRenderHelper helper, int color, float alpha) {
+				GlStateManager.color(1, 1, 1, alpha);
+				helper.drawItemStack(object, 2, -4, 16, 16, 0, color);
+			}
+			
+		});
 	}
 	
-	public int getObjectWidth(Object object) {
-		if (object instanceof ItemStack)
-			return 20;
-		if (object instanceof String)
-			return GuiActionDisplay.font.getStringWidth((String) object);
-		return 0;
-	}
-	
-	public class ActionLine {
+	public static abstract class ActionMessageObjectType<T> {
 		
-		public final List<Object> objects;
-		public final int width;
+		public final Class<T> clazz;
+		private int index;
 		
-		public ActionLine(List<Object> objects) {
-			this.objects = objects;
-			int lineWidth = 0;
-			for (int i = 0; i < objects.size(); i++)
-				lineWidth += getObjectWidth(objects.get(i));
-			this.width = lineWidth;
+		public ActionMessageObjectType(Class<T> clazz) {
+			this.clazz = clazz;
 		}
 		
+		public int index() {
+			return index;
+		}
+		
+		public abstract void write(T object, ByteBuf buf);
+		
+		public abstract T read(ByteBuf buf);
+		
+		@SideOnly(Side.CLIENT)
+		public abstract int width(T object, GuiRenderHelper helper);
+		
+		@SideOnly(Side.CLIENT)
+		public abstract void render(T object, GuiRenderHelper helper, int color, float alpha);
+		
 	}
+	
 }
