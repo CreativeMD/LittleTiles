@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.google.common.base.Strings;
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -84,6 +85,11 @@ public class LittleTilesProfilerOverlay {
 				if (thread != null)
 					details.add("" + thread.getThreadIndex(), thread.updateCoords.size());
 				
+			list.add(format(details));
+			details.clear();
+			
+			details.add("Item Cache", ItemModelCache.countCaches());
+			
 			list.add(format(details));
 			details.clear();
 			

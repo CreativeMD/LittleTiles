@@ -63,6 +63,10 @@ public class ItemModelCache {
 	
 	private static HashMap<ItemModelCacheKey, ItemModelCache> caches = new HashMap<>();
 	
+	public static int countCaches() {
+		return caches.size();
+	}
+	
 	public static void cacheModel(ItemStack stack, EnumFacing facing, List<BakedQuad> quads) {
 		cacheModel(new ItemModelCacheKey(stack, facing), quads);
 	}
