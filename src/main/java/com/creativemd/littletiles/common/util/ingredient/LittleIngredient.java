@@ -274,7 +274,25 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				}
 				return stacks;
 			}
-		}, null);
+		}, new IngredientConvertionHandler<StackIngredient>() {
+			
+			@Override
+			public StackIngredient extract(LittlePreview preview, double volume) {
+				return null;
+			}
+			
+			@Override
+			public StackIngredient extract(LittlePreviews previews) {
+				return null;
+			}
+			
+			@Override
+			public StackIngredient extract(ItemStack stack) {
+				StackIngredient ingredient = new StackIngredient();
+				ingredient.add(new StackIngredientEntry(stack, 1));
+				return ingredient;
+			}
+		});
 	}
 	
 	@Override
