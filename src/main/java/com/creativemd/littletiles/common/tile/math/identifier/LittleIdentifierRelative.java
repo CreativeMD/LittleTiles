@@ -96,6 +96,11 @@ public class LittleIdentifierRelative {
 	}
 	
 	@Override
+	public int hashCode() {
+		return coord.hashCode();
+	}
+	
+	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof LittleIdentifierRelative) {
 			if (!coord.equals(((LittleIdentifierRelative) obj).coord))

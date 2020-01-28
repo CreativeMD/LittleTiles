@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -19,17 +18,17 @@ public abstract class StructureLinkBaseRelative<T> extends LittleIdentifierStruc
 	protected LittleStructure connectedStructure;
 	protected final T parent;
 	
-	public StructureLinkBaseRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(te, coord, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBaseRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(origin, coord, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBaseRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(baseX, baseY, baseZ, coord, context, identifier, attribute);
 		this.parent = parent;
 	}
@@ -39,7 +38,7 @@ public abstract class StructureLinkBaseRelative<T> extends LittleIdentifierStruc
 		this.parent = parent;
 	}
 	
-	protected StructureLinkBaseRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	protected StructureLinkBaseRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(relativeX, relativeY, relativeZ, context, identifier, attribute);
 		this.parent = parent;
 	}
@@ -112,7 +111,7 @@ public abstract class StructureLinkBaseRelative<T> extends LittleIdentifierStruc
 	}
 	
 	@Override
-	public LittleStructureAttribute getAttribute() {
+	public int getAttribute() {
 		return attribute;
 	}
 	

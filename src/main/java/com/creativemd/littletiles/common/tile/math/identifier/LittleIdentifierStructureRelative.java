@@ -9,37 +9,40 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleIdentifierStructureRelative extends LittleIdentifierRelative {
 	
-	public LittleStructureAttribute attribute;
+	public int attribute;
 	
-	public LittleIdentifierStructureRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, int attribute) {
 		super(te, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleIdentifierStructureRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureRelative(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, int attribute) {
 		super(origin, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleIdentifierStructureRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureRelative(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, int attribute) {
 		super(baseX, baseY, baseZ, coord, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	protected LittleIdentifierStructureRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	protected LittleIdentifierStructureRelative(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, int attribute) {
 		super(relativeX, relativeY, relativeZ, context, identifier);
 		this.attribute = attribute;
 	}
 	
 	public LittleIdentifierStructureRelative(NBTTagCompound nbt) {
 		super(nbt);
-		this.attribute = LittleStructureAttribute.get(nbt.getInteger("attr"));
+		if (nbt.hasKey("attr"))
+			this.attribute = LittleStructureAttribute.loadOld(nbt.getInteger("attr"));
+		else
+			this.attribute = nbt.getInteger("type");
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
-		nbt.setInteger("attr", attribute.ordinal());
+		nbt.setInteger("type", attribute);
 		return nbt;
 	}
 	
@@ -48,6 +51,7 @@ public class LittleIdentifierStructureRelative extends LittleIdentifierRelative 
 		return super.toString() + "|" + attribute;
 	}
 	
+	@Override
 	public LittleIdentifierStructureRelative copy() {
 		return new LittleIdentifierStructureRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone(), attribute);
 	}

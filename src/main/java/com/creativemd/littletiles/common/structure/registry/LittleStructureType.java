@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 
@@ -17,10 +16,10 @@ public final class LittleStructureType {
 	public final String id;
 	public final String category;
 	public final Class<? extends LittleStructure> structureClass;
-	public final LittleStructureAttribute attribute;
+	public final int attribute;
 	public final List<StructureTypeRelative> relatives;
 	
-	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, LittleStructureAttribute attribute) {
+	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
 		this.id = id;
 		this.category = category;
 		this.structureClass = structureClass;

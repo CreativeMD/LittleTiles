@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -16,19 +15,19 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 	public final boolean isChild;
 	public final int childID;
 	
-	public StructureLink(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, boolean isChild) {
+	public StructureLink(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID, boolean isChild) {
 		super(te, coord, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.isChild = isChild;
 	}
 	
-	public StructureLink(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, boolean isChild) {
+	public StructureLink(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID, boolean isChild) {
 		super(origin, coord, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.isChild = isChild;
 	}
 	
-	public StructureLink(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, boolean isChild) {
+	public StructureLink(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID, boolean isChild) {
 		super(baseX, baseY, baseZ, coord, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.isChild = isChild;
@@ -40,7 +39,7 @@ public class StructureLink extends StructureLinkBaseRelative<LittleStructure> im
 		this.isChild = isChild;
 	}
 	
-	protected StructureLink(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID, boolean isChild) {
+	protected StructureLink(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID, boolean isChild) {
 		super(relativeX, relativeY, relativeZ, context, identifier, attribute, parent);
 		this.childID = childID;
 		this.isChild = isChild;

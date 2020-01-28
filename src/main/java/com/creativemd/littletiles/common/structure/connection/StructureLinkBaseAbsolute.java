@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -19,17 +18,17 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleIdentifierStruc
 	protected LittleStructure connectedStructure;
 	protected final T parent;
 	
-	public StructureLinkBaseAbsolute(LittleTile tile, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseAbsolute(LittleTile tile, int attribute, T parent) {
 		super(tile, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBaseAbsolute(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseAbsolute(TileEntity te, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(te, context, identifier, attribute);
 		this.parent = parent;
 	}
 	
-	public StructureLinkBaseAbsolute(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, T parent) {
+	public StructureLinkBaseAbsolute(BlockPos pos, LittleGridContext context, int[] identifier, int attribute, T parent) {
 		super(pos, context, identifier, attribute);
 		this.parent = parent;
 	}
@@ -118,7 +117,7 @@ public abstract class StructureLinkBaseAbsolute<T> extends LittleIdentifierStruc
 	}
 	
 	@Override
-	public LittleStructureAttribute getAttribute() {
+	public int getAttribute() {
 		return attribute;
 	}
 	

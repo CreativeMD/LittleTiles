@@ -231,6 +231,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void updateTiles() {
+		for (LittleTile tile : tiles)
+			tile.onNeighborChangeInside();
+		
 		sideCache.reset();
 		
 		if (world != null) {

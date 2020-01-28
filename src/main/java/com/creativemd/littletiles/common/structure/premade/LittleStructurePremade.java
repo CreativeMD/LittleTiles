@@ -40,6 +40,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			nbt.setTag("structure", structureNBT);
 			stack.setTagCompound(nbt);
 			LittlePreviews previews = LittlePreview.getPreview(stack);
+			LittlePreview.savePreview(previews, stack);
 			structurePreviews.put(id, new LittleStructurePremadeEntry(previews, stack));
 			System.out.println("Loaded " + id + " model");
 		} catch (Exception e) {

@@ -85,6 +85,16 @@ public class LittlePreview implements ICombinable {
 			tileData.removeTag("bBox");
 			tileData.removeTag("size");
 		}
+		
+		tileData.removeTag("nodrop");
+		if (tileData.hasKey("tID") && !LittleTileRegistry.getTileType(tileData.getString("tID")).saveId)
+			tileData.removeTag("tID");
+		if (tileData.hasKey("meta")) {
+			int meta = tileData.getInteger("meta");
+			tileData.removeTag("meta");
+			if (meta != 0)
+				tileData.setString("block", tileData.getString("block") + ":" + meta);
+		}
 	}
 	
 	public LittlePreview(LittleBox box, NBTTagCompound tileData) {
@@ -94,20 +104,20 @@ public class LittlePreview implements ICombinable {
 	
 	// ================Preview================
 	
-	public boolean canBeConvertedToBlockEntry() {
-		return hasBlockIngredient();
-	}
-	
 	public String getBlockName() {
-		return tileData.getString("block");
+		String[] parts = tileData.getString("block").split(":");
+		return parts[0] + ":" + parts[1];
 	}
 	
 	public Block getBlock() {
-		return Block.getBlockFromName(tileData.getString("block"));
+		return Block.getBlockFromName(getBlockName());
 	}
 	
 	public int getMeta() {
-		return tileData.getInteger("meta");
+		String[] parts = tileData.getString("block").split(":");
+		if (parts.length == 3)
+			return Integer.parseInt(parts[2]);
+		return 0;
 	}
 	
 	public boolean hasColor() {
@@ -150,10 +160,6 @@ public class LittlePreview implements ICombinable {
 	
 	public NBTTagCompound getTileData() {
 		return tileData;
-	}
-	
-	public boolean hasBlockIngredient() {
-		return !tileData.getBoolean("nodrop");
 	}
 	
 	@Nullable

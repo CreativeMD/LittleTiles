@@ -18,7 +18,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.connection.StructureLink;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkFromSubWorld;
@@ -133,7 +132,7 @@ public abstract class LittleStructure {
 		return mainTile.te.getWorld();
 	}
 	
-	public LittleStructureAttribute getAttribute() {
+	public int getAttribute() {
 		return type.attribute;
 	}
 	

@@ -31,7 +31,7 @@ public class LittleStructureRegistry {
 	
 	private static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables = new PairList<>();
 	
-	public static void registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, LittleStructureAttribute attribute, Class<? extends LittleStructureGuiParser> parser) {
+	public static void registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
 		registerStructureType(id, new LittleStructureType(id, category, classStructure, attribute), parser);
 	}
 	

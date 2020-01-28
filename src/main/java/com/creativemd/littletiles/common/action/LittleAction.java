@@ -10,7 +10,6 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
@@ -649,13 +648,6 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return LittleIngredient.extract(preview, volume);
 	}
 	
-	public static void drop(EntityPlayer player, LittlePreviews previews) {
-		for (LittlePreview preview : previews) {
-			if (preview.hasBlockIngredient())
-				WorldUtils.dropItem(player, preview.getBlockIngredient(previews.context).getTileItemStack());
-		}
-	}
-	
 	public static boolean canTake(EntityPlayer player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
 		if (needIngredients(player)) {
 			try {
@@ -741,7 +733,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			try {
 				checkAndGive(player, inventory, getIngredients(previews));
 			} catch (NotEnoughIngredientsException e) {
-				drop(player, previews);
+				e.printStackTrace();
 			}
 		}
 		return true;

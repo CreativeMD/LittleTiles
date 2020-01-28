@@ -157,10 +157,16 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			@Override
 			public BlockIngredient extract(LittlePreviews previews) {
 				BlockIngredient ingredient = new BlockIngredient();
-				for (LittlePreview preview : previews)
-					if (preview.canBeConvertedToBlockEntry())
+				if (previews.containsIngredients())
+					for (LittlePreview preview : previews)
 						ingredient.add(preview.getBlockIngredient(previews.context));
 					
+				for (LittlePreviews child : previews.getChildren()) {
+					BlockIngredient childIngredient = extract(child);
+					if (childIngredient != null)
+						ingredient.add(childIngredient);
+				}
+				
 				if (ingredient.isEmpty())
 					return null;
 				return ingredient;
@@ -233,10 +239,16 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			@Override
 			public ColorIngredient extract(LittlePreviews previews) {
 				ColorIngredient ingredient = new ColorIngredient();
-				for (LittlePreview preview : previews)
-					if (preview.canBeConvertedToBlockEntry())
+				if (previews.containsIngredients())
+					for (LittlePreview preview : previews)
 						ingredient.add(ColorIngredient.getColors(previews.context, preview));
 					
+				for (LittlePreviews child : previews.getChildren()) {
+					ColorIngredient childIngredient = extract(child);
+					if (childIngredient != null)
+						ingredient.add(childIngredient);
+				}
+				
 				if (ingredient.isEmpty())
 					return null;
 				return ingredient;

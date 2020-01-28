@@ -10,32 +10,35 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleIdentifierStructureAbsolute extends LittleIdentifierAbsolute {
 	
-	public LittleStructureAttribute attribute;
+	public int attribute;
 	
-	public LittleIdentifierStructureAbsolute(LittleTile tile, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureAbsolute(LittleTile tile, int attribute) {
 		super(tile);
 		this.attribute = attribute;
 	}
 	
-	public LittleIdentifierStructureAbsolute(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureAbsolute(TileEntity te, LittleGridContext context, int[] identifier, int attribute) {
 		super(te, context, identifier);
 		this.attribute = attribute;
 	}
 	
-	public LittleIdentifierStructureAbsolute(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute) {
+	public LittleIdentifierStructureAbsolute(BlockPos pos, LittleGridContext context, int[] identifier, int attribute) {
 		super(pos, context, identifier);
 		this.attribute = attribute;
 	}
 	
 	public LittleIdentifierStructureAbsolute(NBTTagCompound nbt) {
 		super(nbt);
-		this.attribute = LittleStructureAttribute.get(nbt.getInteger("attr"));
+		if (nbt.hasKey("attr"))
+			this.attribute = LittleStructureAttribute.loadOld(nbt.getInteger("attr"));
+		else
+			this.attribute = nbt.getInteger("type");
 	}
 	
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
-		nbt.setInteger("attr", attribute.ordinal());
+		nbt.setInteger("type", attribute);
 		return nbt;
 	}
 	

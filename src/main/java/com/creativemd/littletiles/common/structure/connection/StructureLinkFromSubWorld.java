@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.structure.connection;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -16,17 +15,17 @@ public class StructureLinkFromSubWorld extends StructureLinkBaseAbsolute<LittleS
 	
 	public final int childID;
 	
-	public StructureLinkFromSubWorld(LittleTile tile, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
+	public StructureLinkFromSubWorld(LittleTile tile, int attribute, LittleStructure parent, int childID) {
 		super(tile, attribute, parent);
 		this.childID = childID;
 	}
 	
-	public StructureLinkFromSubWorld(TileEntity te, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
+	public StructureLinkFromSubWorld(TileEntity te, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID) {
 		super(te, context, identifier, attribute, parent);
 		this.childID = childID;
 	}
 	
-	public StructureLinkFromSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleStructure parent, int childID) {
+	public StructureLinkFromSubWorld(BlockPos pos, LittleGridContext context, int[] identifier, int attribute, LittleStructure parent, int childID) {
 		super(pos, context, identifier, attribute, parent);
 		this.childID = childID;
 	}

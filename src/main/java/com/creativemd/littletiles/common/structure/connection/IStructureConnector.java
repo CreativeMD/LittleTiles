@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.util.math.BlockPos;
@@ -19,7 +18,7 @@ public interface IStructureConnector<T> {
 	
 	public void setLoadedStructure(LittleStructure structure);
 	
-	public LittleStructureAttribute getAttribute();
+	public int getAttribute();
 	
 	public boolean isLink();
 	

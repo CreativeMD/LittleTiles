@@ -478,9 +478,6 @@ public class LittleTile implements ICombinable {
 	
 	public void groupNBTTile(NBTTagCompound nbt, LittleTile tile) {
 		NBTTagList list = nbt.getTagList("boxes", 11);
-		
-		/* for (int i = 0; i < tile.boundingBoxes.size(); i++) {
-		 * list.appendTag(tile.boundingBoxes.get(i).getNBTIntArray()); } */
 		list.appendTag(tile.box.getNBTIntArray());
 	}
 	
@@ -510,10 +507,7 @@ public class LittleTile implements ICombinable {
 			nbt.setBoolean("invisible", invisible);
 		if (glowing)
 			nbt.setBoolean("glowing", glowing);
-		if (getStructureAttribute() == LittleStructureAttribute.PREMADE)
-			nbt.setBoolean("nodrop", true);
-		nbt.setString("block", handler instanceof MissingBlockHandler ? ((MissingBlockHandler) handler).blockname : Block.REGISTRY.getNameForObject(block).toString());
-		nbt.setInteger("meta", meta);
+		nbt.setString("block", handler instanceof MissingBlockHandler ? ((MissingBlockHandler) handler).blockname : Block.REGISTRY.getNameForObject(block).toString() + (meta != 0 ? ":" + meta : ""));
 	}
 	
 	public void saveTileCore(NBTTagCompound nbt) {
@@ -543,7 +537,15 @@ public class LittleTile implements ICombinable {
 	public void loadTileExtra(NBTTagCompound nbt) {
 		invisible = nbt.getBoolean("invisible");
 		glowing = nbt.getBoolean("glowing");
-		setBlock(nbt.getString("block"), Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
+		if (nbt.hasKey("meta"))
+			setBlock(nbt.getString("block"), Block.getBlockFromName(nbt.getString("block")), nbt.getInteger("meta"));
+		else {
+			String[] parts = nbt.getString("block").split(":");
+			if (parts.length == 3)
+				setBlock(nbt.getString("block"), Block.getBlockFromName(parts[0] + ":" + parts[1]), Integer.parseInt(parts[2]));
+			else
+				setBlock(nbt.getString("block"), Block.getBlockFromName(parts[0] + ":" + parts[1]), 0);
+		}
 	}
 	
 	public void loadTileCore(NBTTagCompound nbt) {
@@ -605,7 +607,7 @@ public class LittleTile implements ICombinable {
 	
 	/** stack may be null **/
 	public void onPlaced(@Nullable EntityPlayer player, ItemStack stack, @Nullable EnumFacing facing) {
-		onNeighborChangeInside();
+		
 	}
 	
 	public void place(TileList list) {
@@ -839,7 +841,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean isLadder() {
-		return getStructureAttribute() == LittleStructureAttribute.LADDER;
+		return LittleStructureAttribute.isLadder(getStructureAttribute());
 	}
 	
 	public float getSlipperiness(Entity entity) {
@@ -869,7 +871,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean hasNoCollision() {
-		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
+		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
 			return true;
 		if (hasSpecialBlockHandler())
 			return handler.canWalkThrough(this);
@@ -879,7 +881,7 @@ public class LittleTile implements ICombinable {
 	// ================Collision================
 	
 	public List<LittleBox> getCollisionBoxes() {
-		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
+		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
 			return new ArrayList<>();
 		
 		List<LittleBox> boxes = new ArrayList<>();
@@ -892,7 +894,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean shouldCheckForCollision() {
-		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION)
+		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
 			return true;
 		if (hasSpecialBlockHandler())
 			return handler.shouldCheckForCollision(this);
@@ -900,7 +902,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (getStructureAttribute() == LittleStructureAttribute.NOCOLLISION && isConnectedToStructure())
+		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()) && isConnectedToStructure())
 			connection.getStructure(te.getWorld()).onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 		if (hasSpecialBlockHandler())
 			handler.onEntityCollidedWithBlock(worldIn, this, pos, state, entityIn);
@@ -914,7 +916,7 @@ public class LittleTile implements ICombinable {
 		return connection != null && connection.isConnected(te.getWorld());
 	}
 	
-	public LittleStructureAttribute getStructureAttribute() {
+	public int getStructureAttribute() {
 		if (isChildOfStructure())
 			return connection.getAttribute();
 		return LittleStructureAttribute.NONE;

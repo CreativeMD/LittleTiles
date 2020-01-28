@@ -8,6 +8,9 @@ import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.combine.AdvancedCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -84,12 +87,25 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return nbt.hasKey("name") ? nbt.getString("name") : null;
 	}
 	
+	public int getStructureAttribute() {
+		if (!hasStructure())
+			return LittleStructureAttribute.NONE;
+		LittleStructureType type = LittleStructureRegistry.getStructureType(getStructureId());
+		if (type != null)
+			return type.attribute;
+		return LittleStructureAttribute.NONE;
+	}
+	
 	public String getStructureId() {
 		if (!hasStructure())
 			return null;
-		
-		NBTTagCompound nbt = getStructureData();
-		return nbt.getString("id");
+		return getStructureData().getString("id");
+	}
+	
+	public boolean containsIngredients() {
+		if (hasStructure())
+			return !LittleStructureAttribute.isPremade(getStructureAttribute());
+		return true;
 	}
 	
 	public LittleGridContext getMinContext() {

@@ -1,6 +1,5 @@
 package com.creativemd.littletiles.common.structure.connection;
 
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -11,15 +10,15 @@ import net.minecraft.world.World;
 
 public class StructureLinkTile extends StructureLinkBaseRelative<LittleTile> {
 	
-	public StructureLinkTile(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleTile parent) {
+	public StructureLinkTile(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleTile parent) {
 		super(te, coord, context, identifier, attribute, parent);
 	}
 	
-	public StructureLinkTile(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleTile parent) {
+	public StructureLinkTile(BlockPos origin, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleTile parent) {
 		super(origin, coord, context, identifier, attribute, parent);
 	}
 	
-	public StructureLinkTile(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleTile parent) {
+	public StructureLinkTile(int baseX, int baseY, int baseZ, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, LittleTile parent) {
 		super(baseX, baseY, baseZ, coord, context, identifier, attribute, parent);
 	}
 	
@@ -27,7 +26,7 @@ public class StructureLinkTile extends StructureLinkBaseRelative<LittleTile> {
 		super(nbt, parent);
 	}
 	
-	protected StructureLinkTile(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, LittleStructureAttribute attribute, LittleTile parent) {
+	protected StructureLinkTile(int relativeX, int relativeY, int relativeZ, LittleGridContext context, int[] identifier, int attribute, LittleTile parent) {
 		super(relativeX, relativeY, relativeZ, context, identifier, attribute, parent);
 	}
 	

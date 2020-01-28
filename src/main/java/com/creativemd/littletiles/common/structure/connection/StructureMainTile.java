@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraft.util.math.BlockPos;
@@ -33,7 +32,7 @@ public class StructureMainTile implements IStructureConnector<LittleTile> {
 	}
 	
 	@Override
-	public LittleStructureAttribute getAttribute() {
+	public int getAttribute() {
 		return structure.getAttribute();
 	}
 	

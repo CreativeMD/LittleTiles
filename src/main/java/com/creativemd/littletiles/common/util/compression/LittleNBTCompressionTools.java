@@ -47,10 +47,8 @@ public class LittleNBTCompressionTools {
 					NBTTagCompound nbt = new NBTTagCompound();
 					grouping.saveTile(nbt);
 					list.appendTag(nbt);
-				} else {
-					groupNBT.setBoolean("group", true);
+				} else
 					list.appendTag(groupNBT);
-				}
 			}
 			
 		}
@@ -62,7 +60,7 @@ public class LittleNBTCompressionTools {
 		ArrayList<LittleTile> tiles = new ArrayList<>();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			if (nbt.getBoolean("group")) {
+			if (nbt.hasKey("boxes")) {
 				LittleTile create = LittleTileRegistry.getTypeFromNBT(nbt).createTile();
 				if (create != null) {
 					List<NBTTagCompound> nbts = create.extractNBTFromGroup(nbt);
@@ -112,10 +110,8 @@ public class LittleNBTCompressionTools {
 					NBTTagCompound nbt = new NBTTagCompound();
 					grouping.writeToNBT(nbt);
 					list.appendTag(nbt);
-				} else {
-					groupNBT.setBoolean("group", true);
+				} else
 					list.appendTag(groupNBT);
-				}
 			}
 		}
 		
@@ -166,7 +162,7 @@ public class LittleNBTCompressionTools {
 	public static LittlePreviews readPreviews(LittlePreviews previews, NBTTagList list) {
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
-			if (nbt.getBoolean("group")) {
+			if (nbt.hasKey("boxes")) {
 				PreviewCompressionHandler handler = handlers.get(nbt.getString("tID"));
 				if (handler == null)
 					handler = defaultHandler;
