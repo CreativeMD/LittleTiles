@@ -73,6 +73,7 @@ public class LittleBlockPacket extends CreativeCorePacket {
 				player.sendStatusMessage(new TextComponentString("grid:" + te.getContext()), true);
 				te.combineTiles();
 				te.convertBlockToVanilla();
+				te.updateTiles();
 			}
 			
 		};
