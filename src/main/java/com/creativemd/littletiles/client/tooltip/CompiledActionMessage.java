@@ -84,9 +84,14 @@ public class CompiledActionMessage {
 			GlStateManager.translate(-line.width / 2, 0, 0);
 			for (int j = 0; j < line.objects.size(); j++) {
 				Object obj = line.objects.get(j);
-				ActionMessageObjectType type = ActionMessage.getType(obj);
-				type.render(obj, helper, color, alpha);
-				GlStateManager.translate(type.width(obj, helper), 0, 0);
+				if (obj.getClass() == String.class) {
+					helper.font.drawString((String) obj, 0, 0, color);
+					GlStateManager.translate(helper.font.getStringWidth((String) obj), 0, 0);
+				} else {
+					ActionMessageObjectType type = ActionMessage.getType(obj);
+					type.render(obj, helper, color, alpha);
+					GlStateManager.translate(type.width(obj, helper), 0, 0);
+				}
 			}
 			GlStateManager.popMatrix();
 			GlStateManager.translate(0, GuiActionDisplay.font.FONT_HEIGHT + 3, 0);
@@ -102,8 +107,13 @@ public class CompiledActionMessage {
 		public ActionLine(List<Object> objects) {
 			this.objects = objects;
 			int lineWidth = 0;
-			for (int i = 0; i < objects.size(); i++)
-				lineWidth += ActionMessage.getType(objects.get(i)).width(objects.get(i), GuiRenderHelper.instance);
+			for (int i = 0; i < objects.size(); i++) {
+				Object obj = objects.get(i);
+				if (obj.getClass() == String.class)
+					lineWidth += GuiRenderHelper.instance.font.getStringWidth((String) obj);
+				else
+					lineWidth += ActionMessage.getType(obj).width(obj, GuiRenderHelper.instance);
+			}
 			this.width = lineWidth;
 		}
 		

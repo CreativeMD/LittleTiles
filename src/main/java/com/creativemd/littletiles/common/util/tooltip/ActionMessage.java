@@ -45,31 +45,6 @@ public class ActionMessage {
 	}
 	
 	static {
-		registerType(new ActionMessageObjectType<String>(String.class) {
-			
-			@Override
-			public void write(String object, ByteBuf buf) {
-				LittleAction.writeString(buf, object);
-			}
-			
-			@Override
-			public String read(ByteBuf buf) {
-				return LittleAction.readString(buf);
-			}
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public int width(String object, GuiRenderHelper helper) {
-				return helper.font.getStringWidth(object);
-			}
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public void render(String object, GuiRenderHelper helper, int color, float alpha) {
-				helper.font.drawString(object, 0, 0, color);
-			}
-			
-		});
 		registerType(new ActionMessageObjectType<ItemStack>(ItemStack.class) {
 			
 			@Override
