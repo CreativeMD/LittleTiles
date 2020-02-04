@@ -78,8 +78,8 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, previousAnimation);
 			if (animation != null)
 				animation.controller.onServerPlaces();
-			else
-				e.printStackTrace();
+			//else
+			//e.printStackTrace();
 		}
 		
 	}
