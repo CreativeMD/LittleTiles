@@ -58,7 +58,7 @@ public class NeighborUpdateOrganizer {
 					}
 					
 				} else if (world instanceof SubWorld)
-					PacketHandler.sendPacketToTrackingPlayersExcept(new LittleNeighborUpdatePacket(world, entry.getValue()), ((SubWorld) world).parent, null, (WorldServer) ((SubWorld) world).getRealWorld());
+					PacketHandler.sendPacketToTrackingPlayers(new LittleNeighborUpdatePacket(world, entry.getValue()), ((SubWorld) world).parent, (WorldServer) ((SubWorld) world).getRealWorld(), null);
 			}
 			
 			positions.clear();

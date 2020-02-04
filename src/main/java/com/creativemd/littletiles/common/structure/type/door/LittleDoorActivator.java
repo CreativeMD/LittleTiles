@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.structure.type.door;
 import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -14,11 +13,9 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
-import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -32,7 +29,6 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.WorldServer;
 
 public class LittleDoorActivator extends LittleDoor {
 	
@@ -62,12 +58,6 @@ public class LittleDoorActivator extends LittleDoor {
 			return null;
 		}
 		return null;
-	}
-	
-	@Override
-	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		super.sendActivationToClient(activator, uuid, result);
-		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getMainTile(), uuid, result), this.getWorld(), this.getMainTile().getBlockPos());
 	}
 	
 	@Override

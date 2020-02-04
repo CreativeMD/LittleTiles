@@ -137,7 +137,7 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		
+		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getMainTile(), uuid, result), this.getWorld(), this.getMainTile().getBlockPos(), activator != null ? (x) -> x != activator : null);
 	}
 	
 	public abstract int getCompleteDuration();
