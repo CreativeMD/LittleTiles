@@ -172,7 +172,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 			
 			if (context != te.getContext()) {
-				if (context.size > te.getContext().size) {
+				if (context.size < te.getContext().size) {
 					for (LittleBox box : boxes)
 						box.convertTo(context, te.getContext());
 					context = te.getContext();
