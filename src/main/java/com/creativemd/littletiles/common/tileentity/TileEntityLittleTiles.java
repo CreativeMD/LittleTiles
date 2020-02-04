@@ -163,7 +163,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public boolean hasLightChanged;
 	
 	@SideOnly(Side.CLIENT)
-	public boolean hasNeighborChanged;
+	public boolean hasNeighbourChanged;
 	
 	public SideSolidCache sideCache = new SideSolidCache();
 	
@@ -182,10 +182,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (renderIndex != LittleChunkDispatcher.currentRenderIndex)
 			getCubeCache().clearCache();
 		
-		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighborChanged || hasLightChanged;
+		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighbourChanged || hasLightChanged;
 		
 		hasLightChanged = false;
-		hasNeighborChanged = false;
+		hasNeighbourChanged = false;
 		
 		if (doesNeedUpdate)
 			addToRenderUpdate();
@@ -231,15 +231,32 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
+	private void onNeighbourChangedClient() {
+		addToRenderUpdate();
+		hasNeighbourChanged = true;
+	}
+	
+	public void onNeighbourChanged() {
+		if (isClientSide())
+			onNeighbourChangedClient();
+		
+		notifyStructure();
+	}
+	
+	public void notifyStructure() {
+		for (LittleStructure structure : tiles.structures(LittleStructureAttribute.NEIGHBOR_LISTENER))
+			structure.neighbourChanged();
+	}
+	
 	public void updateTiles() {
-		for (LittleTile tile : tiles)
-			tile.onNeighborChangeInside();
+		notifyStructure();
 		
 		sideCache.reset();
 		
 		if (world != null) {
 			updateBlock();
-			updateNeighbor();
+			updateNeighbour();
 			updateLighting();
 		}
 		if (isClientSide())
@@ -277,12 +294,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 			addToRenderUpdate();
 		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void onNeighBorChangedClient() {
-		addToRenderUpdate();
-		hasNeighborChanged = true;
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -382,13 +393,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return true;
 	}
 	
-	public void updateNeighbor() {
-		/*for (Iterator iterator = updateTiles.iterator(); iterator.hasNext();) { Add an extra type for that
-			LittleTile tile = (LittleTile) iterator.next();
-			tile.onNeighborChangeInside();
-		}*/
-		if (isClientSide())
-			hasNeighborChanged = true;
+	public void updateNeighbour() {
 		world.notifyNeighborsOfStateChange(getPos(), getBlockType(), true);
 	}
 	

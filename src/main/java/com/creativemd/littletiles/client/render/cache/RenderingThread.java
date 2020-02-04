@@ -364,7 +364,7 @@ public class RenderingThread extends Thread {
 				return false;
 			}
 			
-			te.hasNeighborChanged = false;
+			te.hasNeighbourChanged = false;
 			te.hasLightChanged = false;
 			te.lastRenderedChunk = null;
 			te.inRenderingQueue.set(false);

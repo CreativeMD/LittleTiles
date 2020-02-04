@@ -698,19 +698,6 @@ public class LittleTile implements ICombinable {
 		return new LittlePreview(box.copy(), nbt);
 	}
 	
-	// ================Notifcations/Events================
-	
-	public void onNeighborChangeOutside() {
-		onNeighborChange();
-	}
-	
-	public void onNeighborChangeInside() {
-		onNeighborChange();
-	}
-	
-	public void onNeighborChange() {
-	}
-	
 	// ================Rendering================
 	
 	public boolean needCustomRendering() {

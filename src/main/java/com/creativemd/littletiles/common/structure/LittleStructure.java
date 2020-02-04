@@ -1068,6 +1068,10 @@ public abstract class LittleStructure {
 		
 	}
 	
+	public void neighbourChanged() {
+		
+	}
+	
 	// ====================Premade====================
 	
 	public boolean canOnlyBePlacedByItemStack() {
