@@ -4,29 +4,49 @@ public class LittleStructureAttribute {
 	
 	public static final int NONE = 0;
 	
-	// Does not need connection (structures will not be considered in block list)
+	// passive types
 	
 	public static final int LADDER = 0b00000000_00000000_00000000_00000001;
 	public static final int NOCOLLISION = 0b00000000_00000000_00000000_00000010;
 	public static final int PREMADE = 0b00000000_00000000_00000000_00000100;
 	
-	// Does need connection (structures will be considered in block list)
+	// active types
 	
 	public static final int EXTRA_COLLSION = 0b00000000_00000000_00000001_00000000;
 	public static final int EXTRA_RENDERING = 0b00000000_00000000_00000010_00000000;
 	public static final int TICKING = 0b00000000_00000000_00000100_00000000;
 	public static final int TICK_RENDERING = 0b00000000_00000000_00001000_00000000;
 	
-	public static boolean isLadder(int attribute) {
+	public static boolean ladder(int attribute) {
 		return checkBit(attribute, 0);
 	}
 	
-	public static boolean hasNoCollision(int attribute) {
+	public static boolean noCollision(int attribute) {
 		return checkBit(attribute, 1);
 	}
 	
-	public static boolean isPremade(int attribute) {
+	public static boolean premade(int attribute) {
 		return checkBit(attribute, 2);
+	}
+	
+	public static boolean extraCollision(int attribute) {
+		return checkBit(attribute, 8);
+	}
+	
+	public static boolean extraRendering(int attribute) {
+		return checkBit(attribute, 9);
+	}
+	
+	public static boolean ticking(int attribute) {
+		return checkBit(attribute, 10);
+	}
+	
+	public static boolean tickRendering(int attribute) {
+		return checkBit(attribute, 11);
+	}
+	
+	public static boolean active(int attribute) {
+		return (attribute >>> 8) > 0;
 	}
 	
 	private static boolean checkBit(int attribute, int position) {

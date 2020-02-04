@@ -10,6 +10,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseRelative;
+import com.creativemd.littletiles.common.structure.connection.StructureLinkTileEntity;
 import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -20,6 +24,9 @@ public class TileList implements List<LittleTile> {
 	private final CopyOnWriteArrayList<LittleTile> content = new CopyOnWriteArrayList<LittleTile>();
 	private final CopyOnWriteArrayList<LittleTile> ticking = new CopyOnWriteArrayList<LittleTile>();
 	
+	private final CopyOnWriteArrayList<StructureLinkTileEntity> structures = new CopyOnWriteArrayList<>();
+	private int attributes = LittleStructureAttribute.NONE;
+	
 	@SideOnly(Side.CLIENT)
 	private CopyOnWriteArrayList<LittleTile> render;
 	
@@ -27,14 +34,17 @@ public class TileList implements List<LittleTile> {
 	
 	private final boolean client;
 	
-	public TileList(boolean client) {
+	private final TileEntityLittleTiles te;
+	
+	public TileList(TileEntityLittleTiles te, boolean client) {
+		this.te = te;
 		this.client = client;
 		if (client)
 			render = new CopyOnWriteArrayList<LittleTile>();
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public List<LittleTile> getRenderTiles() {
+	public List<LittleTile> renderTiles() {
 		return render;
 	}
 	
@@ -48,7 +58,72 @@ public class TileList implements List<LittleTile> {
 		return content.containsAll(c);
 	}
 	
-	public List<LittleTile> getTickingTiles() {
+	public Iterable<LittleStructure> structures() {
+		return new Iterable<LittleStructure>() {
+			
+			@Override
+			public Iterator<LittleStructure> iterator() {
+				return new Iterator<LittleStructure>() {
+					
+					public Iterator<StructureLinkTileEntity> iterator = structures.iterator();
+					
+					@Override
+					public boolean hasNext() {
+						return iterator.hasNext();
+					}
+					
+					@Override
+					public LittleStructure next() {
+						return iterator.next().getStructureWithoutLoading();
+					}
+				};
+			}
+		};
+	}
+	
+	public Iterable<LittleStructure> structures(int attribute) {
+		return new Iterable<LittleStructure>() {
+			
+			@Override
+			public Iterator<LittleStructure> iterator() {
+				return new Iterator<LittleStructure>() {
+					
+					public Iterator<StructureLinkTileEntity> iterator = structures.iterator();
+					public LittleStructure next;
+					
+					{
+						findNext();
+					}
+					
+					public void findNext() {
+						while (iterator.hasNext()) {
+							StructureLinkTileEntity link = iterator.next();
+							if ((link.getAttribute() & attribute) != 0) {
+								next = link.getStructureWithoutLoading();
+								return;
+							}
+						}
+						
+						next = null;
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+					
+					@Override
+					public LittleStructure next() {
+						LittleStructure toReturn = next;
+						findNext();
+						return toReturn;
+					}
+				};
+			}
+		};
+	}
+	
+	public List<LittleTile> tickingTiles() {
 		return ticking;
 	}
 	
@@ -63,15 +138,20 @@ public class TileList implements List<LittleTile> {
 	}
 	
 	public boolean hasTicking() {
-		return !ticking.isEmpty();
+		return !ticking.isEmpty() || LittleStructureAttribute.ticking(attributes);
 	}
 	
 	public boolean hasRendered() {
+		if (LittleStructureAttribute.tickRendering(attributes))
+			return true;
+		
 		if (client)
 			return !render.isEmpty();
+		
 		for (LittleTile tile : content)
 			if (tile.needCustomRendering())
 				return true;
+			
 		return false;
 	}
 	
@@ -88,6 +168,8 @@ public class TileList implements List<LittleTile> {
 		if (client)
 			render.clear();
 		collisionChecks = 0;
+		structures.clear();
+		attributes = LittleStructureAttribute.NONE;
 	}
 	
 	@Override
@@ -130,6 +212,10 @@ public class TileList implements List<LittleTile> {
 			render.add(tile);
 		if (tile.shouldCheckForCollision())
 			collisionChecks++;
+		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
+			structures.add(new StructureLinkTileEntity((StructureLinkBaseRelative) tile.connection, te));
+			attributes |= tile.connection.getAttribute();
+		}
 	}
 	
 	@Override
@@ -146,6 +232,12 @@ public class TileList implements List<LittleTile> {
 			render.remove(tile);
 		if (tile.shouldCheckForCollision())
 			collisionChecks--;
+		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
+			structures.remove(tile.connection);
+			attributes = LittleStructureAttribute.NONE;
+			for (StructureLinkTileEntity link : structures)
+				attributes |= link.getAttribute();
+		}
 	}
 	
 	@Override

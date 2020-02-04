@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.item.ItemRubberMallet;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -371,10 +372,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			for (LittleTile tile : te) {
 				List<LittleBox> boxes = tile.getCollisionBoxes();
-				for (int i = 0; i < boxes.size(); i++) {
+				for (int i = 0; i < boxes.size(); i++)
 					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
-				}
 			}
+			for (LittleStructure structure : te.structures(LittleStructureAttribute.EXTRA_COLLSION))
+				structure.addCollisionBoxes(pos, entityBox, collidingBoxes, entityIn);
 		}
 	}
 	
@@ -905,11 +907,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				}
 			}
 			
+			for (LittleStructure structure : tileEntity.structures(LittleStructureAttribute.EXTRA_RENDERING))
+				structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
+			
 			cache.setCubesByLayer(cubes, layer);
 			
-		} else if (stack != null) {
+		} else if (stack != null)
 			return ItemBlockTiles.getItemRenderingCubes(stack);
-		}
 		return cubes;
 	}
 	

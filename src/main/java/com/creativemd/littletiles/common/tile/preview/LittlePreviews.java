@@ -104,7 +104,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	public boolean containsIngredients() {
 		if (hasStructure())
-			return !LittleStructureAttribute.isPremade(getStructureAttribute());
+			return !LittleStructureAttribute.premade(getStructureAttribute());
 		return true;
 	}
 	

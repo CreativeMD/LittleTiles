@@ -26,6 +26,7 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
@@ -78,7 +79,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	private void init() {
-		tiles = new TileList(isClientSide());
+		tiles = new TileList(this, isClientSide());
 	}
 	
 	@Override
@@ -102,13 +103,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return tiles.iterator();
 	}
 	
-	public List<LittleTile> getTickingTiles() {
-		return tiles.getTickingTiles();
+	public List<LittleTile> tickingTiles() {
+		return tiles.tickingTiles();
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public List<LittleTile> getRenderingTiles() {
-		return tiles.getRenderTiles();
+	public List<LittleTile> renderTiles() {
+		return tiles.renderTiles();
 	}
 	
 	protected LittleGridContext context = LittleGridContext.getMin();
@@ -409,7 +410,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public double getMaxRenderDistanceSquared() {
 		if (cachedRenderDistance == 0) {
 			double renderDistance = 262144; // 512 blocks
-			for (LittleTile tile : tiles.getRenderTiles())
+			for (LittleTile tile : tiles.renderTiles())
 				renderDistance = Math.max(renderDistance, tile.getMaxRenderDistanceSquared());
 			cachedRenderDistance = renderDistance;
 		}
@@ -1091,5 +1092,17 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	public String toString() {
 		return pos.toString();
+	}
+	
+	public void tick() {
+		for (LittleTile tile : tiles.tickingTiles())
+			tile.updateEntity();
+		
+		for (LittleStructure structure : tiles.structures(LittleStructureAttribute.TICKING))
+			structure.tick();
+	}
+	
+	public Iterable<LittleStructure> structures(int attribute) {
+		return tiles.structures(attribute);
 	}
 }

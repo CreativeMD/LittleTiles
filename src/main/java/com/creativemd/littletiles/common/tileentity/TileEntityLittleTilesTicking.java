@@ -1,7 +1,5 @@
 package com.creativemd.littletiles.common.tileentity;
 
-import com.creativemd.littletiles.common.tile.LittleTile;
-
 import net.minecraft.util.ITickable;
 
 public class TileEntityLittleTilesTicking extends TileEntityLittleTiles implements ITickable {
@@ -14,8 +12,7 @@ public class TileEntityLittleTilesTicking extends TileEntityLittleTiles implemen
 			return;
 		}
 		
-		for (LittleTile tile : tiles.getTickingTiles())
-			tile.updateEntity();
+		tick();
 	}
 	
 	@Override

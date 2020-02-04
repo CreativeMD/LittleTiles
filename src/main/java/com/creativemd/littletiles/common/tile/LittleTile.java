@@ -749,7 +749,8 @@ public class LittleTile implements ICombinable {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public void renderTick(double x, double y, double z, float partialTickTime) {
+	public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {
+		
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -841,7 +842,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean isLadder() {
-		return LittleStructureAttribute.isLadder(getStructureAttribute());
+		return LittleStructureAttribute.ladder(getStructureAttribute());
 	}
 	
 	public float getSlipperiness(Entity entity) {
@@ -871,7 +872,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean hasNoCollision() {
-		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
+		if (LittleStructureAttribute.noCollision(getStructureAttribute()))
 			return true;
 		if (hasSpecialBlockHandler())
 			return handler.canWalkThrough(this);
@@ -881,7 +882,7 @@ public class LittleTile implements ICombinable {
 	// ================Collision================
 	
 	public List<LittleBox> getCollisionBoxes() {
-		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
+		if (LittleStructureAttribute.noCollision(getStructureAttribute()))
 			return new ArrayList<>();
 		
 		List<LittleBox> boxes = new ArrayList<>();
@@ -894,7 +895,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean shouldCheckForCollision() {
-		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()))
+		if (LittleStructureAttribute.noCollision(getStructureAttribute()))
 			return true;
 		if (hasSpecialBlockHandler())
 			return handler.shouldCheckForCollision(this);
@@ -902,7 +903,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
-		if (LittleStructureAttribute.hasNoCollision(getStructureAttribute()) && isConnectedToStructure())
+		if (LittleStructureAttribute.noCollision(getStructureAttribute()) && isConnectedToStructure())
 			connection.getStructure(te.getWorld()).onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 		if (hasSpecialBlockHandler())
 			handler.onEntityCollidedWithBlock(worldIn, this, pos, state, entityIn);

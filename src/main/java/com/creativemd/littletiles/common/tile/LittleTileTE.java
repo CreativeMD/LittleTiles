@@ -134,7 +134,7 @@ public class LittleTileTE extends LittleTile {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void renderTick(double x, double y, double z, float partialTickTime) {
+	public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {
 		if (tileEntity != null) {
 			Minecraft mc = Minecraft.getMinecraft();
 			if (te.getDistanceSq(mc.player.posX, mc.player.posY, mc.player.posZ) < getTileEntity().getMaxRenderDistanceSquared()) {

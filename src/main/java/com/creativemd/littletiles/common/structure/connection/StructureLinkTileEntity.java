@@ -24,13 +24,18 @@ public class StructureLinkTileEntity extends StructureLinkBaseRelative<TileEntit
 	
 	@Override
 	protected void connect(World world, LittleTile mainTile) {
-		// TODO Auto-generated method stub
+		this.connectedStructure = mainTile.connection.getStructureWithoutLoading();
 		
+		if (connectedStructure == null) {
+			new RuntimeException("Failed to connect to structure!").printStackTrace();
+			connectedStructure = null;
+			return;
+		}
 	}
 	
 	@Override
 	protected void failedConnect(World world) {
-		// TODO Auto-generated method stub
+		new RuntimeException("Failed to connect to structure coord " + this + "!").printStackTrace();
 	}
 	
 }

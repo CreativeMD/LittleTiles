@@ -103,9 +103,8 @@ public class LittleBox {
 	public void addCollisionBoxes(LittleGridContext context, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, BlockPos offset) {
 		AxisAlignedBB axisalignedbb = getBox(context, offset);
 		
-		if (entityBox.intersects(axisalignedbb)) {
+		if (entityBox.intersects(axisalignedbb))
 			collidingBoxes.add(axisalignedbb);
-		}
 	}
 	
 	public AxisAlignedBB getSelectionBox(LittleGridContext context, BlockPos pos) {

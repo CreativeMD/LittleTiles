@@ -648,11 +648,10 @@ public class EntityAnimation extends Entity {
 		
 		for (Iterator<TileEntity> iterator = fakeWorld.loadedTileEntityList.iterator(); iterator.hasNext();) {
 			TileEntity te = iterator.next();
-			List<LittleTile> tickingTiles = ((TileEntityLittleTiles) te).getTickingTiles();
-			if (!tickingTiles.isEmpty())
-				for (LittleTile tile : tickingTiles)
-					tile.updateEntity();
-				
+			
+			if (((TileEntityLittleTiles) te).isTicking())
+				((TileEntityLittleTiles) te).tick();
+			
 		}
 		
 		prevPosX = center.baseOffset.getX() + origin.offXLast();
