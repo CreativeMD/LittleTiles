@@ -12,8 +12,6 @@ import java.util.function.UnaryOperator;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseRelative;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkTileEntity;
 import com.creativemd.littletiles.common.tile.LittleTile;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -24,7 +22,7 @@ public class TileList implements List<LittleTile> {
 	private final CopyOnWriteArrayList<LittleTile> content = new CopyOnWriteArrayList<LittleTile>();
 	private final CopyOnWriteArrayList<LittleTile> ticking = new CopyOnWriteArrayList<LittleTile>();
 	
-	private final CopyOnWriteArrayList<StructureLinkTileEntity> structures = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<LittleStructure> structures = new CopyOnWriteArrayList<>();
 	private int attributes = LittleStructureAttribute.NONE;
 	
 	@SideOnly(Side.CLIENT)
@@ -59,26 +57,7 @@ public class TileList implements List<LittleTile> {
 	}
 	
 	public Iterable<LittleStructure> structures() {
-		return new Iterable<LittleStructure>() {
-			
-			@Override
-			public Iterator<LittleStructure> iterator() {
-				return new Iterator<LittleStructure>() {
-					
-					public Iterator<StructureLinkTileEntity> iterator = structures.iterator();
-					
-					@Override
-					public boolean hasNext() {
-						return iterator.hasNext();
-					}
-					
-					@Override
-					public LittleStructure next() {
-						return iterator.next().getStructureWithoutLoading();
-					}
-				};
-			}
-		};
+		return structures;
 	}
 	
 	public Iterable<LittleStructure> structures(int attribute) {
@@ -88,7 +67,7 @@ public class TileList implements List<LittleTile> {
 			public Iterator<LittleStructure> iterator() {
 				return new Iterator<LittleStructure>() {
 					
-					public Iterator<StructureLinkTileEntity> iterator = structures.iterator();
+					public Iterator<LittleStructure> iterator = structures.iterator();
 					public LittleStructure next;
 					
 					{
@@ -97,9 +76,9 @@ public class TileList implements List<LittleTile> {
 					
 					public void findNext() {
 						while (iterator.hasNext()) {
-							StructureLinkTileEntity link = iterator.next();
-							if ((link.getAttribute() & attribute) != 0) {
-								next = link.getStructureWithoutLoading();
+							LittleStructure structure = iterator.next();
+							if ((structure.getAttribute() & attribute) != 0) {
+								next = structure;
 								return;
 							}
 						}
@@ -213,7 +192,7 @@ public class TileList implements List<LittleTile> {
 		if (tile.shouldCheckForCollision())
 			collisionChecks++;
 		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
-			structures.add(new StructureLinkTileEntity((StructureLinkBaseRelative) tile.connection, te));
+			structures.add(tile.connection.getStructureWithoutLoading());
 			attributes |= tile.connection.getAttribute();
 		}
 	}
@@ -233,10 +212,10 @@ public class TileList implements List<LittleTile> {
 		if (tile.shouldCheckForCollision())
 			collisionChecks--;
 		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
-			structures.remove(tile.connection);
+			structures.remove(tile.connection.getStructureWithoutLoading());
 			attributes = LittleStructureAttribute.NONE;
-			for (StructureLinkTileEntity link : structures)
-				attributes |= link.getAttribute();
+			for (LittleStructure structure : structures)
+				attributes |= structure.getAttribute();
 		}
 	}
 	
