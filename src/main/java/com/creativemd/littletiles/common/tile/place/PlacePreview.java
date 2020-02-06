@@ -64,15 +64,7 @@ public class PlacePreview {
 			return Collections.EMPTY_LIST;
 		
 		LT.box = box.copy();
-		
-		List<LittleTile> tiles = mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
-		
-		for (LittleTile tile : tiles) {
-			tile.place(list);
-			tile.onPlaced(player, stack, facing);
-		}
-		
-		return tiles;
+		return mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
 	}
 	
 	public PlacePreview copyWithBox(LittleBox box) {

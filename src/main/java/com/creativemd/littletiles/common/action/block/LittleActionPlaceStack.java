@@ -29,9 +29,9 @@ import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PreviewResult;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.SoundType;
@@ -277,6 +277,9 @@ public class LittleActionPlaceStack extends LittleAction {
 											placeTile.structurePreview.getStructure().add(LT);
 										}
 									}
+									
+									LT.place(x);
+									LT.onPlaced(player, stack, facing);
 									
 									placed.addPlacedTile(LT);
 								}
