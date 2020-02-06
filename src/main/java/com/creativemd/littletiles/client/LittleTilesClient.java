@@ -178,7 +178,6 @@ public class LittleTilesClient extends LittleTilesServer {
 				try {
 					UUID uuid = (UUID) entityUUIDField.get(input);
 					EntityAnimation animation = WorldAnimationHandler.getHandlerClient().findAnimation(uuid);
-					
 					boolean alreadyExisted = animation != null;
 					if (animation == null) {
 						animation = new EntityAnimation(mc.world);

@@ -31,8 +31,6 @@ public abstract class LittleAnimationHandler {
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
-	protected List<EntityAnimation> toBeAdded = new ArrayList<>();
-	protected boolean isTicking = false;
 	public List<EntityAnimation> openDoors = new CopyOnWriteArrayList<>();
 	
 	public List<EntityAnimation> findAnimations(AxisAlignedBB bb) {
@@ -69,10 +67,7 @@ public abstract class LittleAnimationHandler {
 	}
 	
 	public void createDoor(EntityAnimation door) {
-		if (isTicking)
-			toBeAdded.add(door);
-		else
-			openDoors.add(door);
+		openDoors.add(door);
 	}
 	
 	@SubscribeEvent

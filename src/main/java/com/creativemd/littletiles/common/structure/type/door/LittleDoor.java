@@ -95,14 +95,14 @@ public abstract class LittleDoor extends LittleStructure {
 		if (uuid == null)
 			uuid = UUID.randomUUID();
 		
-		EntityAnimation animation = openDoor(player, new UUIDSupplier(uuid), result, false);
-		
 		if (sendUpdate) {
 			if (getWorld().isRemote)
 				sendActivationToServer(player, uuid, result);
 			else
 				sendActivationToClient(player, uuid, result);
 		}
+		
+		EntityAnimation animation = openDoor(player, new UUIDSupplier(uuid), result, false);
 		
 		return new DoorActivationResult(animation, result);
 	}

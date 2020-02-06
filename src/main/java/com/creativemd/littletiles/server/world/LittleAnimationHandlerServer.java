@@ -18,10 +18,6 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
 	@SubscribeEvent
 	public void tick(WorldTickEvent event) {
 		if (event.phase == Phase.END && world == event.world) {
-			openDoors.addAll(toBeAdded);
-			toBeAdded.clear();
-			
-			isTicking = true;
 			for (EntityAnimation door : openDoors) {
 				
 				if (door.world != world || door.world instanceof CreativeWorld)
@@ -37,8 +33,6 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
 				}
 				return false;
 			});
-			
-			isTicking = false;
 		}
 	}
 	
