@@ -557,10 +557,12 @@ public class LittleEventHandler {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private static List<RenderChunk> queuedRenderChunksUpdate = new ArrayList<>();
+	private static List<RenderChunk> queuedRenderChunksUpdate;
 	
 	@SideOnly(Side.CLIENT)
 	public static void queueChunkUpdate(RenderChunk chunk) {
+		if (queuedRenderChunksUpdate == null)
+			queuedRenderChunksUpdate = new ArrayList<>();
 		if (!queuedRenderChunksUpdate.contains(chunk))
 			queuedRenderChunksUpdate.add(chunk);
 	}
@@ -571,6 +573,8 @@ public class LittleEventHandler {
 		if (event.phase == Phase.END) {
 			Minecraft mc = Minecraft.getMinecraft();
 			
+			if (queuedRenderChunksUpdate == null)
+				queuedRenderChunksUpdate = new ArrayList<>();
 			if (!queuedRenderChunksUpdate.isEmpty()) {
 				for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
 					RenderChunk chunk = (RenderChunk) iterator.next();
