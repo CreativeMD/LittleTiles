@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.event;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -28,8 +29,8 @@ import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
+import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -37,8 +38,8 @@ import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -48,6 +49,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
@@ -554,11 +556,30 @@ public class LittleEventHandler {
 		}
 	}
 	
+	@SideOnly(Side.CLIENT)
+	private static List<RenderChunk> queuedRenderChunksUpdate = new ArrayList<>();
+	
+	@SideOnly(Side.CLIENT)
+	public static void queueChunkUpdate(RenderChunk chunk) {
+		if (!queuedRenderChunksUpdate.contains(chunk))
+			queuedRenderChunksUpdate.add(chunk);
+	}
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(ClientTickEvent event) {
 		if (event.phase == Phase.END) {
 			Minecraft mc = Minecraft.getMinecraft();
+			
+			if (!queuedRenderChunksUpdate.isEmpty()) {
+				for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
+					RenderChunk chunk = (RenderChunk) iterator.next();
+					if (!chunk.needsUpdate()) {
+						chunk.setNeedsUpdate(false);
+						iterator.remove();
+					}
+				}
+			}
 			
 			ItemModelCache.tick(mc.world);
 			

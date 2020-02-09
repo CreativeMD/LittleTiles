@@ -27,6 +27,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.block.BlockTile;
+import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.state.IBlockState;
@@ -35,6 +36,7 @@ import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
+import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator.Status;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.BlockRenderLayer;
@@ -412,26 +414,20 @@ public class RenderingThread extends Thread {
 	
 	public static void markRenderUpdate(RenderChunk chunk) {
 		try {
+			chunk.getLockCompileTask().lock();
+			
 			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
 			boolean updated = false;
-			chunk.getLockCompileTask().lock();
-			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() == ChunkCompileTaskGenerator.Status.UPLOADING || compileTask.getStatus() == ChunkCompileTaskGenerator.Status.COMPILING)) {
-				compileTask.addFinishRunnable(new Runnable() {
-					
-					@Override
-					public void run() {
-						chunk.setNeedsUpdate(false);
-					}
-				});
-				updated = true;
-			}
-			chunk.getLockCompileTask().unlock();
 			
-			if (!updated)
+			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == Status.UPLOADING)
+				LittleEventHandler.queueChunkUpdate(chunk);
+			else
 				chunk.setNeedsUpdate(false);
 			
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
+		} finally {
+			chunk.getLockCompileTask().unlock();
 		}
 	}
 	
