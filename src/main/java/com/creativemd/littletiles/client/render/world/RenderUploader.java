@@ -138,11 +138,10 @@ public class RenderUploader {
 	public static ByteBuffer glMapBufferRange(int target, long length, int access, ByteBuffer old_buffer) {
 		
 		try {
-			if (arbVboField.getBoolean(null)) {
+			if (arbVboField.getBoolean(null))
 				return ARBVertexBufferObject.glMapBufferARB(target, access, length, old_buffer);
-			} else {
+			else if (OpenGlHelper.useVbo())
 				return GL30.glMapBufferRange(target, 0, length, access, old_buffer);
-			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
