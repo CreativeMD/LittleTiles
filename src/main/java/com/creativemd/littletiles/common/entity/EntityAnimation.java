@@ -19,6 +19,7 @@ import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.VecUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
+import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -624,7 +625,12 @@ public class EntityAnimation extends Entity {
 		
 		handleForces();
 		
-		super.onUpdate();
+		if (world instanceof IOrientatedWorld) {
+			if (!world.isRemote)
+				setFlag(6, this.isGlowing());
+			onEntityUpdate();
+		} else
+			super.onUpdate();
 		
 		for (int i = 0; i < fakeWorld.loadedEntityList.size(); i++) {
 			Entity entity = fakeWorld.loadedEntityList.get(i);
