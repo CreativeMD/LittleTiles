@@ -31,7 +31,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	private static JsonParser parser = new JsonParser();
 	
 	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure) {
-		LittleStructureRegistry.registerStructureType(id, "premade", classStructure, LittleStructureAttribute.PREMADE, null);
+		registerPremadeStructureType(id, modid, classStructure, LittleStructureAttribute.NONE);
+	}
+	
+	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
+		LittleStructureRegistry.registerStructureType(id, "premade", classStructure, LittleStructureAttribute.PREMADE | attribute, null);
 		try {
 			ItemStack stack = new ItemStack(LittleTiles.premade);
 			NBTTagCompound structureNBT = new NBTTagCompound();
