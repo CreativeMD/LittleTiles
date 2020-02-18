@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
@@ -28,7 +28,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemBlockIngredient extends Item implements ICreativeRendered, ILittleInventory {
+public class ItemBlockIngredient extends Item implements ICreativeRendered, ILittleIngredientInventory {
 	
 	public ItemBlockIngredient() {
 		hasSubtypes = true;

@@ -8,7 +8,7 @@ import com.creativemd.creativecore.common.gui.premade.SubContainerHeldItem;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.SlotControlBlockIngredient;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.item.ItemBag;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
@@ -92,9 +92,9 @@ public class SubContainerBag extends SubContainerHeldItem {
 					} else
 						bag = ((ItemBag) stack.getItem()).getInventory(stack);
 					
-				} else if (input.getItem() instanceof ILittleInventory) {
+				} else if (input.getItem() instanceof ILittleIngredientInventory) {
 					
-					ingredients = ((ILittleInventory) input.getItem()).getInventory(input);
+					ingredients = ((ILittleIngredientInventory) input.getItem()).getInventory(input);
 					
 					boolean containsBlocks = ingredients.contains(BlockIngredient.class);
 					boolean containsColor = ingredients.contains(ColorIngredient.class);
@@ -117,7 +117,7 @@ public class SubContainerBag extends SubContainerHeldItem {
 						}
 					}
 					
-					((ILittleInventory) input.getItem()).setInventory(input, remaining, null);
+					((ILittleIngredientInventory) input.getItem()).setInventory(input, remaining, null);
 				}
 			}
 			

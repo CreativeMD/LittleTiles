@@ -20,7 +20,7 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.tool.LittleActionGlowstone;
 import com.creativemd.littletiles.common.api.IBoxSelector;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -469,8 +469,8 @@ public class LittleEventHandler {
 		EntityItem entityItem = event.getItem();
 		ItemStack stack = entityItem.getItem();
 		
-		if (stack.getItem() instanceof ILittleInventory && ((ILittleInventory) stack.getItem()).shouldBeMerged()) {
-			LittleIngredients ingredients = ((ILittleInventory) stack.getItem()).getInventory(stack);
+		if (stack.getItem() instanceof ILittleIngredientInventory && ((ILittleIngredientInventory) stack.getItem()).shouldBeMerged()) {
+			LittleIngredients ingredients = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
 			LittleInventory inventory = new LittleInventory(player);
 			inventory.allowDrop = false;
 			

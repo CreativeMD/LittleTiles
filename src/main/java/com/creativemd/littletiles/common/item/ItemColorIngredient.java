@@ -5,7 +5,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
@@ -20,7 +20,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class ItemColorIngredient extends Item implements ILittleInventory {
+public class ItemColorIngredient extends Item implements ILittleIngredientInventory {
 	
 	public static int states = 6;
 	

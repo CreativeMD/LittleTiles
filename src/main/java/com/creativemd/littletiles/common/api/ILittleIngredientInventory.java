@@ -8,7 +8,7 @@ import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import net.minecraft.item.ItemStack;
 
 /** must be implemented by an item * */
-public interface ILittleInventory {
+public interface ILittleIngredientInventory {
 	
 	public default boolean shouldBeMerged() {
 		return false;

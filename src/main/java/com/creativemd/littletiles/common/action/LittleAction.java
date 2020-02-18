@@ -14,7 +14,7 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.LittleTilesClient;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -764,7 +764,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		List<ItemStack> inventories = new ArrayList<>();
 		for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 			ItemStack stack = player.inventory.getStackInSlot(i);
-			if (stack.getItem() instanceof ILittleInventory)
+			if (stack.getItem() instanceof ILittleIngredientInventory)
 				inventories.add(stack);
 		}
 		return inventories;

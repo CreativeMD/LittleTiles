@@ -9,7 +9,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.api.ILittleInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
@@ -46,7 +46,7 @@ public class LittleSubGuiUtils {
 			
 			BlockIngredient ingredients = new BlockIngredient();
 			for (ItemStack stack : LittleAction.getInventories(player)) {
-				LittleIngredients inventory = ((ILittleInventory) stack.getItem()).getInventory(stack);
+				LittleIngredients inventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
 				if (inventory != null)
 					ingredients.add(inventory.get(BlockIngredient.class));
 			}
