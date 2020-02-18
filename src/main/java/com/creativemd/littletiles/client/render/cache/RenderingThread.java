@@ -419,7 +419,7 @@ public class RenderingThread extends Thread {
 			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
 			boolean updated = false;
 			
-			if (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() == Status.UPLOADING)
+			if (chunk.needsUpdate() || (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() != Status.DONE))
 				LittleEventHandler.queueChunkUpdate(chunk);
 			else
 				chunk.setNeedsUpdate(false);

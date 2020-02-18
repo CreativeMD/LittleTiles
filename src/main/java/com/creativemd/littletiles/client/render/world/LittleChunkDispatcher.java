@@ -55,9 +55,8 @@ public class LittleChunkDispatcher {
 	private static Minecraft mc = Minecraft.getMinecraft();
 	
 	public static void addTileEntity(List<TileEntityLittleTiles> tiles, TileEntity te) {
-		if (te instanceof TileEntityLittleTiles) {
+		if (te instanceof TileEntityLittleTiles)
 			tiles.add((TileEntityLittleTiles) te);
-		}
 	}
 	
 	public static void onDoneRendering(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
