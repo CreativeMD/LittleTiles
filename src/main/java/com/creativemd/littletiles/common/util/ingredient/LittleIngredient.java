@@ -29,27 +29,30 @@ import net.minecraftforge.oredict.DyeUtils;
 
 public abstract class LittleIngredient<T extends LittleIngredient> extends LittleIngredientBase<T> {
 	
-	private static HashMap<Class<? extends LittleIngredient>, Integer> types = new HashMap<>();
-	private static HashMap<Integer, Class<? extends LittleIngredient>> typesInv = new HashMap<>();
-	private static HashMap<Class<? extends LittleIngredient>, IngredientOverflowHandler> typesOverflowHandler = new HashMap<>();
-	private static List<IngredientConvertionHandler> typesConverationHandler = new ArrayList<>();
-	private static int index = 0;
+	private static HashMap<Class<? extends LittleIngredient>, Integer> typesInv = new HashMap<>();
+	private static List<Class<? extends LittleIngredient>> types = new ArrayList<>();
+	private static List<IngredientOverflowHandler> overflowHandlers = new ArrayList<>();
+	private static List<IngredientConvertionHandler> converationHandlers = new ArrayList<>();
 	
 	public static int indexOf(LittleIngredient ingredient) {
 		return indexOf(ingredient.getClass());
 	}
 	
 	public static int indexOf(Class<? extends LittleIngredient> type) {
-		return types.get(type);
+		return typesInv.get(type);
 	}
 	
 	public static List<ItemStack> handleOverflow(LittleIngredient ingredient) throws NotEnoughSpaceException {
-		return typesOverflowHandler.get(ingredient.getClass()).handleOverflow(ingredient);
+		return overflowHandlers.get(indexOf(ingredient)).handleOverflow(ingredient);
+	}
+	
+	public static int typeCount() {
+		return types.size();
 	}
 	
 	static void extract(LittleIngredients ingredients, LittlePreviews previews, boolean onlyStructure) {
 		if (!onlyStructure)
-			for (IngredientConvertionHandler handler : typesConverationHandler)
+			for (IngredientConvertionHandler handler : converationHandlers)
 				ingredients.add(handler.extract(previews));
 			
 		if (previews.hasStructure())
@@ -62,7 +65,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 	
 	public static LittleIngredients extract(LittlePreview preview, double volume) {
 		LittleIngredients ingredients = new LittleIngredients();
-		for (IngredientConvertionHandler handler : typesConverationHandler)
+		for (IngredientConvertionHandler handler : converationHandlers)
 			ingredients.add(handler.extract(preview, volume));
 		return ingredients;
 	}
@@ -86,35 +89,31 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		if (tile != null) {
 			if (useLTStructures && tile.hasLittlePreview(stack) && tile.containsIngredients(stack))
 				extract(ingredients, tile.getLittlePreview(stack), false);
-		} else {
-			for (IngredientConvertionHandler handler : typesConverationHandler)
+		} else
+			for (IngredientConvertionHandler handler : converationHandlers)
 				ingredients.add(handler.extract(stack));
 			
-		}
-		
 		if (ingredients.isEmpty())
 			return null;
 		return ingredients;
 	}
 	
-	public static int getSize() {
-		return index + 1;
-	}
-	
-	public static void registerConvationHandler(IngredientConvertionHandler converationHandler) {
-		typesConverationHandler.add(converationHandler);
+	public static boolean handleExtra(LittleIngredient ingredient, ItemStack stack, LittleIngredients overflow) {
+		IngredientConvertionHandler handler = converationHandlers.get(indexOf(ingredient));
+		if (handler.requiresExtraHandler() && handler.handleExtra(ingredient, stack, overflow))
+			return true;
+		return false;
 	}
 	
 	public static <T extends LittleIngredient> void registerType(Class<T> type, IngredientOverflowHandler<T> overflowHandler, IngredientConvertionHandler<T> converationHandler) {
-		if (types.containsKey(type))
+		if (typesInv.containsKey(type))
 			throw new RuntimeException("Duplicate found! " + types);
 		
-		types.put(type, index);
-		typesInv.put(index, type);
-		typesOverflowHandler.put(type, overflowHandler);
-		if (converationHandler != null)
-			registerConvationHandler(converationHandler);
-		index++;
+		typesInv.put(type, types.size());
+		types.add(type);
+		
+		overflowHandlers.add(overflowHandler);
+		converationHandlers.add(converationHandler);
 	}
 	
 	static {
@@ -288,10 +287,31 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 			
 			@Override
 			public StackIngredient extract(ItemStack stack) {
-				StackIngredient ingredient = new StackIngredient();
-				ingredient.add(new StackIngredientEntry(stack, 1));
-				return ingredient;
+				return null;
 			}
+			
+			@Override
+			public boolean requiresExtraHandler() {
+				return true;
+			}
+			
+			@Override
+			public boolean handleExtra(StackIngredient ingredient, ItemStack stack, LittleIngredients overflow) {
+				StackIngredient stackIngredients = new StackIngredient();
+				stackIngredients.add(new StackIngredientEntry(stack, 1));
+				int amount = ingredient.getMinimumCount(stackIngredients, stack.getCount());
+				if (amount > -1) {
+					stackIngredients.scale(amount);
+					overflow.add(ingredient.sub(stackIngredients));
+					stack.shrink(amount);
+					
+					if (ingredient.isEmpty())
+						return true;
+				}
+				
+				return false;
+			}
+			
 		});
 	}
 	
@@ -335,6 +355,14 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 		public abstract T extract(LittlePreviews previews);
 		
 		public abstract T extract(LittlePreview preview, double volume);
+		
+		public boolean requiresExtraHandler() {
+			return false;
+		}
+		
+		public boolean handleExtra(T ingredient, ItemStack stack, LittleIngredients overflow) {
+			return false;
+		}
 		
 	}
 	

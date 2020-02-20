@@ -7,6 +7,7 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
+import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,9 +17,12 @@ import net.minecraft.item.ItemStack;
 
 public class LittleInventory implements Iterable<ItemStack> {
 	
-	private boolean simulate;
 	protected EntityPlayer player;
 	protected IInventory inventory;
+	
+	private boolean simulate;
+	
+	protected List<LittleSubInventory> subInventories;
 	protected List<LittleIngredients> inventories;
 	protected List<Integer> inventoriesId;
 	protected List<ItemStack> cachedInventory;
@@ -38,12 +42,15 @@ public class LittleInventory implements Iterable<ItemStack> {
 		this.inventory = inventory;
 		this.inventories = new ArrayList<>();
 		this.inventoriesId = new ArrayList<>();
-		reloadInventories();
+		this.subInventories = new ArrayList<>();
+		reloadInventories(false);
 	}
 	
-	public void reloadInventories() {
+	public void reloadInventories(boolean onlyIngredientInventories) {
 		inventories.clear();
 		inventoriesId.clear();
+		if (!onlyIngredientInventories)
+			subInventories.clear();
 		
 		for (int i = 0; i < size(); i++) {
 			ItemStack stack = get(i);
@@ -53,7 +60,8 @@ public class LittleInventory implements Iterable<ItemStack> {
 					inventories.add(ingredient);
 					inventoriesId.add(i);
 				}
-			}
+			} else if (!onlyIngredientInventories && stack.getItem() instanceof ILittleInventory)
+				subInventories.add(new LittleSubInventory(player, (ILittleInventory) stack.getItem(), stack));
 		}
 	}
 	
@@ -67,14 +75,14 @@ public class LittleInventory implements Iterable<ItemStack> {
 			cachedInventory.add(inventory.getStackInSlot(i).copy());
 		
 		simulate = true;
-		reloadInventories();
+		reloadInventories(false);
 	}
 	
 	public void stopSimulation() {
 		simulate = false;
 		cachedInventory = null;
 		
-		reloadInventories();
+		reloadInventories(false);
 	}
 	
 	public boolean addStack(ItemStack stack) {
@@ -84,7 +92,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public boolean addStack(ItemStack stack, boolean onlyMerge) {
 		for (int i = 0; i < size(); i++) {
 			ItemStack inventoryStack = get(i);
-			if (InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
+			if (!(inventoryStack.getItem() instanceof ILittleIngredientInventory) && !(inventoryStack.getItem() instanceof ILittleInventory) && InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
 				int amount = Math.min(stack.getMaxStackSize() - inventoryStack.getCount(), stack.getCount());
 				if (amount > 0) {
 					ItemStack newStack = stack.copy();
@@ -98,6 +106,11 @@ public class LittleInventory implements Iterable<ItemStack> {
 			}
 		}
 		
+		for (int i = 0; i < subInventories.size(); i++)
+			if (subInventories.get(i).canBeFilled())
+				if (subInventories.get(i).addStack(stack, true))
+					return true;
+				
 		if (onlyMerge)
 			return false;
 		
@@ -107,6 +120,12 @@ public class LittleInventory implements Iterable<ItemStack> {
 				return true;
 			}
 		}
+		
+		for (int i = 0; i < subInventories.size(); i++)
+			if (subInventories.get(i).canBeFilled())
+				if (subInventories.get(i).addStack(stack, false))
+					return true;
+				
 		return false;
 	}
 	
@@ -168,13 +187,57 @@ public class LittleInventory implements Iterable<ItemStack> {
 		};
 	}
 	
-	protected LittleIngredient take(LittleIngredient ingredient) throws NotEnoughIngredientsException {
+	protected LittleIngredient take(LittleIngredient ingredient) {
 		for (LittleIngredients ingredients : inventories) {
 			ingredient = ingredients.sub(ingredient);
 			if (ingredient == null)
 				return null;
 		}
+		
+		for (int i = 0; i < subInventories.size(); i++) {
+			ingredient = subInventories.get(i).take(ingredient);
+			if (ingredient == null)
+				return null;
+		}
+		
 		return ingredient;
+	}
+	
+	protected boolean takeFromStacks(LittleIngredients ingredients, LittleIngredients overflow) {
+		for (int i = 0; i < size(); i++) {
+			ItemStack stack = get(i);
+			
+			if (stack.isEmpty())
+				continue;
+			
+			LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(stack, false);
+			if (stackIngredients != null) {
+				
+				int amount = ingredients.getMinimumCount(stackIngredients, stack.getCount());
+				if (amount > -1) {
+					stackIngredients.scale(amount);
+					overflow.add(ingredients.sub(stackIngredients));
+					stack.shrink(amount);
+					continue;
+				}
+			}
+			
+			LittleIngredient[] content = ingredients.getContent();
+			for (int j = 0; j < content.length; j++)
+				if (content[j] != null)
+					if (LittleIngredient.handleExtra(content[j], stack, overflow))
+						content[j] = null;
+					
+			if (ingredients.isEmpty())
+				return true;
+			
+		}
+		
+		for (int i = 0; i < subInventories.size(); i++)
+			if (subInventories.get(i).takeFromStacks(ingredients, overflow))
+				return true;
+			
+		return ingredients.isEmpty();
 	}
 	
 	public void take(LittleIngredients ingredients) throws NotEnoughIngredientsException {
@@ -184,21 +247,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 			
 		if (!ingredients.isEmpty()) { // Try to drain remaining ingredients from inventory
 			LittleIngredients overflow = new LittleIngredients();
-			for (int i = 0; i < size(); i++) {
-				ItemStack stack = get(i);
-				LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(stack, false);
-				if (stackIngredients == null)
-					continue;
-				
-				int amount = ingredients.getMinimumCount(stackIngredients, stack.getCount());
-				if (amount > -1) {
-					stackIngredients.scale(amount);
-					overflow.add(ingredients.sub(stackIngredients));
-					stack.shrink(amount);
-					if (ingredients.isEmpty())
-						break;
-				}
-			}
+			takeFromStacks(ingredients, overflow);
 			
 			if (!ingredients.isEmpty())
 				throw new NotEnoughIngredientsException(ingredients);
@@ -217,12 +266,26 @@ public class LittleInventory implements Iterable<ItemStack> {
 		saveInventories();
 	}
 	
-	protected LittleIngredient give(LittleIngredient ingredient) throws NotEnoughSpaceException {
+	protected LittleIngredient tryGive(LittleIngredient ingredient) {
 		for (LittleIngredients ingredients : inventories) {
 			ingredient = ingredients.add(ingredient);
 			if (ingredient == null)
 				return null;
 		}
+		
+		for (int i = 0; i < subInventories.size(); i++) {
+			ingredient = subInventories.get(i).tryGive(ingredient);
+			if (ingredient == null)
+				return null;
+		}
+		
+		return ingredient;
+	}
+	
+	protected LittleIngredient give(LittleIngredient ingredient) throws NotEnoughSpaceException {
+		ingredient = tryGive(ingredient);
+		if (ingredient == null)
+			return null;
 		
 		try {
 			List<ItemStack> stacks = LittleIngredient.handleOverflow(ingredient);
@@ -253,7 +316,30 @@ public class LittleInventory implements Iterable<ItemStack> {
 			((ILittleIngredientInventory) stack.getItem()).setInventory(stack, inventories.get(i), this);
 		}
 		
-		reloadInventories();
+		for (int i = 0; i < subInventories.size(); i++)
+			subInventories.get(i).save();
+		
+		reloadInventories(true);
+	}
+	
+	public static class LittleSubInventory extends LittleInventory {
+		
+		public final ItemStack stack;
+		public final ILittleInventory stackInventory;
+		
+		public LittleSubInventory(EntityPlayer player, ILittleInventory stackInventory, ItemStack stack) {
+			super(player, stackInventory.getInventory(stack));
+			this.stack = stack;
+			this.stackInventory = stackInventory;
+		}
+		
+		public boolean canBeFilled() {
+			return stackInventory.canBeFilled(stack);
+		}
+		
+		public void save() {
+			stackInventory.setInventory(stack, inventory);
+		}
 	}
 	
 }

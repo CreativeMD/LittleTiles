@@ -10,7 +10,7 @@ import net.minecraft.item.ItemStack;
 
 public class LittleIngredients extends LittleIngredientBase<LittleIngredients> implements Iterable<LittleIngredient> {
 	
-	protected LittleIngredient[] content = new LittleIngredient[LittleIngredient.getSize()];
+	protected LittleIngredient[] content = new LittleIngredient[LittleIngredient.typeCount()];
 	
 	public LittleIngredients(LittleIngredient... ingredients) {
 		for (int i = 0; i < ingredients.length; i++) {

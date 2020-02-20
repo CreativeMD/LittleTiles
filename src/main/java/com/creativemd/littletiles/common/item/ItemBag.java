@@ -79,7 +79,14 @@ public class ItemBag extends Item implements IGuiCreator, ILittleIngredientInven
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		
-		LittleIngredients ingredients = new LittleIngredients();
+		LittleIngredients ingredients = new LittleIngredients() {
+			
+			@Override
+			protected boolean canAddNewIngredients() {
+				return false;
+			}
+			
+		};
 		BlockIngredient blocks = new BlockIngredient().setLimits(inventorySize, maxStackSize);
 		
 		NBTTagList list = stack.getTagCompound().getTagList("inv", 10);

@@ -67,34 +67,9 @@ public class SubContainerBag extends SubContainerHeldItem {
 				
 				ItemStack input = ((SlotControl) event.source).slot.getStack();
 				
-				LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
-				if (ingredients != null) {
-					ingredients.scale(input.getCount());
+				if (input.getItem() instanceof ILittleIngredientInventory) {
 					
-					boolean containsBlocks = ingredients.contains(BlockIngredient.class);
-					boolean containsColor = ingredients.contains(ColorIngredient.class);
-					
-					if (bag.add(ingredients) == null) {
-						
-						input.setCount(0);
-						((ItemBag) stack.getItem()).setInventory(stack, bag, null);
-						
-						if (containsBlocks) {
-							updateSlots();
-							player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
-						}
-						
-						if (containsColor) {
-							reloadControls();
-							player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
-						}
-						
-					} else
-						bag = ((ItemBag) stack.getItem()).getInventory(stack);
-					
-				} else if (input.getItem() instanceof ILittleIngredientInventory) {
-					
-					ingredients = ((ILittleIngredientInventory) input.getItem()).getInventory(input);
+					LittleIngredients ingredients = ((ILittleIngredientInventory) input.getItem()).getInventory(input);
 					
 					boolean containsBlocks = ingredients.contains(BlockIngredient.class);
 					boolean containsColor = ingredients.contains(ColorIngredient.class);
@@ -118,6 +93,33 @@ public class SubContainerBag extends SubContainerHeldItem {
 					}
 					
 					((ILittleIngredientInventory) input.getItem()).setInventory(input, remaining, null);
+				} else {
+					LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
+					if (ingredients != null) {
+						ingredients.scale(input.getCount());
+						
+						boolean containsBlocks = ingredients.contains(BlockIngredient.class);
+						boolean containsColor = ingredients.contains(ColorIngredient.class);
+						
+						if (bag.add(ingredients) == null) {
+							
+							input.setCount(0);
+							((ItemBag) stack.getItem()).setInventory(stack, bag, null);
+							
+							if (containsBlocks) {
+								updateSlots();
+								player.playSound(SoundEvents.ENTITY_ITEMFRAME_PLACE, 1.0F, 1.0F);
+							}
+							
+							if (containsColor) {
+								reloadControls();
+								player.playSound(SoundEvents.BLOCK_BREWING_STAND_BREW, 1.0F, 1.0F);
+							}
+							
+						} else
+							bag = ((ItemBag) stack.getItem()).getInventory(stack);
+						
+					}
 				}
 			}
 			
