@@ -7,22 +7,22 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
-import com.creativemd.littletiles.common.api.ILittleInventory;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public class LittleInventory implements Iterable<ItemStack> {
 	
 	protected EntityPlayer player;
-	protected IInventory inventory;
+	protected IItemHandler inventory;
 	
 	private boolean simulate;
 	
-	protected List<LittleSubInventory> subInventories;
+	protected List<LittleInventory> subInventories;
 	protected List<LittleIngredients> inventories;
 	protected List<Integer> inventoriesId;
 	protected List<ItemStack> cachedInventory;
@@ -30,14 +30,14 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public boolean allowDrop = true;
 	
 	public LittleInventory(EntityPlayer player) {
-		this(player, player.inventory);
+		this(player, player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null));
 	}
 	
-	public LittleInventory(IInventory inventory) {
+	public LittleInventory(IItemHandler inventory) {
 		this(null, inventory);
 	}
 	
-	public LittleInventory(EntityPlayer player, IInventory inventory) {
+	public LittleInventory(EntityPlayer player, IItemHandler inventory) {
 		this.player = player;
 		this.inventory = inventory;
 		this.inventories = new ArrayList<>();
@@ -60,8 +60,8 @@ public class LittleInventory implements Iterable<ItemStack> {
 					inventories.add(ingredient);
 					inventoriesId.add(i);
 				}
-			} else if (!onlyIngredientInventories && stack.getItem() instanceof ILittleInventory)
-				subInventories.add(new LittleSubInventory(player, (ILittleInventory) stack.getItem(), stack));
+			} else if (!onlyIngredientInventories && stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
+				subInventories.add(new LittleInventory(player, stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)));
 		}
 	}
 	
@@ -71,7 +71,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	
 	public void startSimulation() {
 		cachedInventory = new ArrayList<ItemStack>();
-		for (int i = 0; i < inventory.getSizeInventory(); i++)
+		for (int i = 0; i < inventory.getSlots(); i++)
 			cachedInventory.add(inventory.getStackInSlot(i).copy());
 		
 		simulate = true;
@@ -92,12 +92,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public boolean addStack(ItemStack stack, boolean onlyMerge) {
 		for (int i = 0; i < size(); i++) {
 			ItemStack inventoryStack = get(i);
-			if (!(inventoryStack.getItem() instanceof ILittleIngredientInventory) && !(inventoryStack.getItem() instanceof ILittleInventory) && InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
+			if (!(inventoryStack.getItem() instanceof ILittleIngredientInventory) && InventoryUtils.isItemStackEqual(inventoryStack, stack)) {
 				int amount = Math.min(stack.getMaxStackSize() - inventoryStack.getCount(), stack.getCount());
 				if (amount > 0) {
-					ItemStack newStack = stack.copy();
-					newStack.setCount(inventoryStack.getCount() + amount);
-					set(i, newStack);
+					inventoryStack.setCount(inventoryStack.getCount() + amount);
 					
 					stack.shrink(amount);
 					if (stack.isEmpty())
@@ -107,25 +105,23 @@ public class LittleInventory implements Iterable<ItemStack> {
 		}
 		
 		for (int i = 0; i < subInventories.size(); i++)
-			if (subInventories.get(i).canBeFilled())
-				if (subInventories.get(i).addStack(stack, true))
-					return true;
-				
+			if (subInventories.get(i).addStack(stack, true))
+				return true;
+			
 		if (onlyMerge)
 			return false;
 		
 		for (int i = 0; i < size(); i++) {
 			if (get(i).isEmpty()) {
-				set(i, stack);
+				inventory.insertItem(i, stack, false);
 				return true;
 			}
 		}
 		
 		for (int i = 0; i < subInventories.size(); i++)
-			if (subInventories.get(i).canBeFilled())
-				if (subInventories.get(i).addStack(stack, false))
-					return true;
-				
+			if (subInventories.get(i).addStack(stack, false))
+				return true;
+			
 		return false;
 	}
 	
@@ -149,13 +145,6 @@ public class LittleInventory implements Iterable<ItemStack> {
 		}
 	}
 	
-	public void set(int index, ItemStack stack) {
-		if (simulate)
-			cachedInventory.set(index, stack);
-		else
-			inventory.setInventorySlotContents(index, stack);
-	}
-	
 	public ItemStack get(int index) {
 		return simulate ? cachedInventory.get(index) : inventory.getStackInSlot(index);
 	}
@@ -163,7 +152,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 	public int size() {
 		if (inventory instanceof InventoryPlayer)
 			return 36;
-		return simulate ? cachedInventory.size() : inventory.getSizeInventory();
+		return simulate ? cachedInventory.size() : inventory.getSlots();
 	}
 	
 	@Override
@@ -176,7 +165,7 @@ public class LittleInventory implements Iterable<ItemStack> {
 			
 			@Override
 			public boolean hasNext() {
-				return index < inventory.getSizeInventory();
+				return index < inventory.getSlots();
 			}
 			
 			@Override
@@ -316,30 +305,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 			((ILittleIngredientInventory) stack.getItem()).setInventory(stack, inventories.get(i), this);
 		}
 		
-		for (int i = 0; i < subInventories.size(); i++)
-			subInventories.get(i).save();
+		//for (int i = 0; i < subInventories.size(); i++)
+		//subInventories.get(i).save();
 		
 		reloadInventories(true);
-	}
-	
-	public static class LittleSubInventory extends LittleInventory {
-		
-		public final ItemStack stack;
-		public final ILittleInventory stackInventory;
-		
-		public LittleSubInventory(EntityPlayer player, ILittleInventory stackInventory, ItemStack stack) {
-			super(player, stackInventory.getInventory(stack));
-			this.stack = stack;
-			this.stackInventory = stackInventory;
-		}
-		
-		public boolean canBeFilled() {
-			return stackInventory.canBeFilled(stack);
-		}
-		
-		public void save() {
-			stackInventory.setInventory(stack, inventory);
-		}
 	}
 	
 }

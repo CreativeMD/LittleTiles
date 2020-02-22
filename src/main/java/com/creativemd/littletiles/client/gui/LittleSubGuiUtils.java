@@ -20,6 +20,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.nbt.NBTTagString;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 
 public class LittleSubGuiUtils {
 	
@@ -40,15 +42,34 @@ public class LittleSubGuiUtils {
 			super(selector);
 		}
 		
+		protected void collect(IItemHandler inventory, BlockIngredient ingredients) {
+			for (int i = 0; i < inventory.getSlots(); i++) {
+				ItemStack stack = inventory.getStackInSlot(i);
+				if (stack.getItem() instanceof ILittleIngredientInventory) {
+					LittleIngredients ingredientsInventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
+					if (ingredientsInventory != null)
+						ingredients.add(ingredientsInventory.get(BlockIngredient.class));
+				} else if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
+					collect(stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), ingredients);
+				
+			}
+			
+		}
+		
 		@Override
 		public HashMapList<String, ItemStack> collect(EntityPlayer player) {
 			HashMapList<String, ItemStack> stacks = super.collect(player);
 			
 			BlockIngredient ingredients = new BlockIngredient();
-			for (ItemStack stack : LittleAction.getInventories(player)) {
-				LittleIngredients inventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
-				if (inventory != null)
-					ingredients.add(inventory.get(BlockIngredient.class));
+			for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+				ItemStack stack = player.inventory.getStackInSlot(i);
+				if (stack.getItem() instanceof ILittleIngredientInventory) {
+					LittleIngredients inventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
+					if (inventory != null)
+						ingredients.add(inventory.get(BlockIngredient.class));
+				} else if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
+					collect(stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), ingredients);
+				
 			}
 			
 			List<ItemStack> newStacks = new ArrayList<>();
