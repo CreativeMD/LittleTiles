@@ -11,6 +11,10 @@ item.LTColorTube.name=画笔
 item.LTUtilityKnife.name=工具刀
 item.LTGrabber.name=手套
 item.LTRecipeAdvanced.name=配方图纸（高级）
+item.LTColorBottleBlack.name=瓶子（黑色）
+item.LTColorBottleCyan.name=瓶子（青色）
+item.LTColorBottleMagenta.name=瓶子（洋红色）
+item.LTColorBottleYellow.name=瓶子（黄色）
 
 tile.LTParticleBlock.name=粒子效果块
 tile.LTColoredBlock.clean.name=染色方块（清澈）
@@ -153,8 +157,17 @@ gui.door.stayAnimated=保持动画
 gui.door.stayAnimatedTooltip=仅在必要时使用，它会影响你的FPS
 gui.door.children=子级
 gui.structure.hierarchy=层级
+gui.door.rightclick=允许右键单击
+gui.door.pick-sound=拾取声音
+gui.door.open=开启中...
+gui.door.close=关闭中...
+gui.sound.volume=音量
+gui.sound.pitch=音阶
+gui.structure.hierarchy=层级结构
+gui.color.rightclick=右键单击以清空
 
 animation.event.child.name=激活子级
+animation.event.sound-event.name=播放声音事件
 
 config.littletiles.invertStickToGrid=反转网格
 config.littletiles.maxSavedActions=已保存动作的最大数量
@@ -167,3 +180,4 @@ config.littletiles.previewLines=线预览
 config.littletiles.enableRandomDisplayTick=启用随机显示刻度
 config.littletiles.useQuadCache=启用 四级缓存
 config.littletiles.useCubeCache=启用 三级缓存
+config.littletiles.uploadToVBODirectly=直接上传到VBO
