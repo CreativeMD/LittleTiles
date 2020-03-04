@@ -55,7 +55,7 @@ public class LittleActionCombined extends LittleAction {
 		buf.writeInt(actions.length);
 		
 		for (int i = 0; i < actions.length; i++) {
-			writeString(buf, CreativeCorePacket.getIDByClass(actions[i]));
+			buf.writeInt(CreativeCorePacket.getId(actions[i]));
 			actions[i].writeBytes(buf);
 		}
 	}
@@ -65,8 +65,8 @@ public class LittleActionCombined extends LittleAction {
 		actions = new LittleAction[buf.readInt()];
 		for (int i = 0; i < actions.length; i++) {
 			
-			String id = readString(buf);
-			Class PacketClass = CreativeCorePacket.getClassByID(id);
+			int id = buf.readInt();
+			Class PacketClass = CreativeCorePacket.getClass(id);
 			LittleAction packet = null;
 			try {
 				packet = (LittleAction) PacketClass.getConstructor().newInstance();

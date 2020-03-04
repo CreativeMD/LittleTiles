@@ -202,9 +202,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes) {
-		for (int i = 0; i < classTypes.length; i++) {
-			CreativeCorePacket.registerPacket(classTypes[i], "ac" + id + i);
-		}
+		for (int i = 0; i < classTypes.length; i++)
+			CreativeCorePacket.registerPacket(classTypes[i]);
 	}
 	
 	public List<LittleAction> furtherActions = null;

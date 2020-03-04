@@ -471,21 +471,21 @@ public class LittleTiles {
 			}
 		});
 		
-		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "B");
-		CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class, "BS");
-		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "R");
-		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "F");
-		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "N");
-		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class, "LD");
-		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "ER");
-		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LB");
-		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TU");
-		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VB");
-		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "SM");
-		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
-		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class, "RA");
-		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class, "PA");
-		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class, "AM");
+		CreativeCorePacket.registerPacket(LittleBlockPacket.class);
+		CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleRotatePacket.class);
+		CreativeCorePacket.registerPacket(LittleFlipPacket.class);
+		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
+		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
+		CreativeCorePacket.registerPacket(LittleBedPacket.class);
+		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
+		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class);
+		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
+		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
+		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class);
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		

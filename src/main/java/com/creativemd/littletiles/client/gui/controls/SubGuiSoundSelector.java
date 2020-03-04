@@ -12,7 +12,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiComboBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
-import com.creativemd.creativecore.common.gui.mc.ContainerSub;
 import com.creativemd.creativecore.common.gui.premade.SubContainerEmpty;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
@@ -160,11 +159,9 @@ public class SubGuiSoundSelector extends SubGui {
 			SubGuiSoundSelector dialog = new SubGuiSoundSelector(this);
 			dialog.gui = getParent().getOrigin().gui;
 			PacketHandler.sendPacketToServer(new GuiLayerPacket(nbt, dialog.gui.getLayers().size() - 1, false));
-			dialog.gui.addLayer(dialog);
 			dialog.container = new SubContainerEmpty(getPlayer());
-			((ContainerSub) dialog.gui.inventorySlots).layers.add(dialog.container);
+			dialog.gui.addLayer(dialog);
 			dialog.onOpened();
-			dialog.gui.resize();
 		}
 	}
 	
