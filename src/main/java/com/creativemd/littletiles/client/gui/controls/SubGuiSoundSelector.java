@@ -112,12 +112,12 @@ public class SubGuiSoundSelector extends SubGui {
 	
 	public float getPitch() {
 		GuiAnalogeSlider pitch = (GuiAnalogeSlider) get("pitch");
-		return pitch.value;
+		return (float) pitch.value;
 	}
 	
 	public float getVolume() {
 		GuiAnalogeSlider volume = (GuiAnalogeSlider) get("volume");
-		return volume.value;
+		return (float) volume.value;
 	}
 	
 	public SoundEvent getSelected() {
