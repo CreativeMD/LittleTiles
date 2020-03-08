@@ -6,7 +6,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.block.BlockLTColored.EnumType;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -154,7 +153,7 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	
 	@Override
 	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && SpecialServerConfig.allowFlowingLava) {
+		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingLava) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
 				tile.setBlock(LittleTiles.coloredBlock, still.ordinal());

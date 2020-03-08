@@ -7,10 +7,11 @@ import java.util.function.Consumer;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
@@ -213,8 +214,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	
 	@Override
 	public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state, List<LittleBox> boxes, LittleGridContext context) throws LittleActionException {
-		if (ColorUtils.getAlpha(color) < SpecialServerConfig.getMinimumTransparency(player))
-			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
+		if (ColorUtils.getAlpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
+			throw new NotAllowedToPlaceColorException();
 		
 		TileEntity tileEntity = loadTe(player, world, pos, true);
 		

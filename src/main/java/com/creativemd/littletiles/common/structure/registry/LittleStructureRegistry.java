@@ -31,8 +31,8 @@ public class LittleStructureRegistry {
 	
 	private static PairList<String, PairList<String, Class<? extends LittleStructureGuiParser>>> craftables = new PairList<>();
 	
-	public static void registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
-		registerStructureType(id, new LittleStructureType(id, category, classStructure, attribute), parser);
+	public static LittleStructureType registerStructureType(String id, String category, Class<? extends LittleStructure> classStructure, int attribute, Class<? extends LittleStructureGuiParser> parser) {
+		return registerStructureType(id, new LittleStructureType(id, category, classStructure, attribute), parser);
 	}
 	
 	public static void registerGuiParser(String id, String category, Class<? extends LittleStructureGuiParser> parser) {
@@ -81,7 +81,7 @@ public class LittleStructureRegistry {
 		}
 	}
 	
-	private static void registerStructureType(String id, LittleStructureType entry, Class<? extends LittleStructureGuiParser> parser) {
+	public static LittleStructureType registerStructureType(String id, LittleStructureType entry, Class<? extends LittleStructureGuiParser> parser) {
 		if (structures.containsKey(id))
 			throw new RuntimeException("ID is already taken! id=" + id);
 		
@@ -90,6 +90,7 @@ public class LittleStructureRegistry {
 		
 		structures.put(id, entry);
 		structuresClass.put(entry.structureClass, entry);
+		return entry;
 	}
 	
 	public static String getStructureId(Class<? extends LittleStructure> classStructure) {

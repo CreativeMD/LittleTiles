@@ -6,9 +6,10 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToEditException;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
@@ -47,9 +48,9 @@ public abstract class LittleActionBoxes extends LittleAction {
 		boolean placed = false;
 		World world = player.world;
 		
-		if (SpecialServerConfig.isEditLimited(player)) {
-			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > SpecialServerConfig.maxEditBlocks)
-				throw new SpecialServerConfig.NotAllowedToEditException();
+		if (LittleTiles.CONFIG.isEditLimited(player)) {
+			if (boxes.getSurroundingBox().getPercentVolume(boxes.context) > LittleTiles.CONFIG.survival.maxEditBlocks)
+				throw new NotAllowedToEditException();
 		}
 		
 		HashMapList<BlockPos, LittleBox> boxesMap = boxes.split();

@@ -10,7 +10,6 @@ import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
 import com.creativemd.littletiles.common.item.ItemColorIngredient;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -226,7 +225,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 					
 					try {
 						ColorIngredient color = ColorIngredient.getColors(dyeColor.getInt(optional.get()));
-						color.scale(SpecialServerConfig.dyeVolume);
+						color.scale(LittleTiles.CONFIG.survival.dyeVolume);
 						return color;
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						

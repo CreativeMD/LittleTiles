@@ -33,7 +33,6 @@ import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionReplace;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
@@ -49,8 +48,8 @@ import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -478,7 +477,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					controls.add(new GuiSteppedSlider("sizeZ", 25, 50, 50, 10, size.z, 1, context.size));
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
-					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
+					controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
 					
 					GuiAvatarLabel label = new GuiAvatarLabel("", 110, 20, 0, null);
 					label.name = "avatar";
@@ -717,7 +716,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					LittlePreview preview = ItemLittleGrabber.SimpleMode.getPreview(stack);
 					
 					Color color = ColorUtils.IntToRGBA(preview.getColor());
-					controls.add(new GuiColorPicker("picker", 0, 70, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
+					controls.add(new GuiColorPicker("picker", 0, 70, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
 					
 					GuiStackSelectorAll selector = new GuiStackSelectorAll("preview", 0, 120, 112, getPlayer(), LittleSubGuiUtils.getCollector(getPlayer()), true);
 					selector.setSelectedForce(preview.getBlockStack());

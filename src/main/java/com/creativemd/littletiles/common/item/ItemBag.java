@@ -43,7 +43,7 @@ public class ItemBag extends Item implements IGuiCreator, ILittleIngredientInven
 	public static int inventoryHeight = 4;
 	public static int inventorySize = inventoryWidth * inventoryHeight;
 	public static int maxStackSize = 64;
-	public static int maxStackSizeOfTiles = maxStackSize * LittleGridContext.get().maxTilesPerBlock;
+	public static int maxStackSizeOfTiles;
 	
 	public ItemBag() {
 		setCreativeTab(LittleTiles.littleTab);

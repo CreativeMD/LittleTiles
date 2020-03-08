@@ -3,12 +3,12 @@ package com.creativemd.littletiles.common.action.block;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -86,7 +86,7 @@ public class LittleActionReplace extends LittleActionInteract {
 		replacedTiles = new LittleAbsolutePreviews(pos, te.getContext());
 		boxes = new LittleBoxes(pos, te.getContext());
 		
-		if (SpecialServerConfig.isTransparencyRestricted(player))
+		if (LittleTiles.CONFIG.isTransparencyRestricted(player))
 			isAllowedToPlacePreview(player, toReplace);
 		
 		if (BlockTile.selectEntireBlock(player, secondMode)) {

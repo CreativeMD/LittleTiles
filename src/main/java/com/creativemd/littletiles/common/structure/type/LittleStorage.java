@@ -15,7 +15,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.block.BlockStorageTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -121,7 +120,7 @@ public class LittleStorage extends LittleStructure {
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
 		for (int i = 0; i < previews.size(); i++) {
 			if (previews.get(i).getBlockName().equals(name))
-				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * SpecialServerConfig.storagePerPixel;
+				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
 		}
 		return (int) size;
 	}

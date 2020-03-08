@@ -13,7 +13,6 @@ import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRen
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -390,7 +389,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void randomDisplayTick(IBlockState stateIn, World worldIn, BlockPos pos, Random rand) {
-		if (LittleTilesConfig.rendering.enableRandomDisplayTick) {
+		if (LittleTiles.CONFIG.rendering.enableRandomDisplayTick) {
 			TileEntityLittleTiles te = loadTe(worldIn, pos);
 			if (te != null) {
 				for (LittleTile tile : te)

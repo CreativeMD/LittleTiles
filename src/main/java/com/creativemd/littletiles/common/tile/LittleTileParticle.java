@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -42,7 +42,7 @@ public class LittleTileParticle extends LittleTileTE {
 	
 	@Override
 	public List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
-		if (!LittleTilesConfig.rendering.hideParticleBlock)
+		if (!LittleTiles.CONFIG.rendering.hideParticleBlock)
 			return super.getInternalRenderingCubes(layer);
 		return new ArrayList<>();
 	}

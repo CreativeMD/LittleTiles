@@ -21,13 +21,13 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -309,7 +309,7 @@ public class EntityAnimation extends Entity {
 			return;
 		
 		CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, origin, origin);
-		if (SpecialServerConfig.enableAnimationCollision)
+		if (LittleTiles.CONFIG.general.enableAnimationCollision)
 			moveAndRotateAnimation(coordinator);
 		coordinator.move();
 	}
@@ -498,7 +498,7 @@ public class EntityAnimation extends Entity {
 				if (entity instanceof EntityPlayerMP)
 					WorldAnimationHandler.setPushedByDoor((EntityPlayerMP) entity);
 				
-				if (SpecialServerConfig.enableCollisionMotion) {
+				if (LittleTiles.CONFIG.general.enableCollisionMotion) {
 					entity.motionX += moveX;
 					entity.motionY += moveY;
 					entity.motionZ += moveZ;

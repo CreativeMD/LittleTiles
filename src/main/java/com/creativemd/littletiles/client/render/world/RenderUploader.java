@@ -9,7 +9,7 @@ import org.lwjgl.opengl.GL30;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.Minecraft;
@@ -38,7 +38,7 @@ public class RenderUploader {
 	private static Field formatField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "vertexFormat", "field_177363_b" });
 	
 	public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
-		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !LittleTilesConfig.rendering.uploadToVBODirectly)
+		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
 			return;
 		
 		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
