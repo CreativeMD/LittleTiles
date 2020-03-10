@@ -141,9 +141,8 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	}
 	
 	public void getPlacePreviews(List<PlacePreview> placePreviews, LittleBox overallBox, boolean fixed, LittleVec offset) {
-		for (LittlePreview preview : this) {
+		for (LittlePreview preview : this)
 			placePreviews.add(preview.getPlaceableTile(overallBox, fixed, offset, this));
-		}
 		
 		if (hasStructure()) {
 			for (PlacePreview placePreviewTile : getStructure().getSpecialTiles(this)) {
@@ -153,11 +152,10 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 			}
 		}
 		
-		if (hasChildren()) {
-			for (LittlePreviews child : getChildren()) {
+		if (hasChildren())
+			for (LittlePreviews child : getChildren())
 				child.getPlacePreviews(placePreviews, overallBox, fixed, offset);
-			}
-		}
+			
 	}
 	
 	public void movePreviews(LittleGridContext context, LittleVec offset) {
@@ -168,47 +166,45 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		
 		context = this.context;
 		
-		for (LittlePreview preview : previews) {
+		for (LittlePreview preview : previews)
 			preview.box.add(offset);
-		}
-		if (hasStructure()) {
+		
+		if (hasStructure())
 			getStructure().onMove(context, offset);
-		}
 		
 		if (hasChildren())
-			for (LittlePreviews child : children) {
+			for (LittlePreviews child : children)
 				child.movePreviews(context, offset);
-			}
 	}
 	
 	public void flipPreviews(Axis axis, LittleVec doubledCenter) {
-		for (LittlePreview preview : previews) {
+		for (LittlePreview preview : previews)
 			preview.flipPreview(axis, doubledCenter);
-		}
+		
 		if (hasStructure()) {
 			getStructure().onFlip(context, axis, doubledCenter);
 			getStructure().writeToNBT(getStructureData());
 		}
 		
 		if (hasChildren())
-			for (LittlePreviews child : children) {
+			for (LittlePreviews child : children)
 				child.flipPreviews(axis, doubledCenter);
-			}
+			
 	}
 	
 	public void rotatePreviews(Rotation rotation, LittleVec doubledCenter) {
-		for (LittlePreview preview : previews) {
+		for (LittlePreview preview : previews)
 			preview.rotatePreview(rotation, doubledCenter);
-		}
+		
 		if (hasStructure()) {
 			getStructure().onRotate(context, rotation, doubledCenter);
 			getStructure().writeToNBT(getStructureData());
 		}
 		
 		if (hasChildren())
-			for (LittlePreviews child : children) {
+			for (LittlePreviews child : children)
 				child.rotatePreviews(rotation, doubledCenter);
-			}
+			
 	}
 	
 	@Override
@@ -218,11 +214,10 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	@Override
 	public void convertTo(LittleGridContext to) {
-		if (context != to) {
-			for (LittlePreview preview : previews) {
+		if (context != to)
+			for (LittlePreview preview : previews)
 				preview.convertTo(this.context, to);
-			}
-		}
+			
 		if (hasChildren())
 			for (LittlePreviews child : getChildren())
 				child.convertTo(to);
@@ -257,24 +252,22 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	protected LittlePreview getPreview(LittleTile tile) {
 		LittlePreview preview = tile.getPreviewTile();
 		LittleGridContext context = tile.getContext();
-		if (this.context != context) {
+		if (this.context != context)
 			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
 			else
 				convertTo(context);
-		}
-		
+			
 		return preview;
 	}
 	
 	public LittlePreview addPreview(BlockPos pos, LittlePreview preview, LittleGridContext context) {
-		if (this.context != context) {
+		if (this.context != context)
 			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
 			else
 				convertTo(context);
-		}
-		
+			
 		previews.add(preview);
 		return preview;
 	}
@@ -296,18 +289,18 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		if (tiles.isEmpty())
 			return;
 		
-		for (LittleTile tile : tiles) {
+		for (LittleTile tile : tiles)
 			addTile(tile);
-		}
+		
 	}
 	
 	public void addTiles(TileEntityLittleTiles te) {
 		if (te.isEmpty())
 			return;
 		
-		for (LittleTile tile : te) {
+		for (LittleTile tile : te)
 			addTile(tile);
-		}
+		
 	}
 	
 	@Override
@@ -462,9 +455,9 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	public void combinePreviewBlocks() {
 		HashMapList<BlockPos, LittlePreview> chunked = new HashMapList<>();
-		for (int i = 0; i < previews.size(); i++) {
+		for (int i = 0; i < previews.size(); i++)
 			chunked.add(previews.get(i).box.getMinVec().getBlockPos(context), previews.get(i));
-		}
+		
 		previews.clear();
 		AdvancedCombiner<LittlePreview> combiner = new AdvancedCombiner(new ArrayList<>());
 		for (Iterator<ArrayList<LittlePreview>> iterator = chunked.values().iterator(); iterator.hasNext();) {
@@ -558,7 +551,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		min.x = context.toGrid(context.toBlockOffset(min.x));
 		min.y = context.toGrid(context.toBlockOffset(min.y));
 		min.z = context.toGrid(context.toBlockOffset(min.z));
-		for (LittlePreview preview : allPreviews())
-			preview.box.sub(min);
+		min.invert();
+		movePreviews(context, min);
 	}
 }
