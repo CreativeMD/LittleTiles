@@ -163,16 +163,33 @@ gui.sound.volume=Громкость
 gui.sound.pitch=Питч
 gui.structure.hierarchy=Иерархия
 
-animation.event.child.name=Activate Child
+animation.event.child.name=Активный потомок
 
-config.littletiles.invertStickToGrid=Invert stick to grid
-config.littletiles.maxSavedActions=Максимальное количество сохраненных действий
-config.littletiles.useALTForEverything=Использовать ALT для всего
-config.littletiles.useAltWhenFlying=Использовать ALT в полёте
-config.littletiles.hideParticleBlock=Скрыть блоки частиц
-config.littletiles.renderingThreadCount=Количество потоков рендеринга
-config.littletiles.highlightStructureBox=Выделять контуры структуры
-config.littletiles.previewLines=Line Preview
-config.littletiles.enableRandomDisplayTick=Enable Random Display Tick
-config.littletiles.useQuadCache=Использовать Quad-Cache
-config.littletiles.useCubeCache=Использовать Cube-Cache
+config.littletiles.building.invertStickToGrid.comment=Должны ли тайлы прилипать к ванильной сетке, когда второй режим включен или отключен.
+config.littletiles.building.maxSavedActions.comment=Количество действий, которые могут быть отменены.
+config.littletiles.building.useALTForEverything.comment=Второй режим будет активирован, если нажата клавиша «ALT» (по умолчанию: пригнувшись).
+config.littletiles.building.useAltWhenFlying.comment=Нажмите «ALT» во время полета, а не "пригнувшись", чтобы активировать второй режим.
+
+config.littletiles.rendering.hideParticleBlock.comment=Является ли блок частиц видимым или нет
+config.littletiles.rendering.renderingThreadCount.comment=Количество потоков для отрисовки блоков
+config.littletiles.rendering.highlightStructureBox.comment=Должен ли тайл структуры отображать свой собственный блок выбора или блок из всей структуры
+config.littletiles.rendering.previewLines.comment=При значении true линии будут использоваться для визуализации предварительного просмотра.
+config.littletiles.rendering.enableRandomDisplayTick.comment=При значении true песок, гравий и рудстоун будут порождать частицы (также поддерживает другие моды)
+config.littletiles.rendering.useQuadCache.comment=Значительно увеличивает использование оперативной памяти, но уменьшает время отрисовки. Эффективно только если useCubeCache в true (Требуется перезапуск мира)
+config.littletiles.rendering.useCubeCache.comment=Значительно увеличивает использование оперативной памяти, но уменьшает время отрисовки. (Требуется перезапуск мира)
+config.littletiles.rendering.uploadToVBODirectly.comment=Используется для сглаживания размещения дверей
+
+config.littletiles.general.allowFlowingWater.comment=Если отключено, ведро не может быть использовано для изменения потока воды.
+config.littletiles.general.allowFlowingLava.comment=Если отключено, ведро не может быть использовано для изменения потока лавы.
+config.littletiles.general.enableBed.comment=Должны ли игроки иметь возможность спать на кроватях LT или нет.
+config.littletiles.general.enableAnimationCollision.comment=Должны ли анимации подталкивать сущности (влияет на производительность)
+config.littletiles.general.enableCollisionMotion.comment=Движение применяется к сущности, когда её перемещает анимация
+
+config.littletiles.survival.strictMining.comment=Можете ли редактировать ванильный блок в выживании напрямую (молоток/ кисть).
+config.littletiles.survival.limitEditBlocksSurvival.comment=Должно ли быть ограничено количество игроков в выживании, которые могут уничтожить или нарисовать одновременно.
+config.littletiles.survival.maxEditBlocks.comment=Влияет на диапазон только если включено ограничение редактирования / удаления.
+config.littletiles.survival.highestHarvestTierSurvival.comment=0: любой, 1: камень, 2: железо, 3: алмаз.
+config.littletiles.survival.editUnbreakable.comment=Можете ли редактировать неразрушимый блок (бедрок) в выживании.
+config.littletiles.survival.maxPlaceBlocks.comment=Only affects the range if place limitation is enabled.
+config.littletiles.survival.minimumTransparency.comment=Прозрачность будет включена, если минимум меньше 255.
+config.littletiles.survival.dyeVolume.comment=Сколько блоков можно покрасить одним красителем,\nпредполагая, что плитка имеет такой же цвет
