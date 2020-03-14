@@ -12,7 +12,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -230,7 +230,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos) {
-		if (LittleTilesConfig.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().load())
+		if (LittleTiles.CONFIG.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().load())
 			return connection.getStructureWithoutLoading().getSurroundingBox();
 		return box.getSelectionBox(getContext(), pos);
 	}

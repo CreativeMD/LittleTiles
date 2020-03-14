@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -79,7 +79,7 @@ public abstract class PlacementMode {
 	}
 	
 	public PreviewMode getPreviewMode() {
-		if (LittleTilesConfig.rendering.previewLines)
+		if (LittleTiles.CONFIG.rendering.previewLines)
 			return PreviewMode.LINES;
 		return mode;
 	}

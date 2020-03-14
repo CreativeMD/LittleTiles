@@ -9,7 +9,6 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
@@ -22,9 +21,9 @@ import com.creativemd.littletiles.common.tile.place.fixed.FixedHandler;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PreviewResult;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode.PreviewMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -59,13 +58,13 @@ public class PreviewRenderer {
 	public static boolean isCentered(EntityPlayer player, ILittleTile iTile) {
 		if (iTile.snapToGridByDefault())
 			return LittleAction.isUsingSecondMode(player) && marked == null;
-		return LittleTilesConfig.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
+		return LittleTiles.CONFIG.building.invertStickToGrid == LittleAction.isUsingSecondMode(player) || marked != null;
 	}
 	
 	public static boolean isFixed(EntityPlayer player, ILittleTile iTile) {
 		if (iTile.snapToGridByDefault())
 			return !LittleAction.isUsingSecondMode(player) && marked == null;
-		return LittleTilesConfig.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
+		return LittleTiles.CONFIG.building.invertStickToGrid != LittleAction.isUsingSecondMode(player) && marked == null;
 	}
 	
 	public static void handleUndoAndRedo(EntityPlayer player) {

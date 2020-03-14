@@ -29,11 +29,18 @@ public class PremadeRecipeFactory implements IRecipeFactory {
 		ShapedRecipes recipe = (ShapedRecipes) shapedCrafting.parse(context, json);
 		
 		JsonObject result = JsonUtils.getJsonObject(json, "result");
-		ItemStack stack = LittleStructurePremade.getPremadeStack(result.get("structure").getAsString());
-		if (stack == null)
-			throw new JsonSyntaxException("Unkown structure type '" + result.get("structure").getAsString() + "'!");
 		
-		return new ShapedRecipes(recipe.getGroup(), recipe.getRecipeWidth(), recipe.getRecipeWidth(), recipe.getIngredients(), stack);
+		return new ShapedRecipes(recipe.getGroup(), recipe.getRecipeWidth(), recipe.getRecipeHeight(), recipe.getIngredients(), null) {
+			
+			@Override
+			public ItemStack getRecipeOutput() {
+				ItemStack stack = LittleStructurePremade.tryGetPremadeStack(result.get("structure").getAsString());
+				if (stack == null)
+					throw new JsonSyntaxException("Unkown structure type '" + result.get("structure").getAsString() + "'!");
+				return stack;
+			}
+			
+		};
 	}
 	
 }

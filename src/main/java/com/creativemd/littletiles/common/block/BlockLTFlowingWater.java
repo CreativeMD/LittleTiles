@@ -6,7 +6,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.block.BlockLTTransparentColored.EnumType;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -150,7 +149,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	
 	@Override
 	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && SpecialServerConfig.allowFlowingWater) {
+		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
 				tile.setBlock(LittleTiles.transparentColoredBlock, still.ordinal());

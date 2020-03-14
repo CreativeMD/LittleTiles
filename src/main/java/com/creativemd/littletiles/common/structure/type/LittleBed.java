@@ -13,10 +13,10 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
@@ -244,7 +244,7 @@ public class LittleBed extends LittleStructure {
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!load() || !SpecialServerConfig.enableBed)
+		if (!load() || !LittleTiles.CONFIG.general.enableBed)
 			return false;
 		
 		if (world.isRemote) {

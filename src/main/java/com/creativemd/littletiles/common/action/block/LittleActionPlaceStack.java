@@ -9,12 +9,13 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceException;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
@@ -329,10 +330,10 @@ public class LittleActionPlaceStack extends LittleAction {
 	
 	public static LittlePlaceResult placeTiles(World world, EntityPlayer player, LittleGridContext context, List<PlacePreview> previews, LittleStructure structure, PlacementMode mode, BlockPos pos, ItemStack stack, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, @Nullable EnumFacing facing) throws LittleActionException {
 		if (player != null) {
-			if (SpecialServerConfig.isPlaceLimited(player) && getVolume(context, previews) > SpecialServerConfig.maxPlaceBlocks)
-				throw new SpecialServerConfig.NotAllowedToPlaceException();
+			if (LittleTiles.CONFIG.isPlaceLimited(player) && getVolume(context, previews) > LittleTiles.CONFIG.survival.maxPlaceBlocks)
+				throw new NotAllowedToPlaceException();
 			
-			if (SpecialServerConfig.isTransparencyRestricted(player))
+			if (LittleTiles.CONFIG.isTransparencyRestricted(player))
 				for (PlacePreview placePreview : previews)
 					isAllowedToPlacePreview(player, placePreview.preview);
 		}

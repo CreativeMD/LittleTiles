@@ -11,7 +11,7 @@ import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 
 import net.minecraft.nbt.NBTTagCompound;
 
-public final class LittleStructureType {
+public class LittleStructureType {
 	
 	public final String id;
 	public final String category;
@@ -91,5 +91,16 @@ public final class LittleStructureType {
 				throw new RuntimeException(e);
 			}
 		}
+	}
+	
+	public static class LittleStructureTypePremade extends LittleStructureType {
+		
+		public final String modid;
+		
+		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
+			super(id, category, structureClass, attribute);
+			this.modid = modid;
+		}
+		
 	}
 }

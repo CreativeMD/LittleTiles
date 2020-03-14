@@ -15,13 +15,13 @@ import com.creativemd.creativecore.common.gui.controls.gui.custom.GuiStackSelect
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceAbsolute;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
@@ -73,7 +73,7 @@ public class SubGuiScrewdriver extends SubGui {
 		Color color = new Color(255, 255, 255, 255);
 		controls.add(new GuiCheckBox("colorize", "Colorize", 5, 146, false));
 		
-		controls.add(new GuiColorPicker("picker", 5, 160, color, SpecialServerConfig.isTransparencyEnabled(getPlayer()), SpecialServerConfig.getMinimumTransparency(getPlayer())));
+		controls.add(new GuiColorPicker("picker", 5, 160, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
 		
 		controls.add(new GuiButton("undo", "undo", 150, 135, 40) {
 			

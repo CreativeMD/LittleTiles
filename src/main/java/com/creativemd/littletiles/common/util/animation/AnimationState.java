@@ -1,6 +1,6 @@
 package com.creativemd.littletiles.common.util.animation;
 
-import java.util.Set;
+import java.util.List;
 
 import javax.vecmath.Vector3d;
 
@@ -59,7 +59,7 @@ public class AnimationState {
 		values.clear();
 	}
 	
-	public Set<AnimationKey> keys() {
+	public List<AnimationKey> keys() {
 		return values.keys();
 	}
 	

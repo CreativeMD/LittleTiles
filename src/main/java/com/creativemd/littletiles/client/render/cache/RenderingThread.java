@@ -18,7 +18,7 @@ import com.creativemd.creativecore.common.utils.type.SingletonList;
 import com.creativemd.creativecore.common.world.IBlockAccessFake;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
@@ -130,7 +130,7 @@ public class RenderingThread extends Thread {
 	}
 	
 	static {
-		initThreads(LittleTilesConfig.rendering.renderingThreadCount);
+		initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
 	}
 	
 	public ConcurrentLinkedQueue<RenderingData> updateCoords = new ConcurrentLinkedQueue<>();
@@ -297,7 +297,7 @@ public class RenderingThread extends Thread {
 											if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders())
 												SVertexBuilder.popEntity(buffer);
 											
-											if (!LittleTilesConfig.rendering.useQuadCache)
+											if (!LittleTiles.CONFIG.rendering.useQuadCache)
 												cube.deleteQuadCache();
 										}
 										
@@ -314,7 +314,7 @@ public class RenderingThread extends Thread {
 								
 								layerBuffer.setFinishedDrawing();
 								
-								if (!LittleTilesConfig.rendering.useCubeCache)
+								if (!LittleTiles.CONFIG.rendering.useCubeCache)
 									cubeCache.clearCache();
 								if (!setRendered(data.te, data.chunk, data.subWorld, layerBuffer, true))
 									updateCoords.add(data);

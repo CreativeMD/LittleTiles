@@ -47,7 +47,7 @@ public class LittleSubGuiUtils {
 				ItemStack stack = inventory.getStackInSlot(i);
 				if (stack.getItem() instanceof ILittleIngredientInventory) {
 					LittleIngredients ingredientsInventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
-					if (ingredientsInventory != null)
+					if (ingredientsInventory != null && ingredientsInventory.contains(BlockIngredient.class))
 						ingredients.add(ingredientsInventory.get(BlockIngredient.class));
 				} else if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
 					collect(stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), ingredients);
@@ -65,7 +65,7 @@ public class LittleSubGuiUtils {
 				ItemStack stack = player.inventory.getStackInSlot(i);
 				if (stack.getItem() instanceof ILittleIngredientInventory) {
 					LittleIngredients inventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
-					if (inventory != null)
+					if (inventory != null && inventory.contains(BlockIngredient.class))
 						ingredients.add(inventory.get(BlockIngredient.class));
 				} else if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
 					collect(stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), ingredients);

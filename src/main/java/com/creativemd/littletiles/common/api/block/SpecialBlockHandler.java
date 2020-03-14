@@ -162,7 +162,7 @@ public class SpecialBlockHandler {
 				IBlockState state = BlockUtils.getState(preview.getBlock(), preview.getMeta());
 				Axis axis = logAxisToNormal(state.getValue(BlockLog.LOG_AXIS));
 				if (axis != null)
-					preview.getTileData().setInteger("meta", preview.getBlock().getMetaFromState(state.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.fromFacingAxis(RotationUtils.rotate(axis, rotation)))));
+					preview.getTileData().setString("block", preview.getBlockName() + ":" + preview.getBlock().getMetaFromState(state.withProperty(BlockLog.LOG_AXIS, BlockLog.EnumAxis.fromFacingAxis(RotationUtils.rotate(axis, rotation)))));
 			}
 			
 		});

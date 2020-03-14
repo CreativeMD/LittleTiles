@@ -12,11 +12,10 @@ import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.PlayerUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorException;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.block.BlockTile;
-import com.creativemd.littletiles.common.config.SpecialServerConfig;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.event.ActionEvent;
 import com.creativemd.littletiles.common.event.ActionEvent.ActionType;
@@ -87,9 +86,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	@SideOnly(Side.CLIENT)
 	public static boolean isUsingSecondMode(EntityPlayer player) {
-		if (LittleTilesConfig.building.useALTForEverything)
+		if (LittleTiles.CONFIG.building.useALTForEverything)
 			return GuiScreen.isAltKeyDown();
-		if (LittleTilesConfig.building.useAltWhenFlying)
+		if (LittleTiles.CONFIG.building.useAltWhenFlying)
 			return player.capabilities.isFlying ? GuiScreen.isAltKeyDown() : player.isSneaking();
 		return player.isSneaking();
 	}
@@ -107,8 +106,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		
 		index = 0;
 		
-		if (lastActions.size() == LittleTilesConfig.building.maxSavedActions)
-			lastActions.remove(LittleTilesConfig.building.maxSavedActions - 1);
+		if (lastActions.size() == LittleTiles.CONFIG.building.maxSavedActions)
+			lastActions.remove(LittleTiles.CONFIG.building.maxSavedActions - 1);
 		
 		lastActions.add(0, action);
 	}
@@ -202,9 +201,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	}
 	
 	public static void registerLittleAction(String id, Class<? extends LittleAction>... classTypes) {
-		for (int i = 0; i < classTypes.length; i++) {
-			CreativeCorePacket.registerPacket(classTypes[i], "ac" + id + i);
-		}
+		for (int i = 0; i < classTypes.length; i++)
+			CreativeCorePacket.registerPacket(classTypes[i]);
 	}
 	
 	public List<LittleAction> furtherActions = null;
@@ -308,11 +306,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static boolean canConvertBlock(EntityPlayer player, World world, BlockPos pos, IBlockState state) {
 		if (player.isCreative())
 			return true;
-		if (SpecialServerConfig.strictMining)
+		if (LittleTiles.CONFIG.survival.strictMining)
 			return false;
-		if (!SpecialServerConfig.editUnbreakable)
+		if (!LittleTiles.CONFIG.survival.editUnbreakable)
 			return state.getBlock().getBlockHardness(state, world, pos) > 0;
-		return SpecialServerConfig.canEditBlock(player, state, pos);
+		return LittleTiles.CONFIG.canEditBlock(player, state, pos);
 	}
 	
 	public static boolean canUseUndoOrRedo(EntityPlayer player) {
@@ -451,8 +449,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (preview == null)
 			return true;
 		
-		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < SpecialServerConfig.getMinimumTransparency(player))
-			throw new SpecialServerConfig.NotAllowedToPlaceColorException();
+		if (preview.hasColor() && ColorUtils.getAlpha(preview.getColor()) < LittleTiles.CONFIG.getMinimumTransparency(player))
+			throw new NotAllowedToPlaceColorException();
 		
 		return true;
 	}

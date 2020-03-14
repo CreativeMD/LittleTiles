@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.util.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.littletiles.LittleTilesConfig;
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tile.math.LittleUtils;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.google.common.math.IntMath;
@@ -130,7 +130,7 @@ public class LittleGridContext {
 	}
 	
 	public void set(NBTTagCompound nbt) {
-		if (!isDefault || LittleTilesConfig.core.forceToSaveDefaultSize)
+		if (!isDefault || LittleTiles.CONFIG.core.forceToSaveDefaultSize)
 			nbt.setInteger("grid", size);
 		else
 			nbt.removeTag("grid");

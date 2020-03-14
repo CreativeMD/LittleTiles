@@ -3,6 +3,8 @@ package com.creativemd.littletiles;
 import java.util.List;
 import java.util.UUID;
 
+import com.creativemd.creativecore.CreativeCore;
+import com.creativemd.creativecore.common.config.holder.CreativeConfigRegistry;
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.CustomGuiHandler;
@@ -53,7 +55,6 @@ import com.creativemd.littletiles.common.command.ExportCommand;
 import com.creativemd.littletiles.common.command.ImportCommand;
 import com.creativemd.littletiles.common.command.OpenCommand;
 import com.creativemd.littletiles.common.command.ToVanillaCommand;
-import com.creativemd.littletiles.common.config.IGCMLoader;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
@@ -111,7 +112,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendere
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -154,6 +154,8 @@ public class LittleTiles {
 	
 	public static final String modid = "littletiles";
 	public static final String version = "1.5.0";
+	
+	public static LittleTilesConfig CONFIG;
 	
 	public static CreativeTabs littleTab = new CreativeTabs("littletiles") {
 		
@@ -216,13 +218,18 @@ public class LittleTiles {
 	public void PreInit(FMLPreInitializationEvent event) {
 		event.getModMetadata().version = version;
 		
-		Configuration config = new Configuration(event.getSuggestedConfigurationFile());
-		config.load();
-		LittleGridContext.loadGrid(config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world."), config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!"), config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist."), config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.)."));
-		List<String> allowedPropertyNames = LittleTilesConfig.getConfigProperties();
-		for (String categoryName : config.getCategoryNames())
-			removeMissingProperties(categoryName, config.getCategory(categoryName), allowedPropertyNames);
-		config.save();
+		CreativeConfigRegistry.ROOT.registerValue(modid, CONFIG = new LittleTilesConfig());
+		
+		if (!CreativeCore.configHandler.modFileExist(modid, Side.SERVER) && event.getSuggestedConfigurationFile().exists()) {
+			Configuration config = new Configuration(event.getSuggestedConfigurationFile());
+			config.load();
+			CONFIG.core.minSize = config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world.");
+			CONFIG.core.defaultSize = config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!");
+			CONFIG.core.scale = config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist.");
+			CONFIG.core.exponent = config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).");
+			config.save();
+			CreativeCore.configHandler.save(modid, Side.SERVER);
+		}
 		proxy.loadSidePre();
 		
 		blockTileNoTicking = new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
@@ -471,21 +478,21 @@ public class LittleTiles {
 			}
 		});
 		
-		CreativeCorePacket.registerPacket(LittleBlockPacket.class, "B");
-		CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class, "BS");
-		CreativeCorePacket.registerPacket(LittleRotatePacket.class, "R");
-		CreativeCorePacket.registerPacket(LittleFlipPacket.class, "F");
-		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class, "N");
-		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class, "LD");
-		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class, "ER");
-		CreativeCorePacket.registerPacket(LittleBedPacket.class, "LB");
-		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class, "TU");
-		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class, "VB");
-		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class, "SM");
-		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class, "BU");
-		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class, "RA");
-		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class, "PA");
-		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class, "AM");
+		CreativeCorePacket.registerPacket(LittleBlockPacket.class);
+		CreativeCorePacket.registerPacket(LittleBlocksUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleRotatePacket.class);
+		CreativeCorePacket.registerPacket(LittleFlipPacket.class);
+		CreativeCorePacket.registerPacket(LittleNeighborUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
+		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
+		CreativeCorePacket.registerPacket(LittleBedPacket.class);
+		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
+		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class);
+		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
+		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
+		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
+		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class);
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		
@@ -515,9 +522,6 @@ public class LittleTiles {
 		proxy.loadSidePost();
 		
 		LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
-		
-		if (Loader.isModLoaded("igcm"))
-			IGCMLoader.initIGCM();
 		
 		if (Loader.isModLoaded("warpdrive"))
 			TileEntityLittleTilesTransformer.init();

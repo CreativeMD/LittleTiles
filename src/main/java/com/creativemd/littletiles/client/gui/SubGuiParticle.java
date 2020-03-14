@@ -89,16 +89,16 @@ public class SubGuiParticle extends SubGui {
 						nbt.setFloat("par3", color.getBlue() / 255F);
 						break;
 					case FIRST_COLOR:
-						nbt.setFloat("par1", ((GuiAnalogeSlider) get("color")).value);
+						nbt.setFloat("par1", (float) ((GuiAnalogeSlider) get("color")).value);
 						break;
 					case MOTION:
 					case MOTION_WITHOUT_Y:
-						nbt.setFloat("par1", ((GuiAnalogeSlider) get("par1")).value);
+						nbt.setFloat("par1", (float) ((GuiAnalogeSlider) get("par1")).value);
 						if (type.type == LittleParticleSettingType.MOTION_WITHOUT_Y)
 							nbt.setFloat("par2", 0);
 						else
-							nbt.setFloat("par2", ((GuiAnalogeSlider) get("par2")).value);
-						nbt.setFloat("par3", ((GuiAnalogeSlider) get("par3")).value);
+							nbt.setFloat("par2", (float) ((GuiAnalogeSlider) get("par2")).value);
+						nbt.setFloat("par3", (float) ((GuiAnalogeSlider) get("par3")).value);
 						break;
 					case MOTION_XY_OPTION:
 						if (((GuiCheckBox) get("spread")).value) {
@@ -110,7 +110,7 @@ public class SubGuiParticle extends SubGui {
 					case NONE:
 						break;
 					case SIZE:
-						nbt.setFloat("par1", 2 - ((GuiAnalogeSlider) get("size")).value);
+						nbt.setFloat("par1", (float) (2 - ((GuiAnalogeSlider) get("size")).value));
 						break;
 					default:
 						break;
@@ -122,7 +122,7 @@ public class SubGuiParticle extends SubGui {
 				
 				nbt.setBoolean("randomize", ((GuiCheckBox) get("randomize")).value);
 				
-				nbt.setFloat("age", ((GuiAnalogeSlider) get("age")).value);
+				nbt.setFloat("age", (float) ((GuiAnalogeSlider) get("age")).value);
 				
 				sendPacketToServer(nbt);
 			}

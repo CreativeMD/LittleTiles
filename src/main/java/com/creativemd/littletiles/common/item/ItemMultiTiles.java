@@ -41,7 +41,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class ItemMultiTiles extends Item implements ICreativeRendered, ILittleTile {
 	
 	public static PlacementMode currentMode = PlacementMode.getDefault();
-	public static LittleGridContext currentContext = LittleGridContext.get();
+	public static LittleGridContext currentContext;
 	
 	public ItemMultiTiles() {
 		hasSubtypes = true;
