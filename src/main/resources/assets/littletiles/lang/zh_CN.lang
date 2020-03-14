@@ -164,20 +164,38 @@ gui.door.close=关闭中...
 gui.sound.volume=音量
 gui.sound.pitch=音阶
 gui.structure.hierarchy=层级结构
-gui.color.rightclick=右键单击以清空
+gui.color.rightclick=右键单击提取
 
 animation.event.child.name=激活子级
 animation.event.sound-event.name=播放声音事件
 
-config.littletiles.invertStickToGrid=反转网格
-config.littletiles.maxSavedActions=已保存动作的最大数量
-config.littletiles.useALTForEverything=ALT键 在所有情况下可用
-config.littletiles.useAltWhenFlying=ALT键 在飞行时可用
-config.littletiles.hideParticleBlock=隐藏粒子方块
-config.littletiles.renderingThreadCount=渲染线程数
-config.littletiles.highlightStructureBox=高亮结构边界框
-config.littletiles.previewLines=线预览
-config.littletiles.enableRandomDisplayTick=启用随机显示刻度
-config.littletiles.useQuadCache=启用 四级缓存
-config.littletiles.useCubeCache=启用 三级缓存
-config.littletiles.uploadToVBODirectly=直接上传到VBO
+config.littletiles.building.invertStickToGrid.comment=启用或禁用第二种模式时，结构是否粘贴到mc网格
+config.littletiles.building.maxSavedActions.comment=最大可还原步数
+config.littletiles.building.useALTForEverything.comment=如果长按“ ALT ”（默认：潜行），则会激活第二种模式。
+config.littletiles.building.useAltWhenFlying.comment=当飞行而不是潜行时按“ ALT ”以激活第二种模式。
+
+config.littletiles.rendering.hideParticleBlock.comment=粒子块是否可见
+config.littletiles.rendering.renderingThreadCount.comment=渲染方块的线程数
+config.littletiles.rendering.highlightStructureBox.comment=是否为结构渲染其自己的选择框还是整体结构的选择框
+config.littletiles.rendering.previewLines.comment=设置为 true 时，将使用线条来渲染预览
+config.littletiles.rendering.enableRandomDisplayTick.comment=设置为 true sand, 砾石和红石矿石将生成粒子（也支持其他mod）
+config.littletiles.rendering.useQuadCache.comment=显着增加了RAM使用率，但减少了重新渲染时间。仅在useCubeCache为true时有效（需要重新启动世界）
+config.littletiles.rendering.useCubeCache.comment=显着增加了RAM使用率，但减少了重新渲染时间。 （需要重新启动世界）
+config.littletiles.rendering.uploadToVBODirectly.comment=用于平滑门的放置
+
+config.littletiles.general.allowFlowingWater.comment=如果禁用，则无法使用水桶来改变水流
+config.littletiles.general.allowFlowingLava.comment=如果禁用，则无法使用锹更改熔岩流
+config.littletiles.general.storagePerPixel.comment=默认网格中的每个像素为一个项目堆栈（堆栈大小为1）留出空间.\n64个像素加至一个插槽
+config.littletiles.general.enableBed.comment=是否应该允许玩家在LT床上睡觉。
+config.littletiles.general.enableAnimationCollision.comment=是否开启推动实体动画（对性能产生影响）
+config.littletiles.general.enableCollisionMotion.comment=通过动画移动实体时，将其应用于实体
+
+config.littletiles.survival.strictMining.comment=是否可以直接编辑生存中的MC方块（锤子/油漆刷）。
+config.littletiles.survival.limitEditBlocksSurvival.comment=在生存模式下，玩家可摧毁或油漆的次数
+config.littletiles.survival.maxEditBlocks.comment=如果启用了编辑/删除限制，则仅影响范围
+config.littletiles.survival.highestHarvestTierSurvival.comment=0: 任何, 1: 原石, 2: 铁, 3: 钻石
+config.littletiles.survival.editUnbreakable.comment=是否可在生存模式下编辑牢不可破的方块（基岩）
+config.littletiles.survival.limitPlaceBlocksSurvival.comment=生存模式下，玩家可以放置的数量上限
+config.littletiles.survival.maxPlaceBlocks.comment=如果启用了位置限制，则仅影响范围
+config.littletiles.survival.minimumTransparency.comment=如果最小值小于255，则将启用透明度
+config.littletiles.survival.dyeVolume.comment=可以用一种染料绘画多少块\假设一种方块具有完全相同的颜色
