@@ -38,7 +38,7 @@ public class RenderUploader {
 	private static Field formatField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "vertexFormat", "field_177363_b" });
 	
 	public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
-		if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
+		if ((FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions()) || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
 			return;
 		
 		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
