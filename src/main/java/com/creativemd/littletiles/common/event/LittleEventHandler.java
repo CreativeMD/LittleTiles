@@ -563,8 +563,10 @@ public class LittleEventHandler {
 	public static void queueChunkUpdate(RenderChunk chunk) {
 		if (queuedRenderChunksUpdate == null)
 			queuedRenderChunksUpdate = new ArrayList<>();
-		if (!queuedRenderChunksUpdate.contains(chunk))
-			queuedRenderChunksUpdate.add(chunk);
+		synchronized (queuedRenderChunksUpdate) {
+			if (!queuedRenderChunksUpdate.contains(chunk))
+				queuedRenderChunksUpdate.add(chunk);
+		}
 	}
 	
 	@SubscribeEvent
@@ -575,12 +577,14 @@ public class LittleEventHandler {
 			
 			if (queuedRenderChunksUpdate == null)
 				queuedRenderChunksUpdate = new ArrayList<>();
-			if (!queuedRenderChunksUpdate.isEmpty()) {
-				for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
-					RenderChunk chunk = (RenderChunk) iterator.next();
-					if (!chunk.needsUpdate()) {
-						chunk.setNeedsUpdate(false);
-						iterator.remove();
+			synchronized (queuedRenderChunksUpdate) {
+				if (!queuedRenderChunksUpdate.isEmpty()) {
+					for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
+						RenderChunk chunk = (RenderChunk) iterator.next();
+						if (!chunk.needsUpdate()) {
+							chunk.setNeedsUpdate(false);
+							iterator.remove();
+						}
 					}
 				}
 			}
