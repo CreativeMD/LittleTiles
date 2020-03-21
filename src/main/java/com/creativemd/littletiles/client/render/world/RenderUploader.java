@@ -40,112 +40,126 @@ public class RenderUploader {
 	public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
 		if ((FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions()) || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
 			return;
-		
-		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-			BlockRenderLayer layer = BlockRenderLayer.values()[i];
-			
-			int expanded = 0;
-			
-			for (TileEntityLittleTiles te : tiles) {
-				if (te.buffer == null)
-					continue;
+		try {
+			for (int i = 0; i < BlockRenderLayer.values().length; i++) {
+				BlockRenderLayer layer = BlockRenderLayer.values()[i];
 				
-				BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-				if (teBufferBuilder != null)
-					expanded += teBufferBuilder.getByteBuffer().limit();
-			}
-			
-			try {
-				ByteBuffer toUpload;
+				int expanded = 0;
 				
-				if (expanded > 0) {
-					CompiledChunk compiled = chunk.getCompiledChunk();
-					VertexBuffer uploadBuffer = chunk.getVertexBufferByLayer(i);
+				for (TileEntityLittleTiles te : tiles) {
+					if (te.buffer == null)
+						continue;
 					
-					if (uploadBuffer == null)
-						return;
+					BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
+					if (teBufferBuilder != null)
+						expanded += teBufferBuilder.getByteBuffer().limit();
+				}
+				
+				try {
+					ByteBuffer toUpload;
 					
-					if (layer == BlockRenderLayer.TRANSLUCENT) {
+					if (expanded > 0) {
+						CompiledChunk compiled = chunk.getCompiledChunk();
+						VertexBuffer uploadBuffer = chunk.getVertexBufferByLayer(i);
 						
-						boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
-						BufferBuilder builder = new BufferBuilder((empty ? 0 : compiled.getState().getRawBuffer().length * 4) + expanded);
+						if (uploadBuffer == null)
+							return;
 						
-						builder.begin(7, DefaultVertexFormats.BLOCK);
-						builder.setTranslation(-chunk.getPosition().getX(), -chunk.getPosition().getY(), -chunk.getPosition().getZ());
-						
-						if (!empty)
-							builder.setVertexState(compiled.getState());
-						
-						for (TileEntityLittleTiles te : tiles) {
-							if (te.buffer == null)
-								continue;
+						if (layer == BlockRenderLayer.TRANSLUCENT) {
 							
-							BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-							if (teBufferBuilder != null)
-								BufferBuilderUtils.addBuffer(builder, teBufferBuilder);
-						}
-						
-						Entity entity = mc.getRenderViewEntity();
-						float x = (float) entity.posX;
-						float y = (float) entity.posY + entity.getEyeHeight();
-						float z = (float) entity.posZ;
-						builder.sortVertexData(x, y, z);
-						compiled.setState(builder.getVertexState());
-						builder.finishDrawing();
-						
-						toUpload = builder.getByteBuffer();
-					} else {
-						VertexFormat format = (VertexFormat) formatField.get(uploadBuffer);
-						int uploadedVertexCount = vertexCountField.getInt(uploadBuffer);
-						
-						// Retrieve vanilla buffered data
-						uploadBuffer.bindBuffer();
-						boolean empty = compiled.isLayerEmpty(layer);
-						ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, uploadedVertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null);
-						uploadBuffer.unbindBuffer();
-						
-						toUpload = ByteBuffer.allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + expanded);
-						if (vanillaBuffer != null)
-							toUpload.put(vanillaBuffer);
-						
-						for (TileEntityLittleTiles te : tiles) {
-							if (te.buffer == null)
-								continue;
+							boolean empty = compiled.getState() == null || compiled.isLayerEmpty(BlockRenderLayer.TRANSLUCENT);
+							BufferBuilder builder = new BufferBuilder((empty ? 0 : compiled.getState().getRawBuffer().length * 4) + expanded);
 							
-							BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-							if (teBufferBuilder != null) {
-								ByteBuffer buffer = teBufferBuilder.getByteBuffer();
-								buffer.position(0);
-								toUpload.put(buffer);
+							builder.begin(7, DefaultVertexFormats.BLOCK);
+							builder.setTranslation(-chunk.getPosition().getX(), -chunk.getPosition().getY(), -chunk.getPosition().getZ());
+							
+							if (!empty)
+								builder.setVertexState(compiled.getState());
+							
+							for (TileEntityLittleTiles te : tiles) {
+								if (te.buffer == null)
+									continue;
+								
+								BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
+								if (teBufferBuilder != null)
+									BufferBuilderUtils.addBuffer(builder, teBufferBuilder);
+							}
+							
+							Entity entity = mc.getRenderViewEntity();
+							float x = (float) entity.posX;
+							float y = (float) entity.posY + entity.getEyeHeight();
+							float z = (float) entity.posZ;
+							builder.sortVertexData(x, y, z);
+							compiled.setState(builder.getVertexState());
+							builder.finishDrawing();
+							
+							toUpload = builder.getByteBuffer();
+						} else {
+							VertexFormat format = (VertexFormat) formatField.get(uploadBuffer);
+							int uploadedVertexCount = vertexCountField.getInt(uploadBuffer);
+							
+							// Retrieve vanilla buffered data
+							uploadBuffer.bindBuffer();
+							boolean empty = compiled.isLayerEmpty(layer);
+							ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, uploadedVertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null);
+							uploadBuffer.unbindBuffer();
+							
+							toUpload = ByteBuffer.allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + expanded);
+							if (vanillaBuffer != null)
+								toUpload.put(vanillaBuffer);
+							
+							for (TileEntityLittleTiles te : tiles) {
+								if (te.buffer == null)
+									continue;
+								
+								BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
+								if (teBufferBuilder != null) {
+									ByteBuffer buffer = teBufferBuilder.getByteBuffer();
+									buffer.position(0);
+									toUpload.put(buffer);
+								}
 							}
 						}
+						
+						uploadBuffer.deleteGlBuffers();
+						bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
+						toUpload.position(0);
+						uploadBuffer.bufferData(toUpload);
+						
 					}
-					
-					uploadBuffer.deleteGlBuffers();
-					bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
-					toUpload.position(0);
-					uploadBuffer.bufferData(toUpload);
-					
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					e.printStackTrace();
 				}
-			} catch (IllegalArgumentException | IllegalAccessException e) {
-				e.printStackTrace();
 			}
+		} catch (NotSupportedException e) {
+			
 		}
 	}
 	
 	private static Field arbVboField = ReflectionHelper.findField(OpenGlHelper.class, new String[] { "arbVbo", "field_176090_Y" });
 	
-	public static ByteBuffer glMapBufferRange(int target, long length, int access, ByteBuffer old_buffer) {
+	public static ByteBuffer glMapBufferRange(int target, long length, int access, ByteBuffer old_buffer) throws NotSupportedException {
 		
 		try {
 			if (arbVboField.getBoolean(null))
 				return ARBVertexBufferObject.glMapBufferARB(target, access, length, old_buffer);
 			else if (OpenGlHelper.useVbo())
 				return GL30.glMapBufferRange(target, 0, length, access, old_buffer);
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
+		} catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {
+			if (e instanceof IllegalStateException)
+				throw new NotSupportedException(e);
+			else
+				e.printStackTrace();
 		}
 		return null;
+	}
+	
+	public static class NotSupportedException extends Exception {
+		
+		public NotSupportedException(Exception e) {
+			super(e);
+		}
+		
 	}
 	
 }
