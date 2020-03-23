@@ -159,7 +159,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		if (children.isEmpty())
 			return doors;
 		for (Integer integer : children)
-			if (this.children.get(integer) instanceof LittleDoor)
+			if (this.children.size() > integer && this.children.get(integer) instanceof LittleDoor)
 				doors.add((LittleDoor) this.children.get(integer).getStructure(getWorld()));
 		return doors;
 	}
