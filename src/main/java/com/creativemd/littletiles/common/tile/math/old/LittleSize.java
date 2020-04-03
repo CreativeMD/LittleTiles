@@ -22,7 +22,7 @@ public class LittleSize {
 	
 	public static LittleVec loadSize(String name, NBTTagCompound nbt) {
 		LittleSize size = new LittleSize(name, nbt);
-		return new LittleVec(size.sizeX, size.sizeY, size.sizeY);
+		return new LittleVec(size.sizeX, size.sizeY, size.sizeZ);
 	}
 	
 	private LittleSize(String name, NBTTagCompound nbt) {
