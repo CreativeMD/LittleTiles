@@ -106,7 +106,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 					}
 				}
 				
-				if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored) || (tile.isConnectedToStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(te.getWorld()).load())))
+				if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored) || (tile.isChildOfStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(
+				    te.getWorld()).load())))
 					continue;
 				
 				if (!LittleTileColored.needsToBeRecolored(tile, color))

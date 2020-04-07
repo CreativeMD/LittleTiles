@@ -17,6 +17,7 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ServerTickEvent;
@@ -63,6 +64,11 @@ public class NeighborUpdateOrganizer {
 			
 			positions.clear();
 		}
+	}
+	
+	@SubscribeEvent
+	public void unload(WorldEvent.Unload event) {
+		positions.removeKey(event.getWorld());
 	}
 	
 }

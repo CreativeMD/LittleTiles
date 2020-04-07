@@ -171,7 +171,7 @@ public class LittleChunkDispatcher {
 				}
 				
 				buffer.getByteBuffer().position(0);
-				buffer.getByteBuffer().limit(buffer.getVertexFormat().getIntegerSize() * buffer.getVertexCount() * 4);
+				buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
 				
 				try {
 					added.setBoolean(buffer, true);

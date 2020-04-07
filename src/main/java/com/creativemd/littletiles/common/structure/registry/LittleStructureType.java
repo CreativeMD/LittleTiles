@@ -19,7 +19,7 @@ public class LittleStructureType {
 	public final int attribute;
 	public final List<StructureTypeRelative> relatives;
 	
-	LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+	public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
 		this.id = id;
 		this.category = category;
 		this.structureClass = structureClass;
@@ -93,14 +93,4 @@ public class LittleStructureType {
 		}
 	}
 	
-	public static class LittleStructureTypePremade extends LittleStructureType {
-		
-		public final String modid;
-		
-		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
-			super(id, category, structureClass, attribute);
-			this.modid = modid;
-		}
-		
-	}
 }

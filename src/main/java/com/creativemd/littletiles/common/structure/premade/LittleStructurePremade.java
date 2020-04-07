@@ -11,9 +11,10 @@ import org.apache.commons.io.IOUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable;
+import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable.LittleStructureTypeCable;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
@@ -30,7 +31,6 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	private static HashMap<String, LittleStructurePremadeEntry> structurePreviews = new HashMap<>();
-	
 	private static List<LittleStructureTypePremade> premadeStructures = new ArrayList<>();
 	
 	private static JsonParser parser = new JsonParser();
@@ -44,7 +44,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
 				ItemStack stack = new ItemStack(LittleTiles.premade);
 				NBTTagCompound structureNBT = new NBTTagCompound();
 				structureNBT.setString("id", type.id);
-				NBTTagCompound nbt = JsonToNBT.getTagFromJson(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
+				NBTTagCompound nbt = JsonToNBT.getTagFromJson(
+				    IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(
+				        "assets/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
 				nbt.setTag("structure", structureNBT);
 				stack.setTagCompound(nbt);
 				LittlePreviews previews = LittlePreview.getPreview(stack);
@@ -63,7 +65,13 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
-		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(id, new LittleStructureTypePremade(id, "premade", classStructure, LittleStructureAttribute.PREMADE | attribute, modid), null));
+		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(id,
+		    new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null));
+	}
+	
+	public static void registerPremadeStructureType(LittleStructureTypePremade type) {
+		premadeStructures.add(
+		    (LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(type.id, type, null));
 	}
 	
 	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id) {
@@ -104,7 +112,23 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
 		
-		registerPremadeStructureType("cable", LittleTiles.modid, LittleSignalCable.class, LittleStructureAttribute.EXTRA_COLLSION | LittleStructureAttribute.EXTRA_RENDERING);
+		registerPremadeStructureType(
+		    new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_COLLSION | LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
+		registerPremadeStructureType(
+		    new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_COLLSION | LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
+		registerPremadeStructureType(
+		    new LittleStructureTypeCable("single_cable16", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_COLLSION | LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+	}
+	
+	public static class LittleStructureTypePremade extends LittleStructureType {
+		
+		public final String modid;
+		
+		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
+			super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
+			this.modid = modid;
+		}
+		
 	}
 	
 	public static class LittleStructurePremadeEntry {
