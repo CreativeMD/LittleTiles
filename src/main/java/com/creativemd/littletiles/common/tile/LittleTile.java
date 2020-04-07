@@ -454,8 +454,8 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean isIdenticalToNBT(NBTTagCompound nbt) {
-		return getType() == LittleTileRegistry.getTypeFromNBT(nbt) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible") && Arrays.equals(box.getArray(),
-		        nbt.getIntArray("box")) && Block.REGISTRY.getNameForObject(block).toString().equals(nbt.getString("block")) && meta == nbt.getInteger("meta");
+		return getType() == LittleTileRegistry.getTypeFromNBT(nbt) && glowing == nbt.getBoolean("glowing") && invisible == nbt.getBoolean("invisible") && Arrays.equals(box.getArray(), nbt.getIntArray("box")) && Block.REGISTRY.getNameForObject(block).toString().equals(
+		        nbt.getString("block")) && meta == nbt.getInteger("meta");
 	}
 	
 	// ================Save & Loading================
@@ -595,13 +595,6 @@ public class LittleTile implements ICombinable {
 				}
 			}
 		}
-	}
-	
-	public void markForUpdate() {
-		if (!te.getWorld().isRemote)
-			te.updateBlock();
-		else
-			te.updateRender();
 	}
 	
 	// ================Placing================
