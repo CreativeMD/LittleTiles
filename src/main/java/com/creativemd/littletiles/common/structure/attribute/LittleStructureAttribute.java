@@ -10,13 +10,16 @@ public class LittleStructureAttribute {
 	public static final int NOCOLLISION = 0b00000000_00000000_00000000_00000010;
 	public static final int PREMADE = 0b00000000_00000000_00000000_00000100;
 	
-	// active types
+	// active types (notify main tile)
 	
 	public static final int EXTRA_COLLSION = 0b00000000_00000000_00000001_00000000;
 	public static final int EXTRA_RENDERING = 0b00000000_00000000_00000010_00000000;
 	public static final int TICKING = 0b00000000_00000000_00000100_00000000;
 	public static final int TICK_RENDERING = 0b00000000_00000000_00001000_00000000;
-	public static final int NEIGHBOR_LISTENER = 0b00000000_00000000_00010000_00000000;
+	
+	// active types (notify all tiles)
+	
+	public static final int NEIGHBOR_LISTENER = 0b00000000_00000001_00000000_00000000;
 	
 	public static boolean ladder(int attribute) {
 		return (attribute & LADDER) != 0;
@@ -51,7 +54,11 @@ public class LittleStructureAttribute {
 	}
 	
 	public static boolean active(int attribute) {
-		return (attribute >>> 8) > 0;
+		return (attribute & 0b00000000_00000000_11111111_00000000) != 0;
+	}
+	
+	public static boolean listener(int attribute) {
+		return (attribute & 0b00000000_11111111_00000000_00000000) != 0;
 	}
 	
 	public static int loadOld(int ordinal) {
