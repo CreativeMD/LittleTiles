@@ -20,6 +20,10 @@ public interface IBoxSelector {
 	
 	public LittleGridContext getContext(ItemStack stack);
 	
+	public default boolean sendTransformationUpdate() {
+		return true;
+	}
+	
 	public void onDeselect(World world, ItemStack stack, EntityPlayer player);
 	
 	public boolean hasCustomBox(World world, ItemStack stack, EntityPlayer player, IBlockState state, RayTraceResult result, LittleAbsoluteVec absoluteHit);

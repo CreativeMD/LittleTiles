@@ -244,8 +244,11 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	public LittlePreviews copy() {
 		LittlePreviews previews = new LittlePreviews(context);
-		previews.previews.addAll(this.previews);
-		previews.children.addAll(children);
+		for (LittlePreview preview : this.previews)
+			previews.previews.add(preview.copy());
+		
+		for (LittlePreviews child : this.children)
+			previews.children.add(child.copy());
 		return previews;
 	}
 	

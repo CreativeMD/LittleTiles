@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
@@ -27,6 +28,8 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -126,8 +129,7 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 					}
 				}
 			
-			if (closest != null && closest.isChildOfStructure() && closest.connection.getStructure(
-			        world) instanceof ISignalBase && ((ISignalBase) closest.connection.getStructureWithoutLoading()).compatible(this)) {
+			if (closest != null && closest.isChildOfStructure() && closest.connection.getStructure(world) instanceof ISignalBase && ((ISignalBase) closest.connection.getStructureWithoutLoading()).compatible(this)) {
 				box = box.createBoxFromFace(facing, minDistance);
 				
 				HashMapList<BlockPos, LittleBox> boxes = box.splitted();
@@ -403,6 +405,56 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 		public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
 			super(id, category, structureClass, attribute | LittleStructureAttribute.NEIGHBOR_LISTENER, modid);
 			this.bandwidth = bandwidth;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<LittleRenderingCube> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+			List<LittleRenderingCube> cubes = new ArrayList<>();
+			for (int i = 0; i < 6; i++) {
+				EnumFacing facing = EnumFacing.VALUES[i];
+				Axis axis = facing.getAxis();
+				TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
+				if (tileEntity instanceof TileEntityLittleTiles) {
+					for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
+						if (structure instanceof LittleSignalCable && ((LittleSignalCable) structure).getBandwidth() == bandwidth) {
+							LittleRenderingCube cube = new LittleRenderingCube(new CubeObject(structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
+							cube.setMin(axis, 0);
+							cube.setMax(axis, 1);
+							cubes.add(cube);
+						}
+					}
+					
+				}
+				
+			}
+			
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
+					if (structure instanceof LittleSignalCable && ((LittleSignalCable) structure).getBandwidth() == bandwidth) {
+						AxisAlignedBB box = structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ());
+						LittleRenderingCube cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+						cube.setMin(Axis.X, 0);
+						cube.setMax(Axis.X, 1);
+						cubes.add(cube);
+						
+						cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+						cube.setMin(Axis.Y, 0);
+						cube.setMax(Axis.Y, 1);
+						cubes.add(cube);
+						
+						cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+						cube.setMin(Axis.Z, 0);
+						cube.setMax(Axis.Z, 1);
+						cubes.add(cube);
+					}
+				}
+				
+			}
+			if (cubes.isEmpty())
+				return null;
+			return cubes;
 		}
 		
 	}

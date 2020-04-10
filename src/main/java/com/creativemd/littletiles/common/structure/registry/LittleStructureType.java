@@ -5,11 +5,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleStructureType {
 	
@@ -37,6 +43,11 @@ public class LittleStructureType {
 		} catch (Exception e) {
 			throw new RuntimeException("Invalid structure type " + id);
 		}
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public List<LittleRenderingCube> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+		return null;
 	}
 	
 	@Override

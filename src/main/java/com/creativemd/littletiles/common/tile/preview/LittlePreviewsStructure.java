@@ -59,8 +59,11 @@ public class LittlePreviewsStructure extends LittlePreviews {
 	@Override
 	public LittlePreviewsStructure copy() {
 		LittlePreviewsStructure previews = new LittlePreviewsStructure(nbt, context);
-		previews.previews.addAll(this.previews);
-		previews.children.addAll(children);
+		for (LittlePreview preview : this.previews)
+			previews.previews.add(preview.copy());
+		
+		for (LittlePreviews child : this.children)
+			previews.children.add(child.copy());
 		return previews;
 	}
 	

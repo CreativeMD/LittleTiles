@@ -2,13 +2,13 @@ package com.creativemd.littletiles.common.recipe;
 
 import java.util.Map;
 
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
+import com.creativemd.littletiles.LittleTiles;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.JsonUtils;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.crafting.CraftingHelper;
@@ -30,17 +30,16 @@ public class PremadeRecipeFactory implements IRecipeFactory {
 		
 		JsonObject result = JsonUtils.getJsonObject(json, "result");
 		
-		return new ShapedRecipes(recipe.getGroup(), recipe.getRecipeWidth(), recipe.getRecipeHeight(), recipe.getIngredients(), null) {
-			
-			@Override
-			public ItemStack getRecipeOutput() {
-				ItemStack stack = LittleStructurePremade.tryGetPremadeStack(result.get("structure").getAsString());
-				if (stack == null)
-					throw new JsonSyntaxException("Unkown structure type '" + result.get("structure").getAsString() + "'!");
-				return stack;
-			}
-			
-		};
+		ItemStack stack = new ItemStack(LittleTiles.premade);
+		NBTTagCompound nbt = new NBTTagCompound();
+		NBTTagCompound structureNBT = new NBTTagCompound();
+		if (!result.has("structure"))
+			throw new RuntimeException("Missing structure type");
+		structureNBT.setString("id", result.get("structure").getAsString());
+		nbt.setTag("structure", structureNBT);
+		stack.setTagCompound(nbt);
+		
+		return new ShapedRecipes(recipe.getGroup(), recipe.getRecipeWidth(), recipe.getRecipeHeight(), recipe.getIngredients(), stack);
 	}
 	
 }

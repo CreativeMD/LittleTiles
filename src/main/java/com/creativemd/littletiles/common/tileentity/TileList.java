@@ -62,6 +62,53 @@ public class TileList implements List<LittleTile> {
 		return activeStructures;
 	}
 	
+	public Iterable<LittleStructure> allStructures() {
+		return new Iterable<LittleStructure>() {
+			
+			@Override
+			public Iterator<LittleStructure> iterator() {
+				return new Iterator<LittleStructure>() {
+					
+					public Iterator<LittleTile> iterator = content.iterator();
+					public List<LittleStructure> usedStructures = new ArrayList<>();
+					public LittleStructure next;
+					
+					{
+						findNext();
+					}
+					
+					public void findNext() {
+						while (iterator.hasNext()) {
+							LittleTile tile = iterator.next();
+							if (tile.isChildOfStructure()) {
+								LittleStructure structure = tile.connection.getStructure(te.getWorld());
+								if (usedStructures.contains(structure))
+									continue;
+								usedStructures.add(structure);
+								next = structure;
+								return;
+							}
+						}
+						
+						next = null;
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+					
+					@Override
+					public LittleStructure next() {
+						LittleStructure toReturn = next;
+						findNext();
+						return toReturn;
+					}
+				};
+			}
+		};
+	}
+	
 	public Iterable<LittleStructure> structures(int attribute) {
 		return new Iterable<LittleStructure>() {
 			
