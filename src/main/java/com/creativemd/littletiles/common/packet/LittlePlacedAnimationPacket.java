@@ -76,7 +76,7 @@ public class LittlePlacedAnimationPacket extends CreativeCorePacket {
 				((LittleDoor) tile.connection.getStructureWithoutLoading()).waitingForApproval = false;
 		} catch (LittleActionException e) {
 			EntityAnimation animation = WorldAnimationHandler.findAnimation(true, previousAnimation);
-			if (animation != null)
+			if (animation != null && animation.controller != null)
 				animation.controller.onServerPlaces();
 			//else
 			//e.printStackTrace();
