@@ -2,18 +2,21 @@ package com.creativemd.littletiles.common.structure.premade;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable;
+import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable.LittleStructureTypeCable;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
@@ -22,6 +25,8 @@ import com.google.gson.JsonParser;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.JsonToNBT;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleStructurePremade extends LittleStructure {
 	
@@ -29,8 +34,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		super(type);
 	}
 	
-	private static HashMap<String, LittleStructurePremadeEntry> structurePreviews = new HashMap<>();
-	
+	private static LinkedHashMap<String, LittleStructurePremadeEntry> structurePreviews = new LinkedHashMap<>();
 	private static List<LittleStructureTypePremade> premadeStructures = new ArrayList<>();
 	
 	private static JsonParser parser = new JsonParser();
@@ -38,6 +42,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	public static void reloadPremadeStructures() {
 		
 		structurePreviews.clear();
+		ItemPremadeStructure.clearCache();
 		
 		for (LittleStructureTypePremade type : premadeStructures) {
 			try {
@@ -48,7 +53,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
 				nbt.setTag("structure", structureNBT);
 				stack.setTagCompound(nbt);
 				LittlePreviews previews = LittlePreview.getPreview(stack);
-				LittlePreview.savePreview(previews, stack);
+				
+				NBTTagCompound stackNBT = new NBTTagCompound();
+				stackNBT.setTag("structure", structureNBT);
+				stack.setTagCompound(stackNBT);
+				
 				structurePreviews.put(type.id, new LittleStructurePremadeEntry(previews, stack));
 				System.out.println("Loaded " + type.id + " model");
 			} catch (Exception e) {
@@ -63,7 +72,15 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
-		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(id, new LittleStructureTypePremade(id, "premade", classStructure, LittleStructureAttribute.PREMADE | attribute, modid), null));
+		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(id, new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null));
+	}
+	
+	public static void registerPremadeStructureType(LittleStructureTypePremade type) {
+		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(type.id, type, null));
+	}
+	
+	public static LittlePreviews getPreviews(String id) {
+		return getStructurePremadeEntry(id).previews;
 	}
 	
 	public static LittleStructurePremadeEntry getStructurePremadeEntry(String id) {
@@ -104,7 +121,25 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
 		registerPremadeStructureType("exporter", LittleTiles.modid, LittleExporter.class);
 		
-		registerPremadeStructureType("cable", LittleTiles.modid, LittleSignalCable.class, LittleStructureAttribute.EXTRA_COLLSION | LittleStructureAttribute.EXTRA_RENDERING);
+		registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
+		registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
+		registerPremadeStructureType(new LittleStructureTypeCable("single_cable16", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+	}
+	
+	public static class LittleStructureTypePremade extends LittleStructureType {
+		
+		public final String modid;
+		
+		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
+			super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
+			this.modid = modid;
+		}
+		
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> getRenderingCubes() {
+			return null;
+		}
+		
 	}
 	
 	public static class LittleStructurePremadeEntry {

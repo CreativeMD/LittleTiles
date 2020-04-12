@@ -7,12 +7,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
@@ -56,7 +58,7 @@ public class SurroundingBox {
 		map.clear();
 	}
 	
-	protected void convertTo(LittleGridContext to) {
+	public void convertTo(LittleGridContext to) {
 		if (count == 0) {
 			context = to;
 			return;
@@ -132,8 +134,15 @@ public class SurroundingBox {
 		count++;
 	}
 	
+	public LittleAbsoluteBox getAbsoluteBox() {
+		BlockPos pos = getMinPos();
+		return new LittleAbsoluteBox(pos, new LittleBox((int) (minX - context.toGrid(pos.getX())), (int) (minY - context.toGrid(pos.getY())), (int) (minZ - context.toGrid(
+		        pos.getZ())), (int) (maxX - context.toGrid(pos.getX())), (int) (maxY - context.toGrid(pos.getY())), (int) (maxZ - context.toGrid(pos.getZ()))), context);
+	}
+	
 	public AxisAlignedBB getSurroundingBox() {
-		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(
+		        maxZ));
 	}
 	
 	public LittleAbsoluteVec getHighestCenterPoint() {
@@ -256,6 +265,52 @@ public class SurroundingBox {
 	
 	public long getMaxZ() {
 		return maxZ;
+	}
+	
+	public long getMin(Axis axis) {
+		switch (axis) {
+		case X:
+			return minX;
+		case Y:
+			return minY;
+		case Z:
+			return minZ;
+		}
+		return 0;
+	}
+	
+	public long getMax(Axis axis) {
+		switch (axis) {
+		case X:
+			return maxX;
+		case Y:
+			return maxY;
+		case Z:
+			return maxZ;
+		}
+		return 0;
+	}
+	
+	public LittleVec getMinPosOffset() {
+		return new LittleVec((int) (minX - context.toBlockOffset(minX) * context.size), (int) (minY - context.toBlockOffset(minY) * context.size), (int) (minZ - context.toBlockOffset(
+		        minZ) * context.size));
+	}
+	
+	public LittleVec getMaxPosOffset() {
+		return new LittleVec((int) (maxX - context.toBlockOffset(maxX) * context.size), (int) (maxY - context.toBlockOffset(maxY) * context.size), (int) (maxZ - context.toBlockOffset(
+		        maxZ) * context.size));
+	}
+	
+	public LittleVec getSize() {
+		return new LittleVec((int) (maxX - minX), (int) (maxY - minY), (int) (maxZ - minZ));
+	}
+	
+	public BlockPos getMinPos() {
+		return new BlockPos(context.toBlockOffset(minX), context.toBlockOffset(minY), context.toBlockOffset(minZ));
+	}
+	
+	public BlockPos getMaxPos() {
+		return new BlockPos(context.toBlockOffset(maxX), context.toBlockOffset(maxY), context.toBlockOffset(maxZ));
 	}
 	
 	public LittleGridContext getContext() {

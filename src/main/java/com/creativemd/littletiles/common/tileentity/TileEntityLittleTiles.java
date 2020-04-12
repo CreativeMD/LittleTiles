@@ -1107,6 +1107,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			structure.tick();
 	}
 	
+	public Iterable<LittleStructure> allStructures() {
+		return tiles.allStructures();
+	}
+	
 	public Iterable<LittleStructure> structures(int attribute) {
 		return tiles.structures(attribute);
 	}

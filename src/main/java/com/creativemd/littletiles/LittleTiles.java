@@ -38,6 +38,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.action.tool.LittleActionSaw.LittleActionSawRevert;
 import com.creativemd.littletiles.common.api.IBoxSelector;
 import com.creativemd.littletiles.common.api.ILittleTile;
+import com.creativemd.littletiles.common.block.BlockCable;
 import com.creativemd.littletiles.common.block.BlockLTColored;
 import com.creativemd.littletiles.common.block.BlockLTColored2;
 import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
@@ -170,17 +171,29 @@ public class LittleTiles {
 	public static Block blockTileNoTickingRendered;
 	public static Block blockTileTickingRendered;
 	
-	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName("LTColoredBlock").setHardness(1.5F);
-	public static Block coloredBlock2 = new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2").setHardness(1.5F);
-	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
-	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
-	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
+	public static Block coloredBlock = new BlockLTColored().setRegistryName("LTColoredBlock").setUnlocalizedName(
+	    "LTColoredBlock").setHardness(1.5F);
+	public static Block coloredBlock2 = new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName(
+	    "LTColoredBlock2").setHardness(1.5F);
+	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName(
+	    "LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
+	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName(
+	    "LTStorageBlockTile").setHardness(1.5F);
+	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName(
+	    "LTParticleBlock").setHardness(1.5F);
 	
-	public static Block flowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.water).setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
-	public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.white_water).setRegistryName("LTWhiteFlowingWater").setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
+	public static Block flowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.water).setRegistryName(
+	    "LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
+	public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.white_water).setRegistryName(
+	    "LTWhiteFlowingWater").setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
 	
-	public static Block flowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.lava).setRegistryName("LTFlowingLava").setUnlocalizedName("LTFlowingLava").setHardness(0.3F);
-	public static Block whiteFlowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.white_lava).setRegistryName("LTWhiteFlowingLava").setUnlocalizedName("LTWhiteFlowingLava").setHardness(0.3F);
+	public static Block flowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.lava).setRegistryName(
+	    "LTFlowingLava").setUnlocalizedName("LTFlowingLava").setHardness(0.3F);
+	public static Block whiteFlowingLava = new BlockLTFlowingLava(BlockLTColored.EnumType.white_lava).setRegistryName(
+	    "LTWhiteFlowingLava").setUnlocalizedName("LTWhiteFlowingLava").setHardness(0.3F);
+	
+	public static Block singleCable = new BlockCable().setRegistryName("ltsinglecable").setUnlocalizedName(
+	    "ltsinglecable").setHardness(1.5F);
 	
 	public static Item hammer;
 	public static Item recipe;
@@ -220,13 +233,18 @@ public class LittleTiles {
 		
 		CreativeConfigRegistry.ROOT.registerValue(modid, CONFIG = new LittleTilesConfig());
 		
-		if (!CreativeCore.configHandler.modFileExist(modid, Side.SERVER) && event.getSuggestedConfigurationFile().exists()) {
+		if (!CreativeCore.configHandler.modFileExist(modid,
+		    Side.SERVER) && event.getSuggestedConfigurationFile().exists()) {
 			Configuration config = new Configuration(event.getSuggestedConfigurationFile());
 			config.load();
-			CONFIG.core.minSize = config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE, "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world.");
-			CONFIG.core.defaultSize = config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE, "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!");
-			CONFIG.core.scale = config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE, "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist.");
-			CONFIG.core.exponent = config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE, "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).");
+			CONFIG.core.minSize = config.getInt("minSize", "core", 1, 1, Integer.MAX_VALUE,
+			    "The minimum grid size possible. ATTENTION! This needs be equal for every client & server. Backup your world.");
+			CONFIG.core.defaultSize = config.getInt("defaultSize", "core", 16, 1, Integer.MAX_VALUE,
+			    "Needs to be part of the row. ATTENTION! This needs be equal for every client & server. Backup your world. This will make your tiles either shrink down or increase in size!");
+			CONFIG.core.scale = config.getInt("scale", "core", 6, 1, Integer.MAX_VALUE,
+			    "How many grids there are. ATTENTION! This needs be equal for every client & server. Make sure that it is enough for the defaultSize to exist.");
+			CONFIG.core.exponent = config.getInt("exponent", "core", 2, 1, Integer.MAX_VALUE,
+			    "minSize ^ (exponent * scale). ATTENTION! This needs be equal for every client & server. Default is two -> (1, 2, 4, 8, 16, 32 etc.).");
 			config.save();
 			CreativeCore.configHandler.save(modid, Side.SERVER);
 		}
@@ -234,12 +252,15 @@ public class LittleTiles {
 		
 		blockTileNoTicking = new BlockTile(Material.ROCK, false, false).setRegistryName("BlockLittleTiles");
 		blockTileTicking = new BlockTile(Material.ROCK, true, false).setRegistryName("BlockLittleTilesTicking");
-		blockTileNoTickingRendered = new BlockTile(Material.ROCK, false, true).setRegistryName("BlockLittleTilesRendered");
-		blockTileTickingRendered = new BlockTile(Material.ROCK, true, true).setRegistryName("BlockLittleTilesTickingRendered");
+		blockTileNoTickingRendered = new BlockTile(Material.ROCK, false, true).setRegistryName(
+		    "BlockLittleTilesRendered");
+		blockTileTickingRendered = new BlockTile(Material.ROCK, true, true).setRegistryName(
+		    "BlockLittleTilesTickingRendered");
 		
 		hammer = new ItemHammer().setUnlocalizedName("LTHammer").setRegistryName("hammer");
 		recipe = new ItemRecipe().setUnlocalizedName("LTRecipe").setRegistryName("recipe");
-		recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName("recipeadvanced");
+		recipeAdvanced = new ItemRecipeAdvanced().setUnlocalizedName("LTRecipeAdvanced").setRegistryName(
+		    "recipeadvanced");
 		multiTiles = new ItemMultiTiles().setUnlocalizedName("LTMultiTiles").setRegistryName("multiTiles");
 		saw = new ItemLittleSaw().setUnlocalizedName("LTSaw").setRegistryName("saw");
 		container = new ItemBag().setUnlocalizedName("LTContainer").setRegistryName("container");
@@ -252,12 +273,17 @@ public class LittleTiles {
 		grabber = new ItemLittleGrabber().setUnlocalizedName("LTGrabber").setRegistryName("grabber");
 		premade = new ItemPremadeStructure().setUnlocalizedName("LTPremade").setRegistryName("premade");
 		
-		blockIngredient = new ItemBlockIngredient().setUnlocalizedName("LTBlockIngredient").setRegistryName("blockingredient");
+		blockIngredient = new ItemBlockIngredient().setUnlocalizedName("LTBlockIngredient").setRegistryName(
+		    "blockingredient");
 		
-		blackColorIngredient = new ItemColorIngredient(ColorIngredientType.black).setUnlocalizedName("LTColorBottleBlack").setRegistryName("bottle_black");
-		cyanColorIngredient = new ItemColorIngredient(ColorIngredientType.cyan).setUnlocalizedName("LTColorBottleCyan").setRegistryName("bottle_cyan");
-		magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setUnlocalizedName("LTColorBottleMagenta").setRegistryName("bottle_magenta");
-		yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setUnlocalizedName("LTColorBottleYellow").setRegistryName("bottle_yellow");
+		blackColorIngredient = new ItemColorIngredient(ColorIngredientType.black).setUnlocalizedName(
+		    "LTColorBottleBlack").setRegistryName("bottle_black");
+		cyanColorIngredient = new ItemColorIngredient(ColorIngredientType.cyan).setUnlocalizedName(
+		    "LTColorBottleCyan").setRegistryName("bottle_cyan");
+		magentaColorIngredient = new ItemColorIngredient(ColorIngredientType.magenta).setUnlocalizedName(
+		    "LTColorBottleMagenta").setRegistryName("bottle_magenta");
+		yellowColorIngredient = new ItemColorIngredient(ColorIngredientType.yellow).setUnlocalizedName(
+		    "LTColorBottleYellow").setRegistryName("bottle_yellow");
 		
 		LittleTileRegistry.initTiles();
 		IngredientRules.loadRules();
@@ -266,12 +292,41 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, coloredBlock2, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava);
+		event.getRegistry().registerAll(coloredBlock, coloredBlock2, transparentColoredBlock, blockTileNoTicking,
+		    blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock,
+		    flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable);
 	}
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient, new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()), new ItemBlockColored2(coloredBlock2, coloredBlock2.getRegistryName()).setRegistryName(coloredBlock2.getRegistryName()), new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()), new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()), new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()), new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(blockTileTickingRendered.getRegistryName()), new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(flowingWater.getRegistryName()), new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(whiteFlowingWater.getRegistryName()), new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(flowingLava.getRegistryName()), new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(whiteFlowingLava.getRegistryName()));
+		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel,
+		    colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient,
+		    cyanColorIngredient, magentaColorIngredient, yellowColorIngredient,
+		    new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()),
+		    new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()),
+		    new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(
+		        coloredBlock.getRegistryName()),
+		    new ItemBlockColored2(coloredBlock2, coloredBlock2.getRegistryName()).setRegistryName(
+		        coloredBlock2.getRegistryName()),
+		    new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(
+		        transparentColoredBlock.getRegistryName()),
+		    new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(
+		        blockTileNoTicking.getRegistryName()),
+		    new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(
+		        blockTileTicking.getRegistryName()),
+		    new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(
+		        blockTileNoTickingRendered.getRegistryName()),
+		    new ItemBlockTiles(blockTileTickingRendered, blockTileTickingRendered.getRegistryName()).setRegistryName(
+		        blockTileTickingRendered.getRegistryName()),
+		    new ItemBlockFlowingWater(flowingWater, flowingWater.getRegistryName()).setRegistryName(
+		        flowingWater.getRegistryName()),
+		    new ItemBlockFlowingWater(whiteFlowingWater, whiteFlowingWater.getRegistryName()).setRegistryName(
+		        whiteFlowingWater.getRegistryName()),
+		    new ItemBlockFlowingLava(flowingLava, flowingLava.getRegistryName()).setRegistryName(
+		        flowingLava.getRegistryName()),
+		    new ItemBlockFlowingLava(whiteFlowingLava, whiteFlowingLava.getRegistryName()).setRegistryName(
+		        whiteFlowingLava.getRegistryName()),
+		    new ItemBlock(singleCable).setRegistryName(singleCable.getRegistryName()));
 		
 		proxy.loadSide();
 	}
@@ -283,7 +338,8 @@ public class LittleTiles {
 		GameRegistry.registerTileEntity(TileEntityLittleTiles.class, "LittleTilesTileEntity");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesRendered.class, "LittleTilesTileEntityRendered");
-		GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class, "LittleTilesTileEntityTickingRendered");
+		GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class,
+		    "LittleTilesTileEntityTickingRendered");
 		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
 		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
@@ -291,15 +347,18 @@ public class LittleTiles {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
+				if (tile.isConnectedToStructure() && tile.connection.getStructure(
+				    tile.te.getWorld()) instanceof LittleStorage)
 					return new SubGuiStorage((LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
 				return null;
 			}
 			
 			@Override
 			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
-					return new SubContainerStorage(player, (LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
+				if (tile.isConnectedToStructure() && tile.connection.getStructure(
+				    tile.te.getWorld()) instanceof LittleStorage)
+					return new SubContainerStorage(player, (LittleStorage) tile.connection.getStructure(
+					    tile.te.getWorld()));
 				return null;
 			}
 		});
@@ -451,7 +510,8 @@ public class LittleTiles {
 			@SideOnly(Side.CLIENT)
 			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt) {
 				ItemStack stack = player.getHeldItemMainhand();
-				return ItemLittleGrabber.getMode(stack).getGui(player, stack, ((ILittleTile) stack.getItem()).getPositionContext(stack));
+				return ItemLittleGrabber.getMode(stack).getGui(player, stack,
+				    ((ILittleTile) stack.getItem()).getPositionContext(stack));
 			}
 			
 			@Override
@@ -498,10 +558,12 @@ public class LittleTiles {
 		
 		LittleAction.registerLittleAction("act", LittleActionActivated.class);
 		LittleAction.registerLittleAction("col", LittleActionColorBoxes.class, LittleActionColorBoxesFiltered.class);
-		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class, LittleActionDestroyBoxesFiltered.class);
+		LittleAction.registerLittleAction("deB", LittleActionDestroyBoxes.class,
+		    LittleActionDestroyBoxesFiltered.class);
 		LittleAction.registerLittleAction("des", LittleActionDestroy.class);
 		LittleAction.registerLittleAction("plR", LittleActionPlaceStack.class);
-		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class, LittleActionPlaceAbsolutePremade.class);
+		LittleAction.registerLittleAction("plA", LittleActionPlaceAbsolute.class,
+		    LittleActionPlaceAbsolutePremade.class);
 		
 		LittleAction.registerLittleAction("glo", LittleActionGlowstone.class, LittleActionGlowstoneRevert.class);
 		LittleAction.registerLittleAction("saw", LittleActionSaw.class, LittleActionSawRevert.class);
@@ -513,15 +575,18 @@ public class LittleTiles {
 		// MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 		// Entity
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT",
+		    0, this, 250, 250, true);
 		
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityOldDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityOldDoorAnimation.class,
+		    "doorAnimation", 1, this, 2000, 250, true);
 		
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
-		
-		proxy.loadSidePost();
+		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation",
+		    2, this, 2000, 250, true);
 		
 		LittleTilesServer.NEIGHBOR = new NeighborUpdateOrganizer();
+		
+		proxy.loadSidePost();
 		
 		if (Loader.isModLoaded("warpdrive"))
 			TileEntityLittleTilesTransformer.init();

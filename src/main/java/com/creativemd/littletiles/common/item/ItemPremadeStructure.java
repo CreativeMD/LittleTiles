@@ -1,23 +1,29 @@
 package com.creativemd.littletiles.common.item;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructureTypePremade;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -36,19 +42,47 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	public String getUnlocalizedName(ItemStack stack) {
-		return super.getUnlocalizedName(stack) + "." + getPremadeID(stack);
+		return super.getUnlocalizedName(stack) + "." + getPremadeId(stack);
 	}
 	
 	@Override
-	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		return LittlePreview.getCubes(stack);
+	@SideOnly(Side.CLIENT)
+	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+		List<RenderCubeObject> cubes = premade.getRenderingCubes();
+		if (cubes == null) {
+			cubes = new ArrayList<>();
+			LittlePreviews previews = getPremade(stack).previews;
+			for (LittlePreview preview : previews.allPreviews())
+				cubes.add(preview.getCubeBlock(previews.context));
+		}
+		return cubes;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return ItemMultiTiles.currentContext;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
+			
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemLittleChisel.currentMode = mode;
+				ItemMultiTiles.currentContext = context;
+			}
+		};
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void saveCachedModel(EnumFacing facing, BlockRenderLayer layer, List<BakedQuad> cachedQuads, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		if (stack != null)
-			ItemModelCache.cacheModel(stack, facing, cachedQuads);
+			ItemModelCache.cacheModel(getPremade(stack).stack, facing, cachedQuads);
 	}
 	
 	@Override
@@ -56,17 +90,15 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	public List<BakedQuad> getCachedModel(EnumFacing facing, BlockRenderLayer layer, IBlockState state, TileEntity te, ItemStack stack, boolean threaded) {
 		if (stack == null)
 			return null;
-		return ItemModelCache.requestCache(stack, facing);
+		return ItemModelCache.requestCache(getPremade(stack).stack, facing);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
-		if (isInCreativeTab(tab)) {
-			for (LittleStructurePremadeEntry entry : LittleStructurePremade.getPremadeStructures()) {
+		if (isInCreativeTab(tab))
+			for (LittleStructurePremadeEntry entry : LittleStructurePremade.getPremadeStructures())
 				list.add(entry.stack);
-			}
-		}
 	}
 	
 	@Override
@@ -74,14 +106,36 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		return true;
 	}
 	
+	public void removeUnnecessaryData(ItemStack stack) {
+		if (stack.hasTagCompound()) {
+			stack.getTagCompound().removeTag("tiles");
+			stack.getTagCompound().removeTag("size");
+			stack.getTagCompound().removeTag("min");
+		}
+	}
+	
+	private static HashMap<String, LittlePreviews> cachedPreviews = new HashMap<>();
+	
+	public static void clearCache() {
+		cachedPreviews.clear();
+	}
+	
 	@Override
 	public LittlePreviews getLittlePreview(ItemStack stack) {
-		return LittlePreview.getPreview(stack, false);
+		String id = getPremadeId(stack);
+		if (cachedPreviews.containsKey(id))
+			return cachedPreviews.get(id).copy();
+		return LittleStructurePremade.getPreviews(id).copy();
 	}
 	
 	@Override
 	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-		LittlePreview.savePreview(previews, stack);
+		cachedPreviews.put(getPremadeId(stack), previews);
+	}
+	
+	@Override
+	public boolean sendTransformationUpdate() {
+		return false;
 	}
 	
 	@Override
@@ -101,19 +155,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		return true;
 	}
 	
-	@Override
-	public LittleVec getCachedSize(ItemStack stack) {
-		if (stack.getTagCompound().hasKey("size"))
-			return LittlePreview.getSize(stack);
-		return null;
-	}
-	
-	@Override
-	public LittleVec getCachedOffset(ItemStack stack) {
-		return LittlePreview.getOffset(stack);
-	}
-	
-	public static String getPremadeID(ItemStack stack) {
+	public static String getPremadeId(ItemStack stack) {
 		if (stack.hasTagCompound())
 			return stack.getTagCompound().getCompoundTag("structure").getString("id");
 		return null;

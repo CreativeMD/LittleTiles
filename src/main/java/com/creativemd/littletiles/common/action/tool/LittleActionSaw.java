@@ -148,14 +148,13 @@ public class LittleActionSaw extends LittleActionInteract {
 					newTile.box = box;
 					newTile.te = te;
 					te.updateTiles((x) -> newTile.place(x));
-					te.updateBlock();
 					newBoxes = new LittleBoxes(te.getPos(), te.getContext());
 					newBoxes.addBox(newTile);
 					te.convertToSmallest();
 					return true;
 				} else {
 					tile.box = box;
-					te.updateBlock();
+					te.updateTiles();
 					coord = new LittleIdentifierAbsolute(tile);
 					te.convertToSmallest();
 					return true;
@@ -272,7 +271,7 @@ public class LittleActionSaw extends LittleActionInteract {
 				tile.box = oldBox.copy();
 				
 				tile.te.convertToSmallest();
-				tile.te.updateBlock();
+				tile.te.updateTiles();
 				
 				newCoord = new LittleIdentifierAbsolute(tile);
 				return true;

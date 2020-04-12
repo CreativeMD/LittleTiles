@@ -1,18 +1,24 @@
 package com.creativemd.littletiles.common.api;
 
+import java.util.List;
+
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,6 +52,10 @@ public interface ILittleTile {
 		saveLittlePreview(stack, previews);
 	}
 	
+	public default boolean sendTransformationUpdate() {
+		return true;
+	}
+	
 	public default LittleGridContext getPreviewsContext(ItemStack stack) {
 		if (stack.hasTagCompound())
 			return LittleGridContext.get(stack.getTagCompound());
@@ -64,14 +74,12 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default void onDeselect(EntityPlayer player, ItemStack stack) {
-	}
+	public default void onDeselect(EntityPlayer player, ItemStack stack) {}
 	
 	public boolean containsIngredients(ItemStack stack);
 	
 	@SideOnly(Side.CLIENT)
-	public default void onClickAir(EntityPlayer player, ItemStack stack) {
-	}
+	public default void onClickAir(EntityPlayer player, ItemStack stack) {}
 	
 	@SideOnly(Side.CLIENT)
 	public default boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
@@ -94,8 +102,7 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
-	}
+	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
 	
 	public default PlacementMode getPlacementMode(ItemStack stack) {
 		if (stack.hasTagCompound())
@@ -147,4 +154,15 @@ public interface ILittleTile {
 	public default LittleVec getCachedOffset(ItemStack stack) {
 		return null;
 	}
+	
+	@SideOnly(Side.CLIENT)
+	public default List<LittleRenderingCube> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure")) {
+			LittleStructureType type = LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+			if (type != null)
+				return type.getPositingCubes(world, pos, stack);
+		}
+		return null;
+	}
+	
 }

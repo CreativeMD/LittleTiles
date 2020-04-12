@@ -703,9 +703,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (!needIngredients(player))
 			return true;
 		
-		String id = ItemPremadeStructure.getPremadeID(toDrain);
+		String id = ItemPremadeStructure.getPremadeId(toDrain);
 		for (ItemStack stack : inventory) {
-			if (stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeID(stack).equals(id)) {
+			if (stack.getItem() == LittleTiles.premade && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
 				stack.shrink(1);
 				return true;
 			}

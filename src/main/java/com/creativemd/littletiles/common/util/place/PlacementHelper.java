@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.block.BlockTile;
@@ -14,8 +16,8 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.fixed.FixedHandler;
 import com.creativemd.littletiles.common.tile.place.fixed.InsideFixedHandler;
+import com.creativemd.littletiles.common.tile.place.fixed.SecondModeHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -23,6 +25,8 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -33,6 +37,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 /** This class does all calculate on where to place a block. Used for rendering
  * preview and placing **/
@@ -41,6 +47,9 @@ public class PlacementHelper {
 	public static class PositionResult extends LittleAbsoluteVec {
 		
 		public EnumFacing facing;
+		
+		@SideOnly(Side.CLIENT)
+		public List<LittleRenderingCube> positingCubes;
 		
 		public PositionResult() {
 			super((BlockPos) null, (LittleGridContext) null);
@@ -189,8 +198,10 @@ public class PlacementHelper {
 	private static NBTTagCompound lastCached;
 	private static LittlePreviews lastPreviews;
 	
-	public static PositionResult getPosition(World world, RayTraceResult moving, LittleGridContext context) {
+	@SideOnly(Side.CLIENT)
+	public static PositionResult getPosition(World world, RayTraceResult moving, LittleGridContext context, ILittleTile tile, ItemStack stack) {
 		PositionResult result = new PositionResult();
+		EntityPlayer player = Minecraft.getMinecraft().player;
 		
 		int x = moving.getBlockPos().getX();
 		int y = moving.getBlockPos().getY();
@@ -225,8 +236,21 @@ public class PlacementHelper {
 		}
 		
 		result.facing = moving.sideHit;
+		BlockPos pos = new BlockPos(x, y, z);
+		if (tile != null && stack != null && (LittleAction.isUsingSecondMode(player) != tile.snapToGridByDefault())) {
+			Vec3d position = player.getPositionEyes(TickUtils.getPartialTickTime());
+			double d0 = player.capabilities.isCreativeMode ? 5.0F : 4.5F;
+			Vec3d temp = player.getLook(TickUtils.getPartialTickTime());
+			Vec3d look = position.addVector(temp.x * d0, temp.y * d0, temp.z * d0);
+			position = position.subtract(pos.getX(), pos.getY(), pos.getZ());
+			look = look.subtract(pos.getX(), pos.getY(), pos.getZ());
+			List<LittleRenderingCube> cubes = tile.getPositingCubes(world, pos, stack);
+			if (cubes != null)
+				result.positingCubes = cubes;
+		}
+		
 		result.assign(getHitVec(moving, context, canBePlacedInsideBlock));
-		result.setPos(new BlockPos(x, y, z));
+		result.setPos(pos);
 		
 		return result;
 	}
@@ -301,7 +325,7 @@ public class PlacementHelper {
 			
 			result.size = getSize(iTile, stack, tiles, allowLowResolution, original);
 			
-			ArrayList<FixedHandler> shifthandlers = new ArrayList<FixedHandler>();
+			ArrayList<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
 			
 			if (tiles.size() == 1) {
 				shifthandlers.add(new InsideFixedHandler());
@@ -334,22 +358,8 @@ public class PlacementHelper {
 				}
 				
 				if (!canBePlaceFixed) {
-					for (int i = 0; i < shifthandlers.size(); i++) {
-						shifthandlers.get(i).init(world, position.getPos());
-					}
-					
-					FixedHandler handler = null;
-					double distance = 2;
-					for (int i = 0; i < shifthandlers.size(); i++) {
-						double tempDistance = shifthandlers.get(i).getDistance(position);
-						if (tempDistance < distance) {
-							distance = tempDistance;
-							handler = shifthandlers.get(i);
-						}
-					}
-					
-					if (handler != null)
-						result.box = handler.getNewPosition(world, position.getPos(), context, result.box);
+					for (int i = 0; i < shifthandlers.size(); i++)
+						result.box = shifthandlers.get(i).getBox(world, position.getPos(), context, result.box);
 				}
 			}
 			

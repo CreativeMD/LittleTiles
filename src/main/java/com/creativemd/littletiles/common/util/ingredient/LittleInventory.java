@@ -6,8 +6,8 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
-import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.api.ILittleIngredentSupplier;
+import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -114,7 +114,10 @@ public class LittleInventory implements Iterable<ItemStack> {
 		
 		for (int i = 0; i < size(); i++) {
 			if (get(i).isEmpty()) {
-				inventory.insertItem(i, stack, false);
+				if (simulate)
+					cachedInventory.set(i, stack);
+				else
+					inventory.insertItem(i, stack, false);
 				return true;
 			}
 		}

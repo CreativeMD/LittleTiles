@@ -52,9 +52,8 @@ public class BlockLayerRenderBuffer {
 	
 	public BufferBuilder createVertexBuffer(List<? extends RenderCubeObject> cubes) {
 		int size = 1;
-		for (RenderCubeObject cube : cubes) {
+		for (RenderCubeObject cube : cubes)
 			size += cube.getQuads();
-		}
 		return new BufferBuilder(bufferSizePerQuad * size);
 	}
 	

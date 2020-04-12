@@ -102,7 +102,8 @@ public class OverlayRenderer {
 		
 		public void positionControl(GuiControl control) {
 			if (scaledResolution != null)
-				positionControl(control, scaledResolution.getScaledWidth() - LittleTilesClient.overlay.gui.getContentOffset() * 2, scaledResolution.getScaledHeight() - LittleTilesClient.overlay.gui.getContentOffset() * 2);
+				positionControl(control, scaledResolution.getScaledWidth() - LittleTilesClient.overlay.gui.getContentOffset() * 2,
+				        scaledResolution.getScaledHeight() - LittleTilesClient.overlay.gui.getContentOffset() * 2);
 		}
 	}
 	

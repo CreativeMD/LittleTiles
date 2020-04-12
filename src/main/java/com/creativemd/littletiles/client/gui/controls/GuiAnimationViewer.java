@@ -2,7 +2,6 @@ package com.creativemd.littletiles.client.gui.controls;
 
 import javax.vecmath.Vector3d;
 
-import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.Project;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
@@ -126,9 +125,9 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		Vector3d rotationCenter = new Vector3d(animation.center.rotationCenter);
 		rotationCenter.y -= 75;
 		
-		GL11.glRotated(rotX.current(), 1, 0, 0);
-		GL11.glRotated(rotY.current(), 0, 1, 0);
-		GL11.glRotated(rotZ.current(), 0, 0, 1);
+		GlStateManager.rotate((float) rotX.current(), 1, 0, 0);
+		GlStateManager.rotate((float) rotY.current(), 0, 1, 0);
+		GlStateManager.rotate((float) rotZ.current(), 0, 0, 1);
 		
 		GlStateManager.translate(-min.getPosX(context), -min.getPosY(context), -min.getPosZ(context));
 		

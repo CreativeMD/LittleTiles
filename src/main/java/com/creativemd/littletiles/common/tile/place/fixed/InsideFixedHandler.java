@@ -1,22 +1,13 @@
 package com.creativemd.littletiles.common.tile.place.fixed;
 
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class InsideFixedHandler extends FixedHandler {
-	
-	@Override
-	public double getDistance(LittleAbsoluteVec suggestedPos) {
-		return 1;
-	}
+public class InsideFixedHandler extends SecondModeHandler {
 	
 	protected void updateBox(Axis axis, LittleGridContext context, LittleBox box) {
 		int offset = 0;
@@ -32,17 +23,11 @@ public class InsideFixedHandler extends FixedHandler {
 	}
 	
 	@Override
-	protected LittleBox getNewPos(World world, BlockPos pos, LittleGridContext context, LittleBox suggested) {
+	public LittleBox getBox(World world, BlockPos pos, LittleGridContext context, LittleBox suggested) {
 		updateBox(Axis.X, context, suggested);
 		updateBox(Axis.Y, context, suggested);
 		updateBox(Axis.Z, context, suggested);
 		return suggested;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void handleRendering(LittleGridContext context, Minecraft mc, double x, double y, double z) {
-		
 	}
 	
 }

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.tileentity;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -22,7 +23,8 @@ public class TileList implements List<LittleTile> {
 	private final CopyOnWriteArrayList<LittleTile> content = new CopyOnWriteArrayList<LittleTile>();
 	private final CopyOnWriteArrayList<LittleTile> ticking = new CopyOnWriteArrayList<LittleTile>();
 	
-	private final CopyOnWriteArrayList<LittleStructure> structures = new CopyOnWriteArrayList<>();
+	private final CopyOnWriteArrayList<LittleStructure> activeStructures = new CopyOnWriteArrayList<>();
+	
 	private int attributes = LittleStructureAttribute.NONE;
 	
 	@SideOnly(Side.CLIENT)
@@ -57,7 +59,54 @@ public class TileList implements List<LittleTile> {
 	}
 	
 	public Iterable<LittleStructure> structures() {
-		return structures;
+		return activeStructures;
+	}
+	
+	public Iterable<LittleStructure> allStructures() {
+		return new Iterable<LittleStructure>() {
+			
+			@Override
+			public Iterator<LittleStructure> iterator() {
+				return new Iterator<LittleStructure>() {
+					
+					public Iterator<LittleTile> iterator = content.iterator();
+					public List<LittleStructure> usedStructures = new ArrayList<>();
+					public LittleStructure next;
+					
+					{
+						findNext();
+					}
+					
+					public void findNext() {
+						while (iterator.hasNext()) {
+							LittleTile tile = iterator.next();
+							if (tile.isChildOfStructure()) {
+								LittleStructure structure = tile.connection.getStructure(te.getWorld());
+								if (usedStructures.contains(structure))
+									continue;
+								usedStructures.add(structure);
+								next = structure;
+								return;
+							}
+						}
+						
+						next = null;
+					}
+					
+					@Override
+					public boolean hasNext() {
+						return next != null;
+					}
+					
+					@Override
+					public LittleStructure next() {
+						LittleStructure toReturn = next;
+						findNext();
+						return toReturn;
+					}
+				};
+			}
+		};
 	}
 	
 	public Iterable<LittleStructure> structures(int attribute) {
@@ -65,9 +114,51 @@ public class TileList implements List<LittleTile> {
 			
 			@Override
 			public Iterator<LittleStructure> iterator() {
+				if (LittleStructureAttribute.listener(attribute)) {
+					return new Iterator<LittleStructure>() {
+						
+						public Iterator<LittleTile> iterator = content.iterator();
+						public List<LittleStructure> usedStructures = new ArrayList<>();
+						public LittleStructure next;
+						
+						{
+							findNext();
+						}
+						
+						public void findNext() {
+							while (iterator.hasNext()) {
+								LittleTile tile = iterator.next();
+								if (tile.isChildOfStructure()) {
+									LittleStructure structure = tile.connection.getStructure(te.getWorld());
+									if ((structure.getAttribute() & attribute) != 0) {
+										if (usedStructures.contains(structure))
+											continue;
+										usedStructures.add(structure);
+										next = structure;
+										return;
+									}
+								}
+							}
+							
+							next = null;
+						}
+						
+						@Override
+						public boolean hasNext() {
+							return next != null;
+						}
+						
+						@Override
+						public LittleStructure next() {
+							LittleStructure toReturn = next;
+							findNext();
+							return toReturn;
+						}
+					};
+				}
 				return new Iterator<LittleStructure>() {
 					
-					public Iterator<LittleStructure> iterator = structures.iterator();
+					public Iterator<LittleStructure> iterator = activeStructures.iterator();
 					public LittleStructure next;
 					
 					{
@@ -99,6 +190,7 @@ public class TileList implements List<LittleTile> {
 					}
 				};
 			}
+			
 		};
 	}
 	
@@ -147,7 +239,7 @@ public class TileList implements List<LittleTile> {
 		if (client)
 			render.clear();
 		collisionChecks = 0;
-		structures.clear();
+		activeStructures.clear();
 		attributes = LittleStructureAttribute.NONE;
 	}
 	
@@ -192,7 +284,7 @@ public class TileList implements List<LittleTile> {
 		if (tile.shouldCheckForCollision())
 			collisionChecks++;
 		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
-			structures.add(tile.connection.getStructureWithoutLoading());
+			activeStructures.add(tile.connection.getStructureWithoutLoading());
 			attributes |= tile.connection.getAttribute();
 		}
 	}
@@ -212,9 +304,9 @@ public class TileList implements List<LittleTile> {
 		if (tile.shouldCheckForCollision())
 			collisionChecks--;
 		if (tile.isChildOfStructure() && !tile.connection.isLink() && LittleStructureAttribute.active(tile.connection.getAttribute())) {
-			structures.remove(tile.connection.getStructureWithoutLoading());
+			activeStructures.remove(tile.connection.getStructureWithoutLoading());
 			attributes = LittleStructureAttribute.NONE;
-			for (LittleStructure structure : structures)
+			for (LittleStructure structure : activeStructures)
 				attributes |= structure.getAttribute();
 		}
 	}

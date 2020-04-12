@@ -112,15 +112,18 @@ public class LittleBox {
 	}
 	
 	public AxisAlignedBB getBox(LittleGridContext context, BlockPos offset) {
-		return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+		return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(
+		        maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
 	}
 	
 	public AxisAlignedBB getBox(LittleGridContext context) {
-		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(maxZ));
+		return new AxisAlignedBB(context.toVanillaGrid(minX), context.toVanillaGrid(minY), context.toVanillaGrid(minZ), context.toVanillaGrid(maxX), context.toVanillaGrid(maxY), context.toVanillaGrid(
+		        maxZ));
 	}
 	
 	public CubeObject getCube(LittleGridContext context) {
-		return new CubeObject((float) context.toVanillaGrid(minX), (float) context.toVanillaGrid(minY), (float) context.toVanillaGrid(minZ), (float) context.toVanillaGrid(maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
+		return new CubeObject((float) context.toVanillaGrid(minX), (float) context.toVanillaGrid(minY), (float) context.toVanillaGrid(minZ), (float) context.toVanillaGrid(
+		        maxX), (float) context.toVanillaGrid(maxY), (float) context.toVanillaGrid(maxZ));
 	}
 	
 	// ================Save================
@@ -424,13 +427,6 @@ public class LittleBox {
 		return box;
 	}
 	
-	/* public LittleTileBox createInsideBlockBox(EnumFacing facing) { Vec3i vec =
-	 * facing.getDirectionVec(); return new LittleTileBox(minX - vec.getX() *
-	 * LittleTile.gridSize, minY - vec.getY() * LittleTile.gridSize, minZ -
-	 * vec.getZ() * LittleTile.gridSize, maxX - vec.getX() * LittleTile.gridSize,
-	 * maxY - vec.getY() * LittleTile.gridSize, maxZ - vec.getZ() *
-	 * LittleTile.gridSize); } */
-	
 	// ================Box to box================
 	
 	public LittleBox combineBoxes(LittleBox box, BasicCombiner combinator) {
@@ -535,7 +531,8 @@ public class LittleBox {
 				extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, tempBoxes);
 				
 				boolean cutted = false;
-				outer_loop: for (LittleBox box : tempBoxes) {
+				outer_loop:
+				for (LittleBox box : tempBoxes) {
 					for (LittleBox cutBox : boxes) {
 						if (cutBox.intersectsWith(box)) // This should also work for slices, since it's compressed by
 						                                // the range
@@ -561,7 +558,8 @@ public class LittleBox {
 			boolean expected = filled[0][0][0];
 			boolean continuous = true;
 			
-			loop: for (int x = 0; x < filled.length; x++) {
+			loop:
+			for (int x = 0; x < filled.length; x++) {
 				for (int y = 0; y < filled[x].length; y++) {
 					for (int z = 0; z < filled[x][y].length; z++) {
 						if (filled[x][y][z] != expected) {
@@ -887,7 +885,9 @@ public class LittleBox {
 		long tempMaxX = maxX * 2 - doubledCenter.x;
 		long tempMaxY = maxY * 2 - doubledCenter.y;
 		long tempMaxZ = maxZ * 2 - doubledCenter.z;
-		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
+		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2),
+		        (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2),
+		        (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
 	}
 	
 	/** @param axis
@@ -1004,11 +1004,13 @@ public class LittleBox {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
 		
-		return new LittleTileFace(this, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+		return new LittleTileFace(this, context, facing, getMin(one), getMin(two), getMax(one), getMax(
+		        two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
 	public boolean intersectsWith(LittleTileFace face) {
-		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && face.maxOne > getMin(
+		        face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
 	}
 	
 	public boolean isFaceSolid(EnumFacing facing) {
@@ -1143,7 +1145,8 @@ public class LittleBox {
 	public static LittleBox loadBox(String name, NBTTagCompound nbt) {
 		if (nbt.getTag(name + "minX") instanceof NBTTagByte) // very old pre 1.0.0
 		{
-			LittleBox box = new LittleBox(nbt.getByte(name + "minX"), nbt.getByte(name + "minY"), nbt.getByte(name + "minZ"), nbt.getByte(name + "maxX"), nbt.getByte(name + "maxY"), nbt.getByte(name + "maxZ"));
+			LittleBox box = new LittleBox(nbt.getByte(name + "minX"), nbt.getByte(name + "minY"), nbt.getByte(name + "minZ"), nbt.getByte(name + "maxX"), nbt.getByte(name + "maxY"), nbt.getByte(
+			        name + "maxZ"));
 			nbt.removeTag(name + "minX");
 			nbt.removeTag(name + "minY");
 			nbt.removeTag(name + "minZ");
@@ -1154,7 +1157,8 @@ public class LittleBox {
 			return box;
 		} else if (nbt.getTag(name + "minX") instanceof NBTTagInt) // old pre 1.3.0
 		{
-			LittleBox box = new LittleBox(nbt.getInteger(name + "minX"), nbt.getInteger(name + "minY"), nbt.getInteger(name + "minZ"), nbt.getInteger(name + "maxX"), nbt.getInteger(name + "maxY"), nbt.getInteger(name + "maxZ"));
+			LittleBox box = new LittleBox(nbt.getInteger(name + "minX"), nbt.getInteger(name + "minY"), nbt.getInteger(name + "minZ"), nbt.getInteger(name + "maxX"), nbt.getInteger(
+			        name + "maxY"), nbt.getInteger(name + "maxZ"));
 			nbt.removeTag(name + "minX");
 			nbt.removeTag(name + "minY");
 			nbt.removeTag(name + "minZ");
@@ -1168,7 +1172,8 @@ public class LittleBox {
 		} else if (nbt.getTag(name) instanceof NBTTagString) { // Not used anymore pre 1.5.0
 			String[] coords = nbt.getString(name).split("\\.");
 			try {
-				return new LittleBox(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(coords[5]));
+				return new LittleBox(Integer.parseInt(coords[0]), Integer.parseInt(coords[1]), Integer.parseInt(coords[2]), Integer.parseInt(coords[3]), Integer.parseInt(coords[4]), Integer.parseInt(
+				        coords[5]));
 			} catch (Exception e) {
 				
 			}
@@ -1183,7 +1188,8 @@ public class LittleBox {
 		case 7:
 			return new LittleSlicedOrdinaryBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]));
 		case 11:
-			return new LittleSlicedBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]), Float.intBitsToFloat(array[7]), Float.intBitsToFloat(array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
+			return new LittleSlicedBox(array[0], array[1], array[2], array[3], array[4], array[5], LittleSlice.getSliceByID(array[6]), Float.intBitsToFloat(array[7]), Float.intBitsToFloat(
+			        array[8]), Float.intBitsToFloat(array[9]), Float.intBitsToFloat(array[10]));
 		default:
 			throw new InvalidParameterException("No valid coords given " + Arrays.toString(array));
 		}

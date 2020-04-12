@@ -33,8 +33,11 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public LittleAbsolutePreviews copy() {
 		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, context);
-		previews.previews.addAll(this.previews);
-		previews.children.addAll(children);
+		for (LittlePreview preview : this.previews)
+			previews.previews.add(preview.copy());
+		
+		for (LittlePreviews child : this.children)
+			previews.children.add(child.copy());
 		return previews;
 	}
 	

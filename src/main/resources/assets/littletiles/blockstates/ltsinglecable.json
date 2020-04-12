@@ -1,0 +1,7 @@
+{
+    "variants": {
+        "axis=y": { "model": "littletiles:single_cable"},
+        "axis=z": { "model": "littletiles:single_cable", "x": 90 },
+        "axis=x": { "model": "littletiles:single_cable", "x": 90, "y": 90 }
+    }
+}

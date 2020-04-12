@@ -229,7 +229,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				}
 			else
 				for (LittleTile tile : te) {
-					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()).isBed(world, pos, (EntityLivingBase) player))
+					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()).isBed(world, pos,
+					    (EntityLivingBase) player))
 						return true;
 				}
 		}
@@ -280,7 +281,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	protected static boolean hasRoomForPlayer(IBlockAccess worldIn, BlockPos pos) {
-		return worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
+		return worldIn.getBlockState(pos.down()).isSideSolid(worldIn, pos, EnumFacing.UP) && !worldIn.getBlockState(
+		    pos).getMaterial().isSolid() && !worldIn.getBlockState(pos.up()).getMaterial().isSolid();
 	}
 	
 	@Override
@@ -439,8 +441,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {
-	}
+	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {}
 	
 	public boolean first = true;
 	
@@ -567,7 +568,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			
 			if (heighestTile != null)
-				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ, numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getStateId(heighestTile.getBlockState()) });
+				world.spawnParticle(EnumParticleTypes.BLOCK_DUST, entity.posX, entity.posY, entity.posZ,
+				    numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15000000596046448D,
+				    new int[] { Block.getStateId(heighestTile.getBlockState()) });
 		}
 		return true;
 	}
@@ -590,7 +593,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			
 			Random random = new Random();
 			if (heighestTile != null)
-				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK, entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity.getEntityBoundingBox().minY + 0.1D, entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D, -entity.motionZ * 4.0D, Block.getStateId(heighestTile.getBlockState()));
+				world.spawnParticle(EnumParticleTypes.BLOCK_CRACK,
+				    entity.posX + (random.nextFloat() - 0.5D) * entity.width, entity.getEntityBoundingBox().minY + 0.1D,
+				    entity.posZ + (random.nextFloat() - 0.5D) * entity.width, -entity.motionX * 4.0D, 1.5D,
+				    -entity.motionZ * 4.0D, Block.getStateId(heighestTile.getBlockState()));
 			return true;
 		}
 		return false;
@@ -630,7 +636,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (side == EnumFacing.EAST)
 				d0 = i + axisalignedbb.maxX + 0.10000000149011612D;
 			
-			((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, 0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(0.2F).multipleParticleScaleBy(0.6F);
+			((ParticleDigging) manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2,
+			    0.0D, 0.0D, 0.0D, Block.getStateId(state))).setBlockPos(pos).multiplyVelocity(
+			        0.2F).multipleParticleScaleBy(0.6F);
 		}
 		return true;
 	}
@@ -649,7 +657,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						double d0 = pos.getX() + (j + 0.5D) / 4.0D;
 						double d1 = pos.getY() + (k + 0.5D) / 4.0D;
 						double d2 = pos.getZ() + (l + 0.5D) / 4.0D;
-						manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2, d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D, Block.getStateId(state));
+						manager.spawnEffectParticle(EnumParticleTypes.BLOCK_CRACK.getParticleID(), d0, d1, d2,
+						    d0 - pos.getX() - 0.5D, d1 - pos.getY() - 0.5D, d2 - pos.getZ() - 0.5D,
+						    Block.getStateId(state));
 					}
 				}
 			}
@@ -892,7 +902,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 								cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
 							} else {
 								if (face.isFaceInsideBlock()) {
-									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
+									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing,
+									    face,
+									    tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
 								} else {
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
 								}
@@ -904,8 +916,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			}
 			
 			for (LittleStructure structure : tileEntity.structures(LittleStructureAttribute.EXTRA_RENDERING))
-				structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
-			
+				if (structure.load())
+					structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
+				
 			cache.setCubesByLayer(cubes, layer);
 			
 		} else if (stack != null)
@@ -1073,9 +1086,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public IBlockState getFacade(IBlockAccess world, BlockPos pos, EnumFacing side, BlockPos connection) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			IBlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
+			IBlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(world,
+			    connection) : world.getBlockState(connection);
 			for (LittleTile tile : te) {
-				if (tile.getBlock() == lookingFor.getBlock() && tile.getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
+				if (tile.getBlock() == lookingFor.getBlock() && tile.getMeta() == lookingFor.getBlock().getMetaFromState(
+				    lookingFor))
 					return lookingFor;
 			}
 		}

@@ -319,7 +319,7 @@ public class LittleEventHandler {
 	
 	@SideOnly(Side.CLIENT)
 	public static PositionResult getPosition(World world, ILittleTile iTile, ItemStack stack, RayTraceResult result) {
-		return PreviewRenderer.marked != null ? PreviewRenderer.marked.position.copy() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack));
+		return PreviewRenderer.marked != null ? PreviewRenderer.marked.position.copy() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack), iTile, stack);
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -349,45 +349,21 @@ public class LittleEventHandler {
 				IBoxSelector selector = (IBoxSelector) stack.getItem();
 				LittleAbsoluteVec result = new LittleAbsoluteVec(event.getTarget(), selector.getContext(stack));
 				if (selector.hasCustomBox(world, stack, player, state, event.getTarget(), result)) {
-					while (LittleTilesClient.flip.isPressed()) {
-						int i4 = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
-						EnumFacing direction = null;
-						switch (i4) {
-						case 0:
-							direction = EnumFacing.SOUTH;
-							break;
-						case 1:
-							direction = EnumFacing.WEST;
-							break;
-						case 2:
-							direction = EnumFacing.NORTH;
-							break;
-						case 3:
-							direction = EnumFacing.EAST;
-							break;
-						}
-						if (player.rotationPitch > 45)
-							direction = EnumFacing.DOWN;
-						if (player.rotationPitch < -45)
-							direction = EnumFacing.UP;
-						
-						LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
-						packet.executeClient(player);
-						PacketHandler.sendPacketToServer(packet);
-					}
+					while (LittleTilesClient.flip.isPressed())
+						processFlipKey(player, stack);
 					
 					// Rotate Block
 					while (LittleTilesClient.up.isPressed())
-						processRotateKey(player, Rotation.Z_CLOCKWISE);
+						processRotateKey(player, Rotation.Z_CLOCKWISE, stack);
 					
 					while (LittleTilesClient.down.isPressed())
-						processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE);
+						processRotateKey(player, Rotation.Z_COUNTER_CLOCKWISE, stack);
 					
 					while (LittleTilesClient.right.isPressed())
-						processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE);
+						processRotateKey(player, Rotation.Y_COUNTER_CLOCKWISE, stack);
 					
 					while (LittleTilesClient.left.isPressed())
-						processRotateKey(player, Rotation.Y_CLOCKWISE);
+						processRotateKey(player, Rotation.Y_CLOCKWISE, stack);
 					
 					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
 					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
@@ -420,9 +396,50 @@ public class LittleEventHandler {
 		}
 	}
 	
-	public void processRotateKey(EntityPlayer player, Rotation rotation) {
+	public static void processFlipKey(EntityPlayer player, ItemStack stack) {
+		int i4 = MathHelper.floor(player.rotationYaw * 4.0F / 360.0F + 0.5D) & 3;
+		EnumFacing direction = null;
+		switch (i4) {
+		case 0:
+			direction = EnumFacing.SOUTH;
+			break;
+		case 1:
+			direction = EnumFacing.WEST;
+			break;
+		case 2:
+			direction = EnumFacing.NORTH;
+			break;
+		case 3:
+			direction = EnumFacing.EAST;
+			break;
+		}
+		if (player.rotationPitch > 45)
+			direction = EnumFacing.DOWN;
+		if (player.rotationPitch < -45)
+			direction = EnumFacing.UP;
+		
+		LittleFlipPacket packet = new LittleFlipPacket(direction.getAxis());
+		packet.executeClient(player);
+		
+		if (stack.getItem() instanceof IBoxSelector && !((IBoxSelector) stack.getItem()).sendTransformationUpdate())
+			return;
+		ILittleTile tile = PlacementHelper.getLittleInterface(stack);
+		if (tile != null && !tile.sendTransformationUpdate())
+			return;
+		
+		PacketHandler.sendPacketToServer(packet);
+	}
+	
+	public static void processRotateKey(EntityPlayer player, Rotation rotation, ItemStack stack) {
 		LittleRotatePacket packet = new LittleRotatePacket(rotation);
 		packet.executeClient(player);
+		
+		if (stack.getItem() instanceof IBoxSelector && !((IBoxSelector) stack.getItem()).sendTransformationUpdate())
+			return;
+		ILittleTile tile = PlacementHelper.getLittleInterface(stack);
+		if (tile != null && !tile.sendTransformationUpdate())
+			return;
+		
 		PacketHandler.sendPacketToServer(packet);
 	}
 	
@@ -563,8 +580,10 @@ public class LittleEventHandler {
 	public static void queueChunkUpdate(RenderChunk chunk) {
 		if (queuedRenderChunksUpdate == null)
 			queuedRenderChunksUpdate = new ArrayList<>();
-		if (!queuedRenderChunksUpdate.contains(chunk))
-			queuedRenderChunksUpdate.add(chunk);
+		synchronized (queuedRenderChunksUpdate) {
+			if (!queuedRenderChunksUpdate.contains(chunk))
+				queuedRenderChunksUpdate.add(chunk);
+		}
 	}
 	
 	@SubscribeEvent
@@ -575,12 +594,14 @@ public class LittleEventHandler {
 			
 			if (queuedRenderChunksUpdate == null)
 				queuedRenderChunksUpdate = new ArrayList<>();
-			if (!queuedRenderChunksUpdate.isEmpty()) {
-				for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
-					RenderChunk chunk = (RenderChunk) iterator.next();
-					if (!chunk.needsUpdate()) {
-						chunk.setNeedsUpdate(false);
-						iterator.remove();
+			synchronized (queuedRenderChunksUpdate) {
+				if (!queuedRenderChunksUpdate.isEmpty()) {
+					for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
+						RenderChunk chunk = (RenderChunk) iterator.next();
+						if (!chunk.needsUpdate()) {
+							chunk.setNeedsUpdate(false);
+							iterator.remove();
+						}
 					}
 				}
 			}
