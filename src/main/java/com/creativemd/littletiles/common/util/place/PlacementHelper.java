@@ -245,12 +245,8 @@ public class PlacementHelper {
 			position = position.subtract(pos.getX(), pos.getY(), pos.getZ());
 			look = look.subtract(pos.getX(), pos.getY(), pos.getZ());
 			List<LittleRenderingCube> cubes = tile.getPositingCubes(world, pos, stack);
-			if (cubes != null) {
-				/*for (LittleRenderingCube cube : cubes) {
-					cube.calculateIntercept(pos, look)
-				}*/
+			if (cubes != null)
 				result.positingCubes = cubes;
-			}
 		}
 		
 		result.assign(getHitVec(moving, context, canBePlacedInsideBlock));

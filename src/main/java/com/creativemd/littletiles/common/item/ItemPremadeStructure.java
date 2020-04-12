@@ -7,17 +7,23 @@ import java.util.List;
 import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
+import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructureTypePremade;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -40,12 +46,36 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	}
 	
 	@Override
+	@SideOnly(Side.CLIENT)
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		List<RenderCubeObject> cubes = new ArrayList<>();
-		LittlePreviews previews = getPremade(stack).previews;
-		for (LittlePreview preview : previews.allPreviews())
-			cubes.add(preview.getCubeBlock(previews.context));
+		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
+		List<RenderCubeObject> cubes = premade.getRenderingCubes();
+		if (cubes == null) {
+			cubes = new ArrayList<>();
+			LittlePreviews previews = getPremade(stack).previews;
+			for (LittlePreview preview : previews.allPreviews())
+				cubes.add(preview.getCubeBlock(previews.context));
+		}
 		return cubes;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public LittleGridContext getPositionContext(ItemStack stack) {
+		return ItemMultiTiles.currentContext;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGuiConfigure getConfigureGUIAdvanced(EntityPlayer player, ItemStack stack) {
+		return new SubGuiModeSelector(stack, ItemMultiTiles.currentContext, ItemLittleChisel.currentMode) {
+			
+			@Override
+			public void saveConfiguration(LittleGridContext context, PlacementMode mode) {
+				ItemLittleChisel.currentMode = mode;
+				ItemMultiTiles.currentContext = context;
+			}
+		};
 	}
 	
 	@Override

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.creativemd.creativecore.client.rendering.RenderCubeObject;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
@@ -27,7 +28,6 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
-import net.minecraft.entity.Entity;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -268,12 +268,6 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 	}
 	
 	@Override
-	public void addCollisionBoxes(BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn) {
-		// TODO Auto-generated method stub
-		super.addCollisionBoxes(pos, entityBox, collidingBoxes, entityIn);
-	}
-	
-	@Override
 	@SideOnly(Side.CLIENT)
 	public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderingCube> cubes) {
 		int color = getMainTile() instanceof LittleTileColored ? ((LittleTileColored) getMainTile()).color : ColorUtils.WHITE;
@@ -339,7 +333,8 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 		}
 		
 		public void disconnect(EnumFacing facing) {
-			connection.disconnect(facing.getOpposite(), LittleSignalCable.this);
+			if (connection != null)
+				connection.disconnect(facing.getOpposite(), LittleSignalCable.this);
 			if (hasNetwork())
 				getNetwork().remove(connection);
 			connection = null;
@@ -402,9 +397,25 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 		
 		public final int bandwidth;
 		
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> cubes;
+		
 		public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
 			super(id, category, structureClass, attribute | LittleStructureAttribute.NEIGHBOR_LISTENER, modid);
 			this.bandwidth = bandwidth;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> getRenderingCubes() {
+			if (cubes == null) {
+				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
+				cubes = new ArrayList<>();
+				cubes.add(new RenderCubeObject(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+				cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
+				cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+			}
+			return cubes;
 		}
 		
 		@Override
