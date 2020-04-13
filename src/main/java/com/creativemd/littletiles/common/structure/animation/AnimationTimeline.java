@@ -1,11 +1,11 @@
-package com.creativemd.littletiles.common.util.animation;
+package com.creativemd.littletiles.common.structure.animation;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
+import com.creativemd.littletiles.common.structure.animation.ValueTimeline.CosineTimeline;
+import com.creativemd.littletiles.common.structure.animation.ValueTimeline.LinearTimeline;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
-import com.creativemd.littletiles.common.util.animation.ValueTimeline.CosineTimeline;
-import com.creativemd.littletiles.common.util.animation.ValueTimeline.LinearTimeline;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;

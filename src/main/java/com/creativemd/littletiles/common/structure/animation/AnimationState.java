@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.animation;
+package com.creativemd.littletiles.common.structure.animation;
 
 import java.util.List;
 

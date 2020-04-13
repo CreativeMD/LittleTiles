@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.animation.event;
+package com.creativemd.littletiles.common.structure.animation.event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -17,10 +17,10 @@ import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.animation.event;
+package com.creativemd.littletiles.common.structure.animation.event;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
@@ -7,14 +7,14 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler.AnimationGuiHolder;
 import com.creativemd.littletiles.common.structure.connection.IStructureChildConnector;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler.AnimationGuiHolder;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fml.relauncher.Side;

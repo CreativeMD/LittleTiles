@@ -14,10 +14,10 @@ import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer.GuiTileViewerAxisChangedEvent;
 import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.door.LittleAdvancedDoor;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 

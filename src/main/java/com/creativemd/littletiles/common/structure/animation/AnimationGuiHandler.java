@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.animation;
+package com.creativemd.littletiles.common.structure.animation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,9 +9,9 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.common.gui.controls.gui.timeline.IAnimationHandler;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.event.AnimationEvent;
 
 public class AnimationGuiHandler implements IAnimationHandler {
 	

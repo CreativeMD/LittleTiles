@@ -18,15 +18,15 @@ import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationController;
+import com.creativemd.littletiles.common.structure.animation.AnimationState;
+import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.animation.AnimationController;
-import com.creativemd.littletiles.common.util.animation.AnimationState;
-import com.creativemd.littletiles.common.util.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 

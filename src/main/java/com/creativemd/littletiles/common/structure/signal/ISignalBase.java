@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.signal;
+package com.creativemd.littletiles.common.structure.signal;
 
 import java.util.Iterator;
 

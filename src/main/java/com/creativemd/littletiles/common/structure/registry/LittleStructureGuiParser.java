@@ -6,8 +6,8 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;

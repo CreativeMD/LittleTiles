@@ -2,10 +2,10 @@ package com.creativemd.littletiles.common.structure.type;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
 

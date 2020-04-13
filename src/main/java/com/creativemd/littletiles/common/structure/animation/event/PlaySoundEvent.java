@@ -1,11 +1,11 @@
-package com.creativemd.littletiles.common.util.animation.event;
+package com.creativemd.littletiles.common.structure.animation.event;
 
 import com.creativemd.creativecore.client.sound.EntitySound;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;

@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.util.animation.event;
+package com.creativemd.littletiles.common.structure.animation.event;
 
 import javax.annotation.Nullable;
 

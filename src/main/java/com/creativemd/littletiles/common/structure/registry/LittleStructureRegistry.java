@@ -7,6 +7,7 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
@@ -22,7 +23,6 @@ import com.creativemd.littletiles.common.structure.type.LittleNoClipStructure.Li
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.structure.type.LittleStorage.LittleStorageParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
 
 public class LittleStructureRegistry {
 	

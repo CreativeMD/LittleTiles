@@ -17,14 +17,14 @@ import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
+import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.animation.AnimationGuiHandler;
-import com.creativemd.littletiles.common.util.animation.AnimationTimeline;
-import com.creativemd.littletiles.common.util.animation.event.AnimationEvent;
-import com.creativemd.littletiles.common.util.animation.event.ChildActivateEvent;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
