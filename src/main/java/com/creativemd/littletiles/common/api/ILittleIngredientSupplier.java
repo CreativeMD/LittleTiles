@@ -1,13 +1,11 @@
 package com.creativemd.littletiles.common.api;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
+import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-public interface ILittleIngredentSupplier {
+public interface ILittleIngredientSupplier {
 	
 	/** Requests ingredients which are not available directly
 	 * 
@@ -17,7 +15,7 @@ public interface ILittleIngredentSupplier {
 	 *            the ingredients that are requested
 	 * @param overflow
 	 *            the overflow ingredients
-	 * @param player
+	 * @param inventory
 	 *            the player that is requesting the material */
-	public void requestIngredients(ItemStack stack, LittleIngredients ingredients, LittleIngredients overflow, @Nullable EntityPlayer player);
+	public void requestIngredients(ItemStack stack, LittleIngredients ingredients, LittleIngredients overflow, LittleInventory inventory);
 }
