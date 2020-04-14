@@ -130,7 +130,7 @@ public class TileList implements List<LittleTile> {
 								LittleTile tile = iterator.next();
 								if (tile.isChildOfStructure()) {
 									LittleStructure structure = tile.connection.getStructure(te.getWorld());
-									if ((structure.getAttribute() & attribute) != 0) {
+									if (structure != null && (structure.getAttribute() & attribute) != 0) {
 										if (usedStructures.contains(structure))
 											continue;
 										usedStructures.add(structure);

@@ -125,7 +125,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			reverted.furtherActions = lastActions.get(index).revertFurtherActions();
 			
 			if (reverted.action(player)) {
-				MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.undo));
+				MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.undo, player));
 				if (reverted.sendToServer())
 					PacketHandler.sendPacketToServer(reverted);
 				
@@ -170,7 +170,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			reverted.furtherActions = lastActions.get(index).revertFurtherActions();
 			
 			if (reverted.action(player)) {
-				MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.redo));
+				MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.redo, player));
 				if (reverted.sendToServer())
 					PacketHandler.sendPacketToServer(reverted);
 				
@@ -242,7 +242,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		try {
 			if (action(player)) {
 				rememberAction(this);
-				MinecraftForge.EVENT_BUS.post(new ActionEvent(this, ActionType.normal));
+				MinecraftForge.EVENT_BUS.post(new ActionEvent(this, ActionType.normal, player));
 				
 				if (sendToServer())
 					PacketHandler.sendPacketToServer(this);
