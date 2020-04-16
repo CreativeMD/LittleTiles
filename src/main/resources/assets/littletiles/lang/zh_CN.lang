@@ -11,10 +11,10 @@ item.LTColorTube.name=画笔
 item.LTUtilityKnife.name=工具刀
 item.LTGrabber.name=手套
 item.LTRecipeAdvanced.name=配方图纸（高级）
-item.LTColorBottleBlack.name=瓶子（黑色）
-item.LTColorBottleCyan.name=瓶子（青色）
-item.LTColorBottleMagenta.name=瓶子（洋红色）
-item.LTColorBottleYellow.name=瓶子（黄色）
+item.LTColorBottleBlack.name=瓶装染料（黑色）
+item.LTColorBottleCyan.name=瓶装染料（青色）
+item.LTColorBottleMagenta.name=瓶装染料（洋红色）
+item.LTColorBottleYellow.name=瓶装染料（黄色）
 
 tile.LTParticleBlock.name=粒子效果块
 tile.LTColoredBlock.clean.name=染色方块（清澈）
@@ -87,17 +87,17 @@ color.unit.black=黑色
 color.unit.cyan=青色
 color.unit.magenta=品红
 color.unit.yellow=黄色
-color.unit.single=部件
-color.unit.multiple=部件
+color.unit.single=染料
+color.unit.multiple=染料
 
 volume.unit.big.single=方块
 volume.unit.big.multiple=方块
-volume.unit.big.short=b
-volume.unit.small.single=像素
-volume.unit.small.multiple=像素
-volume.unit.small.short=p
+volume.unit.big.short=方块
+volume.unit.small.single=小方块
+volume.unit.small.multiple=小方块
+volume.unit.small.short=小方块
 
-selector.ingredients=结构要素
+selector.ingredients=现有材料
 
 placement.mode.default=默认模式
 placement.mode.default.tooltip=只有在目标区域中的所有要放置的方块都有空间时才能放置
@@ -111,7 +111,7 @@ placement.mode.overwrite.tooltip=将放置所有方块并移除重叠部分，�
 placement.mode.replace=替换模式
 placement.mode.replace.tooltip=只会将方块放在重叠的部分，不会移除结构方块
 
-markmode.gui.allowlowresolution=低解析度
+markmode.gui.allowlowresolution=低分辨率
 markmode.gui.switchpos=切换位置
 
 commands.open.usage=在给定坐标处打开所有门
@@ -122,11 +122,15 @@ item.LTPremade.workbench.name=工作台
 item.LTPremade.importer.name=输入台
 item.LTPremade.exporter.name=输出台
 
+item.LTPremade.single_cable1.name=单芯线 (1-bit)
+item.LTPremade.single_cable4.name=单芯线 (4-bit)
+item.LTPremade.single_cable16.name=单芯线 (16-bit)
+
 selection.clear=清除
 selection.dialog.clear=是否确实要清除所有内容？
 selection.structure.name=结构名称
-selection.structure.tiles=小方块
-selection.structure.tile=小方块
+selection.structure.tiles=结构要素
+selection.structure.tile=结构要素
 selection.include.vanilla=常规方块
 selection.include.cb=C&B 方块
 selection.include.lt=LittleTiles 方块
