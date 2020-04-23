@@ -66,6 +66,11 @@ public abstract class StructureDirectionalType<T> {
 			public EnumFacing rotate(EnumFacing value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 				return RotationUtils.rotate(value, rotation);
 			}
+			
+			@Override
+			public EnumFacing getDefault() {
+				return EnumFacing.EAST;
+			}
 		});
 		registerType(Axis.class, new StructureDirectionalType<Axis>() {
 			
@@ -96,6 +101,11 @@ public abstract class StructureDirectionalType<T> {
 				return RotationUtils.rotate(value, rotation);
 			}
 			
+			@Override
+			public Axis getDefault() {
+				return Axis.X;
+			}
+			
 		});
 		registerType(StructureRelative.class, new StructureDirectionalType<StructureRelative>() {
 			
@@ -103,8 +113,7 @@ public abstract class StructureDirectionalType<T> {
 			public StructureRelative read(NBTBase nbt) {
 				if (nbt instanceof NBTTagIntArray)
 					return new StructureRelative(((NBTTagIntArray) nbt).getIntArray());
-				new RuntimeException("Could not load structure relative!").printStackTrace();
-				return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGridContext.get());
+				return null;
 			}
 			
 			@Override
@@ -145,6 +154,11 @@ public abstract class StructureDirectionalType<T> {
 				return value.getPlacePreview(previews, field);
 			}
 			
+			@Override
+			public StructureRelative getDefault() {
+				return new StructureRelative(new LittleBox(0, 0, 0, 1, 1, 1), LittleGridContext.get());
+			}
+			
 		});
 	}
 	
@@ -157,6 +171,8 @@ public abstract class StructureDirectionalType<T> {
 	public abstract T flip(T value, LittleGridContext context, Axis axis, LittleVec doubledCenter);
 	
 	public abstract T rotate(T value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter);
+	
+	public abstract T getDefault();
 	
 	public LittleGridContext getContext(T value) {
 		return null;

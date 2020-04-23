@@ -583,7 +583,7 @@ public abstract class LittleStructure {
 	}
 	
 	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
-		return null;
+		return field.getDefault();
 	}
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);

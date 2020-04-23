@@ -81,4 +81,8 @@ public class StructureDirectionalField {
 	public PlacePreview getPlacePreview(Object value, LittlePreviews previews) {
 		return type.getPlacePreview(value, previews, this);
 	}
+	
+	public Object getDefault() {
+		return type.getDefault();
+	}
 }
