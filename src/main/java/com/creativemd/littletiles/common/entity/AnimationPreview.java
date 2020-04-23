@@ -1,26 +1,24 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -44,30 +42,27 @@ public class AnimationPreview {
 		if (!previews.hasStructure()) {
 			NBTTagCompound nbt = new NBTTagCompound();
 			new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class)).writeToNBT(nbt);
-			LittlePreviewsStructure newPreviews = new LittlePreviewsStructure(nbt, previews.context);
-			newPreviews.assign(previews);
-			previews = newPreviews;
+			previews = new LittlePreviews(nbt, previews);
 		}
 		
+		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, pos, PlacementMode.all));
 		List<PlacePreview> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
-		
-		previews.deleteCachedStructure();
-		
-		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, pos);
-		
-		LittleStructure structure = previews.getStructure();
-		LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, structure, PlacementMode.all, pos, null, null, null, null);
+		PlacementResult result = null;
+		try {
+			result = placement.place();
+		} catch (LittleActionException e) {
+			e.printStackTrace();
+		}
 		
 		entireBox = previews.getSurroundingBox();
-		context = previews.context;
+		context = previews.getContext();
 		box = entireBox.getBox(context);
 		
 		animation = new EntityAnimation(fakeWorld, fakeWorld, (EntityAnimationController) new EntityAnimationController() {
 			
 			@Override
 			protected void writeToNBTExtra(NBTTagCompound nbt) {
-				
+			
 			}
 			
 			@Override
@@ -80,9 +75,8 @@ public class AnimationPreview {
 				
 			}
 			
-		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.context), structure == null ? null : structure.getAbsoluteIdentifier());
-		
-		previews.deleteCachedStructure();
+		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.getContext()), result.parentStructure == null ? null : result.parentStructure.getAbsoluteIdentifier());
+			
 	}
 	
 }

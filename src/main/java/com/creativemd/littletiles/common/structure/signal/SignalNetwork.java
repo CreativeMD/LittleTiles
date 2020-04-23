@@ -132,26 +132,15 @@ public class SignalNetwork {
 		transmitters.clear();
 	}
 	
-	public boolean stillConnected(ISignalBase base) {
-		for (Iterator iterator = base.connections(); iterator.hasNext();) {
-			ISignalInput iSignalInput = (ISignalInput) iterator.next();
-			if (iSignalInput.getNetwork() == this)
-				return true;
-		}
-		return false;
-	}
-	
 	public void remove(ISignalBase base) {
 		base.setNetwork(null);
 		
 		switch (base.getType()) {
 		case INPUT:
-			if (!stillConnected(base))
-				inputs.remove(base);
+			inputs.remove(base);
 			break;
 		case OUTPUT:
-			if (!stillConnected(base))
-				outputs.remove(base);
+			outputs.remove(base);
 			break;
 		case TRANSMITTER:
 			deleteNetwork();

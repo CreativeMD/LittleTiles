@@ -11,10 +11,10 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
 import com.creativemd.littletiles.common.api.ILittleTile;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -54,7 +54,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 			cubes = new ArrayList<>();
 			LittlePreviews previews = getPremade(stack).previews;
 			for (LittlePreview preview : previews.allPreviews())
-				cubes.add(preview.getCubeBlock(previews.context));
+				cubes.add(preview.getCubeBlock(previews.getContext()));
 		}
 		return cubes;
 	}

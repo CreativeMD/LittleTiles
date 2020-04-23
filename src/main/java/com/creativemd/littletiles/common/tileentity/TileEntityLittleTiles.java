@@ -176,6 +176,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@SideOnly(Side.CLIENT)
 	public void updateQuadCache(Object chunk) {
+		if (tiles == null)
+			return;
 		if (chunk instanceof RenderChunk)
 			lastRenderedChunk = (RenderChunk) chunk;
 		
@@ -250,13 +252,18 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public void updateTiles() {
+		updateTiles(true);
+	}
+	
+	public void updateTiles(boolean updateNeighbour) {
 		notifyStructure();
 		
 		sideCache.reset();
 		
 		if (world != null) {
 			updateBlock();
-			updateNeighbour();
+			if (updateNeighbour)
+				updateNeighbour();
 			updateLighting();
 		}
 		if (isClientSide())
@@ -757,12 +764,24 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return BlockTile.getState(this);
 	}
 	
+	public boolean combineTilesSecretly(LittleStructure structure) {
+		boolean changed = BasicCombiner.combineTiles(tiles, structure);
+		convertToSmallest();
+		return changed;
+	}
+	
 	public boolean combineTiles(LittleStructure structure) {
 		boolean changed = BasicCombiner.combineTiles(tiles, structure);
 		
 		convertToSmallest();
 		if (changed)
 			updateTiles();
+		return changed;
+	}
+	
+	public boolean combineTilesSecretly() {
+		boolean changed = BasicCombiner.combineTiles(tiles);
+		convertToSmallest();
 		return changed;
 	}
 	

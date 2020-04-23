@@ -43,7 +43,7 @@ import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.shape.DragShape;
 
 import net.minecraft.block.Block;
@@ -98,10 +98,10 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		tooltip.add(TooltipUtils.printRGB(preview.hasColor() ? preview.getColor() : ColorUtils.WHITE));
 	}
 	
-	public static PositionResult min;
+	public static PlacementPosition min;
 	
 	@SideOnly(Side.CLIENT)
-	public static PositionResult lastMax;
+	public static PlacementPosition lastMax;
 	
 	@Override
 	public boolean canDestroyBlockInCreative(World world, BlockPos pos, ItemStack stack, EntityPlayer player) {
@@ -228,7 +228,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	public LittleAbsolutePreviews getLittlePreview(ItemStack stack, boolean allowLowResolution, boolean marked) {
-		PositionResult min = ItemLittleChisel.min;
+		PlacementPosition min = ItemLittleChisel.min;
 		if (min == null)
 			min = lastMax;
 		if (min != null) {
@@ -272,8 +272,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {
-	}
+	public void saveLittlePreview(ItemStack stack, LittlePreviews previews) {}
 	
 	@Override
 	public void rotateLittlePreview(EntityPlayer player, ItemStack stack, Rotation rotation) {
@@ -293,7 +292,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public void tickPreview(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		lastMax = getPosition(position, result, currentMode);
 	}
 	
@@ -309,7 +308,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		lastMax = null;
 	}
 	
-	protected static PositionResult getPosition(PositionResult position, RayTraceResult result, PlacementMode mode) {
+	protected static PlacementPosition getPosition(PlacementPosition position, RayTraceResult result, PlacementMode mode) {
 		position = position.copy();
 		
 		EnumFacing facing = position.facing;
@@ -322,7 +321,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	}
 	
 	@Override
-	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		if (ItemLittleChisel.min == null) {
 			ItemLittleChisel.min = getPosition(position, result, currentMode);
 		} else if (LittleAction.isUsingSecondMode(player)) {

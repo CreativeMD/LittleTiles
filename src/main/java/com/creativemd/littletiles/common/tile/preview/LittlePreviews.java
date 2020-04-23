@@ -32,25 +32,32 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
-	protected List<LittlePreview> previews;
-	public LittleGridContext context;
-	
+	protected LittleGridContext context;
 	protected List<LittlePreviews> children = new ArrayList<>();
+	protected List<LittlePreview> previews;
+	
+	public final NBTTagCompound structure;
 	
 	public LittlePreviews(LittleGridContext context) {
+		this(null, context);
+	}
+	
+	public LittlePreviews(NBTTagCompound nbt, LittleGridContext context) {
 		this.context = context;
 		this.previews = new ArrayList<>();
+		this.structure = nbt;
 	}
 	
-	protected LittlePreviews(LittlePreviews previews) {
+	public LittlePreviews(LittlePreviews previews) {
+		this.context = previews.getContext();
 		this.previews = new ArrayList<>(previews.previews);
-		this.context = previews.context;
+		this.structure = null;
 	}
 	
-	public void assign(LittlePreviews previews) {
-		this.context = previews.context;
-		this.previews = previews.previews;
-		this.children = previews.children;
+	public LittlePreviews(NBTTagCompound nbt, LittlePreviews previews) {
+		this.context = previews.getContext();
+		this.previews = new ArrayList<>(previews.previews);
+		this.structure = nbt;
 	}
 	
 	public boolean isAbsolute() {
@@ -62,60 +69,63 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	}
 	
 	public boolean hasStructure() {
+		return structure != null && structure.getSize() > 0;
+	}
+	
+	public boolean hasStructureIncludeChildren() {
+		if (hasStructure())
+			return true;
+		
+		for (LittlePreviews child : children)
+			if (child.hasStructureIncludeChildren())
+				return true;
+			
 		return false;
 	}
 	
-	public void deleteCachedStructure() {
-		if (hasChildren())
-			for (LittlePreviews child : getChildren())
-				child.deleteCachedStructure();
-	}
-	
-	public LittleStructure getStructure() {
-		return null;
-	}
-	
-	public NBTTagCompound getStructureData() {
-		return null;
+	public LittleStructure createStructure() {
+		return LittleStructure.createAndLoadStructure(this.structure, null);
 	}
 	
 	public String getStructureName() {
 		if (!hasStructure())
 			return null;
 		
-		NBTTagCompound nbt = getStructureData();
-		return nbt.hasKey("name") ? nbt.getString("name") : null;
-	}
-	
-	public int getStructureAttribute() {
-		if (!hasStructure())
-			return LittleStructureAttribute.NONE;
-		LittleStructureType type = LittleStructureRegistry.getStructureType(getStructureId());
-		if (type != null)
-			return type.attribute;
-		return LittleStructureAttribute.NONE;
+		return structure.hasKey("name") ? structure.getString("name") : null;
 	}
 	
 	public String getStructureId() {
-		if (!hasStructure())
-			return null;
-		return getStructureData().getString("id");
+		if (hasStructure())
+			return structure.getString("id");
+		return null;
+	}
+	
+	public LittleStructureType getStructureType() {
+		if (hasStructure())
+			return LittleStructureRegistry.getStructureType(structure.getString("id"));
+		return null;
 	}
 	
 	public boolean containsIngredients() {
 		if (hasStructure())
-			return !LittleStructureAttribute.premade(getStructureAttribute());
+			return !LittleStructureAttribute.premade(getStructureType().attribute);
 		return true;
 	}
 	
-	public LittleGridContext getMinContext() {
-		LittleGridContext context = this.context;
-		if (hasStructure())
-			context = LittleGridContext.max(this.context, getStructure().getMinContext());
-		if (hasChildren())
-			for (LittlePreviews child : getChildren())
-				context = LittleGridContext.max(context, child.getMinContext());
-		return context;
+	public List<PlacePreview> getPlacePreviews(LittleVec offset) {
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		for (LittlePreview preview : this)
+			placePreviews.add(preview.getPlaceableTile(offset));
+		
+		if (hasStructure()) {
+			for (PlacePreview placePreviewTile : getStructureType().getSpecialTiles(this)) {
+				if (offset != null)
+					placePreviewTile.add(offset);
+				placePreviews.add(placePreviewTile);
+			}
+		}
+		
+		return placePreviews;
 	}
 	
 	public boolean hasChildren() {
@@ -134,28 +144,26 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		if (child.isAbsolute())
 			throw new RuntimeException("Absolute previews cannot be added as a child!");
 		children.add(child);
-		if (context.size < child.getSmallestContext())
+		if (context.size < child.getSmallestContext().size)
 			convertToSmallest();
 		else if (child.context != context)
 			child.convertTo(context);
 	}
 	
-	public void getPlacePreviews(List<PlacePreview> placePreviews, LittleBox overallBox, boolean fixed, LittleVec offset) {
-		for (LittlePreview preview : this)
-			placePreviews.add(preview.getPlaceableTile(overallBox, fixed, offset, this));
-		
-		if (hasStructure()) {
-			for (PlacePreview placePreviewTile : getStructure().getSpecialTiles(this)) {
-				if (!fixed)
-					placePreviewTile.add(offset);
-				placePreviews.add(placePreviewTile);
-			}
-		}
-		
+	@Override
+	public LittleGridContext getContext() {
+		return context;
+	}
+	
+	@Override
+	public void convertToSmallest() {
+		LittleGridContext context = getSmallestContext();
 		if (hasChildren())
-			for (LittlePreviews child : getChildren())
-				child.getPlacePreviews(placePreviews, overallBox, fixed, offset);
+			for (LittlePreviews child : children)
+				context = LittleGridContext.max(child.getSmallestContext(), context);
 			
+		if (context != this.context)
+			convertTo(context);
 	}
 	
 	public void movePreviews(LittleGridContext context, LittleVec offset) {
@@ -170,7 +178,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 			preview.box.add(offset);
 		
 		if (hasStructure())
-			getStructure().onMove(context, offset);
+			getStructureType().move(this, context, offset);
 		
 		if (hasChildren())
 			for (LittlePreviews child : children)
@@ -181,34 +189,34 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		for (LittlePreview preview : previews)
 			preview.flipPreview(axis, doubledCenter);
 		
-		if (hasStructure()) {
-			getStructure().onFlip(context, axis, doubledCenter);
-			getStructure().writeToNBT(getStructureData());
-		}
+		if (hasStructure())
+			getStructureType().flip(this, context, axis, doubledCenter);
 		
 		if (hasChildren())
 			for (LittlePreviews child : children)
 				child.flipPreviews(axis, doubledCenter);
-			
 	}
 	
 	public void rotatePreviews(Rotation rotation, LittleVec doubledCenter) {
 		for (LittlePreview preview : previews)
 			preview.rotatePreview(rotation, doubledCenter);
 		
-		if (hasStructure()) {
-			getStructure().onRotate(context, rotation, doubledCenter);
-			getStructure().writeToNBT(getStructureData());
-		}
+		if (hasStructure())
+			getStructureType().rotate(this, context, rotation, doubledCenter);
 		
 		if (hasChildren())
 			for (LittlePreviews child : children)
 				child.rotatePreviews(rotation, doubledCenter);
-			
 	}
 	
-	@Override
-	public LittleGridContext getContext() {
+	protected LittleGridContext getSmallestContext() {
+		int size = LittleGridContext.minSize;
+		for (LittlePreview preview : previews)
+			size = Math.max(size, preview.getSmallestContext(context));
+		
+		LittleGridContext context = LittleGridContext.get(size);
+		if (hasStructure())
+			context = LittleGridContext.max(this.context, getStructureType().getMinContext(this));
 		return context;
 	}
 	
@@ -219,27 +227,9 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 				preview.convertTo(this.context, to);
 			
 		if (hasChildren())
-			for (LittlePreviews child : getChildren())
+			for (LittlePreviews child : children)
 				child.convertTo(to);
 		this.context = to;
-	}
-	
-	protected int getSmallestContext() {
-		int size = LittleGridContext.minSize;
-		for (LittlePreview preview : previews)
-			size = Math.max(size, preview.getSmallestContext(context));
-		return size;
-	}
-	
-	@Override
-	public void convertToSmallest() {
-		int size = getSmallestContext();
-		if (hasChildren())
-			for (LittlePreviews child : getChildren())
-				size = Math.max(child.getSmallestContext(), size);
-			
-		if (size != context.size)
-			convertTo(LittleGridContext.get(size));
 	}
 	
 	public LittlePreviews copy() {
@@ -311,10 +301,54 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return previews.iterator();
 	}
 	
+	protected Iterator<LittlePreview> allPreviewsIterator() {
+		if (hasChildren())
+			return new Iterator<LittlePreview>() {
+				
+				public int i = -1;
+				public Iterator<LittlePreview> subIterator = iterator();
+				public List<? extends LittlePreviews> children = getChildren();
+				
+				@Override
+				public boolean hasNext() {
+					if (subIterator.hasNext())
+						return true;
+					
+					while (i < children.size() - 1 && !subIterator.hasNext()) {
+						i++;
+						subIterator = children.get(i).allPreviewsIterator();
+					}
+					
+					return subIterator.hasNext();
+				}
+				
+				@Override
+				public LittlePreview next() {
+					return subIterator.next();
+				}
+				
+				@Override
+				public void remove() {
+					subIterator.remove();
+				}
+			};
+		return iterator();
+	}
+	
+	public Iterable<LittlePreview> allPreviews() {
+		return new Iterable<LittlePreview>() {
+			
+			@Override
+			public Iterator<LittlePreview> iterator() {
+				return allPreviewsIterator();
+			}
+		};
+	}
+	
 	public static LittlePreviews getChild(LittleGridContext context, NBTTagCompound nbt) {
 		LittlePreviews previews;
 		if (nbt.hasKey("structure"))
-			previews = new LittlePreviewsStructure(nbt.getCompoundTag("structure"), context);
+			previews = new LittlePreviews(nbt.getCompoundTag("structure"), context);
 		else
 			previews = new LittlePreviews(context);
 		
@@ -345,7 +379,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 			}
 			
 			if (stack.getTagCompound().hasKey("structure"))
-				return new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), previews);
+				return new LittlePreviews(stack.getTagCompound().getCompoundTag("structure"), previews);
 			return previews;
 		} else {
 			if (allowLowResolution && stack.getTagCompound().hasKey("pos")) {
@@ -359,9 +393,18 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 					int[] array = list.getIntArrayAt(i);
 					previews.previews.add(new LittlePreview(new LittleBox(array[0] * context.size, array[1] * context.size, array[2] * context.size, array[0] * context.size + context.maxPos, array[1] * context.size + context.maxPos, array[02] * context.size + context.maxPos), tileData));
 				}
+				
+				if (stack.getTagCompound().hasKey("children")) {
+					list = stack.getTagCompound().getTagList("children", 10);
+					for (int i = 0; i < list.tagCount(); i++) {
+						NBTTagCompound child = list.getCompoundTagAt(i);
+						previews.addChild(getChild(context, child));
+					}
+				}
+				
 				return previews;
 			}
-			LittlePreviews previews = stack.getTagCompound().hasKey("structure") ? new LittlePreviewsStructure(stack.getTagCompound().getCompoundTag("structure"), context) : new LittlePreviews(context);
+			LittlePreviews previews = stack.getTagCompound().hasKey("structure") ? new LittlePreviews(stack.getTagCompound().getCompoundTag("structure"), context) : new LittlePreviews(context);
 			previews = LittleNBTCompressionTools.readPreviews(previews, stack.getTagCompound().getTagList("tiles", 10));
 			
 			if (stack.getTagCompound().hasKey("children")) {
@@ -380,50 +423,6 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return previews.get(index);
 	}
 	
-	protected Iterator<LittlePreview> allPreviewsIterator() {
-		if (hasChildren())
-			return new Iterator<LittlePreview>() {
-				
-				public int i = -1;
-				public Iterator<LittlePreview> subIterator = previews.iterator();
-				public List<? extends LittlePreviews> children = getChildren();
-				
-				@Override
-				public boolean hasNext() {
-					if (subIterator.hasNext())
-						return true;
-					
-					while (i < children.size() - 1 && !subIterator.hasNext()) {
-						i++;
-						subIterator = children.get(i).allPreviewsIterator();
-					}
-					
-					return subIterator.hasNext();
-				}
-				
-				@Override
-				public LittlePreview next() {
-					return subIterator.next();
-				}
-				
-				@Override
-				public void remove() {
-					subIterator.remove();
-				}
-			};
-		return previews.iterator();
-	}
-	
-	public Iterable<LittlePreview> allPreviews() {
-		return new Iterable<LittlePreview>() {
-			
-			@Override
-			public Iterator<LittlePreview> iterator() {
-				return allPreviewsIterator();
-			}
-		};
-	}
-	
 	public int size() {
 		return previews.size();
 	}
@@ -432,10 +431,19 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		if (!hasChildren())
 			return size();
 		int size = size();
-		for (LittlePreviews child : getChildren()) {
+		for (LittlePreviews child : children)
 			size += child.totalSize();
-		}
 		return size;
+	}
+	
+	public boolean isEmptyIncludeChildren() {
+		if (!isEmpty())
+			return false;
+		
+		for (LittlePreviews child : children)
+			if (!child.isEmptyIncludeChildren())
+				return false;
+		return true;
 	}
 	
 	public boolean isEmpty() {
@@ -444,6 +452,13 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	public void addWithoutCheckingPreview(LittlePreview preview) {
 		previews.add(preview);
+	}
+	
+	public double getVolumeIncludingChildren() {
+		double volume = 0;
+		for (LittlePreview preview : allPreviews())
+			volume += preview.getPercentVolume(context);
+		return volume;
 	}
 	
 	public LittleVolumes getVolumes() {
@@ -471,17 +486,17 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		}
 		
 		if (hasChildren())
-			for (LittlePreviews child : getChildren())
+			for (LittlePreviews child : children)
 				child.combinePreviewBlocks();
 	}
 	
-	private void advancedScale(int from, int to) {
+	protected void advancedScale(int from, int to) {
 		for (LittlePreview preview : previews) {
 			preview.convertTo(from, to);
 		}
 		
 		if (hasChildren())
-			for (LittlePreviews child : getChildren())
+			for (LittlePreviews child : children)
 				child.advancedScale(from, to);
 	}
 	
@@ -556,5 +571,13 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		min.z = context.toGrid(context.toBlockOffset(min.z));
 		min.invert();
 		movePreviews(context, min);
+	}
+	
+	@Deprecated
+	public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {
+		previews.context = context;
+		if (previews.hasChildren())
+			for (LittlePreviews child : previews.getChildren())
+				setLittlePreviewsContextSecretly(child, context);
 	}
 }

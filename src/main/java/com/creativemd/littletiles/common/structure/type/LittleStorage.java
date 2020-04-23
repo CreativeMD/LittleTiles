@@ -96,13 +96,6 @@ public class LittleStorage extends LittleStructure {
 	}
 	
 	@Override
-	public void addIngredients(LittleIngredients ingredients) {
-		super.addIngredients(ingredients);
-		if (inventory != null)
-			ingredients.add(new StackIngredient(inventory));
-	}
-	
-	@Override
 	public void onStructureDestroyed() {
 		super.onStructureDestroyed();
 		if (!getWorld().isRemote) {
@@ -120,7 +113,7 @@ public class LittleStorage extends LittleStructure {
 		String name = LittleTiles.storageBlock.getRegistryName().toString();
 		for (int i = 0; i < previews.size(); i++) {
 			if (previews.get(i).getBlockName().equals(name))
-				size += previews.get(i).box.getSize().getPercentVolume(previews.context) * LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
+				size += previews.get(i).box.getSize().getPercentVolume(previews.getContext()) * LittleGridContext.get().maxTilesPerBlock * LittleTiles.CONFIG.general.storagePerPixel;
 		}
 		return (int) size;
 	}
@@ -163,6 +156,23 @@ public class LittleStorage extends LittleStructure {
 			
 			return storage;
 		}
+	}
+	
+	public static class LittleStorageType extends LittleStructureType {
+		
+		public LittleStorageType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+			super(id, category, structureClass, attribute);
+		}
+		
+		@Override
+		public void addIngredients(LittlePreviews previews, LittleIngredients ingredients) {
+			super.addIngredients(previews, ingredients);
+			
+			IInventory inventory = InventoryUtils.loadInventoryBasic(previews.structure.getCompoundTag("inventory"));
+			if (inventory != null)
+				ingredients.add(new StackIngredient(inventory));
+		}
+		
 	}
 	
 }

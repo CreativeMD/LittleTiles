@@ -32,11 +32,10 @@ import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAb
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -325,6 +324,24 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return false;
 	}
 	
+	public static boolean canPlaceInside(LittlePreviews previews, World world, BlockPos pos, boolean placeInside) {
+		IBlockState state = world.getBlockState(pos);
+		Block block = state.getBlock();
+		if (block.isReplaceable(world, pos) || block instanceof BlockTile) {
+			if (!placeInside) {
+				TileEntity te = world.getTileEntity(pos);
+				if (te instanceof TileEntityLittleTiles) {
+					TileEntityLittleTiles teTiles = (TileEntityLittleTiles) te;
+					for (LittlePreview preview : previews.allPreviews())
+						if (!teTiles.isSpaceForLittleTile(preview.box))
+							return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+	
 	public static TileEntityLittleTiles loadTe(EntityPlayer player, World world, BlockPos pos, boolean shouldConvert) {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		
@@ -470,6 +487,13 @@ public abstract class LittleAction extends CreativeCorePacket {
 			throw new LittleActionException.TileEntityNotFoundException();
 	}
 	
+	public static double getVolume(LittleGridContext context, List<PlacePreview> tiles) {
+		double volume = 0;
+		for (PlacePreview preview : tiles)
+			volume += preview.box.getPercentVolume(context);
+		return volume;
+	}
+	
 	public static void writeAbsoluteCoord(LittleIdentifierAbsolute coord, ByteBuf buf) {
 		writePos(buf, coord.pos);
 		buf.writeInt(coord.identifier.length);
@@ -492,18 +516,17 @@ public abstract class LittleAction extends CreativeCorePacket {
 		buf.writeBoolean(previews.isAbsolute());
 		buf.writeBoolean(previews.hasStructure());
 		if (previews.hasStructure())
-			writeNBT(buf, previews.getStructureData());
+			writeNBT(buf, previews.structure);
 		if (previews.isAbsolute())
 			writePos(buf, ((LittleAbsolutePreviews) previews).pos);
 		
-		writeContext(previews.context, buf);
+		writeContext(previews.getContext(), buf);
 		NBTTagCompound nbt = new NBTTagCompound();
 		nbt.setTag("list", LittleNBTCompressionTools.writePreviews(previews));
 		
 		NBTTagList children = new NBTTagList();
-		for (LittlePreviews child : previews.getChildren()) {
+		for (LittlePreviews child : previews.getChildren())
 			children.appendTag(LittlePreview.saveChildPreviews(child));
-		}
 		nbt.setTag("children", children);
 		
 		writeNBT(buf, nbt);
@@ -517,12 +540,12 @@ public abstract class LittleAction extends CreativeCorePacket {
 		LittlePreviews previews;
 		if (absolute) {
 			if (structure)
-				previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviewsStructure(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+				previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readNBT(buf), readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
 			else
 				previews = LittleNBTCompressionTools.readPreviews(new LittleAbsolutePreviews(readPos(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
 		} else {
 			if (structure)
-				previews = LittleNBTCompressionTools.readPreviews(new LittlePreviewsStructure(readNBT(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
+				previews = LittleNBTCompressionTools.readPreviews(new LittlePreviews(readNBT(buf), readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
 			else
 				previews = LittleNBTCompressionTools.readPreviews(new LittlePreviews(readContext(buf)), (nbt = readNBT(buf)).getTagList("list", 10));
 		}
@@ -530,7 +553,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		NBTTagList list = nbt.getTagList("children", 10);
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound child = list.getCompoundTagAt(i);
-			previews.addChild(LittlePreviews.getChild(previews.context, child));
+			previews.addChild(LittlePreviews.getChild(previews.getContext(), child));
 		}
 		return previews;
 	}

@@ -7,7 +7,6 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
@@ -21,20 +20,21 @@ import com.creativemd.littletiles.common.structure.animation.AnimationKey;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -44,6 +44,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 		super(type);
 	}
 	
+	@StructureDirectional
 	public EnumFacing moveDirection;
 	public int moveDistance;
 	public LittleGridContext moveContext;
@@ -52,7 +53,6 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
 		moveDistance = nbt.getInteger("distance");
-		moveDirection = EnumFacing.getFront(nbt.getInteger("direction"));
 		moveContext = LittleGridContext.get(nbt);
 	}
 	
@@ -60,21 +60,20 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
 		nbt.setInteger("distance", moveDistance);
-		nbt.setInteger("direction", moveDirection.getIndex());
 		moveContext.set(nbt);
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
+		((LittleSlidingDoor) placement.origin.structure).moveDirection = moveDirection.getOpposite();
 		if (stayAnimated)
 			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
 		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration, interpolation);
 	}
 	
 	@Override
-	public void transformDoorPreview(LittleAbsolutePreviewsStructure previews, LittleTransformation transformation) {
-		LittleSlidingDoor structure = (LittleSlidingDoor) previews.getStructure();
-		structure.moveDirection = moveDirection.getOpposite();
+	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
+		
 	}
 	
 	@Override
@@ -88,24 +87,8 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-		if (axis == this.moveDirection.getAxis())
-			this.moveDirection = this.moveDirection.getOpposite();
-	}
-	
-	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-		moveDirection = RotationUtils.rotate(moveDirection, rotation);
-	}
-	
-	@Override
 	public StructureAbsolute getAbsoluteAxis() {
 		return new StructureAbsolute(getMainTile().te.getPos(), getMainTile().box, getMainTile().getContext());
-	}
-	
-	@Override
-	public LittleGridContext getMinContext() {
-		return LittleGridContext.max(super.getMinContext(), moveContext);
 	}
 	
 	public static class LittleSlidingDoorParser extends LittleDoorBaseParser {
@@ -176,7 +159,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 				index = door.moveDirection.ordinal();
 			EnumFacing direction = EnumFacing.getFront(index);
 			
-			LittleGridContext context = previews.context;
+			LittleGridContext context = previews.getContext();
 			
 			GuiTileViewer viewer = new GuiTileViewer("tileviewer", 0, 0, 100, 100, context);
 			viewer.visibleAxis = false;

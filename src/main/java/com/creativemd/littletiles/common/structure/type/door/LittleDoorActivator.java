@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.structure.animation.event.ChildActivate
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -109,12 +110,6 @@ public class LittleDoorActivator extends LittleDoor {
 		return false;
 	}
 	
-	@Override
-	protected void fillActivateChildren(BitSet set) {
-		for (int i : toActivate)
-			set.set(i);
-	}
-	
 	public static class LittleDoorActivatorParser extends LittleStructureGuiParser {
 		
 		public LittleDoorActivatorParser(GuiParent parent, AnimationGuiHandler handler) {
@@ -194,5 +189,18 @@ public class LittleDoorActivator extends LittleDoor {
 			return activator;
 		}
 		
+	}
+	
+	public static class LittleDoorActivatorType extends LittleDoorBaseType {
+		
+		public LittleDoorActivatorType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+			super(id, category, structureClass, attribute);
+		}
+		
+		@Override
+		public void setBit(LittlePreviews previews, BitSet set) {
+			for (int i : previews.structure.getIntArray("activate"))
+				set.set(i);
+		}
 	}
 }

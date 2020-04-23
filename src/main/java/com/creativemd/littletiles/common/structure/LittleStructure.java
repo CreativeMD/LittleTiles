@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.world.SubWorld;
@@ -25,11 +24,10 @@ import com.creativemd.littletiles.common.structure.connection.StructureLinkFromS
 import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.structure.connection.StructureLinkToSubWorld;
 import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.exception.MissingTileEntity;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierRelative;
@@ -39,14 +37,12 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.math.vec.RelativeBlockPos;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHolder;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
 
@@ -61,7 +57,6 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -123,9 +118,6 @@ public abstract class LittleStructure {
 	public IStructureChildConnector parent;
 	public List<IStructureChildConnector> children;
 	
-	/** Used for placing and structures in item form */
-	private List<LittleStructure> tempChildren;
-	
 	public LittleStructure(LittleStructureType type) {
 		this.type = type;
 	}
@@ -152,14 +144,6 @@ public abstract class LittleStructure {
 		return new LittleIdentifierStructureAbsolute(mainTile, getAttribute());
 	}
 	
-	public boolean hasMainTile() {
-		return mainTile != null;
-	}
-	
-	public boolean isStructurePlaced() {
-		return hasMainTile();
-	}
-	
 	public boolean selectMainTile() {
 		if (load()) {
 			LittleTile first = tiles.getFirst();
@@ -172,7 +156,7 @@ public abstract class LittleStructure {
 	}
 	
 	public void setMainTile(LittleTile tile) {
-		if (isStructurePlaced())
+		if (mainTile != null)
 			checkLoaded();
 		
 		this.mainTile = tile;
@@ -219,13 +203,8 @@ public abstract class LittleStructure {
 		LittleAbsoluteVec absolute = tile.getAbsolutePos();
 		if (lastMainTileVec != null) {
 			LittleVecContext vec = lastMainTileVec.getRelative(absolute);
-			if (!lastMainTileVec.equals(absolute)) {
-				for (StructureTypeRelative relative : type.relatives) {
-					StructureRelative relativeST = relative.getRelative(this);
-					if (relativeST != null)
-						relativeST.onMove(this, vec.getContext(), vec.getVec());
-				}
-			}
+			if (!lastMainTileVec.equals(absolute))
+				type.move(this, vec.getContext(), vec.getVec());
 		}
 		lastMainTileVec = absolute;
 		
@@ -310,18 +289,6 @@ public abstract class LittleStructure {
 		return false;
 	}
 	
-	@Deprecated
-	public void removeTileList() {
-		this.tiles = null;
-	}
-	
-	public void createTilesList() {
-		if (isStructurePlaced())
-			throw new RuntimeException("Cannot create list, structure is placed already");
-		
-		this.tiles = new HashMapList<>();
-	}
-	
 	public List<TileEntityLittleTiles> collectBlocks() {
 		if (!load())
 			return Collections.EMPTY_LIST;
@@ -352,13 +319,6 @@ public abstract class LittleStructure {
 			throw new MissingTileEntity(pos);
 		return (TileEntityLittleTiles) te;
 	}
-	
-	/*public HashMapList<TileEntityLittleTiles, LittleTile> loadTE(HashMapList<BlockPos, LittleTile> map) {
-		HashMapList<TileEntityLittleTiles, LittleTile> blocks = new HashMapList<>();
-		for (Entry<BlockPos, ArrayList<LittleTile>> entry : map.entrySet())
-			blocks.add(loadTE(entry.getKey()), entry.getValue());
-		return blocks;
-	}*/
 	
 	public HashMapList<BlockPos, LittleTile> blockTiles() {
 		if (!load())
@@ -515,14 +475,6 @@ public abstract class LittleStructure {
 	
 	// ================Placing================
 	
-	public void createTempChildList() {
-		this.tempChildren = new ArrayList<>();
-	}
-	
-	public void addTempChild(LittleStructure child) {
-		this.tempChildren.add(child);
-	}
-	
 	/** takes name of stack and connects the structure to its children (does so recursively)
 	 * 
 	 * @param stack
@@ -531,19 +483,6 @@ public abstract class LittleStructure {
 		NBTTagCompound nbt;
 		if (name == null && stack != null && (nbt = stack.getSubCompound("display")) != null && nbt.hasKey("Name", 8))
 			name = nbt.getString("Name");
-		
-		combineTiles();
-		
-		if (tempChildren != null) {
-			children = new ArrayList<>();
-			for (int i = 0; i < tempChildren.size(); i++) {
-				LittleStructure child = tempChildren.get(i);
-				child.updateParentConnection(i, this);
-				this.updateChildConnection(i, child);
-				child.placedStructure(null);
-			}
-			tempChildren = null;
-		}
 	}
 	
 	// ================Synchronization================
@@ -633,18 +572,18 @@ public abstract class LittleStructure {
 		} else
 			children = new ArrayList<>();
 		
-		for (StructureTypeRelative relative : type.relatives) {
-			if (nbt.hasKey(relative.saveKey))
-				relative.createAndSetRelative(this, nbt);
+		for (StructureDirectionalField field : type.directional) {
+			if (nbt.hasKey(field.saveKey))
+				field.createAndSet(this, nbt);
 			else
-				failedLoadingRelative(nbt, relative);
+				field.set(this, failedLoadingRelative(nbt, field));
 		}
 		
 		loadFromNBTExtra(nbt);
 	}
 	
-	protected void failedLoadingRelative(NBTTagCompound nbt, StructureTypeRelative relative) {
-		relative.setRelative(this, null);
+	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
+		return null;
 	}
 	
 	protected abstract void loadFromNBTExtra(NBTTagCompound nbt);
@@ -661,13 +600,11 @@ public abstract class LittleStructure {
 		LittleVec inverted = vec.getVec().copy();
 		inverted.invert();
 		
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.onMove(this, vec.getContext(), vec.getVec());
-			relativeST.writeToNBT(relative.saveKey, nbt);
-			relativeST.onMove(this, vec.getContext(), inverted);
+		for (StructureDirectionalField field : type.directional) {
+			Object value = field.get(this);
+			field.move(value, vec.getContext(), vec.getVec());
+			field.save(nbt, value);
+			field.move(value, vec.getContext(), inverted);
 		}
 		
 		writeToNBTExtra(nbt);
@@ -713,27 +650,15 @@ public abstract class LittleStructure {
 			nbt.setTag("tiles", list);
 		}
 		
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.writeToNBT(relative.saveKey, nbt);
+		for (StructureDirectionalField field : type.directional) {
+			Object value = field.get(this);
+			field.save(nbt, value);
 		}
 		
 		writeToNBTExtra(nbt);
 	}
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
-	
-	// ================Item Form================
-	
-	public void addIngredients(LittleIngredients ingredients) {
-		
-	}
-	
-	public void finializePreview(LittlePreviews previews) {
-		
-	}
 	
 	// ====================Destroy====================
 	
@@ -775,62 +700,43 @@ public abstract class LittleStructure {
 	
 	// ====================Previews====================
 	
-	public LittleGridContext getMinContext() {
-		LittleGridContext context = LittleGridContext.getMin();
-		for (IStructureChildConnector child : children)
-			context = LittleGridContext.max(context, child.getStructure(getWorld()).getMinContext());
-		
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.convertToSmallest();
-			context = LittleGridContext.max(context, relativeST.getContext());
-		}
-		return context;
-	}
-	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviews(BlockPos pos) {
+	public LittleAbsolutePreviews getAbsolutePreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(structureNBT, pos, LittleGridContext.getMin());
 		
-		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
+		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();)
 			previews.addTile(iterator.next());
-		}
 		
 		for (IStructureChildConnector child : children)
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 		
 		previews.convertToSmallest();
-		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
-	public LittlePreviewsStructure getPreviews(BlockPos pos) {
+	public LittlePreviews getPreviews(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
+		LittlePreviews previews = new LittlePreviews(structureNBT, LittleGridContext.getMin());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			LittlePreview preview = previews.addTile(tile);
-			preview.box.add(new LittleVec(previews.context, tile.getBlockPos().subtract(pos)));
+			preview.box.add(new LittleVec(previews.getContext(), tile.getBlockPos().subtract(pos)));
 		}
 		
 		for (IStructureChildConnector child : children)
 			previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 		
 		previews.convertToSmallest();
-		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
-	public LittleAbsolutePreviewsStructure getAbsolutePreviewsSameWorldOnly(BlockPos pos) {
-		
+	public LittleAbsolutePreviews getAbsolutePreviewsSameWorldOnly(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittleAbsolutePreviewsStructure previews = new LittleAbsolutePreviewsStructure(structureNBT, pos, getMinContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(structureNBT, pos, LittleGridContext.getMin());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();)
 			previews.addTile(iterator.next());
@@ -839,32 +745,30 @@ public abstract class LittleStructure {
 			if (!child.isLinkToAnotherWorld())
 				previews.addChild(child.getStructure(getWorld()).getPreviewsSameWorldOnly(pos));
 			else
-				previews.getStructure().addTempChild(child.getStructure(getWorld()));
+				previews.addChild(new LittlePreviewsStructureHolder(child.getStructure(getWorld())));
 			
 		previews.convertToSmallest();
-		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
-	public LittlePreviewsStructure getPreviewsSameWorldOnly(BlockPos pos) {
+	public LittlePreviews getPreviewsSameWorldOnly(BlockPos pos) {
 		NBTTagCompound structureNBT = new NBTTagCompound();
 		this.writeToNBTPreview(structureNBT, pos);
-		LittlePreviewsStructure previews = new LittlePreviewsStructure(structureNBT, getMinContext());
+		LittlePreviews previews = new LittlePreviews(structureNBT, LittleGridContext.getMin());
 		
 		for (Iterator<LittleTile> iterator = getTiles(); iterator.hasNext();) {
 			LittleTile tile = iterator.next();
 			LittlePreview preview = previews.addTile(tile);
-			preview.box.add(new LittleVec(previews.context, tile.getBlockPos().subtract(pos)));
+			preview.box.add(new LittleVec(previews.getContext(), tile.getBlockPos().subtract(pos)));
 		}
 		
 		for (IStructureChildConnector child : children)
 			if (!child.isLinkToAnotherWorld())
 				previews.addChild(child.getStructure(getWorld()).getPreviews(pos));
 			else
-				previews.getStructure().addTempChild(child.getStructure(getWorld()));
+				previews.addChild(new LittlePreviewsStructureHolder(child.getStructure(getWorld())));
 			
 		previews.convertToSmallest();
-		previews.convertToAtMinimum(getMinContext());
 		return previews;
 	}
 	
@@ -876,26 +780,6 @@ public abstract class LittleStructure {
 			child.getStructure(getWorld()).getMinPos(pos);
 		
 		return pos;
-	}
-	
-	public List<PlacePreview> getSpecialTiles(LittlePreviews previews) {
-		if (type.relatives.isEmpty())
-			return Collections.EMPTY_LIST;
-		List<PlacePreview> placePreviews = new ArrayList<>();
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			PlacePreview tile = getPlacePreview(relativeST, relative, previews);
-			if (relativeST.getContext().size < previews.context.size)
-				tile.convertTo(relativeST.getContext(), previews.context);
-			placePreviews.add(tile);
-		}
-		return placePreviews;
-	}
-	
-	protected PlacePreview getPlacePreview(StructureRelative relative, StructureTypeRelative type, LittlePreviews previews) {
-		return relative.getPlacePreview(previews, type);
 	}
 	
 	// ====================Transform & Transfer====================
@@ -953,35 +837,6 @@ public abstract class LittleStructure {
 				((IAnimatedStructure) childStructure).getAnimation().transformWorld(transformation);
 			else
 				childStructure.transformAnimation(transformation);
-		}
-	}
-	
-	// ====================Relatives====================
-	
-	public void onMove(LittleGridContext context, LittleVec offset) {
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.onMove(this, context, offset);
-		}
-	}
-	
-	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.onFlip(this, context, axis, doubledCenter);
-		}
-	}
-	
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-		for (StructureTypeRelative relative : type.relatives) {
-			StructureRelative relativeST = relative.getRelative(this);
-			if (relativeST == null)
-				continue;
-			relativeST.onRotate(this, context, rotation, doubledCenter);
 		}
 	}
 	
@@ -1070,20 +925,6 @@ public abstract class LittleStructure {
 	
 	public void neighbourChanged() {
 		
-	}
-	
-	// ====================Premade====================
-	
-	public boolean canOnlyBePlacedByItemStack() {
-		return false;
-	}
-	
-	/** Only important for structures which require to be placed by the given
-	 * itemstack
-	 * 
-	 * @return */
-	public String getStructureDropIdentifier() {
-		return null;
 	}
 	
 }

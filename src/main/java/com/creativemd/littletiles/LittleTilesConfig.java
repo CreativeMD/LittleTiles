@@ -7,7 +7,7 @@ import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.item.ItemBag;
 import com.creativemd.littletiles.common.item.ItemMultiTiles;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.state.IBlockState;

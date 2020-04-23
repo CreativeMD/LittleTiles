@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.premade.signal;
+package com.creativemd.littletiles.common.structure.type.premade.signal;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -14,11 +14,11 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.ISignalBase;
 import com.creativemd.littletiles.common.structure.signal.ISignalTransmitter;
 import com.creativemd.littletiles.common.structure.signal.SignalNetwork;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
@@ -393,29 +393,13 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 		
 	}
 	
-	public static class LittleStructureTypeCable extends LittleStructureTypePremade {
+	public static class LittleStructureTypeNetwork extends LittleStructureTypePremade {
 		
 		public final int bandwidth;
 		
-		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> cubes;
-		
-		public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
+		public LittleStructureTypeNetwork(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
 			super(id, category, structureClass, attribute | LittleStructureAttribute.NEIGHBOR_LISTENER, modid);
 			this.bandwidth = bandwidth;
-		}
-		
-		@Override
-		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes() {
-			if (cubes == null) {
-				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
-				cubes = new ArrayList<>();
-				cubes.add(new RenderCubeObject(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
-				cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
-				cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
-			}
-			return cubes;
 		}
 		
 		@Override
@@ -428,7 +412,7 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 				TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
 				if (tileEntity instanceof TileEntityLittleTiles) {
 					for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
-						if (structure instanceof LittleSignalCable && ((LittleSignalCable) structure).getBandwidth() == bandwidth) {
+						if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth && ((ISignalBase) structure).canConnect(facing.getOpposite())) {
 							LittleRenderingCube cube = new LittleRenderingCube(new CubeObject(structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
 							cube.setMin(axis, 0);
 							cube.setMax(axis, 1);
@@ -437,34 +421,70 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 					}
 					
 				}
-				
 			}
 			
 			TileEntity tileEntity = world.getTileEntity(pos);
 			if (tileEntity instanceof TileEntityLittleTiles) {
 				for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
-					if (structure instanceof LittleSignalCable && ((LittleSignalCable) structure).getBandwidth() == bandwidth) {
+					if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth) {
 						AxisAlignedBB box = structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ());
-						LittleRenderingCube cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
-						cube.setMin(Axis.X, 0);
-						cube.setMax(Axis.X, 1);
-						cubes.add(cube);
+						LittleRenderingCube cube;
 						
-						cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
-						cube.setMin(Axis.Y, 0);
-						cube.setMax(Axis.Y, 1);
-						cubes.add(cube);
+						if (((ISignalBase) structure).canConnect(EnumFacing.WEST) || ((ISignalBase) structure).canConnect(EnumFacing.EAST)) {
+							cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.WEST))
+								cube.setMin(Axis.X, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.EAST))
+								cube.setMax(Axis.X, 1);
+							cubes.add(cube);
+						}
 						
-						cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
-						cube.setMin(Axis.Z, 0);
-						cube.setMax(Axis.Z, 1);
-						cubes.add(cube);
+						if (((ISignalBase) structure).canConnect(EnumFacing.DOWN) || ((ISignalBase) structure).canConnect(EnumFacing.UP)) {
+							cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.DOWN))
+								cube.setMin(Axis.Y, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.UP))
+								cube.setMax(Axis.Y, 1);
+							cubes.add(cube);
+						}
+						
+						if (((ISignalBase) structure).canConnect(EnumFacing.NORTH) || ((ISignalBase) structure).canConnect(EnumFacing.SOUTH)) {
+							cube = new LittleRenderingCube(new CubeObject(box), null, Blocks.AIR, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.NORTH))
+								cube.setMin(Axis.Z, 0);
+							if (((ISignalBase) structure).canConnect(EnumFacing.SOUTH))
+								cube.setMax(Axis.Z, 1);
+							cubes.add(cube);
+						}
 					}
 				}
 				
 			}
 			if (cubes.isEmpty())
 				return null;
+			return cubes;
+		}
+	}
+	
+	public static class LittleStructureTypeCable extends LittleStructureTypeNetwork {
+		
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> cubes;
+		
+		public LittleStructureTypeCable(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
+			super(id, category, structureClass, attribute, modid, bandwidth);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		public List<RenderCubeObject> getRenderingCubes() {
+			if (cubes == null) {
+				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
+				cubes = new ArrayList<>();
+				cubes.add(new RenderCubeObject(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+				cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
+				cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+			}
 			return cubes;
 		}
 		

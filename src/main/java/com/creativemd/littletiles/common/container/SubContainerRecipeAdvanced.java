@@ -27,7 +27,7 @@ public class SubContainerRecipeAdvanced extends SubContainerRecipe {
 				previews.convertTo(grid);
 				LittleGridContext aimedGrid = LittleGridContext.get(nbt.getInteger("aimedGrid"));
 				if (aimedGrid.size > grid.size)
-					setLittlePreviewsContextSecretly(previews, aimedGrid);
+					LittlePreviews.setLittlePreviewsContextSecretly(previews, aimedGrid);
 				else
 					LittlePreviews.advancedScale(previews, aimedGrid.size, grid.size);
 				previews.combinePreviewBlocks();

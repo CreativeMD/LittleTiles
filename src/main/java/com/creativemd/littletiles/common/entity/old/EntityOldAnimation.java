@@ -23,7 +23,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.google.common.base.Predicate;
 
@@ -121,7 +121,7 @@ public abstract class EntityOldAnimation extends Entity {
 	
 	public CreativeWorld fakeWorld;
 	public IVecOrigin origin;
-	public LittleAbsolutePreviewsStructure previews;
+	public LittleAbsolutePreviews previews;
 	public ArrayList<TileEntityLittleTiles> blocks;
 	
 	public double prevWorldRotX = 0;
@@ -292,7 +292,7 @@ public abstract class EntityOldAnimation extends Entity {
 		super(worldIn);
 	}
 	
-	public EntityOldAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, UUID uuid, LittleAbsoluteVec center, LittleVec additional) {
+	public EntityOldAnimation(World world, CreativeWorld fakeWorld, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviews previews, UUID uuid, LittleAbsoluteVec center, LittleVec additional) {
 		this(world);
 		
 		this.blocks = blocks;

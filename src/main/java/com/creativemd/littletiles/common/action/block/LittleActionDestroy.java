@@ -14,7 +14,6 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
@@ -136,11 +135,11 @@ public class LittleActionDestroy extends LittleActionInteract {
 	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
 		LittleBoxes boxes;
 		if (structurePreview != null) {
-			boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.context);
+			boxes = new LittleBoxes(structurePreview.previews.pos, structurePreview.previews.getContext());
 			boxes.add(structurePreview.previews.get(0).box);
 		} else if (destroyedTiles != null) {
 			destroyedTiles.convertToSmallest();
-			boxes = new LittleBoxes(blockPos, destroyedTiles.context);
+			boxes = new LittleBoxes(blockPos, destroyedTiles.getContext());
 			for (LittlePreview preview : destroyedTiles)
 				boxes.add(preview.box);
 		} else
@@ -152,7 +151,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	
 	public static class StructurePreview {
 		
-		public LittleAbsolutePreviewsStructure previews;
+		public LittleAbsolutePreviews previews;
 		public boolean requiresItemStack;
 		public LittleStructure structure;
 		
@@ -160,7 +159,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 			if (!structure.load())
 				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
 			previews = structure.getAbsolutePreviews(structure.getMainTile().te.getPos());
-			requiresItemStack = structure.canOnlyBePlacedByItemStack();
+			requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
 			
 			this.structure = structure;
 		}
@@ -173,7 +172,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		@Override
 		public int hashCode() {
-			return previews.getStructureData().hashCode();
+			return previews.structure.hashCode();
 		}
 		
 		@Override

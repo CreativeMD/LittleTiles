@@ -13,13 +13,14 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import io.netty.buffer.ByteBuf;
@@ -27,7 +28,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -92,7 +92,7 @@ public class LittleActionReplace extends LittleActionInteract {
 		if (BlockTile.selectEntireBlock(player, secondMode)) {
 			List<LittleTile> toRemove = new ArrayList<>();
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			List<PlacePreview> previews = new ArrayList<>();
+			LittlePreviews previews = new LittlePreviews(te.getContext());
 			
 			for (LittleTile toDestroy : te) {
 				if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
@@ -102,7 +102,7 @@ public class LittleActionReplace extends LittleActionInteract {
 					toBePlaced.addTile(toDestroy);
 					LittlePreview preview = toReplace.copy();
 					preview.box = toDestroy.box;
-					previews.add(preview.getPlaceableTile(null, true, null, null));
+					previews.addWithoutCheckingPreview(preview);
 					
 					toRemove.add(toDestroy);
 				}
@@ -126,9 +126,9 @@ public class LittleActionReplace extends LittleActionInteract {
 					toDestroy.destroy(x);
 			});
 			
-			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
-			giveOrDrop(player, inventory, unplaceableTiles);
+			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
+			placement.place();
+			giveOrDrop(player, inventory, placement.unplaceableTiles);
 		} else {
 			if (tile.isChildOfStructure())
 				return false;
@@ -152,12 +152,12 @@ public class LittleActionReplace extends LittleActionInteract {
 			
 			te.updateTiles((x) -> tile.destroy(x));
 			
-			List<PlacePreview> previews = new ArrayList<>();
-			previews.add(toReplace.getPlaceableTile(null, true, null, null));
+			LittlePreviews previews = new LittlePreviews(te.getContext());
+			previews.addWithoutCheckingPreview(toReplace);
 			
-			ArrayList<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			LittleActionPlaceStack.placeTiles(world, player, te.getContext(), previews, null, PlacementMode.normal, pos, stack, unplaceableTiles, null, EnumFacing.EAST);
-			giveOrDrop(player, inventory, unplaceableTiles);
+			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
+			placement.place();
+			giveOrDrop(player, inventory, placement.unplaceableTiles);
 		}
 		
 		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);

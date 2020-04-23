@@ -14,7 +14,10 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
+import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
@@ -22,6 +25,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -187,27 +191,6 @@ public abstract class LittleDoor extends LittleStructure {
 		return this;
 	}
 	
-	protected abstract void fillActivateChildren(BitSet set);
-	
-	@Override
-	public void finializePreview(LittlePreviews previews) {
-		List<LittlePreviews> previewChildren = previews.getChildren();
-		
-		if (!previewChildren.isEmpty()) {
-			BitSet set = new BitSet(previewChildren.size());
-			fillActivateChildren(set);
-			
-			for (int i = 0; i < previewChildren.size(); i++) {
-				if (!previewChildren.get(i).hasStructure())
-					continue;
-				if (set.get(i))
-					previewChildren.get(i).getStructureData().setBoolean("activateParent", true);
-				else
-					previewChildren.get(i).getStructureData().removeTag("activateParent");
-			}
-		}
-	}
-	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce);
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
@@ -240,6 +223,24 @@ public abstract class LittleDoor extends LittleStructure {
 		public String toString() {
 			return "" + nbt;
 		}
+	}
+	
+	public static class LittleDoorType extends LittleDoorBaseType {
+		
+		public LittleDoorType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+			super(id, category, structureClass, attribute);
+		}
+		
+		@Override
+		public void setBit(LittlePreviews previews, BitSet set) {
+			NBTTagList list = previews.structure.getTagList("events", 10);
+			for (int i = 0; i < list.tagCount(); i++) {
+				AnimationEvent event = AnimationEvent.loadFromNBT(list.getCompoundTagAt(i));
+				if (event instanceof ChildActivateEvent)
+					set.set(((ChildActivateEvent) event).childId);
+			}
+		}
+		
 	}
 	
 	public static class DoorActivationResult {

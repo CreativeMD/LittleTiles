@@ -12,8 +12,8 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -40,7 +40,7 @@ public interface ILittleTile {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		if (previews.isEmpty())
 			return;
-		previews.rotatePreviews(rotation, previews.context.rotationCenter);
+		previews.rotatePreviews(rotation, previews.getContext().rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	
@@ -48,7 +48,7 @@ public interface ILittleTile {
 		LittlePreviews previews = getLittlePreview(stack, false, false);
 		if (previews.isEmpty())
 			return;
-		previews.flipPreviews(axis, previews.context.rotationCenter);
+		previews.flipPreviews(axis, previews.getContext().rotationCenter);
 		saveLittlePreview(stack, previews);
 	}
 	
@@ -69,7 +69,7 @@ public interface ILittleTile {
 	
 	/** @return Whether it should try to place it or not. */
 	@SideOnly(Side.CLIENT)
-	public default boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public default boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		return true;
 	}
 	
@@ -82,7 +82,7 @@ public interface ILittleTile {
 	public default void onClickAir(EntityPlayer player, ItemStack stack) {}
 	
 	@SideOnly(Side.CLIENT)
-	public default boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public default boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		return false;
 	}
 	
@@ -102,7 +102,7 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default void tickPreview(EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {}
+	public default void tickPreview(EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {}
 	
 	public default PlacementMode getPlacementMode(ItemStack stack) {
 		if (stack.hasTagCompound())

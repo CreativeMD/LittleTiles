@@ -23,7 +23,7 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.selection.mode.SelectionMode;
 
 import net.minecraft.block.state.IBlockState;
@@ -171,7 +171,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onRightClick(player, stack, result.getBlockPos());
@@ -180,7 +180,7 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	}
 	
 	@Override
-	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		if (hasLittlePreview(stack))
 			return true;
 		getSelectionMode(stack).onLeftClick(player, stack, result.getBlockPos());

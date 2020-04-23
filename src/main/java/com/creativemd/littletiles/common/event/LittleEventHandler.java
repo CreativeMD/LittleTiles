@@ -38,8 +38,8 @@ import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -318,13 +318,13 @@ public class LittleEventHandler {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static PositionResult getPosition(World world, ILittleTile iTile, ItemStack stack, RayTraceResult result) {
+	public static PlacementPosition getPosition(World world, ILittleTile iTile, ItemStack stack, RayTraceResult result) {
 		return PreviewRenderer.marked != null ? PreviewRenderer.marked.position.copy() : PlacementHelper.getPosition(world, result, iTile.getPositionContext(stack), iTile, stack);
 	}
 	
 	@SideOnly(Side.CLIENT)
 	public void onRightInteractClient(ILittleTile iTile, EntityPlayer player, EnumHand hand, World world, ItemStack stack, BlockPos pos, EnumFacing facing) {
-		PositionResult position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
+		PlacementPosition position = getPosition(world, iTile, stack, Minecraft.getMinecraft().objectMouseOver);
 		if (iTile.onRightClick(world, player, stack, position.copy(), Minecraft.getMinecraft().objectMouseOver)) {
 			if (!stack.isEmpty() && player.canPlayerEdit(pos.offset(facing), facing, stack)) {
 				PlacementMode mode = iTile.getPlacementMode(stack).place();

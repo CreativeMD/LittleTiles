@@ -7,8 +7,6 @@ import com.creativemd.littletiles.client.gui.SubGuiMarkMode;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PreviewResult;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -26,7 +24,7 @@ public class MarkMode {
 	
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
-	public PositionResult position = null;
+	public PlacementPosition position = null;
 	
 	public boolean allowLowResolution = true;
 	
@@ -34,8 +32,8 @@ public class MarkMode {
 		
 	}
 	
-	public static PositionResult loadPosition(boolean absolute, PositionResult position, PreviewResult preview) {
-		if (!absolute) {
+	public static PlacementPosition loadPosition(PlacementPosition position, PlacementPreview preview) {
+		if (!preview.fixed) {
 			position.setVecContext(new LittleVecContext(preview.box.getCenter(), preview.context));
 			
 			LittleVec center = preview.size.calculateCenter();
@@ -64,8 +62,8 @@ public class MarkMode {
 				break;
 			}
 			
-			if (!preview.singleMode && preview.placedFixed)
-				position.sub(preview.offset.getVecContext());
+			//if (!preview.singleMode && preview.fixed)
+			//position.subVec(preview.inBlockOffset);
 		}
 		return position;
 	}
@@ -78,9 +76,9 @@ public class MarkMode {
 		return new SubGuiMarkMode(this);
 	}
 	
-	public boolean processPosition(EntityPlayer player, PositionResult position, PreviewResult preview, boolean absolute) {
+	public boolean processPosition(EntityPlayer player, PlacementPosition position, PlacementPreview preview) {
 		if (this.position == null) {
-			this.position = loadPosition(absolute, position, preview);
+			this.position = loadPosition(position, preview);
 			return false;
 		}
 		if (GuiScreen.isCtrlKeyDown()) {

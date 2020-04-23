@@ -31,7 +31,7 @@ public class LittleVolumes {
 	}
 	
 	public void addPreviews(LittlePreviews previews) {
-		ensureContext(previews.context);
+		ensureContext(previews.getContext());
 		
 		for (LittlePreview preview : previews) {
 			addPreviewDirectly(context, preview);

@@ -3,8 +3,7 @@ package com.creativemd.littletiles.common.structure.relative;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
@@ -14,7 +13,6 @@ import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 
@@ -25,8 +23,7 @@ public class StructureRelative implements IGridBased {
 		this.context = context;
 	}
 	
-	public StructureRelative(String name, NBTTagCompound nbt) {
-		int[] array = nbt.getIntArray(name);
+	public StructureRelative(int[] array) {
 		this.box = new LittleBox(array[0], array[1], array[2], array[3], array[4], array[5]);
 		this.context = LittleGridContext.get(array[6]);
 	}
@@ -68,8 +65,8 @@ public class StructureRelative implements IGridBased {
 			convertTo(LittleGridContext.get(grid));
 	}
 	
-	public void writeToNBT(String name, NBTTagCompound nbt) {
-		nbt.setIntArray(name, new int[] { box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, context.size });
+	public int[] write() {
+		return new int[] { box.minX, box.minY, box.minZ, box.maxX, box.maxY, box.maxZ, context.size };
 	}
 	
 	public void setBox(BlockPos pos, LittleBox box, LittleGridContext context) {
@@ -82,11 +79,11 @@ public class StructureRelative implements IGridBased {
 		return new LittleVecContext(box.getMinVec(), context);
 	}
 	
-	public PlacePreview getPlacePreview(LittlePreviews previews, StructureTypeRelative type) {
-		return new PlacePreviewRelative(box, previews, this, type);
+	public PlacePreview getPlacePreview(LittlePreviews previews, StructureDirectionalField type) {
+		return new PlacePreviewRelative(box, this, type);
 	}
 	
-	public void onMove(LittleStructure structure, LittleGridContext context, LittleVec offset) {
+	public void move(LittleGridContext context, LittleVec offset) {
 		int scale = 1;
 		if (context.size > this.context.size)
 			convertTo(context);
@@ -98,7 +95,7 @@ public class StructureRelative implements IGridBased {
 		convertToSmallest();
 	}
 	
-	public void onFlip(LittleStructure structure, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+	public void flip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		if (context.size > this.context.size)
 			convertTo(context);
 		else if (context.size < this.context.size) {
@@ -111,7 +108,7 @@ public class StructureRelative implements IGridBased {
 		convertToSmallest();
 	}
 	
-	public void onRotate(LittleStructure structure, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+	public void rotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		if (context.size > this.context.size)
 			convertTo(context);
 		else if (context.size < this.context.size) {

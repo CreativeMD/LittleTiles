@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.premade;
+package com.creativemd.littletiles.common.structure.type.premade;
 
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -14,9 +14,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class LittleWorkbench extends LittleStructurePremade {
+public class LittleImporter extends LittleStructurePremade {
 	
-	public LittleWorkbench(LittleStructureType type) {
+	public LittleImporter(LittleStructureType type) {
 		super(type);
 	}
 	
@@ -33,7 +33,7 @@ public class LittleWorkbench extends LittleStructurePremade {
 	@Override
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
-			LittleGuiHandler.openGui("workbench", new NBTTagCompound(), playerIn, getMainTile());
+			LittleGuiHandler.openGui("lt-import", new NBTTagCompound(), playerIn, getMainTile());
 		return true;
 	}
 	

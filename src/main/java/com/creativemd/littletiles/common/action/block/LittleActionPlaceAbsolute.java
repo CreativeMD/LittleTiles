@@ -1,19 +1,13 @@
 package com.creativemd.littletiles.common.action.block;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructurePremadeEntry;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -21,11 +15,13 @@ import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredient;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementResult;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 
 public class LittleActionPlaceAbsolute extends LittleAction {
@@ -82,13 +78,8 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	protected boolean action(EntityPlayer player) throws LittleActionException {
 		LittleInventory inventory = new LittleInventory(player);
 		if (canDrainIngredientsBeforePlacing(player, inventory)) {
-			List<PlacePreview> placePreviews = new ArrayList<>();
-			previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
-			
-			List<LittleTile> unplaceableTiles = new ArrayList<LittleTile>();
-			List<LittleTile> removedTiles = new ArrayList<LittleTile>();
-			
-			LittlePlaceResult placedTiles = LittleActionPlaceStack.placeTiles(player.world, player, previews.context, placePreviews, previews.getStructure(), mode, previews.pos, null, unplaceableTiles, removedTiles, EnumFacing.EAST);
+			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(player.world, previews, previews.pos, mode));
+			PlacementResult placedTiles = placement.place();
 			
 			if (placedTiles != null) {
 				boxes = placedTiles.placedBoxes;
@@ -96,15 +87,14 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				drainIngredientsAfterPlacing(player, inventory, placedTiles, previews);
 				
 				if (!player.world.isRemote) {
-					giveOrDrop(player, inventory, unplaceableTiles);
-					giveOrDrop(player, inventory, removedTiles);
+					giveOrDrop(player, inventory, placement.unplaceableTiles);
+					giveOrDrop(player, inventory, placement.removedTiles);
 				}
 				
-				if (!removedTiles.isEmpty()) {
-					destroyed = new LittleAbsolutePreviews(previews.pos, previews.context);
-					for (LittleTile tile : removedTiles) {
+				if (!placement.removedTiles.isEmpty()) {
+					destroyed = new LittleAbsolutePreviews(previews.pos, previews.getContext());
+					for (LittleTile tile : placement.removedTiles)
 						destroyed.addTile(tile);
-					}
 				}
 				
 				if (toVanilla) {
@@ -124,7 +114,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		return canTake(player, inventory, getIngredients(previews));
 	}
 	
-	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
+	protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, PlacementResult placedTiles, LittlePreviews previews) throws LittleActionException {
 		LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
 		ingredients.add(getIngredients(placedTiles.placedPreviews));
 		take(player, inventory, ingredients);
@@ -150,9 +140,9 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
 		LittleAbsolutePreviews newPreviews = previews.copy();
 		
-		if (newPreviews.context != box.context)
-			if (newPreviews.context.size > box.context.size)
-				box.convertTo(newPreviews.context);
+		if (newPreviews.getContext() != box.context)
+			if (newPreviews.getContext().size > box.context.size)
+				box.convertTo(newPreviews.getContext());
 			else
 				newPreviews.convertTo(box.context);
 			
@@ -174,13 +164,13 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		}
 		
 		@Override
-		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, LittlePlaceResult placedTiles, LittlePreviews previews) throws LittleActionException {
-			take(player, inventory, LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id).stack);
+		protected void drainIngredientsAfterPlacing(EntityPlayer player, LittleInventory inventory, PlacementResult placedTiles, LittlePreviews previews) throws LittleActionException {
+			take(player, inventory, LittleStructurePremade.getStructurePremadeEntry(previews.getStructureId()).stack);
 		}
 		
 		@Override
 		protected boolean canDrainIngredientsBeforePlacing(EntityPlayer player, LittleInventory inventory) throws LittleActionException {
-			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(previews.getStructure().type.id);
+			LittleStructurePremadeEntry entry = LittleStructurePremade.getStructurePremadeEntry(previews.getStructureId());
 			
 			try {
 				inventory.startSimulation();
@@ -194,9 +184,9 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 		public LittleAction flip(Axis axis, LittleAbsoluteBox box) {
 			LittleAbsolutePreviews newPreviews = previews.copy();
 			
-			if (newPreviews.context != box.context)
-				if (newPreviews.context.size > box.context.size)
-					box.convertTo(newPreviews.context);
+			if (newPreviews.getContext() != box.context)
+				if (newPreviews.getContext().size > box.context.size)
+					box.convertTo(newPreviews.getContext());
 				else
 					newPreviews.convertTo(box.context);
 				

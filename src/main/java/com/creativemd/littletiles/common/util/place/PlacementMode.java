@@ -2,13 +2,12 @@ package com.creativemd.littletiles.common.util.place;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.place.PlacePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.util.math.BlockPos;
@@ -22,19 +21,19 @@ public abstract class PlacementMode {
 	
 	/** Tries to place all tiles, fails if the main block pos (the player aimed at)
 	 * cannot be placed entirely. **/
-	public static PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS, false);
+	public static final PlacementMode normal = new PlaceModeNormal("placement.mode.default", PreviewMode.PREVIEWS, false);
 	
 	/** Tries to fill in the tiles where it is possible. **/
-	public static PlacementMode fill = new PlaceModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
+	public static final PlacementMode fill = new PlaceModeFill("placement.mode.fill", PreviewMode.PREVIEWS);
 	
 	/** Used for placing structures, should fail if it cannot place all tiles. **/
-	public static PlacementMode all = new PlaceModeAll("placement.mode.all", PreviewMode.PREVIEWS);
+	public static final PlacementMode all = new PlaceModeAll("placement.mode.all", PreviewMode.PREVIEWS);
 	
 	/** Places all tiles no matter what is in the way. **/
-	public static PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
+	public static final PlacementMode overwrite = new PlaceModeOverwrite("placement.mode.overwrite", PreviewMode.PREVIEWS);
 	
 	/** Similar to overwrite only that replace will not place any tiles in the air. **/
-	public static PlacementMode replace = new PlaceModeReplace("placement.mode.replace", PreviewMode.LINES);
+	public static final PlacementMode replace = new PlaceModeReplace("placement.mode.replace", PreviewMode.LINES);
 	
 	public static PlacementMode getDefault() {
 		return normal;
@@ -84,7 +83,7 @@ public abstract class PlacementMode {
 		return mode;
 	}
 	
-	public abstract List<BlockPos> getCoordsToCheck(HashMap<BlockPos, PlacePreviews> splittedTiles, BlockPos pos);
+	public abstract List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos);
 	
 	public abstract List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest);
 	

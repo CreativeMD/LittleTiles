@@ -142,7 +142,7 @@ public class AreaSelectionMode extends SelectionMode {
 										}
 									} else {
 										LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
-										preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+										preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 									}
 								}
 								continue;
@@ -154,7 +154,7 @@ public class AreaSelectionMode extends SelectionMode {
 							if (specialPreviews != null) {
 								for (int i = 0; i < specialPreviews.size(); i++) {
 									LittlePreview preview = previews.addPreview(null, specialPreviews.get(i), LittleGridContext.get(ChiselsAndBitsManager.convertingFrom));
-									preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+									preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 								}
 								continue;
 							}
@@ -167,7 +167,7 @@ public class AreaSelectionMode extends SelectionMode {
 							LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 							tile.box = new LittleBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
 							LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());
-							preview.box.add(new LittleVec((posX - minX) * previews.context.size, (posY - minY) * previews.context.size, (posZ - minZ) * previews.context.size));
+							preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 						}
 					}
 				}

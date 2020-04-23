@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.premade;
+package com.creativemd.littletiles.common.structure.type.premade;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,10 +13,10 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable;
-import com.creativemd.littletiles.common.structure.premade.signal.LittleSignalCable.LittleStructureTypeCable;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
@@ -72,11 +72,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	}
 	
 	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
-		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(id, new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null));
+		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null));
 	}
 	
 	public static void registerPremadeStructureType(LittleStructureTypePremade type) {
-		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(type.id, type, null));
+		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(type, null));
 	}
 	
 	public static LittlePreviews getPreviews(String id) {
@@ -111,11 +111,6 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		return getPremadeStack(type.id).copy();
 	}
 	
-	@Override
-	public boolean canOnlyBePlacedByItemStack() {
-		return true;
-	}
-	
 	public static void initPremadeStructures() {
 		registerPremadeStructureType("workbench", LittleTiles.modid, LittleWorkbench.class);
 		registerPremadeStructureType("importer", LittleTiles.modid, LittleImporter.class);
@@ -138,6 +133,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public List<RenderCubeObject> getRenderingCubes() {
 			return null;
+		}
+		
+		@Override
+		public boolean canOnlyBePlacedByItemStack() {
+			return true;
 		}
 		
 	}

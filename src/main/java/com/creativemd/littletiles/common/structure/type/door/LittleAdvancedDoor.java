@@ -35,16 +35,17 @@ import com.creativemd.littletiles.common.structure.animation.AnimationKey;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.relative.LTStructureAnnotation;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -149,7 +150,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		super(type);
 	}
 	
-	@LTStructureAnnotation(color = ColorUtils.RED)
+	@StructureDirectional(color = ColorUtils.RED)
 	public StructureRelative axisCenter;
 	
 	public ValueTimeline rotX;
@@ -228,89 +229,22 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	}
 	
 	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-		super.onFlip(context, axis, doubledCenter);
-		
-		switch (axis) {
-		case X:
-			if (rotY != null)
-				rotY.flip();
-			if (rotZ != null)
-				rotZ.flip();
-			
-			if (offX != null)
-				offX.flip();
-			break;
-		case Y:
-			if (rotX != null)
-				rotX.flip();
-			if (rotZ != null)
-				rotZ.flip();
-			
-			if (offY != null)
-				offY.flip();
-			break;
-		case Z:
-			if (rotX != null)
-				rotX.flip();
-			if (rotY != null)
-				rotY.flip();
-			
-			if (offZ != null)
-				offZ.flip();
-			break;
-		}
-	}
-	
-	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-		super.onRotate(context, rotation, doubledCenter);
-		ValueTimeline rotX = this.rotX;
-		ValueTimeline rotY = this.rotY;
-		ValueTimeline rotZ = this.rotZ;
-		
-		this.rotX = rotation.getX(rotX, rotY, rotZ);
-		if (rotation.negativeX() && this.rotX != null)
-			this.rotX.flip();
-		this.rotY = rotation.getY(rotX, rotY, rotZ);
-		if (rotation.negativeY() && this.rotY != null)
-			this.rotY.flip();
-		this.rotZ = rotation.getZ(rotX, rotY, rotZ);
-		if (rotation.negativeZ() && this.rotZ != null)
-			this.rotZ.flip();
-		
-		ValueTimeline offX = this.offX;
-		ValueTimeline offY = this.offY;
-		ValueTimeline offZ = this.offZ;
-		
-		this.offX = rotation.getX(offX, offY, offZ);
-		if (rotation.negativeX() && this.offX != null)
-			this.offX.flip();
-		this.offY = rotation.getY(offX, offY, offZ);
-		if (rotation.negativeY() && this.offY != null)
-			this.offY.flip();
-		this.offZ = rotation.getZ(offX, offY, offZ);
-		if (rotation.negativeZ() && this.offZ != null)
-			this.offZ.flip();
-	}
-	
-	@Override
 	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
 		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 	}
 	
 	@Override
-	public void transformDoorPreview(LittleAbsolutePreviewsStructure previews, LittleTransformation transformation) {
-		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
+	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
+		/*LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
 		if (newDoor.axisCenter.getContext().size > previews.context.size)
 			previews.convertTo(newDoor.axisCenter.getContext());
 		else if (newDoor.axisCenter.getContext().size < previews.context.size)
-			newDoor.axisCenter.convertTo(previews.context);
+			newDoor.axisCenter.convertTo(previews.context);*/
 	}
 	
 	@Override
-	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, LittleAbsolutePreviewsStructure previews, LittleTransformation transformation, int completeDuration) {
-		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
+	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
+		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) placement.origin.structure;
 		int duration = newDoor.duration;
 		
 		PairList<AnimationKey, ValueTimeline> open = new PairList<>();
@@ -400,7 +334,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			parent.controls.add(new GuiLabel("Position:", 90, 90));
 			parent.controls.add((GuiControl) new GuiTextfield("keyPosition", "", 149, 90, 40, 10).setNumbersOnly().setEnabled(false));
 			
-			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews.context, structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
+			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews.getContext(), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
 			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 123, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
@@ -599,6 +533,182 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				door.stayAnimated = checkBox.value;
 			door.offGrid = context;
 			return door;
+		}
+		
+	}
+	
+	public static class LittleAdvancedDoorType extends LittleDoorType {
+		
+		public LittleAdvancedDoorType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
+			super(id, category, structureClass, attribute);
+		}
+		
+		@Override
+		public void flip(LittlePreviews previews, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
+			super.flip(previews, context, axis, doubledCenter);
+			
+			ValueTimeline rotX = null;
+			ValueTimeline rotY = null;
+			ValueTimeline rotZ = null;
+			
+			ValueTimeline offX = null;
+			ValueTimeline offY = null;
+			ValueTimeline offZ = null;
+			NBTTagCompound animation = previews.structure.getCompoundTag("animation");
+			if (animation.hasKey("rotX"))
+				rotX = ValueTimeline.read(animation.getIntArray("rotX"));
+			if (animation.hasKey("rotY"))
+				rotY = ValueTimeline.read(animation.getIntArray("rotY"));
+			if (animation.hasKey("rotZ"))
+				rotZ = ValueTimeline.read(animation.getIntArray("rotZ"));
+			
+			if (animation.hasKey("offGrid")) {
+				if (animation.hasKey("offX"))
+					offX = ValueTimeline.read(animation.getIntArray("offX"));
+				if (animation.hasKey("offY"))
+					offY = ValueTimeline.read(animation.getIntArray("offY"));
+				if (animation.hasKey("offZ"))
+					offZ = ValueTimeline.read(animation.getIntArray("offZ"));
+			}
+			
+			switch (axis) {
+			case X:
+				if (rotY != null)
+					rotY.flip();
+				if (rotZ != null)
+					rotZ.flip();
+				
+				if (offX != null)
+					offX.flip();
+				break;
+			case Y:
+				if (rotX != null)
+					rotX.flip();
+				if (rotZ != null)
+					rotZ.flip();
+				
+				if (offY != null)
+					offY.flip();
+				break;
+			case Z:
+				if (rotX != null)
+					rotX.flip();
+				if (rotY != null)
+					rotY.flip();
+				
+				if (offZ != null)
+					offZ.flip();
+				break;
+			}
+			
+			if (rotX == null)
+				animation.removeTag("rotX");
+			else
+				animation.setIntArray("rotX", rotX.write());
+			if (rotY == null)
+				animation.removeTag("rotY");
+			else
+				animation.setIntArray("rotY", rotY.write());
+			if (rotZ == null)
+				animation.removeTag("rotZ");
+			else
+				animation.setIntArray("rotZ", rotZ.write());
+			
+			if (offX == null)
+				animation.removeTag("offX");
+			else
+				animation.setIntArray("offX", offX.write());
+			if (offY == null)
+				animation.removeTag("offY");
+			else
+				animation.setIntArray("offY", offY.write());
+			if (offZ == null)
+				animation.removeTag("offZ");
+			else
+				animation.setIntArray("offZ", offZ.write());
+		}
+		
+		@Override
+		public void rotate(LittlePreviews previews, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
+			super.rotate(previews, context, rotation, doubledCenter);
+			
+			ValueTimeline rotX = null;
+			ValueTimeline rotY = null;
+			ValueTimeline rotZ = null;
+			
+			ValueTimeline offX = null;
+			ValueTimeline offY = null;
+			ValueTimeline offZ = null;
+			NBTTagCompound animation = previews.structure.getCompoundTag("animation");
+			if (animation.hasKey("rotX"))
+				rotX = ValueTimeline.read(animation.getIntArray("rotX"));
+			if (animation.hasKey("rotY"))
+				rotY = ValueTimeline.read(animation.getIntArray("rotY"));
+			if (animation.hasKey("rotZ"))
+				rotZ = ValueTimeline.read(animation.getIntArray("rotZ"));
+			
+			if (animation.hasKey("offGrid")) {
+				if (animation.hasKey("offX"))
+					offX = ValueTimeline.read(animation.getIntArray("offX"));
+				if (animation.hasKey("offY"))
+					offY = ValueTimeline.read(animation.getIntArray("offY"));
+				if (animation.hasKey("offZ"))
+					offZ = ValueTimeline.read(animation.getIntArray("offZ"));
+			}
+			
+			ValueTimeline rotTempX = rotX;
+			ValueTimeline rotTempY = rotY;
+			ValueTimeline rotTempZ = rotZ;
+			
+			rotX = rotation.getX(rotTempX, rotTempY, rotTempZ);
+			if (rotation.negativeX() && rotX != null)
+				rotX.flip();
+			rotY = rotation.getY(rotTempX, rotTempY, rotTempZ);
+			if (rotation.negativeY() && rotY != null)
+				rotY.flip();
+			rotZ = rotation.getZ(rotTempX, rotTempY, rotTempZ);
+			if (rotation.negativeZ() && rotZ != null)
+				rotZ.flip();
+			
+			ValueTimeline offTempX = offX;
+			ValueTimeline offTempY = offY;
+			ValueTimeline offTempZ = offZ;
+			
+			offX = rotation.getX(offTempX, offTempY, offTempZ);
+			if (rotation.negativeX() && offX != null)
+				offX.flip();
+			offY = rotation.getY(offTempX, offTempY, offTempZ);
+			if (rotation.negativeY() && offY != null)
+				offY.flip();
+			offZ = rotation.getZ(offTempX, offTempY, offTempZ);
+			if (rotation.negativeZ() && offZ != null)
+				offZ.flip();
+			
+			if (rotX == null)
+				animation.removeTag("rotX");
+			else
+				animation.setIntArray("rotX", rotX.write());
+			if (rotY == null)
+				animation.removeTag("rotY");
+			else
+				animation.setIntArray("rotY", rotY.write());
+			if (rotZ == null)
+				animation.removeTag("rotZ");
+			else
+				animation.setIntArray("rotZ", rotZ.write());
+			
+			if (offX == null)
+				animation.removeTag("offX");
+			else
+				animation.setIntArray("offX", offX.write());
+			if (offY == null)
+				animation.removeTag("offY");
+			else
+				animation.setIntArray("offY", offY.write());
+			if (offZ == null)
+				animation.removeTag("offZ");
+			else
+				animation.setIntArray("offZ", offZ.write());
 		}
 		
 	}

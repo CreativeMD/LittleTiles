@@ -55,7 +55,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				ingredients.add(handler.extract(previews));
 			
 		if (previews.hasStructure())
-			previews.getStructure().addIngredients(ingredients);
+			previews.getStructureType().addIngredients(previews, ingredients);
 		
 		if (previews.hasChildren())
 			for (LittlePreviews child : previews.getChildren())
@@ -157,7 +157,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				BlockIngredient ingredient = new BlockIngredient();
 				if (previews.containsIngredients())
 					for (LittlePreview preview : previews)
-						ingredient.add(preview.getBlockIngredient(previews.context));
+						ingredient.add(preview.getBlockIngredient(previews.getContext()));
 					
 				for (LittlePreviews child : previews.getChildren()) {
 					BlockIngredient childIngredient = extract(child);
@@ -228,7 +228,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 						color.scale(LittleTiles.CONFIG.survival.dyeVolume);
 						return color;
 					} catch (IllegalArgumentException | IllegalAccessException e) {
-						
+					
 					}
 				}
 				return null;
@@ -239,7 +239,7 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
 				ColorIngredient ingredient = new ColorIngredient();
 				if (previews.containsIngredients())
 					for (LittlePreview preview : previews)
-						ingredient.add(ColorIngredient.getColors(previews.context, preview));
+						ingredient.add(ColorIngredient.getColors(previews.getContext(), preview));
 					
 				for (LittlePreviews child : previews.getChildren()) {
 					ColorIngredient childIngredient = extract(child);

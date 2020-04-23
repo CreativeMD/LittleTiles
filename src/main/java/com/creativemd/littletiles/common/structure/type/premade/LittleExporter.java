@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.premade;
+package com.creativemd.littletiles.common.structure.type.premade;
 
 import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;

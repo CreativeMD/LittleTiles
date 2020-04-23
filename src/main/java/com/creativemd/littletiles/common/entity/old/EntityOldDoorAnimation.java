@@ -1,20 +1,20 @@
 package com.creativemd.littletiles.common.entity.old;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.outdated.OldDoorTransformation;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementResult;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
@@ -23,7 +23,6 @@ import net.minecraft.nbt.NBTTagDouble;
 import net.minecraft.nbt.NBTTagFloat;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 @Deprecated
@@ -58,7 +57,7 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 		super(worldIn);
 	}
 	
-	public EntityOldDoorAnimation(World world, CreativeWorld worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviewsStructure previews, LittleAbsoluteVec axis, OldDoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleVec additionalAxis, int duration) {
+	public EntityOldDoorAnimation(World world, CreativeWorld worldFake, ArrayList<TileEntityLittleTiles> blocks, LittleAbsolutePreviews previews, LittleAbsoluteVec axis, OldDoorTransformation transformation, UUID uuid, EntityPlayer activator, LittleVec additionalAxis, int duration) {
 		super(world, worldFake, blocks, previews, uuid, axis, additionalAxis);
 		
 		this.activator = activator;
@@ -132,12 +131,13 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 			reloadPreviews(placedStructureParent, previews.pos);
 			
 			if (!world.isRemote || approved) {
-				List<PlacePreview> placePreviews = new ArrayList<>();
-				previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
 				
-				LittleStructure newDoor = previews.getStructure();
+				Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
 				
-				if (LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST) != null) {
+				PlacementResult result;
+				if ((result = placement.tryPlace()) != null) {
+					
+					LittleStructure newDoor = result.parentStructure;
 					if (placedStructureParent.parent != null && placedStructureParent.parent.isConnected(world)) {
 						LittleStructure parentStructure = placedStructureParent.parent.getStructureWithoutLoading();
 						
@@ -145,7 +145,7 @@ public class EntityOldDoorAnimation extends EntityOldAnimation {
 						newDoor.updateParentConnection(newDoor.parent.getChildID(), parentStructure);
 					}
 				} else if (!world.isRemote)
-					WorldUtils.dropItem(world, previews.getStructure().getStructureDrop(), baseOffset);
+					WorldUtils.dropItem(world, getParentStructure().getStructureDrop(), baseOffset);
 			}
 			
 			isDead = true;

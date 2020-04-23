@@ -1,8 +1,8 @@
 package com.creativemd.littletiles.common.recipe;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructureTypePremade;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 

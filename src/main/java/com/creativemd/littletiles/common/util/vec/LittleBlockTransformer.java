@@ -6,8 +6,7 @@ import java.util.Map.Entry;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType.StructureTypeRelative;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -68,7 +67,7 @@ public class LittleBlockTransformer {
 				newTilesToLoad.put(pos, entry.getValue());
 			}
 			structure.tilesToLoad = newTilesToLoad;
-			structure.removeTileList();
+			structure.blockTiles().clear();
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
@@ -76,12 +75,10 @@ public class LittleBlockTransformer {
 		LittleVec offset = structure.getMainTile().getMinVec();
 		offset.scale(2);
 		center.sub(offset);
-		for (StructureTypeRelative relative : structure.type.relatives) {
-			StructureRelative relativeST = relative.getRelative(structure);
-			if (relativeST == null)
-				continue;
-			relativeST.onMove(structure, context, moved);
-			relativeST.onFlip(structure, context, axis, center);
+		for (StructureDirectionalField relative : structure.type.directional) {
+			Object value = relative.get(structure);
+			relative.move(value, context, moved);
+			relative.flip(value, context, axis, center);
 		}
 	}
 	
@@ -97,7 +94,7 @@ public class LittleBlockTransformer {
 				newTilesToLoad.put(pos, entry.getValue());
 			}
 			structure.tilesToLoad = newTilesToLoad;
-			structure.removeTileList();
+			structure.blockTiles().clear();
 		}
 		
 		LittleGridContext context = structure.getMainTile().getContext();
@@ -105,12 +102,10 @@ public class LittleBlockTransformer {
 		LittleVec offset = structure.getMainTile().getMinVec();
 		offset.scale(2);
 		center.sub(offset);
-		for (StructureTypeRelative relative : structure.type.relatives) {
-			StructureRelative relativeST = relative.getRelative(structure);
-			if (relativeST == null)
-				continue;
-			relativeST.onMove(structure, context, moved);
-			relativeST.onRotate(structure, context, rotation, center);
+		for (StructureDirectionalField relative : structure.type.directional) {
+			Object value = relative.get(structure);
+			relative.move(value, context, moved);
+			relative.rotate(value, context, rotation, center);
 		}
 	}
 }

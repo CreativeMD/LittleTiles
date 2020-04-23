@@ -538,7 +538,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		this.animation = animationPreview.animation;
 		this.size = animationPreview.previews.getSize();
 		this.min = animationPreview.previews.getMinVec();
-		this.context = animationPreview.previews.context;
+		this.context = animationPreview.previews.getContext();
 		updateNormalAxis();
 	}
 	

@@ -89,7 +89,6 @@ public class StructureAbsolute extends StructureRelative {
 		this(axis.getPos(), convertAxisToBox(axis.getVecContext(), additional), axis.getContext());
 	}
 	
-	@Override
 	public void writeToNBT(String name, NBTTagCompound nbt) {
 		nbt.setIntArray(name + "_pos", new int[] { baseOffset.getX(), baseOffset.getY(), baseOffset.getZ() });
 		nbt.setInteger(name + "_grid", context.size);

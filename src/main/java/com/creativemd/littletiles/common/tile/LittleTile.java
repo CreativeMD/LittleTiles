@@ -600,7 +600,7 @@ public class LittleTile implements ICombinable {
 	// ================Placing================
 	
 	/** stack may be null **/
-	public void onPlaced(@Nullable EntityPlayer player, ItemStack stack, @Nullable EnumFacing facing) {
+	public void placed(@Nullable EntityPlayer player, @Nullable EnumFacing facing) {
 		
 	}
 	

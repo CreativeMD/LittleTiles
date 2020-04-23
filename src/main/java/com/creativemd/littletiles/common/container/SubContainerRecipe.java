@@ -1,8 +1,5 @@
 package com.creativemd.littletiles.common.container;
 
-import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -11,13 +8,6 @@ public class SubContainerRecipe extends SubContainerConfigure {
 	
 	public SubContainerRecipe(EntityPlayer player, ItemStack stack) {
 		super(player, stack);
-	}
-	
-	public static void setLittlePreviewsContextSecretly(LittlePreviews previews, LittleGridContext context) {
-		previews.context = context;
-		if (previews.hasChildren())
-			for (LittlePreviews child : previews.getChildren())
-				setLittlePreviewsContextSecretly(child, context);
 	}
 	
 	@Override

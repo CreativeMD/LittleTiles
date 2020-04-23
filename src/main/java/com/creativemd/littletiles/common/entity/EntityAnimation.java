@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
@@ -25,8 +24,6 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
@@ -38,11 +35,12 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.place.PlacePreviews;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleRayTraceResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -349,7 +347,8 @@ public class EntityAnimation extends Entity {
 				OrientatedBoundingBox pushingBox = null;
 				EnumFacing facing = null;
 				
-				checking_all_boxes: for (int i = 0; i < surroundingBoxes.size(); i++) {
+				checking_all_boxes:
+				for (int i = 0; i < surroundingBoxes.size(); i++) {
 					if (surroundingBoxes.get(i).intersects(entityBB)) {
 						// Check for earliest hit
 						OrientatedBoundingBox box = worldCollisionBoxes.get(i);
@@ -805,7 +804,7 @@ public class EntityAnimation extends Entity {
 	public void transformWorld(LittleTransformation transformation) {
 		if (!structure.load() || !structure.loadChildren() || !structure.loadParent())
 			return;
-		LittleAbsolutePreviewsStructure previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
+		LittleAbsolutePreviews previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
 		transformation.transform(previews);
 		
 		List<BlockPos> positions = new ArrayList<>();
@@ -824,14 +823,11 @@ public class EntityAnimation extends Entity {
 		if (world.isRemote)
 			getRenderChunkSuppilier().unloadRenderCache();
 		
-		List<PlacePreview> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
-		
-		HashMap<BlockPos, PlacePreviews> splitted = LittleActionPlaceStack.getSplittedTiles(previews.context, placePreviews, previews.pos);
+		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
+		PlacementResult result = placement.tryPlace();
 		
 		int childId = this.structure.parent.getChildID();
 		LittleStructure parentStructure = this.structure.parent.getStructure(fakeWorld);
-		LittlePlaceResult result = LittleActionPlaceStack.placeTilesWithoutPlayer(fakeWorld, previews.context, splitted, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, null);
 		this.structure = result.parentStructure;
 		((IAnimatedStructure) this.structure).setAnimation(this);
 		parentStructure.updateChildConnection(childId, this.structure);

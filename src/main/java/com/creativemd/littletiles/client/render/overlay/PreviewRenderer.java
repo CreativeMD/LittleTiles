@@ -15,10 +15,10 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PreviewResult;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode.PreviewMode;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
+import com.creativemd.littletiles.common.util.place.PlacementPreview;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -97,7 +97,7 @@ public class PreviewRenderer {
 				
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				
-				PositionResult position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
+				PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
 				
 				processRotateKeys(stack, position.getContext());
 				iTile.tickPreview(player, stack, position, mc.objectMouseOver);
@@ -113,17 +113,18 @@ public class PreviewRenderer {
 					GlStateManager.depthMask(false);
 					
 					boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
-					PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+					PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
 					
 					if (result != null) {
-						processMarkKey(player, iTile, stack, result, result.isAbsolute());
+						processMarkKey(player, iTile, stack, result);
 						double x = position.getPos().getX() - TileEntityRendererDispatcher.staticPlayerX;
 						double y = position.getPos().getY() - TileEntityRendererDispatcher.staticPlayerY;
 						double z = position.getPos().getZ() - TileEntityRendererDispatcher.staticPlayerZ;
 						
-						for (int i = 0; i < result.placePreviews.size(); i++) {
-							
-							PlacePreview preview = result.placePreviews.get(i);
+						List<PlacePreview> placePreviews = result.getPreviews();
+						
+						for (int i = 0; i < placePreviews.size(); i++) {
+							PlacePreview preview = placePreviews.get(i);
 							List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 							for (LittleRenderingCube cube : cubes) {
 								GlStateManager.pushMatrix();
@@ -149,12 +150,12 @@ public class PreviewRenderer {
 		}
 	}
 	
-	public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PreviewResult preview, boolean absolute) {
+	public void processMarkKey(EntityPlayer player, ILittleTile iTile, ItemStack stack, PlacementPreview preview) {
 		while (LittleTilesClient.mark.isPressed()) {
 			if (marked == null)
 				marked = iTile.onMark(player, stack);
 			
-			if (marked != null && marked.processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), preview, absolute))
+			if (marked != null && marked.processPosition(player, PlacementHelper.getPosition(player.world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack), preview))
 				marked = null;
 		}
 	}
@@ -215,14 +216,14 @@ public class PreviewRenderer {
 				BlockPos pos = event.getTarget().getBlockPos();
 				IBlockState state = world.getBlockState(pos);
 				
-				PositionResult position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
+				PlacementPosition position = marked != null ? marked.position.copy() : PlacementHelper.getPosition(world, mc.objectMouseOver, iTile.getPositionContext(stack), iTile, stack);
 				
 				boolean allowLowResolution = marked != null ? marked.allowLowResolution() : true;
 				
-				PreviewResult result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
+				PlacementPreview result = PlacementHelper.getPreviews(world, stack, position, isCentered(player, iTile), isFixed(player, iTile), allowLowResolution, marked != null, mode);
 				
 				if (result != null) {
-					processMarkKey(player, iTile, stack, result, result.isAbsolute());
+					processMarkKey(player, iTile, stack, result);
 					
 					double d0 = player.lastTickPosX + (player.posX - player.lastTickPosX) * event.getPartialTicks();
 					double d1 = player.lastTickPosY + (player.posY - player.lastTickPosY) * event.getPartialTicks();
@@ -243,8 +244,9 @@ public class PreviewRenderer {
 					d1 -= y;
 					d2 -= z;
 					
-					for (int i = 0; i < result.placePreviews.size(); i++) {
-						PlacePreview preview = result.placePreviews.get(i);
+					List<PlacePreview> placePreviews = result.getPreviews();
+					for (int i = 0; i < placePreviews.size(); i++) {
+						PlacePreview preview = placePreviews.get(i);
 						List<LittleRenderingCube> cubes = preview.getPreviews(result.context);
 						
 						for (LittleRenderingCube cube : cubes) {

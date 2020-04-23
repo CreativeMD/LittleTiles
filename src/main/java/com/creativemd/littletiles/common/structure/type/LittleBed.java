@@ -11,7 +11,6 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
@@ -20,6 +19,8 @@ import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
@@ -27,7 +28,6 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
-import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.state.IBlockState;
@@ -44,7 +44,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -65,19 +64,27 @@ public class LittleBed extends LittleStructure {
 	public EntityLivingBase sleepingPlayer = null;
 	@SideOnly(Side.CLIENT)
 	public Vec3d playerPostion;
-	public EnumFacing direction;
+	@StructureDirectional
+	public EnumFacing facing;
 	
 	@SideOnly(Side.CLIENT)
 	public boolean hasBeenActivated;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
-		direction = EnumFacing.getHorizontal(nbt.getInteger("direction"));
+		
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
-		nbt.setInteger("direction", direction.getHorizontalIndex());
+		
+	}
+	
+	@Override
+	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
+		if (field.key.equals("facing"))
+			return EnumFacing.getHorizontal(nbt.getInteger("direction"));
+		return super.failedLoadingRelative(nbt, field);
 	}
 	
 	@Override
@@ -90,7 +97,7 @@ public class LittleBed extends LittleStructure {
 		try {
 			LittleStructure bed = (LittleStructure) littleBed.get(player);
 			if (bed instanceof LittleBed)
-				switch (((LittleBed) bed).direction) {
+				switch (((LittleBed) bed).facing) {
 				case SOUTH:
 					return 90.0F;
 				case WEST:
@@ -175,11 +182,11 @@ public class LittleBed extends LittleStructure {
 			e.printStackTrace();
 		}
 		
-		float f1 = 0.5F + direction.getFrontOffsetX() * 0.8F;
-		float f = 0.5F + direction.getFrontOffsetZ() * 0.8F;
+		float f1 = 0.5F + facing.getFrontOffsetX() * 0.8F;
+		float f = 0.5F + facing.getFrontOffsetZ() * 0.8F;
 		
-		player.renderOffsetX = -1.8F * direction.getFrontOffsetX();
-		player.renderOffsetZ = -1.8F * direction.getFrontOffsetZ();
+		player.renderOffsetX = -1.8F * facing.getFrontOffsetX();
+		player.renderOffsetZ = -1.8F * facing.getFrontOffsetZ();
 		player.setPosition((float) highest.x - 0.5F + f1, ((float) highest.y), (float) highest.z - 0.5F + f);
 		
 		try {
@@ -218,7 +225,7 @@ public class LittleBed extends LittleStructure {
 			try {
 				LittleStructure bed = (LittleStructure) littleBed.get(player);
 				if (bed instanceof LittleBed) {
-					int i = ((LittleBed) bed).direction.getHorizontalIndex();
+					int i = ((LittleBed) bed).facing.getHorizontalIndex();
 					
 					GlStateManager.rotate(i * 90, 0.0F, 1.0F, 0.0F);
 					
@@ -226,7 +233,7 @@ public class LittleBed extends LittleStructure {
 						double height = 0.2;
 						double forward = 0;
 						
-						GlStateManager.translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
+						GlStateManager.translate(((LittleBed) bed).facing.getDirectionVec().getX() * forward, height, ((LittleBed) bed).facing.getDirectionVec().getZ() * forward);
 					}
 					// GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() -
 					// player.posY, 0);
@@ -277,17 +284,6 @@ public class LittleBed extends LittleStructure {
 		return true;
 	}
 	
-	@Override
-	public void onFlip(LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-		if (axis == this.direction.getAxis())
-			this.direction = this.direction.getOpposite();
-	}
-	
-	@Override
-	public void onRotate(LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-		this.direction = RotationUtils.rotate(this.direction, rotation);
-	}
-	
 	public static class LittleBedParser extends LittleStructureGuiParser {
 		
 		public LittleBedParser(GuiParent parent, AnimationGuiHandler handler) {
@@ -308,7 +304,7 @@ public class LittleBed extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public void createControls(LittlePreviews previews, LittleStructure structure) {
-			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, previews.context);
+			GuiTileViewer tile = new GuiTileViewer("tileviewer", 0, 0, 100, 100, previews.getContext());
 			tile.setViewDirection(EnumFacing.UP);
 			parent.addControl(tile);
 			
@@ -317,7 +313,9 @@ public class LittleBed extends LittleStructure {
 			if (size.x < size.z)
 				index = EnumFacing.SOUTH.getHorizontalIndex();
 			if (structure instanceof LittleBed)
-				index = ((LittleBed) structure).direction.getHorizontalIndex();
+				index = ((LittleBed) structure).facing.getHorizontalIndex();
+			if (index < 0)
+				index = 0;
 			parent.addControl(new GuiStateButton("direction", index, 110, 0, 37, RotationUtils.getHorizontalFacingNames()));
 			
 			GuiDirectionIndicator relativeDirection = new GuiDirectionIndicator("relativeDirection", 155, 0, EnumFacing.UP);
@@ -330,7 +328,7 @@ public class LittleBed extends LittleStructure {
 		public LittleBed parseStructure(LittlePreviews previews) {
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
 			LittleBed bed = createStructure(LittleBed.class);
-			bed.direction = direction;
+			bed.facing = direction;
 			return bed;
 		}
 		

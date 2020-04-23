@@ -4,6 +4,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
 
 public class LittleAbsolutePreviews extends LittlePreviews {
@@ -15,8 +16,13 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 		this.pos = pos;
 	}
 	
+	public LittleAbsolutePreviews(NBTTagCompound nbt, BlockPos pos, LittleGridContext context) {
+		super(nbt, context);
+		this.pos = pos;
+	}
+	
 	protected LittleAbsolutePreviews(LittleAbsolutePreviews previews) {
-		super(previews);
+		super(previews.structure, previews);
 		this.pos = previews.pos;
 	}
 	
@@ -32,7 +38,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	
 	@Override
 	public LittleAbsolutePreviews copy() {
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, context);
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(structure != null ? structure.copy() : null, pos, getContext());
 		for (LittlePreview preview : this.previews)
 			previews.previews.add(preview.copy());
 		
@@ -43,9 +49,9 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	
 	@Override
 	public LittlePreview addPreview(BlockPos pos, LittlePreview preview, LittleGridContext context) {
-		if (this.context != context) {
-			if (this.context.size > context.size)
-				preview.convertTo(context, this.context);
+		if (this.getContext() != context) {
+			if (this.getContext().size > context.size)
+				preview.convertTo(context, this.getContext());
 			else
 				convertTo(context);
 		}
@@ -58,7 +64,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public LittlePreview addTile(LittleTile tile) {
 		LittlePreview preview = getPreview(tile);
-		preview.box.add(new LittleVec(context, tile.te.getPos().subtract(this.pos)));
+		preview.box.add(new LittleVec(getContext(), tile.te.getPos().subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
@@ -66,7 +72,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	@Override
 	public LittlePreview addTile(LittleTile tile, LittleVec offset) {
 		LittlePreview preview = getPreview(tile);
-		preview.box.add(new LittleVec(context, tile.te.getPos().subtract(this.pos)));
+		preview.box.add(new LittleVec(getContext(), tile.te.getPos().subtract(this.pos)));
 		preview.box.add(offset);
 		previews.add(preview);
 		return preview;

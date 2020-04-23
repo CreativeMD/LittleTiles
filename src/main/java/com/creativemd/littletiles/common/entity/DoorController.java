@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.entity;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 
@@ -14,8 +13,6 @@ import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.littletiles.client.render.world.RenderUploader;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack;
-import com.creativemd.littletiles.common.action.block.LittleActionPlaceStack.LittlePlaceResult;
 import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationController;
@@ -23,11 +20,12 @@ import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
-import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
-import com.creativemd.littletiles.common.tile.place.PlacePreview;
-import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviewsStructure;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementResult;
 import com.creativemd.littletiles.common.util.vec.LittleTransformation;
 
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -35,7 +33,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
@@ -207,16 +204,17 @@ public class DoorController extends EntityAnimationController {
 		}
 		
 		World world = parent.world;
-		LittleAbsolutePreviewsStructure previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
+		LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 		
-		List<PlacePreview> placePreviews = new ArrayList<>();
-		previews.getPlacePreviews(placePreviews, null, true, LittleVec.ZERO);
+		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all));
 		
-		LittleStructure newDoor = previews.getStructure();
-		if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
-			((LittleDoor) newDoor).waitingForApproval = true;
-		LittlePlaceResult result;
-		if ((result = LittleActionPlaceStack.placeTilesWithoutPlayer(world, previews.context, placePreviews, previews.getStructure(), PlacementMode.all, previews.pos, null, null, null, EnumFacing.EAST)) != null) {
+		LittleDoor newDoor;
+		PlacementResult result;
+		if ((result = placement.tryPlace()) != null) {
+			
+			newDoor = (LittleDoor) result.parentStructure;
+			if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
+				newDoor.waitingForApproval = true;
 			
 			if (parent.structure.parent != null) {
 				LittleStructure parentStructure = parent.structure.parent.getStructure(world);

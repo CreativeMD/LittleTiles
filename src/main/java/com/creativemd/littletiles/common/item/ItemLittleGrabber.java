@@ -48,8 +48,8 @@ import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
-import com.creativemd.littletiles.common.util.place.PlacementHelper.PositionResult;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.block.Block;
@@ -194,14 +194,14 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		getMode(stack).onClickBlock(world, player, stack, result);
 		return true;
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PositionResult position, RayTraceResult result) {
+	public boolean onRightClick(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
 		return getMode(stack).onRightClick(world, player, stack, result);
 	}
 	
@@ -677,7 +677,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 				
 				@Override
 				public void saveConfiguration() {
-					
+				
 				}
 				
 			};

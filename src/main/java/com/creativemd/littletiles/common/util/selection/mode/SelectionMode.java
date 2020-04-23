@@ -55,8 +55,7 @@ public abstract class SelectionMode {
 	
 	public abstract LittlePreviews getPreviews(World world, ItemStack stack, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure);
 	
-	public void saveSelection(ItemStack stack) {
-	}
+	public void saveSelection(ItemStack stack) {}
 	
 	public static class SelectionResult {
 		
@@ -82,9 +81,9 @@ public abstract class SelectionMode {
 				cbBlocks++;
 				cbTiles += specialPreviews.size();
 				if (minCBContext == null)
-					minCBContext = specialPreviews.context;
+					minCBContext = specialPreviews.getContext();
 				else
-					minCBContext = LittleGridContext.max(minCBContext, specialPreviews.context);
+					minCBContext = LittleGridContext.max(minCBContext, specialPreviews.getContext());
 			}
 			
 			IBlockState state = world.getBlockState(pos);
