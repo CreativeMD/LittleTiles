@@ -448,7 +448,7 @@ public class Placement {
 		public final int index;
 		
 		public PlacementStructurePreview(PlacementStructurePreview parent, LittleStructure structure, LittlePreviews previews) {
-			this.index = structure.count();
+			this.index = structures.size();
 			structures.add(this);
 			
 			this.parent = parent;

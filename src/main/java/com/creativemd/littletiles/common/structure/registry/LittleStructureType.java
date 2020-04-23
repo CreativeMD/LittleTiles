@@ -118,6 +118,13 @@ public class LittleStructureType {
 		return context;
 	}
 	
+	public Object loadDirectional(LittlePreviews previews, String key) {
+		for (StructureDirectionalField field : directional)
+			if (field.key.equals(key))
+				return field.create(previews.structure);
+		return null;
+	}
+	
 	public void move(LittleStructure structure, LittleGridContext context, LittleVec offset) {
 		for (StructureDirectionalField field : directional) {
 			Object value = field.get(structure);
