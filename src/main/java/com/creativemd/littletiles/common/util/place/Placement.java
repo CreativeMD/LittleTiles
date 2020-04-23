@@ -186,6 +186,7 @@ public class Placement {
 			TileEntity te = world.getTileEntity(pos);
 			if (te instanceof TileEntityLittleTiles)
 				((TileEntityLittleTiles) te).updateTiles(false);
+			world.neighborChanged(pos, LittleTiles.blockTileNoTicking, this.pos);
 		}
 		
 		for (BlockPos pos : blocksToNotify)
