@@ -129,13 +129,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 	
 	@Override
 	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
-		/*LittleAxisDoor newDoor = (LittleAxisDoor) previews.getStructure();
-		if (newDoor.axisCenter.getContext().size > previews.context.size)
-			previews.convertTo(newDoor.axisCenter.getContext());
-		else if (newDoor.axisCenter.getContext().size < previews.context.size)
-			newDoor.axisCenter.convertTo(previews.context);
-		
-		transformation.doubledRotationCenter = newDoor.axisCenter.getDoubledCenterVec();*/
+		StructureRelative axisCenter = (StructureRelative) previews.getStructureType().loadDirectional(previews, "axisCenter");
+		axisCenter.forceContext(previews);
+		transformation.doubledRotationCenter = axisCenter.getDoubledCenterVec();
 	}
 	
 	@Deprecated

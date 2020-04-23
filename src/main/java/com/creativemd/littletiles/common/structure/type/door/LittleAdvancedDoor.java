@@ -235,11 +235,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	
 	@Override
 	public void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation) {
-		/*LittleAdvancedDoor newDoor = (LittleAdvancedDoor) previews.getStructure();
-		if (newDoor.axisCenter.getContext().size > previews.context.size)
-			previews.convertTo(newDoor.axisCenter.getContext());
-		else if (newDoor.axisCenter.getContext().size < previews.context.size)
-			newDoor.axisCenter.convertTo(previews.context);*/
+		StructureRelative axisCenter = (StructureRelative) previews.getStructureType().loadDirectional(previews, "axisCenter");
+		axisCenter.forceContext(previews);
 	}
 	
 	@Override
