@@ -240,7 +240,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 			LittleGridContext context = getPositionContext(stack);
 			if (context.size < min.getContext().size)
 				context = min.getContext();
-			LittleAbsoluteVec offset = new LittleAbsoluteVec(min.getPos(), context);
+			LittleAbsoluteVec offset = new LittleAbsoluteVec(lastMax.getPos(), context);
 			if (lastMax == null)
 				lastMax = min.copy();
 			
