@@ -216,7 +216,7 @@ public class Placement {
 	public PlacementBlock getorCreateBlock(BlockPos pos) {
 		PlacementBlock block = blocks.get(pos);
 		if (block == null) {
-			block = new PlacementBlock();
+			block = new PlacementBlock(previews.getContext());
 			blocks.put(pos, block);
 		}
 		return block;
@@ -253,7 +253,8 @@ public class Placement {
 		private final List<PlacePreview>[] previews;
 		private final List<PlacePreview>[] latePreviews;
 		
-		public PlacementBlock() {
+		public PlacementBlock(LittleGridContext context) {
+			this.context = context;
 			previews = new List[structures.size()];
 			latePreviews = new List[structures.size()];
 		}
