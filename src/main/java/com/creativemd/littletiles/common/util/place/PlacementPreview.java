@@ -24,6 +24,7 @@ public class PlacementPreview {
 	public final boolean fixed;
 	public final BlockPos pos;
 	public final LittleVec inBlockOffset;
+	public final LittleVec cachedOffset;
 	public final EnumFacing facing;
 	
 	public PlacementPreview(World world, LittlePreviews previews, PlacementMode mode, LittleBox box, boolean fixed, BlockPos pos, LittleVec inBlockOffset, EnumFacing facing) {
@@ -41,6 +42,7 @@ public class PlacementPreview {
 			this.inBlockOffset = null;
 		else
 			this.inBlockOffset = inBlockOffset;
+		this.cachedOffset = inBlockOffset;
 		this.facing = facing;
 	}
 	

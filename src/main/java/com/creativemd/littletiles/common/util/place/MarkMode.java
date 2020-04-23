@@ -33,7 +33,7 @@ public class MarkMode {
 	}
 	
 	public static PlacementPosition loadPosition(PlacementPosition position, PlacementPreview preview) {
-		if (!preview.fixed) {
+		if (!preview.previews.isAbsolute()) {
 			position.setVecContext(new LittleVecContext(preview.box.getCenter(), preview.context));
 			
 			LittleVec center = preview.size.calculateCenter();
@@ -62,8 +62,8 @@ public class MarkMode {
 				break;
 			}
 			
-			//if (!preview.singleMode && preview.fixed)
-			//position.subVec(preview.inBlockOffset);
+			if (preview.previews.size() > 1 && preview.fixed)
+				position.addVec(preview.cachedOffset);
 		}
 		return position;
 	}
