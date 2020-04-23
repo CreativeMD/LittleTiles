@@ -351,9 +351,9 @@ public abstract class LittleAction extends CreativeCorePacket {
 			LittleGridContext context = chiselTiles != null ? LittleGridContext.get(ChiselsAndBitsManager.convertingFrom) : LittleGridContext.get();
 			if (chiselTiles != null)
 				tiles.addAll(chiselTiles);
-			else if (tileEntity == null) {
+			else if (tileEntity == null && shouldConvert) {
 				IBlockState state = world.getBlockState(pos);
-				if (shouldConvert && isBlockValid(state) && canConvertBlock(player, world, pos, state)) {
+				if (isBlockValid(state) && canConvertBlock(player, world, pos, state)) {
 					
 					context = LittleGridContext.get(LittleGridContext.minSize);
 					

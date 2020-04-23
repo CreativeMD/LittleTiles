@@ -200,12 +200,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		return null;
 	}
 	
-	public EntityAnimation place(World world, @Nullable EntityPlayer player, Placement placement, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) {
+	public EntityAnimation place(World world, SubWorld fakeWorld, @Nullable EntityPlayer player, Placement placement, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) {
 		
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
-		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
-		if (world.isRemote)
-			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
 		
 		fakeWorld.preventNeighborUpdate = true;
 		
@@ -278,14 +275,17 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 			transform = getDoorTransformations(player)[0];
 		
 		LittleAbsolutePreviews previews = getDoorPreviews(transform);
-		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all));
+		World world = getWorld();
+		SubWorld fakeWorld = SubWorld.createFakeWorld(world);
+		if (world.isRemote)
+			fakeWorld.renderChunkSupplier = new LittleRenderChunkSuppilier();
+		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
 		HashMapList<BlockPos, LittleTile> allTilesFromWorld = collectBlockTilesChildren(new HashMapList<>(), true);
 		
-		EntityAnimation animation = place(getWorld(), player, placement, createController(result, uuid, placement, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
+		EntityAnimation animation = place(getWorld(), fakeWorld, player, placement, createController(result, uuid, placement, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
 		
-		World world = getWorld();
 		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		
 		for (Entry<BlockPos, ArrayList<LittleTile>> entry : allTilesFromWorld.entrySet()) {

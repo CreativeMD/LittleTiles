@@ -105,6 +105,8 @@ public class Placement {
 				if (block == null)
 					continue;
 				
+				if (!block.canPlace())
+					return false;
 			}
 		}
 		return true;
@@ -216,7 +218,7 @@ public class Placement {
 	public PlacementBlock getorCreateBlock(BlockPos pos) {
 		PlacementBlock block = blocks.get(pos);
 		if (block == null) {
-			block = new PlacementBlock(previews.getContext());
+			block = new PlacementBlock(pos, previews.getContext());
 			blocks.put(pos, block);
 		}
 		return block;
@@ -239,7 +241,7 @@ public class Placement {
 				pp.split(current.previews.getContext(), splitted, pos);
 			
 			for (Entry<BlockPos, ArrayList<PlacePreview>> entry : splitted.entrySet())
-				getorCreateBlock(pos).addPlacePreviews(current.index, entry.getValue());
+				getorCreateBlock(entry.getKey()).addPlacePreviews(current.index, entry.getValue());
 		}
 		
 		for (PlacementStructurePreview child : current.children)
@@ -248,12 +250,14 @@ public class Placement {
 	
 	public class PlacementBlock implements IGridBased {
 		
+		private final BlockPos pos;
 		private TileEntityLittleTiles cached;
 		private LittleGridContext context;
 		private final List<PlacePreview>[] previews;
 		private final List<PlacePreview>[] latePreviews;
 		
-		public PlacementBlock(LittleGridContext context) {
+		public PlacementBlock(BlockPos pos, LittleGridContext context) {
+			this.pos = pos;
 			this.context = context;
 			previews = new List[structures.size()];
 			latePreviews = new List[structures.size()];
@@ -328,14 +332,14 @@ public class Placement {
 							}
 						
 				cached = te;
-			} else {
-				IBlockState state = world.getBlockState(pos);
-				if (state.getMaterial().isReplaceable())
-					return false;
-				if (!(state.getBlock() instanceof BlockTile))
-					if (mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, world, pos, state)))
-						return false;
+				return true;
 			}
+			
+			IBlockState state = world.getBlockState(pos);
+			if (state.getMaterial().isReplaceable())
+				return true;
+			else if (mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, world, pos, state)))
+				return false;
 			
 			return true;
 		}
