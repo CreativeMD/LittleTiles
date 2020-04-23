@@ -65,7 +65,7 @@ public class LittleBed extends LittleStructure {
 	@SideOnly(Side.CLIENT)
 	public Vec3d playerPostion;
 	@StructureDirectional
-	public EnumFacing facing;
+	public EnumFacing direction;
 	
 	@SideOnly(Side.CLIENT)
 	public boolean hasBeenActivated;
@@ -97,7 +97,7 @@ public class LittleBed extends LittleStructure {
 		try {
 			LittleStructure bed = (LittleStructure) littleBed.get(player);
 			if (bed instanceof LittleBed)
-				switch (((LittleBed) bed).facing) {
+				switch (((LittleBed) bed).direction) {
 				case SOUTH:
 					return 90.0F;
 				case WEST:
@@ -182,11 +182,11 @@ public class LittleBed extends LittleStructure {
 			e.printStackTrace();
 		}
 		
-		float f1 = 0.5F + facing.getFrontOffsetX() * 0.8F;
-		float f = 0.5F + facing.getFrontOffsetZ() * 0.8F;
+		float f1 = 0.5F + direction.getFrontOffsetX() * 0.8F;
+		float f = 0.5F + direction.getFrontOffsetZ() * 0.8F;
 		
-		player.renderOffsetX = -1.8F * facing.getFrontOffsetX();
-		player.renderOffsetZ = -1.8F * facing.getFrontOffsetZ();
+		player.renderOffsetX = -1.8F * direction.getFrontOffsetX();
+		player.renderOffsetZ = -1.8F * direction.getFrontOffsetZ();
 		player.setPosition((float) highest.x - 0.5F + f1, ((float) highest.y), (float) highest.z - 0.5F + f);
 		
 		try {
@@ -225,7 +225,7 @@ public class LittleBed extends LittleStructure {
 			try {
 				LittleStructure bed = (LittleStructure) littleBed.get(player);
 				if (bed instanceof LittleBed) {
-					int i = ((LittleBed) bed).facing.getHorizontalIndex();
+					int i = ((LittleBed) bed).direction.getHorizontalIndex();
 					
 					GlStateManager.rotate(i * 90, 0.0F, 1.0F, 0.0F);
 					
@@ -233,7 +233,7 @@ public class LittleBed extends LittleStructure {
 						double height = 0.2;
 						double forward = 0;
 						
-						GlStateManager.translate(((LittleBed) bed).facing.getDirectionVec().getX() * forward, height, ((LittleBed) bed).facing.getDirectionVec().getZ() * forward);
+						GlStateManager.translate(((LittleBed) bed).direction.getDirectionVec().getX() * forward, height, ((LittleBed) bed).direction.getDirectionVec().getZ() * forward);
 					}
 					// GlStateManager.translate(0, ((LittleBed) bed).playerPostion.getPosY() -
 					// player.posY, 0);
@@ -313,7 +313,7 @@ public class LittleBed extends LittleStructure {
 			if (size.x < size.z)
 				index = EnumFacing.SOUTH.getHorizontalIndex();
 			if (structure instanceof LittleBed)
-				index = ((LittleBed) structure).facing.getHorizontalIndex();
+				index = ((LittleBed) structure).direction.getHorizontalIndex();
 			if (index < 0)
 				index = 0;
 			parent.addControl(new GuiStateButton("direction", index, 110, 0, 37, RotationUtils.getHorizontalFacingNames()));
@@ -328,7 +328,7 @@ public class LittleBed extends LittleStructure {
 		public LittleBed parseStructure(LittlePreviews previews) {
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
 			LittleBed bed = createStructure(LittleBed.class);
-			bed.facing = direction;
+			bed.direction = direction;
 			return bed;
 		}
 		

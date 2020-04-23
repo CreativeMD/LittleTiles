@@ -45,7 +45,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	}
 	
 	@StructureDirectional
-	public EnumFacing moveDirection;
+	public EnumFacing direction;
 	public int moveDistance;
 	public LittleGridContext moveContext;
 	
@@ -65,10 +65,10 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
-		((LittleSlidingDoor) placement.origin.structure).moveDirection = moveDirection.getOpposite();
+		((LittleSlidingDoor) placement.origin.structure).direction = direction.getOpposite();
 		if (stayAnimated)
-			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
-		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(moveDirection.getAxis()), -moveDirection.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration, interpolation);
+			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
+		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), -direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration, interpolation);
 	}
 	
 	@Override
@@ -80,7 +80,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		if (stayAnimated)
 			return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
-		LittleVec offsetVec = new LittleVec(moveDirection);
+		LittleVec offsetVec = new LittleVec(direction);
 		offsetVec.scale(moveDistance);
 		LittleVecContext offset = new LittleVecContext(offsetVec, moveContext);
 		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos().add(offset.getBlockPos()), 0, 0, 0, new LittleVec(0, 0, 0), offset) };
@@ -156,7 +156,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			
 			int index = EnumFacing.UP.ordinal();
 			if (door != null)
-				index = door.moveDirection.ordinal();
+				index = door.direction.ordinal();
 			EnumFacing direction = EnumFacing.getFront(index);
 			
 			LittleGridContext context = previews.getContext();
@@ -227,7 +227,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
 			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class);
-			door.moveDirection = direction;
+			door.direction = direction;
 			door.moveDistance = distance.getDistance();
 			door.moveContext = distance.getDistanceContext();
 			
