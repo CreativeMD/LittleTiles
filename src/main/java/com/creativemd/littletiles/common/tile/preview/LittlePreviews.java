@@ -233,7 +233,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	}
 	
 	public LittlePreviews copy() {
-		LittlePreviews previews = new LittlePreviews(context);
+		LittlePreviews previews = new LittlePreviews(structure == null ? null : structure.copy(), context);
 		for (LittlePreview preview : this.previews)
 			previews.previews.add(preview.copy());
 		
