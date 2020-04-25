@@ -9,6 +9,8 @@ import net.minecraft.util.EnumFacing;
 public interface ISignalBase {
 	
 	public default boolean compatible(ISignalBase other) {
+		if (other.getType() != SignalType.TRANSMITTER && other.getType() == getType())
+			return false;
 		return getBandwidth() == other.getBandwidth();
 	}
 	

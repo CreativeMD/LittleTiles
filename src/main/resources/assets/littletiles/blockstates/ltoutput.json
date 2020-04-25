@@ -1,0 +1,10 @@
+{
+    "variants": {
+        "facing=up": { "model": "littletiles:output_arrow_up"},
+        "facing=south": { "model": "littletiles:output_arrow_up", "x": 90 },
+        "facing=east": { "model": "littletiles:output_arrow_up", "x": 90, "y": 90 },
+        "facing=down": { "model": "littletiles:output_arrow_down"},
+        "facing=north": { "model": "littletiles:output_arrow_down", "x": 90 },
+        "facing=west": { "model": "littletiles:output_arrow_down", "x": 90, "y": 90 }
+    }
+}
