@@ -2,7 +2,6 @@ package com.creativemd.littletiles.common.structure.registry;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -80,7 +79,7 @@ public class LittleStructureType {
 	
 	public List<PlacePreview> getSpecialTiles(LittlePreviews previews) {
 		if (directional.isEmpty())
-			return Collections.EMPTY_LIST;
+			return new ArrayList<>();
 		
 		List<PlacePreview> placePreviews = new ArrayList<>();
 		

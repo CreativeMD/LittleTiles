@@ -33,8 +33,8 @@ import net.minecraft.util.math.BlockPos;
 public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	
 	protected LittleGridContext context;
-	protected List<LittlePreviews> children = new ArrayList<>();
-	protected List<LittlePreview> previews;
+	protected final List<LittlePreviews> children;
+	protected final List<LittlePreview> previews;
 	
 	public final NBTTagCompound structure;
 	
@@ -46,17 +46,20 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		this.context = context;
 		this.previews = new ArrayList<>();
 		this.structure = nbt;
+		this.children = new ArrayList<>();
 	}
 	
 	public LittlePreviews(LittlePreviews previews) {
 		this.context = previews.getContext();
 		this.previews = new ArrayList<>(previews.previews);
+		this.children = new ArrayList<>(previews.children);
 		this.structure = null;
 	}
 	
 	public LittlePreviews(NBTTagCompound nbt, LittlePreviews previews) {
 		this.context = previews.getContext();
 		this.previews = new ArrayList<>(previews.previews);
+		this.children = new ArrayList<>(previews.children);
 		this.structure = nbt;
 	}
 	
@@ -125,6 +128,26 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 			}
 		}
 		
+		return placePreviews;
+	}
+	
+	public List<PlacePreview> getPlacePreviewsIncludingChildren(LittleVec offset) {
+		List<PlacePreview> placePreviews = new ArrayList<>();
+		for (LittlePreview preview : this)
+			placePreviews.add(preview.getPlaceableTile(offset));
+		
+		if (hasStructure()) {
+			for (PlacePreview placePreviewTile : getStructureType().getSpecialTiles(this)) {
+				if (offset != null)
+					placePreviewTile.add(offset);
+				placePreviews.add(placePreviewTile);
+			}
+		}
+		
+		if (hasChildren())
+			for (LittlePreviews child : children)
+				placePreviews.addAll(child.getPlacePreviews(offset));
+			
 		return placePreviews;
 	}
 	

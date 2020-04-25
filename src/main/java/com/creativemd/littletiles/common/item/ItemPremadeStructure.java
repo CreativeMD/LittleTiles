@@ -49,10 +49,11 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	@SideOnly(Side.CLIENT)
 	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
-		List<RenderCubeObject> cubes = premade.getRenderingCubes();
+		LittlePreviews previews = getLittlePreview(stack);
+		List<RenderCubeObject> cubes = premade.getRenderingCubes(previews);
 		if (cubes == null) {
 			cubes = new ArrayList<>();
-			LittlePreviews previews = getPremade(stack).previews;
+			
 			for (LittlePreview preview : previews.allPreviews())
 				cubes.add(preview.getCubeBlock(previews.getContext()));
 		}
@@ -148,6 +149,11 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 		if (!ItemMultiTiles.currentMode.canPlaceStructures())
 			return PlacementMode.getStructureDefault();
 		return ItemMultiTiles.currentMode;
+	}
+	
+	@Override
+	public boolean shouldCache() {
+		return false;
 	}
 	
 	@Override

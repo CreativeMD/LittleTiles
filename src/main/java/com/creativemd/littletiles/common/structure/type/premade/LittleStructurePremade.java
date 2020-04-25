@@ -17,6 +17,10 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable;
 import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalCable.LittleStructureTypeCable;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalInput;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalInput.LittleStructureTypeInput;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
+import com.creativemd.littletiles.common.structure.type.premade.signal.LittleSignalOutput.LittleStructureTypeOutput;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.google.common.base.Charsets;
@@ -119,6 +123,14 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable1", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable4", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
 		registerPremadeStructureType(new LittleStructureTypeCable("single_cable16", "premade", LittleSignalCable.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+		
+		registerPremadeStructureType(new LittleStructureTypeOutput("single_output1", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
+		registerPremadeStructureType(new LittleStructureTypeOutput("single_output4", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
+		registerPremadeStructureType(new LittleStructureTypeOutput("single_output16", "premade", LittleSignalOutput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
+		
+		registerPremadeStructureType(new LittleStructureTypeInput("single_input1", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 1));
+		registerPremadeStructureType(new LittleStructureTypeInput("single_input4", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 4));
+		registerPremadeStructureType(new LittleStructureTypeInput("single_input16", "premade", LittleSignalInput.class, LittleStructureAttribute.EXTRA_RENDERING, LittleTiles.modid, 16));
 	}
 	
 	public static class LittleStructureTypePremade extends LittleStructureType {
@@ -131,7 +143,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes() {
+		public List<RenderCubeObject> getRenderingCubes(LittlePreviews previews) {
 			return null;
 		}
 		

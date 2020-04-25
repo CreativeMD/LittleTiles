@@ -1,15 +1,14 @@
 package com.creativemd.littletiles.common.tile.place;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -17,17 +16,19 @@ import com.creativemd.littletiles.common.util.place.PlacementMode;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.math.BlockPos;
 
-public class PlacePreviewRelative extends PlacePreview {
+public class PlacePreviewFacing extends PlacePreview {
 	
-	public StructureDirectionalField relativeType;
-	public StructureRelative relative;
+	public EnumFacing facing;
+	public int color;
 	
-	public PlacePreviewRelative(LittleBox box, StructureRelative relative, StructureDirectionalField relativeType) {
+	public PlacePreviewFacing(LittleBox box, EnumFacing facing, int color) {
 		super(box.copy(), null);
-		this.relative = relative;
-		this.relativeType = relativeType;
+		this.facing = facing;
+		this.color = color;
 	}
 	
 	@Override
@@ -42,25 +43,29 @@ public class PlacePreviewRelative extends PlacePreview {
 	
 	@Override
 	public PlacePreview copy() {
-		return new PlacePreviewRelative(box.copy(), relative, relativeType);
+		return new PlacePreviewFacing(box.copy(), facing, color);
 	}
 	
 	@Override
 	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
-		List<LittleRenderingCube> cubes = super.getPreviews(context);
-		for (LittleRenderingCube cube : cubes)
-			cube.color = relativeType.annotation.color();
+		List<LittleRenderingCube> cubes = new ArrayList<>();
+		LittleRenderingCube cube = new LittleRenderingCube(box.getCube(context), box, LittleTiles.coloredBlock, 0);
+		cube.setColor(color);
+		float thickness = 1 / 32F;
+		Axis axis = facing.getAxis();
+		if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
+			cube.setMin(axis, cube.getMax(axis));
+			cube.setMax(axis, cube.getMax(axis) + thickness);
+		} else {
+			cube.setMax(axis, cube.getMin(axis));
+			cube.setMin(axis, cube.getMin(axis) - thickness);
+		}
+		cubes.add(cube);
 		return cubes;
 	}
 	
 	@Override
 	public List<LittleTile> placeTile(EntityPlayer player, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, TileList list, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest, LittleStructure structure) {
-		if (structure.getMainTile() == null && structure.selectMainTile())
-			throw new RuntimeException("Invalid structure. Missing main tile!");
-		
-		relative.setBox(BlockPos.ORIGIN, box.copy(), context);
-		relative.add(new LittleAbsoluteVec(pos, context).getRelative(structure.getMainTile().getAbsolutePos()));
-		relativeType.set(structure, relative);
 		return Collections.EMPTY_LIST;
 	}
 	

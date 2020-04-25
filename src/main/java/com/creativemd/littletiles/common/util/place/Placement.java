@@ -209,8 +209,10 @@ public class Placement {
 	private void updateRelations(PlacementStructurePreview preview) {
 		for (int i = 0; i < preview.children.size(); i++) {
 			PlacementStructurePreview child = preview.children.get(i);
-			preview.structure.updateChildConnection(i, child.structure);
-			child.structure.updateParentConnection(i, preview.structure);
+			if (preview.structure != null && child.structure != null) {
+				preview.structure.updateChildConnection(i, child.structure);
+				child.structure.updateParentConnection(i, preview.structure);
+			}
 			
 			updateRelations(child);
 		}
@@ -280,9 +282,10 @@ public class Placement {
 		@Override
 		public void convertTo(LittleGridContext to) {
 			for (int i = 0; i < previews.length; i++)
-				for (PlacePreview preview : previews[i])
-					preview.convertTo(this.context, to);
-				
+				if (previews[i] != null)
+					for (PlacePreview preview : previews[i])
+						preview.convertTo(this.context, to);
+					
 			this.context = to;
 		}
 		
@@ -290,18 +293,20 @@ public class Placement {
 		public void convertToSmallest() {
 			int size = LittleGridContext.minSize;
 			for (int i = 0; i < previews.length; i++)
-				for (PlacePreview preview : previews[i])
-					size = Math.max(size, preview.getSmallestContext(context));
-				
+				if (previews[i] != null)
+					for (PlacePreview preview : previews[i])
+						size = Math.max(size, preview.getSmallestContext(context));
+					
 			if (size < context.size)
 				convertTo(LittleGridContext.get(size));
 		}
 		
 		private boolean needsCollisionTest() {
 			for (int i = 0; i < previews.length; i++)
-				for (PlacePreview preview : previews[i])
-					if (preview.needsCollisionTest())
-						return true;
+				if (previews[i] != null)
+					for (PlacePreview preview : previews[i])
+						if (preview.needsCollisionTest())
+							return true;
 			return false;
 		}
 		
@@ -318,20 +323,21 @@ public class Placement {
 				te.forceContext(this);
 				
 				for (int i = 0; i < previews.length; i++)
-					for (PlacePreview preview : previews[i])
-						if (preview.needsCollisionTest())
-							if (mode.checkAll()) {
-								if (!te.isSpaceForLittleTile(preview.box, predicate)) {
+					if (previews[i] != null)
+						for (PlacePreview preview : previews[i])
+							if (preview.needsCollisionTest())
+								if (mode.checkAll()) {
+									if (!te.isSpaceForLittleTile(preview.box, predicate)) {
+										if (te.getContext() != contextBefore)
+											te.convertTo(contextBefore);
+										return false;
+									}
+								} else if (!te.isSpaceForLittleTileStructure(preview.box, predicate)) {
 									if (te.getContext() != contextBefore)
 										te.convertTo(contextBefore);
 									return false;
 								}
-							} else if (!te.isSpaceForLittleTileStructure(preview.box, predicate)) {
-								if (te.getContext() != contextBefore)
-									te.convertTo(contextBefore);
-								return false;
-							}
-						
+							
 				cached = te;
 				return true;
 			}
@@ -371,15 +377,16 @@ public class Placement {
 		public void place(PlacementResult result) {
 			boolean hascollideBlock = false;
 			for (int i = 0; i < previews.length; i++)
-				for (PlacePreview preview : previews[i])
-					if (preview.needsCollisionTest())
-						hascollideBlock = true;
-					else {
-						if (latePreviews[i] == null)
-							latePreviews[i] = new ArrayList<>();
-						latePreviews[i].add(preview);
-					}
-				
+				if (previews[i] != null)
+					for (PlacePreview preview : previews[i])
+						if (preview.needsCollisionTest())
+							hascollideBlock = true;
+						else {
+							if (latePreviews[i] == null)
+								latePreviews[i] = new ArrayList<>();
+							latePreviews[i].add(preview);
+						}
+					
 			if (hascollideBlock) {
 				boolean requiresCollisionTest = true;
 				if (cached == null) {
@@ -403,6 +410,8 @@ public class Placement {
 					cached.updateTilesSecretly((x) -> {
 						
 						for (int i = 0; i < previews.length; i++) {
+							if (previews[i] == null)
+								continue;
 							PlacementStructurePreview structure = structures.get(i);
 							for (PlacePreview preview : previews[i]) {
 								for (LittleTile LT : preview.placeTile(player, pos, cached.getContext(), cached, x, unplaceableTiles, removedTiles, mode, facing, collsionTest, structure.structure)) {

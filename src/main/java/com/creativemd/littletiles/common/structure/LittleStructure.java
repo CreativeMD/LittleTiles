@@ -557,11 +557,12 @@ public abstract class LittleStructure {
 			parent = null;
 		
 		if (nbt.hasKey("children")) {
-			children = new ArrayList<>();
+			
 			NBTTagList list = nbt.getTagList("children", 10);
-			for (int i = 0; i < list.tagCount(); i++) {
+			children = new ArrayList<>(list.tagCount());
+			for (int i = 0; i < list.tagCount(); i++)
 				children.add(StructureLink.loadFromNBT(this, list.getCompoundTagAt(i), false));
-			}
+			
 			if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated()) {
 				for (IStructureChildConnector child : children) {
 					if (child instanceof StructureLinkToSubWorld && ((StructureLinkToSubWorld) child).entityUUID.equals(((IAnimatedStructure) this).getAnimation().getUniqueID()))

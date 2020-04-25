@@ -47,7 +47,7 @@ public class PlacementPreview {
 	}
 	
 	public List<PlacePreview> getPreviews() {
-		return this.previews.getPlacePreviews(inBlockOffset);
+		return this.previews.getPlacePreviewsIncludingChildren(inBlockOffset);
 	}
 	
 }

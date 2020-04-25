@@ -24,6 +24,7 @@ import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
@@ -477,7 +478,7 @@ public class LittleSignalCable extends LittleStructurePremade implements ISignal
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes() {
+		public List<RenderCubeObject> getRenderingCubes(LittlePreviews previews) {
 			if (cubes == null) {
 				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
 				cubes = new ArrayList<>();
