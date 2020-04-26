@@ -121,8 +121,10 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	@Override
 	public void disconnect(EnumFacing facing, ISignalBase base) {
 		int index = getIndex(facing);
-		if (faces[index] != null)
+		if (faces[index] != null) {
 			faces[index] = null;
+			updateStructure();
+		}
 	}
 	
 	@Override
