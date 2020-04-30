@@ -32,7 +32,10 @@ public class PlaySoundEvent extends AnimationEvent {
 	
 	@Override
 	protected void write(NBTTagCompound nbt) {
-		nbt.setString("sound", sound.getRegistryName().toString());
+		if (sound instanceof SoundEventMissing)
+			nbt.setString("sound", ((SoundEventMissing) sound).location.toString());
+		else
+			nbt.setString("sound", sound.getRegistryName().toString());
 		nbt.setFloat("volume", volume);
 		nbt.setFloat("pitch", pitch);
 		nbt.setBoolean("opening", opening);
@@ -41,6 +44,8 @@ public class PlaySoundEvent extends AnimationEvent {
 	@Override
 	protected void read(NBTTagCompound nbt) {
 		sound = SoundEvent.REGISTRY.getObject(new ResourceLocation(nbt.getString("sound")));
+		if (sound == null)
+			sound = new SoundEventMissing(new ResourceLocation(nbt.getString("sound")));
 		volume = nbt.getFloat("volume");
 		pitch = nbt.getFloat("pitch");
 		opening = nbt.getBoolean("opening");
@@ -55,13 +60,24 @@ public class PlaySoundEvent extends AnimationEvent {
 	
 	@SideOnly(Side.CLIENT)
 	public void playSound(EntityAnimationController controller) {
-		GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundCategory.NEUTRAL));
+		if (!(sound instanceof SoundEventMissing))
+			GuiControl.playSound(new EntitySound(sound, controller.parent, volume, pitch, SoundCategory.NEUTRAL));
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void runGui(AnimationGuiHandler handler) {
-		if (opening)
+		if (opening && !(sound instanceof SoundEventMissing))
 			GuiControl.playSound(sound, volume, pitch);
+	}
+	
+	public static class SoundEventMissing extends SoundEvent {
+		
+		public final ResourceLocation location;
+		
+		public SoundEventMissing(ResourceLocation location) {
+			super(location);
+			this.location = location;
+		}
 	}
 }
