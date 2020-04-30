@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tile;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -40,8 +40,8 @@ public class LittleTileColored extends LittleTile {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
-		List<LittleRenderingCube> cubes = super.getInternalRenderingCubes(layer);
+	public List<LittleRenderBox> getInternalRenderingCubes(BlockRenderLayer layer) {
+		List<LittleRenderBox> cubes = super.getInternalRenderingCubes(layer);
 		int color = this.color;
 		for (int i = 0; i < cubes.size(); i++) {
 			cubes.get(i).color = color;

@@ -7,7 +7,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
@@ -144,8 +144,8 @@ public class LittlePreview implements ICombinable {
 	
 	/** Rendering inventory **/
 	@SideOnly(Side.CLIENT)
-	public RenderCubeObject getCubeBlock(LittleGridContext context) {
-		RenderCubeObject cube = box.getRenderingCube(context, getBlock(), getMeta());
+	public RenderBox getCubeBlock(LittleGridContext context) {
+		RenderBox cube = box.getRenderingCube(context, getBlock(), getMeta());
 		cube.color = getColor();
 		return cube;
 	}
@@ -277,7 +277,7 @@ public class LittlePreview implements ICombinable {
 	// ================Save & Loading================
 	
 	public void writeToNBT(NBTTagCompound nbt) {
-		box.writeToNBT("bBox", nbt);
+		nbt.setTag("bBox", box.getNBTIntArray());
 		nbt.setTag("tile", tileData);
 		if (isCustomPreview())
 			nbt.setString("type", getTypeId());
@@ -453,15 +453,15 @@ public class LittlePreview implements ICombinable {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getCubes(LittlePreviews previews) {
-		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
+	public static ArrayList<RenderBox> getCubes(LittlePreviews previews) {
+		ArrayList<RenderBox> cubes = new ArrayList<RenderBox>();
 		for (LittlePreview preview : previews.allPreviews())
 			cubes.add(preview.getCubeBlock(previews.getContext()));
 		return cubes;
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack) {
+	public static ArrayList<RenderBox> getCubes(ItemStack stack) {
 		return getCubes(stack, true);
 	}
 	
@@ -477,13 +477,13 @@ public class LittlePreview implements ICombinable {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static ArrayList<RenderCubeObject> getCubes(ItemStack stack, boolean allowLowResolution) {
-		ArrayList<RenderCubeObject> cubes = new ArrayList<RenderCubeObject>();
+	public static ArrayList<RenderBox> getCubes(ItemStack stack, boolean allowLowResolution) {
+		ArrayList<RenderBox> cubes = new ArrayList<RenderBox>();
 		if (stack.hasTagCompound() && getTotalCount(stack.getTagCompound()) >= lowResolutionMode && allowLowResolution) {
 			NBTTagList list = stack.getTagCompound().getTagList("pos", 11);
 			for (int i = 0; i < list.tagCount(); i++) {
 				int[] array = list.getIntArrayAt(i);
-				cubes.add(new RenderCubeObject(array[0], array[1], array[2], array[0] + 1, array[1] + 1, array[2] + 1, LittleTiles.coloredBlock));
+				cubes.add(new RenderBox(array[0], array[1], array[2], array[0] + 1, array[1] + 1, array[2] + 1, LittleTiles.coloredBlock));
 			}
 		} else {
 			LittlePreviews previews = getPreview(stack);

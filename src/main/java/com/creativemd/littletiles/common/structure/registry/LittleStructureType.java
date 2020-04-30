@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
@@ -51,7 +51,7 @@ public class LittleStructureType {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public List<LittleRenderingCube> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+	public List<LittleRenderBox> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
 		return null;
 	}
 	

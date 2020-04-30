@@ -3,13 +3,13 @@ package com.creativemd.littletiles.common.structure.type.premade.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -63,10 +63,10 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, List<LittleRenderingCube> cubes) {
+	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, List<LittleRenderBox> cubes) {
 		super.renderFace(facing, context, renderBox.copy(), distance, axis, one, two, positive, color, cubes);
 		
-		LittleRenderingCube cube = renderBox.getRenderingCube(context, LittleTiles.outputArrow, facing.ordinal());
+		LittleRenderBox cube = renderBox.getRenderingCube(context, LittleTiles.outputArrow, facing.ordinal());
 		//cube.color = color;
 		cube.keepVU = true;
 		cube.allowOverlap = true;
@@ -90,10 +90,10 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderingCube> cubes, int color) {
+	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
 		super.render(box, overallBox, cubes, color);
 		
-		LittleRenderingCube cube = new LittleRenderingCube(new CubeObject(overallBox.getBox(box.getContext())), null, LittleTiles.coloredBlock, 0);
+		LittleRenderBox cube = new LittleRenderBox(new AlignedBox(overallBox.getBox(box.getContext())), null, LittleTiles.coloredBlock, 0);
 		cube.setColor(ColorUtils.ORANGE);
 		
 		Axis axis = facing.getAxis();
@@ -135,7 +135,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {
 		
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> cubes;
+		public List<RenderBox> cubes;
 		
 		public LittleStructureTypeOutput(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
 			super(id, category, structureClass, attribute, modid, bandwidth, 1);
@@ -152,11 +152,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(LittlePreviews previews) {
+		public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
 			if (cubes == null) {
 				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
 				cubes = new ArrayList<>();
-				cubes.add(new RenderCubeObject(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+				cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 				//cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
 				//cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}

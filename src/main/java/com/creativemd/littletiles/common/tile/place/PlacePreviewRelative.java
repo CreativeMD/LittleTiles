@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.tile.place;
 import java.util.Collections;
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -46,9 +46,9 @@ public class PlacePreviewRelative extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
-		List<LittleRenderingCube> cubes = super.getPreviews(context);
-		for (LittleRenderingCube cube : cubes)
+	public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+		List<LittleRenderBox> cubes = super.getPreviews(context);
+		for (LittleRenderBox cube : cubes)
 			cube.color = relativeType.annotation.color();
 		return cubes;
 	}

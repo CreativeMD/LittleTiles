@@ -8,7 +8,7 @@ import javax.annotation.Nullable;
 
 import org.lwjgl.util.Color;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.gui.container.SubGui;
@@ -150,7 +150,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return Collections.emptyList();
 	}
 	

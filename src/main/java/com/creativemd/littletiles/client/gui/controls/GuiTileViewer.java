@@ -5,8 +5,7 @@ import javax.vecmath.Vector3d;
 
 import org.lwjgl.input.Keyboard;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.client.rendering.RenderHelper3D;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.Style;
@@ -14,7 +13,6 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlEvent;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.SmoothValue;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.client.world.LittleAnimationHandlerClient;
@@ -316,8 +314,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			
 			GlStateManager.pushMatrix();
 			//GlStateManager.translate((int) Math.ceil(-size.getPosX(context) / 2), (int) Math.ceil(-size.getPosY(context) / 2), (int) Math.ceil(-size.getPosZ(context) / 2));
-			CubeObject cube = new CubeObject(box.getBox(axisContext));
-			RenderCubeObject normalCube = new RenderCubeObject(cube, Blocks.WOOL, 0);
+			RenderBox cube = new RenderBox(box.getCube(axisContext), Blocks.WOOL, 0);
+			RenderBox normalCube = new RenderBox(cube, Blocks.WOOL, 0);
 			normalCube.minX += axisContext.pixelSize / 3;
 			normalCube.minY += axisContext.pixelSize / 3;
 			normalCube.minZ += axisContext.pixelSize / 3;
@@ -345,8 +343,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 			}
 			
 			if (visibleNormalAxis)
-				RenderHelper3D.renderBlock(normalCube.minX + normalCube.getSize(Axis.X) / 2, normalCube.minY + normalCube.getSize(Axis.Y) / 2, normalCube.minZ + normalCube.getSize(Axis.Z) / 2, normalCube.getSize(Axis.X), normalCube.getSize(Axis.Y), normalCube.getSize(Axis.Z), 0, 0, 0, 1, 1, 1, 0.2);
-			RenderHelper3D.renderBlock(cube.minX + cube.getSize(Axis.X) / 2, cube.minY + cube.getSize(Axis.Y) / 2, cube.minZ + cube.getSize(Axis.Z) / 2, cube.getSize(Axis.X), cube.getSize(Axis.Y), cube.getSize(Axis.Z), 0, 0, 0, 0, 1, 0, 1);
+				normalCube.renderPreview(0, 0, 0, 51);
+			cube.renderPreview(0, 0, 0, 255);
 			
 			GlStateManager.popMatrix();
 		}

@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -13,12 +13,12 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class RenderCubeLayerCache {
 	
-	private List<LittleRenderingCube> solid;
-	private List<LittleRenderingCube> cutout_mipped;
-	private List<LittleRenderingCube> cutout;
-	private List<LittleRenderingCube> translucent;
+	private List<LittleRenderBox> solid;
+	private List<LittleRenderBox> cutout_mipped;
+	private List<LittleRenderBox> cutout;
+	private List<LittleRenderBox> translucent;
 	
-	public List<LittleRenderingCube> getCubesByLayer(BlockRenderLayer layer) {
+	public List<LittleRenderBox> getCubesByLayer(BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
 			return solid;
@@ -32,7 +32,7 @@ public class RenderCubeLayerCache {
 		return null;
 	}
 	
-	public void setCubesByLayer(List<LittleRenderingCube> cubes, BlockRenderLayer layer) {
+	public void setCubesByLayer(List<LittleRenderBox> cubes, BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
 			solid = cubes;
@@ -65,7 +65,7 @@ public class RenderCubeLayerCache {
 			return;
 		
 		for (Iterator iterator = solid.iterator(); iterator.hasNext();) {
-			LittleRenderingCube littleRenderingCube = (LittleRenderingCube) iterator.next();
+			LittleRenderBox littleRenderingCube = (LittleRenderBox) iterator.next();
 			if (littleRenderingCube.isEmissive) {
 				cutout_mipped.add(littleRenderingCube);
 				iterator.remove();

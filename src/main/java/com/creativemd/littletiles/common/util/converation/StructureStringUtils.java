@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.util.converation;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleTile;
@@ -40,10 +40,10 @@ public class StructureStringUtils {
 				return "";
 			
 			List<String> texturenames = new ArrayList<>();
-			List<? extends RenderCubeObject> cubes = LittlePreview.getCubes(stack, false);
+			List<? extends RenderBox> cubes = LittlePreview.getCubes(stack, false);
 			JsonArray elements = new JsonArray();
 			for (int i = 0; i < cubes.size(); i++) {
-				RenderCubeObject cube = cubes.get(i);
+				RenderBox cube = cubes.get(i);
 				
 				JsonObject element = new JsonObject();
 				element.addProperty("name", "littletile_" + i);
@@ -167,7 +167,7 @@ public class StructureStringUtils {
 					tileNBT.setInteger("meta", Integer.parseInt(entries[7]));
 					if (entries.length >= 9)
 						tileNBT.setInteger("color", Integer.parseInt(entries[8]));
-					box.writeToNBT("bBox", tileNBT);
+					tileNBT.setTag("bBox", box.getNBTIntArray());
 					tileNBT.setString("tID", "BlockTileBlock");
 					itemNBT.setTag("tile" + i, tileNBT);
 					

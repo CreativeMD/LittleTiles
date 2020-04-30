@@ -3,7 +3,7 @@ package com.creativemd.littletiles.common.util.place;
 import java.util.List;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -22,7 +22,7 @@ public class PlacementPosition extends LittleAbsoluteVec {
 	public EnumFacing facing;
 	
 	@SideOnly(Side.CLIENT)
-	public List<LittleRenderingCube> positingCubes;
+	public List<LittleRenderBox> positingCubes;
 	
 	public PlacementPosition(BlockPos pos, LittleVecContext vec, EnumFacing facing) {
 		super(pos, vec);

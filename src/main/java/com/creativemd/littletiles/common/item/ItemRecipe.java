@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
@@ -178,10 +178,10 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack.hasTagCompound() && !stack.getTagCompound().hasKey("x"))
 			return LittlePreview.getCubes(stack);
-		return new ArrayList<RenderCubeObject>();
+		return new ArrayList<RenderBox>();
 	}
 	
 	public ModelResourceLocation getBackgroundLocation() {

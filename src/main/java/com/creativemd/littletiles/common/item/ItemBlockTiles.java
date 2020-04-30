@@ -3,12 +3,12 @@ package com.creativemd.littletiles.common.item;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.old.LittleSize;
@@ -114,15 +114,15 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 		return stack;
 	}
 	
-	public static List<LittleRenderingCube> getItemRenderingCubes(ItemStack stack) {
-		ArrayList<LittleRenderingCube> cubes = new ArrayList<LittleRenderingCube>();
+	public static List<LittleRenderBox> getItemRenderingCubes(ItemStack stack) {
+		ArrayList<LittleRenderBox> cubes = new ArrayList<LittleRenderBox>();
 		if (stack != null && stack.hasTagCompound()) {
 			if (stack.getTagCompound().hasKey("size")) {
 				Block block = Block.getBlockFromName(stack.getTagCompound().getString("block"));
 				int meta = stack.getTagCompound().getInteger("meta");
 				LittleVec size = new LittleVec("size", stack.getTagCompound());
 				if (!(block instanceof BlockAir)) {
-					LittleRenderingCube cube = new LittleBox(0, 0, 0, size.x, size.y, size.z).getRenderingCube(LittleGridContext.get(), block, meta);
+					LittleRenderBox cube = new LittleBox(0, 0, 0, size.x, size.y, size.z).getRenderingCube(LittleGridContext.get(), block, meta);
 					if (stack.getTagCompound().hasKey("color"))
 						cube.color = stack.getTagCompound().getInteger("color");
 					cubes.add(cube);
@@ -130,14 +130,14 @@ public class ItemBlockTiles extends ItemBlock implements ILittleTile, ICreativeR
 			} else {
 				ILittleTile iTile = PlacementHelper.getLittleInterface(stack);
 				LittlePreview preview = LittleTileRegistry.loadPreview(stack.getTagCompound());
-				cubes.add((LittleRenderingCube) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
+				cubes.add((LittleRenderBox) preview.getCubeBlock(iTile.getPreviewsContext(stack)));
 			}
 		}
 		return cubes;
 	}
 	
 	@Override
-	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack != null)
 			return getItemRenderingCubes(stack);
 		return new ArrayList<>();

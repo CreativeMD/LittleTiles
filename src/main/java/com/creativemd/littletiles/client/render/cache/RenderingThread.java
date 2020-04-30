@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.CreativeModelPipeline;
 import com.creativemd.creativecore.common.utils.type.SingletonList;
@@ -23,7 +23,7 @@ import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer.RenderOverlapException;
 import com.creativemd.littletiles.client.render.entity.LittleRenderChunk;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.client.render.world.RenderUtils;
 import com.creativemd.littletiles.common.block.BlockTile;
@@ -176,9 +176,9 @@ public class RenderingThread extends Thread {
 						for (BlockRenderLayer layer : BlockRenderLayer.values()) {
 							cubeCache.setCubesByLayer(BlockTile.getRenderingCubes(data.state, data.te, null, layer), layer);
 							
-							List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
+							List<LittleRenderBox> cubes = cubeCache.getCubesByLayer(layer);
 							for (int j = 0; j < cubes.size(); j++) {
-								RenderCubeObject cube = cubes.get(j);
+								RenderBox cube = cubes.get(j);
 								if (cube.doesNeedQuadUpdate) {
 									if (ArrayUtils.contains(fakeWorldMods, cube.block.getRegistryName().getResourceDomain())) {
 										fakeAccess.set(data.te.getWorld(), pos, cube.getBlockState());
@@ -192,7 +192,7 @@ public class RenderingThread extends Thread {
 									BlockPos offset = cube.getOffset();
 									for (int h = 0; h < EnumFacing.VALUES.length; h++) {
 										EnumFacing facing = EnumFacing.VALUES[h];
-										if (cube.shouldSideBeRendered(facing)) {
+										if (cube.renderSide(facing)) {
 											if (cube.getQuad(facing) == null)
 												cube.setQuad(facing, CreativeBakedModel.getBakedQuad(world, cube, pos, offset, modelState, blockModel, layer, facing, MathHelper.getPositionRandom(pos), false));
 										} else
@@ -225,7 +225,7 @@ public class RenderingThread extends Thread {
 									
 									net.minecraftforge.client.ForgeHooksClient.setRenderLayer(layer);
 									
-									List<LittleRenderingCube> cubes = cubeCache.getCubesByLayer(layer);
+									List<LittleRenderBox> cubes = cubeCache.getCubesByLayer(layer);
 									BufferBuilder buffer = null;
 									
 									if (cubes != null && cubes.size() > 0)
@@ -266,7 +266,7 @@ public class RenderingThread extends Thread {
 										}
 										
 										for (int j = 0; j < cubes.size(); j++) {
-											RenderCubeObject cube = cubes.get(j);
+											RenderBox cube = cubes.get(j);
 											IBlockState state = cube.getBlockState();
 											
 											if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isShaders()) {

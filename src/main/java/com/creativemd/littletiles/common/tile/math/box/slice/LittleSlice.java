@@ -7,7 +7,7 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.BoxUtils.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 
 import net.minecraft.util.EnumFacing;

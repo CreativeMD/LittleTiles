@@ -11,7 +11,7 @@ import javax.annotation.Nullable;
 import org.lwjgl.util.Color;
 
 import com.creativemd.creativecore.client.avatar.AvatarItemStack;
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.CreativeBakedModel;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAvatarLabel;
@@ -106,7 +106,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		return getMode(stack).getRenderingCubes(stack);
 	}
 	
@@ -323,7 +323,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		public abstract boolean onMouseWheelClickBlock(World world, EntityPlayer player, ItemStack stack, RayTraceResult result);
 		
 		@SideOnly(Side.CLIENT)
-		public abstract List<RenderCubeObject> getRenderingCubes(ItemStack stack);
+		public abstract List<RenderBox> getRenderingCubes(ItemStack stack);
 		
 		@SideOnly(Side.CLIENT)
 		public abstract boolean renderBlockSeparately(ItemStack stack);
@@ -375,7 +375,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(ItemStack stack) {
+		public List<RenderBox> getRenderingCubes(ItemStack stack) {
 			return Collections.emptyList();
 		}
 		
@@ -660,7 +660,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(ItemStack stack) {
+		public List<RenderBox> getRenderingCubes(ItemStack stack) {
 			return LittlePreview.getCubes(stack);
 		}
 		

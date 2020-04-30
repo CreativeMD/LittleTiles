@@ -3,13 +3,13 @@ package com.creativemd.littletiles.common.structure.type.premade.signal;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.CubeObject;
+import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -64,10 +64,10 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, List<LittleRenderingCube> cubes) {
+	public void renderFace(EnumFacing facing, LittleGridContext context, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, int color, List<LittleRenderBox> cubes) {
 		super.renderFace(facing, context, renderBox.copy(), distance, axis, one, two, positive, color, cubes);
 		
-		LittleRenderingCube cube = renderBox.getRenderingCube(context, LittleTiles.inputArrow, facing.ordinal());
+		LittleRenderBox cube = renderBox.getRenderingCube(context, LittleTiles.inputArrow, facing.ordinal());
 		//cube.color = color;
 		cube.keepVU = true;
 		cube.allowOverlap = true;
@@ -91,11 +91,11 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderingCube> cubes, int color) {
+	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
 		super.render(box, overallBox, cubes, color);
 		color = getMainTile() instanceof LittleTileColored ? ((LittleTileColored) getMainTile()).color : -13619152;
 		
-		CubeObject cube = new CubeObject(overallBox.getBox(box.getContext()));
+		AlignedBox cube = new AlignedBox(overallBox.getBox(box.getContext()));
 		
 		Axis axis = facing.getAxis();
 		
@@ -108,27 +108,27 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		float sizeTwo = cube.getSize(two);
 		float sizeAxis = cube.getSize(axis);
 		
-		LittleRenderingCube top = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
+		LittleRenderBox top = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
 		top.allowOverlap = true;
 		top.setMin(one, top.getMax(one) - sizeOne * sizePercentage);
 		cubes.add(top);
 		
-		LittleRenderingCube bottom = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
+		LittleRenderBox bottom = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
 		bottom.allowOverlap = true;
 		bottom.setMax(one, bottom.getMin(one) + sizeOne * sizePercentage);
 		cubes.add(bottom);
 		
-		LittleRenderingCube left = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
+		LittleRenderBox left = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
 		left.allowOverlap = true;
 		left.setMin(two, top.getMax(two) - sizeTwo * sizePercentage);
 		cubes.add(left);
 		
-		LittleRenderingCube right = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
+		LittleRenderBox right = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
 		right.allowOverlap = true;
 		right.setMax(two, right.getMin(two) + sizeTwo * sizePercentage);
 		cubes.add(right);
 		
-		LittleRenderingCube behind = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
+		LittleRenderBox behind = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(color);
 		behind.allowOverlap = true;
 		
 		behind.setMin(one, behind.getMin(one) + sizeOne * sizePercentage);
@@ -143,7 +143,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 			behind.setMin(axis, behind.getMax(axis) - sizeAxis * 0.5F);
 		cubes.add(behind);
 		
-		LittleRenderingCube front = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
+		LittleRenderBox front = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
 		
 		front.allowOverlap = true;
 		
@@ -163,7 +163,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		cubes.add(front);
 		
 		float thickness = 0.0001F;
-		LittleRenderingCube frontTop = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
+		LittleRenderBox frontTop = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
 		
 		frontTop.allowOverlap = true;
 		
@@ -180,7 +180,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		
 		cubes.add(frontTop);
 		
-		LittleRenderingCube frontBottom = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
+		LittleRenderBox frontBottom = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
 		
 		frontBottom.allowOverlap = true;
 		frontBottom.setMax(one, frontBottom.getMax(one) - sizeOne * sizePercentage);
@@ -196,7 +196,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		
 		cubes.add(frontBottom);
 		
-		LittleRenderingCube frontRight = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
+		LittleRenderBox frontRight = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
 		
 		frontRight.allowOverlap = true;
 		frontRight.setMin(one, frontRight.getMin(one) + sizeOne * sizePercentage);
@@ -212,7 +212,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		
 		cubes.add(frontRight);
 		
-		LittleRenderingCube frontLeft = (LittleRenderingCube) new LittleRenderingCube(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
+		LittleRenderBox frontLeft = (LittleRenderBox) new LittleRenderBox(cube, null, LittleTiles.coloredBlock, 0).setColor(ColorUtils.LIGHT_BLUE);
 		
 		frontLeft.allowOverlap = true;
 		frontLeft.setMin(one, frontLeft.getMin(one) + sizeOne * sizePercentage);
@@ -242,7 +242,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	public static class LittleStructureTypeInput extends LittleStructureTypeNetwork {
 		
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> cubes;
+		public List<RenderBox> cubes;
 		
 		public LittleStructureTypeInput(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid, int bandwidth) {
 			super(id, category, structureClass, attribute, modid, bandwidth, 1);
@@ -259,11 +259,11 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		
 		@Override
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(LittlePreviews previews) {
+		public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
 			if (cubes == null) {
 				float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F) * 1.4);
 				cubes = new ArrayList<>();
-				cubes.add(new RenderCubeObject(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
+				cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 				//cubes.add(new RenderCubeObject(0 + size * 2, 0.5F - size * 0.8F, 0.5F - size * 0.8F, 1 - size * 2, 0.5F + size * 0.8F, 0.5F + size * 0.8F, LittleTiles.singleCable).setColor(-13619152).setKeepUV(true));
 				//cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}

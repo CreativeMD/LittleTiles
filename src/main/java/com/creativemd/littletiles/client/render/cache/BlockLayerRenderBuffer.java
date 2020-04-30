@@ -3,7 +3,7 @@ package com.creativemd.littletiles.client.render.cache;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 
 import net.minecraft.client.renderer.BufferBuilder;
@@ -50,10 +50,10 @@ public class BlockLayerRenderBuffer {
 	private BufferBuilder cutout;
 	private BufferBuilder translucent;
 	
-	public BufferBuilder createVertexBuffer(List<? extends RenderCubeObject> cubes) {
+	public BufferBuilder createVertexBuffer(List<? extends RenderBox> cubes) {
 		int size = 1;
-		for (RenderCubeObject cube : cubes)
-			size += cube.getQuads();
+		for (RenderBox cube : cubes)
+			size += cube.countQuads();
 		return new BufferBuilder(bufferSizePerQuad * size);
 	}
 	

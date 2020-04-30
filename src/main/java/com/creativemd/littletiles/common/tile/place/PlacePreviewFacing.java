@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -47,9 +47,9 @@ public class PlacePreviewFacing extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
-		List<LittleRenderingCube> cubes = new ArrayList<>();
-		LittleRenderingCube cube = new LittleRenderingCube(box.getCube(context), box, LittleTiles.coloredBlock, 0);
+	public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+		List<LittleRenderBox> cubes = new ArrayList<>();
+		LittleRenderBox cube = new LittleRenderBox(box.getCube(context), box, LittleTiles.coloredBlock, 0);
 		cube.setColor(color);
 		float thickness = 1 / 32F;
 		Axis axis = facing.getAxis();

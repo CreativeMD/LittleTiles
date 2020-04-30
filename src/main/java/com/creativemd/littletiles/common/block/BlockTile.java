@@ -8,13 +8,13 @@ import java.util.Random;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
-import com.creativemd.creativecore.client.rendering.RenderCubeObject.EnumSideRender;
+import com.creativemd.creativecore.client.rendering.RenderBox;
+import com.creativemd.creativecore.client.rendering.RenderBox.SideRenderType;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy;
@@ -514,8 +514,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int x = te.getContext().toGrid(viewpoint.x);
 			int y = te.getContext().toGrid(viewpoint.y);
 			int z = te.getContext().toGrid(viewpoint.z);
+			LittleBox box = new LittleBox(x, y, z, x + 1, y + 1, z + 1);
 			for (LittleTile tile : te)
-				if (tile.box.isVecInsideBox(x, y, z))
+				if (tile.intersectsWith(box))
 					return tile.getBlockState();
 		}
 		return state;
@@ -799,9 +800,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderCubeObject cube, LittleTileFace face) {
+	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderBox cube, LittleTileFace face) {
 		if (face == null) {
-			cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
+			cube.setType(facing, SideRenderType.INSIDE_RENDERED);
 			return;
 		}
 		Boolean shouldRender = neighbors.get(facing);
@@ -823,12 +824,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				shouldRender = otherTile.shouldSideBeRendered(facing.getOpposite(), face, (LittleTile) cube.customData);
 			}
 		}
-		cube.setSideRender(facing, shouldRender ? EnumSideRender.OUTSIDE_RENDERED : EnumSideRender.OUTSIDE_NOT_RENDERD);
+		cube.setType(facing, shouldRender ? SideRenderType.OUTSIDE_RENDERED : SideRenderType.OUTSIDE_NOT_RENDERD);
 	}
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (te instanceof TileEntityLittleTiles) {
 			return Collections.emptyList();
 		}
@@ -836,8 +837,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public static List<LittleRenderingCube> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
-		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
+	public static List<LittleRenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack, BlockRenderLayer layer) {
+		ArrayList<LittleRenderBox> cubes = new ArrayList<>();
 		if (te instanceof TileEntityLittleTiles) {
 			HashMap<EnumFacing, Boolean> neighbors = new HashMap<>();
 			HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles = new HashMap<>();
@@ -845,24 +846,24 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
 			
 			RenderCubeLayerCache cache = tileEntity.getCubeCache();
-			List<LittleRenderingCube> cachedCubes = cache.getCubesByLayer(layer);
+			List<LittleRenderBox> cachedCubes = cache.getCubesByLayer(layer);
 			if (cachedCubes != null) {
 				if (tileEntity.hasNeighbourChanged) {
 					for (BlockRenderLayer tempLayer : BlockRenderLayer.values()) {
-						List<LittleRenderingCube> renderCubes = cache.getCubesByLayer(tempLayer);
+						List<LittleRenderBox> renderCubes = cache.getCubesByLayer(tempLayer);
 						if (renderCubes == null)
 							continue;
 						for (int i = 0; i < renderCubes.size(); i++) {
-							LittleRenderingCube cube = renderCubes.get(i);
+							LittleRenderBox cube = renderCubes.get(i);
 							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 								EnumFacing facing = EnumFacing.VALUES[k];
-								if (cube.getSidedRendererType(facing).outside) {
+								if (cube.getType(facing).outside) {
 									LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
 									
-									boolean shouldRenderBefore = cube.shouldSideBeRendered(facing);
+									boolean shouldRenderBefore = cube.renderSide(facing);
 									// face.move(facing);
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
-									if (cube.shouldSideBeRendered(facing)) {
+									if (cube.renderSide(facing)) {
 										if (!shouldRenderBefore)
 											cube.doesNeedQuadUpdate = true;
 									} else
@@ -879,9 +880,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			for (LittleTile tile : tileEntity) {
 				if (tile.shouldBeRenderedInLayer(layer)) {
 					// Check for sides which does not need to be rendered
-					List<LittleRenderingCube> tileCubes = tile.getRenderingCubes(layer);
+					List<LittleRenderBox> tileCubes = tile.getRenderingCubes(layer);
 					for (int j = 0; j < tileCubes.size(); j++) {
-						LittleRenderingCube cube = tileCubes.get(j);
+						LittleRenderBox cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
 							LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
@@ -889,10 +890,10 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 							cube.customData = tile;
 							
 							if (face == null) {
-								cube.setSideRender(facing, EnumSideRender.INSIDE_RENDERED);
+								cube.setType(facing, SideRenderType.INSIDE_RENDERED);
 							} else {
 								if (face.isFaceInsideBlock()) {
-									cube.setSideRender(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile) ? EnumSideRender.INSIDE_RENDERED : EnumSideRender.INSIDE_NOT_RENDERED);
+									cube.setType(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile) ? SideRenderType.INSIDE_RENDERED : SideRenderType.INSIDE_NOT_RENDERED);
 								} else {
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
 								}

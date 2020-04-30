@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -156,7 +156,7 @@ public interface ILittleTile {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public default List<LittleRenderingCube> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
+	public default List<LittleRenderBox> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("structure")) {
 			LittleStructureType type = LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
 			if (type != null)
