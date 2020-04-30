@@ -120,6 +120,12 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		for (LittlePreview preview : this)
 			placePreviews.add(preview.getPlaceableTile(offset));
 		
+		getStructureTiles(placePreviews, offset);
+		
+		return placePreviews;
+	}
+	
+	protected void getStructureTiles(List<PlacePreview> placePreviews, LittleVec offset) {
 		if (hasStructure()) {
 			for (PlacePreview placePreviewTile : getStructureType().getSpecialTiles(this)) {
 				if (offset != null)
@@ -127,8 +133,6 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 				placePreviews.add(placePreviewTile);
 			}
 		}
-		
-		return placePreviews;
 	}
 	
 	public List<PlacePreview> getPlacePreviewsIncludingChildren(LittleVec offset) {
@@ -136,13 +140,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		for (LittlePreview preview : this)
 			placePreviews.add(preview.getPlaceableTile(offset));
 		
-		if (hasStructure()) {
-			for (PlacePreview placePreviewTile : getStructureType().getSpecialTiles(this)) {
-				if (offset != null)
-					placePreviewTile.add(offset);
-				placePreviews.add(placePreviewTile);
-			}
-		}
+		getStructureTiles(placePreviews, offset);
 		
 		if (hasChildren())
 			for (LittlePreviews child : children)
@@ -181,10 +179,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	@Override
 	public void convertToSmallest() {
 		LittleGridContext context = getSmallestContext();
-		if (hasChildren())
-			for (LittlePreviews child : children)
-				context = LittleGridContext.max(child.getSmallestContext(), context);
-			
+		
 		if (context != this.context)
 			convertTo(context);
 	}
@@ -240,6 +235,10 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		LittleGridContext context = LittleGridContext.get(size);
 		if (hasStructure())
 			context = LittleGridContext.max(this.context, getStructureType().getMinContext(this));
+		
+		if (hasChildren())
+			for (LittlePreviews child : children)
+				context = LittleGridContext.max(child.getSmallestContext(), context);
 		return context;
 	}
 	

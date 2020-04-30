@@ -378,15 +378,18 @@ public class Placement {
 			boolean hascollideBlock = false;
 			for (int i = 0; i < previews.length; i++)
 				if (previews[i] != null)
-					for (PlacePreview preview : previews[i])
+					for (Iterator<PlacePreview> iterator = previews[i].iterator(); iterator.hasNext();) {
+						PlacePreview preview = iterator.next();
 						if (preview.needsCollisionTest())
 							hascollideBlock = true;
 						else {
 							if (latePreviews[i] == null)
 								latePreviews[i] = new ArrayList<>();
 							latePreviews[i].add(preview);
+							iterator.remove();
 						}
-					
+					}
+				
 			if (hascollideBlock) {
 				boolean requiresCollisionTest = true;
 				if (cached == null) {
