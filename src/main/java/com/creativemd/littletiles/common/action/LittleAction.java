@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.event.ActionEvent;
 import com.creativemd.littletiles.common.event.ActionEvent.ActionType;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
+import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -794,6 +795,8 @@ public abstract class LittleAction extends CreativeCorePacket {
 	public static boolean isBlockValid(IBlockState state) {
 		Block block = state.getBlock();
 		if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
+			return true;
+		if (ColoredLightsManager.isBlockFromColoredBlocks(block))
 			return true;
 		if (block.hasTileEntity(state) || block instanceof BlockSlab)
 			return false;

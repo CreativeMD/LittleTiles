@@ -14,9 +14,9 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class ColoredLightsManager {
 	
-	public static final String coloredlightsID = "coloredlights";
+	public static final String coloredlightsId = "coloredlights";
 	
-	private static boolean isinstalled = Loader.isModLoaded(coloredlightsID);
+	private static boolean isinstalled = Loader.isModLoaded(coloredlightsId);
 	
 	public static boolean isInstalled() {
 		return isinstalled;
@@ -24,9 +24,13 @@ public class ColoredLightsManager {
 	
 	private static Block invertedColorsBlock;
 	
+	public static boolean isBlockFromColoredBlocks(Block block) {
+		return block.getRegistryName().getResourceDomain().equals(coloredlightsId) && (block.getRegistryName().getResourcePath().equalsIgnoreCase("coloredLamp") || block.getRegistryName().getResourcePath().equalsIgnoreCase("coloredLampInverted"));
+	}
+	
 	public static Block getInvertedColorsBlock() {
 		if (invertedColorsBlock == null)
-			invertedColorsBlock = Block.REGISTRY.getObject(new ResourceLocation(coloredlightsID, "coloredLampInverted"));
+			invertedColorsBlock = Block.REGISTRY.getObject(new ResourceLocation(coloredlightsId, "coloredLampInverted"));
 		return invertedColorsBlock;
 	}
 	
