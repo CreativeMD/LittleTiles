@@ -87,6 +87,7 @@ import com.creativemd.littletiles.common.item.ItemRecipe;
 import com.creativemd.littletiles.common.item.ItemRecipeAdvanced;
 import com.creativemd.littletiles.common.item.ItemRubberMallet;
 import com.creativemd.littletiles.common.item.ItemUtilityKnife;
+import com.creativemd.littletiles.common.mod.albedo.AlbedoExtension;
 import com.creativemd.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import com.creativemd.littletiles.common.mod.warpdrive.TileEntityLittleTilesTransformer;
 import com.creativemd.littletiles.common.packet.LittleActionMessagePacket;
@@ -544,6 +545,9 @@ public class LittleTiles {
 			TileEntityLittleTilesTransformer.init();
 		
 		TheOneProbeManager.init();
+		
+		if (Loader.isModLoaded("albedo"))
+			MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
 		
 	}
 	

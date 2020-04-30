@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
@@ -24,11 +23,9 @@ import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
@@ -39,12 +36,8 @@ import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
-import elucent.albedo.event.GatherLightsEvent;
-import elucent.albedo.lighting.ILightProvider;
-import elucent.albedo.lighting.Light;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.chunk.RenderChunk;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -56,13 +49,11 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional.Interface;
 import net.minecraftforge.fml.common.Optional.Method;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-@Interface(iface = "elucent.albedo.lighting.ILightProvider", modid = "albedo")
-public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, ILightProvider, Iterable<LittleTile>, IGridBased {
+public class TileEntityLittleTiles extends TileEntityCreative implements ILittleTileTE, Iterable<LittleTile>, IGridBased {
 	
 	protected void assign(TileEntityLittleTiles te) {
 		try {
@@ -1051,33 +1042,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			
 		}
 		return highest != null ? highest.getBlockState() : null;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	@Method(modid = "albedo")
-	public void gatherLights(GatherLightsEvent event, Entity entity) {
-		if (ColoredLightsManager.isInstalled()) {
-			AxisAlignedBB box = null;
-			int color = -1;
-			for (LittleTile tile : tiles) {
-				if (tile.getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
-					int tileColor = ColoredLightsManager.getColorFromBlock(tile.getBlockState());
-					if (tile instanceof LittleTileColored)
-						tileColor = ColorUtils.blend(tileColor, ((LittleTileColored) tile).color);
-					if (box == null) {
-						box = tile.getCompleteBox().getBox(context, pos);
-						color = tileColor;
-					} else {
-						box = box.union(tile.getCompleteBox().getBox(context, pos));
-						color = ColorUtils.blend(color, tileColor);
-					}
-				}
-			}
-			
-			if (box != null)
-				event.add(new Light.Builder().pos(box.getCenter()).color(color, false).radius(15.0F).build());
-		}
 	}
 	
 	public boolean isEmpty() {
