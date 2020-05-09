@@ -58,8 +58,10 @@ public class OpenCommand extends CommandBase {
 		World world = sender.getEntityWorld();
 		
 		List<LittleDoor> doors = new ArrayList<>();
-		doors.addAll(WorldAnimationHandler.getHandler(world).findAnimations(blockpos));
-		
+		for (LittleDoor door : WorldAnimationHandler.getHandler(world).findAnimations(blockpos))
+			if (checkStructureName(door, args))
+				doors.add(door);
+			
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity)) {
@@ -82,8 +84,7 @@ public class OpenCommand extends CommandBase {
 		for (LittleDoor door : doors) {
 			try {
 				door.activate(null, null, null, true);
-			} catch (LittleActionException e) {
-			}
+			} catch (LittleActionException e) {}
 		}
 		
 	}
