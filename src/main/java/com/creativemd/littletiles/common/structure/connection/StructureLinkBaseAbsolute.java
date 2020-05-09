@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.structure.connection;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.IStructureConnector;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureAbsolute;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;

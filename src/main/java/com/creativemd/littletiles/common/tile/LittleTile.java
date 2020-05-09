@@ -22,10 +22,6 @@ import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.connection.IStructureConnector;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseRelative;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
-import com.creativemd.littletiles.common.structure.connection.StructureMainTile;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
@@ -35,9 +31,13 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tile.registry.LittleTileType;
+import com.creativemd.littletiles.common.tileentity.SubTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.outdated.connection.StructureLinkBaseRelative;
+import com.creativemd.littletiles.common.util.outdated.connection.StructureLinkTile;
+import com.creativemd.littletiles.common.util.outdated.connection.StructureMainTile;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
@@ -77,7 +77,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleTile implements ICombinable {
 	
-	public TileEntityLittleTiles te;
+	public SubTileList parent;
 	public LittleBox box;
 	
 	public boolean invisible = false;
@@ -104,11 +104,15 @@ public class LittleTile implements ICombinable {
 	// ================Basics================
 	
 	public World getWorld() {
-		return te.getWorld();
+		return parent.getTe().getWorld();
 	}
 	
-	public BlockPos getBlockPos() {
-		return te.getPos();
+	public TileEntityLittleTiles getTe() {
+		return parent.getTe();
+	}
+	
+	public BlockPos getPos() {
+		return parent.getTe().getPos();
 	}
 	
 	// ================Block================
@@ -187,7 +191,7 @@ public class LittleTile implements ICombinable {
 	// ================Position & Size================
 	
 	public LittleGridContext getContext() {
-		return te.getContext();
+		return getTe().getContext();
 	}
 	
 	public int getSmallestContext(LittleGridContext context) {
@@ -208,7 +212,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public LittleAbsoluteVec getAbsolutePos() {
-		return new LittleAbsoluteVec(te.getPos(), getContext(), box.getMinVec());
+		return new LittleAbsoluteVec(getPos(), getContext(), box.getMinVec());
 	}
 	
 	@Override
@@ -230,8 +234,8 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public AxisAlignedBB getSelectedBox(BlockPos pos) {
-		if (LittleTiles.CONFIG.rendering.highlightStructureBox && isConnectedToStructure() && connection.getStructureWithoutLoading().load())
-			return connection.getStructureWithoutLoading().getSurroundingBox();
+		if (LittleTiles.CONFIG.rendering.highlightStructureBox && isConnectedToStructure() && getStructure().load())
+			return getStructure().getSurroundingBox();
 		return box.getSelectionBox(getContext(), pos);
 	}
 	
@@ -330,7 +334,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public RayTraceResult rayTrace(Vec3d pos, Vec3d look) {
-		return box.calculateIntercept(getContext(), te.getPos(), pos, look);
+		return box.calculateIntercept(getContext(), getPos(), pos, look);
 	}
 	
 	public boolean equalsBox(LittleBox box) {
@@ -360,17 +364,6 @@ public class LittleTile implements ICombinable {
 	public void combineTiles(LittleTile tile) {
 		if (isConnectedToStructure())
 			connection.getStructure(te.getWorld()).remove(tile);
-	}
-	
-	@Override
-	public boolean isChildOfStructure() {
-		return connection != null;
-	}
-	
-	public boolean isChildOfStructure(LittleStructure structure) {
-		if (isChildOfStructure() && connection.isConnected(te.getWorld()))
-			return connection.getStructureWithoutLoading() == structure || connection.getStructureWithoutLoading().isChildOf(structure);
-		return false;
 	}
 	
 	@Override
@@ -805,7 +798,7 @@ public class LittleTile implements ICombinable {
 	
 	public boolean onBlockActivated(World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
 		if (isConnectedToStructure())
-			return connection.getStructure(te.getWorld()).onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action);
+			return getStructure().onBlockActivated(worldIn, this, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ, action);
 		
 		if (hasSpecialBlockHandler())
 			return handler.onBlockActivated(this, worldIn, pos, getBlockState(), playerIn, hand, heldItem, side, hitX, hitY, hitZ);
@@ -827,7 +820,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public float getSlipperiness(Entity entity) {
-		return block.getSlipperiness(getBlockState(), te.getWorld(), te.getPos(), entity);
+		return block.getSlipperiness(getBlockState(), getWorld(), getPos(), entity);
 	}
 	
 	public boolean isMaterial(Material material) {
@@ -885,23 +878,36 @@ public class LittleTile implements ICombinable {
 	
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		if (LittleStructureAttribute.noCollision(getStructureAttribute()) && isConnectedToStructure())
-			connection.getStructure(te.getWorld()).onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+			getStructure().onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
 		if (hasSpecialBlockHandler())
 			handler.onEntityCollidedWithBlock(worldIn, this, pos, state, entityIn);
 	}
 	
 	// ================Structure================
 	
-	public IStructureConnector<LittleTile> connection;
-	
 	public boolean isConnectedToStructure() {
-		return connection != null && connection.isConnected(te.getWorld());
+		return isChildOfStructure() && parent.isConnected();
 	}
 	
 	public int getStructureAttribute() {
 		if (isChildOfStructure())
-			return connection.getAttribute();
+			return parent.getAttribute();
 		return LittleStructureAttribute.NONE;
+	}
+	
+	@Override
+	public boolean isChildOfStructure() {
+		return parent.isStructure();
+	}
+	
+	public boolean isChildOfStructure(LittleStructure structure) {
+		if (isChildOfStructure() && parent.isConnected())
+			return parent.getStructure() == structure || parent.getStructure().isChildOf(structure);
+		return false;
+	}
+	
+	public LittleStructure getStructure() {
+		return parent.getStructure();
 	}
 	
 	@Deprecated

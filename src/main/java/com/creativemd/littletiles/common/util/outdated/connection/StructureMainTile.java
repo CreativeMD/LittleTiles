@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.connection;
+package com.creativemd.littletiles.common.util.outdated.connection;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnector;

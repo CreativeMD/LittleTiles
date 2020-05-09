@@ -34,7 +34,7 @@ public class TileList implements List<LittleTile> {
 	
 	private final boolean client;
 	
-	private final TileEntityLittleTiles te;
+	public final TileEntityLittleTiles te;
 	
 	public TileList(TileEntityLittleTiles te, boolean client) {
 		this.te = te;

@@ -1,7 +1,8 @@
-package com.creativemd.littletiles.common.structure.connection;
+package com.creativemd.littletiles.common.util.outdated.connection;
 
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.IStructureConnector;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -16,8 +17,6 @@ import net.minecraft.world.chunk.Chunk;
 public abstract class StructureLinkBaseRelative<T> extends LittleIdentifierStructureRelative implements IStructureConnector<T> {
 	
 	protected LittleStructure connectedStructure;
-	public BlockPos coord;
-	protected int attribute;
 	protected final T parent;
 	
 	public StructureLinkBaseRelative(TileEntity te, BlockPos coord, LittleGridContext context, int[] identifier, int attribute, T parent) {

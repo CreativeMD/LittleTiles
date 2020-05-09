@@ -22,7 +22,7 @@ public class LittleBoxes extends ArrayList<LittleBox> implements IGridBased {
 	}
 	
 	public void addBox(LittleTile tile) {
-		addBox(tile.getContext(), tile.te.getPos(), tile.box.copy());
+		addBox(tile.getContext(), tile.getPos(), tile.box.copy());
 	}
 	
 	public void addBox(LittleGridContext context, BlockPos pos, LittleBox box) {

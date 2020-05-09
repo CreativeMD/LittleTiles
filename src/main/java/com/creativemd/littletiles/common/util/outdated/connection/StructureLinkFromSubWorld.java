@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.connection;
+package com.creativemd.littletiles.common.util.outdated.connection;
 
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
