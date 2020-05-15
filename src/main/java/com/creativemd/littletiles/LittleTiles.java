@@ -115,6 +115,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendere
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
+import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
@@ -548,6 +549,8 @@ public class LittleTiles {
 		
 		if (Loader.isModLoaded("albedo"))
 			MinecraftForge.EVENT_BUS.register(AlbedoExtension.class);
+		
+		MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
 		
 	}
 	
