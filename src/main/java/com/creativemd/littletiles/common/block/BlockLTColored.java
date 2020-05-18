@@ -11,6 +11,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
@@ -19,6 +20,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -78,19 +80,7 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 	
 	public enum EnumType implements IStringSerializable {
 		
-		clean,
-		floor,
-		grainy_big,
-		grainy,
-		grainy_low,
-		brick,
-		bordered,
-		brick_big,
-		structured,
-		broken_brick_big,
-		clay,
-		light_clean,
-		lava {
+		clean, floor, grainy_big, grainy, grainy_low, brick, bordered, brick_big, structured, broken_brick_big, clay, light_clean, lava {
 			@Override
 			public boolean isLava() {
 				return true;
@@ -157,6 +147,13 @@ public class BlockLTColored extends Block implements ISpecialBlockHandler {
 			return true;
 		}
 		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+	}
+	
+	@Override
+	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		if (state.getValue(VARIANT).isLava())
+			return new Vec3d(0.6F, 0.1F, 0.0F);
+		return ISpecialBlockHandler.super.getFogColor(world, tile, pos, state, entity, originalColor, partialTicks);
 	}
 	
 	@Override

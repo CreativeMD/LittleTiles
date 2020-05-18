@@ -172,6 +172,19 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
+	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		float f12 = 0.0F;
+		if (entity instanceof net.minecraft.entity.EntityLivingBase) {
+			net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;
+			f12 = net.minecraft.enchantment.EnchantmentHelper.getRespirationModifier(ent) * 0.2F;
+			
+			if (ent.isPotionActive(net.minecraft.init.MobEffects.WATER_BREATHING))
+				f12 = f12 * 0.3F + 0.6F;
+		}
+		return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
+	}
+	
+	@Override
 	public void rotatePreview(Rotation rotation, LittlePreview preview, LittleVec doubledCenter) {
 		preview.getTileData().setInteger("meta", RotationUtils.rotate(EnumFacing.getFront(preview.getMeta()), rotation).ordinal());
 	}

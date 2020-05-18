@@ -84,6 +84,10 @@ public interface ISpecialBlockHandler {
 		
 	}
 	
+	public default Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		return originalColor;
+	}
+	
 	public default void flipPreview(Axis axis, LittlePreview preview, LittleVec doubledCenter) {
 		
 	}

@@ -166,6 +166,11 @@ public class BlockLTFlowingLava extends Block implements ISpecialBlockHandler, I
 	}
 	
 	@Override
+	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		return new Vec3d(0.6F, 0.1F, 0.0F);
+	}
+	
+	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
 		if (tile.getBlock() == this)

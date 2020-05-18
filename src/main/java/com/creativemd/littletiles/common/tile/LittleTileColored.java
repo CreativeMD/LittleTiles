@@ -99,7 +99,6 @@ public class LittleTileColored extends LittleTile {
 	
 	@Override
 	public boolean shouldBeRenderedInLayer(BlockRenderLayer layer) {
-		
 		if (ColorUtils.isTransparent(color))
 			return layer == BlockRenderLayer.TRANSLUCENT;
 		return super.shouldBeRenderedInLayer(layer);
@@ -107,8 +106,9 @@ public class LittleTileColored extends LittleTile {
 	
 	@Override
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		Vec3d result = super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 		Vec3d color = ColorUtils.IntToVec(this.color);
-		return new Vec3d(originalColor.x * color.x, originalColor.y * color.y, originalColor.z * color.z);
+		return new Vec3d(result.x * color.x, result.y * color.y, result.z * color.z);
 	}
 	
 	public static boolean needsToBeRecolored(LittleTile tile, int color) {

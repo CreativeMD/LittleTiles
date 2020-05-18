@@ -12,6 +12,7 @@ import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemBucket;
@@ -22,6 +23,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.IStringSerializable;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -172,6 +174,23 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 			return true;
 		}
 		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+	}
+	
+	@Override
+	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		if (state.getValue(VARIANT).isWater()) {
+			float f12 = 0.0F;
+			
+			if (entity instanceof net.minecraft.entity.EntityLivingBase) {
+				net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;
+				f12 = net.minecraft.enchantment.EnchantmentHelper.getRespirationModifier(ent) * 0.2F;
+				
+				if (ent.isPotionActive(net.minecraft.init.MobEffects.WATER_BREATHING))
+					f12 = f12 * 0.3F + 0.6F;
+			}
+			return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
+		}
+		return ISpecialBlockHandler.super.getFogColor(world, tile, pos, state, entity, originalColor, partialTicks);
 	}
 	
 	@Override

@@ -843,6 +843,8 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+		if (hasSpecialBlockHandler())
+			return handler.getFogColor(world, this, pos, getBlockState(), entity, originalColor, partialTicks);
 		return originalColor;
 	}
 	
