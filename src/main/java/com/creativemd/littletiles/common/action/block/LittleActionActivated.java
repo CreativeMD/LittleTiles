@@ -15,12 +15,17 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 public class LittleActionActivated extends LittleActionInteract {
 	
 	public LittleActionActivated(World world, BlockPos blockPos, EntityPlayer player) {
 		super(world, blockPos, player);
+	}
+	
+	public LittleActionActivated(World world, BlockPos blockPos, Vec3d pos, Vec3d look, boolean secondMode) {
+		super(world, blockPos, pos, look, secondMode);
 	}
 	
 	public LittleActionActivated() {

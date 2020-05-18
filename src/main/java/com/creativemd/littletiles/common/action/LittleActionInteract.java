@@ -47,6 +47,16 @@ public abstract class LittleActionInteract extends LittleAction {
 			uuid = ((CreativeWorld) world).parent.getUniqueID();
 	}
 	
+	public LittleActionInteract(World world, BlockPos blockPos, Vec3d pos, Vec3d look, boolean secondMode) {
+		super();
+		this.blockPos = blockPos;
+		this.pos = pos;
+		this.look = look;
+		this.secondMode = secondMode;
+		if (world instanceof CreativeWorld)
+			uuid = ((CreativeWorld) world).parent.getUniqueID();
+	}
+	
 	public LittleActionInteract() {
 		super();
 	}

@@ -289,6 +289,14 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
+	public boolean activateServer(EntityPlayer player) {
+		try {
+			return action(player);
+		} catch (LittleActionException e) {
+			return false;
+		}
+	}
+	
 	public abstract LittleAction flip(Axis axis, LittleAbsoluteBox box);
 	
 	@SideOnly(Side.CLIENT)
