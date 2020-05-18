@@ -10,6 +10,7 @@ import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
+import com.creativemd.littletiles.common.api.ILittleIngredientSupplier;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredient;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
@@ -63,13 +64,14 @@ public class LittleSubGuiUtils {
 			BlockIngredient ingredients = new BlockIngredient();
 			for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
 				ItemStack stack = player.inventory.getStackInSlot(i);
-				if (stack.getItem() instanceof ILittleIngredientInventory) {
+				if (stack.getItem() instanceof ILittleIngredientSupplier)
+					((ILittleIngredientSupplier) stack.getItem()).collect(stacks, stack, player);
+				else if (stack.getItem() instanceof ILittleIngredientInventory) {
 					LittleIngredients inventory = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
 					if (inventory != null && inventory.contains(BlockIngredient.class))
 						ingredients.add(inventory.get(BlockIngredient.class));
 				} else if (stack.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null))
 					collect(stack.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null), ingredients);
-				
 			}
 			
 			List<ItemStack> newStacks = new ArrayList<>();
