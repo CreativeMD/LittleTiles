@@ -552,7 +552,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				node.methods.add(m);
 			}
 		});
-		addTransformer(new Transformer("net.minecraft.world.World") {
+		/*addTransformer(new Transformer("net.minecraft.world.World") {
 			
 			@Override
 			public void transform(ClassNode node) {
@@ -572,7 +572,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 					}
 				}
 			}
-		});
+		});*/
 	}
 	
 }
