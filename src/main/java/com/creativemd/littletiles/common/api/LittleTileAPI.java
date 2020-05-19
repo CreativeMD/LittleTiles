@@ -55,7 +55,7 @@ public class LittleTileAPI {
 				return false;
 			}
 		} else
-			return new LittleActionActivated(pointedEntity.world, result.getBlockPos(), pos, look, false).activateServer(player);
+			return new LittleActionActivated(pointedEntity.fakeWorld, result.getBlockPos(), pos, look, false).activateServer(player);
 		
 		return false;
 		
