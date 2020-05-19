@@ -113,10 +113,10 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	@Override
 	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-		if (world.isRemote) {
-			activate(player, tile, null, true);
-			action.preventInteraction = true;
-		}
+		//if (world.isRemote) {
+		activate(player, tile, null, true);
+		action.preventInteraction = true;
+		//}
 		return true;
 	}
 	
