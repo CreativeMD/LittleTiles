@@ -8,7 +8,10 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyEnum;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.NonNullList;
 
 public class BlockArrow extends Block {
 	
@@ -17,6 +20,11 @@ public class BlockArrow extends Block {
 	public BlockArrow() {
 		super(Material.CIRCUITS);
 		setCreativeTab(LittleTiles.littleTab);
+	}
+	
+	@Override
+	public void getSubBlocks(CreativeTabs itemIn, NonNullList<ItemStack> items) {
+		
 	}
 	
 	@Override
