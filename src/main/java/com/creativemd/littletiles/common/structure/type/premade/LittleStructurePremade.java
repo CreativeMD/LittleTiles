@@ -95,6 +95,10 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		return structurePreviews.values();
 	}
 	
+	public static List<LittleStructureTypePremade> getPremadeStructureTypes() {
+		return premadeStructures;
+	}
+	
 	public static Set<String> getPremadeStructureIds() {
 		return structurePreviews.keySet();
 	}
@@ -140,6 +144,16 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
 			super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
 			this.modid = modid;
+		}
+		
+		public ItemStack createItemStack() {
+			ItemStack stack = new ItemStack(LittleTiles.premade);
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			structureNBT.setString("id", id);
+			NBTTagCompound stackNBT = new NBTTagCompound();
+			stackNBT.setTag("structure", structureNBT);
+			stack.setTagCompound(stackNBT);
+			return stack;
 		}
 		
 		@SideOnly(Side.CLIENT)
