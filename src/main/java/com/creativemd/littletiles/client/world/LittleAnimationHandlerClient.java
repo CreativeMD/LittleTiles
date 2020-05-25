@@ -59,8 +59,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteract
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -129,7 +127,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		}
 	}
 	
-	@SubscribeEvent
 	public void rightClick(PlayerInteractEvent event) {
 		if (event instanceof RightClickBlock || event instanceof RightClickEmpty || event instanceof RightClickItem || event instanceof EntityInteractSpecific/* || event instanceof EntityInteract*/) {
 			
@@ -178,7 +175,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		}
 	}
 	
-	@SubscribeEvent
 	public void mouseWheel(WheelClick event) {
 		RayTraceResult target = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
 		if (target == null)
@@ -276,7 +272,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		}
 	}
 	
-	@SubscribeEvent
 	public void holdClick(HoldLeftClick event) {
 		RayTraceResult result = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
 		if (result == null || !event.leftClick) {
@@ -413,7 +408,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		return true;
 	}
 	
-	@SubscribeEvent
 	public void leftClick(LeftClick event) {
 		RayTraceResult result = getRayTraceResult(event.player, TickUtils.getPartialTickTime(), null);
 		if (result == null)
@@ -491,7 +485,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		
 	}
 	
-	@SubscribeEvent
 	public void tickClient(ClientTickEvent event) {
 		if (event.phase == Phase.END && (!mc.isSingleplayer() || !mc.isGamePaused())) {
 			for (EntityAnimation door : openDoors) {
@@ -547,7 +540,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		return result;
 	}
 	
-	@SubscribeEvent
 	public void renderLast(RenderWorldLastEvent event) {
 		if (mc.gameSettings.hideGUI)
 			return;
@@ -635,7 +627,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 		}*/
 	}
 	
-	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void drawHighlight(DrawBlockHighlightEvent event) {
 		if (getRayTraceResult(lastPlayerRayTraceResult, event.getPartialTicks(), event.getTarget()) != null)
 			event.setCanceled(true);

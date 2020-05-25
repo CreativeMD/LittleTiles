@@ -5,7 +5,6 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.world.LittleAnimationHandler;
 
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.WorldTickEvent;
 
@@ -15,7 +14,6 @@ public class LittleAnimationHandlerServer extends LittleAnimationHandler {
 		super(world);
 	}
 	
-	@SubscribeEvent
 	public void tick(WorldTickEvent event) {
 		if (event.phase == Phase.END && world == event.world) {
 			for (EntityAnimation door : openDoors) {

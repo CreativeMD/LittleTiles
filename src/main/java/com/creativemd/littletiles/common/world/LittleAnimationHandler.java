@@ -13,11 +13,9 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.GetCollisionBoxesEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public abstract class LittleAnimationHandler {
 	
@@ -28,7 +26,6 @@ public abstract class LittleAnimationHandler {
 			throw new RuntimeException("Creating handler for empty world!");
 		
 		this.world = world;
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	public List<EntityAnimation> openDoors = new CopyOnWriteArrayList<>();
@@ -70,11 +67,7 @@ public abstract class LittleAnimationHandler {
 		openDoors.add(door);
 	}
 	
-	@SubscribeEvent
 	public void chunkUnload(ChunkEvent.Unload event) {
-		if (event.getWorld() != world)
-			return;
-		
 		openDoors.removeIf((x) -> {
 			if (x.isDead) {
 				x.markRemoved();
@@ -84,11 +77,7 @@ public abstract class LittleAnimationHandler {
 		});
 	}
 	
-	@SubscribeEvent
 	public void worldUnload(WorldEvent.Unload event) {
-		if (event.getWorld() != world)
-			return;
-		
 		openDoors.removeIf((x) -> {
 			if (x.world == event.getWorld()) {
 				x.markRemoved();
@@ -98,11 +87,7 @@ public abstract class LittleAnimationHandler {
 		});
 	}
 	
-	@SubscribeEvent
 	public void worldCollision(GetCollisionBoxesEvent event) {
-		if (event.getWorld() != world)
-			return;
-		
 		AxisAlignedBB box = event.getAabb();
 		for (EntityAnimation animation : findAnimations(box)) {
 			if (animation.noCollision)
