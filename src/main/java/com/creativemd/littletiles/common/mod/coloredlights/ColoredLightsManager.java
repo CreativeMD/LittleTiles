@@ -25,7 +25,9 @@ public class ColoredLightsManager {
 	private static Block invertedColorsBlock;
 	
 	public static boolean isBlockFromColoredBlocks(Block block) {
-		return block.getRegistryName().getResourceDomain().equals(coloredlightsId) && (block.getRegistryName().getResourcePath().equalsIgnoreCase("coloredLamp") || block.getRegistryName().getResourcePath().equalsIgnoreCase("coloredLampInverted"));
+		if (block.getRegistryName() == null)
+			return false;
+		return coloredlightsId.equals(block.getRegistryName().getResourceDomain()) && ("coloredLamp".equalsIgnoreCase(block.getRegistryName().getResourcePath()) || "coloredLampInverted".equalsIgnoreCase(block.getRegistryName().getResourcePath()));
 	}
 	
 	public static Block getInvertedColorsBlock() {
