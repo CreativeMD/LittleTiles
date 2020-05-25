@@ -41,6 +41,7 @@ public class LittleRenderChunk {
 		synchronized (tileEntities) {
 			
 			TileEntityLittleTiles existing = tileEntities.get(te.getPos());
+			
 			if (existing != null) {
 				if (existing != te) {
 					if (te.isEmpty())
@@ -56,6 +57,9 @@ public class LittleRenderChunk {
 					return;
 				
 				tileEntities.put(te.getPos(), te);
+				
+				if (complete)
+					modified = true;
 				
 				if (!modified)
 					addRenderDataInternal(te);
