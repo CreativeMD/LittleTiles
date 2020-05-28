@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.VertexBufferUploader;
+import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureMap;
@@ -42,6 +43,21 @@ public class RenderAnimation extends Render<EntityAnimation> {
 	
 	public RenderAnimation(RenderManager renderManager) {
 		super(renderManager);
+	}
+	
+	@Override
+	public boolean shouldRender(EntityAnimation livingEntity, ICamera camera, double camX, double camY, double camZ) {
+		AxisAlignedBB axisalignedbb = livingEntity.getRenderBoundingBox().grow(0.5D);
+		
+		if (axisalignedbb.hasNaN() || axisalignedbb.getAverageEdgeLength() == 0.0D)
+			axisalignedbb = new AxisAlignedBB(livingEntity.posX - 2.0D, livingEntity.posY - 2.0D, livingEntity.posZ - 2.0D, livingEntity.posX + 2.0D, livingEntity.posY + 2.0D, livingEntity.posZ + 2.0D);
+		
+		double d0 = (axisalignedbb.minX + axisalignedbb.maxX) / 2 - camX;
+		double d1 = (axisalignedbb.minY + axisalignedbb.maxY) / 2 - camY;
+		double d2 = (axisalignedbb.minZ + axisalignedbb.maxZ) / 2 - camZ;
+		double d3 = d0 * d0 + d1 * d1 + d2 * d2;
+		
+		return livingEntity.isInRangeToRenderDist(d3) && (livingEntity.ignoreFrustumCheck || camera.isBoundingBoxInFrustum(axisalignedbb));
 	}
 	
 	@Override
