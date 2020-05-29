@@ -6,7 +6,6 @@ import java.util.List;
 import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
@@ -28,6 +27,7 @@ import com.creativemd.littletiles.client.gui.controls.GuiLTDistance;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDialogAxis.GuiAxisButton;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
+import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
@@ -333,10 +333,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			parent.controls.add(new GuiAxisButton("axis", "open axis", 0, 93, 50, 10, previews.getContext(), structure instanceof LittleAdvancedDoor ? (LittleAdvancedDoor) structure : null, handler));
 			
-			parent.controls.add(new GuiCheckBox("stayAnimated", CoreControl.translate("gui.door.stayAnimated"), 0, 123, structure instanceof LittleAdvancedDoor ? ((LittleDoorBase) structure).stayAnimated : false).setCustomTooltip(CoreControl.translate("gui.door.stayAnimatedTooltip")));
+			boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
+			boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
+			boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
+			parent.controls.add(new GuiDoorSettingsButton("settings", 0, 113, stayAnimated, disableRightClick, noClip));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 121, 40, 8).setNumbersOnly());
-			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 108, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
 			parent.controls.add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
 			parent.controls.add(new GuiDoorEventsButton("children_activate", 93, 107, previews, structure instanceof LittleDoorBase ? (LittleDoorBase) structure : null));
 			updateTimeline();
@@ -375,8 +377,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			
 			handler.setTimeline(animation, children.events);
 			
-			GuiCheckBox stayAnimated = (GuiCheckBox) parent.get("stayAnimated");
-			stayAnimated.enabled = animation.isFirstAligned();
+			GuiDoorSettingsButton settings = (GuiDoorSettingsButton) parent.get("settings");
+			settings.stayAnimatedPossible = animation.isFirstAligned();
 		}
 		
 		@SideOnly(Side.CLIENT)
@@ -510,11 +512,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
 			GuiTimeline timeline = (GuiTimeline) parent.get("timeline");
 			door.duration = timeline.getDuration();
-			GuiCheckBox checkBox = (GuiCheckBox) parent.get("stayAnimated");
-			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
+			
+			GuiDoorSettingsButton settings = (GuiDoorSettingsButton) parent.get("settings");
 			GuiStateButton interpolationButton = (GuiStateButton) parent.get("interpolation");
 			door.events = button.events;
-			door.disableRightClick = !rightclick.value;
+			door.disableRightClick = !settings.disableRightClick;
 			door.interpolation = interpolationButton.getState();
 			
 			door.rotX = ValueTimeline.create(door.interpolation, timeline.channels.get(0).getPairs());
@@ -524,10 +526,11 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			door.offY = ValueTimeline.create(door.interpolation, timeline.channels.get(4).getPairs());
 			door.offZ = ValueTimeline.create(door.interpolation, timeline.channels.get(5).getPairs());
 			
+			door.noClip = settings.noClip;
 			if (!isAligned(AnimationKey.offX, door.offX) || !isAligned(AnimationKey.offY, door.offY) || !isAligned(AnimationKey.offZ, door.offZ) || !isAligned(AnimationKey.rotX, door.rotX) || !isAligned(AnimationKey.rotY, door.rotY) || !isAligned(AnimationKey.rotZ, door.rotZ))
 				door.stayAnimated = true;
 			else
-				door.stayAnimated = checkBox.value;
+				door.stayAnimated = settings.stayAnimated;
 			door.offGrid = context;
 			return door;
 		}

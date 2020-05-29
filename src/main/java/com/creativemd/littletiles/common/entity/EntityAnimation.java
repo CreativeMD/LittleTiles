@@ -313,7 +313,7 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public void moveAndRotateAnimation(CollisionCoordinator coordinator) {
-		if (preventPush)
+		if (preventPush || controller.noClip())
 			return;
 		
 		noCollision = true;

@@ -57,6 +57,8 @@ public class DoorController extends EntityAnimationController {
 	public DoorOpeningResult result;
 	public UUIDSupplier supplier;
 	
+	public boolean noClip;
+	
 	protected boolean modifiedTransition;
 	
 	public DoorController() {
@@ -99,6 +101,11 @@ public class DoorController extends EntityAnimationController {
 		addTransition("opened", "closed", close);
 		
 		stretchTransitions();
+	}
+	
+	@Override
+	public boolean noClip() {
+		return noClip;
 	}
 	
 	@Override
@@ -298,6 +305,8 @@ public class DoorController extends EntityAnimationController {
 			nbt.setTag("transitions", list);
 		}
 		
+		nbt.setBoolean("noClip", noClip);
+		
 	}
 	
 	@Override
@@ -340,6 +349,7 @@ public class DoorController extends EntityAnimationController {
 		
 		byte turnBackData = nbt.getByte("turnBack");
 		turnBack = turnBackData == 0 ? null : (turnBackData > 0 ? true : false);
+		noClip = nbt.getBoolean("noClip");
 	}
 	
 	@Override

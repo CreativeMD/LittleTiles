@@ -90,7 +90,7 @@ public abstract class LittleAnimationHandler {
 	public void worldCollision(GetCollisionBoxesEvent event) {
 		AxisAlignedBB box = event.getAabb();
 		for (EntityAnimation animation : findAnimations(box)) {
-			if (animation.noCollision)
+			if (animation.noCollision || animation.controller.noClip())
 				continue;
 			
 			OrientatedBoundingBox newAlignedBox = animation.origin.getOrientatedBox(box);

@@ -50,6 +50,10 @@ public abstract class EntityAnimationController extends AnimationController {
 		return null;
 	}
 	
+	public boolean noClip() {
+		return false;
+	}
+	
 	public void onServerApproves() {
 		
 	}
