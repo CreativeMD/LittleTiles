@@ -116,6 +116,7 @@ public class ChiselsAndBitsInteractor {
 		
 		te.convertTo(context);
 		
+		LittleVec vec = new LittleVec(0, 0, 0);
 		VoxelBlob blob = new VoxelBlob();
 		for (LittleTile tile : te) {
 			boolean convert;
@@ -133,11 +134,14 @@ public class ChiselsAndBitsInteractor {
 				if (!force && tile.box.getClass() != LittleBox.class)
 					throw new Exception("Cannot convert " + tile.box.getClass() + " box!");
 				
+				LittleBox box = new LittleBox(0, 0, 0, 0, 0, 0);
 				for (int x = tile.box.minX; x < tile.box.maxX; x++)
 					for (int y = tile.box.minY; y < tile.box.maxY; y++)
-						for (int z = tile.box.minZ; z < tile.box.maxZ; z++)
-							if (tile.box.isCompletelyFilled() || tile.box.isVecInsideBox(x, y, z))
+						for (int z = tile.box.minZ; z < tile.box.maxZ; z++) {
+							box.set(x, y, z, x + 1, y + 1, z + 1);
+							if (tile.box.isSolid() || tile.intersectsWith(box))
 								blob.set(x, y, z, Block.getStateId(tile.getBlockState()));
+						}
 			}
 		}
 		

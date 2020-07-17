@@ -2,7 +2,7 @@ package com.creativemd.littletiles.common.tile.place;
 
 import java.util.List;
 
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -20,9 +20,9 @@ public class PlacePreviewRelativeAxis extends PlacePreviewRelative {
 	}
 	
 	@Override
-	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
-		List<LittleRenderingCube> cubes = super.getPreviews(context);
-		LittleRenderingCube cube = cubes.get(0);
+	public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+		List<LittleRenderBox> cubes = super.getPreviews(context);
+		LittleRenderBox cube = cubes.get(0);
 		int max = 40 * context.size;
 		int min = -max;
 		switch (axis) {

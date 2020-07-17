@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.item.ItemPremadeStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -157,7 +157,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		}
 		
 		@SideOnly(Side.CLIENT)
-		public List<RenderCubeObject> getRenderingCubes(LittlePreviews previews) {
+		public List<RenderBox> getRenderingCubes(LittlePreviews previews) {
 			return null;
 		}
 		

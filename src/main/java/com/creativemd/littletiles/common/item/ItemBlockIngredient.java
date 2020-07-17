@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.ILittleIngredientInventory;
@@ -114,8 +114,8 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
 	}
 	
 	@Override
-	public List<? extends RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		List<RenderCubeObject> cubes = new ArrayList<>();
+	public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		List<RenderBox> cubes = new ArrayList<>();
 		BlockIngredientEntry ingredient = loadIngredient(stack);
 		if (ingredient == null)
 			return null;
@@ -124,7 +124,7 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
 		LittleGridContext context = LittleGridContext.get();
 		int pixels = (int) (volume * context.maxTilesPerBlock);
 		if (pixels < context.size * context.size)
-			cubes.add(new RenderCubeObject(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block, ingredient.meta));
+			cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block, ingredient.meta));
 		else {
 			int remainingPixels = pixels;
 			int planes = pixels / context.maxTilesPerPlane;
@@ -135,15 +135,15 @@ public class ItemBlockIngredient extends Item implements ICreativeRendered, ILit
 			float height = (float) (planes * context.pixelSize);
 			
 			if (planes > 0)
-				cubes.add(new RenderCubeObject(0.0F, 0.0F, 0.0F, 1.0F, height, 1.0F, ingredient.block, ingredient.meta));
+				cubes.add(new RenderBox(0.0F, 0.0F, 0.0F, 1.0F, height, 1.0F, ingredient.block, ingredient.meta));
 			
 			float width = (float) (rows * context.pixelSize);
 			
 			if (rows > 0)
-				cubes.add(new RenderCubeObject(0.0F, height, 0.0F, 1.0F, height + (float) context.pixelSize, width, ingredient.block, ingredient.meta));
+				cubes.add(new RenderBox(0.0F, height, 0.0F, 1.0F, height + (float) context.pixelSize, width, ingredient.block, ingredient.meta));
 			
 			if (remainingPixels > 0)
-				cubes.add(new RenderCubeObject(0.0F, height, width, 1.0F, height + (float) context.pixelSize, width + (float) context.pixelSize, ingredient.block, ingredient.meta));
+				cubes.add(new RenderBox(0.0F, height, width, 1.0F, height + (float) context.pixelSize, width + (float) context.pixelSize, ingredient.block, ingredient.meta));
 		}
 		return cubes;
 	}

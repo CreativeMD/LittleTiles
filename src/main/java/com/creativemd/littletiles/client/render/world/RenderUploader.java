@@ -5,7 +5,9 @@ import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.lwjgl.opengl.ARBVertexBufferObject;
+import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.opengl.GLContext;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
@@ -125,7 +127,6 @@ public class RenderUploader {
 						bufferIdField.setInt(uploadBuffer, OpenGlHelper.glGenBuffers());
 						toUpload.position(0);
 						uploadBuffer.bufferData(toUpload);
-						
 					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
@@ -143,8 +144,10 @@ public class RenderUploader {
 		try {
 			if (arbVboField.getBoolean(null))
 				return ARBVertexBufferObject.glMapBufferARB(target, access, length, old_buffer);
-			else if (OpenGlHelper.useVbo())
+			else if (GLContext.getCapabilities().OpenGL30)
 				return GL30.glMapBufferRange(target, 0, length, access, old_buffer);
+			else if (OpenGlHelper.useVbo())
+				return GL15.glMapBuffer(target, access, length, old_buffer);
 		} catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {
 			if (e instanceof IllegalStateException)
 				throw new NotSupportedException(e);

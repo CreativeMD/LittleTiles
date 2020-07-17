@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -161,7 +161,7 @@ public class PlacementHelper {
 			Vec3d look = position.addVector(temp.x * d0, temp.y * d0, temp.z * d0);
 			position = position.subtract(pos.getX(), pos.getY(), pos.getZ());
 			look = look.subtract(pos.getX(), pos.getY(), pos.getZ());
-			List<LittleRenderingCube> cubes = tile.getPositingCubes(world, pos, stack);
+			List<LittleRenderBox> cubes = tile.getPositingCubes(world, pos, stack);
 			if (cubes != null)
 				result.positingCubes = cubes;
 		}

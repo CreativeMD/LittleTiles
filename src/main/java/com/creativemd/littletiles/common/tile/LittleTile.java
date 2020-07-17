@@ -13,7 +13,7 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
@@ -261,7 +261,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean fillInSpace(boolean[][][] filled) {
-		if (!box.isCompletelyFilled())
+		if (!box.isSolid())
 			return false;
 		
 		boolean changed = false;
@@ -296,13 +296,6 @@ public class LittleTile implements ICombinable {
 		if (identifier == null)
 			return false;
 		return box.is(identifier);
-	}
-	
-	/** It's slower than isCornerAt()
-	 * 
-	 * @return if the coordinates are inside the box(es) of the tile */
-	public boolean isAt(int x, int y, int z) {
-		return box.isVecInsideBox(x, y, z);
 	}
 	
 	public boolean intersectsWith(LittleBox box) {
@@ -715,15 +708,15 @@ public class LittleTile implements ICombinable {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public final List<LittleRenderingCube> getRenderingCubes(BlockRenderLayer layer) {
+	public final List<LittleRenderBox> getRenderingCubes(BlockRenderLayer layer) {
 		if (invisible)
 			return new ArrayList<>();
 		return getInternalRenderingCubes(layer);
 	}
 	
 	@SideOnly(Side.CLIENT)
-	protected List<LittleRenderingCube> getInternalRenderingCubes(BlockRenderLayer layer) {
-		ArrayList<LittleRenderingCube> cubes = new ArrayList<>();
+	protected List<LittleRenderBox> getInternalRenderingCubes(BlockRenderLayer layer) {
+		ArrayList<LittleRenderBox> cubes = new ArrayList<>();
 		if (block != Blocks.BARRIER)
 			cubes.add(box.getRenderingCube(getContext(), block, meta));
 		return cubes;

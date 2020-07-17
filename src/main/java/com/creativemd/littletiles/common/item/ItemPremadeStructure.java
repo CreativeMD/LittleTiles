@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
@@ -47,10 +47,10 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public List<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
 		LittlePreviews previews = getLittlePreview(stack);
-		List<RenderCubeObject> cubes = premade.getRenderingCubes(previews);
+		List<RenderBox> cubes = premade.getRenderingCubes(previews);
 		if (cubes == null) {
 			cubes = new ArrayList<>();
 			

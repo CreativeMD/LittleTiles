@@ -8,7 +8,7 @@ import java.util.Map.Entry;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
-import com.creativemd.littletiles.client.render.tile.LittleRenderingCube;
+import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -43,8 +43,8 @@ public class PlacePreview {
 		return true;
 	}
 	
-	public List<LittleRenderingCube> getPreviews(LittleGridContext context) {
-		ArrayList<LittleRenderingCube> previews = new ArrayList<>();
+	public List<LittleRenderBox> getPreviews(LittleGridContext context) {
+		ArrayList<LittleRenderBox> previews = new ArrayList<>();
 		previews.add(box.getRenderingCube(context, null, 0));
 		return previews;
 	}

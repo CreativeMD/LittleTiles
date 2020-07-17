@@ -5,7 +5,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import com.creativemd.creativecore.client.rendering.RenderCubeObject;
+import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
@@ -114,10 +114,10 @@ public class ItemRecipeAdvanced extends Item implements ILittleTile, ICreativeRe
 	
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ArrayList<RenderCubeObject> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+	public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
 		if (stack.hasTagCompound() && stack.getTagCompound().getInteger("count") > 0)
 			return LittlePreview.getCubes(stack);
-		return new ArrayList<RenderCubeObject>();
+		return new ArrayList<RenderBox>();
 	}
 	
 	@SideOnly(Side.CLIENT)

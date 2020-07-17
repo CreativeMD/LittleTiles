@@ -163,14 +163,14 @@ public class LittleGridContext {
 	
 	public int toBlockOffset(long grid) {
 		if (grid > 0)
-			return (int) (grid / size);
-		return (int) Math.floor(grid / (double) size);
+			return (int) (grid * pixelSize);
+		return (int) Math.floor(grid * pixelSize);
 	}
 	
 	public int toBlockOffset(int grid) {
 		if (grid > 0)
-			return grid / size;
-		return (int) Math.floor(grid / (double) size);
+			return (int) (grid * pixelSize);
+		return (int) Math.floor(grid * pixelSize);
 	}
 	
 	public boolean isAtEdge(double pos) {

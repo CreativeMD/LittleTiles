@@ -115,12 +115,22 @@ public class Placement {
 	public PlacementResult place() throws LittleActionException {
 		if (player != null && !world.isRemote) {
 			if (player != null) {
-				if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.survival.maxPlaceBlocks)
+				if (LittleTiles.CONFIG.isPlaceLimited(player) && previews.getVolumeIncludingChildren() > LittleTiles.CONFIG.survival.maxPlaceBlocks) {
+					for (BlockPos pos : blocks.keySet())
+						LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
 					throw new NotAllowedToPlaceException();
+				}
 				
 				if (LittleTiles.CONFIG.isTransparencyRestricted(player))
-					for (LittlePreview preview : previews)
-						LittleAction.isAllowedToPlacePreview(player, preview);
+					for (LittlePreview preview : previews) {
+						try {
+							LittleAction.isAllowedToPlacePreview(player, preview);
+						} catch (LittleActionException e) {
+							for (BlockPos pos : blocks.keySet())
+								LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, pos);
+							throw e;
+						}
+					}
 			}
 			
 			List<BlockSnapshot> snaps = new ArrayList<>();
