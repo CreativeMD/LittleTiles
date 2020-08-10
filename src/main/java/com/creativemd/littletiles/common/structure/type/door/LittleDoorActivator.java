@@ -15,16 +15,20 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiScrollBox;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -35,8 +39,8 @@ public class LittleDoorActivator extends LittleDoor {
 	
 	public int[] toActivate;
 	
-	public LittleDoorActivator(LittleStructureType type) {
-		super(type);
+	public LittleDoorActivator(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@Override
@@ -51,9 +55,9 @@ public class LittleDoorActivator extends LittleDoor {
 		toActivate = nbt.getIntArray("activate");
 	}
 	
-	public LittleDoor getChildrenDoor(int index) {
-		if (index >= 0 && index < children.size()) {
-			LittleStructure structure = children.get(index).getStructure(getWorld());
+	public LittleDoor getChildrenDoor(int index) throws CorruptedConnectionException, NotYetConnectedException {
+		if (index >= 0 && index < getChildren().size()) {
+			LittleStructure structure = getChild(index).getStructure();
 			if (structure instanceof LittleDoor)
 				return (LittleDoor) structure;
 			return null;
@@ -62,7 +66,7 @@ public class LittleDoorActivator extends LittleDoor {
 	}
 	
 	@Override
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) {
+	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException {
 		for (int i : toActivate) {
 			LittleDoor child = getChildrenDoor(i);
 			if (child == null)
@@ -78,10 +82,14 @@ public class LittleDoorActivator extends LittleDoor {
 	public int getCompleteDuration() {
 		int duration = 0;
 		for (int i : toActivate) {
-			LittleDoor child = getChildrenDoor(i);
-			if (child == null)
-				continue;
-			duration = Math.max(duration, child.getCompleteDuration());
+			
+			try {
+				LittleDoor child;
+				child = getChildrenDoor(i);
+				if (child == null)
+					continue;
+				duration = Math.max(duration, child.getCompleteDuration());
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		}
 		return duration;
 	}
@@ -90,10 +98,12 @@ public class LittleDoorActivator extends LittleDoor {
 	public List<LittleDoor> collectDoorsToCheck() {
 		List<LittleDoor> doors = new ArrayList<>();
 		for (int i : toActivate) {
-			LittleDoor child = getChildrenDoor(i);
-			if (child == null)
-				continue;
-			doors.add(child);
+			try {
+				LittleDoor child = getChildrenDoor(i);
+				if (child == null)
+					continue;
+				doors.add(child);
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		}
 		return doors;
 	}
@@ -101,11 +111,13 @@ public class LittleDoorActivator extends LittleDoor {
 	@Override
 	public boolean isInMotion() {
 		for (int i : toActivate) {
-			LittleDoor child = getChildrenDoor(i);
-			if (child == null)
-				continue;
-			if (child.isInMotion())
-				return true;
+			try {
+				LittleDoor child = getChildrenDoor(i);
+				if (child == null)
+					continue;
+				if (child.isInMotion())
+					return true;
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		}
 		return false;
 	}
@@ -170,7 +182,7 @@ public class LittleDoorActivator extends LittleDoor {
 		
 		@Override
 		public LittleStructure parseStructure(LittlePreviews previews) {
-			LittleDoorActivator activator = createStructure(LittleDoorActivator.class);
+			LittleDoorActivator activator = createStructure(LittleDoorActivator.class, null);
 			
 			GuiCheckBox rightclick = (GuiCheckBox) parent.get("rightclick");
 			activator.disableRightClick = !rightclick.value;

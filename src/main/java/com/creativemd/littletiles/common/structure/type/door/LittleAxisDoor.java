@@ -39,8 +39,10 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewRelativeAxis;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -63,8 +65,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleAxisDoor extends LittleDoorBase {
 	
-	public LittleAxisDoor(LittleStructureType type) {
-		super(type);
+	public LittleAxisDoor(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@Override
@@ -85,8 +87,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 			LittleRelativeDoubledAxis doubledRelativeAxis;
 			if (nbt.hasKey("ax")) {
 				LittleVecContext vec = new LittleVecContext("a", nbt);
-				if (getMainTile() != null)
-					vec.sub(new LittleVecContext(getMainTile().getMinVec(), getMainTile().getContext()));
+				//if (getMainTile() != null)
+				//vec.sub(new LittleVecContext(getMainTile().getMinVec(), getMainTile().getContext()));
 				doubledRelativeAxis = new LittleRelativeDoubledAxis(vec.getContext(), vec.getVec(), new LittleVec(1, 1, 1));
 				
 			} else if (nbt.hasKey("av")) {
@@ -114,7 +116,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 	
 	@Override
 	public StructureAbsolute getAbsoluteAxis() {
-		return new StructureAbsolute(lastMainTileVec != null ? lastMainTileVec : getMainTile().getAbsolutePos(), axisCenter);
+		return new StructureAbsolute(new LittleAbsoluteVec(getPos(), mainBlock.getContext()), axisCenter);
 	}
 	
 	@Override
@@ -241,7 +243,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleAxisDoor parseStructure() {
-			LittleAxisDoor door = createStructure(LittleAxisDoor.class);
+			LittleAxisDoor door = createStructure(LittleAxisDoor.class, null);
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());
 			door.axis = viewer.getAxis();
@@ -622,7 +624,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
 			StructureAbsolute absolute = door.getAbsoluteAxis();
 			Rotation rotation = player != null ? getRotation(player, door, absolute) : getDefaultRotation(door, absolute);
-			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), rotation), new LittleTransformation(door.getMainTile().te.getPos(), rotation.getOpposite()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getPos(), rotation), new LittleTransformation(door.getPos(), rotation.getOpposite()) };
 		}
 		
 	}
@@ -697,7 +699,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected LittleTransformation[] getDoorTransformations(LittleAxisDoor door, EntityPlayer player) {
-			return new LittleTransformation[] { new LittleTransformation(door.getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
+			return new LittleTransformation[] { new LittleTransformation(door.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 		}
 		
 	}

@@ -3,9 +3,11 @@ package com.creativemd.littletiles.common.action;
 import java.util.UUID;
 
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -91,7 +93,7 @@ public abstract class LittleActionInteract extends LittleAction {
 	
 	protected abstract boolean isRightClick();
 	
-	protected abstract boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException;
+	protected abstract boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException;
 	
 	@Override
 	protected boolean action(EntityPlayer player) throws LittleActionException {
@@ -120,18 +122,19 @@ public abstract class LittleActionInteract extends LittleAction {
 		TileEntity tileEntity = world.getTileEntity(blockPos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-			LittleTile tile = te.getFocusedTile(transformedPos, transformedLook);
+			Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(transformedPos, transformedLook);
 			
 			if (!isAllowedToInteract(world, player, blockPos, isRightClick(), EnumFacing.EAST)) {
 				sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return false;
 			}
 			
+			LittleTile tile = pair.value;
 			if (tile != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = rayTrace(te, tile, transformedPos, transformedLook);
 				if (moving != null)
-					return action(world, te, tile, stack, player, moving, blockPos, secondMode);
+					return action(world, te, pair.key, tile, stack, player, moving, blockPos, secondMode);
 			} else
 				onTileNotFound();
 		} else

@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -94,7 +96,7 @@ public abstract class TileSelector {
 	
 	protected abstract void loadNBT(NBTTagCompound nbt);
 	
-	public abstract boolean is(LittleTile tile);
+	public abstract boolean is(IParentTileList parent, LittleTile tile);
 	
 	public static LittleBoxes getAbsoluteBoxes(World world, BlockPos pos, BlockPos pos2, TileSelector selector) {
 		LittleBoxes boxes = new LittleBoxes(pos, LittleGridContext.getMin());
@@ -119,9 +121,9 @@ public abstract class TileSelector {
 					if (te == null)
 						continue;
 					
-					for (LittleTile tile : te)
-						if (selector.is(tile))
-							boxes.addBox(tile);
+					for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+						if (selector.is(pair.key, pair.value))
+							boxes.addBox(pair.key, pair.value);
 				}
 			}
 		}
@@ -132,10 +134,9 @@ public abstract class TileSelector {
 	public static List<LittleBox> getBoxes(World world, BlockPos pos, TileSelector selector) {
 		List<LittleBox> boxes = new ArrayList<>();
 		TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
-		for (LittleTile tile : te) {
-			if (selector.is(tile))
-				boxes.add(tile.box);
-		}
+		for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+			if (selector.is(pair.key, pair.value))
+				boxes.add(pair.value.getBox());
 		return boxes;
 	}
 	

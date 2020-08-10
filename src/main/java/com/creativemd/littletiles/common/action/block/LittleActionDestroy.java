@@ -1,8 +1,5 @@
 package com.creativemd.littletiles.common.action.block;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
@@ -10,9 +7,13 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -49,7 +50,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	public StructurePreview structurePreview;
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		if (structurePreview != null)
 			return structurePreview.getPlaceAction();
 		destroyedTiles.convertToSmallest();
@@ -57,7 +58,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 	}
 	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
 		if (!world.isRemote) {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
@@ -68,56 +69,37 @@ public class LittleActionDestroy extends LittleActionInteract {
 			}
 		}
 		
-		if (tile.isChildOfStructure()) {
-			boolean loaded = tile.isConnectedToStructure() && tile.connection.getStructure(world).load() && tile.connection.getStructure(world).loadChildren();
-			if (loaded || player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
-				if (loaded) {
-					structurePreview = new StructurePreview(tile.connection.getStructure(world));
-					if (needIngredients(player) && !player.world.isRemote)
-						WorldUtils.dropItem(world, tile.connection.getStructure(world).getStructureDrop(), pos);
-					tile.te.updateTiles((x) -> tile.destroy(x));
-				} else {
-					if (secondMode) {
-						List<LittleTile> toRemove = new ArrayList<>();
-						for (LittleTile teTile : tile.te) {
-							boolean teLoaded = teTile.isChildOfStructure() && teTile.isConnectedToStructure() && teTile.connection.getStructure(world).load() && teTile.connection.getStructure(world).loadChildren();
-							if (!teLoaded)
-								toRemove.add(teTile);
-						}
-						tile.te.updateTiles((x) -> x.removeAll(toRemove));
-					} else
-						tile.te.updateTiles((x) -> x.remove(tile));
-				}
-			} else
-				throw new LittleActionException.StructureNotLoadedException();
+		if (parent.isStructure()) {
+			try {
+				LittleStructure structure = parent.getStructure();
+				structure.load();
+				structurePreview = new StructurePreview(structure);
+				if (needIngredients(player) && !player.world.isRemote)
+					WorldUtils.dropItem(world, structure.getStructureDrop(), pos);
+				structure.removeStructure();
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
+				if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
+					((StructureTileList) parent).remove();
+					te.updateTiles();
+				} else
+					throw new LittleActionException.StructureNotLoadedException();
+			}
 		} else {
 			LittleInventory inventory = new LittleInventory(player);
 			destroyedTiles = new LittleAbsolutePreviews(pos, te.getContext());
-			List<LittleTile> tiles = new ArrayList<>();
-			
 			if (BlockTile.selectEntireBlock(player, secondMode)) {
-				List<LittleTile> remains = new ArrayList<>();
-				for (LittleTile toDestory : te) {
-					if (!toDestory.isChildOfStructure()) {
-						destroyedTiles.addTile(toDestory); // No need to use addPreivew as all previews are inside one block
-						tiles.add(toDestory);
-					} else
-						remains.add(toDestory);
+				for (LittleTile toDestroy : parent) {
+					destroyedTiles.addTile(parent, toDestroy); // No need to use addPreivew as all previews are inside one block
 				}
 				
-				giveOrDrop(player, inventory, tiles);
-				
-				te.updateTiles((x) -> {
-					x.clear();
-					x.addAll(remains);
-				});
-				
+				checkAndGive(player, inventory, getIngredients(destroyedTiles));
+				te.updateTiles(x -> x.noneStructureTiles().clear());
 			} else {
-				destroyedTiles.addTile(tile); // No need to use addPreivew as all previews are inside one block
+				destroyedTiles.addTile(parent, tile); // No need to use addPreivew as all previews are inside one block
 				
 				checkAndGive(player, inventory, getIngredients(destroyedTiles));
 				
-				tile.te.updateTiles((x) -> tile.destroy(x));
+				te.updateTiles((x) -> x.get(parent).remove(tile));
 			}
 		}
 		
@@ -156,12 +138,14 @@ public class LittleActionDestroy extends LittleActionInteract {
 		public LittleStructure structure;
 		
 		public StructurePreview(LittleStructure structure) {
-			if (!structure.load())
-				throw new RuntimeException("Structure is not loaded, can't create preview of it!");
-			previews = structure.getAbsolutePreviews(structure.getMainTile().te.getPos());
-			requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
-			
-			this.structure = structure;
+			try {
+				structure.load();
+				previews = structure.getAbsolutePreviews(structure.getPos());
+				requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
+				this.structure = structure;
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
+				throw new RuntimeException(e);
+			}
 		}
 		
 		public LittleAction getPlaceAction() {

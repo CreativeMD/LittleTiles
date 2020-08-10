@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.block.BlockLTTransparentColored.EnumTyp
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 
 import net.minecraft.block.Block;
@@ -32,7 +33,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -123,9 +123,9 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public Vec3d modifyAcceleration(LittleTile tile, Entity entityIn, Vec3d motion) {
+	public Vec3d modifyAcceleration(IParentTileList parent, LittleTile tile, Entity entityIn, Vec3d motion) {
 		AxisAlignedBB box = entityIn.getEntityBoundingBox();
-		LittleVec center = new LittleVec(tile.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(tile.te.getPos())));
+		LittleVec center = new LittleVec(parent.getContext(), new Vec3d((box.minX + box.maxX) / 2, (box.minY + box.maxY) / 2, (box.minZ + box.maxZ) / 2).subtract(new Vec3d(parent.getPos())));
 		LittleBox testBox = new LittleBox(center, 1, 1, 1);
 		if (tile.intersectsWith(testBox)) {
 			double scale = 0.01;
@@ -148,17 +148,17 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 		if (hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket && LittleTiles.CONFIG.general.allowFlowingWater) {
 			int meta = tile.getMeta() + 1;
 			if (meta > EnumFacing.VALUES.length)
 				tile.setBlock(LittleTiles.transparentColoredBlock, still.ordinal());
 			else
 				tile.setMeta(meta);
-			tile.te.updateTiles();
+			parent.getTe().updateTiles();
 			return true;
 		}
-		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+		return ISpecialBlockHandler.super.onBlockActivated(parent, tile, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 	
 	@Override
@@ -172,7 +172,7 @@ public class BlockLTFlowingWater extends Block implements ISpecialBlockHandler, 
 	}
 	
 	@Override
-	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
+	public Vec3d getFogColor(IParentTileList parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
 		float f12 = 0.0F;
 		if (entity instanceof net.minecraft.entity.EntityLivingBase) {
 			net.minecraft.entity.EntityLivingBase ent = (net.minecraft.entity.EntityLivingBase) entity;

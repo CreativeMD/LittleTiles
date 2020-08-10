@@ -32,14 +32,11 @@ public class ChiselAndBitsConveration {
 				TileEntity te = tileentities.poll();
 				List<LittleTile> tiles = ChiselsAndBitsManager.getTiles(te);
 				if (tiles != null && tiles.size() > 0) {
-					te.getWorld().setBlockState(te.getPos(), BlockTile.getState(tiles));
+					te.getWorld().setBlockState(te.getPos(), BlockTile.getState(false, false));
 					TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te.getWorld().getTileEntity(te.getPos());
 					tileEntity.convertTo(chiselContext);
 					tileEntity.updateTiles((x) -> {
-						for (LittleTile tile : tiles) {
-							tile.te = tileEntity;
-							tile.place(x);
-						}
+						x.noneStructureTiles().addAll(tiles);
 					});
 					
 				}

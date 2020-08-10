@@ -9,10 +9,13 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.ISignalBase;
 import com.creativemd.littletiles.common.structure.signal.SignalNetwork;
@@ -22,6 +25,8 @@ import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
@@ -46,8 +51,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	
 	protected LittleConnectionFace[] faces;
 	
-	public LittleSignalCableBase(LittleStructureType type) {
-		super(type);
+	public LittleSignalCableBase(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 		this.faces = new LittleConnectionFace[getNumberOfConnections()];
 	}
 	
@@ -129,33 +134,40 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	
 	@Override
 	public void neighbourChanged() {
-		if (getWorld().isRemote || !load())
-			return;
-		
-		LittleAbsoluteBox box = new SurroundingBox(false).add(tiles.entrySet()).getAbsoluteBox();
-		
-		for (int i = 0; i < faces.length; i++) {
-			EnumFacing facing = getFacing(i);
+		try {
+			load();
 			
-			LittleConnectResult result = checkConnection(facing, box);
-			if (result != null) {
-				this.connect(facing, result.base, result.context, result.distance);
-				result.base.connect(facing.getOpposite(), this, result.context, result.distance);
-			} else {
-				if (faces[i] != null)
-					faces[i].disconnect(facing);
-				faces[i] = null;
+			if (getWorld().isRemote)
+				return;
+			
+			LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
+			for (int i = 0; i < faces.length; i++) {
+				EnumFacing facing = getFacing(i);
+				
+				LittleConnectResult result = checkConnection(facing, box);
+				if (result != null) {
+					this.connect(facing, result.base, result.context, result.distance);
+					result.base.connect(facing.getOpposite(), this, result.context, result.distance);
+				} else {
+					if (faces[i] != null)
+						faces[i].disconnect(facing);
+					faces[i] = null;
+				}
 			}
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			
 		}
+		
 	}
 	
 	@Override
 	public Iterator<ISignalBase> connections() {
-		if (load())
+		try {
+			load();
 			return new Iterator<ISignalBase>() {
 				
 				int index = searchForNextIndex(0);
-				LittleAbsoluteBox box = new SurroundingBox(false).add(tiles.entrySet()).getAbsoluteBox();
+				LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
 				
 				int searchForNextIndex(int index) {
 					while (index < faces.length && (faces[index] == null || !faces[index].verifyConnect(getFacing(index), box))) {
@@ -177,6 +189,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 					return next;
 				}
 			};
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+		
 		return new Iterator<ISignalBase>() {
 			
 			@Override
@@ -193,56 +207,65 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	}
 	
 	protected LittleConnectResult checkConnection(World world, LittleAbsoluteBox box, EnumFacing facing, BlockPos pos) throws ConnectionException {
-		TileEntity tileEntity = world.getTileEntity(pos);
-		if (tileEntity instanceof TileEntityLittleTiles) {
-			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-			
-			LittleTile closest = null;
-			int minDistance = 0;
-			
-			for (LittleTile tile : te)
-				if (!tile.isChildOfStructure(this)) {
-					int distance = box.getDistanceIfEqualFromOneSide(facing, tile.box, tile.te.getPos(), tile.getContext());
-					if (distance < 0)
-						continue;
-					
-					if (closest == null || minDistance > distance) {
-						closest = tile;
-						minDistance = distance;
+		try {
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+				
+				LittleTile closest = null;
+				IParentTileList parent = null;
+				int minDistance = 0;
+				
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+					LittleTile tile = pair.value;
+					if (!pair.key.isStructureChild(this)) {
+						int distance = box.getDistanceIfEqualFromOneSide(facing, tile.getBox(), pair.key.getPos(), pair.key.getContext());
+						if (distance < 0)
+							continue;
+						
+						if (closest == null || minDistance > distance) {
+							closest = tile;
+							parent = pair.key;
+							minDistance = distance;
+						}
 					}
 				}
-			
-			if (closest != null && closest.isChildOfStructure() && closest.connection.getStructure(world) instanceof ISignalBase && ((ISignalBase) closest.connection.getStructureWithoutLoading()).compatible(this)) {
-				box = box.createBoxFromFace(facing, minDistance);
 				
-				HashMapList<BlockPos, LittleBox> boxes = box.splitted();
-				for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.entrySet()) {
-					TileEntity toSearchIn = world.getTileEntity(entry.getKey());
-					if (toSearchIn instanceof TileEntityLittleTiles) {
-						TileEntityLittleTiles parsedSearch = (TileEntityLittleTiles) toSearchIn;
-						LittleBox toCheck = entry.getValue().get(0);
-						try {
-							parsedSearch.convertToAtMinimum(box.getContext());
-							if (parsedSearch.getContext().size > box.getContext().size)
-								toCheck.convertTo(box.getContext(), parsedSearch.getContext());
-							
-							if (!parsedSearch.isSpaceForLittleTile(toCheck))
-								throw new ConnectionException("No space");
-						} finally {
-							parsedSearch.convertToSmallest();
+				if (closest != null && parent.isStructure()) {
+					LittleStructure structure = parent.getStructure();
+					
+					if (structure instanceof ISignalBase && ((ISignalBase) structure).compatible(this)) {
+						box = box.createBoxFromFace(facing, minDistance);
+						
+						HashMapList<BlockPos, LittleBox> boxes = box.splitted();
+						for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.entrySet()) {
+							TileEntity toSearchIn = world.getTileEntity(entry.getKey());
+							if (toSearchIn instanceof TileEntityLittleTiles) {
+								TileEntityLittleTiles parsedSearch = (TileEntityLittleTiles) toSearchIn;
+								LittleBox toCheck = entry.getValue().get(0);
+								try {
+									parsedSearch.convertToAtMinimum(box.getContext());
+									if (parsedSearch.getContext().size > box.getContext().size)
+										toCheck.convertTo(box.getContext(), parsedSearch.getContext());
+									
+									if (!parsedSearch.isSpaceForLittleTile(toCheck))
+										throw new ConnectionException("No space");
+								} finally {
+									parsedSearch.convertToSmallest();
+								}
+							} else if (!world.getBlockState(entry.getKey()).getMaterial().isReplaceable())
+								throw new ConnectionException("Block in the way");
 						}
-					} else if (!world.getBlockState(entry.getKey()).getMaterial().isReplaceable())
-						throw new ConnectionException("Block in the way");
+						
+						ISignalBase base = (ISignalBase) structure;
+						if (base.canConnect(facing.getOpposite()))
+							return new LittleConnectResult(base, box.getContext(), minDistance);
+						throw new ConnectionException("Side is invalid");
+					} else if (closest != null)
+						throw new ConnectionException("Tile in the way");
 				}
-				
-				ISignalBase base = (ISignalBase) closest.connection.getStructureWithoutLoading();
-				if (base.canConnect(facing.getOpposite()))
-					return new LittleConnectResult(base, box.getContext(), minDistance);
-				throw new ConnectionException("Side is invalid");
-			} else if (closest != null)
-				throw new ConnectionException("Tile in the way");
-			
-		}
+			}
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		
 		return null;
 	}
@@ -277,17 +300,19 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	public void getRenderingCubes(BlockPos pos, BlockRenderLayer layer, List<LittleRenderBox> cubes) {
 		if (layer != BlockRenderLayer.SOLID)
 			return;
-		int color = getMainTile() instanceof LittleTileColored ? ((LittleTileColored) getMainTile()).color : ColorUtils.WHITE;
-		SurroundingBox box = new SurroundingBox(false).add(tiles.entrySet());
 		
-		LittleVec min = box.getMinPosOffset();
-		LittleVec max = box.getSize();
-		max.add(min);
-		LittleBox overallBox = new LittleBox(min, max);
-		BlockPos difference = pos.subtract(box.getMinPos());
-		overallBox.sub(box.getContext().toGrid(difference.getX()), box.getContext().toGrid(difference.getY()), box.getContext().toGrid(difference.getZ()));
-		
-		render(box, overallBox, cubes, color);
+		try {
+			int color = mainBlock.first() instanceof LittleTileColored ? ((LittleTileColored) mainBlock.first()).color : ColorUtils.WHITE;
+			SurroundingBox box = getSurroundingBox();
+			LittleVec min = box.getMinPosOffset();
+			LittleVec max = box.getSize();
+			max.add(min);
+			LittleBox overallBox = new LittleBox(min, max);
+			BlockPos difference = pos.subtract(box.getMinPos());
+			overallBox.sub(box.getContext().toGrid(difference.getX()), box.getContext().toGrid(difference.getY()), box.getContext().toGrid(difference.getZ()));
+			
+			render(box, overallBox, cubes, color);
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	
 	@SideOnly(Side.CLIENT)
@@ -431,64 +456,69 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		@Override
 		@SideOnly(Side.CLIENT)
 		public List<LittleRenderBox> getPositingCubes(World world, BlockPos pos, ItemStack stack) {
-			List<LittleRenderBox> cubes = new ArrayList<>();
-			for (int i = 0; i < 6; i++) {
-				EnumFacing facing = EnumFacing.VALUES[i];
-				Axis axis = facing.getAxis();
-				TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
+			
+			try {
+				List<LittleRenderBox> cubes = new ArrayList<>();
+				for (int i = 0; i < 6; i++) {
+					EnumFacing facing = EnumFacing.VALUES[i];
+					Axis axis = facing.getAxis();
+					TileEntity tileEntity = world.getTileEntity(pos.offset(facing));
+					if (tileEntity instanceof TileEntityLittleTiles) {
+						for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).loadedStructures()) {
+							if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth && ((ISignalBase) structure).canConnect(facing.getOpposite())) {
+								LittleRenderBox cube = new LittleRenderBox(new AlignedBox(structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
+								cube.setMin(axis, 0);
+								cube.setMax(axis, 1);
+								cubes.add(cube);
+							}
+						}
+						
+					}
+				}
+				
+				TileEntity tileEntity = world.getTileEntity(pos);
 				if (tileEntity instanceof TileEntityLittleTiles) {
-					for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
-						if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth && ((ISignalBase) structure).canConnect(facing.getOpposite())) {
-							LittleRenderBox cube = new LittleRenderBox(new AlignedBox(structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ())), null, Blocks.AIR, 0);
-							cube.setMin(axis, 0);
-							cube.setMax(axis, 1);
-							cubes.add(cube);
+					for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).loadedStructures()) {
+						if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth) {
+							AxisAlignedBB box = structure.getSurroundingBox().getAABB().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ());
+							LittleRenderBox cube;
+							
+							if (((ISignalBase) structure).canConnect(EnumFacing.WEST) || ((ISignalBase) structure).canConnect(EnumFacing.EAST)) {
+								cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.WEST))
+									cube.setMin(Axis.X, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.EAST))
+									cube.setMax(Axis.X, 1);
+								cubes.add(cube);
+							}
+							
+							if (((ISignalBase) structure).canConnect(EnumFacing.DOWN) || ((ISignalBase) structure).canConnect(EnumFacing.UP)) {
+								cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.DOWN))
+									cube.setMin(Axis.Y, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.UP))
+									cube.setMax(Axis.Y, 1);
+								cubes.add(cube);
+							}
+							
+							if (((ISignalBase) structure).canConnect(EnumFacing.NORTH) || ((ISignalBase) structure).canConnect(EnumFacing.SOUTH)) {
+								cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.NORTH))
+									cube.setMin(Axis.Z, 0);
+								if (((ISignalBase) structure).canConnect(EnumFacing.SOUTH))
+									cube.setMax(Axis.Z, 1);
+								cubes.add(cube);
+							}
 						}
 					}
 					
 				}
-			}
+				if (cubes.isEmpty())
+					return null;
+				return cubes;
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 			
-			TileEntity tileEntity = world.getTileEntity(pos);
-			if (tileEntity instanceof TileEntityLittleTiles) {
-				for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).allStructures()) {
-					if (structure instanceof ISignalBase && ((ISignalBase) structure).getBandwidth() == bandwidth) {
-						AxisAlignedBB box = structure.getSurroundingBox().offset(-tileEntity.getPos().getX(), -tileEntity.getPos().getY(), -tileEntity.getPos().getZ());
-						LittleRenderBox cube;
-						
-						if (((ISignalBase) structure).canConnect(EnumFacing.WEST) || ((ISignalBase) structure).canConnect(EnumFacing.EAST)) {
-							cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.WEST))
-								cube.setMin(Axis.X, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.EAST))
-								cube.setMax(Axis.X, 1);
-							cubes.add(cube);
-						}
-						
-						if (((ISignalBase) structure).canConnect(EnumFacing.DOWN) || ((ISignalBase) structure).canConnect(EnumFacing.UP)) {
-							cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.DOWN))
-								cube.setMin(Axis.Y, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.UP))
-								cube.setMax(Axis.Y, 1);
-							cubes.add(cube);
-						}
-						
-						if (((ISignalBase) structure).canConnect(EnumFacing.NORTH) || ((ISignalBase) structure).canConnect(EnumFacing.SOUTH)) {
-							cube = new LittleRenderBox(new AlignedBox(box), null, Blocks.AIR, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.NORTH))
-								cube.setMin(Axis.Z, 0);
-							if (((ISignalBase) structure).canConnect(EnumFacing.SOUTH))
-								cube.setMax(Axis.Z, 1);
-							cubes.add(cube);
-						}
-					}
-				}
-				
-			}
-			if (cubes.isEmpty())
-				return null;
-			return cubes;
+			return null;
 		}
 	}
 	

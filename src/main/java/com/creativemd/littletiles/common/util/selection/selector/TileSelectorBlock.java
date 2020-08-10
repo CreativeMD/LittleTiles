@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.util.selection.selector;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -30,7 +31,7 @@ public class TileSelectorBlock extends TileSelector {
 	}
 	
 	@Override
-	public boolean is(LittleTile tile) {
+	public boolean is(IParentTileList parent, LittleTile tile) {
 		return tile.getBlock() == block;
 	}
 	

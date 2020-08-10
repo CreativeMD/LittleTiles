@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.util.selection.selector;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -21,8 +22,8 @@ public class NoStructureSelector extends TileSelector {
 	}
 	
 	@Override
-	public boolean is(LittleTile tile) {
-		return !tile.isChildOfStructure();
+	public boolean is(IParentTileList parent, LittleTile tile) {
+		return !parent.isStructure();
 	}
 	
 }

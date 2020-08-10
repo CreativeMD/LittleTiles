@@ -12,6 +12,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureRegis
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -41,7 +42,7 @@ public class AnimationPreview {
 		
 		if (!previews.hasStructure()) {
 			NBTTagCompound nbt = new NBTTagCompound();
-			new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class)).writeToNBT(nbt);
+			new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), null).writeToNBT(nbt);
 			previews = new LittlePreviews(nbt, previews);
 		}
 		
@@ -75,7 +76,7 @@ public class AnimationPreview {
 				
 			}
 			
-		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.getContext()), result.parentStructure == null ? null : result.parentStructure.getAbsoluteIdentifier());
+		}.addStateAndSelect("nothing", new AnimationState()), pos, UUID.randomUUID(), new StructureAbsolute(pos, entireBox, previews.getContext()), result.parentStructure == null ? null : new LocalStructureLocation(result.parentStructure));
 			
 	}
 	

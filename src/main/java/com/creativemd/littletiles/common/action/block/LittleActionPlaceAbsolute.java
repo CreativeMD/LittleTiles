@@ -5,7 +5,6 @@ import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade.LittleStructurePremadeEntry;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -61,7 +60,7 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 	public LittleBoxes boxes;
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		boxes.convertToSmallest();
 		
 		if (destroyed != null) {
@@ -87,15 +86,12 @@ public class LittleActionPlaceAbsolute extends LittleAction {
 				drainIngredientsAfterPlacing(player, inventory, placedTiles, previews);
 				
 				if (!player.world.isRemote) {
-					giveOrDrop(player, inventory, placement.unplaceableTiles);
-					giveOrDrop(player, inventory, placement.removedTiles);
+					checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+					checkAndGive(player, inventory, getIngredients(placement.removedTiles));
 				}
 				
-				if (!placement.removedTiles.isEmpty()) {
-					destroyed = new LittleAbsolutePreviews(previews.pos, previews.getContext());
-					for (LittleTile tile : placement.removedTiles)
-						destroyed.addTile(tile);
-				}
+				if (!placement.removedTiles.isEmpty())
+					destroyed = placement.removedTiles.copy();
 				
 				if (toVanilla) {
 					for (TileEntityLittleTiles te : placedTiles.tileEntities) {

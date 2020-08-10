@@ -1,24 +1,27 @@
 package com.creativemd.littletiles.common.action.block;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
-import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionDestroy.StructurePreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.ParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
@@ -29,7 +32,6 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
@@ -58,7 +60,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		return false;
 	}
 	
-	public boolean shouldSkipTile(LittleTile tile) {
+	public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
 		return false;
 	}
 	
@@ -72,87 +74,110 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		LittleIngredients ingredients = new LittleIngredients();
 		
-		Consumer<TileList> consumer = x -> {
-			
-			for (LittleTile tile : te) {
-				
-				if (shouldSkipTile(tile))
+		List<LittleTile> placedTiles = new ArrayList<>();
+		List<LittleTile> destroyedTiles = new ArrayList<>();
+		
+		for (IParentTileList parent : te.groups()) {
+			if (parent.isStructure()) {
+				if (simulate)
 					continue;
 				
-				LittleBox intersecting = null;
 				boolean intersects = false;
-				for (int j = 0; j < boxes.size(); j++) {
-					if (tile.intersectsWith(boxes.get(j))) {
-						intersects = true;
-						intersecting = boxes.get(j);
-						break;
-					}
-				}
-				
+				outer_loop:
+				for (LittleTile tile : parent)
+					for (int j = 0; j < boxes.size(); j++)
+						if (tile.intersectsWith(boxes.get(j))) {
+							intersects = true;
+							break outer_loop;
+						}
+					
 				if (!intersects)
 					continue;
 				
-				doneSomething = true;
-				if (!tile.isChildOfStructure() && tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
-					double volume = 0;
-					LittlePreview preview = tile.getPreviewTile();
+				try {
+					LittleStructure structure = parent.getStructure();
+					if (!containsStructure(structure))
+						destroyedStructures.add(new StructurePreview(structure));
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+				
+			} else {
+				for (LittleTile tile : parent) {
 					
-					List<LittleBox> cutout = new ArrayList<>();
-					List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+					if (shouldSkipTile(parent, tile))
+						continue;
 					
-					if (newBoxes != null) {
-						if (!simulate) {
-							for (int i = 0; i < newBoxes.size(); i++) {
-								LittleTile newTile = tile.copy();
-								newTile.box = newBoxes.get(i);
-								newTile.place(x);
+					LittleBox intersecting = null;
+					boolean intersects = false;
+					for (int j = 0; j < boxes.size(); j++) {
+						if (tile.intersectsWith(boxes.get(j))) {
+							intersects = true;
+							intersecting = boxes.get(j);
+							break;
+						}
+					}
+					
+					if (!intersects)
+						continue;
+					
+					doneSomething = true;
+					if (!tile.equalsBox(intersecting)) {
+						double volume = 0;
+						LittlePreview preview = tile.getPreviewTile();
+						
+						List<LittleBox> cutout = new ArrayList<>();
+						List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+						
+						if (newBoxes != null) {
+							if (!simulate) {
+								for (int i = 0; i < newBoxes.size(); i++) {
+									LittleTile newTile = tile.copy();
+									newTile.setBox(newBoxes.get(i));
+									placedTiles.add(newTile);
+								}
+								
+								destroyedTiles.add(tile);
 							}
 							
-							tile.destroy(x);
+							for (int l = 0; l < cutout.size(); l++) {
+								volume += cutout.get(l).getPercentVolume(context);
+								if (!simulate) {
+									LittlePreview preview2 = preview.copy();
+									preview2.box = cutout.get(l).copy();
+									previews.addPreview(te.getPos(), preview2, te.getContext());
+								}
+							}
 						}
 						
-						for (int l = 0; l < cutout.size(); l++) {
-							volume += cutout.get(l).getPercentVolume(context);
-							if (!simulate) {
-								LittlePreview preview2 = preview.copy();
-								preview2.box = cutout.get(l).copy();
-								previews.addPreview(te.getPos(), preview2, te.getContext());
-							}
+						if (volume > 0)
+							ingredients.add(getIngredients(preview, volume));
+					} else {
+						ingredients.add(getIngredients(parent, tile));
+						
+						if (!simulate) {
+							previews.addTile(parent, tile);
+							destroyedTiles.add(tile);
 						}
 					}
-					
-					if (volume > 0)
-						ingredients.add(getIngredients(preview, volume));
-				} else {
-					if (!tile.isChildOfStructure())
-						ingredients.add(getIngredients(tile));
-					
-					if (!simulate) {
-						if (tile.isChildOfStructure()) {
-							LittleStructure structure;
-							if (tile.isConnectedToStructure() && (structure = tile.connection.getStructure(te.getWorld())).load() && !containsStructure(structure)) {
-								destroyedStructures.add(new StructurePreview(structure));
-								ItemStack drop = structure.getStructureDrop();
-								if (needIngredients(player) && !player.world.isRemote && !InventoryUtils.addItemStackToInventory(player.inventory, drop))
-									WorldUtils.dropItem(player.world, drop, tile.te.getPos());
-								
-								tile.destroy(x);
-							}
-						} else {
-							previews.addTile(tile);
-							tile.destroy(x);
-						}
-					}
-					
 				}
 			}
-		};
-		if (simulate)
-			te.updateTilesSecretly(consumer);
-		else
-			te.updateTiles(consumer);
+		}
+		
+		if (!simulate)
+		
+		{
+			for (StructurePreview structure : destroyedStructures)
+				try {
+					structure.structure.removeStructure();
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			te.updateTiles(x -> {
+				ParentTileList parent = x.noneStructureTiles();
+				parent.removeAll(destroyedTiles);
+				parent.addAll(placedTiles);
+			});
+		}
 		
 		return ingredients;
+		
 	}
 	
 	@Override
@@ -202,7 +227,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 	}
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		boolean additionalPreviews = previews != null && previews.size() > 0;
 		LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
 		if (additionalPreviews) {
@@ -241,8 +266,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		}
 		
 		@Override
-		public boolean shouldSkipTile(LittleTile tile) {
-			return !selector.is(tile);
+		public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
+			return !selector.is(parent, tile);
 		}
 		
 	}
@@ -259,13 +284,15 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		List<LittleTile> removed = new ArrayList<>();
 		
-		Consumer<TileList> consumer = x -> {
-			for (LittleTile tile : te) {
+		Consumer<TileEntityInteractor> consumer = x -> {
+			List<LittleTile> toAdd = new ArrayList<>();
+			for (Iterator<LittleTile> iterator = x.noneStructureTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = iterator.next();
 				
-				if (!tile.intersectsWith(toCut) || tile.isChildOfStructure() || !tile.canBeSplitted())
+				if (!tile.intersectsWith(toCut))
 					continue;
 				
-				tile.destroy(x);
+				iterator.remove();
 				
 				if (!tile.equalsBox(toCut)) {
 					double volume = 0;
@@ -279,19 +306,21 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					if (newBoxes != null) {
 						for (LittleBox box : newBoxes) {
 							LittleTile copy = tile.copy();
-							copy.box = box;
-							copy.place(x);
+							copy.setBox(box);
+							toAdd.add(copy);
 						}
 						
 						for (LittleBox box : cutout) {
 							LittleTile copy = tile.copy();
-							copy.box = box;
+							copy.setBox(box);
 							removed.add(copy);
 						}
 					}
 				} else
 					removed.add(tile);
 			}
+			
+			x.noneStructureTiles().addAll(toAdd);
 		};
 		
 		if (update)
@@ -314,7 +343,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		}
 		List<LittleTile> removed = new ArrayList<>();
 		te.updateTiles(x -> {
-			for (LittleTile tile : te) {
+			List<LittleTile> toAdd = new ArrayList<>();
+			for (Iterator<LittleTile> iterator = x.noneStructureTiles().iterator(); iterator.hasNext();) {
+				LittleTile tile = iterator.next();
 				
 				LittleBox intersecting = null;
 				boolean intersects = false;
@@ -329,10 +360,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 				if (!intersects)
 					continue;
 				
-				if (tile.isChildOfStructure() || !tile.canBeSplitted())
-					continue;
-				
-				tile.destroy(x);
+				iterator.remove();
 				
 				if (!tile.equalsBox(intersecting)) {
 					double volume = 0;
@@ -344,19 +372,20 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					if (newBoxes != null) {
 						for (LittleBox box : newBoxes) {
 							LittleTile copy = tile.copy();
-							copy.box = box;
-							copy.place(x);
+							copy.setBox(box);
+							toAdd.add(copy);
 						}
 						
 						for (LittleBox box : cutout) {
 							LittleTile copy = tile.copy();
-							copy.box = box;
+							copy.setBox(box);
 							removed.add(copy);
 						}
 					}
 				} else
 					removed.add(tile);
 			}
+			x.noneStructureTiles().addAll(toAdd);
 		});
 		
 		return removed;

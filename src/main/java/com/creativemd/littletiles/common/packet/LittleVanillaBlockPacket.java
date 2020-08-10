@@ -55,7 +55,7 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
 				if (LittleAction.isBlockValid(state)) {
 					LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-					tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+					tile.setBox(new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size));
 					ItemLittleChisel.setPreview(player.getHeldItemMainhand(), tile.getPreviewTile());
 				}
 			}

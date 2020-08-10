@@ -6,9 +6,12 @@ import java.util.List;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -127,25 +130,27 @@ public class AreaSelectionMode extends SelectionMode {
 						if (includeLT) {
 							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-								for (LittleTile tile : te) {
-									if (rememberStructure && tile.isConnectedToStructure()) {
-										LittleStructure structure = tile.connection.getStructure(world);
-										while (structure.parent != null) {
-											if (!structure.parent.isConnected(world))
-												continue;
-											structure = structure.parent.getStructure(world);
+								for (IParentTileList parent : te.groups()) {
+									if (parent.isStructure()) {
+										try {
+											LittleStructure structure = parent.getStructure();
+											while (structure.getParent() != null)
+												structure = structure.getParent().getStructure();
+											structure.load();
+											if (!structures.contains(structure)) {
+												previews.addChild(structure.getPreviews(center));
+												structures.add(structure);
+											}
+										} catch (CorruptedConnectionException | NotYetConnectedException e) {
+											continue;
 										}
 										
-										if (structure.load() && structure.loadChildren() && !structures.contains(structure)) {
-											previews.addChild(structure.getPreviews(center));
-											structures.add(structure);
+									} else
+										for (LittleTile tile : parent) {
+											LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
+											preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 										}
-									} else {
-										LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
-										preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
-									}
 								}
-								continue;
 							}
 						}
 						
@@ -165,7 +170,8 @@ public class AreaSelectionMode extends SelectionMode {
 						IBlockState state = world.getBlockState(newPos);
 						if (LittleAction.isBlockValid(state)) {
 							LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-							tile.box = new LittleBox(0, 0, 0, LittleGridContext.getMin().size, LittleGridContext.getMin().size, LittleGridContext.getMin().size);
+							int minSize = LittleGridContext.getMin().size;
+							tile.setBox(new LittleBox(0, 0, 0, minSize, minSize, minSize));
 							LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), LittleGridContext.getMin());
 							preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 						}

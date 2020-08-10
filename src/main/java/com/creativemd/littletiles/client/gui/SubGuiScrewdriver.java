@@ -171,7 +171,7 @@ public class SubGuiScrewdriver extends SubGui {
 					LittleAbsolutePreviews previews = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
 					for (LittleBox box : boxes) {
 						LittleTile tile = new LittleTile(replacementBlock, stackReplace.getMetadata());
-						tile.box = box;
+						tile.setBox(box);
 						previews.addPreview(pos, tile.getPreviewTile(), boxes.context);
 					}
 					actions.add(new LittleActionDestroyBoxes(boxes));

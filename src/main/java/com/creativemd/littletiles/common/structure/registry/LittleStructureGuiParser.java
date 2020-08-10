@@ -7,6 +7,7 @@ import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraftforge.fml.relauncher.Side;
@@ -28,11 +29,11 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
 	@SideOnly(Side.CLIENT)
 	public abstract LittleStructure parseStructure(LittlePreviews previews);
 	
-	public <T extends LittleStructure> T createStructure(Class<T> structureClass) {
+	public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureTileList parent) {
 		LittleStructureType type = LittleStructureRegistry.getStructureType(structureClass);
 		if (type == null)
 			throw new RuntimeException("Could find structure for " + structureClass);
-		return (T) type.createStructure();
+		return (T) type.createStructure(parent);
 	}
 	
 	@Override

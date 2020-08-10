@@ -89,7 +89,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+			tile.setBox(new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size));
 			preview = tile.getPreviewTile();
 		} else
 			preview = ItemLittleChisel.getPreview(stack);
@@ -115,7 +115,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		
 		if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 			LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-			tile.box = new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size);
+			tile.setBox(new LittleBox(0, 0, 0, LittleGridContext.get().size, LittleGridContext.get().size, LittleGridContext.get().size));
 			preview = tile.getPreviewTile();
 		} else
 			preview = ItemLittleChisel.getPreview(stack);

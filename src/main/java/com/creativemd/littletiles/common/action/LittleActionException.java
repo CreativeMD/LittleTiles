@@ -10,6 +10,10 @@ public class LittleActionException extends Exception {
 		super(msg);
 	}
 	
+	protected LittleActionException(String msg, Exception e) {
+		super(msg, e);
+	}
+	
 	public ActionMessage getActionMessage() {
 		return null;
 	}
@@ -55,6 +59,14 @@ public class LittleActionException extends Exception {
 		
 		public TileEntityNotFoundException() {
 			super("action.tileentity.notfound");
+		}
+		
+	}
+	
+	public static class StructureNotFoundException extends LittleActionException {
+		
+		public StructureNotFoundException() {
+			super("action.structure.notfound");
 		}
 		
 	}

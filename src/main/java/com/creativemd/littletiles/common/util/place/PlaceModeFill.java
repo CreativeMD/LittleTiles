@@ -6,7 +6,8 @@ import java.util.Set;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -27,7 +28,7 @@ public class PlaceModeFill extends PlacementMode {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
 		if (!requiresCollisionTest) {
 			tiles.add(tile);
@@ -35,18 +36,18 @@ public class PlaceModeFill extends PlacementMode {
 		}
 		
 		List<LittleBox> cutout = new ArrayList<>();
-		List<LittleBox> boxes = te.cutOut(tile.box, cutout);
+		List<LittleBox> boxes = block.getTe().cutOut(tile.getBox(), cutout);
 		
 		for (LittleBox box : boxes) {
 			LittleTile newTile = tile.copy();
-			newTile.box = box;
+			newTile.setBox(box);
 			tiles.add(newTile);
 		}
 		
 		for (LittleBox box : cutout) {
 			LittleTile newTile = tile.copy();
-			newTile.box = box;
-			unplaceableTiles.add(newTile);
+			newTile.setBox(box);
+			placement.unplaceableTiles.addTile(parent, newTile);
 		}
 		
 		return tiles;

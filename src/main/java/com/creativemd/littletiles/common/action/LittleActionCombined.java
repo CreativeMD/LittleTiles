@@ -29,11 +29,11 @@ public class LittleActionCombined extends LittleAction {
 	}
 	
 	@Override
-	public LittleAction revert() throws LittleActionException {
+	public LittleAction revert(EntityPlayer player) throws LittleActionException {
 		LittleAction[] newActions = new LittleAction[actions.length];
 		for (int i = 0; i < newActions.length; i++) {
 			if (actions[actions.length - 1 - i] != null)
-				newActions[i] = actions[actions.length - 1 - i].revert();
+				newActions[i] = actions[actions.length - 1 - i].revert(player);
 		}
 		return new LittleActionCombined(newActions);
 	}

@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.block.BlockTile.TEResult;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -18,6 +19,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -80,7 +82,7 @@ public abstract class SelectShape {
 				boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
 				//if (te.tile.isChildOfStructure())
 				//return boxes;
-				boxes.add(te.tile.box.copy());
+				boxes.add(te.tile.getBox().copy());
 			} else {
 				boxes = new LittleBoxes(pos, context);
 				boxes.add(new LittleBox(0, 0, 0, context.size, context.size, context.size));
@@ -137,14 +139,15 @@ public abstract class SelectShape {
 			if (te.isComplete()) {
 				LittleTile tile = te.tile;
 				boxes = new LittleBoxes(te.te.getPos(), te.te.getContext());
-				if (te.tile.isChildOfStructure())
+				if (te.parent.isStructure())
 					return boxes;
-				boxes.add(te.tile.box.copy());
+				boxes.add(te.tile.getBox().copy());
 				
-				for (LittleTile toDestroy : te.te)
-					if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(
-					    tile))
-						boxes.addBox(toDestroy);
+				for (Pair<IParentTileList, LittleTile> pair : te.te.allTiles()) {
+					LittleTile toDestroy = pair.value;
+					if (!pair.key.isStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile))
+						boxes.addBox(pair.key, toDestroy);
+				}
 			} else {
 				boxes = new LittleBoxes(pos, context);
 				boxes.add(new LittleBox(0, 0, 0, context.size, context.size, context.size));
@@ -310,11 +313,9 @@ public abstract class SelectShape {
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(
-			    RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
-			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context),
-			    Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
@@ -325,11 +326,9 @@ public abstract class SelectShape {
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(
-			    RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
-			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context),
-			    Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
+			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
 		}
 		
@@ -344,8 +343,7 @@ public abstract class SelectShape {
 		public List<GuiControl> getCustomSettings(NBTTagCompound nbt, LittleGridContext context) {
 			List<GuiControl> controls = new ArrayList<>();
 			controls.add(new GuiLabel("Size:", 0, 6));
-			controls.add(new GuiSteppedSlider("thickness", 35, 5, 68, 10, Math.max(1,
-			    nbt.getInteger("thick")), 1, context.size));
+			controls.add(new GuiSteppedSlider("thickness", 35, 5, 68, 10, Math.max(1, nbt.getInteger("thick")), 1, context.size));
 			return controls;
 		}
 		
@@ -371,22 +369,18 @@ public abstract class SelectShape {
 		public LittleBoxes getBoxes(EntityPlayer player, NBTTagCompound nbt, LittleAbsoluteVec min, LittleAbsoluteVec max, boolean preview, LittleGridContext context) {
 			min.forceContext(max);
 			LittleAbsoluteVec offset = new LittleAbsoluteVec(min.getPos(), min.getContext());
-			LittleBox box = new LittleBox(new LittleBox(min.getRelative(offset).getVec(
-			    context)), new LittleBox(max.getRelative(offset).getVec(context)));
-			return shape.getBoxes(new LittleBoxes(offset.getPos(), context), box.getMinVec(), box.getMaxVec(), player,
-			    nbt, preview, min, max);
+			LittleBox box = new LittleBox(new LittleBox(min.getRelative(offset).getVec(context)), new LittleBox(max.getRelative(offset).getVec(context)));
+			return shape.getBoxes(new LittleBoxes(offset.getPos(), context), box.getMinVec(), box.getMaxVec(), player, nbt, preview, min, max);
 		}
 		
 		@Override
 		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(
-			    RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			if (first == null) {
 				LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
-				boxes.add(new LittleBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(
-				    context)));
+				boxes.add(new LittleBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context)));
 				return boxes;
 			}
 			return getBoxes(player, nbt, first, vec, true, context);
@@ -402,8 +396,7 @@ public abstract class SelectShape {
 			if (first != null)
 				return true;
 			first = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(
-			    RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				first.getVec().sub(result.sideHit);
 			return false;
 		}
@@ -416,8 +409,7 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(
-			    RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			LittleBoxes boxes = getBoxes(player, nbt, first, vec, false, context);
 			first = null;

@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import io.netty.buffer.ByteBuf;
@@ -47,8 +48,11 @@ public class LittleActionActivated extends LittleActionInteract {
 	public boolean preventInteraction = false;
 	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
-		if (tile.onBlockActivated(player.world, pos, player.world.getBlockState(pos), player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this))
+	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+		if (parent.isStructure())
+			return parent.getStructure().onBlockActivated(world, tile, pos, player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this);
+		
+		if (tile.onBlockActivated(parent, player, EnumHand.MAIN_HAND, player.getHeldItem(EnumHand.MAIN_HAND), moving.sideHit, (float) moving.hitVec.x, (float) moving.hitVec.y, (float) moving.hitVec.z, this))
 			return true;
 		return false;
 	}
@@ -68,7 +72,7 @@ public class LittleActionActivated extends LittleActionInteract {
 	}
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		return null;
 	}
 	

@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.action.tool;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
@@ -8,7 +9,8 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.math.location.TileLocation;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -50,19 +52,19 @@ public class LittleActionSaw extends LittleActionInteract {
 	
 	public LittleBox oldBox = null;
 	public LittleBoxes newBoxes;
-	public LittleIdentifierAbsolute coord = null;
+	public TileLocation location = null;
 	public EnumFacing facing;
 	
 	@Override
 	public RayTraceResult rayTrace(TileEntityLittleTiles te, LittleTile tile, Vec3d pos, Vec3d look) {
-		return new LittleBox(tile.box).calculateIntercept(te.getContext(), te.getPos(), pos, look);
+		return new LittleBox(tile.getBox()).calculateIntercept(te.getContext(), te.getPos(), pos, look);
 	}
 	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
 		facing = moving.sideHit;
-		if (tile.canSawResizeTile(facing, player)) {
+		if (!parent.isStructure() && tile.canSawResizeTile(facing, player)) {
 			LittleBox box;
 			
 			Axis axis = facing.getAxis();
@@ -74,15 +76,15 @@ public class LittleActionSaw extends LittleActionInteract {
 					context = te.getContext();
 			}
 			
-			oldBox = tile.box.copy();
+			oldBox = tile.getBox().copy();
 			
 			boolean outside = false;
 			
 			if (secondMode)
-				box = tile.box.shrink(facing, toLimit);
+				box = tile.getBox().shrink(facing, toLimit);
 			else {
-				box = tile.box.grow(facing);
-				if (tile.box.isFaceAtEdge(te.getContext(), facing)) {
+				box = tile.getBox().grow(facing);
+				if (tile.getBox().isFaceAtEdge(te.getContext(), facing)) {
 					BlockPos newPos = te.getPos().offset(facing);
 					
 					box = box.createOutsideBlockBox(te.getContext(), facing);
@@ -107,18 +109,18 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				if (toLimit) {
 					LittleBox before = null;
-					while (!box.isFaceAtEdge(te.getContext(), facing) && te.isSpaceForLittleTileIgnore(box, tile)) {
+					while (!box.isFaceAtEdge(te.getContext(), facing) && te.isSpaceForLittleTile(box, (x, y) -> y != tile)) {
 						before = box;
 						box = box.grow(facing);
 					}
-					if (!te.isSpaceForLittleTileIgnore(box, tile))
+					if (!te.isSpaceForLittleTile(box, (x, y) -> y != tile))
 						box = before;
-				} else if (!te.isSpaceForLittleTileIgnore(box, tile))
+				} else if (!te.isSpaceForLittleTile(box, (x, y) -> y != tile))
 					box = null;
 			}
 			
 			if (box != null) {
-				double amount = outside ? box.getPercentVolume(te.getContext()) : Math.abs(box.getPercentVolume(te.getContext()) - tile.box.getPercentVolume(te.getContext()));
+				double amount = outside ? box.getPercentVolume(te.getContext()) : Math.abs(box.getPercentVolume(te.getContext()) - tile.getBox().getPercentVolume(te.getContext()));
 				LittleIngredients ingredients = new LittleIngredients();
 				LittleInventory inventory = new LittleInventory(player);
 				BlockIngredient blocks = new BlockIngredient();
@@ -145,17 +147,16 @@ public class LittleActionSaw extends LittleActionInteract {
 				
 				if (outside) {
 					LittleTile newTile = tile.copy();
-					newTile.box = box;
-					newTile.te = te;
-					te.updateTiles((x) -> newTile.place(x));
+					newTile.setBox(box);
+					te.updateTiles((x) -> x.noneStructureTiles().add(newTile));
 					newBoxes = new LittleBoxes(te.getPos(), te.getContext());
-					newBoxes.addBox(newTile);
+					newBoxes.addBox(parent, newTile);
 					te.convertToSmallest();
 					return true;
 				} else {
-					tile.box = box;
+					tile.setBox(box);
 					te.updateTiles();
-					coord = new LittleIdentifierAbsolute(tile);
+					location = new TileLocation(parent, tile);
 					te.convertToSmallest();
 					return true;
 				}
@@ -170,10 +171,10 @@ public class LittleActionSaw extends LittleActionInteract {
 	}
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		if (newBoxes != null)
 			return new LittleActionDestroyBoxes(newBoxes);
-		return new LittleActionSawRevert(context, coord, oldBox, facing);
+		return new LittleActionSawRevert(context, location, oldBox, facing);
 	}
 	
 	@Override
@@ -199,13 +200,13 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		public LittleBox oldBox;
 		public LittleBox replacedBox;
-		public LittleIdentifierAbsolute coord;
-		public LittleIdentifierAbsolute newCoord;
+		public TileLocation location;
+		public TileLocation newLocation;
 		public EnumFacing facing;
 		public LittleGridContext context;
 		
-		public LittleActionSawRevert(LittleGridContext context, LittleIdentifierAbsolute coord, LittleBox oldBox, EnumFacing facing) {
-			this.coord = coord;
+		public LittleActionSawRevert(LittleGridContext context, TileLocation location, LittleBox oldBox, EnumFacing facing) {
+			this.location = location;
 			this.oldBox = oldBox;
 			this.facing = facing;
 			this.context = context;
@@ -221,32 +222,32 @@ public class LittleActionSaw extends LittleActionInteract {
 		}
 		
 		@Override
-		public LittleAction revert() throws LittleActionException {
-			return new LittleActionSawRevert(context, newCoord, replacedBox, facing.getOpposite());
+		public LittleAction revert(EntityPlayer player) throws LittleActionException {
+			return new LittleActionSawRevert(context, newLocation, replacedBox, facing.getOpposite());
 		}
 		
 		@Override
 		protected boolean action(EntityPlayer player) throws LittleActionException {
 			
-			LittleTile tile = getTile(player.world, coord);
-			
+			Pair<IParentTileList, LittleTile> pair = location.find(player.world);
+			LittleTile tile = pair.value;
 			if (tile.canSawResizeTile(facing, player)) {
 				
-				if (context != tile.getContext()) {
-					if (context.size > tile.getContext().size)
-						tile.te.convertTo(context);
+				if (context != pair.key.getContext()) {
+					if (context.size > pair.key.getContext().size)
+						pair.key.getTe().convertTo(context);
 					else {
-						oldBox.convertTo(context, tile.getContext());
-						context = tile.getContext();
+						oldBox.convertTo(context, pair.key.getContext());
+						context = pair.key.getContext();
 					}
 				}
 				
-				double amount = Math.abs(oldBox.getPercentVolume(context) - tile.box.getPercentVolume(tile.getContext()));
+				double amount = Math.abs(oldBox.getPercentVolume(context) - tile.getBox().getPercentVolume(pair.key.getContext()));
 				
 				LittlePreview preview = tile.getPreviewTile();
 				LittleIngredients ingredients = new LittleIngredients();
 				BlockIngredient blocks = new BlockIngredient();
-				BlockIngredientEntry block = preview.getBlockIngredient(tile.getContext());
+				BlockIngredientEntry block = preview.getBlockIngredient(pair.key.getContext());
 				if (block != null) {
 					LittleInventory inventory = new LittleInventory(player);
 					block.value = amount;
@@ -260,20 +261,19 @@ public class LittleActionSaw extends LittleActionInteract {
 						ingredients.set(unit.getClass(), unit);
 					}
 					
-					if (oldBox.getVolume() < tile.box.getVolume())
+					if (oldBox.getVolume() < tile.getBox().getVolume())
 						give(player, inventory, ingredients);
 					else
 						take(player, inventory, ingredients);
 				}
 				
-				replacedBox = tile.box.copy();
-				// replacedBox.addOffset(tile.te.getPos());
-				tile.box = oldBox.copy();
+				replacedBox = tile.getBox().copy();
+				tile.setBox(oldBox.copy());
 				
-				tile.te.convertToSmallest();
-				tile.te.updateTiles();
+				pair.key.getTe().convertToSmallest();
+				pair.key.getTe().updateTiles();
 				
-				newCoord = new LittleIdentifierAbsolute(tile);
+				newLocation = new TileLocation(pair.key, tile);
 				return true;
 			}
 			
@@ -282,7 +282,7 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		@Override
 		public void writeBytes(ByteBuf buf) {
-			writeAbsoluteCoord(coord, buf);
+			writeTileLocation(location, buf);
 			writeLittleBox(oldBox, buf);
 			writeFacing(buf, facing);
 			writeContext(context, buf);
@@ -290,7 +290,7 @@ public class LittleActionSaw extends LittleActionInteract {
 		
 		@Override
 		public void readBytes(ByteBuf buf) {
-			coord = readAbsoluteCoord(buf);
+			location = readTileLocation(buf);
 			oldBox = readLittleBox(buf);
 			facing = readFacing(buf);
 			context = readContext(buf);

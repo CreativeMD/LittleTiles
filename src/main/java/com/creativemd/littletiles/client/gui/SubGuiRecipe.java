@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
@@ -205,7 +206,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		
 		LittlePreviews previews = holder.previews;
 		
-		LittleStructure structure = previews.createStructure();
+		LittleStructure structure = StructureTileList.create(previews.structure, null);
 		
 		GuiComboBoxCategory comboBox = (GuiComboBoxCategory) get("types");
 		this.structure = structure;

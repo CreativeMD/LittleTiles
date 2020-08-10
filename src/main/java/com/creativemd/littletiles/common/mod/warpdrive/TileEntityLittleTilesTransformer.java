@@ -7,13 +7,13 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkBaseRelative;
-import com.creativemd.littletiles.common.structure.connection.StructureLinkTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.outdated.connection.StructureLinkBaseRelative;
+import com.creativemd.littletiles.common.util.outdated.connection.StructureLinkTile;
+import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import cr0s.warpdrive.api.IBlockTransformer;

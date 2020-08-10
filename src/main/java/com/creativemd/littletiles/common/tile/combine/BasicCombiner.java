@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.tile.combine;
 import java.util.Iterator;
 import java.util.List;
 
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -17,10 +16,6 @@ public class BasicCombiner {
 	
 	public static boolean combineTiles(List<LittleTile> tiles) {
 		return new AdvancedCombiner<>(tiles).combine();
-	}
-	
-	public static boolean combineTiles(List<LittleTile> tiles, LittleStructure structure) {
-		return new StructureCombiner(tiles, structure).combine();
 	}
 	
 	public static boolean combinePreviews(List<LittlePreview> previews) {

@@ -1,11 +1,11 @@
 package com.creativemd.littletiles.common.structure.type.premade;
 
-import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -16,8 +16,8 @@ import net.minecraft.world.World;
 
 public class LittleImporter extends LittleStructurePremade {
 	
-	public LittleImporter(LittleStructureType type) {
-		super(type);
+	public LittleImporter(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@Override
@@ -31,9 +31,9 @@ public class LittleImporter extends LittleStructurePremade {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
-			LittleGuiHandler.openGui("lt-import", new NBTTagCompound(), playerIn, getMainTile());
+			LittleStructureGuiHandler.openGui("lt-import", new NBTTagCompound(), playerIn, this);
 		return true;
 	}
 	

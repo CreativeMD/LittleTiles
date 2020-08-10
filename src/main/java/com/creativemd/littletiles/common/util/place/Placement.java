@@ -1,12 +1,13 @@
 package com.creativemd.littletiles.common.util.place;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.function.Predicate;
+import java.util.function.BiPredicate;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
@@ -17,7 +18,11 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.ParentTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
+import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -51,13 +56,15 @@ public class Placement {
 	public final PlacementStructurePreview origin;
 	public final List<PlacementStructurePreview> structures = new ArrayList<>();
 	
-	public final List<LittleTile> removedTiles = new ArrayList<>();
-	public final List<LittleTile> unplaceableTiles = new ArrayList<>();
+	public final BitSet availableIds = new BitSet();
+	
+	public final LittleAbsolutePreviews removedTiles;
+	public final LittleAbsolutePreviews unplaceableTiles;
 	public final List<SoundType> soundsToBePlayed = new ArrayList<>();
 	
 	protected ItemStack stack;
 	protected boolean ignoreWorldBoundaries = true;
-	protected Predicate<LittleTile> predicate;
+	protected BiPredicate<IParentTileList, LittleTile> predicate;
 	
 	public Placement(EntityPlayer player, PlacementPreview preview) {
 		this.player = player;
@@ -67,6 +74,9 @@ public class Placement {
 		this.facing = preview.facing;
 		this.previews = preview.previews;
 		this.origin = createStructureTree(null, preview.previews);
+		
+		this.removedTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
+		this.unplaceableTiles = new LittleAbsolutePreviews(pos, LittleGridContext.getMin());
 		
 		createPreviews(origin, preview.inBlockOffset, preview.pos);
 		
@@ -79,7 +89,7 @@ public class Placement {
 		return this;
 	}
 	
-	public Placement setPredicate(Predicate<LittleTile> predicate) {
+	public Placement setPredicate(BiPredicate<IParentTileList, LittleTile> predicate) {
 		this.predicate = predicate;
 		return this;
 	}
@@ -159,10 +169,12 @@ public class Placement {
 	}
 	
 	protected PlacementResult placeTiles() throws LittleActionException {
-		PlacementResult result = new PlacementResult(pos, origin.structure);
+		PlacementResult result = new PlacementResult(pos);
 		
 		for (PlacementBlock block : blocks.values())
 			block.place(result);
+		
+		result.parentStructure = origin.isStructure() ? origin.getStructure() : null;
 		
 		HashSet<BlockPos> blocksToUpdate = new HashSet<>(blocks.keySet());
 		
@@ -177,9 +189,9 @@ public class Placement {
 		for (PlacementBlock block : blocks.values())
 			block.placeLate();
 		
-		if (origin.structure != null) {
-			if (origin.structure.getMainTile() == null)
-				throw new LittleActionException("Missing maintile of structure. Placed " + result.placedPreviews.size() + " tile(s).");
+		if (origin.isStructure()) {
+			if (origin.getStructure() == null)
+				throw new LittleActionException("Missing missing mainblock of structure. Placed " + result.placedPreviews.size() + " tile(s).");
 			notifyStructurePlaced();
 		}
 		
@@ -205,11 +217,13 @@ public class Placement {
 		for (int i = 0; i < soundsToBePlayed.size(); i++)
 			world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
 		
+		removedTiles.convertToSmallest();
+		unplaceableTiles.convertToSmallest();
 		return result;
 	}
 	
 	public void notifyStructurePlaced() {
-		origin.structure.placedStructure(stack);
+		origin.getStructure().placedStructure(stack);
 	}
 	
 	public void constructStructureRelations() {
@@ -219,9 +233,9 @@ public class Placement {
 	private void updateRelations(PlacementStructurePreview preview) {
 		for (int i = 0; i < preview.children.size(); i++) {
 			PlacementStructurePreview child = preview.children.get(i);
-			if (preview.structure != null && child.structure != null) {
-				preview.structure.updateChildConnection(i, child.structure);
-				child.structure.updateParentConnection(i, preview.structure);
+			if (preview.getStructure() != null && child.getStructure() != null) {
+				preview.getStructure().updateChildConnection(i, child.getStructure());
+				child.getStructure().updateParentConnection(i, preview.getStructure());
 			}
 			
 			updateRelations(child);
@@ -238,7 +252,7 @@ public class Placement {
 	}
 	
 	private PlacementStructurePreview createStructureTree(PlacementStructurePreview parent, LittlePreviews previews) {
-		PlacementStructurePreview structure = new PlacementStructurePreview(parent, previews.createStructure(), previews instanceof LittlePreviews ? (LittlePreviews) previews : null);
+		PlacementStructurePreview structure = new PlacementStructurePreview(parent, previews);
 		
 		for (LittlePreviews child : previews.getChildren())
 			structure.addChild(createStructureTree(structure, child));
@@ -274,6 +288,12 @@ public class Placement {
 			this.context = context;
 			previews = new List[structures.size()];
 			latePreviews = new List[structures.size()];
+			
+			TileEntity tileEntity = world.getTileEntity(pos);
+			if (tileEntity instanceof TileEntityLittleTiles) {
+				cached = (TileEntityLittleTiles) tileEntity;
+				cached.fillUsedIds(availableIds);
+			}
 		}
 		
 		@Override
@@ -342,7 +362,7 @@ public class Placement {
 											te.convertTo(contextBefore);
 										return false;
 									}
-								} else if (!te.isSpaceForLittleTileStructure(preview.box, predicate)) {
+								} else if (!te.isSpaceForLittleTile(preview.box, (x, y) -> x.isStructure() && predicate.test(x, y))) {
 									if (te.getContext() != contextBefore)
 										te.convertTo(contextBefore);
 									return false;
@@ -366,8 +386,8 @@ public class Placement {
 				return false;
 			if (hasStructure()) {
 				for (int i = 0; i < previews.length; i++)
-					if (previews[i] != null && structures.get(i).structure != null)
-						cached.combineTilesSecretly(structures.get(i).structure);
+					if (previews[i] != null && structures.get(i).isStructure())
+						cached.combineTilesSecretly(structures.get(i).getIndex());
 				return false;
 			}
 			
@@ -379,7 +399,7 @@ public class Placement {
 		
 		public boolean hasStructure() {
 			for (int i = 0; i < previews.length; i++)
-				if (previews[i] != null && structures.get(i).structure != null)
+				if (previews[i] != null && structures.get(i).isStructure())
 					return true;
 			return false;
 		}
@@ -425,26 +445,22 @@ public class Placement {
 						for (int i = 0; i < previews.length; i++) {
 							if (previews[i] == null)
 								continue;
+							ParentTileList parent = x.noneStructureTiles();
 							PlacementStructurePreview structure = structures.get(i);
+							if (structure.isStructure()) {
+								StructureTileList list = x.addStructure(i, structure.getAttribute());
+								if (!structure.isPlaced())
+									structure.place(list);
+								parent = list;
+							}
+							
 							for (PlacePreview preview : previews[i]) {
-								for (LittleTile LT : preview.placeTile(player, pos, cached.getContext(), cached, x, unplaceableTiles, removedTiles, mode, facing, collsionTest, structure.structure)) {
+								for (LittleTile LT : preview.placeTile(Placement.this, this, parent, collsionTest)) {
 									if (!soundsToBePlayed.contains(LT.getSound()))
 										soundsToBePlayed.add(LT.getSound());
 									
-									if (structure.structure != null) {
-										if (structure.structure.getMainTile() == null)
-											structure.structure.setMainTile(LT);
-										else {
-											LT.connection = structure.structure.getStructureLink(LT);
-											LT.connection.setLoadedStructure(structure.structure);
-											structure.structure.add(LT);
-										}
-									}
-									
-									LT.place(x);
-									LT.placed(player, facing);
-									
-									result.addPlacedTile(LT);
+									parent.add(LT);
+									result.addPlacedTile(parent, LT);
 								}
 							}
 						}
@@ -454,35 +470,69 @@ public class Placement {
 		}
 		
 		public void placeLate() {
-			for (int i = 0; i < latePreviews.length; i++)
+			for (int i = 0; i < latePreviews.length; i++) {
 				if (latePreviews[i] == null)
 					continue;
-				else
-					for (PlacePreview preview : latePreviews[i])
-						preview.placeTile(player, pos, context, cached, null, unplaceableTiles, removedTiles, mode, facing, false, structures.get(i).structure);
+				
+				PlacementStructurePreview structure = structures.get(i);
+				for (PlacePreview preview : latePreviews[i])
+					preview.placeTile(Placement.this, this, structure.isStructure() ? cached.getStructure(structure.getIndex()) : null, false);
+			}
+		}
+		
+		public TileEntityLittleTiles getTe() {
+			return cached;
 		}
 	}
 	
 	public class PlacementStructurePreview {
 		
-		public final LittleStructure structure;
+		private LittleStructure cachedStructure;
 		public final LittlePreviews previews;
 		public final PlacementStructurePreview parent;
 		public final int index;
+		private int structureIndex = -1;
 		
-		public PlacementStructurePreview(PlacementStructurePreview parent, LittleStructure structure, LittlePreviews previews) {
+		public PlacementStructurePreview(PlacementStructurePreview parent, LittlePreviews previews) {
 			this.index = structures.size();
 			structures.add(this);
 			
 			this.parent = parent;
-			this.structure = structure;
 			this.previews = previews;
+		}
+		
+		public int getAttribute() {
+			return previews.getStructureType().attribute;
+		}
+		
+		public int getIndex() {
+			if (structureIndex == -1) {
+				structureIndex = availableIds.nextClearBit(0);
+				availableIds.set(structureIndex);
+			}
+			return structureIndex;
+		}
+		
+		public boolean isStructure() {
+			return previews.hasStructure();
 		}
 		
 		List<PlacementStructurePreview> children = new ArrayList<>();
 		
 		public void addChild(PlacementStructurePreview child) {
 			children.add(child);
+		}
+		
+		public void place(StructureTileList parent) {
+			cachedStructure = parent.setStructureNBT(previews.structure);
+		}
+		
+		public boolean isPlaced() {
+			return isStructure() && cachedStructure != null;
+		}
+		
+		public LittleStructure getStructure() {
+			return cachedStructure;
 		}
 		
 	}

@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -72,7 +73,7 @@ public class LittleActionReplace extends LittleActionInteract {
 	public LittleBoxes boxes;
 	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		
 		if (!world.isRemote) {
 			BreakEvent event = new BreakEvent(world, te.getPos(), te.getBlockTileState(), player);
@@ -94,14 +95,15 @@ public class LittleActionReplace extends LittleActionInteract {
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
 			LittlePreviews previews = new LittlePreviews(te.getContext());
 			
-			for (LittleTile toDestroy : te) {
-				if (!toDestroy.isChildOfStructure() && tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
-					replacedTiles.addTile(toDestroy);
-					boxes.addBox(toDestroy);
+			parent = te.noneStructureTiles();
+			for (LittleTile toDestroy : parent) {
+				if (tile.canBeCombined(toDestroy) && toDestroy.canBeCombined(tile)) {
+					replacedTiles.addTile(parent, toDestroy);
+					boxes.addBox(parent, toDestroy);
 					
-					toBePlaced.addTile(toDestroy);
+					toBePlaced.addTile(parent, toDestroy);
 					LittlePreview preview = toReplace.copy();
-					preview.box = toDestroy.box;
+					preview.box = toDestroy.getBox();
 					previews.addWithoutCheckingPreview(preview);
 					
 					toRemove.add(toDestroy);
@@ -121,25 +123,22 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			te.updateTiles((x) -> {
-				for (LittleTile toDestroy : toRemove)
-					toDestroy.destroy(x);
-			});
+			te.updateTiles(x -> x.noneStructureTiles().removeAll(toRemove));
 			
 			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
 			placement.place();
-			giveOrDrop(player, inventory, placement.unplaceableTiles);
+			checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
 		} else {
-			if (tile.isChildOfStructure())
+			if (parent.isStructure())
 				return false;
 			
 			LittleInventory inventory = new LittleInventory(player);
 			
-			replacedTiles.addTile(tile);
-			boxes.addBox(tile);
+			replacedTiles.addTile(parent, tile);
+			boxes.addBox(parent, tile);
 			
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			toReplace.box = tile.box;
+			toReplace.box = tile.getBox();
 			toBePlaced.addPreview(null, toReplace, te.getContext());
 			
 			try {
@@ -150,14 +149,14 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			te.updateTiles((x) -> tile.destroy(x));
+			te.updateTiles((x) -> x.noneStructureTiles().remove(tile));
 			
 			LittlePreviews previews = new LittlePreviews(te.getContext());
 			previews.addWithoutCheckingPreview(toReplace);
 			
 			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
 			placement.place();
-			giveOrDrop(player, inventory, placement.unplaceableTiles);
+			checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
 		}
 		
 		world.playSound((EntityPlayer) null, pos, tile.getSound().getBreakSound(), SoundCategory.BLOCKS, (tile.getSound().getVolume() + 1.0F) / 2.0F, tile.getSound().getPitch() * 0.8F);
@@ -171,7 +170,7 @@ public class LittleActionReplace extends LittleActionInteract {
 	}
 	
 	@Override
-	public LittleAction revert() throws LittleActionException {
+	public LittleAction revert(EntityPlayer player) throws LittleActionException {
 		return new LittleActionCombined(new LittleActionDestroyBoxes(boxes), new LittleActionPlaceAbsolute(replacedTiles, PlacementMode.normal));
 	}
 	

@@ -19,6 +19,8 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationController;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -35,7 +37,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
@@ -166,8 +167,11 @@ public class DoorController extends EntityAnimationController {
 		}
 		
 		if (isChanging()) {
-			if (!parent.structure.loadChildren())
+			try {
+				parent.structure.load();
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
 				return currentState.state;
+			}
 			
 			((LittleDoor) parent.structure).beforeTick(parent, tick);
 			AnimationState state = super.tick();
@@ -196,83 +200,73 @@ public class DoorController extends EntityAnimationController {
 	}
 	
 	public void place() {
-		if (!parent.structure.load()) {
-			System.out.println(new TextComponentTranslation("exception.door.notloaded").getFormattedText());
-			return;
-		}
-		
-		if (!parent.structure.loadChildren()) {
-			System.out.println(new TextComponentTranslation("exception.door.brokenchild").getFormattedText());
-			return;
-		}
-		
-		if (!parent.structure.loadParent()) {
-			System.out.println(new TextComponentTranslation("exception.door.brokenparent").getFormattedText());
-			return;
-		}
-		
-		World world = parent.world;
-		LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
-		
-		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all));
-		
-		LittleDoor newDoor;
-		PlacementResult result;
-		if ((result = placement.tryPlace()) != null) {
+		try {
+			parent.structure.load();
 			
-			newDoor = (LittleDoor) result.parentStructure;
-			if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
-				newDoor.waitingForApproval = true;
+			World world = parent.world;
+			LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 			
-			if (parent.structure.parent != null) {
-				LittleStructure parentStructure = parent.structure.parent.getStructure(world);
-				newDoor.updateParentConnection(parent.structure.parent.getChildID(), parentStructure);
-				parentStructure.updateChildConnection(parent.structure.parent.getChildID(), newDoor);
+			Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(world, previews, previews.pos, PlacementMode.all));
+			
+			LittleDoor newDoor;
+			PlacementResult result;
+			if ((result = placement.tryPlace()) != null) {
+				
+				newDoor = (LittleDoor) result.parentStructure;
+				if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
+					newDoor.waitingForApproval = true;
+				
+				if (parent.structure.getParent() != null) {
+					LittleStructure parentStructure = parent.structure.getParent().getStructure();
+					newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure);
+					parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor);
+				}
+				
+				newDoor.transferChildrenFromAnimation(parent);
+			} else {
+				parent.markRemoved();
+				if (!world.isRemote)
+					WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
+				return;
 			}
 			
-			newDoor.transferChildrenFromAnimation(parent);
-		} else {
 			parent.markRemoved();
-			if (!world.isRemote)
-				WorldUtils.dropItem(world, parent.structure.getStructureDrop(), parent.center.baseOffset);
-			return;
-		}
-		
-		parent.markRemoved();
-		
-		if (!world.isRemote) {
-			WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
-			PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getMainTile(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
-		} else {
-			boolean subWorld = world instanceof IOrientatedWorld;
-			HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
-			for (TileEntityLittleTiles te : result.tileEntities) {
-				if (te.inRenderingQueue == null)
-					te.inRenderingQueue = new AtomicBoolean();
-				TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-				if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).buffer != null) {
-					synchronized (te.inRenderingQueue) {
-						if (te.inRenderingQueue.get() || (te.buffer != null && te.buffer.isEmpty())) {
-							if (te.buffer == null)
-								te.buffer = ((TileEntityLittleTiles) oldTE).buffer;
+			
+			if (!world.isRemote) {
+				WorldServer serverWorld = (WorldServer) (world instanceof IOrientatedWorld ? ((IOrientatedWorld) world).getRealWorld() : world);
+				PacketHandler.sendPacketToTrackingPlayers(new LittlePlacedAnimationPacket(newDoor.getStructureLoaction(), parent.getUniqueID()), parent.getAbsoluteParent(), serverWorld, null);
+			} else {
+				boolean subWorld = world instanceof IOrientatedWorld;
+				HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
+				for (TileEntityLittleTiles te : result.tileEntities) {
+					if (te.inRenderingQueue == null)
+						te.inRenderingQueue = new AtomicBoolean();
+					TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
+					if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).buffer != null) {
+						synchronized (te.inRenderingQueue) {
+							if (te.inRenderingQueue.get() || (te.buffer != null && te.buffer.isEmpty())) {
+								if (te.buffer == null)
+									te.buffer = ((TileEntityLittleTiles) oldTE).buffer;
+								else
+									te.buffer.combine(((TileEntityLittleTiles) oldTE).buffer);
+							}
+							
+							if (subWorld)
+								RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
 							else
-								te.buffer.combine(((TileEntityLittleTiles) oldTE).buffer);
+								chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), (TileEntityLittleTiles) oldTE);
 						}
-						
-						if (subWorld)
-							RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);
-						else
-							chunks.add(RenderUtils.getRenderChunk(RenderUtils.getViewFrustum(), te.getPos()), (TileEntityLittleTiles) oldTE);
 					}
 				}
+				
+				if (!subWorld)
+					for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
+						RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
+				placed = true;
 			}
-			
-			if (!subWorld)
-				for (Entry<RenderChunk, ArrayList<TileEntityLittleTiles>> entry : chunks.entrySet())
-					RenderUploader.uploadRenderData(entry.getKey(), entry.getValue());
-			placed = true;
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			e.printStackTrace();
 		}
-		
 	}
 	
 	@Override

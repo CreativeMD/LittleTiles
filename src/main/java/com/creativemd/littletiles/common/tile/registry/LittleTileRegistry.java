@@ -10,17 +10,13 @@ import com.creativemd.littletiles.common.block.BlockLTFlowingLava.LittleFlowingL
 import com.creativemd.littletiles.common.block.BlockLTFlowingWater.LittleFlowingWaterPreview;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
-import com.creativemd.littletiles.common.tile.LittleTileParticle;
-import com.creativemd.littletiles.common.tile.LittleTileTE;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.world.World;
 
 public class LittleTileRegistry {
 	
@@ -56,7 +52,7 @@ public class LittleTileRegistry {
 		return defaultTileType;
 	}
 	
-	public static LittleTile loadTile(TileEntityLittleTiles te, World world, NBTTagCompound nbt) {
+	public static LittleTile loadTile(NBTTagCompound nbt) {
 		if (nbt.hasKey("tileID")) { // If it's the old tileentity
 			if (nbt.hasKey("block")) {
 				Block block = Block.getBlockFromName(nbt.getString("block"));
@@ -64,7 +60,7 @@ public class LittleTileRegistry {
 				LittleBox box = new LittleBox(new LittleVec("i", nbt), new LittleVec("a", nbt));
 				box.add(new LittleVec(LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize, LittleGridContext.oldHalfGridSize));
 				LittleTile tile = new LittleTile(block, meta);
-				tile.box = box;
+				tile.setBox(box);
 				return tile;
 			}
 		} else {
@@ -74,7 +70,7 @@ public class LittleTileRegistry {
 			
 			if (tile != null) {
 				try {
-					tile.loadTile(te, nbt);
+					tile.loadTile(nbt);
 				} catch (Exception e) {
 					e.printStackTrace();
 					return null;
@@ -132,9 +128,7 @@ public class LittleTileRegistry {
 	
 	public static void initTiles() {
 		defaultTileType = registerTileType(LittleTile.class, "BlockTileBlock", (x) -> true, false);
-		registerTileType(LittleTileTE.class, "BlockTileEntity", (x) -> x.hasKey("tileEntity"), false);
 		registerTileType(LittleTileColored.class, "BlockTileColored", (x) -> x.hasKey("color"), false);
-		registerTileType(LittleTileParticle.class, "BlockTileParticle", (x) -> false, true);
 		
 		defaultPreviewType = registerPreviewType("default", LittlePreview.class);
 		

@@ -12,14 +12,14 @@ import com.creativemd.littletiles.LittleTilesConfig.NotAllowedToPlaceColorExcept
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles.TileEntityInteractor;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 import com.creativemd.littletiles.common.util.ingredient.ColorIngredient;
@@ -77,7 +77,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		revertList.add(color, newBoxes);
 	}
 	
-	public boolean shouldSkipTile(LittleTile tile) {
+	public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
 		return false;
 	}
 	
@@ -89,113 +89,86 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		doneSomething = false;
 		colorVolume = 0;
 		
-		Consumer<TileList> consumer = x -> {
-			
-			for (LittleTile tile : te) {
+		Consumer<TileEntityInteractor> consumer = x -> {
+			for (IParentTileList parent : te.groups()) {
 				
-				if (shouldSkipTile(tile))
-					continue;
-				
-				LittleBox intersecting = null;
-				boolean intersects = false;
-				for (int j = 0; j < boxes.size(); j++) {
-					if (tile.intersectsWith(boxes.get(j))) {
-						intersects = true;
-						intersecting = boxes.get(j);
-						break;
-					}
-				}
-				
-				if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored) || (tile.isChildOfStructure() && (!tile.isConnectedToStructure() || !tile.connection.getStructure(
-				    te.getWorld()).load())))
-					continue;
-				
-				if (!LittleTileColored.needsToBeRecolored(tile, color))
-					continue;
-				
-				doneSomething = true;
-				
-				if (tile.canBeSplitted() && !tile.equalsBox(intersecting)) {
-					if (simulate) {
-						double volume = 0;
-						List<LittleBox> cutout = new ArrayList<>();
-						tile.cutOut(boxes, cutout);
-						for (LittleBox box2 : cutout) {
-							colorVolume += box2.getPercentVolume(context);
-							volume += box2.getPercentVolume(context);
-						}
-						
-						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
-						
-					} else {
-						List<LittleBox> cutout = new ArrayList<>();
-						List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
-						
-						if (newBoxes != null) {
-							addRevert(LittleTileColored.getColor(tile), te.getPos(), context, cutout);
-							
-							LittleTile tempTile = tile.copy();
-							LittleTile changedTile = LittleTileColored.setColor(tempTile, color);
-							if (changedTile == null)
-								changedTile = tempTile;
-							
-							if (tile.isConnectedToStructure())
-								tile.connection.getStructure(te.getWorld()).remove(tile);
-							
-							for (int i = 0; i < newBoxes.size(); i++) {
-								LittleTile newTile = tile.copy();
-								newTile.box = newBoxes.get(i);
-								newTile.place(x);
-								if (tile.isConnectedToStructure())
-									tile.connection.getStructure(te.getWorld()).add(newTile);
-							}
-							
-							for (int i = 0; i < cutout.size(); i++) {
-								LittleTile newTile = changedTile.copy();
-								newTile.box = cutout.get(i);
-								newTile.place(x);
-								if (tile.isConnectedToStructure())
-									tile.connection.getStructure(te.getWorld()).add(newTile);
-							}
-							
-							if (tile.isConnectedToStructure()) {
-								if (tile.connection.isLink())
-									tile.connection.getStructure(te.getWorld()).updateStructure();
-								else
-									tile.connection.getStructureWithoutLoading().selectMainTile();
-							}
-							
-							tile.connection = null;
-							tile.destroy(x);
+				for (LittleTile tile : parent) {
+					
+					if (shouldSkipTile(parent, tile))
+						continue;
+					
+					LittleBox intersecting = null;
+					boolean intersects = false;
+					for (int j = 0; j < boxes.size(); j++) {
+						if (tile.intersectsWith(boxes.get(j))) {
+							intersects = true;
+							intersecting = boxes.get(j);
+							break;
 						}
 					}
-				} else {
-					if (simulate) {
-						colorVolume += tile.getPercentVolume();
-						gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume()));
-					} else {
-						List<LittleBox> oldBoxes = new ArrayList<>();
-						oldBoxes.add(tile.box);
-						
-						addRevert(LittleTileColored.getColor(tile), te.getPos(), context, oldBoxes);
-						
-						LittleTile changedTile = LittleTileColored.setColor(tile, color);
-						if (changedTile != null) {
-							changedTile.place(x);
+					
+					if (!intersects || !(tile.getClass() == LittleTile.class || tile instanceof LittleTileColored))
+						continue;
+					
+					if (!LittleTileColored.needsToBeRecolored(tile, color))
+						continue;
+					
+					doneSomething = true;
+					
+					if (!tile.equalsBox(intersecting)) {
+						if (simulate) {
+							double volume = 0;
+							List<LittleBox> cutout = new ArrayList<>();
+							tile.cutOut(boxes, cutout);
+							for (LittleBox box2 : cutout) {
+								colorVolume += box2.getPercentVolume(context);
+								volume += box2.getPercentVolume(context);
+							}
 							
-							if (tile.isChildOfStructure()) {
-								changedTile.connection = tile.connection.copy(changedTile);
-								LittleStructure structure = tile.connection.getStructure(te.getWorld());
-								structure.remove(tile);
-								structure.add(changedTile);
-								structure.updateStructure();
+							gained.add(ColorIngredient.getColors(tile.getPreviewTile(), volume));
+							
+						} else {
+							List<LittleBox> cutout = new ArrayList<>();
+							List<LittleBox> newBoxes = tile.cutOut(boxes, cutout);
+							
+							if (newBoxes != null) {
+								addRevert(LittleTileColored.getColor(tile), te.getPos(), context, cutout);
 								
-								if (!tile.connection.isLink())
-									structure.setMainTile(changedTile);
+								LittleTile tempTile = tile.copy();
+								LittleTile changedTile = LittleTileColored.setColor(tempTile, color);
+								if (changedTile == null)
+									changedTile = tempTile;
+								
+								for (int i = 0; i < newBoxes.size(); i++) {
+									LittleTile newTile = tile.copy();
+									newTile.setBox(newBoxes.get(i));
+									x.get(parent).add(newTile);
+								}
+								
+								for (int i = 0; i < cutout.size(); i++) {
+									LittleTile newTile = changedTile.copy();
+									newTile.setBox(cutout.get(i));
+									x.get(parent).add(newTile);
+								}
+								
+								x.get(parent).remove(tile);
 							}
+						}
+					} else {
+						if (simulate) {
+							colorVolume += tile.getPercentVolume(context);
+							gained.add(ColorIngredient.getColors(tile.getPreviewTile(), tile.getPercentVolume(context)));
+						} else {
+							List<LittleBox> oldBoxes = new ArrayList<>();
+							oldBoxes.add(tile.getBox());
 							
-							tile.connection = null;
-							tile.destroy(x);
+							addRevert(LittleTileColored.getColor(tile), te.getPos(), context, oldBoxes);
+							
+							LittleTile changedTile = LittleTileColored.setColor(tile, color);
+							if (changedTile != null) {
+								x.get(parent).add(changedTile);
+								x.get(parent).remove(tile);
+							}
 						}
 					}
 				}
@@ -280,7 +253,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 	}
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		List<LittleAction> actions = new ArrayList<>();
 		for (Entry<Integer, ArrayList<LittleBoxes>> entry : revertList.entrySet()) {
 			for (LittleBoxes boxes : entry.getValue()) {
@@ -325,8 +298,8 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
 		}
 		
 		@Override
-		public boolean shouldSkipTile(LittleTile tile) {
-			return !selector.is(tile);
+		public boolean shouldSkipTile(IParentTileList parent, LittleTile tile) {
+			return !selector.is(parent, tile);
 		}
 		
 		@Override

@@ -40,8 +40,11 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiPa
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -146,8 +149,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		return key.isAligned(timeline.first(key));
 	}
 	
-	public LittleAdvancedDoor(LittleStructureType type) {
-		super(type);
+	public LittleAdvancedDoor(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@StructureDirectional(color = ColorUtils.RED)
@@ -230,7 +233,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	
 	@Override
 	public LittleTransformation[] getDoorTransformations(EntityPlayer player) {
-		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
+		return new LittleTransformation[] { new LittleTransformation(getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 	}
 	
 	@Override
@@ -241,7 +244,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	
 	@Override
 	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
-		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) placement.origin.structure;
+		LittleAdvancedDoor newDoor = (LittleAdvancedDoor) placement.origin.getStructure();
 		int duration = newDoor.duration;
 		
 		PairList<AnimationKey, ValueTimeline> open = new PairList<>();
@@ -298,8 +301,8 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 	@Override
 	public StructureAbsolute getAbsoluteAxis() {
 		if (axisCenter == null)
-			return new StructureAbsolute(getMainTile().te.getPos(), getMainTile().box, getMainTile().getContext());
-		return new StructureAbsolute(lastMainTileVec != null ? lastMainTileVec : getMainTile().getAbsolutePos(), axisCenter);
+			return new StructureAbsolute(getPos(), new LittleBox(0, 0, 0, 1, 1, 1), mainBlock.getContext());
+		return new StructureAbsolute(new LittleAbsoluteVec(getPos(), mainBlock.getContext()), axisCenter);
 	}
 	
 	public static class LittleAdvancedDoorParser extends LittleStructureGuiParser {
@@ -506,7 +509,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleStructure parseStructure(LittlePreviews previews) {
-			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class);
+			LittleAdvancedDoor door = createStructure(LittleAdvancedDoor.class, null);
 			GuiTileViewer viewer = ((GuiAxisButton) parent.get("axis")).viewer;
 			GuiDoorEventsButton button = (GuiDoorEventsButton) parent.get("children_activate");
 			door.axisCenter = new StructureRelative(viewer.getBox(), viewer.getAxisContext());

@@ -6,9 +6,9 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.BlockPos;
@@ -18,8 +18,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleNoClipStructure extends LittleStructure {
 	
-	public LittleNoClipStructure(LittleStructureType type) {
-		super(type);
+	public LittleNoClipStructure(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	public boolean web = true;
@@ -35,7 +35,7 @@ public class LittleNoClipStructure extends LittleStructure {
 	}
 	
 	@Override
-	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
+	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, Entity entityIn) {
 		if (web)
 			entityIn.setInWeb();
 	}
@@ -58,7 +58,7 @@ public class LittleNoClipStructure extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleNoClipStructure parseStructure(LittlePreviews previews) {
-			LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class);
+			LittleNoClipStructure structure = createStructure(LittleNoClipStructure.class, null);
 			structure.web = ((GuiCheckBox) parent.get("web")).value;
 			
 			return structure;

@@ -16,6 +16,7 @@ import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.ISignalInput;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewFacing;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -35,8 +36,8 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	@StructureDirectional
 	public EnumFacing facing;
 	
-	public LittleSignalInput(LittleStructureType type) {
-		super(type);
+	public LittleSignalInput(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 		this.state = new boolean[getBandwidth()];
 	}
 	
@@ -93,7 +94,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	@SideOnly(Side.CLIENT)
 	public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes, int color) {
 		super.render(box, overallBox, cubes, color);
-		color = getMainTile() instanceof LittleTileColored ? ((LittleTileColored) getMainTile()).color : -13619152;
+		color = mainBlock.first() instanceof LittleTileColored ? ((LittleTileColored) mainBlock.first()).color : -13619152;
 		
 		AlignedBox cube = new AlignedBox(overallBox.getBox(box.getContext()));
 		

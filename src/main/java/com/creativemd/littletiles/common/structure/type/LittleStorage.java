@@ -12,21 +12,23 @@ import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.packet.gui.GuiLayerPacket;
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.block.BlockStorageTile;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.StackIngredient;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.IInventory;
@@ -40,8 +42,8 @@ import net.minecraft.world.World;
 
 public class LittleStorage extends LittleStructure {
 	
-	public LittleStorage(LittleStructureType type) {
-		super(type);
+	public LittleStorage(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	public List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
@@ -88,7 +90,7 @@ public class LittleStorage extends LittleStructure {
 	}
 	
 	@Override
-	public ItemStack getStructureDrop() {
+	public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
 		ItemStack stack = super.getStructureDrop();
 		if (!stack.isEmpty())
 			writeToNBTExtra(stack.getTagCompound().getCompoundTag("structure"));
@@ -119,9 +121,9 @@ public class LittleStorage extends LittleStructure {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!worldIn.isRemote)
-			LittleGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, getMainTile());
+			LittleStructureGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, this);
 		return true;
 	}
 	
@@ -143,7 +145,7 @@ public class LittleStorage extends LittleStructure {
 		@Override
 		public LittleStorage parseStructure(LittlePreviews previews) {
 			
-			LittleStorage storage = createStructure(LittleStorage.class);
+			LittleStorage storage = createStructure(LittleStorage.class, null);
 			storage.invisibleStorageTiles = ((GuiCheckBox) parent.get("invisible")).value;
 			for (int i = 0; i < previews.size(); i++) {
 				if (previews.get(i).getBlock() instanceof BlockStorageTile)

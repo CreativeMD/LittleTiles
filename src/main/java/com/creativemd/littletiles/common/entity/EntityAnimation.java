@@ -16,27 +16,31 @@ import com.creativemd.creativecore.common.utils.math.collision.CollisionCoordina
 import com.creativemd.creativecore.common.utils.math.vec.ChildVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.IVecOrigin;
 import com.creativemd.creativecore.common.utils.math.vec.VecUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.FakeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
 import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
-import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.item.ItemLittleWrench;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationState;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierStructureAbsolute;
+import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
@@ -77,15 +81,15 @@ public class EntityAnimation extends Entity {
 		super(worldIn);
 	}
 	
-	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LittleIdentifierStructureAbsolute identifier) {
+	public EntityAnimation(World world, CreativeWorld fakeWorld, EntityAnimationController controller, BlockPos absolutePreviewPos, UUID uuid, StructureAbsolute center, LocalStructureLocation location) {
 		this(world);
 		
-		this.structureIdentifier = identifier;
+		this.structureLocation = location;
 		try {
-			if (identifier == null)
+			if (structureLocation == null)
 				this.structure = null;
 			else
-				this.structure = LittleAction.getTile(fakeWorld, identifier).connection.getStructureWithoutLoading();
+				this.structure = structureLocation.find(fakeWorld);
 		} catch (LittleActionException e) {
 			throw new RuntimeException(e);
 		}
@@ -217,7 +221,7 @@ public class EntityAnimation extends Entity {
 	}
 	
 	public LittleStructure structure;
-	public LittleIdentifierStructureAbsolute structureIdentifier;
+	public LocalStructureLocation structureLocation;
 	public StructureAbsolute center;
 	public BlockPos absolutePreviewPos;
 	
@@ -265,11 +269,10 @@ public class EntityAnimation extends Entity {
 				
 				ArrayList<AxisAlignedBB> boxes = new ArrayList<>();
 				
-				for (LittleTile tile : te) {
-					List<LittleBox> tileBoxes = tile.getCollisionBoxes();
-					for (LittleBox box : tileBoxes) {
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+					LittleBox box = pair.value.getCollisionBox();
+					if (box != null)
 						boxes.add(box.getBox(te.getContext(), te.getPos()));
-					}
 				}
 				
 				// BoxUtils.compressBoxes(boxes, 0.0F);
@@ -802,55 +805,61 @@ public class EntityAnimation extends Entity {
 	// ================Saving & Loading================
 	
 	public void transformWorld(LittleTransformation transformation) {
-		if (!structure.load() || !structure.loadChildren() || !structure.loadParent())
-			return;
-		LittleAbsolutePreviews previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
-		transformation.transform(previews);
-		
-		List<BlockPos> positions = new ArrayList<>();
-		for (TileEntity te : fakeWorld.loadedTileEntityList) {
-			if (te instanceof TileEntityLittleTiles) {
-				((TileEntityLittleTiles) te).updateTilesSecretly((x) -> x.clear());
-				positions.add(te.getPos());
+		try {
+			structure.load();
+			
+			LittleAbsolutePreviews previews = structure.getAbsolutePreviewsSameWorldOnly(transformation.center);
+			transformation.transform(previews);
+			
+			List<BlockPos> positions = new ArrayList<>();
+			for (TileEntity te : fakeWorld.loadedTileEntityList) {
+				if (te instanceof TileEntityLittleTiles) {
+					((TileEntityLittleTiles) te).updateTilesSecretly((x) -> x.clearEverything());
+					positions.add(te.getPos());
+				}
 			}
-		}
-		
-		for (BlockPos pos : positions) {
-			fakeWorld.setBlockToAir(pos);
-			fakeWorld.removeTileEntity(pos);
-		}
-		
-		if (world.isRemote)
-			getRenderChunkSuppilier().unloadRenderCache();
-		
-		Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
-		PlacementResult result = placement.tryPlace();
-		
-		int childId = this.structure.parent.getChildID();
-		LittleStructure parentStructure = this.structure.parent.getStructure(fakeWorld);
-		this.structure = result.parentStructure;
-		((IAnimatedStructure) this.structure).setAnimation(this);
-		parentStructure.updateChildConnection(childId, this.structure);
-		this.structure.updateParentConnection(childId, parentStructure);
-		
-		this.structure.transformAnimation(transformation);
-		this.controller.transform(transformation);
-		absolutePreviewPos = transformation.transform(absolutePreviewPos);
-		
-		updateWorldCollision();
-		updateBoundingBox();
-		updateTickState();
+			
+			for (BlockPos pos : positions) {
+				fakeWorld.setBlockToAir(pos);
+				fakeWorld.removeTileEntity(pos);
+			}
+			
+			if (world.isRemote)
+				getRenderChunkSuppilier().unloadRenderCache();
+			
+			Placement placement = new Placement(null, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
+			PlacementResult result = placement.tryPlace();
+			
+			int childId = this.structure.getParent().getChildId();
+			LittleStructure parentStructure = this.structure.getParent().getStructure();
+			this.structure = result.parentStructure;
+			((IAnimatedStructure) this.structure).setAnimation(this);
+			parentStructure.updateChildConnection(childId, this.structure);
+			this.structure.updateParentConnection(childId, parentStructure);
+			
+			this.structure.transformAnimation(transformation);
+			this.controller.transform(transformation);
+			absolutePreviewPos = transformation.transform(absolutePreviewPos);
+			
+			updateWorldCollision();
+			updateBoundingBox();
+			updateTickState();
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	
 	@Deprecated
 	private LittleStructure searchForParent() {
 		for (TileEntity te : fakeWorld.loadedTileEntityList) {
 			if (te instanceof TileEntityLittleTiles) {
-				for (LittleTile tile : (TileEntityLittleTiles) te) {
-					if (!tile.connection.isLink()) {
-						LittleStructure structure = tile.connection.getStructureWithoutLoading();
-						if (structure.parent == null || structure.parent.isLinkToAnotherWorld())
-							return structure;
+				for (IParentTileList parent : ((TileEntityLittleTiles) te).groups()) {
+					if (parent.isStructure() && parent.isMain()) {
+						try {
+							LittleStructure structure = parent.getStructure();
+							if (structure.getParent() == null || structure.getParent().isLinkToAnotherWorld())
+								return structure;
+						} catch (CorruptedConnectionException | NotYetConnectedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -908,15 +917,24 @@ public class EntityAnimation extends Entity {
 			absolutePreviewPos = center.baseOffset;
 		
 		if (compound.hasKey("identifier")) {
-			structureIdentifier = new LittleIdentifierStructureAbsolute(compound.getCompoundTag("identifier"));
 			try {
-				this.structure = LittleAction.getTile(fakeWorld, structureIdentifier).connection.getStructureWithoutLoading();
+				LittleIdentifierRelative identifier = new LittleIdentifierRelative(compound.getCompoundTag("identifier"));
+				int index = identifier.generateIndex(structure.getPos());
+				this.structureLocation = new LocalStructureLocation(identifier.coord, index);
+				this.structure = structureLocation.find(fakeWorld);
+			} catch (LittleActionException e) {
+				throw new RuntimeException(e);
+			}
+		} else if (compound.hasKey("location")) {
+			try {
+				this.structureLocation = new LocalStructureLocation(compound.getCompoundTag("location"));
+				this.structure = structureLocation.find(fakeWorld);
 			} catch (LittleActionException e) {
 				throw new RuntimeException(e);
 			}
 		} else {
 			structure = searchForParent();
-			structureIdentifier = structure.getAbsoluteIdentifier();
+			structureLocation = new LocalStructureLocation(structure);
 		}
 		
 		controller = EntityAnimationController.parseController(this, compound.getCompoundTag("controller"));
@@ -965,7 +983,7 @@ public class EntityAnimation extends Entity {
 		
 		compound.setIntArray("previewPos", new int[] { absolutePreviewPos.getX(), absolutePreviewPos.getY(), absolutePreviewPos.getZ() });
 		
-		compound.setTag("identifier", structureIdentifier.writeToNBT(new NBTTagCompound()));
+		compound.setTag("location", structureLocation.write());
 		
 		if (!fakeWorld.loadedEntityList.isEmpty()) {
 			NBTTagList subEntities = new NBTTagList();

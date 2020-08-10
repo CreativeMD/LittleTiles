@@ -1,12 +1,14 @@
 package com.creativemd.littletiles.common.action.tool;
 
 import com.creativemd.creativecore.common.utils.mc.InventoryUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.LittleActionInteract;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.math.location.TileLocation;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 
@@ -35,10 +37,10 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		return true;
 	}
 	
-	public LittleTile changedTile;
+	public TileLocation changedTile;
 	
 	@Override
-	protected boolean action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
+	protected boolean action(World world, TileEntityLittleTiles te, IParentTileList parent, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, boolean secondMode) throws LittleActionException {
 		if (stack.getItem() == Items.GLOWSTONE_DUST && player.isSneaking()) {
 			if (needIngredients(player)) {
 				if (tile.glowing) {
@@ -57,7 +59,7 @@ public class LittleActionGlowstone extends LittleActionInteract {
 			te.updateTiles();
 			te.updateLighting();
 			
-			this.changedTile = tile;
+			this.changedTile = new TileLocation(parent, tile);
 			
 			return true;
 		}
@@ -70,8 +72,8 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	}
 	
 	@Override
-	public LittleAction revert() throws LittleActionException {
-		if (isTileStillInPlace(changedTile))
+	public LittleAction revert(EntityPlayer player) throws LittleActionException {
+		if (changedTile.find(player.world) != null)
 			return new LittleActionGlowstoneRevert(changedTile);
 		throw new LittleActionException.TileNotThereException();
 	}
@@ -83,12 +85,12 @@ public class LittleActionGlowstone extends LittleActionInteract {
 	
 	public static class LittleActionGlowstoneRevert extends LittleAction {
 		
-		public LittleIdentifierAbsolute coord;
+		public TileLocation location;
 		
-		public LittleTile changedTile;
+		public TileLocation newLocation;
 		
-		public LittleActionGlowstoneRevert(LittleTile tile) {
-			this.coord = new LittleIdentifierAbsolute(tile);
+		public LittleActionGlowstoneRevert(TileLocation location) {
+			this.location = location;
 		}
 		
 		public LittleActionGlowstoneRevert() {
@@ -101,17 +103,17 @@ public class LittleActionGlowstone extends LittleActionInteract {
 		}
 		
 		@Override
-		public LittleAction revert() throws LittleActionException {
-			if (isTileStillInPlace(changedTile))
-				return new LittleActionGlowstoneRevert(changedTile);
+		public LittleAction revert(EntityPlayer player) throws LittleActionException {
+			if (location.find(player.world) != null)
+				return new LittleActionGlowstoneRevert(newLocation);
 			throw new LittleActionException.TileNotThereException();
 		}
 		
 		@Override
 		protected boolean action(EntityPlayer player) throws LittleActionException {
 			
-			LittleTile tile = getTile(player.world, coord);
-			
+			Pair<IParentTileList, LittleTile> pair = newLocation.find(player.world);
+			LittleTile tile = pair.value;
 			if (needIngredients(player)) {
 				ItemStack stack = new ItemStack(Items.GLOWSTONE_DUST);
 				if (!InventoryUtils.consumeItemStack(player.inventory, stack))
@@ -124,22 +126,22 @@ public class LittleActionGlowstone extends LittleActionInteract {
 				player.playSound(SoundEvents.ENTITY_ITEMFRAME_ADD_ITEM, 1.0F, 1.0F);
 			
 			tile.glowing = !tile.glowing;
-			tile.te.updateTiles();
-			tile.te.updateLighting();
+			pair.key.getTe().updateTiles();
+			pair.key.getTe().updateLighting();
 			
-			this.changedTile = tile;
+			this.newLocation = new TileLocation(pair.key, tile);
 			
 			return false;
 		}
 		
 		@Override
 		public void writeBytes(ByteBuf buf) {
-			writeAbsoluteCoord(coord, buf);
+			writeTileLocation(location, buf);
 		}
 		
 		@Override
 		public void readBytes(ByteBuf buf) {
-			coord = readAbsoluteCoord(buf);
+			location = readTileLocation(buf);
 		}
 		
 		@Override

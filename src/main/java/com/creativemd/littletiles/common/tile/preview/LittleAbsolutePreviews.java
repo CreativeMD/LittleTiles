@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.tile.preview;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -62,17 +63,17 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	}
 	
 	@Override
-	public LittlePreview addTile(LittleTile tile) {
-		LittlePreview preview = getPreview(tile);
-		preview.box.add(new LittleVec(getContext(), tile.te.getPos().subtract(this.pos)));
+	public LittlePreview addTile(IParentTileList parent, LittleTile tile) {
+		LittlePreview preview = getPreview(tile, parent);
+		preview.box.add(new LittleVec(getContext(), parent.getPos().subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
 	
 	@Override
-	public LittlePreview addTile(LittleTile tile, LittleVec offset) {
-		LittlePreview preview = getPreview(tile);
-		preview.box.add(new LittleVec(getContext(), tile.te.getPos().subtract(this.pos)));
+	public LittlePreview addTile(IParentTileList parent, LittleTile tile, LittleVec offset) {
+		LittlePreview preview = getPreview(tile, parent);
+		preview.box.add(new LittleVec(getContext(), parent.getPos().subtract(this.pos)));
 		preview.box.add(offset);
 		previews.add(preview);
 		return preview;

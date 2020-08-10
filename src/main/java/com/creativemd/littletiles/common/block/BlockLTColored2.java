@@ -1,8 +1,5 @@
 package com.creativemd.littletiles.common.block;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -87,10 +84,10 @@ public class BlockLTColored2 extends Block implements ISpecialBlockHandler {
 	}
 	
 	@Override
-	public List<LittleBox> getCollisionBoxes(LittleTile tile, List<LittleBox> defaultBoxes) {
+	public LittleBox getCollisionBox(LittleTile tile, LittleBox defaultBox) {
 		if (tile.getBlockState().getValue(VARIANT).isWater())
-			return new ArrayList<>();
-		return defaultBoxes;
+			return null;
+		return defaultBox;
 	}
 	
 	@Override

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.util.selection.selector;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.nbt.NBTTagCompound;
 
@@ -17,7 +18,7 @@ public class AnySelector extends TileSelector {
 	}
 	
 	@Override
-	public boolean is(LittleTile tile) {
+	public boolean is(IParentTileList parent, LittleTile tile) {
 		return true;
 	}
 	

@@ -8,8 +8,9 @@ import javax.annotation.Nullable;
 
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
@@ -64,26 +65,26 @@ public class OpenCommand extends CommandBase {
 			
 		TileEntity tileEntity = world.getTileEntity(blockpos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
-			for (LittleTile tile : ((TileEntityLittleTiles) tileEntity)) {
-				if (!tile.isConnectedToStructure())
-					continue;
-				
-				LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
+			for (LittleStructure structure : ((TileEntityLittleTiles) tileEntity).loadedStructures()) {
 				if (structure instanceof LittleDoor) {
-					structure = ((LittleDoor) structure).getParentDoor();
-					if (checkStructureName(structure, args) && !doors.contains(structure)) {
-						if (structure.load())
-							doors.add((LittleDoor) structure);
-						else
-							notifyCommandListener(sender, this, "commands.open.notloaded");
-					}
+					try {
+						structure = ((LittleDoor) structure).getParentDoor();
+						if (checkStructureName(structure, args) && !doors.contains(structure)) {
+							try {
+								structure.load();
+								doors.add((LittleDoor) structure);
+							} catch (CorruptedConnectionException | NotYetConnectedException e) {
+								notifyCommandListener(sender, this, "commands.open.notloaded");
+							}
+						}
+					} catch (LittleActionException e) {}
 				}
 			}
 		}
 		
 		for (LittleDoor door : doors) {
 			try {
-				door.activate(null, null, null, true);
+				door.activate(null, null, true);
 			} catch (LittleActionException e) {}
 		}
 		

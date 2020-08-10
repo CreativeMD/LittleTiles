@@ -10,7 +10,6 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -56,7 +55,7 @@ public class LittleNBTCompressionTools {
 		return list;
 	}
 	
-	public static List<LittleTile> readTiles(NBTTagList list, TileEntityLittleTiles te) {
+	public static List<LittleTile> readTiles(NBTTagList list) {
 		ArrayList<LittleTile> tiles = new ArrayList<>();
 		for (int i = 0; i < list.tagCount(); i++) {
 			NBTTagCompound nbt = list.getCompoundTagAt(i);
@@ -65,13 +64,13 @@ public class LittleNBTCompressionTools {
 				if (create != null) {
 					List<NBTTagCompound> nbts = create.extractNBTFromGroup(nbt);
 					for (int j = 0; j < nbts.size(); j++) {
-						LittleTile tile = LittleTileRegistry.loadTile(te, te.getWorld(), nbts.get(j));
+						LittleTile tile = LittleTileRegistry.loadTile(nbts.get(j));
 						if (tile != null)
 							tiles.add(tile);
 					}
 				}
 			} else {
-				LittleTile tile = LittleTileRegistry.loadTile(te, te.getWorld(), nbt);
+				LittleTile tile = LittleTileRegistry.loadTile(nbt);
 				if (tile != null)
 					tiles.add(tile);
 			}

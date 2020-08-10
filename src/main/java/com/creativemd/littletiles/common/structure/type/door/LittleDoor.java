@@ -16,12 +16,14 @@ import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -34,8 +36,8 @@ import net.minecraft.world.World;
 
 public abstract class LittleDoor extends LittleStructure {
 	
-	public LittleDoor(LittleStructureType type) {
-		super(type);
+	public LittleDoor(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	public boolean activateParent = false;
@@ -54,35 +56,19 @@ public abstract class LittleDoor extends LittleStructure {
 		nbt.setBoolean("disableRightClick", disableRightClick);
 	}
 	
-	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable LittleTile tile, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
+	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
 		if (waitingForApproval)
 			throw new LittleActionExceptionHidden("Door has not been approved yet!");
 		
 		if (player != null && disableRightClick)
 			throw new LittleActionExceptionHidden("Door is locked!");
 		
-		if (!load()) {
-			if (player != null)
-				player.sendStatusMessage(new TextComponentTranslation("exception.door.notloaded"), true);
-			return null;
-		}
+		load();
 		
-		if (!loadChildren()) {
-			if (player != null)
-				player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenchild"), true);
-			return null;
-		}
-		
-		if (!loadParent()) {
-			if (player != null)
-				player.sendStatusMessage(new TextComponentTranslation("exception.door.brokenparent"), true);
-			return null;
-		}
-		
-		if (activateParent && parent != null) {
-			LittleStructure parentStructure = parent.getStructureWithoutLoading();
+		if (activateParent && getParent() != null) {
+			LittleStructure parentStructure = getParent().getStructure();
 			if (parentStructure instanceof LittleDoor)
-				return ((LittleDoor) parentStructure).activate(player, null, uuid, sendUpdate);
+				return ((LittleDoor) parentStructure).activate(player, uuid, sendUpdate);
 			return null;
 		}
 		
@@ -112,11 +98,9 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-		//if (world.isRemote) {
-		activate(player, tile, null, true);
+	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
+		activate(playerIn, null, true);
 		action.preventInteraction = true;
-		//}
 		return true;
 	}
 	
@@ -137,11 +121,11 @@ public abstract class LittleDoor extends LittleStructure {
 	}
 	
 	public void sendActivationToServer(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(getMainTile(), uuid, result));
+		PacketHandler.sendPacketToServer(new LittleActivateDoorPacket(getStructureLoaction(), uuid, result));
 	}
 	
 	public void sendActivationToClient(EntityPlayer activator, UUID uuid, DoorOpeningResult result) {
-		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getMainTile(), uuid, result), this.getWorld(), this.getMainTile().getBlockPos(), activator != null ? (x) -> x != activator : null);
+		PacketHandler.sendPacketToTrackingPlayers(new LittleActivateDoorPacket(getStructureLoaction(), uuid, result), getWorld(), getPos(), activator != null ? (x) -> x != activator : null);
 	}
 	
 	public abstract int getCompleteDuration();
@@ -166,7 +150,7 @@ public abstract class LittleDoor extends LittleStructure {
 			if (!subResult.isEmpty()) {
 				if (nbt == null)
 					nbt = new NBTTagCompound();
-				nbt.setTag("e" + door.parent.getChildID(), subResult.nbt);
+				nbt.setTag("e" + door.getParent().getChildId(), subResult.nbt);
 			}
 		}
 		
@@ -185,13 +169,13 @@ public abstract class LittleDoor extends LittleStructure {
 		return true;
 	}
 	
-	public LittleDoor getParentDoor() {
-		if (activateParent && parent != null)
-			return ((LittleDoor) parent.getStructure(getWorld())).getParentDoor();
+	public LittleDoor getParentDoor() throws CorruptedConnectionException, NotYetConnectedException {
+		if (activateParent && getParent() != null)
+			return ((LittleDoor) getParent().getStructure()).getParentDoor();
 		return this;
 	}
 	
-	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce);
+	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException;
 	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
 	

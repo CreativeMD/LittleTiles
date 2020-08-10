@@ -5,22 +5,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 public class PlacePreview {
@@ -49,14 +44,14 @@ public class PlacePreview {
 		return previews;
 	}
 	
-	public List<LittleTile> placeTile(@Nullable EntityPlayer player, BlockPos pos, LittleGridContext context, TileEntityLittleTiles te, TileList list, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, @Nullable EnumFacing facing, boolean requiresCollisionTest, LittleStructure structure) {
-		LittleTile LT = preview.getLittleTile(te);
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
+		LittleTile LT = preview.getLittleTile();
 		
 		if (LT == null)
 			return Collections.EMPTY_LIST;
 		
-		LT.box = box.copy();
-		return mode.placeTile(te, LT, unplaceableTiles, removedTiles, requiresCollisionTest);
+		LT.setBox(box.copy());
+		return placement.mode.placeTile(placement, block, parent, LT, requiresCollisionTest);
 	}
 	
 	public PlacePreview copyWithBox(LittleBox box) {

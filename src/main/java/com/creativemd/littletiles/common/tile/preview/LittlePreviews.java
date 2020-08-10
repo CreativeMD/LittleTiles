@@ -7,7 +7,6 @@ import java.util.List;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -16,9 +15,9 @@ import com.creativemd.littletiles.common.tile.combine.AdvancedCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleVolumes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTools;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -84,10 +83,6 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 				return true;
 			
 		return false;
-	}
-	
-	public LittleStructure createStructure() {
-		return LittleStructure.createAndLoadStructure(this.structure, null);
 	}
 	
 	public String getStructureName() {
@@ -264,9 +259,9 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return previews;
 	}
 	
-	protected LittlePreview getPreview(LittleTile tile) {
+	protected LittlePreview getPreview(LittleTile tile, IParentTileList parent) {
 		LittlePreview preview = tile.getPreviewTile();
-		LittleGridContext context = tile.getContext();
+		LittleGridContext context = parent.getContext();
 		if (this.context != context)
 			if (this.context.size > context.size)
 				preview.convertTo(context, this.context);
@@ -287,35 +282,17 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		return preview;
 	}
 	
-	public LittlePreview addTile(LittleTile tile) {
-		LittlePreview preview = getPreview(tile);
+	public LittlePreview addTile(IParentTileList parent, LittleTile tile) {
+		LittlePreview preview = getPreview(tile, parent);
 		previews.add(preview);
 		return preview;
 		
 	}
 	
-	public LittlePreview addTile(LittleTile tile, LittleVec offset) {
-		LittlePreview preview = getPreview(tile);
+	public LittlePreview addTile(IParentTileList parent, LittleTile tile, LittleVec offset) {
+		LittlePreview preview = getPreview(tile, parent);
 		preview.box.add(offset);
-		return addPreview(null, tile.getPreviewTile(), tile.getContext());
-	}
-	
-	public void addTiles(List<LittleTile> tiles) {
-		if (tiles.isEmpty())
-			return;
-		
-		for (LittleTile tile : tiles)
-			addTile(tile);
-		
-	}
-	
-	public void addTiles(TileEntityLittleTiles te) {
-		if (te.isEmpty())
-			return;
-		
-		for (LittleTile tile : te)
-			addTile(tile);
-		
+		return addPreview(null, tile.getPreviewTile(), parent.getContext());
 	}
 	
 	@Override

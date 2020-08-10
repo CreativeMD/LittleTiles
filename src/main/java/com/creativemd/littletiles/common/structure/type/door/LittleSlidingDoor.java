@@ -23,8 +23,10 @@ import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
+import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -40,8 +42,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleSlidingDoor extends LittleDoorBase {
 	
-	public LittleSlidingDoor(LittleStructureType type) {
-		super(type);
+	public LittleSlidingDoor(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@StructureDirectional
@@ -65,7 +67,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	
 	@Override
 	public DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration) {
-		((LittleSlidingDoor) placement.origin.structure).direction = direction.getOpposite();
+		((LittleSlidingDoor) placement.origin.getStructure()).direction = direction.getOpposite();
 		if (stayAnimated)
 			return new DoorController(result, supplier, new AnimationState(), new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), null, duration, completeDuration, interpolation);
 		return new DoorController(result, supplier, new AnimationState().set(AnimationKey.getOffset(direction.getAxis()), -direction.getAxisDirection().getOffset() * moveContext.toVanillaGrid(moveDistance)), new AnimationState(), true, duration, completeDuration, interpolation);
@@ -79,16 +81,16 @@ public class LittleSlidingDoor extends LittleDoorBase {
 	@Override
 	public LittleTransformation[] getDoorTransformations(@Nullable EntityPlayer player) {
 		if (stayAnimated)
-			return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
+			return new LittleTransformation[] { new LittleTransformation(getPos(), 0, 0, 0, new LittleVec(0, 0, 0), new LittleVecContext()) };
 		LittleVec offsetVec = new LittleVec(direction);
 		offsetVec.scale(moveDistance);
 		LittleVecContext offset = new LittleVecContext(offsetVec, moveContext);
-		return new LittleTransformation[] { new LittleTransformation(getMainTile().te.getPos().add(offset.getBlockPos()), 0, 0, 0, new LittleVec(0, 0, 0), offset) };
+		return new LittleTransformation[] { new LittleTransformation(getPos().add(offset.getBlockPos()), 0, 0, 0, new LittleVec(0, 0, 0), offset) };
 	}
 	
 	@Override
 	public StructureAbsolute getAbsoluteAxis() {
-		return new StructureAbsolute(getMainTile().te.getPos(), getMainTile().box, getMainTile().getContext());
+		return new StructureAbsolute(getPos(), new LittleBox(0, 0, 0, 1, 1, 1), mainBlock.getContext());
 	}
 	
 	public static class LittleSlidingDoorParser extends LittleDoorBaseParser {
@@ -226,7 +228,7 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			EnumFacing direction = EnumFacing.getFront(((GuiStateButton) parent.get("direction")).getState());
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
-			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class);
+			LittleSlidingDoor door = createStructure(LittleSlidingDoor.class, null);
 			door.direction = direction;
 			door.moveDistance = distance.getDistance();
 			door.moveContext = distance.getDistanceContext();

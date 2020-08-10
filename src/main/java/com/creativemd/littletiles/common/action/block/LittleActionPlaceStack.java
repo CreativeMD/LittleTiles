@@ -5,7 +5,6 @@ import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -73,7 +72,7 @@ public class LittleActionPlaceStack extends LittleAction {
 	}
 	
 	@Override
-	public LittleAction revert() {
+	public LittleAction revert(EntityPlayer player) {
 		boxes.convertToSmallest();
 		
 		if (destroyed != null) {
@@ -152,11 +151,11 @@ public class LittleActionPlaceStack extends LittleAction {
 			boxes = placedTiles.placedBoxes;
 			
 			if (needIngredients(player)) {
-				giveOrDrop(player, inventory, placement.removedTiles);
+				checkAndGive(player, inventory, getIngredients(placement.removedTiles));
 				
 				if (iTile.containsIngredients(stack)) {
 					stack.shrink(1);
-					giveOrDrop(player, inventory, placement.unplaceableTiles);
+					checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
 				} else {
 					LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
 					ingredients.add(getIngredients(placedTiles.placedPreviews));
@@ -164,12 +163,8 @@ public class LittleActionPlaceStack extends LittleAction {
 				}
 			}
 			
-			if (!placement.removedTiles.isEmpty()) {
-				destroyed = new LittleAbsolutePreviews(position.getPos(), result.context);
-				for (LittleTile tile : placement.removedTiles)
-					destroyed.addTile(tile);
-				
-			}
+			if (!placement.removedTiles.isEmpty())
+				destroyed = placement.removedTiles.copy();
 		} else
 			boxes = new LittleBoxes(position.getPos(), result.context);
 		

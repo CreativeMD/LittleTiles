@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +20,7 @@ import com.creativemd.creativecore.common.world.SubWorld;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorEvents.GuiDoorEventsButton;
 import com.creativemd.littletiles.client.gui.dialogs.SubGuiDoorSettings.GuiDoorSettingsButton;
 import com.creativemd.littletiles.client.render.world.LittleRenderChunkSuppilier;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.structure.IAnimatedStructure;
@@ -31,7 +31,8 @@ import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.structure.exception.MissingTileEntity;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
@@ -43,7 +44,9 @@ import com.creativemd.littletiles.common.structure.type.door.LittleAxisDoor.Litt
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorParser;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator.LittleDoorActivatorType;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
-import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -66,8 +69,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStructure {
 	
-	public LittleDoorBase(LittleStructureType type) {
-		super(type);
+	public LittleDoorBase(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	public int interpolation = 0;
@@ -117,7 +120,7 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	
 	public abstract void transformDoorPreview(LittleAbsolutePreviews previews, LittleTransformation transformation);
 	
-	public LittleAbsolutePreviews getDoorPreviews(LittleTransformation transformation) {
+	public LittleAbsolutePreviews getDoorPreviews(LittleTransformation transformation) throws CorruptedConnectionException, NotYetConnectedException {
 		LittleAbsolutePreviews previews = getAbsolutePreviewsSameWorldOnly(transformation.center);
 		transformDoorPreview(previews, transformation);
 		transformation.transform(previews);
@@ -165,9 +168,15 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		List<LittleDoor> doors = new ArrayList<>();
 		if (children.isEmpty())
 			return doors;
-		for (Integer integer : children)
-			if (this.children.size() > integer && this.children.get(integer) instanceof LittleDoor)
-				doors.add((LittleDoor) this.children.get(integer).getStructure(getWorld()));
+		for (Integer integer : children) {
+			if (this.getChildren().size() <= integer)
+				continue;
+			try {
+				LittleStructure child = getChild(integer).getStructure();
+				if (child instanceof LittleDoor)
+					doors.add((LittleDoor) child);
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+		}
 		return doors;
 	}
 	
@@ -188,27 +197,29 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		for (LittleTransformation transformation : transformations) {
 			List<PlacePreview> placePreviews = new ArrayList<>();
 			
-			LittleAbsolutePreviews previews = getDoorPreviews(transformation);
-			
-			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x) -> !x.isChildOfStructure(this));
-			
-			if (placement.canPlace()) {
-				if (transformations.length == 1)
+			try {
+				LittleAbsolutePreviews previews = getDoorPreviews(transformation);
+				Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x, y) -> !x.isStructureChildSafe(this));
+				
+				if (placement.canPlace()) {
+					if (transformations.length == 1)
+						return result;
+					
+					if (result.isEmpty())
+						result = new DoorOpeningResult(new NBTTagCompound());
+					result.nbt.setIntArray("transform", transformation.array());
+					
 					return result;
-				
-				if (result.isEmpty())
-					result = new DoorOpeningResult(new NBTTagCompound());
-				result.nbt.setIntArray("transform", transformation.array());
-				
-				return result;
+				}
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
+				e.printStackTrace();
 			}
+			
 		}
 		return null;
 	}
 	
-	public EntityAnimation place(World world, SubWorld fakeWorld, @Nullable EntityPlayer player, Placement placement, DoorController controller, UUID uuid, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) {
-		controller.noClip = noClip;
-		
+	public EntityAnimation place(World world, SubWorld fakeWorld, @Nullable EntityPlayer player, DoorOpeningResult doorResult, Placement placement, UUIDSupplier supplier, StructureAbsolute absolute, LittleTransformation transformation, boolean tickOnce) throws LittleActionException {
 		ArrayList<TileEntityLittleTiles> blocks = new ArrayList<>();
 		
 		fakeWorld.preventNeighborUpdate = true;
@@ -217,6 +228,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		if (result == null)
 			throw new RuntimeException("Something went wrong during placing the door!");
+		
+		DoorController controller = createController(doorResult, supplier, placement, transformation, getCompleteDuration());
+		controller.noClip = noClip;
 		
 		controller.activator = player;
 		
@@ -227,16 +241,16 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		LittleDoorBase newDoor = (LittleDoorBase) result.parentStructure;
 		
-		EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, placement.pos, uuid, absolute, newDoor.getAbsoluteIdentifier());
+		EntityAnimation animation = new EntityAnimation(world, fakeWorld, controller, placement.pos, supplier.next(), absolute, new LocalStructureLocation(newDoor));
 		
 		// Move animated worlds
 		newDoor.transferChildrenToAnimation(animation);
 		newDoor.transformAnimation(transformation);
 		
-		if (parent != null) {
-			LittleStructure parentStructure = parent.getStructure(world);
-			parentStructure.updateChildConnection(parent.getChildID(), newDoor);
-			newDoor.updateParentConnection(parent.getChildID(), parentStructure);
+		if (getParent() != null) {
+			LittleStructure parentStructure = getParent().getStructure();
+			parentStructure.updateChildConnection(getParent().getChildId(), newDoor);
+			newDoor.updateParentConnection(getParent().getChildId(), parentStructure);
 		}
 		
 		animation.controller.startTransition(DoorController.openedState);
@@ -260,14 +274,18 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		
 		List<PlacePreview> placePreviews = new ArrayList<>();
 		
-		LittleAbsolutePreviews previews = getDoorPreviews(transform);
-		
-		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x) -> !x.isChildOfStructure(this));
-		return placement.canPlace();
+		try {
+			LittleAbsolutePreviews previews = getDoorPreviews(transform);
+			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(getWorld(), previews, previews.pos, PlacementMode.all)).setPredicate((x, y) -> !x.isStructureChildSafe(this));
+			return placement.canPlace();
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 	
 	@Override
-	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) {
+	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException {
 		if (isAnimated()) {
 			((DoorController) animation.controller).activate();
 			if (tickOnce)
@@ -289,25 +307,26 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 		Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(fakeWorld, previews, previews.pos, PlacementMode.all));
 		StructureAbsolute absolute = getAbsoluteAxis();
 		
-		HashMapList<BlockPos, LittleTile> allTilesFromWorld = collectBlockTilesChildren(new HashMapList<>(), true);
+		HashMapList<BlockPos, IStructureTileList> blocks = collectAllBlocksList();
 		
-		EntityAnimation animation = place(getWorld(), fakeWorld, player, placement, createController(result, uuid, placement, transform, getCompleteDuration()), uuid.next(), absolute, transform, tickOnce);
+		EntityAnimation animation = place(getWorld(), fakeWorld, player, result, placement, uuid, absolute, transform, tickOnce);
 		
 		boolean sendUpdate = !world.isRemote && world instanceof WorldServer;
 		
-		for (Entry<BlockPos, ArrayList<LittleTile>> entry : allTilesFromWorld.entrySet()) {
-			try {
-				TileEntityLittleTiles te = loadTE(entry.getKey());
-				te.updateTiles((x) -> x.removeAll(entry.getValue()));
-				
-				if (sendUpdate)
-					((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
-			} catch (MissingTileEntity e) {
-				e.printStackTrace();
-			}
+		for (Entry<BlockPos, ArrayList<IStructureTileList>> entry : blocks.entrySet()) {
+			if (entry.getValue().isEmpty())
+				continue;
+			TileEntityLittleTiles te = entry.getValue().get(0).getTe();
+			te.updateTiles((x) -> {
+				for (IStructureTileList list : entry.getValue())
+					x.get(list).remove();
+			});
+			if (sendUpdate)
+				((WorldServer) world).getPlayerChunkMap().markBlockForUpdate(te.getPos());
 		}
 		
 		return animation;
+		
 	}
 	
 	public abstract DoorController createController(DoorOpeningResult result, UUIDSupplier supplier, Placement placement, LittleTransformation transformation, int completeDuration);

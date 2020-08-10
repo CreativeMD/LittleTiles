@@ -34,7 +34,7 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 	}
 	
 	protected boolean shouldScan(T tile) {
-		return !tiles.get(i).isChildOfStructure();
+		return true;
 	}
 	
 	@Override
@@ -64,7 +64,6 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 						if (box != null) {
 							onCombined(tiles.get(i), tiles.get(j));
 							tiles.get(i).setBox(box);
-							tiles.get(i).combine(tiles.get(j));
 							tiles.remove(j);
 							boxes.set(i, box);
 							boxes.remove(j);
@@ -90,7 +89,7 @@ public class AdvancedCombiner<T extends ICombinable> extends BasicCombiner {
 	}
 	
 	protected boolean canCutOut(T tile, T searching) {
-		return !tile.isChildOfStructure() && tile.canCombine(searching);
+		return tile.canCombine(searching);
 	}
 	
 	public boolean cutOut(LittleBox searching, T toCombine) {

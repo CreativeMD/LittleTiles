@@ -5,8 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
@@ -15,18 +13,21 @@ import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.controls.GuiDirectionIndicator;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
+import com.creativemd.littletiles.common.action.LittleActionException;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.packet.LittleBedPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
@@ -49,7 +50,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -57,8 +57,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleBed extends LittleStructure {
 	
-	public LittleBed(LittleStructureType type) {
-		super(type);
+	public LittleBed(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	public EntityLivingBase sleepingPlayer = null;
@@ -88,7 +88,7 @@ public class LittleBed extends LittleStructure {
 	}
 	
 	@Override
-	public boolean isBed(IBlockAccess world, BlockPos pos, EntityLivingBase player) {
+	public boolean isBed(EntityLivingBase player) {
 		return true;
 	}
 	
@@ -196,7 +196,7 @@ public class LittleBed extends LittleStructure {
 			e.printStackTrace();
 		}
 		
-		player.bedLocation = getMainTile().te.getPos();
+		player.bedLocation = mainBlock.getPos();
 		player.motionX = 0.0D;
 		player.motionY = 0.0D;
 		player.motionZ = 0.0D;
@@ -208,7 +208,7 @@ public class LittleBed extends LittleStructure {
 	}
 	
 	@Override
-	public void onLittleTileDestroy() {
+	public void onLittleTileDestroy() throws CorruptedConnectionException, NotYetConnectedException {
 		super.onLittleTileDestroy();
 		if (sleepingPlayer != null) {
 			try {
@@ -250,8 +250,10 @@ public class LittleBed extends LittleStructure {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!load() || !LittleTiles.CONFIG.general.enableBed)
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
+		load();
+		
+		if (!LittleTiles.CONFIG.general.enableBed)
 			return false;
 		
 		if (world.isRemote) {
@@ -268,8 +270,8 @@ public class LittleBed extends LittleStructure {
 			SleepResult enumstatus = trySleep(player, vec);
 			if (enumstatus == SleepResult.OK) {
 				player.addStat(StatList.SLEEP_IN_BED);
-				PacketHandler.sendPacketToPlayer(new LittleBedPacket(new LittleIdentifierAbsolute(getMainTile())), (EntityPlayerMP) player);
-				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(new LittleIdentifierAbsolute(getMainTile()), player), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToPlayer(new LittleBedPacket(getStructureLoaction()), (EntityPlayerMP) player);
+				PacketHandler.sendPacketToTrackingPlayers(new LittleBedPacket(getStructureLoaction(), player), (EntityPlayerMP) player);
 				return true;
 			} else {
 				if (enumstatus == SleepResult.NOT_POSSIBLE_NOW) {
@@ -327,7 +329,7 @@ public class LittleBed extends LittleStructure {
 		@SideOnly(Side.CLIENT)
 		public LittleBed parseStructure(LittlePreviews previews) {
 			EnumFacing direction = EnumFacing.getHorizontal(((GuiStateButton) parent.get("direction")).getState());
-			LittleBed bed = createStructure(LittleBed.class);
+			LittleBed bed = createStructure(LittleBed.class, null);
 			bed.direction = direction;
 			return bed;
 		}

@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.util.selection.selector;
 
 import com.creativemd.creativecore.common.utils.mc.BlockUtils;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
@@ -31,8 +32,8 @@ public class StateSelector extends TileSelectorBlock {
 	}
 	
 	@Override
-	public boolean is(LittleTile tile) {
-		if (super.is(tile))
+	public boolean is(IParentTileList parent, LittleTile tile) {
+		if (super.is(parent, tile))
 			return tile.getMeta() == meta;
 		return false;
 	}

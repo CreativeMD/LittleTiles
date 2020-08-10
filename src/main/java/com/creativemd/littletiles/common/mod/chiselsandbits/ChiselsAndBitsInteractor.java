@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -12,6 +13,7 @@ import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -60,7 +62,7 @@ public class ChiselsAndBitsInteractor {
 						state = LittleTiles.transparentColoredBlock.getDefaultState().withProperty(BlockLTTransparentColored.VARIANT, BlockLTTransparentColored.EnumType.water);
 					if (state.getBlock() != Blocks.AIR) {
 						LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-						tile.box = new LittleBox(new LittleVec(x, y, z));
+						tile.setBox(new LittleBox(new LittleVec(x, y, z)));
 						tiles.add(tile);
 					}
 				}
@@ -118,7 +120,8 @@ public class ChiselsAndBitsInteractor {
 		
 		LittleVec vec = new LittleVec(0, 0, 0);
 		VoxelBlob blob = new VoxelBlob();
-		for (LittleTile tile : te) {
+		for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+			LittleTile tile = pair.value;
 			boolean convert;
 			if (tile.getClass() == LittleTile.class)
 				convert = true;
@@ -131,15 +134,15 @@ public class ChiselsAndBitsInteractor {
 				throw new Exception("Cannot convert " + tile.getClass() + " tile!");
 			
 			if (convert) {
-				if (!force && tile.box.getClass() != LittleBox.class)
-					throw new Exception("Cannot convert " + tile.box.getClass() + " box!");
+				if (!force && tile.getBox().getClass() != LittleBox.class)
+					throw new Exception("Cannot convert " + tile.getBox().getClass() + " box!");
 				
 				LittleBox box = new LittleBox(0, 0, 0, 0, 0, 0);
-				for (int x = tile.box.minX; x < tile.box.maxX; x++)
-					for (int y = tile.box.minY; y < tile.box.maxY; y++)
-						for (int z = tile.box.minZ; z < tile.box.maxZ; z++) {
+				for (int x = tile.getBox().minX; x < tile.getBox().maxX; x++)
+					for (int y = tile.getBox().minY; y < tile.getBox().maxY; y++)
+						for (int z = tile.getBox().minZ; z < tile.getBox().maxZ; z++) {
 							box.set(x, y, z, x + 1, y + 1, z + 1);
-							if (tile.box.isSolid() || tile.intersectsWith(box))
+							if (tile.getBox().isSolid() || tile.intersectsWith(box))
 								blob.set(x, y, z, Block.getStateId(tile.getBlockState()));
 						}
 			}

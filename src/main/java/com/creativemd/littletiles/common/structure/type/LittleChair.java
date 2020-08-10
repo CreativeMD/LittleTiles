@@ -1,19 +1,19 @@
 package com.creativemd.littletiles.common.structure.type;
 
-import javax.annotation.Nullable;
-
 import com.creativemd.creativecore.common.entity.EntitySit;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,8 +26,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleChair extends LittleStructure {
 	
-	public LittleChair(LittleStructureType type) {
-		super(type);
+	public LittleChair(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@Override
@@ -41,13 +41,17 @@ public class LittleChair extends LittleStructure {
 	}
 	
 	@Override
-	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
+	public boolean onBlockActivated(World world, LittleTile tile, BlockPos pos, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
 		if (!world.isRemote) {
-			LittleAbsoluteVec vec = getHighestCenterPoint();
-			if (vec != null) {
-				EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
-				player.startRiding(sit);
-				world.spawnEntity(sit);
+			try {
+				LittleAbsoluteVec vec = getHighestCenterPoint();
+				if (vec != null) {
+					EntitySit sit = new EntitySit(world, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
+					player.startRiding(sit);
+					world.spawnEntity(sit);
+				}
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
+				e.printStackTrace();
 			}
 			
 		}
@@ -69,7 +73,7 @@ public class LittleChair extends LittleStructure {
 		@Override
 		@SideOnly(Side.CLIENT)
 		public LittleStructure parseStructure(LittlePreviews previews) {
-			return createStructure(LittleChair.class);
+			return createStructure(LittleChair.class, null);
 		}
 	}
 }

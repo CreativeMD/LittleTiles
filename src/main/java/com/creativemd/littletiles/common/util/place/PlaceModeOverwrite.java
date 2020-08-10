@@ -6,8 +6,9 @@ import java.util.Set;
 
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.util.math.BlockPos;
 
@@ -38,12 +39,13 @@ public class PlaceModeOverwrite extends PlacementMode {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
-		LittleGridContext context = te.getContext();
+		LittleGridContext context = block.getContext();
 		if (requiresCollisionTest)
-			removedTiles.addAll(LittleActionDestroyBoxes.removeBox(te, context, tile.box, false));
-		te.convertTo(context);
+			for (LittleTile removedTile : LittleActionDestroyBoxes.removeBox(block.getTe(), context, tile.getBox(), false))
+				placement.removedTiles.addTile(parent, removedTile);
+		block.getTe().convertTo(context);
 		tiles.add(tile);
 		return tiles;
 	}

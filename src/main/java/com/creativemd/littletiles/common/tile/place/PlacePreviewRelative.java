@@ -4,19 +4,17 @@ import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 public class PlacePreviewRelative extends PlacePreview {
@@ -54,13 +52,15 @@ public class PlacePreviewRelative extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(EntityPlayer player, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, TileList list, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest, LittleStructure structure) {
-		if (structure.getMainTile() == null && structure.selectMainTile())
-			throw new RuntimeException("Invalid structure. Missing main tile!");
-		
-		relative.setBox(BlockPos.ORIGIN, box.copy(), context);
-		relative.add(new LittleAbsoluteVec(pos, context).getRelative(structure.getMainTile().getAbsolutePos()));
-		relativeType.set(structure, relative);
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
+		try {
+			relative.setBox(BlockPos.ORIGIN, box.copy(), block.getContext());
+			relative.add(block.getTe().getPos().subtract(parent.getStructure().getPos()));
+			relativeType.set(parent.getStructure(), relative);
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			e.printStackTrace();
+			new RuntimeException(e);
+		}
 		return Collections.EMPTY_LIST;
 	}
 	

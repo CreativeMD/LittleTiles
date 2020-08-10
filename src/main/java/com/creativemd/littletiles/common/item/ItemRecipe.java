@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
@@ -18,6 +19,7 @@ import com.creativemd.littletiles.common.container.SubContainerRecipe;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -86,8 +88,8 @@ public class ItemRecipe extends Item implements ICreativeRendered, IGuiCreator {
 					TileEntity tileEntity = world.getTileEntity(newPos);
 					if (tileEntity instanceof TileEntityLittleTiles) {
 						TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-						for (LittleTile tile : te) {
-							LittlePreview preview = previews.addPreview(null, tile.getPreviewTile(), te.getContext());
+						for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+							LittlePreview preview = previews.addPreview(null, pair.value.getPreviewTile(), te.getContext());
 							preview.box.add(new LittleVec((posX - minX) * previews.getContext().size, (posY - minY) * previews.getContext().size, (posZ - minZ) * previews.getContext().size));
 						}
 						continue;

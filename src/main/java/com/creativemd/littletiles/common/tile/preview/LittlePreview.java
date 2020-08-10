@@ -10,14 +10,15 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.api.block.SpecialBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.old.LittleSize;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -25,6 +26,7 @@ import com.creativemd.littletiles.common.util.compression.LittleNBTCompressionTo
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.ingredient.BlockIngredientEntry;
 import com.creativemd.littletiles.common.util.ingredient.IngredientUtils;
+import com.creativemd.littletiles.common.util.outdated.LittleSize;
 
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemStack;
@@ -209,18 +211,8 @@ public class LittlePreview implements ICombinable {
 	}
 	
 	@Override
-	public boolean isChildOfStructure() {
-		return false;
-	}
-	
-	@Override
 	public boolean canCombine(ICombinable combinable) {
 		return canBeCombined((LittlePreview) combinable);
-	}
-	
-	@Override
-	public void combine(ICombinable combinable) {
-		
 	}
 	
 	@Override
@@ -251,8 +243,8 @@ public class LittlePreview implements ICombinable {
 	// ================Placing================
 	
 	/** Used for placing the tile **/
-	public LittleTile getLittleTile(TileEntityLittleTiles te) {
-		return LittleTileRegistry.loadTile(te, te.getWorld(), tileData);
+	public LittleTile getLittleTile() {
+		return LittleTileRegistry.loadTile(tileData);
 	}
 	
 	public PlacePreview getPlaceableTile(LittleVec offset) {
@@ -440,15 +432,8 @@ public class LittlePreview implements ICombinable {
 		stack.setTagCompound(new NBTTagCompound());
 		
 		LittlePreviews previews = new LittlePreviews(context);
-		previews.addTiles(te);
-		savePreview(previews, stack);
-	}
-	
-	public static void saveTiles(World world, LittleGridContext context, List<LittleTile> tiles, ItemStack stack) {
-		stack.setTagCompound(new NBTTagCompound());
-		
-		LittlePreviews previews = new LittlePreviews(context);
-		previews.addTiles(tiles);
+		for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+			previews.addTile(pair.key, pair.value);
 		savePreview(previews, stack);
 	}
 	

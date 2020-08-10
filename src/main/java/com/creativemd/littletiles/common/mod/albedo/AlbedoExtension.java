@@ -1,10 +1,12 @@
 package com.creativemd.littletiles.common.mod.albedo;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import elucent.albedo.event.GatherLightsEvent;
@@ -50,7 +52,8 @@ public class AlbedoExtension {
 								if (ColoredLightsManager.isInstalled()) {
 									AxisAlignedBB box = null;
 									int color = -1;
-									for (LittleTile tile : te) {
+									for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+										LittleTile tile = pair.value;
 										if (tile.getBlock() == ColoredLightsManager.getInvertedColorsBlock()) {
 											int tileColor = ColoredLightsManager.getColorFromBlock(tile.getBlockState());
 											if (tile instanceof LittleTileColored)

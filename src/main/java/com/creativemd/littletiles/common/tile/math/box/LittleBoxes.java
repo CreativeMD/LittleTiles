@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -21,8 +22,8 @@ public class LittleBoxes extends ArrayList<LittleBox> implements IGridBased {
 		this.context = context;
 	}
 	
-	public void addBox(LittleTile tile) {
-		addBox(tile.getContext(), tile.te.getPos(), tile.box.copy());
+	public void addBox(IParentTileList parent, LittleTile tile) {
+		addBox(parent.getContext(), parent.getPos(), tile.getBox().copy());
 	}
 	
 	public void addBox(LittleGridContext context, BlockPos pos, LittleBox box) {

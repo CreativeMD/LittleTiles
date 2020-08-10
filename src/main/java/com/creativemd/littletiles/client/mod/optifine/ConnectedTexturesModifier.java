@@ -3,8 +3,10 @@ package com.creativemd.littletiles.client.mod.optifine;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.block.Block;
@@ -37,8 +39,8 @@ public class ConnectedTexturesModifier {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
-				for (LittleTile tile : te)
-					if ((Boolean) match.invoke(properties, Block.getStateId(tile.getBlockState())))
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+					if ((Boolean) match.invoke(properties, Block.getStateId(pair.value.getBlockState())))
 						return true;
 				return false;
 			}
@@ -53,8 +55,8 @@ public class ConnectedTexturesModifier {
 		try {
 			TileEntityLittleTiles te = BlockTile.loadTe(world, pos);
 			if (te != null) {
-				for (LittleTile tile : te)
-					if ((Boolean) matchMeta.invoke(properties, Block.getStateId(tile.getBlockState()), metadata))
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+					if ((Boolean) matchMeta.invoke(properties, Block.getStateId(pair.value.getBlockState()), metadata))
 						return true;
 				return false;
 			}
@@ -70,8 +72,8 @@ public class ConnectedTexturesModifier {
 		if (te != null) {
 			Block block = state.getBlock();
 			int meta = block.getMetaFromState(state);
-			for (LittleTile tile : te)
-				if (tile.getBlock() == block && tile.getMeta() == meta)
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.getBlock() == block && pair.value.getMeta() == meta)
 					return true;
 		}
 		return false;

@@ -15,6 +15,7 @@ import com.creativemd.littletiles.common.structure.directional.StructureDirectio
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.ISignalOutput;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewFacing;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -34,8 +35,8 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	@StructureDirectional
 	public EnumFacing facing;
 	
-	public LittleSignalOutput(LittleStructureType type) {
-		super(type);
+	public LittleSignalOutput(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 		this.state = new boolean[getBandwidth()];
 	}
 	

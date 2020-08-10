@@ -133,7 +133,7 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
 		
 		LittleGridContext context = LittleGridContext.get();
-		tile.box = new LittleBox(0, 0, 0, context.size, context.size, context.size);
+		tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
 		LittlePreview preview = tile.getPreviewTile();
 		setPreview(stack, preview);
 		return preview;

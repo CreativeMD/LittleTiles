@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
@@ -31,14 +32,14 @@ public class PlaceModeNormal extends PlacementMode {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(TileEntityLittleTiles te, LittleTile tile, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
-		if (!requiresCollisionTest || te.isSpaceForLittleTile(tile.box))
+		if (!requiresCollisionTest || block.getTe().isSpaceForLittleTile(tile.getBox()))
 			tiles.add(tile);
 		else if (this instanceof PlaceModeAll)
 			throw new RuntimeException("Something went wrong. There should be space for the tile!");
 		else
-			unplaceableTiles.add(tile);
+			placement.unplaceableTiles.addTile(parent, tile);
 		return tiles;
 	}
 }

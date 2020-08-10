@@ -7,12 +7,14 @@ import javax.annotation.Nullable;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.block.BlockTile.TEResult;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket;
 import com.creativemd.littletiles.common.packet.LittleBlockPacket.BlockPacketAction;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.util.ITooltipFlag;
@@ -50,8 +52,12 @@ public class ItemLittleWrench extends Item {
 			if (world.isRemote) {
 				TEResult result = BlockTile.loadTeAndTile(world, pos, player);
 				
-				if (result.isComplete() && result.tile.isChildOfStructure())
-					LittleGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.tile);
+				if (result.isComplete() && result.parent.isStructure())
+					try {
+						LittleStructureGuiHandler.openGui("structureoverview", new NBTTagCompound(), player, result.parent.getStructure());
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {
+						e.printStackTrace();
+					}
 				else
 					PacketHandler.sendPacketToServer(new LittleBlockPacket(world, pos, player, BlockPacketAction.WRENCH));
 			}

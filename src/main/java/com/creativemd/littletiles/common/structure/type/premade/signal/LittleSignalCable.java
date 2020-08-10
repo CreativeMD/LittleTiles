@@ -8,6 +8,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.ISignalTransmitter;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.util.EnumFacing;
@@ -16,8 +17,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleSignalCable extends LittleSignalCableBase implements ISignalTransmitter {
 	
-	public LittleSignalCable(LittleStructureType type) {
-		super(type);
+	public LittleSignalCable(LittleStructureType type, StructureTileList mainBlock) {
+		super(type, mainBlock);
 	}
 	
 	@Override

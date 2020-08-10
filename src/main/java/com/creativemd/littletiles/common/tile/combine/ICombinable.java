@@ -8,11 +8,7 @@ public interface ICombinable {
 	
 	public void setBox(LittleBox box);
 	
-	public boolean isChildOfStructure();
-	
 	public boolean canCombine(ICombinable combinable);
-	
-	public void combine(ICombinable combinable);
 	
 	public ICombinable copy();
 	

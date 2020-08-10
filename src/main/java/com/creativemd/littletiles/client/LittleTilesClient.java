@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.client;
 
 import java.lang.reflect.Field;
-import java.util.Iterator;
 import java.util.UUID;
 
 import org.lwjgl.input.Keyboard;
@@ -28,7 +27,6 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.command.DebugCommand;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.item.ItemColorTube;
 import com.creativemd.littletiles.common.item.ItemLittleChisel;
 import com.creativemd.littletiles.common.item.ItemLittleGrabber;
@@ -207,46 +205,6 @@ public class LittleTilesClient extends LittleTilesServer {
 			
 		}, false);
 		
-		EntityRegistry.instance().lookupModSpawn(EntityOldDoorAnimation.class, false).setCustomSpawning(new Function<EntitySpawnMessage, Entity>() {
-			
-			@Override
-			public Entity apply(EntitySpawnMessage input) {
-				UUID uuid = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "entityUUID");
-				EntityOldDoorAnimation animation = null;
-				for (Iterator<Entity> iterator = mc.world.getLoadedEntityList().iterator(); iterator.hasNext();) {
-					Entity entity = iterator.next();
-					if (entity instanceof EntityOldDoorAnimation && entity.getUniqueID().equals(uuid)) {
-						animation = (EntityOldDoorAnimation) entity;
-						break;
-					}
-				}
-				
-				boolean alreadyExisted = animation != null;
-				if (animation == null) {
-					animation = new EntityOldDoorAnimation(mc.world);
-					
-					animation.setUniqueId(uuid);
-				} else {
-					animation.spawnedInWorld = true;
-					animation.approved = true;
-				}
-				
-				if (animation != null) {
-					animation.setEntityId(ReflectionHelper.getPrivateValue(EntityMessage.class, input, "entityId"));
-					double rawX = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawX");
-					double rawY = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawY");
-					double rawZ = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "rawZ");
-					float scaledYaw = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledYaw");
-					float scaledPitch = ReflectionHelper.getPrivateValue(EntitySpawnMessage.class, input, "scaledPitch");
-					if (!alreadyExisted)
-						animation.setInitialPosition(rawX, rawY, rawZ);
-				}
-				
-				return animation;
-			}
-			
-		}, false);
-		
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.recipe);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.recipeAdvanced);
 		CreativeCoreClient.registerItemColorHandler(LittleTiles.chisel);
@@ -293,7 +251,6 @@ public class LittleTilesClient extends LittleTilesServer {
 		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleTiles.blockTileTickingRendered);
 		
 		CreativeCoreClient.registerBlockItem(LittleTiles.storageBlock);
-		CreativeCoreClient.registerBlockItem(LittleTiles.particleBlock);
 		
 		CreativeCoreClient.registerBlockModels(LittleTiles.coloredBlock, LittleTiles.modid, "colored_block_", BlockLTColored.EnumType.values());
 		CreativeCoreClient.registerBlockModels(LittleTiles.transparentColoredBlock, LittleTiles.modid, "colored_transparent_block_", BlockLTTransparentColored.EnumType.values());

@@ -3,8 +3,8 @@ package com.creativemd.littletiles.common.action;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.packet.PacketHandler;
@@ -24,15 +24,20 @@ import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManage
 import com.creativemd.littletiles.common.mod.coloredlights.ColoredLightsManager;
 import com.creativemd.littletiles.common.packet.LittleBlockUpdatePacket;
 import com.creativemd.littletiles.common.packet.LittleBlocksUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleEntityRequestPacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
-import com.creativemd.littletiles.common.tile.math.identifier.LittleIdentifierAbsolute;
+import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
+import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -117,7 +122,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		if (lastActions.size() > index) {
 			EntityPlayer player = Minecraft.getMinecraft().player;
 			
-			LittleAction reverted = lastActions.get(index).revert();
+			LittleAction reverted = lastActions.get(index).revert(player);
 			
 			if (reverted == null)
 				throw new LittleActionException("action.revert.notavailable");
@@ -162,7 +167,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 			
 			index--;
 			
-			LittleAction reverted = lastActions.get(index).revert();
+			LittleAction reverted = lastActions.get(index).revert(player);
 			
 			if (reverted == null)
 				throw new LittleActionException("action.revert.notavailable");
@@ -217,7 +222,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	
 	/** @return null if an revert action is not available */
 	@SideOnly(Side.CLIENT)
-	public abstract LittleAction revert() throws LittleActionException;
+	public abstract LittleAction revert(EntityPlayer player) throws LittleActionException;
 	
 	private List<LittleAction> revertFurtherActions() {
 		if (furtherActions == null || furtherActions.isEmpty())
@@ -369,7 +374,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 					LittleBox box = new LittleBox(0, 0, 0, context.maxPos, context.maxPos, context.maxPos);
 					
 					LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-					tile.box = box;
+					tile.setBox(box);
 					tiles.add(tile);
 				} else if (state.getMaterial().isReplaceable()) {
 					if (!world.setBlockState(pos, BlockTile.getState(false, false)))
@@ -379,15 +384,10 @@ public abstract class LittleAction extends CreativeCorePacket {
 			}
 			
 			if (tiles != null && !tiles.isEmpty()) {
-				world.setBlockState(pos, BlockTile.getState(tiles));
+				world.setBlockState(pos, BlockTile.getState(false, false));
 				TileEntityLittleTiles te = (TileEntityLittleTiles) world.getTileEntity(pos);
 				te.convertTo(context);
-				te.updateTiles((x) -> {
-					for (LittleTile tile : tiles) {
-						tile.te = te;
-						tile.place(x);
-					}
-				});
+				te.updateTiles((x) -> x.noneStructureTiles().addAll(tiles));
 				te.convertToSmallest();
 				tileEntity = te;
 			}
@@ -413,7 +413,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 	private static Object worldEditInstance = null;
 	
 	public static void sendEntityResetToClient(EntityPlayerMP player, EntityAnimation animation) {
-		//tobedone
+		PacketHandler.sendPacketToPlayer(new LittleEntityRequestPacket(animation.getUniqueID(), animation.writeToNBT(new NBTTagCompound()), false), player);
 	}
 	
 	public static void sendBlockResetToClient(World world, EntityPlayerMP player, BlockPos pos) {
@@ -433,12 +433,16 @@ public abstract class LittleAction extends CreativeCorePacket {
 		}
 	}
 	
-	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Collection<TileEntityLittleTiles> tileEntities) {
+	public static void sendBlockResetToClient(World world, EntityPlayerMP player, Iterable<TileEntityLittleTiles> tileEntities) {
 		PacketHandler.sendPacketToPlayer(new LittleBlocksUpdatePacket(world, tileEntities), player);
 	}
 	
 	public static void sendBlockResetToClient(World world, EntityPlayerMP player, LittleStructure structure) {
-		sendBlockResetToClient(world, player, structure.collectBlocks());
+		try {
+			sendBlockResetToClient(world, player, structure.blocks());
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static boolean isAllowedToInteract(EntityPlayer player, EntityAnimation animation, boolean rightClick) {
@@ -481,21 +485,6 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
-	public static boolean isTileStillInPlace(LittleTile tile) {
-		return tile.te.contains(tile);
-	}
-	
-	public static LittleTile getTile(World world, LittleIdentifierAbsolute coord) throws LittleActionException {
-		TileEntity te = world.getTileEntity(coord.pos);
-		if (te instanceof TileEntityLittleTiles) {
-			LittleTile tile = ((TileEntityLittleTiles) te).getTile(coord.context, coord.identifier);
-			if (tile != null)
-				return tile;
-			throw new LittleActionException.TileNotFoundException();
-		} else
-			throw new LittleActionException.TileEntityNotFoundException();
-	}
-	
 	public static double getVolume(LittleGridContext context, List<PlacePreview> tiles) {
 		double volume = 0;
 		for (PlacePreview preview : tiles)
@@ -503,22 +492,51 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return volume;
 	}
 	
-	public static void writeAbsoluteCoord(LittleIdentifierAbsolute coord, ByteBuf buf) {
-		writePos(buf, coord.pos);
-		buf.writeInt(coord.identifier.length);
-		for (int i = 0; i < coord.identifier.length; i++) {
-			buf.writeInt(coord.identifier[i]);
-		}
-		writeContext(coord.context, buf);
+	public static void writeTileLocation(TileLocation location, ByteBuf buf) {
+		writePos(buf, location.pos);
+		buf.writeBoolean(location.isStructure);
+		buf.writeInt(location.index);
+		int[] boxArray = location.box.getArray();
+		buf.writeInt(boxArray.length);
+		for (int i = 0; i < boxArray.length; i++)
+			buf.writeInt(boxArray[i]);
+		if (location.worldUUID != null) {
+			buf.writeBoolean(true);
+			writeString(buf, location.worldUUID.toString());
+		} else
+			buf.writeBoolean(false);
 	}
 	
-	public static LittleIdentifierAbsolute readAbsoluteCoord(ByteBuf buf) {
+	public static TileLocation readTileLocation(ByteBuf buf) {
 		BlockPos pos = readPos(buf);
-		int[] identifier = new int[buf.readInt()];
-		for (int i = 0; i < identifier.length; i++) {
-			identifier[i] = buf.readInt();
-		}
-		return new LittleIdentifierAbsolute(pos, readContext(buf), identifier);
+		boolean isStructure = buf.readBoolean();
+		int index = buf.readInt();
+		int[] boxArray = new int[buf.readInt()];
+		for (int i = 0; i < boxArray.length; i++)
+			boxArray[i] = buf.readInt();
+		UUID world = null;
+		if (buf.readBoolean())
+			world = UUID.fromString(readString(buf));
+		return new TileLocation(pos, isStructure, index, LittleBox.createBox(boxArray), world);
+	}
+	
+	public static void writeStructureLocation(StructureLocation location, ByteBuf buf) {
+		writePos(buf, location.pos);
+		buf.writeInt(location.index);
+		if (location.worldUUID != null) {
+			buf.writeBoolean(true);
+			writeString(buf, location.worldUUID.toString());
+		} else
+			buf.writeBoolean(false);
+	}
+	
+	public static StructureLocation readStructureLocation(ByteBuf buf) {
+		BlockPos pos = readPos(buf);
+		int index = buf.readInt();
+		UUID world = null;
+		if (buf.readBoolean())
+			world = UUID.fromString(readString(buf));
+		return new StructureLocation(pos, index, world);
 	}
 	
 	public static void writePreviews(LittlePreviews previews, ByteBuf buf) {
@@ -679,15 +697,16 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return !player.isCreative();
 	}
 	
-	public static LittleIngredients getIngredients(LittleTile tile) {
-		LittlePreviews previews = new LittlePreviews(tile.getContext());
-		previews.addTile(tile);
+	public static LittleIngredients getIngredients(IParentTileList parent, LittleTile tile) {
+		LittlePreviews previews = new LittlePreviews(parent.getContext());
+		previews.addTile(parent, tile);
 		return getIngredients(previews);
 	}
 	
-	public static LittleIngredients getIngredients(List<LittleTile> tiles) {
-		LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
-		previews.addTiles(tiles);
+	public static LittleIngredients getIngredients(IParentTileList parent, List<LittleTile> tiles) {
+		LittlePreviews previews = new LittlePreviews(parent.getContext());
+		for (LittleTile tile : tiles)
+			previews.addTile(parent, tile);
 		return getIngredients(previews);
 	}
 	
@@ -777,10 +796,11 @@ public abstract class LittleAction extends CreativeCorePacket {
 		return true;
 	}
 	
-	public static boolean giveOrDrop(EntityPlayer player, LittleInventory inventory, List<LittleTile> tiles) {
+	public static boolean giveOrDrop(EntityPlayer player, LittleInventory inventory, IParentTileList parent, List<LittleTile> tiles) {
 		if (needIngredients(player) && !tiles.isEmpty()) {
-			LittlePreviews previews = new LittlePreviews(tiles.get(0).getContext());
-			previews.addTiles(tiles);
+			LittlePreviews previews = new LittlePreviews(parent.getContext());
+			for (LittleTile tile : tiles)
+				previews.addTile(parent, tile);
 			try {
 				checkAndGive(player, inventory, getIngredients(previews));
 			} catch (NotEnoughIngredientsException e) {

@@ -5,6 +5,7 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
@@ -14,6 +15,7 @@ import com.creativemd.littletiles.common.item.ItemLittleGrabber;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -171,17 +173,17 @@ public class LittleBlockPacket extends CreativeCorePacket {
 		TileEntity tileEntity = world.getTileEntity(blockPos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
-			LittleTile tile = te.getFocusedTile(pos, look);
+			Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(pos, look);
 			
 			if (!LittleAction.isAllowedToInteract(world, player, blockPos, action.rightClick, EnumFacing.EAST)) {
 				LittleAction.sendBlockResetToClient(world, (EntityPlayerMP) player, te);
 				return;
 			}
 			
-			if (tile != null) {
+			if (pair != null) {
 				ItemStack stack = player.getHeldItem(EnumHand.MAIN_HAND);
 				RayTraceResult moving = te.rayTrace(pos, look);
-				action.action(world, te, tile, stack, player, moving, blockPos, nbt);
+				action.action(world, te, pair.value, stack, player, moving, blockPos, nbt);
 				
 				if (!player.world.isRemote) {
 					EntityPlayerMP playerMP = (EntityPlayerMP) player;

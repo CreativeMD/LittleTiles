@@ -6,19 +6,16 @@ import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
-import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.tileentity.TileList;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
-import com.creativemd.littletiles.common.util.place.PlacementMode;
+import com.creativemd.littletiles.common.util.place.Placement;
+import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
-import net.minecraft.util.math.BlockPos;
 
 public class PlacePreviewFacing extends PlacePreview {
 	
@@ -65,7 +62,7 @@ public class PlacePreviewFacing extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(EntityPlayer player, BlockPos pos, LittleGridContext context, TileEntityLittleTiles teLT, TileList list, List<LittleTile> unplaceableTiles, List<LittleTile> removedTiles, PlacementMode mode, EnumFacing facing, boolean requiresCollisionTest, LittleStructure structure) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
 		return Collections.EMPTY_LIST;
 	}
 	

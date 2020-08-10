@@ -24,6 +24,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.tooltip.TooltipUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.gui.LittleSubGuiUtils;
 import com.creativemd.littletiles.client.gui.SubGuiGrabber;
@@ -42,6 +43,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
@@ -401,7 +403,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		public void vanillaBlockAction(World world, ItemStack stack, BlockPos pos, IBlockState state) {
 			LittlePreview oldPreview = getPreview(stack);
 			LittleTile tile = new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-			tile.box = oldPreview.box;
+			tile.setBox(oldPreview.box);
 			setPreview(stack, tile.getPreviewTile());
 		}
 		
@@ -431,7 +433,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			
 			IBlockState state = nbt.hasKey("state") ? Block.getStateById(nbt.getInteger("state")) : Blocks.STONE.getDefaultState();
 			LittleTile tile = nbt.hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), nbt.getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-			tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
+			tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
 			return tile.getPreviewTile();
 		}
 		
@@ -498,7 +500,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 						LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-						tile.box = new LittleBox(0, 0, 0, context.size, context.size, context.size);
+						tile.setBox(new LittleBox(0, 0, 0, context.size, context.size, context.size));
 						return tile.getPreviewTile();
 					} else
 						return ItemLittleGrabber.SimpleMode.getPreview(stack);
@@ -610,8 +612,8 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 		public void littleBlockAction(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, BlockPos pos, NBTTagCompound nbt) {
 			LittlePreviews previews = new LittlePreviews(te.getContext());
 			if (nbt.getBoolean("secondMode")) {
-				for (LittleTile tileFromTE : te)
-					previews.addWithoutCheckingPreview(tileFromTE.getPreviewTile());
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+					previews.addWithoutCheckingPreview(pair.value.getPreviewTile());
 			} else
 				previews.addWithoutCheckingPreview(tile.getPreviewTile());
 			ItemLittleGrabber.PlacePreviewMode.setPreview(stack, previews);
@@ -625,7 +627,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 			if (previews.size() == 0) {
 				IBlockState state = stack.getTagCompound().hasKey("state") ? Block.getStateById(stack.getTagCompound().getInteger("state")) : Blocks.STONE.getDefaultState();
 				LittleTile tile = stack.getTagCompound().hasKey("color") ? new LittleTileColored(state.getBlock(), state.getBlock().getMetaFromState(state), stack.getTagCompound().getInteger("color")) : new LittleTile(state.getBlock(), state.getBlock().getMetaFromState(state));
-				tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
+				tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
 				LittlePreview preview = tile.getPreviewTile();
 				
 				previews.addWithoutCheckingPreview(preview);
@@ -730,7 +732,7 @@ public class ItemLittleGrabber extends Item implements ICreativeRendered, ILittl
 					
 					if (!selected.isEmpty() && selected.getItem() instanceof ItemBlock) {
 						LittleTile tile = new LittleTile(((ItemBlock) selected.getItem()).getBlock(), selected.getMetadata());
-						tile.box = new LittleBox(0, 0, 0, 1, 1, 1);
+						tile.setBox(new LittleBox(0, 0, 0, 1, 1, 1));
 						return tile.getPreviewTile();
 					} else
 						return ItemLittleGrabber.SimpleMode.getPreview(stack);

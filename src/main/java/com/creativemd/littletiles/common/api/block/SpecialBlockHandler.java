@@ -16,7 +16,9 @@ import com.creativemd.creativecore.common.utils.type.PairList;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLog;
@@ -40,14 +42,12 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.Explosion;
-import net.minecraft.world.World;
 
 public class SpecialBlockHandler {
 	
 	public static PairList<BlockSelector, ISpecialBlockHandler> specialHandlers = new PairList<>();
 	
-	public static final ISpecialBlockHandler EMPTY_HANDLER = new ISpecialBlockHandler() {
-	};
+	public static final ISpecialBlockHandler EMPTY_HANDLER = new ISpecialBlockHandler() {};
 	
 	public static ISpecialBlockHandler getSpecialBlockHandler(Block block, int meta) {
 		if (block instanceof ISpecialBlockHandler)
@@ -79,18 +79,16 @@ public class SpecialBlockHandler {
 		SpecialBlockHandler.registerSpecialHandler(BlockTNT.class, new ISpecialBlockHandler() {
 			
 			@Override
-			public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+			public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
 				if (heldItem != null && (heldItem.getItem() == Items.FLINT_AND_STEEL || heldItem.getItem() == Items.FIRE_CHARGE)) {
-					if (!worldIn.isRemote) {
-						explodeTile(tile, playerIn, false);
-					}
-					tile.te.updateTiles((x) -> tile.destroy(x));
+					if (!parent.getWorld().isRemote)
+						explodeTile(parent, tile, player, false);
+					parent.getTe().updateTiles(x -> x.get(parent).remove(tile));
 					
-					if (heldItem.getItem() == Items.FLINT_AND_STEEL) {
-						heldItem.damageItem(1, playerIn);
-					} else if (!playerIn.capabilities.isCreativeMode) {
+					if (heldItem.getItem() == Items.FLINT_AND_STEEL)
+						heldItem.damageItem(1, player);
+					else if (!player.capabilities.isCreativeMode)
 						heldItem.shrink(1);
-					}
 					
 					return true;
 				}
@@ -98,19 +96,21 @@ public class SpecialBlockHandler {
 			}
 			
 			@Override
-			public void onTileExplodes(LittleTile tile, Explosion explosion) {
-				explodeTile(tile, explosion.getExplosivePlacedBy(), true);
+			public void onTileExplodes(IParentTileList parent, LittleTile tile, Explosion explosion) {
+				explodeTile(parent, tile, explosion.getExplosivePlacedBy(), true);
 			}
 			
-			public void explodeTile(LittleTile tile, EntityLivingBase entity, boolean randomFuse) {
-				BlockPos pos = tile.te.getPos();
-				LittleVec size = tile.box.getSize();
-				LittleVec min = tile.box.getMinVec();
-				EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(tile.te.getWorld(), pos.getX() + min.getPosX(tile.getContext()) + size.getPosX(tile.getContext()) / 2, pos.getY() + min.getPosY(tile.getContext()) + size.getPosY(tile.getContext()) / 2, pos.getZ() + min.getPosZ(tile.getContext()) + size.getPosZ(tile.getContext()) / 2, entity, tile.getContext(), size);
+			public void explodeTile(IParentTileList parent, LittleTile tile, EntityLivingBase entity, boolean randomFuse) {
+				BlockPos pos = parent.getPos();
+				LittleVec size = tile.getSize();
+				LittleVec min = tile.getMinVec();
+				LittleGridContext context = parent.getContext();
+				EntitySizedTNTPrimed entitytntprimed = new EntitySizedTNTPrimed(parent.getWorld(), pos.getX() + min.getPosX(context) + size.getPosX(context) / 2, pos.getY() + min.getPosY(context) + size.getPosY(context) / 2, pos.getZ() + min.getPosZ(
+				        context) + size.getPosZ(context) / 2, entity, context, size);
 				if (randomFuse)
-					entitytntprimed.setFuse((short) (tile.te.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
-				tile.te.getWorld().spawnEntity(entitytntprimed);
-				tile.te.getWorld().playSound((EntityPlayer) null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
+					entitytntprimed.setFuse((short) (parent.getWorld().rand.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
+				parent.getWorld().spawnEntity(entitytntprimed);
+				parent.getWorld().playSound((EntityPlayer) null, entitytntprimed.posX, entitytntprimed.posY, entitytntprimed.posZ, SoundEvents.ENTITY_TNT_PRIMED, SoundCategory.BLOCKS, 1.0F, 1.0F);
 			}
 			
 		});
@@ -118,15 +118,15 @@ public class SpecialBlockHandler {
 		SpecialBlockHandler.registerSpecialHandler(Blocks.CRAFTING_TABLE, new ISpecialBlockHandler() {
 			
 			@Override
-			public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
-				if (worldIn.isRemote) {
+			public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer player, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+				if (parent.getWorld().isRemote) {
 					return true;
 				} else {
-					playerIn.displayGui(new BlockWorkbench.InterfaceCraftingTable(worldIn, pos) {
+					player.displayGui(new BlockWorkbench.InterfaceCraftingTable(parent.getWorld(), parent.getPos()) {
 						
 						@Override
 						public Container createContainer(InventoryPlayer playerInventory, EntityPlayer playerIn) {
-							return new ContainerWorkbench(playerInventory, worldIn, pos) {
+							return new ContainerWorkbench(playerInventory, parent.getWorld(), parent.getPos()) {
 								
 								@Override
 								public boolean canInteractWith(EntityPlayer playerIn) {
@@ -135,7 +135,7 @@ public class SpecialBlockHandler {
 							};
 						}
 					});
-					playerIn.addStat(StatList.CRAFTING_TABLE_INTERACTION);
+					player.addStat(StatList.CRAFTING_TABLE_INTERACTION);
 					return true;
 				}
 			}

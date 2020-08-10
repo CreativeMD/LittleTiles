@@ -12,6 +12,7 @@ import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.RenderBox.SideRenderType;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
@@ -26,10 +27,15 @@ import com.creativemd.littletiles.common.item.ItemRubberMallet;
 import com.creativemd.littletiles.common.mod.ctm.CTMManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
@@ -78,10 +84,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public static class TEResult {
 		
 		public final TileEntityLittleTiles te;
+		public final IParentTileList parent;
 		public final LittleTile tile;
 		
-		public TEResult(TileEntityLittleTiles te, LittleTile tile) {
+		public TEResult(TileEntityLittleTiles te, IParentTileList parent, LittleTile tile) {
 			this.te = te;
+			this.parent = parent;
 			this.tile = tile;
 		}
 		
@@ -89,6 +97,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			return te != null && tile != null;
 		}
 	}
+	
+	private static final TEResult FAILED = new TEResult(null, null, null);
 	
 	public static TileEntityLittleTiles loadTe(IBlockAccess world, BlockPos pos) {
 		if (world == null)
@@ -112,9 +122,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	
 	public static TEResult loadTeAndTile(IBlockAccess world, BlockPos pos, EntityPlayer player, float partialTickTime) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null)
-			return new TEResult(te, te.getFocusedTile(player, partialTickTime));
-		return new TEResult(null, null);
+		if (te != null) {
+			Pair<IParentTileList, LittleTile> pair = te.getFocusedTile(player, partialTickTime);
+			if (pair != null)
+				return new TEResult(te, pair.key, pair.value);
+		}
+		return FAILED;
 	}
 	
 	public static boolean selectEntireBlock(EntityPlayer player, boolean secondMode) {
@@ -165,13 +178,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return getState(te.isTicking(), te.isRendered());
 	}
 	
-	public static IBlockState getState(List<LittleTile> tiles) {
+	public static IBlockState getState(List<StructureTileList> structures) {
 		boolean ticking = false;
 		boolean rendered = false;
-		for (LittleTile tile : tiles) {
-			if (tile.shouldTick())
+		for (StructureTileList structure : structures) {
+			if (LittleStructureAttribute.ticking(structure.getAttribute()))
 				ticking = true;
-			if (tile.needCustomRendering())
+			if (LittleStructureAttribute.tickRendering(structure.getAttribute()))
 				rendered = true;
 			
 			if (ticking && rendered)
@@ -222,16 +235,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 					e.printStackTrace();
 				}
 			}
-			if (bed != null)
-				for (LittleTile tile : te) {
-					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()) == bed)
-						return true;
-				}
-			else
-				for (LittleTile tile : te) {
-					if (tile.isConnectedToStructure() && tile.connection.getStructure(te.getWorld()).isBed(world, pos, (EntityLivingBase) player))
-						return true;
-				}
+			
+			for (LittleStructure structure : te.loadedStructures())
+				if (structure == bed || structure.isBed((EntityLivingBase) player))
+					return true;
+				
 		}
 		return false;
 	}
@@ -288,16 +296,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().grow(0.001);
-			for (LittleTile tile : te) {
-				if (tile.isLadder()) {
-					List<LittleBox> collision = tile.getCollisionBoxes();
-					for (int j = 0; j < collision.size(); j++) {
-						LittleBox box = collision.get(j).copy();
-						if (bb.intersects(box.getBox(te.getContext(), te.getPos())))
-							return true;
+			for (IStructureTileList structure : te.structures()) {
+				if (LittleStructureAttribute.ladder(structure.getAttribute()))
+					for (LittleTile tile : structure) {
+						LittleBox box = tile.getCollisionBox();
+						if (box != null)
+							if (bb.intersects(box.getBox(te.getContext(), te.getPos())))
+								return true;
 					}
-				}
-				
 			}
 		}
 		return false;
@@ -360,7 +366,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (result.isComplete()) {
 			if (selectEntireBlock(mc.player, LittleAction.isUsingSecondMode(mc.player)))
 				return result.te.getSelectionBox();
-			return result.tile.getSelectedBox(pos);
+			if (LittleTiles.CONFIG.rendering.highlightStructureBox && result.parent.isStructure())
+				try {
+					return result.parent.getStructure().getSurroundingBox().getAABB();
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			return result.tile.getSelectedBox(pos, result.te.getContext());
 		}
 		return new AxisAlignedBB(pos);
 	}
@@ -369,13 +379,20 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, @Nullable Entity entityIn, boolean p_185477_7_) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
 		if (te != null) {
-			for (LittleTile tile : te) {
-				List<LittleBox> boxes = tile.getCollisionBoxes();
-				for (int i = 0; i < boxes.size(); i++)
-					boxes.get(i).addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
+			for (IParentTileList list : te.groups()) {
+				if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+					continue;
+				if (list.isStructure() && LittleStructureAttribute.extraCollision(list.getAttribute()))
+					try {
+						list.getStructure().addCollisionBoxes(pos, entityBox, collidingBoxes, entityIn);
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+				
+				for (LittleTile tile : list) {
+					LittleBox box = tile.getCollisionBox();
+					if (box != null)
+						box.addCollisionBoxes(te.getContext(), entityBox, collidingBoxes, pos);
+				}
 			}
-			for (LittleStructure structure : te.structures(LittleStructureAttribute.EXTRA_COLLSION))
-				structure.addCollisionBoxes(pos, entityBox, collidingBoxes, entityIn);
 		}
 	}
 	
@@ -392,8 +409,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (LittleTiles.CONFIG.rendering.enableRandomDisplayTick) {
 			TileEntityLittleTiles te = loadTe(worldIn, pos);
 			if (te != null) {
-				for (LittleTile tile : te)
-					tile.randomDisplayTick(stateIn, worldIn, pos, rand);
+				for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+					pair.value.randomDisplayTick(pair.key, rand);
 			}
 		}
 	}
@@ -423,12 +440,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null && entity != null && entity.getEntityBoundingBox() != null) {
 			AxisAlignedBB bb = entity.getEntityBoundingBox().offset(0, -0.001, 0);
-			for (LittleTile tile : te) {
-				for (LittleBox box : tile.getCollisionBoxes()) {
-					if (box.getBox(te.getContext(), pos).intersects(bb)) {
-						slipperiness = Math.min(slipperiness, tile.getSlipperiness(entity));
-						found = true;
-					}
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+				LittleBox box = pair.value.getCollisionBox();
+				if (box != null && box.getBox(te.getContext(), pos).intersects(bb)) {
+					slipperiness = Math.min(slipperiness, pair.value.getSlipperiness(world, pos, entity));
+					found = true;
 				}
 			}
 		}
@@ -441,21 +457,28 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@SideOnly(Side.CLIENT)
 	public void getSubBlocks(CreativeTabs tab, NonNullList<ItemStack> items) {}
 	
-	public boolean first = true;
+	private boolean lightLoopPreventer = true;
 	
 	@Override
 	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos) {
 		int light = 0;
-		if (!first)
+		if (!lightLoopPreventer)
 			return 0;
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
-			for (LittleTile tile : te) {
-				first = false;
-				int tempLight = tile.getLightValue(state, world, pos);
-				first = true;
-				if (tempLight > light)
-					light = tempLight;
+			for (IParentTileList list : te.groups()) {
+				if (list.isStructure() && LittleStructureAttribute.lightEmitter(list.getAttribute()))
+					try {
+						return list.getStructure().getLightValue(pos);
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+				
+				for (LittleTile tile : list) {
+					lightLoopPreventer = false;
+					int tempLight = tile.getLightValue(world, pos);
+					lightLoopPreventer = true;
+					if (tempLight > light)
+						light = tempLight;
+				}
 			}
 		}
 		return light;
@@ -515,21 +538,16 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int y = te.getContext().toGrid(viewpoint.y);
 			int z = te.getContext().toGrid(viewpoint.z);
 			LittleBox box = new LittleBox(x, y, z, x + 1, y + 1, z + 1);
-			for (LittleTile tile : te)
-				if (tile.intersectsWith(box))
-					return tile.getBlockState();
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.intersectsWith(box))
+					return pair.value.getBlockState();
 		}
 		return state;
 	}
 	
 	@Override
-	/** Blocks will drop before this method is called */
 	public ArrayList<ItemStack> getDrops(IBlockAccess world, BlockPos pos, IBlockState state, int fortune) {
-		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		/* TileEntityLittleTiles te = loadTe(world, pos); if(te != null) { for (Iterator
-		 * iterator = te.getTiles().iterator(); iterator.hasNext();) { LittleTile tile =
-		 * (LittleTile) iterator.next(); stacks.addAll(tile.getDrops()); } } */
-		return stacks;
+		return new ArrayList<ItemStack>(); // Removed
 	}
 	
 	@Override
@@ -542,10 +560,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				LittlePreview.saveTiles(world, result.te.getContext(), result.te, drop);
 				return drop;
 			}
-			ArrayList<ItemStack> drops = result.tile.getDrops();
-			if (drops.size() > 0)
-				if (drops.get(0) != null)
-					return drops.get(0);
+			if (result.parent.isStructure())
+				try {
+					return result.parent.getStructure().getStructureDrop();
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			return result.tile.getDrop(result.te.getContext());
 		}
 		return ItemStack.EMPTY;
 	}
@@ -556,11 +575,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			int heighest = 0;
 			LittleTile heighestTile = null;
-			for (LittleTile tile : te) {
-				List<LittleBox> collision = tile.getCollisionBoxes();
-				for (int i = 0; i < collision.size(); i++) {
-					if (collision.get(i).maxY > heighest) {
-						heighest = collision.get(i).maxY;
+			for (IParentTileList list : te.groups()) {
+				if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+					continue;
+				
+				for (LittleTile tile : list) {
+					LittleBox box = tile.getCollisionBox();
+					if (box != null && box.maxY > heighest) {
+						heighest = box.maxY;
 						heighestTile = tile;
 					}
 				}
@@ -578,11 +600,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		if (te != null) {
 			int heighest = 0;
 			LittleTile heighestTile = null;
-			for (LittleTile tile : te) {
-				List<LittleBox> collision = tile.getCollisionBoxes();
-				for (int i = 0; i < collision.size(); i++) {
-					if (collision.get(i).maxY > heighest) {
-						heighest = collision.get(i).maxY;
+			for (IParentTileList list : te.groups()) {
+				if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+					continue;
+				
+				for (LittleTile tile : list) {
+					LittleBox box = tile.getCollisionBox();
+					if (box != null && box.maxY > heighest) {
+						heighest = box.maxY;
 						heighestTile = tile;
 					}
 				}
@@ -608,7 +633,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			int j = pos.getY();
 			int k = pos.getZ();
 			float f = 0.1F;
-			AxisAlignedBB axisalignedbb = result.tile.box.getSelectionBox(result.te.getContext(), BlockPos.ORIGIN);
+			AxisAlignedBB axisalignedbb = result.tile.getSelectedBox(BlockPos.ORIGIN, result.te.getContext());
 			double d0 = i + worldObj.rand.nextDouble() * (axisalignedbb.maxX - axisalignedbb.minX - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minX;
 			double d1 = j + worldObj.rand.nextDouble() * (axisalignedbb.maxY - axisalignedbb.minY - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minY;
 			double d2 = k + worldObj.rand.nextDouble() * (axisalignedbb.maxZ - axisalignedbb.minZ - 0.20000000298023224D) + 0.10000000149011612D + axisalignedbb.minZ;
@@ -680,11 +705,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			if (te != null) {
 				int heighest = 0;
 				LittleTile heighestTile = null;
-				for (LittleTile tile : te) {
-					List<LittleBox> collision = tile.getCollisionBoxes();
-					for (int i = 0; i < collision.size(); i++) {
-						if (collision.get(i).maxY > heighest) {
-							heighest = collision.get(i).maxY;
+				for (IParentTileList list : te.groups()) {
+					if (list.isStructure() && LittleStructureAttribute.noCollision(list.getAttribute()))
+						continue;
+					
+					for (LittleTile tile : list) {
+						LittleBox box = tile.getCollisionBox();
+						if (box != null && box.maxY > heighest) {
+							heighest = box.maxY;
 							heighestTile = tile;
 						}
 					}
@@ -700,22 +728,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		return sound;
 	}
 	
-	/* public boolean rotateBlock(World worldObj, int x, int y, int z,
-	 * ForgeDirection axis) { return RotationHelper.rotateVanillaBlock(this,
-	 * worldObj, x, y, z, axis); }
-	 * 
-	 * public ForgeDirection[] getValidRotations(World worldObj, int x, int y, int
-	 * z) {
-	 * 
-	 * } */
-	
 	@Override
 	public boolean isNormalCube(IBlockState state, IBlockAccess world, BlockPos pos) {
-		/* if(loadingTileEntityFromWorld) if is normal cube player will be pushed out of
-		 * the block (bad for no-clip structure or water return false; for (int i = 0; i
-		 * < 6; i++) { if(!isSideSolid(state, world, pos, EnumFacing.getFront(i)))
-		 * return false; } return true; */
-		return false;
+		return false; // removed because if is normal cube player will be pushed out of the block (bad for no-clip structure or water)
 	}
 	
 	@Override
@@ -723,8 +738,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		float bonus = 0F;
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			for (LittleTile tile : te)
-				bonus += tile.getEnchantPowerBonus(world, pos) * tile.getPercentVolume();
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				bonus += pair.value.getEnchantPowerBonus(world, pos) * pair.value.getPercentVolume(te.getContext());
 		return bonus;
 	}
 	
@@ -764,11 +779,17 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public void onEntityCollidedWithBlock(World worldIn, BlockPos pos, IBlockState state, Entity entityIn) {
 		TileEntityLittleTiles te = loadTe(worldIn, pos);
-		if (te != null && te.shouldCheckForCollision())
-			for (LittleTile tile : te)
-				if (tile.shouldCheckForCollision())
-					if (tile.box.getBox(te.getContext()).offset(pos).intersects(entityIn.getEntityBoundingBox()))
-						tile.onEntityCollidedWithBlock(worldIn, pos, state, entityIn);
+		if (te != null && te.shouldCheckForCollision()) {
+			for (IStructureTileList list : te.structures())
+				if (LittleStructureAttribute.collisionListener(list.getAttribute()))
+					try {
+						list.getStructure().onEntityCollidedWithBlock(worldIn, pos, entityIn);
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+				if (pair.value.shouldCheckForCollision())
+					pair.value.onEntityCollidedWithBlock(pair.key, entityIn);
+			}
+		}
 	}
 	
 	@Override
@@ -877,10 +898,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				return cachedCubes;
 			}
 			
-			for (LittleTile tile : tileEntity) {
+			for (Pair<IParentTileList, LittleTile> pair : tileEntity.allTiles()) {
+				LittleTile tile = pair.value;
 				if (tile.shouldBeRenderedInLayer(layer)) {
 					// Check for sides which does not need to be rendered
-					List<LittleRenderBox> tileCubes = tile.getRenderingCubes(layer);
+					List<LittleRenderBox> tileCubes = tile.getRenderingCubes(((TileEntityLittleTiles) te).getContext(), layer);
 					for (int j = 0; j < tileCubes.size(); j++) {
 						LittleRenderBox cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
@@ -904,10 +926,16 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				}
 			}
 			
-			for (LittleStructure structure : tileEntity.structures(LittleStructureAttribute.EXTRA_RENDERING))
-				if (structure.load())
+			for (LittleStructure structure : tileEntity.loadedStructures(LittleStructureAttribute.EXTRA_RENDERING)) {
+				try {
+					structure.load();
 					structure.getRenderingCubes(tileEntity.getPos(), layer, cubes);
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {
+					
+				}
 				
+			}
+			
 			cache.setCubesByLayer(cubes, layer);
 			
 		} else if (stack != null)
@@ -923,12 +951,23 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	public float getExplosionResistance(World world, BlockPos pos, @Nullable Entity exploder, Explosion explosion) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		double resistance = 0;
+		float calculatedResistance = 0;
+		float structureResistance = 0;
 		if (te != null)
-			for (LittleTile tile : te)
-				resistance += tile.getExplosionResistance() * tile.getPercentVolume();
+			for (IParentTileList list : te.groups())
+				try {
+					if (list.isStructure() && list.getStructure().getExplosionResistance() > 0)
+						structureResistance = Math.max(structureResistance, list.getStructure().getExplosionResistance());
+					else
+						for (LittleTile tile : list)
+							calculatedResistance += tile.getExplosionResistance() * tile.getPercentVolume(te.getContext());
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {
+					
+				}
 			
-		return (float) resistance;
+		if (calculatedResistance > structureResistance)
+			return calculatedResistance;
+		return structureResistance;
 	}
 	
 	@Override
@@ -936,8 +975,14 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
 			te.updateTiles((x) -> {
-				for (LittleTile tile : te)
-					tile.destroy(x);
+				x.noneStructureTiles().clear();
+				
+				for (StructureTileList list : x.structures())
+					try {
+						list.getStructure().removeStructure();
+					} catch (CorruptedConnectionException | NotYetConnectedException e) {
+						e.printStackTrace();
+					}
 			});
 		}
 	}
@@ -947,62 +992,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			for (LittleTile tile : te)
-				if (tile.box.getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
-					return tile.getFogColor(world, pos, state, entity, originalColor, partialTicks);
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.getBox().getBox(te.getContext(), pos).intersects(entity.getEntityBoundingBox()))
+					return pair.value.getFogColor(pair.key, entity, originalColor, partialTicks);
 				
 		return super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
 	}
-	
-	/* protected Vec3d getFlow(IBlockAccess worldIn, BlockPos pos, IBlockState
-	 * state) { double d0 = 0.0D; double d1 = 0.0D; double d2 = 0.0D;
-	 * BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos =
-	 * BlockPos.PooledMutableBlockPos.retain(); int i =
-	 * this.getRenderedDepth(state); BlockPos.PooledMutableBlockPos
-	 * blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain();
-	 * 
-	 * for (EnumFacing enumfacing : EnumFacing.Plane.HORIZONTAL) {
-	 * blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing); int j =
-	 * this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos));
-	 * 
-	 * if (j < 0) { if
-	 * (!worldIn.getBlockState(blockpos$pooledmutableblockpos).getMaterial().
-	 * blocksMovement()) { j =
-	 * this.getRenderedDepth(worldIn.getBlockState(blockpos$pooledmutableblockpos.
-	 * down()));
-	 * 
-	 * if (j >= 0) { int k = j - (i - 8); d0 +=
-	 * (double)(enumfacing.getFrontOffsetX() * k); d1 +=
-	 * (double)(enumfacing.getFrontOffsetY() * k); d2 +=
-	 * (double)(enumfacing.getFrontOffsetZ() * k); } } } else if (j >= 0) { int l =
-	 * j - i; d0 += (double)(enumfacing.getFrontOffsetX() * l); d1 +=
-	 * (double)(enumfacing.getFrontOffsetY() * l); d2 +=
-	 * (double)(enumfacing.getFrontOffsetZ() * l); } }
-	 * 
-	 * Vec3d vec3d = new Vec3d(d0, d1, d2);
-	 * 
-	 * //if (((Integer)state.getValue(LEVEL)).intValue() >= 8) //{ for (EnumFacing
-	 * enumfacing1 : EnumFacing.Plane.HORIZONTAL) {
-	 * blockpos$pooledmutableblockpos.setPos(pos).move(enumfacing1);
-	 * 
-	 * if (this.causesDownwardCurrent(worldIn, blockpos$pooledmutableblockpos,
-	 * enumfacing1) || this.causesDownwardCurrent(worldIn,
-	 * blockpos$pooledmutableblockpos.up(), enumfacing1)) { vec3d =
-	 * vec3d.normalize().addVector(0.0D, -6.0D, 0.0D); break; } } //}
-	 * 
-	 * blockpos$pooledmutableblockpos.release(); return vec3d.normalize(); }
-	 * 
-	 * private boolean causesDownwardCurrent(IBlockAccess worldIn, BlockPos pos,
-	 * EnumFacing side) { IBlockState iblockstate = worldIn.getBlockState(pos);
-	 * Block block = iblockstate.getBlock(); Material material =
-	 * iblockstate.getMaterial();
-	 * 
-	 * if (material == this.blockMaterial) { return false; } else if (side ==
-	 * EnumFacing.UP) { return true; } else if (material == Material.ICE) { return
-	 * false; } else { boolean flag = isExceptBlockForAttachWithPiston(block) ||
-	 * block instanceof BlockStairs; return !flag &&
-	 * iblockstate.getBlockFaceShape(worldIn, pos, side) == BlockFaceShape.SOLID; }
-	 * } */
 	
 	@Override
 	public Vec3d modifyAcceleration(World world, BlockPos pos, Entity entityIn, Vec3d motion) {
@@ -1010,9 +1005,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
 			Vec3d vec = Vec3d.ZERO;
-			for (LittleTile tile : te) {
-				if (tile.box.getBox(te.getContext(), pos).intersects(boundingBox)) {
-					Vec3d tileMotion = tile.modifyAcceleration(world, pos, entityIn, motion);
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
+				if (pair.value.getBox().getBox(te.getContext(), pos).intersects(boundingBox)) {
+					Vec3d tileMotion = pair.value.modifyAcceleration(pair.key, entityIn, motion);
 					if (tileMotion != null)
 						vec = vec.add(tileMotion);
 				}
@@ -1032,24 +1027,20 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Nullable
 	public Boolean isAABBInsideMaterial(World world, BlockPos pos, AxisAlignedBB boundingBox, Material materialIn) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
-			for (LittleTile tile : te) {
-				if (tile.isMaterial(materialIn) && tile.box.getBox(te.getContext(), pos).intersects(boundingBox))
+		if (te != null)
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.isMaterial(materialIn) && pair.value.getBox().getBox(te.getContext(), pos).intersects(boundingBox))
 					return true;
-			}
-		}
 		return false;
 	}
 	
 	@Override
 	public Boolean isAABBInsideLiquid(World world, BlockPos pos, AxisAlignedBB boundingBox) {
 		TileEntityLittleTiles te = loadTe(world, pos);
-		if (te != null) {
-			for (LittleTile tile : te) {
-				if (tile.isLiquid() && tile.box.getBox(te.getContext(), pos).intersects(boundingBox))
+		if (te != null)
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.isLiquid() && pair.value.getBox().getBox(te.getContext(), pos).intersects(boundingBox))
 					return true;
-			}
-		}
 		return false;
 	}
 	
@@ -1058,9 +1049,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		float height = 0;
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null)
-			for (LittleTile tile : te)
-				if (tile.isMaterial(material))
-					height = Math.max(height, (float) te.getContext().toVanillaGrid(tile.getMaxY()));
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.isMaterial(material))
+					height = Math.max(height, (float) te.getContext().toVanillaGrid(pair.value.getMaxY()));
 		return height;
 	}
 	
@@ -1076,10 +1067,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		TileEntityLittleTiles te = loadTe(world, pos);
 		if (te != null) {
 			IBlockState lookingFor = CTMManager.isInstalled() ? CTMManager.getCorrectStateOrigin(world, connection) : world.getBlockState(connection);
-			for (LittleTile tile : te) {
-				if (tile.getBlock() == lookingFor.getBlock() && tile.getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
+			for (Pair<IParentTileList, LittleTile> pair : te.allTiles())
+				if (pair.value.getBlock() == lookingFor.getBlock() && pair.value.getMeta() == lookingFor.getBlock().getMetaFromState(lookingFor))
 					return lookingFor;
-			}
 		}
 		return this.getDefaultState();
 	}

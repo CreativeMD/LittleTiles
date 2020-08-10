@@ -4,6 +4,7 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.api.IFakeRenderingBlock;
 import com.creativemd.littletiles.common.api.block.ISpecialBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTile;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -25,7 +26,6 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -164,21 +164,22 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 	}
 	
 	@Override
-	public boolean onBlockActivated(LittleTile tile, World worldIn, BlockPos pos, IBlockState state, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(IParentTileList parent, LittleTile tile, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ) {
+		IBlockState state = tile.getBlockState();
 		if (state.getValue(VARIANT).isWater() && hand == EnumHand.MAIN_HAND && heldItem.getItem() instanceof ItemBucket) {
 			if (state.getValue(VARIANT) == EnumType.water)
 				tile.setBlock(LittleTiles.flowingWater, 0);
 			else
 				tile.setBlock(LittleTiles.whiteFlowingWater, 0);
-			tile.te.updateTiles();
+			parent.getTe().updateTiles();
 			return true;
 		}
-		return ISpecialBlockHandler.super.onBlockActivated(tile, worldIn, pos, state, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
+		return ISpecialBlockHandler.super.onBlockActivated(parent, tile, playerIn, hand, heldItem, side, hitX, hitY, hitZ);
 	}
 	
 	@Override
-	public Vec3d getFogColor(World world, LittleTile tile, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
-		if (state.getValue(VARIANT).isWater()) {
+	public Vec3d getFogColor(IParentTileList parent, LittleTile tile, Entity entity, Vec3d originalColor, float partialTicks) {
+		if (tile.getBlockState().getValue(VARIANT).isWater()) {
 			float f12 = 0.0F;
 			
 			if (entity instanceof net.minecraft.entity.EntityLivingBase) {
@@ -190,7 +191,7 @@ public class BlockLTTransparentColored extends Block implements ISpecialBlockHan
 			}
 			return new Vec3d(0.02F + f12, 0.02F + f12, 0.2F + f12);
 		}
-		return ISpecialBlockHandler.super.getFogColor(world, tile, pos, state, entity, originalColor, partialTicks);
+		return ISpecialBlockHandler.super.getFogColor(parent, tile, entity, originalColor, partialTicks);
 	}
 	
 	@Override

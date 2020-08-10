@@ -8,6 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 
 import net.minecraft.util.math.AxisAlignedBB;
@@ -51,7 +53,9 @@ public abstract class LittleAnimationHandler {
 		List<LittleDoor> doors = new ArrayList<>();
 		for (EntityAnimation door : openDoors)
 			if (door.structure instanceof LittleDoor && door.getEntityBoundingBox().intersects(box) && !doors.contains(door.structure))
-				doors.add(((LittleDoor) door.structure).getParentDoor());
+				try {
+					doors.add(((LittleDoor) door.structure).getParentDoor());
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		return doors;
 	}
 	

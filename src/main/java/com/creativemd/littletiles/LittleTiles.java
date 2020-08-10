@@ -13,13 +13,13 @@ import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.client.gui.SubGuiDiagnose;
 import com.creativemd.littletiles.client.gui.SubGuiExport;
 import com.creativemd.littletiles.client.gui.SubGuiImport;
-import com.creativemd.littletiles.client.gui.SubGuiParticle;
 import com.creativemd.littletiles.client.gui.SubGuiRecipe;
 import com.creativemd.littletiles.client.gui.SubGuiRecipeAdvancedSelection;
 import com.creativemd.littletiles.client.gui.SubGuiStorage;
 import com.creativemd.littletiles.client.gui.SubGuiStructureOverview;
 import com.creativemd.littletiles.client.gui.SubGuiWorkbench;
-import com.creativemd.littletiles.client.gui.handler.LittleGuiHandler;
+import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
+import com.creativemd.littletiles.client.gui.handler.LittleTileGuiHandler;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.LittleActionCombined;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -44,7 +44,6 @@ import com.creativemd.littletiles.common.block.BlockLTColored;
 import com.creativemd.littletiles.common.block.BlockLTColored2;
 import com.creativemd.littletiles.common.block.BlockLTFlowingLava;
 import com.creativemd.littletiles.common.block.BlockLTFlowingWater;
-import com.creativemd.littletiles.common.block.BlockLTParticle;
 import com.creativemd.littletiles.common.block.BlockLTTransparentColored;
 import com.creativemd.littletiles.common.block.BlockStorageTile;
 import com.creativemd.littletiles.common.block.BlockTile;
@@ -60,14 +59,12 @@ import com.creativemd.littletiles.common.command.ToVanillaCommand;
 import com.creativemd.littletiles.common.container.SubContainerDiagnose;
 import com.creativemd.littletiles.common.container.SubContainerExport;
 import com.creativemd.littletiles.common.container.SubContainerImport;
-import com.creativemd.littletiles.common.container.SubContainerParticle;
 import com.creativemd.littletiles.common.container.SubContainerRecipeAdvanced;
 import com.creativemd.littletiles.common.container.SubContainerStorage;
 import com.creativemd.littletiles.common.container.SubContainerStructureOverview;
 import com.creativemd.littletiles.common.container.SubContainerWorkbench;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.entity.EntitySizedTNTPrimed;
-import com.creativemd.littletiles.common.entity.old.EntityOldDoorAnimation;
 import com.creativemd.littletiles.common.event.LittleEventHandler;
 import com.creativemd.littletiles.common.item.ItemBag;
 import com.creativemd.littletiles.common.item.ItemBlockIngredient;
@@ -103,18 +100,19 @@ import com.creativemd.littletiles.common.packet.LittlePlacedAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleResetAnimationPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.packet.LittleSelectionModePacket;
-import com.creativemd.littletiles.common.packet.LittleTileUpdatePacket;
+import com.creativemd.littletiles.common.packet.LittleUpdateStructurePacket;
 import com.creativemd.littletiles.common.packet.LittleVanillaBlockPacket;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.type.LittleStorage;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.LittleTileParticle;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesRendered;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTicking;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTilesTickingRendered;
-import com.creativemd.littletiles.common.tileentity.TileEntityParticle;
 import com.creativemd.littletiles.common.util.converation.ChiselAndBitsConveration;
 import com.creativemd.littletiles.common.util.ingredient.rules.IngredientRules;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
@@ -178,7 +176,6 @@ public class LittleTiles {
 	public static Block coloredBlock2 = new BlockLTColored2().setRegistryName("LTColoredBlock2").setUnlocalizedName("LTColoredBlock2").setHardness(1.5F);
 	public static Block transparentColoredBlock = new BlockLTTransparentColored().setRegistryName("LTTransparentColoredBlock").setUnlocalizedName("LTTransparentColoredBlock").setHardness(0.3F);
 	public static Block storageBlock = new BlockStorageTile().setRegistryName("LTStorageBlockTile").setUnlocalizedName("LTStorageBlockTile").setHardness(1.5F);
-	public static Block particleBlock = new BlockLTParticle().setRegistryName("LTParticleBlock").setUnlocalizedName("LTParticleBlock").setHardness(1.5F);
 	
 	public static Block flowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.water).setRegistryName("LTFlowingWater").setUnlocalizedName("LTFlowingWater").setHardness(0.3F);
 	public static Block whiteFlowingWater = new BlockLTFlowingWater(BlockLTTransparentColored.EnumType.white_water).setRegistryName("LTWhiteFlowingWater").setUnlocalizedName("LTWhiteFlowingWater").setHardness(0.3F);
@@ -276,14 +273,14 @@ public class LittleTiles {
 	
 	@SubscribeEvent
 	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(coloredBlock, coloredBlock2, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, particleBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable,
-		        inputArrow, outputArrow);
+		event.getRegistry().registerAll(coloredBlock, coloredBlock2, transparentColoredBlock, blockTileNoTicking, blockTileTicking, blockTileNoTickingRendered, blockTileTickingRendered, storageBlock, flowingWater, whiteFlowingWater, flowingLava, whiteFlowingLava, singleCable, inputArrow,
+		        outputArrow);
 	}
 	
 	@SubscribeEvent
 	public static void registerItems(RegistryEvent.Register<Item> event) {
 		event.getRegistry().registerAll(hammer, recipe, recipeAdvanced, saw, container, wrench, screwdriver, chisel, colorTube, rubberMallet, multiTiles, utilityKnife, grabber, premade, blockIngredient, blackColorIngredient, cyanColorIngredient, magentaColorIngredient, yellowColorIngredient,
-		        new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlock(particleBlock).setRegistryName(particleBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
+		        new ItemBlock(storageBlock).setRegistryName(storageBlock.getRegistryName()), new ItemBlockColored(coloredBlock, coloredBlock.getRegistryName()).setRegistryName(coloredBlock.getRegistryName()),
 		        new ItemBlockColored2(coloredBlock2, coloredBlock2.getRegistryName()).setRegistryName(coloredBlock2.getRegistryName()), new ItemBlockTransparentColored(transparentColoredBlock, transparentColoredBlock.getRegistryName()).setRegistryName(transparentColoredBlock.getRegistryName()),
 		        new ItemBlockTiles(blockTileNoTicking, blockTileNoTicking.getRegistryName()).setRegistryName(blockTileNoTicking.getRegistryName()), new ItemBlockTiles(blockTileTicking, blockTileTicking.getRegistryName()).setRegistryName(blockTileTicking.getRegistryName()),
 		        new ItemBlockTiles(blockTileNoTickingRendered, blockTileNoTickingRendered.getRegistryName()).setRegistryName(blockTileNoTickingRendered.getRegistryName()),
@@ -303,41 +300,18 @@ public class LittleTiles {
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTicking.class, "LittleTilesTileEntityTicking");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesRendered.class, "LittleTilesTileEntityRendered");
 		GameRegistry.registerTileEntity(TileEntityLittleTilesTickingRendered.class, "LittleTilesTileEntityTickingRendered");
-		GameRegistry.registerTileEntity(TileEntityParticle.class, "LittleTilesParticle");
 		
-		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleGuiHandler() {
+		GuiHandler.registerGuiHandler("littleStorageStructure", new LittleStructureGuiHandler() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
-					return new SubGuiStorage((LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
-				return null;
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubGuiStorage((LittleStorage) structure);
 			}
 			
 			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile.isConnectedToStructure() && tile.connection.getStructure(tile.te.getWorld()) instanceof LittleStorage)
-					return new SubContainerStorage(player, (LittleStorage) tile.connection.getStructure(tile.te.getWorld()));
-				return null;
-			}
-		});
-		
-		GuiHandler.registerGuiHandler("littleparticle", new LittleGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile instanceof LittleTileParticle)
-					return new SubGuiParticle((TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
-				return null;
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				if (tile instanceof LittleTileParticle)
-					return new SubContainerParticle(player, (TileEntityParticle) ((LittleTileParticle) tile).getTileEntity());
-				return null;
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+				return new SubContainerStorage(player, (LittleStorage) structure);
 			}
 		});
 		
@@ -450,17 +424,21 @@ public class LittleTiles {
 			}
 		});
 		
-		GuiHandler.registerGuiHandler("structureoverview", new LittleGuiHandler() {
+		GuiHandler.registerGuiHandler("structureoverview", new LittleTileGuiHandler() {
 			
 			@Override
 			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				return new SubGuiStructureOverview(tile);
+			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, IParentTileList list, LittleTile tile) {
+				if (list instanceof StructureTileList)
+					return new SubGuiStructureOverview((StructureTileList) list);
+				return null;
 			}
 			
 			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleTile tile) {
-				return new SubContainerStructureOverview(player, tile);
+			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, IParentTileList list, LittleTile tile) {
+				if (list instanceof StructureTileList)
+					return new SubContainerStructureOverview(player, (StructureTileList) list);
+				return null;
 			}
 		});
 		
@@ -505,13 +483,13 @@ public class LittleTiles {
 		CreativeCorePacket.registerPacket(LittleActivateDoorPacket.class);
 		CreativeCorePacket.registerPacket(LittleEntityRequestPacket.class);
 		CreativeCorePacket.registerPacket(LittleBedPacket.class);
-		CreativeCorePacket.registerPacket(LittleTileUpdatePacket.class);
 		CreativeCorePacket.registerPacket(LittleVanillaBlockPacket.class);
 		CreativeCorePacket.registerPacket(LittleSelectionModePacket.class);
 		CreativeCorePacket.registerPacket(LittleBlockUpdatePacket.class);
 		CreativeCorePacket.registerPacket(LittleResetAnimationPacket.class);
 		CreativeCorePacket.registerPacket(LittlePlacedAnimationPacket.class);
 		CreativeCorePacket.registerPacket(LittleActionMessagePacket.class);
+		CreativeCorePacket.registerPacket(LittleUpdateStructurePacket.class);
 		
 		LittleAction.registerLittleAction("com", LittleActionCombined.class);
 		
@@ -533,8 +511,6 @@ public class LittleTiles {
 		
 		// Entity
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "sizeTNT"), EntitySizedTNTPrimed.class, "sizedTNT", 0, this, 250, 250, true);
-		
-		EntityRegistry.registerModEntity(new ResourceLocation(modid, "doorAnimation"), EntityOldDoorAnimation.class, "doorAnimation", 1, this, 2000, 250, true);
 		
 		EntityRegistry.registerModEntity(new ResourceLocation(modid, "animation"), EntityAnimation.class, "animation", 2, this, 2000, 250, true);
 		

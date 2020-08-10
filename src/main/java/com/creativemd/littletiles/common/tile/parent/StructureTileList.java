@@ -1,0 +1,178 @@
+package com.creativemd.littletiles.common.tile.parent;
+
+import java.security.InvalidParameterException;
+
+import com.creativemd.creativecore.common.utils.mc.WorldUtils;
+import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
+import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
+import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
+
+public class StructureTileList extends ParentTileList implements IStructureTileList, IStructureConnection {
+	
+	private TileList parent;
+	
+	private Object cache;
+	private int structureIndex;
+	private int attribute;
+	private BlockPos relativePos;
+	
+	public StructureTileList(TileList parent, int index, int attribute) {
+		this.parent = parent;
+		this.structureIndex = index;
+		this.attribute = attribute;
+	}
+	
+	public StructureTileList(TileList parent, NBTTagCompound nbt) {
+		this.parent = parent;
+		read(nbt);
+	}
+	
+	public void setParent(TileList parent) {
+		this.parent = parent;
+	}
+	
+	@Override
+	protected void readExtra(NBTTagCompound nbt) {
+		if (nbt.hasKey("structure")) {
+			NBTTagCompound structureNBT = nbt.getCompoundTag("structure");
+			cache = create(structureNBT, this);
+		} else {
+			int[] array = nbt.getIntArray("coord");
+			if (array.length == 3)
+				relativePos = new BlockPos(array[0], array[1], array[2]);
+			else
+				throw new InvalidParameterException("No valid coord given " + nbt);
+		}
+		attribute = nbt.getInteger("type");
+		structureIndex = nbt.getInteger("index");
+	}
+	
+	@Override
+	protected void writeExtra(NBTTagCompound nbt) {
+		if (isMain()) {
+			NBTTagCompound structureNBT = new NBTTagCompound();
+			((LittleStructure) cache).writeToNBT(structureNBT);
+			nbt.setTag("structure", structureNBT);
+		} else
+			nbt.setIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
+		nbt.setInteger("type", attribute);
+		nbt.setInteger("index", structureIndex);
+	}
+	
+	@Override
+	public boolean isStructure() {
+		return true;
+	}
+	
+	@Override
+	public boolean isStructureChild(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+		return getStructure().isChildOf(structure);
+	}
+	
+	@Override
+	public TileEntityLittleTiles getTe() {
+		return parent.te;
+	}
+	
+	@Override
+	public int getAttribute() {
+		return attribute;
+	}
+	
+	@Override
+	public BlockPos getStructurePosition() {
+		return relativePos.add(getPos());
+	}
+	
+	public LittleStructure setStructureNBT(NBTTagCompound nbt) {
+		this.cache = create(nbt, this);
+		return (LittleStructure) cache;
+	}
+	
+	@Override
+	public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
+		if (isMain())
+			return (LittleStructure) cache;
+		TileEntityLittleTiles te = getTileEntity();
+		if (!te.hasLoaded())
+			throw new NotYetConnectedException();
+		IStructureTileList structure = te.getStructure(structureIndex);
+		if (structure != null)
+			return structure.getStructure();
+		throw new MissingStructureException(te.getPos());
+	}
+	
+	protected TileEntityLittleTiles getTileEntity() throws CorruptedConnectionException, NotYetConnectedException {
+		if (isMain())
+			throw new RuntimeException("Main block cannot look for tileentity");
+		if (cache instanceof TileEntityLittleTiles && !((TileEntityLittleTiles) cache).isInvalid())
+			return (TileEntityLittleTiles) cache;
+		
+		if (relativePos == null)
+			throw new CorruptedLinkException();
+		
+		World world = getTe().getWorld();
+		
+		BlockPos absoluteCoord = getStructurePosition();
+		Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
+		if (WorldUtils.checkIfChunkExists(chunk)) {
+			TileEntity te = world.getTileEntity(absoluteCoord);
+			if (te instanceof TileEntityLittleTiles)
+				return (TileEntityLittleTiles) (cache = te);
+			else
+				throw new MissingBlockException(absoluteCoord);
+		} else
+			throw new NotYetConnectedException();
+	}
+	
+	@Override
+	public boolean isMain() {
+		return relativePos == null;
+	}
+	
+	@Override
+	public boolean isClient() {
+		return parent.isClient();
+	}
+	
+	@Override
+	public int getIndex() {
+		return structureIndex;
+	}
+	
+	public void remove() {
+		parent.removeStructure(structureIndex);
+	}
+	
+	public static LittleStructure create(NBTTagCompound nbt, StructureTileList mainBlock) {
+		if (nbt == null)
+			return null;
+		
+		String id = nbt.getString("id");
+		LittleStructureType type = LittleStructureRegistry.getStructureType(id);
+		if (type != null) {
+			mainBlock.setStructureNBT(nbt);
+			LittleStructure structure = type.createStructure(mainBlock);
+			structure.loadFromNBT(nbt);
+			
+			return structure;
+			
+		} else
+			System.out.println("Could not find structureID=" + id);
+		return null;
+	}
+	
+}

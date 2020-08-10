@@ -11,6 +11,7 @@ import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.client.LittleTilesClient;
 import com.creativemd.littletiles.client.event.PickBlockEvent;
 import com.creativemd.littletiles.client.render.cache.ItemModelCache;
@@ -27,12 +28,15 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleFlipPacket;
 import com.creativemd.littletiles.common.packet.LittleRotatePacket;
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.MissingBlockHandler;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBoxes;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.ingredient.LittleIngredients;
 import com.creativemd.littletiles.common.util.ingredient.LittleInventory;
@@ -188,8 +192,9 @@ public class LittleEventHandler {
 			TileEntity te = player.world.getTileEntity(blockpos);
 			if (te instanceof TileEntityLittleTiles) {
 				AxisAlignedBB bb = player.getEntityBoundingBox();
-				for (LittleTile tile : ((TileEntityLittleTiles) te)) {
-					if (tile instanceof LittleTileColored && tile.isMaterial(Material.WATER) && tile.box.getBox(tile.getContext(), blockpos).intersects(bb)) {
+				for (Pair<IParentTileList, LittleTile> pair : ((TileEntityLittleTiles) te).allTiles()) {
+					LittleTile tile = pair.value;
+					if (tile instanceof LittleTileColored && tile.isMaterial(Material.WATER) && tile.getBox().getBox(pair.key.getContext(), blockpos).intersects(bb)) {
 						
 						mc.getTextureManager().bindTexture(RES_UNDERWATER_OVERLAY);
 						Tessellator tessellator = Tessellator.getInstance();
@@ -523,17 +528,16 @@ public class LittleEventHandler {
 		if (event.getEntityPlayer().world.getBlockState(event.getPos()).getBlock() instanceof BlockTile) {
 			TileEntityLittleTiles te = BlockTile.loadTe(event.getEntityPlayer().world, event.getPos());
 			if (te != null) {
-				for (LittleTile tile : te) {
-					if (!tile.isConnectedToStructure())
-						continue;
-					
-					LittleStructure structure = tile.connection.getStructure(tile.te.getWorld());
-					
+				for (LittleStructure structure : te.loadedStructures()) {
 					if (structure instanceof LittleBed && ((LittleBed) structure).hasBeenActivated) {
-						((LittleBed) structure).trySleep(event.getEntityPlayer(), structure.getHighestCenterVec());
-						event.setResult(SleepResult.OK);
-						((LittleBed) structure).hasBeenActivated = false;
-						return;
+						try {
+							((LittleBed) structure).trySleep(event.getEntityPlayer(), structure.getHighestCenterVec());
+							event.setResult(SleepResult.OK);
+							((LittleBed) structure).hasBeenActivated = false;
+							return;
+						} catch (CorruptedConnectionException | NotYetConnectedException e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}

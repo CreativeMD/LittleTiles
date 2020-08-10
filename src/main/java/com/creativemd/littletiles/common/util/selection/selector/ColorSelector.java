@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.util.selection.selector;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.math.Vec3i;
@@ -30,7 +31,7 @@ public class ColorSelector extends TileSelector {
 	}
 	
 	@Override
-	public boolean is(LittleTile tile) {
+	public boolean is(IParentTileList parent, LittleTile tile) {
 		if (color.getX() == 255 && color.getY() == 255 && color.getZ() == 255)
 			return !(tile instanceof LittleTileColored);
 		else if (tile instanceof LittleTileColored)

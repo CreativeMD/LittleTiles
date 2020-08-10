@@ -4,16 +4,15 @@ import java.util.List;
 
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
+import com.creativemd.littletiles.common.tile.parent.IParentTileList;
+import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
 
 public class LittleTileColored extends LittleTile {
 	
@@ -40,8 +39,8 @@ public class LittleTileColored extends LittleTile {
 	}
 	
 	@Override
-	public List<LittleRenderBox> getInternalRenderingCubes(BlockRenderLayer layer) {
-		List<LittleRenderBox> cubes = super.getInternalRenderingCubes(layer);
+	public List<LittleRenderBox> getInternalRenderingCubes(LittleGridContext context, BlockRenderLayer layer) {
+		List<LittleRenderBox> cubes = super.getInternalRenderingCubes(context, layer);
 		int color = this.color;
 		for (int i = 0; i < cubes.size(); i++) {
 			cubes.get(i).color = color;
@@ -68,11 +67,6 @@ public class LittleTileColored extends LittleTile {
 	public void loadTileExtra(NBTTagCompound nbt) {
 		super.loadTileExtra(nbt);
 		color = nbt.getInteger("color");
-	}
-	
-	@Override
-	public boolean isIdenticalToNBT(NBTTagCompound nbt) {
-		return super.isIdenticalToNBT(nbt) && color == nbt.getInteger("color");
 	}
 	
 	@Override
@@ -105,8 +99,8 @@ public class LittleTileColored extends LittleTile {
 	}
 	
 	@Override
-	public Vec3d getFogColor(World world, BlockPos pos, IBlockState state, Entity entity, Vec3d originalColor, float partialTicks) {
-		Vec3d result = super.getFogColor(world, pos, state, entity, originalColor, partialTicks);
+	public Vec3d getFogColor(IParentTileList parent, Entity entity, Vec3d originalColor, float partialTicks) {
+		Vec3d result = super.getFogColor(parent, entity, originalColor, partialTicks);
 		Vec3d color = ColorUtils.IntToVec(this.color);
 		return new Vec3d(result.x * color.x, result.y * color.y, result.z * color.z);
 	}
@@ -122,14 +116,12 @@ public class LittleTileColored extends LittleTile {
 			return removeColor(tile);
 		if (tile instanceof LittleTileColored) {
 			((LittleTileColored) tile).color = color;
-			if (tile.te.getWorld().isRemote)
-				tile.updateTranslucent();
+			tile.updateTranslucent();
 		} else {
 			LittleTile newTile = new LittleTileColored();
 			tile.assignTo(newTile);
 			((LittleTileColored) newTile).color = color;
-			if (tile.te.getWorld().isRemote)
-				newTile.updateTranslucent();
+			newTile.updateTranslucent();
 			return newTile;
 		}
 		return null;

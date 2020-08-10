@@ -27,11 +27,6 @@ public class LittlePreviewsStructureHolder extends LittlePreviews {
 	}
 	
 	@Override
-	public LittleStructure createStructure() {
-		return structure;
-	}
-	
-	@Override
 	public String getStructureId() {
 		return structure.type.id;
 	}

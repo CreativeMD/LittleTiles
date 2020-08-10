@@ -2,7 +2,6 @@ package com.creativemd.littletiles.client.render.world;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.renderer.GlStateManager;
@@ -51,11 +50,7 @@ public class TileEntityTilesRenderer extends TileEntitySpecialRenderer<TileEntit
 	@Override
 	public void render(TileEntityLittleTiles te, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
 		super.render(te, x, y, z, partialTicks, destroyStage, alpha);
-		
-		for (LittleTile tile : te.renderTiles())
-			tile.renderTick(te.getPos(), x, y, z, partialTicks);
-		
-		for (LittleStructure structure : te.structures(LittleStructureAttribute.TICK_RENDERING))
+		for (LittleStructure structure : te.loadedStructures(LittleStructureAttribute.TICK_RENDERING))
 			structure.renderTick(te.getPos(), x, y, z, partialTicks);
 	}
 }
