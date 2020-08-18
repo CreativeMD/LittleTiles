@@ -2,6 +2,7 @@ package com.creativemd.littletiles.common.util.outdated.identifier;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.stream.IntStream;
 
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -109,9 +110,17 @@ public class LittleIdentifierRelative {
 		return new LittleIdentifierRelative(coord.getX(), coord.getY(), coord.getZ(), context, identifier.clone());
 	}
 	
+	private static HashMap<Integer, LittleIdentifierRelative> converted = new HashMap<>();
+	
 	@Deprecated
 	public int generateIndex(BlockPos pos) {
-		int[] converted = LittleIdentifierAbsolute.convertTo(identifier, context, LittleGridContext.getMax());
-		return (pos.getX() + coord.getX()) + (pos.getY() + coord.getY()) << 4 + (pos.getZ() + coord.getZ()) << 8 + (IntStream.of(converted).parallel().sum()) << 16;
+		int[] array = LittleIdentifierAbsolute.convertTo(identifier, context, LittleGridContext.getMax());
+		int index = (pos.getX() + coord.getX()) + ((pos.getY() + coord.getY()) << 4) + ((pos.getZ() + coord.getZ()) << 8) + ((IntStream.of(array).parallel().sum()) << 16);
+		if (converted.containsKey(index)) {
+			if (!this.equals(converted.get(index)))
+				System.out.println("Found duplicate index=" + index + ", " + this + "!=" + converted.get(index));
+		} else
+			System.out.println(this + "+" + pos + "->" + index);
+		return index;
 	}
 }
