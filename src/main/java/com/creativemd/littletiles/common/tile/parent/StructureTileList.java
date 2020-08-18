@@ -171,6 +171,15 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 			relativePos = RotationUtils.rotate(relativePos, rotation);
 	}
 	
+	public static void setRelativePos(StructureTileList list, BlockPos pos) {
+		list.relativePos = pos;
+	}
+	
+	public static void updateStatus(StructureTileList list) {
+		if (list.cache != null)
+			list.relativePos = null;
+	}
+	
 	public static LittleStructure create(NBTTagCompound nbt, StructureTileList mainBlock) {
 		if (nbt == null)
 			return null;
@@ -178,7 +187,6 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 		String id = nbt.getString("id");
 		LittleStructureType type = LittleStructureRegistry.getStructureType(id);
 		if (type != null) {
-			mainBlock.setStructureNBT(nbt);
 			LittleStructure structure = type.createStructure(mainBlock);
 			structure.loadFromNBT(nbt);
 			

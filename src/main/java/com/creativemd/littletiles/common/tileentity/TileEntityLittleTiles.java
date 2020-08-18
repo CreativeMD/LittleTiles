@@ -576,8 +576,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				} else
 					sortOldTiles(ltNBT, structures);
 			}
-			for (StructureTileList child : structures.values())
+			for (StructureTileList child : structures.values()) {
+				StructureTileList.updateStatus(child);
 				tiles.addStructure(child.getIndex(), child);
+			}
 			
 		} else
 			tiles.read(nbt.getCompoundTag("content"));
@@ -634,8 +636,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			tiles.add(tile);
 		else {
 			StructureTileList structureList = structures.get(identifier);
-			if (structureList == null)
+			if (structureList == null) {
 				structures.put(identifier, structureList = new StructureTileList(tiles, identifier.generateIndex(pos), attribute));
+				StructureTileList.setRelativePos(structureList, identifier.coord);
+			}
 			if (structureNBT != null)
 				structureList.setStructureNBT(structureNBT);
 			structureList.add(tile);
@@ -840,34 +844,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public Iterable<IParentTileList> groups() {
-		return new Iterable<IParentTileList>() {
-			
-			@Override
-			public Iterator<IParentTileList> iterator() {
-				return new Iterator<IParentTileList>() {
-					
-					IParentTileList current = tiles;
-					Iterator<IStructureTileList> children = structures().iterator();
-					
-					@Override
-					public boolean hasNext() {
-						if (current != null)
-							return true;
-						if (!children.hasNext())
-							return false;
-						current = children.next();
-						return true;
-					}
-					
-					@Override
-					public IParentTileList next() {
-						IParentTileList result = current;
-						current = null;
-						return result;
-					}
-				};
-			}
-		};
+		return tiles.groups();
 	}
 	
 	public IParentTileList noneStructureTiles() {

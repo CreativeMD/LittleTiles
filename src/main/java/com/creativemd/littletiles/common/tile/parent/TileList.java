@@ -210,36 +210,63 @@ public class TileList extends ParentTileList {
 		return false;
 	}
 	
+	public Iterable<IParentTileList> groups() {
+		return new Iterable<IParentTileList>() {
+			
+			@Override
+			public Iterator<IParentTileList> iterator() {
+				return new Iterator<IParentTileList>() {
+					
+					IParentTileList current = TileList.this;
+					Iterator<IStructureTileList> children = structures().iterator();
+					
+					@Override
+					public boolean hasNext() {
+						if (current != null)
+							return true;
+						if (!children.hasNext())
+							return false;
+						current = children.next();
+						return true;
+					}
+					
+					@Override
+					public IParentTileList next() {
+						IParentTileList result = current;
+						current = null;
+						return result;
+					}
+				};
+			}
+		};
+	}
+	
 	public Iterable<Pair<IParentTileList, LittleTile>> allTiles() {
+		Iterator<IParentTileList> iterator = groups().iterator();
 		return new Iterable<Pair<IParentTileList, LittleTile>>() {
 			
 			@Override
 			public Iterator<Pair<IParentTileList, LittleTile>> iterator() {
 				return new Iterator<Pair<IParentTileList, LittleTile>>() {
 					
-					Iterator<LittleTile> current = TileList.this.iterator();
-					Pair<IParentTileList, LittleTile> pair = new Pair<>(TileList.this, null);
-					Iterator<StructureTileList> overall = structures.values().iterator();
+					Iterator<LittleTile> inBlock = null;
+					Pair<IParentTileList, LittleTile> pair = null;
 					
 					@Override
 					public boolean hasNext() {
-						inc();
-						return current.hasNext();
-					}
-					
-					void inc() {
-						while (!current.hasNext())
-							if (overall.hasNext()) {
-								StructureTileList list = overall.next();
-								pair = new Pair(list, null);
-								current = list.iterator();
-							} else
-								return;
+						while (inBlock == null || !inBlock.hasNext()) {
+							if (!iterator.hasNext())
+								return false;
+							IParentTileList list = iterator.next();
+							pair = new Pair<>(list, null);
+							inBlock = list.iterator();
+						}
+						return true;
 					}
 					
 					@Override
 					public Pair<IParentTileList, LittleTile> next() {
-						pair.setValue(current.next());
+						pair.setValue(inBlock.next());
 						return pair;
 					}
 				};
