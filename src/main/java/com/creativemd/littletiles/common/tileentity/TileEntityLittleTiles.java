@@ -819,13 +819,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	@Override
 	public void rotate(Rotation rotationIn) {
-		LittleBlockTransformer.rotateTE(this, RotationUtils.getRotation(rotationIn), RotationUtils.getRotationCount(rotationIn), true);
+		LittleBlockTransformer.rotateTE(this, RotationUtils.getRotation(rotationIn), RotationUtils.getRotationCount(rotationIn));
 		updateTiles();
 	}
 	
 	@Override
 	public void mirror(Mirror mirrorIn) {
-		LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn), true);
+		LittleBlockTransformer.flipTE(this, RotationUtils.getMirrorAxis(mirrorIn));
 		updateTiles();
 	}
 	

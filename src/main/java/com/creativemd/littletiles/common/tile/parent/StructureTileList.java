@@ -2,6 +2,8 @@ package com.creativemd.littletiles.common.tile.parent;
 
 import java.security.InvalidParameterException;
 
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.connection.IStructureConnection;
@@ -16,6 +18,7 @@ import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
@@ -155,6 +158,17 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 	
 	public void remove() {
 		parent.removeStructure(structureIndex);
+	}
+	
+	@Deprecated
+	public void flipForWarpDrive(Axis axis) {
+		relativePos = RotationUtils.flip(relativePos, axis);
+	}
+	
+	@Deprecated
+	public void rotateForWarpDrive(Rotation rotation, int steps) {
+		for (int rotationStep = 0; rotationStep < steps; rotationStep++)
+			relativePos = RotationUtils.rotate(relativePos, rotation);
 	}
 	
 	public static LittleStructure create(NBTTagCompound nbt, StructureTileList mainBlock) {

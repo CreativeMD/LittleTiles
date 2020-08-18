@@ -7,6 +7,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
+import com.creativemd.creativecore.common.utils.math.Rotation;
+import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.mc.WorldUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -55,6 +57,7 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -749,6 +752,38 @@ public abstract class LittleStructure {
 	
 	public void neighbourChanged() {
 		
+	}
+	
+	// ====================Mods====================
+	
+	@Deprecated
+	public void flipForWarpDrive(LittleGridContext context, Axis axis) {
+		List<StructureBlockConnector> newBlocks = new ArrayList<>(blocks.size());
+		for (StructureBlockConnector block : blocks)
+			newBlocks.add(new StructureBlockConnector(RotationUtils.flip(block.pos, axis)));
+		
+		blocks.clear();
+		blocks.addAll(newBlocks);
+		
+		for (StructureDirectionalField relative : type.directional)
+			relative.flip(relative.get(this), context, axis, context.rotationCenter);
+	}
+	
+	@Deprecated
+	public void rotateForWarpDrive(LittleGridContext context, Rotation rotation, int steps) {
+		List<StructureBlockConnector> newBlocks = new ArrayList<>(blocks.size());
+		for (StructureBlockConnector block : blocks) {
+			BlockPos pos = block.pos;
+			for (int rotationStep = 0; rotationStep < steps; rotationStep++)
+				pos = RotationUtils.rotate(pos, rotation);
+			newBlocks.add(new StructureBlockConnector(pos));
+		}
+		
+		blocks.clear();
+		blocks.addAll(newBlocks);
+		
+		for (StructureDirectionalField relative : type.directional)
+			relative.rotate(relative.get(this), context, rotation, context.rotationCenter);
 	}
 	
 	public class StructureBlockConnector {
