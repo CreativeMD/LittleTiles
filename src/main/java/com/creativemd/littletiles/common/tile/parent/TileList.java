@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -86,16 +87,31 @@ public class TileList extends ParentTileList {
 				return new Iterator<LittleStructure>() {
 					
 					Iterator<StructureTileList> itr = structures.values().iterator();
+					StructureTileList next = null;
 					
 					@Override
 					public boolean hasNext() {
+						while (next == null) {
+							if (itr.hasNext())
+								next = itr.next();
+							else
+								return false;
+							
+							try {
+								next.checkConnection();
+							} catch (CorruptedConnectionException | NotYetConnectedException e) {
+								next = null;
+							}
+						}
 						return itr.hasNext();
 					}
 					
 					@Override
 					public LittleStructure next() {
 						try {
-							return itr.next().getStructure();
+							StructureTileList temp = next;
+							next = null;
+							return temp.getStructure();
 						} catch (CorruptedConnectionException | NotYetConnectedException e) {
 							throw new RuntimeException(e);
 						}
@@ -311,8 +327,8 @@ public class TileList extends ParentTileList {
 	}
 	
 	@Override
-	public LittleStructure getStructure() {
-		return null;
+	public LittleStructure getStructure() throws CorruptedLinkException {
+		throw new CorruptedLinkException();
 	}
 	
 	public StructureTileList getStructure(int index) {
@@ -348,6 +364,10 @@ public class TileList extends ParentTileList {
 			if (child.isEmpty())
 				iterator.remove();
 		}
+	}
+	
+	public boolean isCompletelyEmpty() {
+		return super.isEmpty() && structures.isEmpty();
 	}
 	
 }

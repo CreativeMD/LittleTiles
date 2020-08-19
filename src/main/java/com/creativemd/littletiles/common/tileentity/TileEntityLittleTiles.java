@@ -114,10 +114,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	protected void assign(TileEntityLittleTiles te) {
 		try {
 			for (Field field : TileEntityLittleTiles.class.getDeclaredFields()) {
-				if (!Modifier.isStatic(field.getModifiers()))
+				if (!Modifier.isStatic(field.getModifiers()) && !Modifier.isFinal(field.getModifiers()))
 					field.set(this, field.get(te));
 			}
-			init();
+			te.setWorld(te.getWorld());
 			tiles.add(te.tiles);
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
@@ -285,7 +285,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (isClientSide())
 			updateCustomRenderer();
 		
-		if (!world.isRemote && tiles.isEmpty())
+		if (!world.isRemote && tiles.isCompletelyEmpty())
 			world.setBlockToAir(getPos());
 		
 		if (world instanceof CreativeWorld)
@@ -348,7 +348,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	 * @return whether it could convert it or not */
 	public boolean convertBlockToVanilla() {
 		LittleTile firstTile = null;
-		if (tiles.isEmpty()) {
+		if (tiles.isCompletelyEmpty()) {
 			world.setBlockToAir(pos);
 			return true;
 		}
@@ -547,7 +547,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		if (tiles == null)
 			init();
 		
-		if (!tiles.isEmpty())
+		if (!tiles.isCompletelyEmpty())
 			tiles.clearEverything();
 		context = LittleGridContext.get(nbt);
 		
@@ -649,6 +649,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	@Override
 	public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
 		super.writeToNBT(nbt);
+		context.set(nbt);
 		nbt.setTag("content", tiles.write());
 		return nbt;
 	}
@@ -710,7 +711,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public Pair<IParentTileList, LittleTile> getFocusedTile(Vec3d pos, Vec3d look) {
-		Pair<IParentTileList, LittleTile> tileFocus = null;
+		IParentTileList parent = null;
+		LittleTile tileFocus = null;
 		RayTraceResult hit = null;
 		double distance = 0;
 		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
@@ -719,11 +721,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				if (hit == null || distance > Temphit.hitVec.distanceTo(pos)) {
 					distance = Temphit.hitVec.distanceTo(pos);
 					hit = Temphit;
-					tileFocus = pair;
+					parent = pair.key;
+					tileFocus = pair.value;
 				}
 			}
 		}
-		return tileFocus;
+		return new Pair(parent, tileFocus);
 	}
 	
 	@Override
@@ -805,7 +808,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public boolean isEmpty() {
-		return tiles.isEmpty();
+		return tiles.isCompletelyEmpty();
 	}
 	
 	@Override
