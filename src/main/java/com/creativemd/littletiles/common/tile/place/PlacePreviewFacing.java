@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -62,7 +63,7 @@ public class PlacePreviewFacing extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, boolean requiresCollisionTest) {
 		return Collections.EMPTY_LIST;
 	}
 	

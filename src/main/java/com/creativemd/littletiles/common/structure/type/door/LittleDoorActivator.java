@@ -211,7 +211,7 @@ public class LittleDoorActivator extends LittleDoor {
 		
 		@Override
 		public void setBit(LittlePreviews previews, BitSet set) {
-			for (int i : previews.structure.getIntArray("activate"))
+			for (int i : previews.structureNBT.getIntArray("activate"))
 				set.set(i);
 		}
 	}

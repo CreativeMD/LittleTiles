@@ -131,7 +131,7 @@ public abstract class LittleStructure {
 		
 		try {
 			if (parent != null)
-				parent.getStructure().load();
+				parent.checkConnection();
 		} catch (CorruptedConnectionException e) {
 			throw new MissingParentException(parent, e);
 		}
@@ -154,7 +154,7 @@ public abstract class LittleStructure {
 	public boolean isChildOf(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
 		if (parent != null)
 			return structure == parent.getStructure() || parent.getStructure().isChildOf(structure);
-		return false;
+		return structure == this;
 	}
 	
 	public void updateChildConnection(int i, LittleStructure child) {
@@ -321,7 +321,7 @@ public abstract class LittleStructure {
 		for (IStructureTileList list : blocksList())
 			map.add(list.getPos(), list);
 		for (StructureChildConnection child : children)
-			collectAllBlocksList(map);
+			child.getStructure().collectAllBlocksList(map);
 		return map;
 	}
 	
@@ -423,7 +423,7 @@ public abstract class LittleStructure {
 		else
 			nbt.removeTag("name");
 		
-		LittleVecContext vec = new LittleVecContext(new LittleVec(mainBlock.getContext(), newCenter.subtract(getPos())), mainBlock.getContext());
+		LittleVecContext vec = new LittleVecContext(new LittleVec(mainBlock.getContext(), getPos().subtract(newCenter)), mainBlock.getContext());
 		
 		LittleVec inverted = vec.getVec().copy();
 		inverted.invert();

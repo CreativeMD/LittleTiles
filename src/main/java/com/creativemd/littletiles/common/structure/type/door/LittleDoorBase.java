@@ -389,9 +389,9 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 					if (!previewChildren.get(i).hasStructure())
 						continue;
 					if (set.get(i))
-						previewChildren.get(i).structure.setBoolean("activateParent", true);
+						previewChildren.get(i).structureNBT.setBoolean("activateParent", true);
 					else
-						previewChildren.get(i).structure.removeTag("activateParent");
+						previewChildren.get(i).structureNBT.removeTag("activateParent");
 				}
 			}
 		}

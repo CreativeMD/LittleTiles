@@ -979,7 +979,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				
 				for (StructureTileList list : x.structures())
 					try {
-						list.getStructure().removeStructure();
+						list.getStructure().onLittleTileDestroy();
 					} catch (CorruptedConnectionException | NotYetConnectedException e) {
 						e.printStackTrace();
 					}

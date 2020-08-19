@@ -217,7 +217,7 @@ public abstract class LittleDoor extends LittleStructure {
 		
 		@Override
 		public void setBit(LittlePreviews previews, BitSet set) {
-			NBTTagList list = previews.structure.getTagList("events", 10);
+			NBTTagList list = previews.structureNBT.getTagList("events", 10);
 			for (int i = 0; i < list.tagCount(); i++) {
 				AnimationEvent event = AnimationEvent.loadFromNBT(list.getCompoundTagAt(i));
 				if (event instanceof ChildActivateEvent)

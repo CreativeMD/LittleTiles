@@ -25,6 +25,7 @@ import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
+import com.creativemd.littletiles.common.tile.preview.LittlePreviewsStructureHolder;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.IGridBased;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -242,7 +243,7 @@ public class Placement {
 		}
 	}
 	
-	public PlacementBlock getorCreateBlock(BlockPos pos) {
+	public PlacementBlock getOrCreateBlock(BlockPos pos) {
 		PlacementBlock block = blocks.get(pos);
 		if (block == null) {
 			block = new PlacementBlock(pos, previews.getContext());
@@ -261,14 +262,13 @@ public class Placement {
 	}
 	
 	private void createPreviews(PlacementStructurePreview current, LittleVec inBlockOffset, BlockPos pos) {
-		
 		if (current.previews != null) {
 			HashMapList<BlockPos, PlacePreview> splitted = new HashMapList<BlockPos, PlacePreview>();
 			for (PlacePreview pp : current.previews.getPlacePreviews(inBlockOffset))
 				pp.split(current.previews.getContext(), splitted, pos);
 			
 			for (Entry<BlockPos, ArrayList<PlacePreview>> entry : splitted.entrySet())
-				getorCreateBlock(entry.getKey()).addPlacePreviews(current.index, entry.getValue());
+				getOrCreateBlock(entry.getKey()).addPlacePreviews(current.index, entry.getValue());
 		}
 		
 		for (PlacementStructurePreview child : current.children)
@@ -277,7 +277,7 @@ public class Placement {
 	
 	public class PlacementBlock implements IGridBased {
 		
-		private final BlockPos pos;
+		public final BlockPos pos;
 		private TileEntityLittleTiles cached;
 		private LittleGridContext context;
 		private final List<PlacePreview>[] previews;
@@ -448,13 +448,13 @@ public class Placement {
 							ParentTileList parent = x.noneStructureTiles();
 							PlacementStructurePreview structure = structures.get(i);
 							if (structure.isStructure()) {
-								StructureTileList list = x.addStructure(i, structure.getAttribute());
+								StructureTileList list = x.addStructure(structure.getIndex(), structure.getAttribute());
 								structure.place(list);
 								parent = list;
 							}
 							
 							for (PlacePreview preview : previews[i]) {
-								for (LittleTile LT : preview.placeTile(Placement.this, this, parent, collsionTest)) {
+								for (LittleTile LT : preview.placeTile(Placement.this, this, parent, structure.getStructure(), collsionTest)) {
 									if (!soundsToBePlayed.contains(LT.getSound()))
 										soundsToBePlayed.add(LT.getSound());
 									
@@ -475,7 +475,7 @@ public class Placement {
 				
 				PlacementStructurePreview structure = structures.get(i);
 				for (PlacePreview preview : latePreviews[i])
-					preview.placeTile(Placement.this, this, structure.isStructure() ? cached.getStructure(structure.getIndex()) : null, false);
+					preview.placeTile(Placement.this, this, null, structure.getStructure(), false);
 			}
 		}
 		
@@ -498,6 +498,8 @@ public class Placement {
 			
 			this.parent = parent;
 			this.previews = previews;
+			if (previews instanceof LittlePreviewsStructureHolder)
+				cachedStructure = ((LittlePreviewsStructureHolder) previews).structure;
 		}
 		
 		public int getAttribute() {
@@ -524,7 +526,7 @@ public class Placement {
 		
 		public void place(StructureTileList parent) {
 			if (cachedStructure == null)
-				cachedStructure = parent.setStructureNBT(previews.structure);
+				cachedStructure = parent.setStructureNBT(previews.structureNBT);
 			else {
 				StructureTileList.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));
 				cachedStructure.addBlock(parent);

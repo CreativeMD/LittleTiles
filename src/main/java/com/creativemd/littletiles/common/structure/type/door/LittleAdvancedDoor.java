@@ -557,7 +557,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			ValueTimeline offX = null;
 			ValueTimeline offY = null;
 			ValueTimeline offZ = null;
-			NBTTagCompound animation = previews.structure.getCompoundTag("animation");
+			NBTTagCompound animation = previews.structureNBT.getCompoundTag("animation");
 			if (animation.hasKey("rotX"))
 				rotX = ValueTimeline.read(animation.getIntArray("rotX"));
 			if (animation.hasKey("rotY"))
@@ -642,7 +642,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			ValueTimeline offX = null;
 			ValueTimeline offY = null;
 			ValueTimeline offZ = null;
-			NBTTagCompound animation = previews.structure.getCompoundTag("animation");
+			NBTTagCompound animation = previews.structureNBT.getCompoundTag("animation");
 			if (animation.hasKey("rotX"))
 				rotX = ValueTimeline.read(animation.getIntArray("rotX"));
 			if (animation.hasKey("rotY"))

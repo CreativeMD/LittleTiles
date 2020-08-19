@@ -713,25 +713,25 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		protected PlacePreview getPlacePreview(Object value, StructureDirectionalField type, LittlePreviews previews) {
 			if (type.key.equals("axisCenter"))
-				return new PlacePreviewRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.structure.getInteger("axis")]);
+				return new PlacePreviewRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.structureNBT.getInteger("axis")]);
 			return super.getPlacePreview(value, type, previews);
 		}
 		
 		@Override
 		public void flip(LittlePreviews previews, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 			super.flip(previews, context, axis, doubledCenter);
-			AxisDoorRotation doorRotation = parseRotation(previews.structure);
+			AxisDoorRotation doorRotation = parseRotation(previews.structureNBT);
 			
-			doorRotation.flip(Axis.values()[previews.structure.getInteger("axis")], axis);
-			doorRotation.writeToNBT(previews.structure);
+			doorRotation.flip(Axis.values()[previews.structureNBT.getInteger("axis")], axis);
+			doorRotation.writeToNBT(previews.structureNBT);
 		}
 		
 		@Override
 		public void rotate(LittlePreviews previews, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 			super.rotate(previews, context, rotation, doubledCenter);
-			AxisDoorRotation doorRotation = parseRotation(previews.structure);
-			doorRotation.rotate(Axis.values()[previews.structure.getInteger("axis")], rotation);
-			doorRotation.writeToNBT(previews.structure);
+			AxisDoorRotation doorRotation = parseRotation(previews.structureNBT);
+			doorRotation.rotate(Axis.values()[previews.structureNBT.getInteger("axis")], rotation);
+			doorRotation.writeToNBT(previews.structureNBT);
 		}
 		
 	}

@@ -543,7 +543,7 @@ public abstract class LittleAction extends CreativeCorePacket {
 		buf.writeBoolean(previews.isAbsolute());
 		buf.writeBoolean(previews.hasStructure());
 		if (previews.hasStructure())
-			writeNBT(buf, previews.structure);
+			writeNBT(buf, previews.structureNBT);
 		if (previews.isAbsolute())
 			writePos(buf, ((LittleAbsolutePreviews) previews).pos);
 		

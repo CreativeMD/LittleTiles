@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
@@ -44,14 +45,14 @@ public class PlacePreview {
 		return previews;
 	}
 	
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, boolean requiresCollisionTest) {
 		LittleTile LT = preview.getLittleTile();
 		
 		if (LT == null)
 			return Collections.EMPTY_LIST;
 		
 		LT.setBox(box.copy());
-		return placement.mode.placeTile(placement, block, parent, LT, requiresCollisionTest);
+		return placement.mode.placeTile(placement, block, parent, structure, LT, requiresCollisionTest);
 	}
 	
 	public PlacePreview copyWithBox(LittleBox box) {

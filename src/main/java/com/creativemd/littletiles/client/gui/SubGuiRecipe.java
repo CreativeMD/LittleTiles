@@ -206,7 +206,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		
 		LittlePreviews previews = holder.previews;
 		
-		LittleStructure structure = StructureTileList.create(previews.structure, null);
+		LittleStructure structure = StructureTileList.create(previews.structureNBT, null);
 		
 		GuiComboBoxCategory comboBox = (GuiComboBoxCategory) get("types");
 		this.structure = structure;

@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.List;
 
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
-import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
-import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -52,15 +51,10 @@ public class PlacePreviewRelative extends PlacePreview {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, boolean requiresCollisionTest) {
-		try {
-			relative.setBox(BlockPos.ORIGIN, box.copy(), block.getContext());
-			relative.add(block.getTe().getPos().subtract(parent.getStructure().getPos()));
-			relativeType.set(parent.getStructure(), relative);
-		} catch (CorruptedConnectionException | NotYetConnectedException e) {
-			e.printStackTrace();
-			new RuntimeException(e);
-		}
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, boolean requiresCollisionTest) {
+		relative.setBox(BlockPos.ORIGIN, box.copy(), block.getContext());
+		relative.add(block.pos.subtract(structure.getPos()));
+		relativeType.set(structure, relative);
 		return Collections.EMPTY_LIST;
 	}
 	

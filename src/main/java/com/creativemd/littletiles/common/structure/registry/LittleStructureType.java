@@ -85,7 +85,7 @@ public class LittleStructureType {
 		List<PlacePreview> placePreviews = new ArrayList<>();
 		
 		for (StructureDirectionalField field : directional) {
-			Object value = field.create(previews.structure);
+			Object value = field.create(previews.structureNBT);
 			PlacePreview tile = getPlacePreview(value, field, previews);
 			if (tile == null)
 				continue;
@@ -106,14 +106,14 @@ public class LittleStructureType {
 		LittleGridContext context = LittleGridContext.getMin();
 		
 		for (StructureDirectionalField field : directional) {
-			Object value = field.create(previews.structure);
+			Object value = field.create(previews.structureNBT);
 			field.convertToSmallest(value);
 			LittleGridContext fieldContext = field.getContext(value);
 			if (fieldContext == null)
 				continue;
 			
 			context = LittleGridContext.max(context, fieldContext);
-			field.save(previews.structure, value);
+			field.save(previews.structureNBT, value);
 		}
 		return context;
 	}
@@ -121,7 +121,7 @@ public class LittleStructureType {
 	public Object loadDirectional(LittlePreviews previews, String key) {
 		for (StructureDirectionalField field : directional)
 			if (field.key.equals(key))
-				return field.create(previews.structure);
+				return field.create(previews.structureNBT);
 		return null;
 	}
 	
@@ -135,25 +135,25 @@ public class LittleStructureType {
 	
 	public void move(LittlePreviews previews, LittleGridContext context, LittleVec offset) {
 		for (StructureDirectionalField field : directional) {
-			Object value = field.create(previews.structure);
+			Object value = field.create(previews.structureNBT);
 			value = field.move(value, context, offset);
-			field.save(previews.structure, value);
+			field.save(previews.structureNBT, value);
 		}
 	}
 	
 	public void flip(LittlePreviews previews, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
 		for (StructureDirectionalField field : directional) {
-			Object value = field.create(previews.structure);
+			Object value = field.create(previews.structureNBT);
 			value = field.flip(value, context, axis, doubledCenter);
-			field.save(previews.structure, value);
+			field.save(previews.structureNBT, value);
 		}
 	}
 	
 	public void rotate(LittlePreviews previews, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
 		for (StructureDirectionalField field : directional) {
-			Object value = field.create(previews.structure);
+			Object value = field.create(previews.structureNBT);
 			value = field.rotate(value, context, rotation, doubledCenter);
-			field.save(previews.structure, value);
+			field.save(previews.structureNBT, value);
 		}
 	}
 	

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
@@ -86,7 +87,7 @@ public abstract class PlacementMode {
 	
 	public abstract List<BlockPos> getCoordsToCheck(Set<BlockPos> splittedTiles, BlockPos pos);
 	
-	public abstract List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest);
+	public abstract List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest);
 	
 	@SideOnly(Side.CLIENT)
 	public PlacementMode place() {

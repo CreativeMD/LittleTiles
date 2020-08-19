@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
@@ -32,7 +33,7 @@ public class PlaceModeNormal extends PlacementMode {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
 		if (!requiresCollisionTest || block.getTe().isSpaceForLittleTile(tile.getBox()))
 			tiles.add(tile);

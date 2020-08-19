@@ -76,7 +76,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 				structurePreview = new StructurePreview(structure);
 				if (needIngredients(player) && !player.world.isRemote)
 					WorldUtils.dropItem(world, structure.getStructureDrop(), pos);
-				structure.removeStructure();
+				structure.onLittleTileDestroy();
 			} catch (CorruptedConnectionException | NotYetConnectedException e) {
 				if (player.getHeldItemMainhand().getItem() instanceof ItemLittleWrench) {
 					((StructureTileList) parent).remove();
@@ -156,7 +156,7 @@ public class LittleActionDestroy extends LittleActionInteract {
 		
 		@Override
 		public int hashCode() {
-			return previews.structure.hashCode();
+			return previews.structureNBT.hashCode();
 		}
 		
 		@Override

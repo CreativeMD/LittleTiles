@@ -35,7 +35,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	protected final List<LittlePreviews> children;
 	protected final List<LittlePreview> previews;
 	
-	public final NBTTagCompound structure;
+	public final NBTTagCompound structureNBT;
 	
 	public LittlePreviews(LittleGridContext context) {
 		this(null, context);
@@ -44,7 +44,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	public LittlePreviews(NBTTagCompound nbt, LittleGridContext context) {
 		this.context = context;
 		this.previews = new ArrayList<>();
-		this.structure = nbt;
+		this.structureNBT = nbt;
 		this.children = new ArrayList<>();
 	}
 	
@@ -52,14 +52,14 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		this.context = previews.getContext();
 		this.previews = new ArrayList<>(previews.previews);
 		this.children = new ArrayList<>(previews.children);
-		this.structure = null;
+		this.structureNBT = null;
 	}
 	
 	public LittlePreviews(NBTTagCompound nbt, LittlePreviews previews) {
 		this.context = previews.getContext();
 		this.previews = new ArrayList<>(previews.previews);
 		this.children = new ArrayList<>(previews.children);
-		this.structure = nbt;
+		this.structureNBT = nbt;
 	}
 	
 	public boolean isAbsolute() {
@@ -71,7 +71,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	}
 	
 	public boolean hasStructure() {
-		return structure != null && structure.getSize() > 0;
+		return structureNBT != null && structureNBT.getSize() > 0;
 	}
 	
 	public boolean hasStructureIncludeChildren() {
@@ -89,18 +89,18 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		if (!hasStructure())
 			return null;
 		
-		return structure.hasKey("name") ? structure.getString("name") : null;
+		return structureNBT.hasKey("name") ? structureNBT.getString("name") : null;
 	}
 	
 	public String getStructureId() {
 		if (hasStructure())
-			return structure.getString("id");
+			return structureNBT.getString("id");
 		return null;
 	}
 	
 	public LittleStructureType getStructureType() {
 		if (hasStructure())
-			return LittleStructureRegistry.getStructureType(structure.getString("id"));
+			return LittleStructureRegistry.getStructureType(structureNBT.getString("id"));
 		return null;
 	}
 	
@@ -139,7 +139,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		
 		if (hasChildren())
 			for (LittlePreviews child : children)
-				placePreviews.addAll(child.getPlacePreviews(offset));
+				placePreviews.addAll(child.getPlacePreviewsIncludingChildren(offset));
 			
 		return placePreviews;
 	}
@@ -250,7 +250,7 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 	}
 	
 	public LittlePreviews copy() {
-		LittlePreviews previews = new LittlePreviews(structure == null ? null : structure.copy(), context);
+		LittlePreviews previews = new LittlePreviews(structureNBT == null ? null : structureNBT.copy(), context);
 		for (LittlePreview preview : this.previews)
 			previews.previews.add(preview.copy());
 		
@@ -304,21 +304,18 @@ public class LittlePreviews implements Iterable<LittlePreview>, IGridBased {
 		if (hasChildren())
 			return new Iterator<LittlePreview>() {
 				
-				public int i = -1;
 				public Iterator<LittlePreview> subIterator = iterator();
-				public List<? extends LittlePreviews> children = getChildren();
+				public Iterator<LittlePreviews> children = getChildren().iterator();
 				
 				@Override
 				public boolean hasNext() {
-					if (subIterator.hasNext())
-						return true;
-					
-					while (i < children.size() - 1 && !subIterator.hasNext()) {
-						i++;
-						subIterator = children.get(i).allPreviewsIterator();
+					while (!subIterator.hasNext()) {
+						if (!children.hasNext())
+							return false;
+						subIterator = children.next().allPreviewsIterator();
 					}
 					
-					return subIterator.hasNext();
+					return true;
 				}
 				
 				@Override

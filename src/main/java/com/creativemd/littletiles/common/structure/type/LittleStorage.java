@@ -170,7 +170,7 @@ public class LittleStorage extends LittleStructure {
 		public void addIngredients(LittlePreviews previews, LittleIngredients ingredients) {
 			super.addIngredients(previews, ingredients);
 			
-			IInventory inventory = InventoryUtils.loadInventoryBasic(previews.structure.getCompoundTag("inventory"));
+			IInventory inventory = InventoryUtils.loadInventoryBasic(previews.structureNBT.getCompoundTag("inventory"));
 			if (inventory != null)
 				ingredients.add(new StackIngredient(inventory));
 		}

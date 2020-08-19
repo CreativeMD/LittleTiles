@@ -23,7 +23,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	}
 	
 	protected LittleAbsolutePreviews(LittleAbsolutePreviews previews) {
-		super(previews.structure, previews);
+		super(previews.structureNBT, previews);
 		this.pos = previews.pos;
 	}
 	
@@ -39,7 +39,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 	
 	@Override
 	public LittleAbsolutePreviews copy() {
-		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(structure != null ? structure.copy() : null, pos, getContext());
+		LittleAbsolutePreviews previews = new LittleAbsolutePreviews(structureNBT != null ? structureNBT.copy() : null, pos, getContext());
 		for (LittlePreview preview : this.previews)
 			previews.previews.add(preview.copy());
 		

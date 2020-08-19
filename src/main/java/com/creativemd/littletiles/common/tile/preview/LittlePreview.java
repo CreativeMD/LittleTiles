@@ -349,7 +349,7 @@ public class LittlePreview implements ICombinable {
 	public static NBTTagCompound saveChildPreviews(LittlePreviews previews) {
 		NBTTagCompound nbt = new NBTTagCompound();
 		if (previews.hasStructure())
-			nbt.setTag("structure", previews.structure);
+			nbt.setTag("structure", previews.structureNBT);
 		
 		NBTTagList list = LittleNBTCompressionTools.writePreviews(previews);
 		nbt.setTag("tiles", list);
@@ -373,7 +373,7 @@ public class LittlePreview implements ICombinable {
 			stack.setTagCompound(new NBTTagCompound());
 		
 		if (previews.hasStructure())
-			stack.getTagCompound().setTag("structure", previews.structure);
+			stack.getTagCompound().setTag("structure", previews.structureNBT);
 		
 		previews.getContext().set(stack.getTagCompound());
 		

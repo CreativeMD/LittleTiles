@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import com.creativemd.littletiles.common.action.block.LittleActionDestroyBoxes;
+import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.util.place.Placement.PlacementBlock;
@@ -33,7 +34,7 @@ public class PlaceModeReplace extends PlacementMode {
 	}
 	
 	@Override
-	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleTile tile, boolean requiresCollisionTest) {
+	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
 		if (!requiresCollisionTest)
 			return new ArrayList<>();
 		List<LittleTile> tiles = new ArrayList<>();

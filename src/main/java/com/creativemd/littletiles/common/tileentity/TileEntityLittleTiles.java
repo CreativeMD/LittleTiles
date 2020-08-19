@@ -29,6 +29,7 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttribute;
+import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
@@ -640,8 +641,12 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 				structures.put(identifier, structureList = new StructureTileList(tiles, identifier.generateIndex(pos), attribute));
 				StructureTileList.setRelativePos(structureList, identifier.coord);
 			}
-			if (structureNBT != null)
-				structureList.setStructureNBT(structureNBT);
+			if (structureNBT != null) {
+				LittleStructure structure = structureList.setStructureNBT(structureNBT);
+				LittleVec vec = tile.getMinVec();
+				for (StructureDirectionalField field : structure.type.directional)
+					field.move(field.get(structure), context, vec);
+			}
 			structureList.add(tile);
 		}
 	}
@@ -747,8 +752,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public boolean combineTiles(int structureIndex) {
+		if (getStructure(structureIndex) == null)
+			return false;
 		boolean changed = BasicCombiner.combineTiles((StructureTileList) getStructure(structureIndex));
-		
 		convertToSmallest();
 		if (changed)
 			updateTiles();
@@ -756,6 +762,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	}
 	
 	public boolean combineTilesSecretly(int structureIndex) {
+		if (getStructure(structureIndex) == null)
+			return false;
 		boolean changed = BasicCombiner.combineTiles((StructureTileList) getStructure(structureIndex));
 		convertToSmallest();
 		return changed;
