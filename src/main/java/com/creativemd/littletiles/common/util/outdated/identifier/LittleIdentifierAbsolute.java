@@ -43,6 +43,11 @@ public class LittleIdentifierAbsolute {
 		return nbt;
 	}
 	
+	@Deprecated
+	public int generateIndex() {
+		return LittleIdentifierRelative.generateIndex(pos, identifier, context);
+	}
+	
 	public static int[] convertTo(int[] identifier, LittleGridContext from, LittleGridContext to) {
 		if (from == to)
 			return identifier;
@@ -67,4 +72,5 @@ public class LittleIdentifierAbsolute {
 		}
 		return null;
 	}
+	
 }

@@ -40,7 +40,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
-import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierRelative;
+import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifierAbsolute;
 import com.creativemd.littletiles.common.util.place.Placement;
 import com.creativemd.littletiles.common.util.place.PlacementHelper;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
@@ -918,9 +918,9 @@ public class EntityAnimation extends Entity {
 		
 		if (compound.hasKey("identifier")) {
 			try {
-				LittleIdentifierRelative identifier = new LittleIdentifierRelative(compound.getCompoundTag("identifier"));
-				int index = identifier.generateIndex(structure.getPos());
-				this.structureLocation = new LocalStructureLocation(identifier.coord, index);
+				LittleIdentifierAbsolute identifier = new LittleIdentifierAbsolute(compound.getCompoundTag("identifier"));
+				int index = identifier.generateIndex();
+				this.structureLocation = new LocalStructureLocation(identifier.pos, index);
 				this.structure = structureLocation.find(fakeWorld);
 			} catch (LittleActionException e) {
 				throw new RuntimeException(e);
