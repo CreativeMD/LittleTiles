@@ -38,6 +38,7 @@ import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
 import com.creativemd.littletiles.common.tile.math.vec.RelativeBlockPos;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
+import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -205,6 +206,10 @@ public abstract class LittleStructure {
 	
 	// ================Tiles================
 	
+	public void addBlock(StructureTileList block) {
+		blocks.add(new StructureBlockConnector(block.getPos().subtract(getPos())));
+	}
+	
 	public Iterable<TileEntityLittleTiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
 		load();
 		return new Iterable<TileEntityLittleTiles>() {
@@ -357,11 +362,13 @@ public abstract class LittleStructure {
 				int[] array = list.getIntArrayAt(i);
 				if (array.length == 4) {
 					RelativeBlockPos pos = new RelativeBlockPos(array);
-					blocks.add(new StructureBlockConnector(pos.getRelativePos()));
+					if (!pos.getRelativePos().equals(BlockPos.ORIGIN))
+						blocks.add(new StructureBlockConnector(pos.getRelativePos()));
 				} else
 					System.out.println("Found invalid array! " + nbt);
 			}
 		} else if (nbt.hasKey("blocks")) { // now (1.5 pre 200)
+			blocks.clear();
 			int[] array = nbt.getIntArray("blocks");
 			for (int i = 0; i + 2 < array.length; i += 3)
 				blocks.add(new StructureBlockConnector(new BlockPos(array[i], array[i + 1], array[i + 2])));
@@ -455,9 +462,9 @@ public abstract class LittleStructure {
 		int[] array = new int[blocks.size() * 3];
 		for (int i = 0; i < blocks.size(); i++) {
 			StructureBlockConnector block = blocks.get(i);
-			array[i] = block.pos.getX();
-			array[i + 1] = block.pos.getY();
-			array[i + 2] = block.pos.getZ();
+			array[i * 3] = block.pos.getX();
+			array[i * 3 + 1] = block.pos.getY();
+			array[i * 3 + 2] = block.pos.getZ();
 		}
 		nbt.setIntArray("blocks", array);
 		

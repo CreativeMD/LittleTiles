@@ -449,8 +449,7 @@ public class Placement {
 							PlacementStructurePreview structure = structures.get(i);
 							if (structure.isStructure()) {
 								StructureTileList list = x.addStructure(i, structure.getAttribute());
-								if (!structure.isPlaced())
-									structure.place(list);
+								structure.place(list);
 								parent = list;
 							}
 							
@@ -524,7 +523,12 @@ public class Placement {
 		}
 		
 		public void place(StructureTileList parent) {
-			cachedStructure = parent.setStructureNBT(previews.structure);
+			if (cachedStructure == null)
+				cachedStructure = parent.setStructureNBT(previews.structure);
+			else {
+				StructureTileList.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));
+				cachedStructure.addBlock(parent);
+			}
 		}
 		
 		public boolean isPlaced() {
