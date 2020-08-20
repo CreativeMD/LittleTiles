@@ -5,14 +5,14 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
 
 public class LittleFixedStructure extends LittleStructure {
 	
-	public LittleFixedStructure(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleFixedStructure(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	

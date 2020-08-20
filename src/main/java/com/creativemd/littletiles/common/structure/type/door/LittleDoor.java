@@ -21,7 +21,7 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.LittleTile;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,7 +36,7 @@ import net.minecraft.world.World;
 
 public abstract class LittleDoor extends LittleStructure {
 	
-	public LittleDoor(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleDoor(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	

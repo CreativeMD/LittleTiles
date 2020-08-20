@@ -44,7 +44,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -149,7 +149,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 		return key.isAligned(timeline.first(key));
 	}
 	
-	public LittleAdvancedDoor(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleAdvancedDoor(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	

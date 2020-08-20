@@ -10,6 +10,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -45,7 +46,7 @@ public class LittleStructureType {
 	
 	public LittleStructure createStructure(StructureTileList mainBlock) {
 		try {
-			return clazz.getConstructor(LittleStructureType.class, StructureTileList.class).newInstance(this, mainBlock);
+			return clazz.getConstructor(LittleStructureType.class, IStructureTileList.class).newInstance(this, mainBlock);
 		} catch (Exception e) {
 			throw new RuntimeException("Invalid structure type " + id);
 		}

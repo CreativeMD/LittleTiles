@@ -46,7 +46,6 @@ import com.creativemd.littletiles.common.structure.type.door.LittleDoorActivator
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tile.math.location.LocalStructureLocation;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -69,7 +68,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStructure {
 	
-	public LittleDoorBase(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleDoorBase(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	

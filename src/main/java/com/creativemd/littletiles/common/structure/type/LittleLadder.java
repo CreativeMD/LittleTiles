@@ -8,7 +8,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.block.state.IBlockState;
@@ -24,7 +24,7 @@ import net.minecraftforge.common.ForgeModContainer;
 
 public class LittleLadder extends LittleStructure {
 	
-	public LittleLadder(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleLadder(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	

@@ -42,7 +42,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleAbsoluteVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
 import com.creativemd.littletiles.common.tile.place.PlacePreviewRelativeAxis;
 import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
@@ -65,7 +65,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleAxisDoor extends LittleDoorBase {
 	
-	public LittleAxisDoor(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleAxisDoor(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 	}
 	
