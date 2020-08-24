@@ -24,6 +24,8 @@ import com.creativemd.littletiles.client.gui.configure.SubGuiConfigure;
 import com.creativemd.littletiles.client.gui.configure.SubGuiModeSelector;
 import com.creativemd.littletiles.client.render.overlay.PreviewRenderer;
 import com.creativemd.littletiles.common.action.LittleAction;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes;
+import com.creativemd.littletiles.common.action.block.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
 import com.creativemd.littletiles.common.api.ILittleTile;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.container.SubContainerConfigure;
@@ -40,11 +42,13 @@ import com.creativemd.littletiles.common.tile.preview.LittleAbsolutePreviews;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 import com.creativemd.littletiles.common.tile.registry.LittleTileRegistry;
+import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.place.MarkMode;
 import com.creativemd.littletiles.common.util.place.PlacementMode;
 import com.creativemd.littletiles.common.util.place.PlacementPosition;
 import com.creativemd.littletiles.common.util.shape.DragShape;
+import com.creativemd.littletiles.common.util.shape.SelectShape;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -81,6 +85,14 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 		setCreativeTab(LittleTiles.littleTab);
 		hasSubtypes = true;
 		setMaxStackSize(1);
+	}
+	
+	public static void setColor(ItemStack stack, int color) {
+		if (stack == null)
+			return;
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		stack.getTagCompound().setInteger("color", color);
 	}
 	
 	@Override
@@ -415,6 +427,22 @@ public class ItemLittleChisel extends Item implements ICreativeRendered, ILittle
 				};
 			}
 		};
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean onClickBlock(World world, EntityPlayer player, ItemStack stack, PlacementPosition position, RayTraceResult result) {
+		DragShape shape = getShape(stack);
+		if (LittleAction.isUsingSecondMode(player)) {
+			if (!world.isRemote)
+				return true;
+			TileEntity tileEntity = world.getTileEntity(result.getBlockPos());
+			if (tileEntity instanceof TileEntityLittleTiles)
+				PacketHandler.sendPacketToServer(new LittleBlockPacket(world, result.getBlockPos(), player, BlockPacketAction.CHISEL_COLOR, new NBTTagCompound()));
+			else
+				PacketHandler.sendPacketToServer(new LittleVanillaBlockPacket(result.getBlockPos(), VanillaBlockAction.CHISEL_COLOR));
+		}
+		return true;
 	}
 	
 	@Override

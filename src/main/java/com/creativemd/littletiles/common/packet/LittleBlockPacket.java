@@ -62,6 +62,19 @@ public class LittleBlockPacket extends CreativeCorePacket {
 				ItemLittleChisel.setPreview(stack, preview);
 			}
 		},
+		CHISEL_COLOR(false) {
+			@Override
+			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {
+				if ((tile.getClass() == LittleTile.class || tile instanceof LittleTileColored)) {
+					int color = ColorUtils.WHITE;
+					if (tile instanceof LittleTileColored)
+						color = ((LittleTileColored) tile).color;
+					LittlePreview preview = ItemLittleChisel.getPreview(stack);
+					preview.setColor(color);
+					ItemLittleChisel.setPreview(stack, preview);
+				}
+			}
+		},
 		GRABBER(false) {
 			@Override
 			public void action(World world, TileEntityLittleTiles te, LittleTile tile, ItemStack stack, EntityPlayer player, RayTraceResult moving, BlockPos pos, NBTTagCompound nbt) {

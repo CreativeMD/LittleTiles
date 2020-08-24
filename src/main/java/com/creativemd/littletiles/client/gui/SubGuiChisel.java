@@ -54,7 +54,7 @@ public class SubGuiChisel extends SubGuiConfigure {
 		controls.add(scroll);
 		onChange();
 		
-		GuiAvatarLabel label = new GuiAvatarLabel("", 115, 35, 0, null);
+		GuiAvatarLabel label = new GuiAvatarLabel("", 120, 35, 0, null);
 		label.name = "avatar";
 		label.height = 60;
 		label.avatarSize = 32;

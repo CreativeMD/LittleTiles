@@ -34,14 +34,14 @@ public class SubGuiColorTube extends SubGuiConfigure {
 	public void createControls() {
 		Color color = ColorUtils.IntToRGBA(ItemColorTube.getColor(stack));
 		// color.setAlpha(255);
-		controls.add(new GuiColorPicker("picker", 2, 2, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
+		controls.add(new GuiColorPicker("picker", 0, 2, color, LittleTiles.CONFIG.isTransparencyEnabled(getPlayer()), LittleTiles.CONFIG.getMinimumTransparency(getPlayer())));
 		
 		ArrayList<String> shapes = new ArrayList<>(SelectShape.keys());
 		shapes.add(0, "tile");
-		GuiComboBox box = new GuiComboBox("shape", 0, 50, 134, shapes);
+		GuiComboBox box = new GuiComboBox("shape", 0, 55, 134, shapes);
 		SelectShape shape = ItemColorTube.getShape(stack);
 		box.select(shape == null ? "tile" : shape.key);
-		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 73, 134, 90);
+		GuiScrollBox scroll = new GuiScrollBox("settings", 0, 78, 134, 90);
 		controls.add(box);
 		controls.add(scroll);
 		onChange();
@@ -82,3 +82,4 @@ public class SubGuiColorTube extends SubGuiConfigure {
 	}
 	
 }
+	

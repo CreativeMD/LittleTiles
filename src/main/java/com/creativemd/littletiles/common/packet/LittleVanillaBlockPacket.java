@@ -61,6 +61,29 @@ public class LittleVanillaBlockPacket extends CreativeCorePacket {
 			}
 			
 		},
+		CHISEL_COLOR {
+			
+			public boolean isFlatColoredBlocksInstalled() {
+				try {
+					return Class.forName("mod.flatcoloredblocks.block.BlockFlatColored") != null;
+				} catch (ClassNotFoundException e) {
+					
+				}
+				return false;
+			}
+			
+			boolean flatColoredBlocks = isFlatColoredBlocksInstalled();
+			
+			@Override
+			public void action(World world, EntityPlayer player, BlockPos pos, IBlockState state) {
+				int color = ColorUtils.WHITE;
+				
+				if (flatColoredBlocks && state.getBlock() instanceof BlockFlatColored)
+					color = ((BlockFlatColored) state.getBlock()).colorFromState(state);
+				
+				ItemLittleChisel.setColor(player.getHeldItemMainhand(), color);
+			}
+		},
 		GRABBER {
 			
 			@Override
