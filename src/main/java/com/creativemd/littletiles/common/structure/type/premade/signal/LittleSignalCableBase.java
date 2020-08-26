@@ -26,7 +26,7 @@ import com.creativemd.littletiles.common.tile.math.box.LittleAbsoluteBox;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.parent.StructureTileList;
+import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 import com.creativemd.littletiles.common.util.vec.SurroundingBox;
@@ -51,7 +51,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 	
 	protected LittleConnectionFace[] faces;
 	
-	public LittleSignalCableBase(LittleStructureType type, StructureTileList mainBlock) {
+	public LittleSignalCableBase(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
 		this.faces = new LittleConnectionFace[getNumberOfConnections()];
 	}
