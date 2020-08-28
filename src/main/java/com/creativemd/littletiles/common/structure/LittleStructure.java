@@ -152,9 +152,11 @@ public abstract class LittleStructure {
 	}
 	
 	public boolean isChildOf(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+		if (structure == this)
+			return true;
 		if (parent != null)
-			return structure == parent.getStructure() || parent.getStructure().isChildOf(structure);
-		return structure == this;
+			return parent.getStructure().isChildOf(structure);
+		return false;
 	}
 	
 	public void updateChildConnection(int i, LittleStructure child) {
