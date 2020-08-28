@@ -443,7 +443,7 @@ public class Placement {
 					cached.updateTilesSecretly((x) -> {
 						
 						for (int i = 0; i < previews.length; i++) {
-							if (previews[i] == null)
+							if (previews[i] == null || previews[i].isEmpty())
 								continue;
 							ParentTileList parent = x.noneStructureTiles();
 							PlacementStructurePreview structure = structures.get(i);
