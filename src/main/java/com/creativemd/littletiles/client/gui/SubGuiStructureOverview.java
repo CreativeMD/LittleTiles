@@ -20,6 +20,7 @@ public class SubGuiStructureOverview extends SubGui {
 	public StructureTileList list;
 	
 	public SubGuiStructureOverview(StructureTileList list) {
+		super(300, 300);
 		this.list = list;
 	}
 	
@@ -35,7 +36,7 @@ public class SubGuiStructureOverview extends SubGui {
 				controls.add(new GuiLabel(ChatFormatting.WHITE + "parent: " + printStructureTitle(structure.getParent()), 0, 20));
 				try {
 					structure.getParent().checkConnection();
-					controls.add(new GuiButton("open", 140, 17) {
+					controls.add(new GuiButton("open", 260, 17) {
 						
 						@Override
 						public void onClicked(int x, int y, int button) {
@@ -47,7 +48,7 @@ public class SubGuiStructureOverview extends SubGui {
 						}
 					});
 				} catch (CorruptedConnectionException | NotYetConnectedException e) {
-					controls.add(new GuiButton("connect", 130, 17) {
+					controls.add(new GuiButton("connect", 260, 17) {
 						
 						@Override
 						public void onClicked(int x, int y, int button) {
@@ -64,14 +65,14 @@ public class SubGuiStructureOverview extends SubGui {
 				}
 			}
 			controls.add(new GuiLabel(ChatFormatting.WHITE + "" + structure.getChildren().size() + " child" + (structure.getChildren().size() != 1 ? "ren" : ""), 0, 40));
-			GuiScrollBox scrollBox = new GuiScrollBox(name, 3, 55, 165, 100);
-			scrollBox.scaleFactor = 0.9F;
+			GuiScrollBox scrollBox = new GuiScrollBox(name, 3, 55, 290, 230);
+			scrollBox.scaleFactor = 1F;
 			int i = 0;
 			for (StructureChildConnection child : structure.getChildren()) {
-				scrollBox.addControl(new GuiLabel("id: " + child.getChildId() + ", " + printStructureTitle(child), 0, 5 + 20 * i));
+				scrollBox.addControl(new GuiLabel("id:" + child.getChildId() + "," + printStructureTitle(child), 0, 5 + 20 * i));
 				try {
 					child.checkConnection();
-					scrollBox.addControl(new GuiButton("open", 128, 2 + 20 * i) {
+					scrollBox.addControl(new GuiButton("open", 248, 2 + 20 * i) {
 						
 						@Override
 						public void onClicked(int x, int y, int button) {
@@ -83,7 +84,7 @@ public class SubGuiStructureOverview extends SubGui {
 						}
 					});
 				} catch (CorruptedConnectionException | NotYetConnectedException e) {
-					scrollBox.addControl(new GuiButton("connect", 115, 2 + 20 * i) {
+					scrollBox.addControl(new GuiButton("connect", 235, 2 + 20 * i) {
 						
 						@Override
 						public void onClicked(int x, int y, int button) {
@@ -103,8 +104,8 @@ public class SubGuiStructureOverview extends SubGui {
 			}
 			controls.add(scrollBox);
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {
-			controls.add(new GuiLabel(ChatFormatting.WHITE + "status: " + ChatFormatting.YELLOW + e.getLocalizedMessage(), 0, 3));
-			controls.add(new GuiButton("connect", 90, 0) {
+			controls.add(new GuiLabel(ChatFormatting.WHITE + "status: " + ChatFormatting.YELLOW + e.getLocalizedMessage(), 0, 23));
+			controls.add(new GuiButton("connect", 200, 0) {
 				
 				@Override
 				public void onClicked(int x, int y, int button) {
@@ -124,11 +125,11 @@ public class SubGuiStructureOverview extends SubGui {
 	private static String printStructureTitle(IStructureConnection connection) {
 		try {
 			LittleStructure structure = connection.getStructure();
-			return ChatFormatting.WHITE + "" + structure.getIndex() + "," + ChatFormatting.WHITE + "status: " + ChatFormatting.DARK_GREEN + (structure.name != null ? structure.name : structure.type.id) + ChatFormatting.WHITE + ", " + structure.count() + " tile(s)";
+			return ChatFormatting.WHITE + "i:" + structure.getIndex() + "," + ChatFormatting.WHITE + ChatFormatting.DARK_GREEN + (structure.name != null ? structure.name : structure.type.id) + ChatFormatting.WHITE + ", " + structure.count() + " tile(s)";
 		} catch (CorruptedConnectionException e) {
-			return ChatFormatting.WHITE + "" + connection.getIndex() + "-" + connection.getAttribute() + " status:" + ChatFormatting.RED + " broken";
+			return ChatFormatting.WHITE + "i:" + connection.getIndex() + "-" + connection.getAttribute() + "," + ChatFormatting.RED + " broken";
 		} catch (NotYetConnectedException e) {
-			return ChatFormatting.WHITE + "" + connection.getIndex() + "-" + connection.getAttribute() + " status:" + ChatFormatting.YELLOW + " pending";
+			return ChatFormatting.WHITE + "i:" + connection.getIndex() + "-" + connection.getAttribute() + "," + ChatFormatting.YELLOW + " pending";
 		}
 	}
 	

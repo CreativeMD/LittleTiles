@@ -13,7 +13,6 @@ import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.location.TileLocation;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
-import com.creativemd.littletiles.common.tile.parent.ParentTileList;
 import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,7 +23,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public abstract class LittleTileGuiHandler extends CustomGuiHandler {
 	
-	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, ParentTileList parent, LittleTile tile) {
+	public static void openGui(String id, NBTTagCompound nbt, EntityPlayer player, IParentTileList parent, LittleTile tile) {
 		nbt.setTag("location", new TileLocation(parent, tile).write());
 		if (parent.getWorld() instanceof CreativeWorld)
 			nbt.setString("uuid", ((CreativeWorld) parent.getWorld()).parent.getUniqueID().toString());
