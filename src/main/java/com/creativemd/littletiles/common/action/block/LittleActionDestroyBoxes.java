@@ -286,13 +286,12 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 		
 		Consumer<TileEntityInteractor> consumer = x -> {
 			List<LittleTile> toAdd = new ArrayList<>();
-			for (Iterator<LittleTile> iterator = x.noneStructureTiles().iterator(); iterator.hasNext();) {
-				LittleTile tile = iterator.next();
+			for (LittleTile tile : x.noneStructureTiles()) {
 				
 				if (!tile.intersectsWith(toCut))
 					continue;
 				
-				iterator.remove();
+				x.noneStructureTiles().remove(tile);
 				
 				if (!tile.equalsBox(toCut)) {
 					double volume = 0;
