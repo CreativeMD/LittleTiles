@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 import javax.vecmath.Vector3f;
 
@@ -23,6 +24,7 @@ import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformable;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -498,7 +500,6 @@ public class LittleTransformableBox extends LittleBox {
 	
 	@Override
 	public LittleBox combineBoxes(LittleBox box, BasicCombiner combinator) {
-		
 		if (box instanceof LittleTransformableBox) {
 			EnumFacing facing = box.sharedBoxFaceWithoutBounds(this);
 			
@@ -550,7 +551,7 @@ public class LittleTransformableBox extends LittleBox {
 			
 			LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data);
 			CornerCache cache = result.new CornerCache(false);
-			setAbsoluteCorners(cache);
+			setAbsoluteCornersTakeBounds(cache);
 			result.data = cache.getData();
 			
 			VectorFanCache stripCache = result.requestCache();
@@ -807,6 +808,39 @@ public class LittleTransformableBox extends LittleBox {
 		}
 	}
 	
+	protected void setAbsoluteCornersTakeBounds(CornerCache cache) {
+		int indicator = getIndicator();
+		
+		int activeBits = 0;
+		for (int i = 0; i < BoxCorner.values().length; i++) {
+			BoxCorner corner = BoxCorner.values()[i];
+			
+			int x = 0;
+			int y = 0;
+			int z = 0;
+			int index = i * 3;
+			if (IntegerUtils.bitIs(indicator, index)) {
+				x = getData(activeBits) + get(corner.x);
+				activeBits++;
+			} else
+				x = cache.getBox().get(corner.x);
+			
+			if (IntegerUtils.bitIs(indicator, index + 1)) {
+				y = getData(activeBits) + get(corner.y);
+				activeBits++;
+			} else
+				y = cache.getBox().get(corner.y);
+			
+			if (IntegerUtils.bitIs(indicator, index + 2)) {
+				z = getData(activeBits) + get(corner.z);
+				activeBits++;
+			} else
+				z = cache.getBox().get(corner.z);
+			
+			cache.setAbsolute(corner, new LittleVec(x, y, z));
+		}
+	}
+	
 	@Override
 	public LittleBox extractBox(int x, int y, int z) {
 		LittleTransformableBox box = this.copy();
@@ -1040,6 +1074,26 @@ public class LittleTransformableBox extends LittleBox {
 		return new RayTraceResult(collision.addVector(pos.getX(), pos.getY(), pos.getZ()), collided, pos);
 	}
 	
+	@Override
+	protected void fillAdvanced(LittleBoxFace face) {
+		List<VectorFan> axis = requestCache().get(face.facing).axisStrips;
+		if (axis != null && !axis.isEmpty())
+			face.cut(axis);
+	}
+	
+	@Override
+	@Nullable
+	public LittleBoxFace generateFace(LittleGridContext context, EnumFacing facing) {
+		VectorFanFaceCache faceCache = requestCache().get(facing);
+		if (faceCache.isCompletelyFilled())
+			return super.generateFace(context, facing);
+		if (faceCache.axisStrips.isEmpty())
+			return null;
+		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
+		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+		return new LittleBoxFace(this, faceCache.axisStrips, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+	}
+	
 	class TransformableVec {
 		
 		int index;
@@ -1166,6 +1220,10 @@ public class LittleTransformableBox extends LittleBox {
 		
 		public CornerCache(boolean relative) {
 			this.relative = relative;
+		}
+		
+		public LittleTransformableBox getBox() {
+			return LittleTransformableBox.this;
 		}
 		
 		public LittleVec[] corners = new LittleVec[BoxCorner.values().length];
@@ -1406,6 +1464,7 @@ public class LittleTransformableBox extends LittleBox {
 		public boolean convex = true;
 		public VectorFan tiltedStrip1;
 		public VectorFan tiltedStrip2;
+		public boolean completedFilled = true;
 		
 		public List<VectorFan> axisStrips = new ArrayList<>();
 		
@@ -1414,7 +1473,7 @@ public class LittleTransformableBox extends LittleBox {
 		}
 		
 		public boolean isCompletelyFilled() {
-			return tiltedStrip1 == null && tiltedStrip2 == null && axisStrips.size() == 1;
+			return completedFilled;
 		}
 		
 		public boolean hasTiltedStrip() {
@@ -1435,12 +1494,20 @@ public class LittleTransformableBox extends LittleBox {
 				if (strip2 != null)
 					newAxisStrips.add(strip2);
 			}
-			
+			if (completedFilled) {
+				if (newAxisStrips.size() == 1 && axisStrips.size() == 1)
+					completedFilled = newAxisStrips.get(0).equals(axisStrips.get(0));
+				else
+					completedFilled = false;
+			}
 			this.axisStrips = newAxisStrips;
 		}
 		
 		public void cutAxisStrip(NormalPlane plane) {
 			int i = 0;
+			VectorFan before = null;
+			if (axisStrips.size() == 1)
+				before = axisStrips.get(0);
 			while (i < axisStrips.size()) {
 				VectorFan strip = axisStrips.get(i).cut(plane);
 				if (strip == null)
@@ -1450,6 +1517,10 @@ public class LittleTransformableBox extends LittleBox {
 					i++;
 				}
 			}
+			if (axisStrips.size() == 1)
+				completedFilled = before.equals(axisStrips.get(0));
+			else
+				completedFilled = false;
 		}
 		
 		protected void add(int x, int y, int z) {

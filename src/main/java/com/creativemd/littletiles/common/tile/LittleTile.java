@@ -16,7 +16,7 @@ import com.creativemd.littletiles.common.api.block.SpecialBlockHandler;
 import com.creativemd.littletiles.common.item.ItemBlockTiles;
 import com.creativemd.littletiles.common.tile.combine.ICombinable;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
@@ -204,7 +204,7 @@ public class LittleTile implements ICombinable {
 		return box.doesFillEntireBlock(context);
 	}
 	
-	public void fillFace(LittleTileFace face, LittleGridContext context) {
+	public void fillFace(LittleBoxFace face, LittleGridContext context) {
 		LittleBox box = this.box;
 		if (face.context != context) {
 			box = box.copy();

@@ -14,4 +14,5 @@ public class LittleRenderBox extends RenderBox {
 		super(cube, block, meta);
 		this.box = box;
 	}
+	
 }

@@ -35,7 +35,7 @@ import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -494,14 +494,14 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	/** Used for rendering */
 	@SideOnly(Side.CLIENT)
-	public boolean shouldSideBeRendered(EnumFacing facing, LittleTileFace face, LittleTile rendered) {
+	public boolean shouldSideBeRendered(EnumFacing facing, LittleBoxFace face, LittleTile rendered) {
 		face.ensureContext(context);
 		
 		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
 			if (pair.value != rendered && (pair.value.doesProvideSolidFace(facing) || pair.value.canBeRenderCombined(rendered)))
 				pair.value.fillFace(face, context);
 			
-		return !face.isFilled();
+		return !face.isFilled(rendered.isTranslucent());
 	}
 	
 	/** @param box

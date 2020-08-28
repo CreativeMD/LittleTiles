@@ -9,7 +9,8 @@ import java.util.Random;
 import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.client.rendering.RenderBox;
-import com.creativemd.creativecore.client.rendering.RenderBox.SideRenderType;
+import com.creativemd.creativecore.client.rendering.face.CachedFaceRenderType;
+import com.creativemd.creativecore.client.rendering.face.FaceRenderType;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
@@ -32,7 +33,7 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.type.LittleBed;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
-import com.creativemd.littletiles.common.tile.math.box.LittleBox.LittleTileFace;
+import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
@@ -821,9 +822,9 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@SideOnly(Side.CLIENT)
-	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderBox cube, LittleTileFace face) {
+	private static void updateRenderer(TileEntityLittleTiles tileEntity, EnumFacing facing, HashMap<EnumFacing, Boolean> neighbors, HashMap<EnumFacing, TileEntityLittleTiles> neighborsTiles, RenderBox cube, LittleBoxFace face) {
 		if (face == null) {
-			cube.setType(facing, SideRenderType.INSIDE_RENDERED);
+			cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
 			return;
 		}
 		Boolean shouldRender = neighbors.get(facing);
@@ -832,7 +833,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			neighbors.put(facing, shouldRender);
 		}
 		
-		if (shouldRender == Boolean.TRUE) {
+		if (shouldRender) {
 			TileEntityLittleTiles otherTile = null;
 			if (!neighborsTiles.containsKey(facing)) {
 				otherTile = checkforTileEntity(tileEntity.getWorld(), facing, tileEntity.getPos());
@@ -845,7 +846,13 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				shouldRender = otherTile.shouldSideBeRendered(facing.getOpposite(), face, (LittleTile) cube.customData);
 			}
 		}
-		cube.setType(facing, shouldRender ? SideRenderType.OUTSIDE_RENDERED : SideRenderType.OUTSIDE_NOT_RENDERD);
+		if (shouldRender)
+			if (((LittleTile) cube.customData).isTranslucent() && face.isPartiallyFilled())
+				cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) tileEntity.getContext().pixelSize, true, true));
+			else
+				cube.setType(facing, FaceRenderType.OUTSIDE_RENDERED);
+		else
+			cube.setType(facing, FaceRenderType.OUTSIDE_NOT_RENDERD);
 	}
 	
 	@Override
@@ -878,8 +885,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 							LittleRenderBox cube = renderCubes.get(i);
 							for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 								EnumFacing facing = EnumFacing.VALUES[k];
-								if (cube.getType(facing).outside) {
-									LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
+								if (cube.getType(facing).isOutside()) {
+									LittleBoxFace face = cube.box.generateFace(tileEntity.getContext(), facing);
 									
 									boolean shouldRenderBefore = cube.renderSide(facing);
 									// face.move(facing);
@@ -907,18 +914,23 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						LittleRenderBox cube = tileCubes.get(j);
 						for (int k = 0; k < EnumFacing.VALUES.length; k++) {
 							EnumFacing facing = EnumFacing.VALUES[k];
-							LittleTileFace face = cube.box.getFace(tileEntity.getContext(), facing);
+							LittleBoxFace face = cube.box.generateFace(tileEntity.getContext(), facing);
 							
 							cube.customData = tile;
 							
 							if (face == null) {
-								cube.setType(facing, SideRenderType.INSIDE_RENDERED);
+								cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
 							} else {
 								if (face.isFaceInsideBlock()) {
-									cube.setType(facing, ((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile) ? SideRenderType.INSIDE_RENDERED : SideRenderType.INSIDE_NOT_RENDERED);
-								} else {
+									if (((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile))
+										if (tile.isTranslucent() && face.isPartiallyFilled())
+											cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) tileEntity.getContext().pixelSize, true, false));
+										else
+											cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
+									else
+										cube.setType(facing, FaceRenderType.INSIDE_NOT_RENDERED);
+								} else
 									updateRenderer(tileEntity, facing, neighbors, neighborsTiles, cube, face);
-								}
 							}
 						}
 					}

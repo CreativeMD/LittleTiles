@@ -17,6 +17,7 @@ import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
+import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
@@ -808,7 +809,7 @@ public class LittleBox {
 		return this.getNearstedPointTo(vec).distanceTo(vec);
 	}
 	
-	public boolean intersectsWithFace(EnumFacing facing, LittleVec vec, boolean completely) {
+	public boolean intersectsWithFace(EnumFacing facing, LittleVec vec) {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
@@ -1006,15 +1007,15 @@ public class LittleBox {
 	// ================Faces================
 	
 	@Nullable
-	public LittleTileFace getFace(LittleGridContext context, EnumFacing facing) {
+	public LittleBoxFace generateFace(LittleGridContext context, EnumFacing facing) {
 		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
 		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
 		
-		return new LittleTileFace(this, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
+		return new LittleBoxFace(this, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
-	public boolean intersectsWith(LittleTileFace face) {
-		return (face.face.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.face.getAxis()) : getMax(face.face.getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
+	public boolean intersectsWith(LittleBoxFace face) {
+		return (face.facing.getAxisDirection() == AxisDirection.POSITIVE ? getMin(face.facing.getAxis()) : getMax(face.facing.getAxis())) == face.origin && face.maxOne > getMin(face.one) && face.minOne < getMax(face.one) && face.maxTwo > getMin(face.two) && face.minTwo < getMax(face.two);
 	}
 	
 	public boolean isFaceSolid(EnumFacing facing) {
@@ -1025,111 +1026,23 @@ public class LittleBox {
 		return true;
 	}
 	
-	public void fill(LittleTileFace face) {
+	public void fill(LittleBoxFace face) {
 		if (intersectsWith(face)) {
 			int minOne = Math.max(getMin(face.one), face.minOne);
 			int maxOne = Math.min(getMax(face.one), face.maxOne);
 			int minTwo = Math.max(getMin(face.two), face.minTwo);
 			int maxTwo = Math.min(getMax(face.two), face.maxTwo);
-			if (isSolid()) {
-				for (int one = minOne; one < maxOne; one++) {
-					for (int two = minTwo; two < maxTwo; two++) {
+			if (isFaceSolid(face.facing.getOpposite()))
+				for (int one = minOne; one < maxOne; one++)
+					for (int two = minTwo; two < maxTwo; two++)
 						face.filled[one - face.minOne][two - face.minTwo] = true;
-					}
-				}
-			} else {
-				boolean completely = !canFaceBeCombined(face.getBox());
-				int min = get(face.face.getOpposite());
-				if (face.face.getAxisDirection() == AxisDirection.NEGATIVE)
-					min--;
-				LittleVec vec = new LittleVec(min, min, min);
-				for (int one = minOne; one < maxOne; one++) {
-					for (int two = minTwo; two < maxTwo; two++) {
-						vec.set(face.one, one);
-						vec.set(face.two, two);
-						if (intersectsWithFace(face.face.getOpposite(), vec, completely)) // isVecInsideBox(vec))
-							face.filled[one - face.minOne][two - face.minTwo] = true;
-					}
-				}
-			}
+			else
+				fillAdvanced(face);
 		}
 	}
 	
-	public static class LittleTileFace {
-		public LittleGridContext context;
-		public LittleBox box;
-		public Axis one;
-		public Axis two;
-		public EnumFacing face;
-		public int minOne;
-		public int minTwo;
-		public int maxOne;
-		public int maxTwo;
-		public int origin;
-		public int oldOrigin;
+	protected void fillAdvanced(LittleBoxFace face) {
 		
-		public boolean[][] filled;
-		
-		public void ensureContext(LittleGridContext context) {
-			if (context == this.context || this.context.size > context.size)
-				return;
-			
-			int ratio = context.size / this.context.size;
-			this.minOne *= ratio;
-			this.minTwo *= ratio;
-			this.maxOne *= ratio;
-			this.maxTwo *= ratio;
-			this.origin *= ratio;
-			this.oldOrigin *= ratio;
-			box = box.copy(); // Make sure the original one will not be modified
-			box.convertTo(this.context, context);
-			this.context = context;
-			filled = new boolean[maxOne - minOne][maxTwo - minTwo];
-		}
-		
-		public LittleTileFace(LittleBox box, LittleGridContext context, EnumFacing face, int minOne, int minTwo, int maxOne, int maxTwo, int origin) {
-			this.box = box;
-			this.context = context;
-			this.face = face;
-			this.one = RotationUtils.getDifferentAxisFirst(face.getAxis());
-			this.two = RotationUtils.getDifferentAxisSecond(face.getAxis());
-			this.minOne = minOne;
-			this.minTwo = minTwo;
-			this.maxOne = maxOne;
-			this.maxTwo = maxTwo;
-			this.origin = origin;
-			this.oldOrigin = origin;
-			filled = new boolean[maxOne - minOne][maxTwo - minTwo];
-		}
-		
-		public boolean isFilled() {
-			int min = oldOrigin;
-			if (face.getAxisDirection() == AxisDirection.POSITIVE)
-				min--;
-			LittleVec vec = new LittleVec(min, min, min);
-			for (int one = 0; one < filled.length; one++) {
-				for (int two = 0; two < filled[one].length; two++) {
-					vec.set(this.one, minOne + one);
-					vec.set(this.two, minTwo + two);
-					if (!filled[one][two] && box.intersectsWithFace(face, vec, false)) // &&
-					                                                                   // LittleTileBox.this.isVecInsideBox(vec))
-						return false;
-				}
-			}
-			return true;
-		}
-		
-		public LittleBox getBox() {
-			return box;
-		}
-		
-		public boolean isFaceInsideBlock() {
-			return origin > 0 && origin < context.maxPos;
-		}
-		
-		public void move(EnumFacing facing) {
-			origin = face.getAxisDirection() == AxisDirection.POSITIVE ? 0 : context.maxPos;
-		}
 	}
 	
 	// ================Static Helpers================

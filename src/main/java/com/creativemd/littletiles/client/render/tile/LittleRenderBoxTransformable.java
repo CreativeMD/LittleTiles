@@ -43,6 +43,8 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
 	
 	@Override
 	protected Object getRenderQuads(EnumFacing facing) {
+		if (getType(facing).hasCachedFans())
+			return getType(facing).getCachedFans();
 		VectorFanFaceCache cache = getFaceCache(facing);
 		
 		if (cache.hasTiltedStrip()) {
@@ -80,37 +82,17 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
 	}
 	
 	@Override
-	protected boolean scaleAndOffsetQuads() {
+	protected boolean scaleAndOffsetQuads(EnumFacing facing) {
 		return true;
 	}
 	
 	@Override
-	protected float getOffsetX() {
-		return 0;
+	protected boolean onlyScaleOnceNoOffset(EnumFacing facing) {
+		return true;
 	}
 	
 	@Override
-	protected float getOffsetY() {
-		return 0;
-	}
-	
-	@Override
-	protected float getOffsetZ() {
-		return 0;
-	}
-	
-	@Override
-	protected float getScaleX() {
-		return scale;
-	}
-	
-	@Override
-	protected float getScaleY() {
-		return scale;
-	}
-	
-	@Override
-	protected float getScaleZ() {
+	protected float getOverallScale(EnumFacing facing) {
 		return scale;
 	}
 }
