@@ -3,6 +3,7 @@ package com.creativemd.littletiles.common.tile.parent;
 import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -20,7 +21,7 @@ public class TileList extends ParentTileList {
 	
 	public final TileEntityLittleTiles te;
 	
-	private final HashMap<Integer, StructureTileList> structures = new HashMap<>();
+	private final ConcurrentHashMap<Integer, StructureTileList> structures = new ConcurrentHashMap<>();
 	private int attributes = LittleStructureAttribute.NONE;
 	
 	private final boolean client;
