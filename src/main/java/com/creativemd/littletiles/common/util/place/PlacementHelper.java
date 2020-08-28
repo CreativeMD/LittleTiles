@@ -235,8 +235,8 @@ public class PlacementHelper {
 			
 			boolean canBePlaceFixed = false;
 			
-			if (fixed && !singleMode) {
-				canBePlaceFixed = LittleAction.canPlaceInside(tiles, world, position.getPos(), mode.placeInside);
+			if (fixed) {
+				canBePlaceFixed = !singleMode && LittleAction.canPlaceInside(tiles, world, position.getPos(), mode.placeInside);
 				
 				if (!canBePlaceFixed)
 					for (int i = 0; i < shifthandlers.size(); i++)

@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tile.place.fixed;
 
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
+import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing.Axis;
@@ -17,8 +18,9 @@ public class InsideFixedHandler extends SecondModeHandler {
 			
 			else if (box.getMax(axis) > context.maxPos)
 				offset = context.maxPos - box.getMax(axis);
-			box.setMin(axis, box.getMin(axis) + offset);
-			box.setMax(axis, box.getMax(axis) + offset);
+			LittleVec vec = new LittleVec(0, 0, 0);
+			vec.set(axis, offset);
+			box.add(vec);
 		}
 	}
 	
