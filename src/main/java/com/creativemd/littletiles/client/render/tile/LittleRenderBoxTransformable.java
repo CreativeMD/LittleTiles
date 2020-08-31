@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.render.tile;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.client.rendering.face.IFaceRenderType;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.math.vec.VectorFan;
 import com.creativemd.littletiles.common.tile.math.box.LittleTransformableBox;
@@ -93,6 +94,9 @@ public class LittleRenderBoxTransformable extends LittleRenderBox {
 	
 	@Override
 	protected float getOverallScale(EnumFacing facing) {
+		IFaceRenderType type = getType(facing);
+		if (type.hasCachedFans())
+			return type.getScale();
 		return scale;
 	}
 }

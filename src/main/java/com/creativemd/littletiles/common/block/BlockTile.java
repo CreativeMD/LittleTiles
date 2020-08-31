@@ -848,7 +848,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 		}
 		if (shouldRender)
 			if (((LittleTile) cube.customData).isTranslucent() && face.isPartiallyFilled())
-				cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) tileEntity.getContext().pixelSize, true, true));
+				cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.context.pixelSize, true, true));
 			else
 				cube.setType(facing, FaceRenderType.OUTSIDE_RENDERED);
 		else
@@ -924,7 +924,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 								if (face.isFaceInsideBlock()) {
 									if (((TileEntityLittleTiles) te).shouldSideBeRendered(facing, face, tile))
 										if (tile.isTranslucent() && face.isPartiallyFilled())
-											cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) tileEntity.getContext().pixelSize, true, false));
+											cube.setType(facing, new CachedFaceRenderType(face.generateFans(), (float) face.context.pixelSize, true, false));
 										else
 											cube.setType(facing, FaceRenderType.INSIDE_RENDERED);
 									else

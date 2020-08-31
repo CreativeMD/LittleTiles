@@ -67,9 +67,15 @@ public class LittleBoxFace {
 		box.convertTo(this.context, context);
 		this.context = context;
 		filled = new boolean[maxOne - minOne][maxTwo - minTwo];
-		if (faceFans != null)
-			for (VectorFan fan : faceFans)
+		if (faceFans != null) {
+			List<VectorFan> newFans = new ArrayList<>(faceFans.size());
+			for (VectorFan fan : faceFans) {
+				fan = fan.copy();
 				fan.scale(ratio);
+				newFans.add(fan);
+			}
+			faceFans = newFans;
+		}
 	}
 	
 	public boolean isPartiallyFilled() {
