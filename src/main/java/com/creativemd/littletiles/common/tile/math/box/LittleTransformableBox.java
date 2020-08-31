@@ -1440,15 +1440,13 @@ public class LittleTransformableBox extends LittleBox {
 			for (int i = 0; i < faces.length; i++)
 				for (VectorFan fan : faces[i])
 					for (int j = 0; j < fan.count(); j++) {
-						int x = roundAway(fan.get(j).x);
-						int y = roundAway(fan.get(j).y);
-						int z = roundAway(fan.get(j).z);
-						minX = Math.min(minX, x);
-						minY = Math.min(minY, y);
-						minZ = Math.min(minZ, z);
-						maxX = Math.max(maxX, x);
-						maxY = Math.max(maxY, y);
-						maxZ = Math.max(maxZ, z);
+						Vector3f vec = fan.get(j);
+						minX = Math.min(minX, (int) Math.floor(vec.x));
+						minY = Math.min(minY, (int) Math.floor(vec.y));
+						minZ = Math.min(minZ, (int) Math.floor(vec.z));
+						maxX = Math.max(maxX, (int) Math.ceil(vec.x));
+						maxY = Math.max(maxY, (int) Math.ceil(vec.y));
+						maxZ = Math.max(maxZ, (int) Math.ceil(vec.z));
 					}
 				
 			minX = Math.max(minX, oldMinX);
@@ -1458,12 +1456,6 @@ public class LittleTransformableBox extends LittleBox {
 			maxY = Math.min(maxY, oldMaxY);
 			maxZ = Math.min(maxZ, oldMaxZ);
 			set(minX, minY, minZ, maxX, maxY, maxZ);
-		}
-		
-		protected int roundAway(float value) {
-			if (value < 0)
-				return (int) Math.floor(value);
-			return (int) Math.ceil(value);
 		}
 	}
 	
@@ -1481,7 +1473,7 @@ public class LittleTransformableBox extends LittleBox {
 		}
 		
 		public boolean isCompletelyFilled() {
-			return completedFilled;
+			return completedFilled && !hasTiltedStrip();
 		}
 		
 		public boolean hasTiltedStrip() {
