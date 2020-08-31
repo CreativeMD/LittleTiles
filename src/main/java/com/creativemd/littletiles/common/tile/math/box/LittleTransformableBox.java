@@ -42,7 +42,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleTransformableBox extends LittleBox {
 	
 	private static final Vector3f ZERO = new Vector3f();
-	private static final int sliceIterations = 1000;
+	private static final int sliceIterations = 10000;
+	private static final double sliceConvertEPSILON = 0.0001;
 	
 	private static final int dataStartIndex = 0;
 	private static final int dataEndIndex = 23;
@@ -90,57 +91,61 @@ public class LittleTransformableBox extends LittleBox {
 		RotationUtils.setValue(size, Math.abs(startTwo - endTwo), two);
 		
 		EnumFacing preferedSide = slice.getPreferedSide(size);
-		CornerCache corners = new CornerCache(true);
+		CornerCache corners = new CornerCache(false);
 		
 		int minOne = getMin(one);
 		int minTwo = getMin(two);
+		int maxOne = getMax(one);
+		int maxTwo = getMax(two);
 		
-		Ray2d ray1 = new Ray2d(one, two, minOne + endOne, minTwo + endTwo, minOne + startOne, minTwo + startTwo);
+		Ray2d ray = new Ray2d(one, two, minOne + endOne, minTwo + endTwo, minOne + startOne, minTwo + startTwo);
 		
-		int rayPosOne1 = (int) (ray1.originOne + ray1.directionOne);
+		int counter = maxOne;
+		int rayPosOne1 = maxOne;
 		int rayPosTwo1 = 0;
 		Double distance1 = null;
 		
 		for (int i = 0; i < sliceIterations; i++) {
-			double value = ray1.get(one, rayPosOne1);
-			double tempDistance = Math.abs(value - (int) value);
+			double value = ray.get(one, counter);
 			
-			if (distance1 == null || tempDistance < distance1) {
-				distance1 = tempDistance;
-				rayPosTwo1 = (int) Math.round(value);
+			if (value <= minTwo || value >= maxTwo) {
+				double tempDistance = Math.abs(value - (int) value);
 				
-				if (distance1 <= VectorFan.EPSILON)
-					break;
+				if (distance1 == null || tempDistance < distance1) {
+					distance1 = tempDistance;
+					rayPosOne1 = counter;
+					rayPosTwo1 = (int) Math.round(value);
+					
+					if (distance1 <= sliceConvertEPSILON)
+						break;
+				}
 			}
 			
-			if (ray1.directionOne > 0)
-				rayPosOne1++;
-			else
-				rayPosOne1--;
+			counter++;
 		}
 		
-		Ray2d ray2 = new Ray2d(one, two, minOne + startOne, minTwo + startTwo, minOne + endOne, minTwo + endTwo);
-		
-		int rayPosOne2 = (int) (ray2.originOne + ray2.directionOne);
+		counter = minOne;
+		int rayPosOne2 = 0;
 		int rayPosTwo2 = 0;
 		Double distance2 = null;
 		
 		for (int i = 0; i < sliceIterations; i++) {
-			double value = ray2.get(one, rayPosOne2);
-			double tempDistance = Math.abs(value - (int) value);
+			double value = ray.get(one, counter);
 			
-			if (distance2 == null || tempDistance < distance2) {
-				distance2 = tempDistance;
-				rayPosTwo2 = (int) Math.round(value);
+			if (value <= minTwo || value >= maxTwo) {
+				double tempDistance = Math.abs(value - (int) value);
 				
-				if (distance2 <= VectorFan.EPSILON)
-					break;
+				if (distance2 == null || tempDistance < distance2) {
+					distance2 = tempDistance;
+					rayPosOne2 = counter;
+					rayPosTwo2 = (int) Math.round(value);
+					
+					if (distance2 <= sliceConvertEPSILON)
+						break;
+				}
 			}
 			
-			if (ray2.directionOne > 0)
-				rayPosOne2++;
-			else
-				rayPosOne2--;
+			counter--;
 		}
 		
 		int newMinOne = Math.min(rayPosOne1, rayPosOne2);
@@ -174,7 +179,6 @@ public class LittleTransformableBox extends LittleBox {
 		corners.setAbsolute(emptyCorner2, axis, newValue);
 		
 		this.data = corners.getData();
-		
 	}
 	
 	public LittleTransformableBox(LittleBox box, int[] data) {
@@ -1142,6 +1146,10 @@ public class LittleTransformableBox extends LittleBox {
 				return getRelativeZ();
 			}
 			return 0;
+		}
+		
+		public BoxCorner getCorner() {
+			return corner;
 		}
 		
 		public int getRelativeX() {
