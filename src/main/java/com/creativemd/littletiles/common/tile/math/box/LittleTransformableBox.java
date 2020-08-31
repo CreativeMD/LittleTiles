@@ -42,7 +42,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 public class LittleTransformableBox extends LittleBox {
 	
 	private static final Vector3f ZERO = new Vector3f();
-	private static final int sliceIterations = 10000;
+	private static final int sliceIterations = 2000;
+	private static final int sliceMin = -5000;
+	private static final int sliceMax = 5000;
 	private static final double sliceConvertEPSILON = 0.0001;
 	
 	private static final int dataStartIndex = 0;
@@ -101,14 +103,14 @@ public class LittleTransformableBox extends LittleBox {
 		Ray2d ray = new Ray2d(one, two, minOne + endOne, minTwo + endTwo, minOne + startOne, minTwo + startTwo);
 		
 		int counter = maxOne;
-		int rayPosOne1 = maxOne;
+		int rayPosOne1 = 0;
 		int rayPosTwo1 = 0;
 		Double distance1 = null;
 		
 		for (int i = 0; i < sliceIterations; i++) {
 			double value = ray.get(one, counter);
 			
-			if (value <= minTwo || value >= maxTwo) {
+			if ((value <= minTwo || value >= maxTwo) && sliceMin <= value && value < sliceMax) {
 				double tempDistance = Math.abs(value - (int) value);
 				
 				if (distance1 == null || tempDistance < distance1) {
@@ -132,7 +134,7 @@ public class LittleTransformableBox extends LittleBox {
 		for (int i = 0; i < sliceIterations; i++) {
 			double value = ray.get(one, counter);
 			
-			if (value <= minTwo || value >= maxTwo) {
+			if ((value <= minTwo || value >= maxTwo) && sliceMin <= value && value < sliceMax) {
 				double tempDistance = Math.abs(value - (int) value);
 				
 				if (distance2 == null || tempDistance < distance2) {
