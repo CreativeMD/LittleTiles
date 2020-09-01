@@ -1508,8 +1508,8 @@ public class LittleTransformableBox extends LittleBox {
 		public void cutAxisStrip(NormalPlane plane) {
 			int i = 0;
 			VectorFan before = null;
-			if (axisStrips.size() == 1)
-				before = axisStrips.get(0);
+			if (completedFilled && axisStrips.size() == 1)
+				before = axisStrips.get(0).copy();
 			while (i < axisStrips.size()) {
 				VectorFan strip = axisStrips.get(i).cut(plane);
 				if (strip == null)
@@ -1519,10 +1519,11 @@ public class LittleTransformableBox extends LittleBox {
 					i++;
 				}
 			}
-			if (axisStrips.size() == 1)
-				completedFilled = before.equals(axisStrips.get(0));
-			else
-				completedFilled = false;
+			if (completedFilled)
+				if (axisStrips.size() == 1)
+					completedFilled = before.equals(axisStrips.get(0));
+				else
+					completedFilled = false;
 		}
 		
 		protected void add(int x, int y, int z) {

@@ -509,6 +509,11 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	}
 	
 	@Override
+	public boolean canCreatureSpawn(IBlockState state, IBlockAccess world, BlockPos pos, net.minecraft.entity.EntityLiving.SpawnPlacementType type) {
+		return false;
+	}
+	
+	@Override
 	public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest) {
 		if (world.isRemote)
 			return removedByPlayerClient(state, world, pos, player, willHarvest);
