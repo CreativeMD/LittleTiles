@@ -212,8 +212,11 @@ public class Placement {
 			world.getBlockState(pos).neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
 		}
 		
-		for (BlockPos pos : blocksToNotify)
-			world.getBlockState(pos).neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
+		for (BlockPos pos : blocksToNotify) {
+			IBlockState state = world.getBlockState(pos);
+			if (state.getBlock() instanceof BlockTile)
+				state.neighborChanged(world, pos, LittleTiles.blockTileNoTicking, this.pos);
+		}
 		
 		for (int i = 0; i < soundsToBePlayed.size(); i++)
 			world.playSound((EntityPlayer) null, pos, soundsToBePlayed.get(i).getPlaceSound(), SoundCategory.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F, soundsToBePlayed.get(i).getPitch() * 0.8F);
