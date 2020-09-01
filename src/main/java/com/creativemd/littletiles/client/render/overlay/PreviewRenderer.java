@@ -225,7 +225,7 @@ public class PreviewRenderer {
 					
 					GlStateManager.enableBlend();
 					GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-					GlStateManager.glLineWidth(2.0F);
+					GlStateManager.glLineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
 					GlStateManager.enableTexture2D();
 					mc.renderEngine.bindTexture(WHITE_TEXTURE);
 					GlStateManager.depthMask(false);
