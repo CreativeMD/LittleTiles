@@ -128,8 +128,10 @@ public class LayeredRenderBufferCache {
 		}
 		
 		public void remove() {
-			manager.remove(this);
-			manager = null;
+			if (manager != null) {
+				manager.remove(this);
+				manager = null;
+			}
 		}
 		
 	}
