@@ -118,8 +118,10 @@ public class TileEntityRenderManager {
 	public void queue() {
 		synchronized (this) {
 			requestedIndex++;
-			if (!queued)
-				queued = RenderingThread.addCoordToUpdate(te);
+			if (!queued) {
+				RenderingThread.addCoordToUpdate(te);
+				queued = true;
+			}
 		}
 	}
 	
@@ -136,7 +138,7 @@ public class TileEntityRenderManager {
 			this.finishedIndex = index;
 			this.renderState = renderState;
 			boolean done = force || (index == requestedIndex && this.renderState == renderState);
-			if (!done)
+			if (done)
 				queued = false;
 			this.hasLightChanged = false;
 			this.hasNeighbourChanged = false;
@@ -155,10 +157,6 @@ public class TileEntityRenderManager {
 		bufferCache = null;
 		boxCache = null;
 		cachedRenderBoundingBox = null;
-	}
-	
-	public void setEmpty() {
-		
 	}
 	
 	public LayeredRenderBoxCache getBoxCache() {
