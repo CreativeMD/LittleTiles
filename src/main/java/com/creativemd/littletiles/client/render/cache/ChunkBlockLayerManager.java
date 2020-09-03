@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Callable;
 
 import org.lwjgl.opengl.GL30;
 
@@ -67,7 +67,7 @@ public class ChunkBlockLayerManager {
 	}
 	
 	public void backToRAM() {
-		Runnable run = () -> {
+		Callable<Boolean> run = () -> {
 			buffer.bindBuffer();
 			try {
 				ByteBuffer uploadedData = RenderUploader.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, totalSize, GL30.GL_MAP_READ_BIT, null);
@@ -87,16 +87,17 @@ public class ChunkBlockLayerManager {
 			
 			buffer.unbindBuffer();
 			buffer = null;
+			return true;
 		};
-		if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
-			run.run();
-		else {
-			ListenableFuture<Object> future = Minecraft.getMinecraft().addScheduledTask(run);
-			try {
+		try {
+			if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
+				run.call();
+			else {
+				ListenableFuture<Boolean> future = Minecraft.getMinecraft().addScheduledTask(run);
 				future.get();
-			} catch (InterruptedException | ExecutionException e) {
-				e.printStackTrace();
 			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
 		}
 	}
 	
