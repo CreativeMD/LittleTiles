@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.tile.parent;
 
 import java.util.BitSet;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -356,7 +355,8 @@ public class TileList extends ParentTileList {
 	
 	public void fillUsedIds(BitSet usedIds) {
 		for (Integer id : structures.keySet())
-			usedIds.set(id);
+			if (id >= 0)
+				usedIds.set(id);
 	}
 	
 	public void removeEmptyLists() {
