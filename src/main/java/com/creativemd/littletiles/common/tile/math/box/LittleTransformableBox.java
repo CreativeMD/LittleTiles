@@ -636,7 +636,6 @@ public class LittleTransformableBox extends LittleBox {
 		if (newBox == null)
 			return null;
 		if (box.getClass() == LittleBox.class) {
-			
 			LittleTransformableBox test = new LittleTransformableBox(box, data);
 			CornerCache cache = test.new CornerCache(false);
 			setAbsoluteCorners(cache);
@@ -663,6 +662,13 @@ public class LittleTransformableBox extends LittleBox {
 			if (box instanceof LittleTransformableBox)
 				return intersectsWith(((LittleTransformableBox) box).requestCache()) || ((LittleTransformableBox) box).intersectsWith(this.requestCache());
 			
+			VectorFanCache ownCache = requestCache();
+			for (int i = 0; i < ownCache.faces.length; i++)
+				for (VectorFan fan : ownCache.faces[i])
+					for (int j = 0; j < fan.count(); j++)
+						if (box.isVecInside(fan.get(j)))
+							return true;
+						
 			// Build fan cache
 			VectorFanCache newCache = new VectorFanCache();
 			for (int i = 0; i < newCache.faces.length; i++) {
@@ -678,10 +684,26 @@ public class LittleTransformableBox extends LittleBox {
 	}
 	
 	protected boolean intersectsWith(VectorFanCache cache) {
+		VectorFanCache ownCache = requestCache();
+		for (int i = 0; i < ownCache.faces.length; i++) {
+			VectorFanFaceCache face = ownCache.faces[i];
+			VectorFanFaceCache otherFace = cache.faces[i];
+			
+			if (face.hasAxisStrip() && otherFace.hasAxisStrip()) {
+				EnumFacing facing = EnumFacing.VALUES[i];
+				Axis axis = facing.getAxis();
+				Axis one = RotationUtils.getDifferentAxisFirst(axis);
+				Axis two = RotationUtils.getDifferentAxisSecond(axis);
+				
+				for (VectorFan fan : face.axisStrips)
+					for (VectorFan fan2 : otherFace.axisStrips)
+						if (RotationUtils.get(axis, fan.get(0)) == RotationUtils.get(axis, fan2.get(0)) && fan.intersect2d(fan2, one, two))
+							return true;
+			}
+		}
+		
 		List<List<NormalPlane>> shapes = new ArrayList<>();
 		shapes.add(new ArrayList<>());
-		
-		VectorFanCache ownCache = requestCache();
 		
 		// Build all possible shapes
 		for (int i = 0; i < ownCache.faces.length; i++) {

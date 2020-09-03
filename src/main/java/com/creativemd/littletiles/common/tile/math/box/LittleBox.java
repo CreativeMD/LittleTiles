@@ -839,6 +839,10 @@ public class LittleBox {
 		return vec.x >= context.toVanillaGrid(this.minX) && vec.x < context.toVanillaGrid(this.maxX) && vec.y >= context.toVanillaGrid(this.minY) && vec.y < context.toVanillaGrid(this.maxY);
 	}
 	
+	public boolean isVecInside(Vector3f vec) {
+		return vec.x > this.minX && vec.x < this.maxX && vec.y > this.minY && vec.y < this.maxY && vec.z > this.minZ && vec.z < this.maxZ;
+	}
+	
 	public LittleVec getCenter() {
 		return new LittleVec((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
 	}
