@@ -567,7 +567,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 1));
 				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/BufferBuilder", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
 				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
-				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/VertexBufferUploader", patchFieldName("vertexBuffer"), "Lnet/minecraft/client/renderer/vertex/VertexBuffer;"));
+				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/VertexBufferUploader", map("vertexBuffer", "field_178179_a"), "Lnet/minecraft/client/renderer/vertex/VertexBuffer;"));
 				m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "com/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager", "bindBuffer", patchDESC("(Lnet/minecraft/client/renderer/vertex/VertexBuffer;)V"), false));
 				
 				m.instructions.insertBefore(before, after);
