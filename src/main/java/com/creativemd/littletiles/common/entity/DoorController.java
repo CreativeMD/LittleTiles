@@ -3,7 +3,6 @@ package com.creativemd.littletiles.common.entity;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.utils.math.Rotation;
@@ -239,17 +238,11 @@ public class DoorController extends EntityAnimationController {
 				boolean subWorld = world instanceof IOrientatedWorld;
 				HashMapList<RenderChunk, TileEntityLittleTiles> chunks = subWorld ? null : new HashMapList<>();
 				for (TileEntityLittleTiles te : result.tileEntities) {
-					if (te.inRenderingQueue == null)
-						te.inRenderingQueue = new AtomicBoolean();
-					TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
-					if (oldTE instanceof TileEntityLittleTiles && ((TileEntityLittleTiles) oldTE).buffer != null) {
-						synchronized (te.inRenderingQueue) {
-							if (te.inRenderingQueue.get() || (te.buffer != null && te.buffer.isEmpty())) {
-								if (te.buffer == null)
-									te.buffer = ((TileEntityLittleTiles) oldTE).buffer;
-								else
-									te.buffer.combine(((TileEntityLittleTiles) oldTE).buffer);
-							}
+					synchronized (te.render) {
+						TileEntity oldTE = parent.fakeWorld.getTileEntity(te.getPos());
+						if (oldTE instanceof TileEntityLittleTiles) {
+							if (te.render.isInQueue())
+								te.render.getBufferCache().combine(((TileEntityLittleTiles) oldTE).render.getBufferCache());
 							
 							if (subWorld)
 								RenderUtils.getRenderChunk((IOrientatedWorld) te.getWorld(), te.getPos()).addRenderData(te);

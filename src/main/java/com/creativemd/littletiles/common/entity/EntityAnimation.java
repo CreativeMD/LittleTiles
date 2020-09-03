@@ -905,7 +905,7 @@ public class EntityAnimation extends Entity {
 			TileEntityLittleTiles te = (TileEntityLittleTiles) fakeWorld.getTileEntity(pos);
 			te.readFromNBT(nbt);
 			if (world.isRemote)
-				te.updateCustomRenderer();
+				te.render.tilesChanged();
 		}
 		
 		fakeWorld.loadedTileEntityList.removeIf(x -> x.isInvalid());

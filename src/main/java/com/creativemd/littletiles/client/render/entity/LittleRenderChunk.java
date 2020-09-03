@@ -5,7 +5,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
+import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -17,13 +18,13 @@ import net.minecraft.util.math.BlockPos;
 
 public class LittleRenderChunk {
 	
-	protected int lastRenderIndex = LittleChunkDispatcher.currentRenderIndex;
+	protected int lastRenderIndex = LittleChunkDispatcher.currentRenderState;
 	
 	public final BlockPos pos;
 	protected final VertexBuffer[] vertexBuffers = new VertexBuffer[BlockRenderLayer.values().length];
 	protected BufferBuilder[] tempBuffers = new BufferBuilder[BlockRenderLayer.values().length];
 	
-	protected List<BufferBuilder>[] queuedBuffers = new List[BlockRenderLayer.values().length];
+	protected List<BufferHolder>[] queuedBuffers = new List[BlockRenderLayer.values().length];
 	protected boolean[] bufferChanged = new boolean[BlockRenderLayer.values().length];
 	
 	private LinkedHashMap<BlockPos, TileEntityLittleTiles> tileEntities = new LinkedHashMap<>();
@@ -71,17 +72,15 @@ public class LittleRenderChunk {
 	}
 	
 	private void addRenderDataInternal(TileEntityLittleTiles te) {
-		BlockLayerRenderBuffer layers = te.buffer;
-		if (layers != null) {
-			for (int i = 0; i < BlockRenderLayer.values().length; i++) {
-				BlockRenderLayer layer = BlockRenderLayer.values()[i];
-				BufferBuilder tempBuffer = layers.getBufferByLayer(layer);
-				if (tempBuffer != null) {
-					if (queuedBuffers[i] == null)
-						queuedBuffers[i] = new ArrayList<>();
-					
-					queuedBuffers[i].add(tempBuffer);
-				}
+		LayeredRenderBufferCache cache = te.render.getBufferCache();
+		for (int i = 0; i < BlockRenderLayer.values().length; i++) {
+			BlockRenderLayer layer = BlockRenderLayer.values()[i];
+			BufferHolder tempBuffer = cache.get(layer);
+			if (tempBuffer != null) {
+				if (queuedBuffers[i] == null)
+					queuedBuffers[i] = new ArrayList<>();
+				
+				queuedBuffers[i].add(tempBuffer);
 			}
 		}
 	}
@@ -108,8 +107,8 @@ public class LittleRenderChunk {
 		for (int i = 0; i < queuedBuffers.length; i++) {
 			if (queuedBuffers[i] != null && !queuedBuffers[i].isEmpty()) {
 				int expand = 0;
-				for (BufferBuilder teBuffer : queuedBuffers[i])
-					expand += teBuffer.getVertexCount();
+				for (BufferHolder teBuffer : queuedBuffers[i])
+					expand += teBuffer.vertexCount;
 				
 				BufferBuilder tempBuffer = tempBuffers[i];
 				if (tempBuffer == null) {
@@ -120,8 +119,8 @@ public class LittleRenderChunk {
 				} else
 					BufferBuilderUtils.growBufferSmall(tempBuffer, tempBuffer.getVertexFormat().getNextOffset() * expand);
 				
-				for (BufferBuilder teBuffer : queuedBuffers[i])
-					BufferBuilderUtils.addBuffer(tempBuffer, teBuffer);
+				for (BufferHolder teBuffer : queuedBuffers[i])
+					teBuffer.add(tempBuffer);
 				
 				queuedBuffers[i].clear();
 				bufferChanged[i] = true;
@@ -169,7 +168,7 @@ public class LittleRenderChunk {
 				complete = false;
 			}
 			
-			if (lastRenderIndex != LittleChunkDispatcher.currentRenderIndex) {
+			if (lastRenderIndex != LittleChunkDispatcher.currentRenderState) {
 				for (TileEntityLittleTiles te : tileEntities.values())
 					te.updateQuadCache(this);
 				tileEntities.clear();

@@ -7,7 +7,8 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
-import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
+import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
+import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -26,11 +27,11 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class LittleChunkDispatcher {
 	
-	public static int currentRenderIndex = Integer.MIN_VALUE;
+	public static int currentRenderState = Integer.MIN_VALUE;
 	
 	public static void onReloadRenderers(RenderGlobal renderGlobal) {
 		if (mc.renderGlobal == renderGlobal) {
-			currentRenderIndex++;
+			currentRenderState++;
 			if (mc.world != null)
 				mc.world.addEventListener(new LightChangeEventListener());
 		}
@@ -78,7 +79,8 @@ public class LittleChunkDispatcher {
 		return null;
 	}
 	
-	public static Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
+	public static final Field added = ReflectionHelper.findField(BufferBuilder.class, "littleTilesAdded");
+	public static final Field blockLayerManager = ReflectionHelper.findField(BufferBuilder.class, "blockLayerManager");
 	
 	public static void uploadChunk(final BlockRenderLayer layer, final BufferBuilder buffer, final RenderChunk chunk, final CompiledChunk compiled, final double p_188245_5_) {
 		try {
@@ -100,6 +102,8 @@ public class LittleChunkDispatcher {
 				return;
 			}
 			
+			ChunkBlockLayerManager manager = new ChunkBlockLayerManager(buffer, layer);
+			
 			int expanded = 0;
 			
 			boolean dynamicUpdate = false;
@@ -114,17 +118,14 @@ public class LittleChunkDispatcher {
 				for (TileEntityLittleTiles te : tiles) {
 					if (layer == BlockRenderLayer.SOLID) {
 						if (dynamicUpdate)
-							te.hasLightChanged = true;
+							te.render.hasLightChanged = true;
 						
 						te.updateQuadCache(chunk);
 					}
 					
-					BlockLayerRenderBuffer blockLayerBuffer = te.buffer;
-					if (blockLayerBuffer != null) {
-						BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
-						if (teBuffer != null)
-							expanded += teBuffer.getVertexCount();
-					}
+					BufferHolder holder = te.render.getBufferCache().get(layer);
+					if (holder != null)
+						expanded += holder.vertexCount;
 				}
 			}
 			
@@ -148,14 +149,8 @@ public class LittleChunkDispatcher {
 				
 				BufferBuilderUtils.growBufferSmall(buffer, buffer.getVertexFormat().getNextOffset() * expanded + buffer.getVertexFormat().getNextOffset());
 				
-				for (TileEntityLittleTiles te : tiles) {
-					BlockLayerRenderBuffer blockLayerBuffer = te.buffer;
-					if (blockLayerBuffer == null)
-						continue;
-					BufferBuilder teBuffer = blockLayerBuffer.getBufferByLayer(layer);
-					if (teBuffer != null)
-						BufferBuilderUtils.addBuffer(buffer, teBuffer);
-				}
+				for (TileEntityLittleTiles te : tiles)
+					manager.add(te);
 				
 				if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
 					Entity entity = mc.getRenderViewEntity();
@@ -175,6 +170,10 @@ public class LittleChunkDispatcher {
 				
 				try {
 					added.setBoolean(buffer, true);
+					if (layer != BlockRenderLayer.TRANSLUCENT) {
+						manager.readyUp();
+						blockLayerManager.set(buffer, manager);
+					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}

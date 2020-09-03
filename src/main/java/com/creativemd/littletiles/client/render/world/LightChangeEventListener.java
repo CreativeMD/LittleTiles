@@ -29,7 +29,7 @@ public class LightChangeEventListener implements IWorldEventListener {
 	public void notifyLightSet(BlockPos pos) {
 		TileEntityLittleTiles te = BlockTile.loadTe(mc.world, pos);
 		if (te != null)
-			te.hasNeighbourChanged = true;
+			te.render.hasLightChanged = true;
 	}
 	
 	@Override

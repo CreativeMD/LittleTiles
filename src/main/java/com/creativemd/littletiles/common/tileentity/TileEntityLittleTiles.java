@@ -7,7 +7,6 @@ import java.util.BitSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -20,10 +19,7 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.creativecore.common.world.IOrientatedWorld;
-import com.creativemd.littletiles.client.render.cache.BlockLayerRenderBuffer;
-import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
-import com.creativemd.littletiles.client.render.cache.RenderingThread;
-import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
+import com.creativemd.littletiles.client.render.world.TileEntityRenderManager;
 import com.creativemd.littletiles.common.api.te.ILittleTileTE;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -49,7 +45,6 @@ import com.creativemd.littletiles.common.util.outdated.identifier.LittleIdentifi
 import com.creativemd.littletiles.common.util.vec.LittleBlockTransformer;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -77,40 +72,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public SideSolidCache sideCache = new SideSolidCache();
 	
 	@SideOnly(Side.CLIENT)
-	public int renderIndex;
-	
-	@SideOnly(Side.CLIENT)
-	public boolean hasLightChanged;
-	
-	@SideOnly(Side.CLIENT)
-	public boolean hasNeighbourChanged;
-	
-	@SideOnly(Side.CLIENT)
-	public RenderChunk lastRenderedChunk;
-	
-	@SideOnly(Side.CLIENT)
-	public BlockLayerRenderBuffer buffer;
-	
-	@SideOnly(Side.CLIENT)
-	private RenderCubeLayerCache cubeCache;
-	
-	@SideOnly(Side.CLIENT)
-	public AtomicBoolean inRenderingQueue;
-	
-	@SideOnly(Side.CLIENT)
-	public boolean buildingCache;
-	
-	@SideOnly(Side.CLIENT)
-	public boolean rebuildRenderingCache;
-	
-	@SideOnly(Side.CLIENT)
-	private double cachedRenderDistance;
-	
-	@SideOnly(Side.CLIENT)
-	private AxisAlignedBB cachedRenderBoundingBox;
-	
-	@SideOnly(Side.CLIENT)
-	private boolean requireRenderingBoundingBoxUpdate;
+	public TileEntityRenderManager render;
 	
 	protected void assign(TileEntityLittleTiles te) {
 		try {
@@ -127,6 +89,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	private void init() {
 		tiles = new TileList(this, isClientSide());
+		if (isClientSide())
+			initClient();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	private void initClient() {
+		this.render = new TileEntityRenderManager(this);
 	}
 	
 	@Override
@@ -199,25 +168,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public void updateQuadCache(Object chunk) {
 		if (tiles == null)
 			return;
-		if (chunk instanceof RenderChunk)
-			lastRenderedChunk = (RenderChunk) chunk;
-		
-		if (renderIndex != LittleChunkDispatcher.currentRenderIndex)
-			getCubeCache().clearCache();
-		
-		boolean doesNeedUpdate = getCubeCache().doesNeedUpdate() || hasNeighbourChanged || hasLightChanged;
-		
-		hasLightChanged = false;
-		hasNeighbourChanged = false;
-		
-		if (doesNeedUpdate)
-			addToRenderUpdate();
-	}
-	
-	public RenderCubeLayerCache getCubeCache() {
-		if (cubeCache == null)
-			cubeCache = new RenderCubeLayerCache();
-		return cubeCache;
+		render.chunkUpdate(chunk);
 	}
 	
 	public void updateLighting() {
@@ -248,15 +199,9 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 	}
 	
-	@SideOnly(Side.CLIENT)
-	private void onNeighbourChangedClient() {
-		addToRenderUpdate();
-		hasNeighbourChanged = true;
-	}
-	
 	public void onNeighbourChanged() {
 		if (isClientSide())
-			onNeighbourChangedClient();
+			render.neighborChanged();
 		
 		notifyStructure();
 	}
@@ -284,7 +229,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		}
 		
 		if (isClientSide())
-			updateCustomRenderer();
+			render.tilesChanged();
 		
 		if (!world.isRemote && tiles.isCompletelyEmpty())
 			world.setBlockToAir(getPos());
@@ -303,45 +248,6 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	/** Block will not update */
 	public void updateTilesSecretly(Consumer<TileEntityInteractor> action) {
 		action.accept(interactor);
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void updateCustomRenderer() {
-		updateRenderBoundingBox();
-		updateRenderDistance();
-		if (inRenderingQueue == null)
-			createRenderFields();
-		
-		synchronized (inRenderingQueue) {
-			if (!inRenderingQueue.get() || !buildingCache)
-				getCubeCache().clearCache();
-			
-			addToRenderUpdate();
-		}
-	}
-	
-	private synchronized void createRenderFields() {
-		inRenderingQueue = new AtomicBoolean();
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void addToRenderUpdate() {
-		if (inRenderingQueue == null)
-			createRenderFields();
-		
-		synchronized (inRenderingQueue) {
-			if (inRenderingQueue.compareAndSet(false, true))
-				RenderingThread.addCoordToUpdate(this);
-			else if (buildingCache)
-				rebuildRenderingCache = true;
-		}
-	}
-	
-	@SideOnly(Side.CLIENT)
-	public void resetRenderingState() {
-		inRenderingQueue.set(false);
-		buildingCache = false;
-		rebuildRenderingCache = false;
 	}
 	
 	/** Tries to convert the TileEntity to a vanilla block
@@ -412,21 +318,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return pass == 0 && tiles != null && tiles.hasRendered();
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public void updateRenderDistance() {
-		cachedRenderDistance = 0;
-	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public double getMaxRenderDistanceSquared() {
-		if (cachedRenderDistance == 0) {
-			double renderDistance = 262144; // 512 blocks
-			for (LittleStructure structure : rendering())
-				renderDistance = Math.max(renderDistance, structure.getMaxRenderDistanceSquared());
-			cachedRenderDistance = renderDistance;
-		}
-		return cachedRenderDistance;
+		return render.getMaxRenderDistanceSquared();
 	}
 	
 	@Override
@@ -434,43 +329,10 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return false;
 	}
 	
-	@SideOnly(Side.CLIENT)
-	public void updateRenderBoundingBox() {
-		requireRenderingBoundingBoxUpdate = true;
-	}
-	
 	@Override
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox() {
-		if (requireRenderingBoundingBoxUpdate || cachedRenderBoundingBox == null) {
-			double minX = Double.MAX_VALUE;
-			double minY = Double.MAX_VALUE;
-			double minZ = Double.MAX_VALUE;
-			double maxX = -Double.MAX_VALUE;
-			double maxY = -Double.MAX_VALUE;
-			double maxZ = -Double.MAX_VALUE;
-			boolean found = false;
-			for (LittleStructure structure : rendering()) {
-				AxisAlignedBB box = structure.getRenderBoundingBox();
-				if (box == null)
-					continue;
-				box = box.offset(pos);
-				minX = Math.min(box.minX, minX);
-				minY = Math.min(box.minY, minY);
-				minZ = Math.min(box.minZ, minZ);
-				maxX = Math.max(box.maxX, maxX);
-				maxY = Math.max(box.maxY, maxY);
-				maxZ = Math.max(box.maxZ, maxZ);
-				found = true;
-			}
-			if (found)
-				cachedRenderBoundingBox = new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
-			else
-				cachedRenderBoundingBox = new AxisAlignedBB(pos);
-			
-			requireRenderingBoundingBoxUpdate = false;
-		}
-		return cachedRenderBoundingBox;
+		return render.getRenderBoundingBox();
 	}
 	
 	public AxisAlignedBB getSelectionBox() {
@@ -824,11 +686,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		super.onChunkUnload();
 		if (world.isRemote) {
 			tiles = null;
-			buffer = null;
-			cubeCache = null;
 			sideCache = null;
-			lastRenderedChunk = null;
-			cachedRenderBoundingBox = null;
+			render.chunkUnload();
 		}
 	}
 	

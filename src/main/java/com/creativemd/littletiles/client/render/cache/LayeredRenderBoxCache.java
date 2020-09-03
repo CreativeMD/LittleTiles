@@ -11,14 +11,14 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SideOnly(Side.CLIENT)
-public class RenderCubeLayerCache {
+public class LayeredRenderBoxCache {
 	
-	private List<LittleRenderBox> solid;
-	private List<LittleRenderBox> cutout_mipped;
-	private List<LittleRenderBox> cutout;
-	private List<LittleRenderBox> translucent;
+	private List<LittleRenderBox> solid = null;
+	private List<LittleRenderBox> cutout_mipped = null;
+	private List<LittleRenderBox> cutout = null;
+	private List<LittleRenderBox> translucent = null;
 	
-	public List<LittleRenderBox> getCubesByLayer(BlockRenderLayer layer) {
+	public List<LittleRenderBox> get(BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
 			return solid;
@@ -32,7 +32,7 @@ public class RenderCubeLayerCache {
 		return null;
 	}
 	
-	public void setCubesByLayer(List<LittleRenderBox> cubes, BlockRenderLayer layer) {
+	public void set(List<LittleRenderBox> cubes, BlockRenderLayer layer) {
 		switch (layer) {
 		case SOLID:
 			solid = cubes;
@@ -49,18 +49,18 @@ public class RenderCubeLayerCache {
 		}
 	}
 	
-	public boolean doesNeedUpdate() {
+	public boolean needUpdate() {
 		return solid == null || cutout_mipped == null || cutout == null || translucent == null;
 	}
 	
-	public void clearCache() {
+	public void clear() {
 		solid = null;
 		cutout_mipped = null;
 		cutout = null;
 		translucent = null;
 	}
 	
-	public void sortCache() {
+	public void sort() {
 		if (!OptifineHelper.isActive())
 			return;
 		

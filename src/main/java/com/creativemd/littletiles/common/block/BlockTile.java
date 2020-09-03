@@ -15,7 +15,7 @@ import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.LittleTiles;
-import com.creativemd.littletiles.client.render.cache.RenderCubeLayerCache;
+import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.action.LittleAction;
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
@@ -864,9 +864,8 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<? extends RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
-		if (te instanceof TileEntityLittleTiles) {
+		if (te instanceof TileEntityLittleTiles)
 			return Collections.emptyList();
-		}
 		return getRenderingCubes(state, te, stack, MinecraftForgeClient.getRenderLayer());
 	}
 	
@@ -879,12 +878,12 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 			
 			TileEntityLittleTiles tileEntity = (TileEntityLittleTiles) te;
 			
-			RenderCubeLayerCache cache = tileEntity.getCubeCache();
-			List<LittleRenderBox> cachedCubes = cache.getCubesByLayer(layer);
+			LayeredRenderBoxCache cache = tileEntity.render.getBoxCache();
+			List<LittleRenderBox> cachedCubes = cache.get(layer);
 			if (cachedCubes != null) {
-				if (tileEntity.hasNeighbourChanged) {
+				if (tileEntity.render.hasNeighbourChanged) {
 					for (BlockRenderLayer tempLayer : BlockRenderLayer.values()) {
-						List<LittleRenderBox> renderCubes = cache.getCubesByLayer(tempLayer);
+						List<LittleRenderBox> renderCubes = cache.get(tempLayer);
 						if (renderCubes == null)
 							continue;
 						for (int i = 0; i < renderCubes.size(); i++) {
@@ -907,7 +906,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 						}
 					}
 				}
-				
+				tileEntity.render.hasNeighbourChanged = false;
 				return cachedCubes;
 			}
 			
@@ -954,7 +953,7 @@ public class BlockTile extends BlockContainer implements ICreativeRendered, IFac
 				
 			}
 			
-			cache.setCubesByLayer(cubes, layer);
+			cache.set(cubes, layer);
 			
 		} else if (stack != null)
 			return ItemBlockTiles.getItemRenderingCubes(stack);

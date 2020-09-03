@@ -10,8 +10,8 @@ import org.lwjgl.opengl.GL30;
 import org.lwjgl.opengl.GLContext;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
-import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.LittleTiles;
+import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.client.Minecraft;
@@ -49,12 +49,9 @@ public class RenderUploader {
 				int expanded = 0;
 				
 				for (TileEntityLittleTiles te : tiles) {
-					if (te.buffer == null)
-						continue;
-					
-					BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-					if (teBufferBuilder != null)
-						expanded += teBufferBuilder.getByteBuffer().limit();
+					BufferHolder holder = te.render.getBufferCache().get(layer);
+					if (holder != null)
+						expanded += holder.length;
 				}
 				
 				try {
@@ -79,12 +76,9 @@ public class RenderUploader {
 								builder.setVertexState(compiled.getState());
 							
 							for (TileEntityLittleTiles te : tiles) {
-								if (te.buffer == null)
-									continue;
-								
-								BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-								if (teBufferBuilder != null)
-									BufferBuilderUtils.addBuffer(builder, teBufferBuilder);
+								BufferHolder holder = te.render.getBufferCache().get(layer);
+								if (holder != null)
+									holder.add(builder);
 							}
 							
 							Entity entity = mc.getRenderViewEntity();
@@ -111,13 +105,11 @@ public class RenderUploader {
 								toUpload.put(vanillaBuffer);
 							
 							for (TileEntityLittleTiles te : tiles) {
-								if (te.buffer == null)
-									continue;
-								
-								BufferBuilder teBufferBuilder = te.buffer.getBufferByLayer(layer);
-								if (teBufferBuilder != null) {
-									ByteBuffer buffer = teBufferBuilder.getByteBuffer();
+								BufferHolder holder = te.render.getBufferCache().get(layer);
+								if (holder != null) {
+									ByteBuffer buffer = holder.getBuffer();
 									buffer.position(0);
+									buffer.limit(holder.length);
 									toUpload.put(buffer);
 								}
 							}
