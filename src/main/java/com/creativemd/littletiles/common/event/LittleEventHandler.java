@@ -605,9 +605,14 @@ public class LittleEventHandler {
 				if (!queuedRenderChunksUpdate.isEmpty()) {
 					for (Iterator iterator = queuedRenderChunksUpdate.iterator(); iterator.hasNext();) {
 						RenderChunk chunk = (RenderChunk) iterator.next();
-						if (!chunk.needsUpdate()) {
-							chunk.setNeedsUpdate(false);
-							iterator.remove();
+						try {
+							chunk.getLockCompileTask().lock();
+							if (!RenderingThread.isChunkCurrentlyUpdating(chunk)) {
+								chunk.setNeedsUpdate(false);
+								iterator.remove();
+							}
+						} finally {
+							chunk.getLockCompileTask().unlock();
 						}
 					}
 				}

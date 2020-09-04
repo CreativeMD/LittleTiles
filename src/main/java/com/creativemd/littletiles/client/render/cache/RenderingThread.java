@@ -90,7 +90,7 @@ public class RenderingThread extends Thread {
 			threads.add(null);
 	}
 	
-	public static HashMap<Object, Integer> chunks = new HashMap<>();
+	public static final HashMap<Object, Integer> chunks = new HashMap<>();
 	public static Minecraft mc = Minecraft.getMinecraft();
 	
 	public static boolean addCoordToUpdate(TileEntityLittleTiles te) {
@@ -337,11 +337,11 @@ public class RenderingThread extends Thread {
 					throw new InterruptedException();
 			}
 		} catch (InterruptedException e) {
-			
+			e.printStackTrace();
 		}
 	}
 	
-	private static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });
+	public static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });
 	
 	public static boolean finish(RenderingData data, int renderState, boolean force) {
 		if (!data.te.render.finishBuildingCache(data.index, renderState, force))
@@ -365,8 +365,8 @@ public class RenderingThread extends Thread {
 					break;
 				}
 			}
-			if (finished)
-				chunks.clear();
+			//if (finished && !chunks.isEmpty())
+			//chunks.clear();
 		}
 		
 		if (data.subWorld)
@@ -390,18 +390,23 @@ public class RenderingThread extends Thread {
 		try {
 			chunk.getLockCompileTask().lock();
 			
-			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
-			boolean updated = false;
-			
-			if (chunk.needsUpdate() || (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && compileTask.getStatus() != Status.DONE))
+			if (isChunkCurrentlyUpdating(chunk))
 				LittleEventHandler.queueChunkUpdate(chunk);
 			else
 				chunk.setNeedsUpdate(false);
 			
-		} catch (IllegalArgumentException | IllegalAccessException e) {
-			e.printStackTrace();
 		} finally {
 			chunk.getLockCompileTask().unlock();
+		}
+	}
+	
+	public static boolean isChunkCurrentlyUpdating(RenderChunk chunk) {
+		try {
+			ChunkCompileTaskGenerator compileTask = (ChunkCompileTaskGenerator) compileTaskField.get(chunk);
+			return chunk.needsUpdate() || (compileTask != null && compileTask.getType() == ChunkCompileTaskGenerator.Type.REBUILD_CHUNK && (compileTask.getStatus() != Status.COMPILING || compileTask.getStatus() != Status.UPLOADING));
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+			e.printStackTrace();
+			return false;
 		}
 	}
 	
