@@ -6,6 +6,7 @@ import com.creativemd.littletiles.common.entity.DoorController;
 import com.creativemd.littletiles.common.entity.EntityAnimationController;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
@@ -69,6 +70,11 @@ public class PlaySoundEvent extends AnimationEvent {
 	public void runGui(AnimationGuiHandler handler) {
 		if (opening && !(sound instanceof SoundEventMissing))
 			GuiControl.playSound(sound, volume, pitch);
+	}
+	
+	@Override
+	public void invert(LittleDoor door, int duration) {
+		//this.tick = duration - getMinimumRequiredDuration(door);
 	}
 	
 	public static class SoundEventMissing extends SoundEvent {
