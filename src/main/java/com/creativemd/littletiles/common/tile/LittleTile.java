@@ -161,7 +161,7 @@ public class LittleTile implements ICombinable {
 	}
 	
 	public boolean canBeConvertedToVanilla() {
-		if (box.isSolid())
+		if (!box.isSolid())
 			return false;
 		if (hasSpecialBlockHandler())
 			return handler.canBeConvertedToVanilla(this);
