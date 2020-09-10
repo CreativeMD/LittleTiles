@@ -109,8 +109,9 @@ public class LittleRenderChunk {
 			if (queuedBuffers[i] != null && !queuedBuffers[i].isEmpty()) {
 				int expand = 0;
 				for (BufferHolder teBuffer : queuedBuffers[i])
-					expand += teBuffer.vertexCount;
-				
+					if (!teBuffer.isInvalid())
+						expand += teBuffer.vertexCount();
+					
 				if (managers[i] == null) {
 					BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
 					tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
@@ -122,6 +123,8 @@ public class LittleRenderChunk {
 				BufferBuilder builder = managers[i].getBuilder();
 				
 				for (BufferHolder holder : queuedBuffers[i]) {
+					if (holder.isInvalid())
+						continue;
 					int index = BufferBuilderUtils.getBufferSizeByte(builder);
 					if (holder.getManager() != null)
 						holder.getManager().backToRAM();

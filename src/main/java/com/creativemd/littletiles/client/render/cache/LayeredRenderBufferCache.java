@@ -49,9 +49,9 @@ public class LayeredRenderBufferCache {
 	}
 	
 	public BufferHolder combine(BufferHolder first, BufferHolder second) {
-		if (first == null)
+		if (first == null || first.isInvalid())
 			return second;
-		else if (second == null)
+		else if (second == null || second.isInvalid())
 			return first;
 		
 		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(first.length + second.length);
@@ -80,9 +80,10 @@ public class LayeredRenderBufferCache {
 		private ChunkBlockLayerManager manager;
 		private ByteBuffer byteBuffer;
 		private int index = -1;
+		private boolean invalid = false;
 		
-		public final int length;
-		public final int vertexCount;
+		private final int length;
+		private final int vertexCount;
 		
 		public BufferHolder(BufferBuilder buffer) {
 			this.length = BufferBuilderUtils.getBufferSizeByte(buffer);
@@ -98,6 +99,14 @@ public class LayeredRenderBufferCache {
 		
 		public ChunkBlockLayerManager getManager() {
 			return manager;
+		}
+		
+		public int vertexCount() {
+			return invalid ? 0 : vertexCount;
+		}
+		
+		public int length() {
+			return invalid ? 0 : length;
 		}
 		
 		public int getIndex() {
@@ -125,6 +134,14 @@ public class LayeredRenderBufferCache {
 			this.byteBuffer = buffer;
 			this.index = -1;
 			this.manager = null;
+		}
+		
+		public void invalidate() {
+			invalid = true;
+		}
+		
+		public boolean isInvalid() {
+			return invalid;
 		}
 		
 		public ByteBuffer getBuffer() {

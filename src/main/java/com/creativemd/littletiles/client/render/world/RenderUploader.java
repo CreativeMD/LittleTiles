@@ -37,6 +37,13 @@ public class RenderUploader {
 	private static Field bufferIdField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "glBufferId", "field_177365_a" });
 	private static Field formatField = ReflectionHelper.findField(VertexBuffer.class, new String[] { "vertexFormat", "field_177363_b" });
 	
+	public static int getBufferId(VertexBuffer buffer) {
+		try {
+			return bufferIdField.getInt(buffer);
+		} catch (IllegalArgumentException | IllegalAccessException e) {}
+		return -1;
+	}
+	
 	public static void uploadRenderData(RenderChunk chunk, List<TileEntityLittleTiles> tiles) {
 		if ((FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions()) || !LittleTiles.CONFIG.rendering.uploadToVBODirectly)
 			return;
@@ -48,8 +55,8 @@ public class RenderUploader {
 				
 				for (TileEntityLittleTiles te : tiles) {
 					BufferHolder holder = te.render.getBufferCache().get(layer);
-					if (holder != null)
-						expanded += holder.length;
+					if (holder != null && !holder.isInvalid())
+						expanded += holder.length();
 				}
 				
 				try {
@@ -75,7 +82,7 @@ public class RenderUploader {
 							
 							for (TileEntityLittleTiles te : tiles) {
 								BufferHolder holder = te.render.getBufferCache().get(layer);
-								if (holder != null)
+								if (holder != null && !holder.isInvalid())
 									holder.add(builder);
 							}
 							
@@ -104,10 +111,10 @@ public class RenderUploader {
 							
 							for (TileEntityLittleTiles te : tiles) {
 								BufferHolder holder = te.render.getBufferCache().get(layer);
-								if (holder != null) {
+								if (holder != null && !holder.isInvalid()) {
 									ByteBuffer buffer = holder.getBuffer();
 									buffer.position(0);
-									buffer.limit(holder.length);
+									buffer.limit(holder.length());
 									toUpload.put(buffer);
 								}
 							}
@@ -131,12 +138,16 @@ public class RenderUploader {
 	
 	public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
 		try {
+			ByteBuffer result = ByteBuffer.allocateDirect((int) length);
 			if (arbVboField.getBoolean(null))
-				return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
+				ARBVertexBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
+			//return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
 			//else if (GLContext.getCapabilities().OpenGL30)
 			//return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);
 			//else if (OpenGlHelper.useVbo())
-			return GL15.glMapBuffer(GL15.GL_ARRAY_BUFFER, GL15.GL_READ_ONLY, length, null);
+			else
+				GL15.glGetBufferSubData(GL15.GL_ARRAY_BUFFER, 0, result);
+			return result;
 		} catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {
 			if (e instanceof IllegalStateException)
 				throw new NotSupportedException(e);

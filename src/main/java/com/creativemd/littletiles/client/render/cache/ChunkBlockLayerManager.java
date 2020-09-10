@@ -43,6 +43,8 @@ public class ChunkBlockLayerManager {
 	}
 	
 	public synchronized void add(BufferHolder holder) {
+		if (holder.isInvalid())
+			return;
 		int index = BufferBuilderUtils.getBufferSizeByte(builder);
 		if (holder.getManager() != null)
 			holder.getManager().backToRAM();
@@ -74,26 +76,35 @@ public class ChunkBlockLayerManager {
 		if (buffer == null)
 			return;
 		Callable<Boolean> run = () -> {
-			if (Minecraft.getMinecraft().world == null)
+			if (Minecraft.getMinecraft().world == null || RenderUploader.getBufferId(buffer) == -1) {
+				for (BufferHolder holder : holders)
+					holder.invalidate();
+				holders.clear();
+				blockLayerManager.set(buffer, null);
+				buffer = null;
 				return false;
+			}
 			buffer.bindBuffer();
 			try {
 				ByteBuffer uploadedData = RenderUploader.glMapBufferRange(totalSize);
 				if (uploadedData != null) {
-					uploadedData.rewind();
 					for (BufferHolder holder : holders) {
-						ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
+						if (holder.isInvalid())
+							continue;
+						ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length());
 						try {
-							if (uploadedData.capacity() >= holder.getIndex() + holder.length) {
+							if (uploadedData.capacity() >= holder.getIndex() + holder.length()) {
 								uploadedData.position(holder.getIndex());
-								int end = holder.getIndex() + holder.length;
+								int end = holder.getIndex() + holder.length();
 								while (uploadedData.position() < end)
 									newBuffer.put(uploadedData.get());
-							}
+								holder.useRAM(newBuffer);
+							} else
+								holder.invalidate();
 						} catch (IllegalArgumentException e) {
-							e.printStackTrace();
+							holder.invalidate();
 						}
-						holder.useRAM(newBuffer);
+						
 					}
 				} else
 					System.out.println("No uploaded data found");
