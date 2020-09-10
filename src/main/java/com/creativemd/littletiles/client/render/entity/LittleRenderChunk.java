@@ -171,8 +171,10 @@ public class LittleRenderChunk {
 			
 			if (complete) {
 				for (int j = 0; j < managers.length; j++)
-					if (j != BlockRenderLayer.TRANSLUCENT.ordinal() && managers[j] != null)
+					if (j != BlockRenderLayer.TRANSLUCENT.ordinal() && managers[j] != null) {
+						managers[j].readyUp();
 						managers[j].bindBuffer(vertexBuffers[j]);
+					}
 				complete = false;
 			}
 			
