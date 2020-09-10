@@ -167,7 +167,6 @@ public class LittleChunkDispatcher {
 				
 				buffer.getByteBuffer().position(0);
 				buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
-				
 				try {
 					added.setBoolean(buffer, true);
 					if (layer != BlockRenderLayer.TRANSLUCENT) {
@@ -177,7 +176,6 @@ public class LittleChunkDispatcher {
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
-				
 				LittleTilesProfilerOverlay.uploaded++;
 			}
 		}

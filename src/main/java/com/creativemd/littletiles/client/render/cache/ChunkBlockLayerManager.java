@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import org.lwjgl.opengl.GL30;
-
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
@@ -18,7 +16,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
@@ -38,24 +35,31 @@ public class ChunkBlockLayerManager {
 		this.layer = layer;
 	}
 	
-	public void add(TileEntityLittleTiles te) {
+	public synchronized void add(TileEntityLittleTiles te) {
 		LayeredRenderBufferCache bufferCache = te.render.getBufferCache();
 		BufferHolder holder = bufferCache.get(layer);
-		if (holder != null) {
-			int index = BufferBuilderUtils.getBufferSizeByte(builder);
-			if (holder.getManager() != null)
-				holder.getManager().backToRAM();
-			holder.perpareVRAM(index);
-			holder.add(builder);
-			holders.add(holder);
-		}
+		if (holder != null)
+			add(holder);
 	}
 	
-	public void readyUp() {
+	public synchronized void add(BufferHolder holder) {
+		int index = BufferBuilderUtils.getBufferSizeByte(builder);
+		if (holder.getManager() != null)
+			holder.getManager().backToRAM();
+		holder.perpareVRAM(index);
+		holder.add(builder);
+		holders.add(holder);
+	}
+	
+	public BufferBuilder getBuilder() {
+		return builder;
+	}
+	
+	public synchronized void readyUp() {
 		this.totalSize = BufferBuilderUtils.getBufferSizeByte(builder);
 	}
 	
-	public void bindBuffer(VertexBuffer buffer) {
+	public synchronized void bindBuffer(VertexBuffer buffer) {
 		try {
 			this.buffer = buffer;
 			LittleChunkDispatcher.blockLayerManager.set(builder, null);
@@ -66,25 +70,38 @@ public class ChunkBlockLayerManager {
 		} catch (IllegalArgumentException | IllegalAccessException e) {}
 	}
 	
-	public void backToRAM() {
+	public synchronized void backToRAM() {
+		if (buffer == null)
+			return;
 		Callable<Boolean> run = () -> {
+			if (Minecraft.getMinecraft().world == null)
+				return false;
 			buffer.bindBuffer();
 			try {
-				ByteBuffer uploadedData = RenderUploader.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, totalSize, GL30.GL_MAP_READ_BIT, null);
-				if (uploadedData != null)
+				ByteBuffer uploadedData = RenderUploader.glMapBufferRange(totalSize);
+				if (uploadedData != null) {
+					uploadedData.rewind();
 					for (BufferHolder holder : holders) {
 						ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
-						uploadedData.position(holder.getIndex());
-						uploadedData.limit(uploadedData.position() + holder.length);
-						newBuffer.put(uploadedData);
+						try {
+							if (uploadedData.capacity() >= holder.getIndex() + holder.length) {
+								uploadedData.position(holder.getIndex());
+								int end = holder.getIndex() + holder.length;
+								while (uploadedData.position() < end)
+									newBuffer.put(uploadedData.get());
+							}
+						} catch (IllegalArgumentException e) {
+							e.printStackTrace();
+						}
 						holder.useRAM(newBuffer);
 					}
+				} else
+					System.out.println("No uploaded data found");
 				holders.clear();
 				blockLayerManager.set(buffer, null);
 			} catch (NotSupportedException | IllegalArgumentException | IllegalAccessException e) {
 				e.printStackTrace();
 			}
-			
 			buffer.unbindBuffer();
 			buffer = null;
 			return true;
@@ -101,12 +118,12 @@ public class ChunkBlockLayerManager {
 		}
 	}
 	
-	public void remove(BufferHolder holder) {
-		if (holders != null)
+	public synchronized void remove(BufferHolder holder) {
+		if (holders == null)
 			return;
 		try {
 			holders.remove(holder);
-			if (holders.isEmpty())
+			if (holders.isEmpty() && buffer != null)
 				blockLayerManager.set(buffer, null);
 		} catch (IllegalArgumentException | IllegalAccessException e) {}
 	}

@@ -16,12 +16,19 @@ public class LittleRenderChunkSuppilier implements IRenderChunkSupplier {
 	public LinkedHashMap<BlockPos, LittleRenderChunk> renderChunks = new LinkedHashMap<>();
 	
 	@SideOnly(Side.CLIENT)
+	public void backToRAM() {
+		if (renderChunks == null)
+			return;
+		for (LittleRenderChunk chunk : renderChunks.values())
+			chunk.backToRAM();
+	}
+	
+	@SideOnly(Side.CLIENT)
 	public void unloadRenderCache() {
 		if (renderChunks == null)
 			return;
-		for (LittleRenderChunk chunk : renderChunks.values()) {
+		for (LittleRenderChunk chunk : renderChunks.values())
 			chunk.unload();
-		}
 		renderChunks.clear();
 	}
 	

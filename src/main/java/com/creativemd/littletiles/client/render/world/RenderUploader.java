@@ -6,8 +6,6 @@ import java.util.List;
 
 import org.lwjgl.opengl.ARBVertexBufferObject;
 import org.lwjgl.opengl.GL15;
-import org.lwjgl.opengl.GL30;
-import org.lwjgl.opengl.GLContext;
 
 import com.creativemd.creativecore.client.mods.optifine.OptifineHelper;
 import com.creativemd.littletiles.LittleTiles;
@@ -97,7 +95,7 @@ public class RenderUploader {
 							// Retrieve vanilla buffered data
 							uploadBuffer.bindBuffer();
 							boolean empty = compiled.isLayerEmpty(layer);
-							ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, uploadedVertexCount * format.getNextOffset(), GL30.GL_MAP_READ_BIT, null);
+							ByteBuffer vanillaBuffer = empty ? null : glMapBufferRange(uploadedVertexCount * format.getNextOffset());
 							uploadBuffer.unbindBuffer();
 							
 							toUpload = ByteBuffer.allocateDirect((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + expanded);
@@ -131,15 +129,14 @@ public class RenderUploader {
 	
 	private static Field arbVboField = ReflectionHelper.findField(OpenGlHelper.class, new String[] { "arbVbo", "field_176090_Y" });
 	
-	public static ByteBuffer glMapBufferRange(int target, long length, int access, ByteBuffer old_buffer) throws NotSupportedException {
-		
+	public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
 		try {
 			if (arbVboField.getBoolean(null))
-				return ARBVertexBufferObject.glMapBufferARB(target, access, length, old_buffer);
-			else if (GLContext.getCapabilities().OpenGL30)
-				return GL30.glMapBufferRange(target, 0, length, access, old_buffer);
-			else if (OpenGlHelper.useVbo())
-				return GL15.glMapBuffer(target, access, length, old_buffer);
+				return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
+			//else if (GLContext.getCapabilities().OpenGL30)
+			//return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);
+			//else if (OpenGlHelper.useVbo())
+			return GL15.glMapBuffer(GL15.GL_ARRAY_BUFFER, GL15.GL_READ_ONLY, length, null);
 		} catch (IllegalArgumentException | IllegalAccessException | IllegalStateException e) {
 			if (e instanceof IllegalStateException)
 				throw new NotSupportedException(e);

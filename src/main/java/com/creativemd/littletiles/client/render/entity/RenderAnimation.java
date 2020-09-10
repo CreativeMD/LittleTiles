@@ -274,7 +274,6 @@ public class RenderAnimation extends Render<EntityAnimation> {
 				mc.entityRenderer.disableLightmap();
 				
 				GlStateManager.popMatrix();
-				
 			}
 		}
 		

@@ -336,9 +336,7 @@ public class RenderingThread extends Thread {
 				if (Thread.currentThread().isInterrupted())
 					throw new InterruptedException();
 			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		} catch (InterruptedException e) {}
 	}
 	
 	public static final Field compileTaskField = ReflectionHelper.findField(RenderChunk.class, new String[] { "compileTask", "field_178599_i" });

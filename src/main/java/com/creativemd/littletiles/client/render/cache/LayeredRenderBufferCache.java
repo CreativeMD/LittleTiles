@@ -48,7 +48,7 @@ public class LayeredRenderBufferCache {
 			buffers[i] = combine(buffers[i], cache.buffers[i]);
 	}
 	
-	public static BufferHolder combine(BufferHolder first, BufferHolder second) {
+	public BufferHolder combine(BufferHolder first, BufferHolder second) {
 		if (first == null)
 			return second;
 		else if (second == null)
@@ -65,7 +65,7 @@ public class LayeredRenderBufferCache {
 		secondBuffer.position(0);
 		secondBuffer.limit(second.length);
 		byteBuffer.put(secondBuffer);
-		return first;
+		return new BufferHolder(byteBuffer, first.length + second.length, first.vertexCount + second.vertexCount);
 	}
 	
 	public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {
@@ -90,6 +90,12 @@ public class LayeredRenderBufferCache {
 			this.byteBuffer = buffer.getByteBuffer();
 		}
 		
+		public BufferHolder(ByteBuffer buffer, int byteSize, int count) {
+			this.length = byteSize;
+			this.vertexCount = count;
+			this.byteBuffer = buffer;
+		}
+		
 		public ChunkBlockLayerManager getManager() {
 			return manager;
 		}
@@ -104,6 +110,10 @@ public class LayeredRenderBufferCache {
 		
 		public void add(BufferBuilder builder) {
 			BufferBuilderUtils.addBuffer(builder, getBuffer(), length, vertexCount);
+		}
+		
+		public boolean hasBufferInRAM() {
+			return byteBuffer != null;
 		}
 		
 		public void useVRAM(ChunkBlockLayerManager manager) {
