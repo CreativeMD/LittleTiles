@@ -21,7 +21,7 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
 
 public class LittleTilesProfilerOverlay {
 	
-	public static boolean showDebugInfo = false;
+	private static boolean showDebugInfo = false;
 	public static int vanillaChunksUpdates = 0;
 	public static int ltChunksUpdates = 0;
 	public static int uploaded = 0;
@@ -29,8 +29,15 @@ public class LittleTilesProfilerOverlay {
 	private static int updateTime = 20;
 	private static int updateTicker = 0;
 	
+	private static List<Long> durations;
+	private static long averageDuration;
+	
 	private static DecimalFormat df = new DecimalFormat("0.##");
 	private static Minecraft mc = Minecraft.getMinecraft();
+	
+	public static boolean isActive() {
+		return showDebugInfo;
+	}
 	
 	private static String format(Object value) {
 		if (value instanceof Double || value instanceof Float)
@@ -51,6 +58,22 @@ public class LittleTilesProfilerOverlay {
 		return builder.toString();
 	}
 	
+	public static void start() {
+		durations = new ArrayList<>();
+		showDebugInfo = true;
+	}
+	
+	public static void stop() {
+		durations = null;
+		showDebugInfo = false;
+	}
+	
+	public static void finishBuildingCache(long duration) {
+		synchronized (durations) {
+			durations.add(duration);
+		}
+	}
+	
 	@SubscribeEvent
 	public static void onTick(ClientTickEvent event) {
 		if (event.phase == Phase.END) {
@@ -60,6 +83,16 @@ public class LittleTilesProfilerOverlay {
 				ltChunksUpdates = 0;
 				uploaded = 0;
 				updateTicker = 0;
+				if (durations != null)
+					synchronized (durations) {
+						averageDuration = 0;
+						if (!durations.isEmpty()) {
+							for (int i = 0; i < durations.size(); i++)
+								averageDuration += durations.get(i);
+							averageDuration /= durations.size();
+							durations.clear();
+						}
+					}
 			}
 		}
 	}
@@ -80,6 +113,11 @@ public class LittleTilesProfilerOverlay {
 				if (thread != null)
 					queued += thread.updateCoords.size();
 			details.add("Queue", queued);
+			
+			if (averageDuration > 1000)
+				details.add("Average", averageDuration / 1000 + "ms");
+			else
+				details.add("Average", averageDuration + "ns");
 			
 			for (RenderingThread thread : RenderingThread.threads)
 				if (thread != null)

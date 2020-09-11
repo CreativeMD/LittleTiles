@@ -21,7 +21,10 @@ public class DebugCommand extends CommandBase {
 	
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		LittleTilesProfilerOverlay.showDebugInfo ^= true;
+		if (LittleTilesProfilerOverlay.isActive())
+			LittleTilesProfilerOverlay.stop();
+		else
+			LittleTilesProfilerOverlay.start();
 	}
 	
 }

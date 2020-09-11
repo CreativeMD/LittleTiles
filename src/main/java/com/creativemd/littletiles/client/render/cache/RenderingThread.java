@@ -152,11 +152,15 @@ public class RenderingThread extends Thread {
 		try {
 			while (active) {
 				IBlockAccess world = mc.world;
+				long duration = 0;
 				
 				if (world != null && !updateCoords.isEmpty()) {
 					RenderingData data = updateCoords.poll();
 					
 					try {
+						if (LittleTilesProfilerOverlay.isActive())
+							duration = System.nanoTime();
+						
 						if (data.te.isInvalid())
 							throw new InvalidTileEntityException(data.te.getPos() + "");
 						
@@ -312,6 +316,9 @@ public class RenderingThread extends Thread {
 								cubeCache.clear();
 							if (!finish(data, renderState, false))
 								updateCoords.add(data);
+							
+							if (LittleTilesProfilerOverlay.isActive())
+								LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
 						} catch (Exception e) {
 							e.printStackTrace();
 							if (!finish(data, -1, false))
