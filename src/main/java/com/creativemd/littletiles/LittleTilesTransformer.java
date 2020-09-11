@@ -579,7 +579,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 			public void transform(ClassNode node) {
 				node.fields.add(new FieldNode(Opcodes.ACC_PUBLIC, "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;", null, null));
 				
-				MethodNode m = findMethod(node, "deleteGlBuffers", "()V");
+				/*MethodNode m = findMethod(node, "deleteGlBuffers", "()V");
 				LabelNode before = (LabelNode) m.instructions.getFirst();
 				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/vertex/VertexBuffer", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
@@ -587,7 +587,7 @@ public class LittleTilesTransformer extends CreativeTransformer {
 				m.instructions.insertBefore(before, new VarInsnNode(Opcodes.ALOAD, 0));
 				m.instructions.insertBefore(before, new FieldInsnNode(Opcodes.GETFIELD, "net/minecraft/client/renderer/vertex/VertexBuffer", "blockLayerManager", "Lcom/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager;"));
 				m.instructions.insertBefore(before, new MethodInsnNode(Opcodes.INVOKEVIRTUAL, "com/creativemd/littletiles/client/render/cache/ChunkBlockLayerManager", "backToRAM", "()V", false));
-				m.instructions.insertBefore(before, new LabelNode());
+				m.instructions.insertBefore(before, new LabelNode());*/
 			}
 		});
 		/*addTransformer(new Transformer("net.minecraft.world.World") {
