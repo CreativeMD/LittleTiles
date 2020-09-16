@@ -116,7 +116,7 @@ public class LittleGridContext {
 		this.maxTilesPerPlane = gridSize * gridSize;
 		this.maxTilesPerBlock = gridSize * gridSize * gridSize;
 		this.pixelVolume = Math.max(Double.MIN_VALUE, 1D / this.maxTilesPerBlock);
-		this.isDefault = this.defaultSize == gridSize;
+		this.isDefault = LittleGridContext.defaultSize == gridSize;
 		
 		this.minSizes = new int[this.size];
 		this.minSizes[0] = minSize;

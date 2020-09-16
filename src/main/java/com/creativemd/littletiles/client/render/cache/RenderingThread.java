@@ -117,10 +117,10 @@ public class RenderingThread extends Thread {
 		}
 		
 		synchronized (chunks) {
-			Integer count = renderer.chunks.get(chunk);
+			Integer count = RenderingThread.chunks.get(chunk);
 			if (count == null)
 				count = 0;
-			renderer.chunks.put(chunk, count + 1);
+			RenderingThread.chunks.put(chunk, count + 1);
 		}
 		renderer.updateCoords.add(new RenderingData(te, chunk));
 		return true;
@@ -327,6 +327,7 @@ public class RenderingThread extends Thread {
 					} catch (InvalidTileEntityException e) {
 						finish(data, -1, true);
 					} catch (Exception e) {
+						e.printStackTrace();
 						updateCoords.add(data);
 					} catch (OutOfMemoryError error) {
 						updateCoords.add(data);

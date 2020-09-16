@@ -224,7 +224,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 	public ItemStack currentItemHittingBlock = ItemStack.EMPTY;
 	
 	public boolean isHittingPos(World world, BlockPos pos) {
-		ItemStack itemstack = this.mc.player.getHeldItemMainhand();
+		ItemStack itemstack = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
 		boolean flag = this.currentItemHittingBlock.isEmpty() && itemstack.isEmpty();
 		
 		if (!this.currentItemHittingBlock.isEmpty() && !itemstack.isEmpty())
@@ -239,7 +239,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 			this.isHittingBlock = false;
 			this.curBlockDamageMP = 0.0F;
 			sendBlockBreakProgress(mc.player.getEntityId(), currentDestroyWorld, currentDestroyPos, -1);
-			this.mc.player.resetCooldown();
+			LittleAnimationHandlerClient.mc.player.resetCooldown();
 		}
 	}
 	
@@ -315,7 +315,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 			e.printStackTrace();
 		}
 		
-		if (mc.playerController.getCurrentGameType().isCreative() && this.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
+		if (mc.playerController.getCurrentGameType().isCreative() && LittleAnimationHandlerClient.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos)) {
 			try {
 				blockHitDelayField.setInt(mc.playerController, 5);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
@@ -334,7 +334,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 			
 			if (this.stepSoundTickCounter % 4 == 0) {
 				SoundType soundtype = block.getSoundType(iblockstate, world, pos, mc.player);
-				this.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
+				LittleAnimationHandlerClient.mc.getSoundHandler().playSound(new PositionedSoundRecord(soundtype.getHitSound(), SoundCategory.NEUTRAL, (soundtype.getVolume() + 1.0F) / 8.0F, soundtype.getPitch() * 0.5F, world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(pos) : pos));
 			}
 			
 			++this.stepSoundTickCounter;
@@ -346,7 +346,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 				this.stepSoundTickCounter = 0;
 			}
 			
-			sendBlockBreakProgress(this.mc.player.getEntityId(), world, pos, (int) (this.curBlockDamageMP * 10.0F) - 1);
+			sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), world, pos, (int) (this.curBlockDamageMP * 10.0F) - 1);
 			return true;
 		} else if (this.clickBlock(world, pos, facing))
 			return true;
@@ -358,18 +358,18 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 			if (mc.playerController.getCurrentGameType() == GameType.SPECTATOR)
 				return false;
 			
-			if (!this.mc.player.isAllowEdit()) {
-				ItemStack itemstack = this.mc.player.getHeldItemMainhand();
+			if (!LittleAnimationHandlerClient.mc.player.isAllowEdit()) {
+				ItemStack itemstack = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
 				
 				if (itemstack.isEmpty())
 					return false;
 				
-				if (!itemstack.canDestroy(this.mc.world.getBlockState(loc).getBlock()))
+				if (!itemstack.canDestroy(LittleAnimationHandlerClient.mc.world.getBlockState(loc).getBlock()))
 					return false;
 			}
 		}
 		
-		if (!this.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(loc) : loc))
+		if (!LittleAnimationHandlerClient.mc.world.getWorldBorder().contains(world instanceof CreativeWorld ? ((CreativeWorld) world).transformToRealWorld(loc) : loc))
 			return false;
 		
 		if (mc.playerController.getCurrentGameType().isCreative()) {
@@ -385,23 +385,23 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler {
 			//if (this.isHittingBlock)
 			//this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, this.currentBlock, face));
 			
-			IBlockState iblockstate = this.mc.world.getBlockState(loc);
+			IBlockState iblockstate = LittleAnimationHandlerClient.mc.world.getBlockState(loc);
 			//this.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, loc, face));
 			boolean flag = iblockstate.getMaterial() != Material.AIR;
 			
 			if (flag && this.curBlockDamageMP == 0.0F)
-				iblockstate.getBlock().onBlockClicked(this.mc.world, loc, this.mc.player);
+				iblockstate.getBlock().onBlockClicked(LittleAnimationHandlerClient.mc.world, loc, LittleAnimationHandlerClient.mc.player);
 			
-			if (flag && iblockstate.getPlayerRelativeBlockHardness(this.mc.player, this.mc.player.world, loc) >= 1.0F)
+			if (flag && iblockstate.getPlayerRelativeBlockHardness(LittleAnimationHandlerClient.mc.player, LittleAnimationHandlerClient.mc.player.world, loc) >= 1.0F)
 				this.onPlayerDestroyBlock(mc.player, world, loc);
 			else {
 				this.isHittingBlock = true;
 				this.currentDestroyPos = loc;
 				this.currentDestroyWorld = world;
-				this.currentItemHittingBlock = this.mc.player.getHeldItemMainhand();
+				this.currentItemHittingBlock = LittleAnimationHandlerClient.mc.player.getHeldItemMainhand();
 				this.curBlockDamageMP = 0.0F;
 				this.stepSoundTickCounter = 0;
-				sendBlockBreakProgress(this.mc.player.getEntityId(), currentDestroyWorld, currentDestroyPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
+				sendBlockBreakProgress(LittleAnimationHandlerClient.mc.player.getEntityId(), currentDestroyWorld, currentDestroyPos, (int) (this.curBlockDamageMP * 10.0F) - 1);
 			}
 		}
 		

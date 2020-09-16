@@ -76,7 +76,7 @@ public abstract class PlacementMode {
 		this.name = name;
 		this.mode = mode;
 		this.placeInside = placeInside;
-		this.modes.put(name, this);
+		PlacementMode.modes.put(name, this);
 	}
 	
 	public PreviewMode getPreviewMode() {

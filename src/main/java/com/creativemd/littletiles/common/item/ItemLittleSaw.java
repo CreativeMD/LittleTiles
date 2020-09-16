@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.action.tool.LittleActionSaw;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -44,7 +45,7 @@ public class ItemLittleSaw extends Item {
 		TileEntity tileEntity = world.getTileEntity(pos);
 		if (tileEntity instanceof TileEntityLittleTiles) {
 			if (world.isRemote) {
-				new LittleActionSaw(world, pos, player, GuiContainer.isCtrlKeyDown(), LittleGridContext.get()).execute();
+				new LittleActionSaw(world, pos, player, GuiScreen.isCtrlKeyDown(), LittleGridContext.get()).execute();
 			}
 			return EnumActionResult.SUCCESS;
 		}

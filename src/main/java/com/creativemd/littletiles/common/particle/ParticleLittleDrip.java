@@ -46,10 +46,12 @@ public class ParticleLittleDrip extends Particle {
 		// this.onUpdate();
 	}
 	
+	@Override
 	public int getBrightnessForRender(float p_189214_1_) {
 		return this.materialType == Material.WATER ? super.getBrightnessForRender(p_189214_1_) : 257;
 	}
 	
+	@Override
 	public void onUpdate() {
 		this.prevPosX = this.posX;
 		this.prevPosY = this.posY;
@@ -61,11 +63,11 @@ public class ParticleLittleDrip extends Particle {
 			this.particleBlue = 1.0F;
 		} else {
 			this.particleRed = 1.0F;
-			this.particleGreen = 16.0F / (float) (40 - this.bobTimer + 16);
-			this.particleBlue = 4.0F / (float) (40 - this.bobTimer + 8);
+			this.particleGreen = 16.0F / (40 - this.bobTimer + 16);
+			this.particleBlue = 4.0F / (40 - this.bobTimer + 8);
 		}
 		
-		this.motionY -= (double) this.particleGravity;
+		this.motionY -= this.particleGravity;
 		
 		if (this.bobTimer-- > 0) {
 			this.motionX *= 0.02D;
@@ -105,10 +107,10 @@ public class ParticleLittleDrip extends Particle {
 			double d0 = 0.0D;
 			
 			if (iblockstate.getBlock() instanceof BlockLiquid) {
-				d0 = (double) BlockLiquid.getLiquidHeightPercent(((Integer) iblockstate.getValue(BlockLiquid.LEVEL)).intValue());
+				d0 = BlockLiquid.getLiquidHeightPercent(iblockstate.getValue(BlockLiquid.LEVEL).intValue());
 			}
 			
-			double d1 = (double) (MathHelper.floor(this.posY) + 1) - d0;
+			double d1 = MathHelper.floor(this.posY) + 1 - d0;
 			
 			if (this.posY < d1) {
 				this.setExpired();
@@ -118,6 +120,7 @@ public class ParticleLittleDrip extends Particle {
 	
 	@SideOnly(Side.CLIENT)
 	public static class LavaFactory implements IParticleFactory {
+		@Override
 		public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_) {
 			return new ParticleLittleDrip(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Material.LAVA);
 		}
@@ -125,6 +128,7 @@ public class ParticleLittleDrip extends Particle {
 	
 	@SideOnly(Side.CLIENT)
 	public static class WaterFactory implements IParticleFactory {
+		@Override
 		public Particle createParticle(int particleID, World worldIn, double xCoordIn, double yCoordIn, double zCoordIn, double xSpeedIn, double ySpeedIn, double zSpeedIn, int... p_178902_15_) {
 			return new ParticleLittleDrip(worldIn, xCoordIn, yCoordIn, zCoordIn, xSpeedIn, ySpeedIn, zSpeedIn, Material.WATER);
 		}

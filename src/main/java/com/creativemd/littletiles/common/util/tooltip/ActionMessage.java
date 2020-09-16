@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
+import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 import com.creativemd.littletiles.common.action.LittleAction;
 
 import io.netty.buffer.ByteBuf;
@@ -49,12 +50,12 @@ public class ActionMessage {
 			
 			@Override
 			public void write(ItemStack object, ByteBuf buf) {
-				LittleAction.writeItemStack(buf, object);
+				CreativeCorePacket.writeItemStack(buf, object);
 			}
 			
 			@Override
 			public ItemStack read(ByteBuf buf) {
-				return LittleAction.readItemStack(buf);
+				return CreativeCorePacket.readItemStack(buf);
 			}
 			
 			@Override

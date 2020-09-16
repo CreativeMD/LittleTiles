@@ -3,6 +3,7 @@ package com.creativemd.littletiles.client.tooltip;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.controls.GuiActionDisplay;
@@ -71,7 +72,7 @@ public class CompiledActionMessage {
 		}
 		
 		this.width = tempWidth;
-		this.height = (GuiActionDisplay.font.FONT_HEIGHT + 3) * lines.size();
+		this.height = (GuiControl.font.FONT_HEIGHT + 3) * lines.size();
 		this.timestamp = System.currentTimeMillis();
 	}
 	
@@ -94,7 +95,7 @@ public class CompiledActionMessage {
 				}
 			}
 			GlStateManager.popMatrix();
-			GlStateManager.translate(0, GuiActionDisplay.font.FONT_HEIGHT + 3, 0);
+			GlStateManager.translate(0, GuiControl.font.FONT_HEIGHT + 3, 0);
 		}
 		GlStateManager.popMatrix();
 	}

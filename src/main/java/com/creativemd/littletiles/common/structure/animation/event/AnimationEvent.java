@@ -7,6 +7,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import com.creativemd.creativecore.common.gui.CoreControl;
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.container.SubGui;
@@ -63,7 +64,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 	public static List<String> typeNamestranslated() {
 		List<String> translated = new ArrayList<>();
 		for (String string : typeNamesTranslated) {
-			translated.add(SubGui.translate(string));
+			translated.add(CoreControl.translate(string));
 		}
 		return translated;
 	}
@@ -141,7 +142,7 @@ public abstract class AnimationEvent implements Comparable<AnimationEvent> {
 			@Override
 			@SideOnly(Side.CLIENT)
 			public void createControls(GuiParent parent, PlaySoundEvent event, LittlePreviews previews) {
-				parent.addControl(new GuiStateButton("opening", event != null ? (event.opening ? 0 : 1) : 0, 37, 0, 40, 7, GuiControl.translate("gui.door.open"), GuiControl.translate("gui.door.close")));
+				parent.addControl(new GuiStateButton("opening", event != null ? (event.opening ? 0 : 1) : 0, 37, 0, 40, 7, CoreControl.translate("gui.door.open"), CoreControl.translate("gui.door.close")));
 				parent.addControl(new GuiPickSoundButton("sound", 86, 0, event));
 			}
 			

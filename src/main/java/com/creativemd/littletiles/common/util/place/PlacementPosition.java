@@ -35,7 +35,7 @@ public class PlacementPosition extends LittleAbsoluteVec {
 	}
 	
 	public static PlacementPosition readFromBytes(ByteBuf buf) {
-		return new PlacementPosition(LittleAction.readPos(buf), LittleAction.readLittleVecContext(buf), CreativeCorePacket.readFacing(buf));
+		return new PlacementPosition(CreativeCorePacket.readPos(buf), LittleAction.readLittleVecContext(buf), CreativeCorePacket.readFacing(buf));
 	}
 	
 	public void assign(LittleAbsoluteVec pos) {
@@ -61,7 +61,7 @@ public class PlacementPosition extends LittleAbsoluteVec {
 	}
 	
 	public void writeToBytes(ByteBuf buf) {
-		LittleAction.writePos(buf, pos);
+		CreativeCorePacket.writePos(buf, pos);
 		LittleAction.writeLittleVecContext(contextVec, buf);
 		CreativeCorePacket.writeFacing(buf, facing);
 	}

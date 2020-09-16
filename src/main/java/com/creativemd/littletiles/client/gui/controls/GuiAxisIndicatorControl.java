@@ -25,7 +25,7 @@ public class GuiAxisIndicatorControl extends GuiControl {
 		GlStateManager.translate(width / 2D, height / 2D, 0);
 		
 		float partialTicks = mc.getRenderPartialTicks();
-		Entity entity = this.mc.getRenderViewEntity();
+		Entity entity = GuiControl.mc.getRenderViewEntity();
 		float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
 		float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks;
 		GlStateManager.rotate(pitch, -1.0F, 0.0F, 0.0F);

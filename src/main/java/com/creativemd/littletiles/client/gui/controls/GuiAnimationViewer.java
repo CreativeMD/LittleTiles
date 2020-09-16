@@ -154,7 +154,7 @@ public class GuiAnimationViewer extends GuiControl implements IAnimationControl 
 		mc.getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 		mc.getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).restoreLastBlurMipmap();
 		
-		GlStateManager.viewport(0, 0, this.mc.displayWidth, this.mc.displayHeight);
+		GlStateManager.viewport(0, 0, GuiControl.mc.displayWidth, GuiControl.mc.displayHeight);
 		GlStateManager.matrixMode(5889);
 		GlStateManager.loadIdentity();
 		GlStateManager.matrixMode(5888);
