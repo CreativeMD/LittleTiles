@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.tile.math.box;
 
+import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -53,7 +54,7 @@ public class LittleTransformableBox extends LittleBox {
 	private static final int flipEndIndex = 29;
 	
 	private int[] data;
-	private VectorFanCache cache;
+	private SoftReference<VectorFanCache> cache;
 	
 	public LittleTransformableBox(int data[]) {
 		super(data[0], data[1], data[2], data[3], data[4], data[5]);
@@ -314,8 +315,11 @@ public class LittleTransformableBox extends LittleBox {
 	}
 	
 	public synchronized VectorFanCache requestCache() {
-		if (cache != null)
-			return cache;
+		if (cache != null) {
+			VectorFanCache temp = cache.get();
+			if (temp != null)
+				return temp;
+		}
 		
 		// Cache axis aligned faces
 		NormalPlane[] planes = new NormalPlane[EnumFacing.VALUES.length];
@@ -333,7 +337,7 @@ public class LittleTransformableBox extends LittleBox {
 			planes[i] = plane;
 		}
 		
-		cache = new VectorFanCache();
+		VectorFanCache cache = new VectorFanCache();
 		
 		NormalPlane[] tiltedPlanes = new NormalPlane[EnumFacing.VALUES.length * 2]; // Stores all tilted planes to use them for cutting later
 		
@@ -443,7 +447,7 @@ public class LittleTransformableBox extends LittleBox {
 					break;
 			}
 		}
-		
+		this.cache = new SoftReference<>(cache);
 		return cache;
 	}
 	
@@ -478,8 +482,11 @@ public class LittleTransformableBox extends LittleBox {
 			TransformablePoint point = points.next();
 			point.setRelative((short) (point.getRelative() * ratio));
 		}
-		if (cache != null)
-			cache.scale(ratio);
+		if (cache != null) {
+			VectorFanCache temp = cache.get();
+			if (temp != null)
+				temp.scale(ratio);
+		}
 	}
 	
 	@Override
@@ -490,8 +497,11 @@ public class LittleTransformableBox extends LittleBox {
 			TransformablePoint point = points.next();
 			point.setRelative((short) (point.getRelative() / ratio));
 		}
-		if (cache != null)
-			cache.divide(ratio);
+		if (cache != null) {
+			VectorFanCache temp = cache.get();
+			if (temp != null)
+				temp.divide(ratio);
+		}
 	}
 	
 	@Override
@@ -1364,8 +1374,11 @@ public class LittleTransformableBox extends LittleBox {
 		maxX += x;
 		maxY += y;
 		maxZ += z;
-		if (cache != null)
-			cache.add(x, y, z);
+		if (cache != null) {
+			VectorFanCache temp = cache.get();
+			if (temp != null)
+				temp.add(x, y, z);
+		}
 	}
 	
 	@Override
@@ -1376,8 +1389,11 @@ public class LittleTransformableBox extends LittleBox {
 		maxX -= x;
 		maxY -= y;
 		maxZ -= z;
-		if (cache != null)
-			cache.sub(x, y, z);
+		if (cache != null) {
+			VectorFanCache temp = cache.get();
+			if (temp != null)
+				temp.sub(x, y, z);
+		}
 	}
 	
 	public class VectorFanCache {
