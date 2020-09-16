@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane;
 import com.creativemd.creativecore.common.utils.math.collision.CollidingPlane.PushCache;
@@ -421,7 +422,7 @@ public class EntityAnimation extends Entity {
 						//box.cache.planes = CollidingPlane.getPlanes(box, box.cache, coordinator);
 						
 						EnumFacing facing = CollidingPlane.getDirection(coordinator, box, center);
-						if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils.getOffset(RotationUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
+						if (facing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || RotationUtils.getOffset(VectorUtils.get(facing.getAxis(), coordinator.translation)) != facing.getAxisDirection())))
 							continue;
 						
 						double intersectingVolume = box.getIntersectionVolume(cache.entityBoxOrientated);
@@ -439,8 +440,8 @@ public class EntityAnimation extends Entity {
 				if (intersecting.isEmpty())
 					continue;
 				
-				one = RotationUtils.getDifferentAxisFirst(cache.facing.getAxis());
-				two = RotationUtils.getDifferentAxisSecond(cache.facing.getAxis());
+				one = RotationUtils.getOne(cache.facing.getAxis());
+				two = RotationUtils.getTwo(cache.facing.getAxis());
 				
 				positiveOne = null;
 				positiveTwo = null;
@@ -465,11 +466,11 @@ public class EntityAnimation extends Entity {
 				
 				// Now things are ready. Go through all intersecting ones and push the box out
 				Vector3d pushVec = new Vector3d();
-				RotationUtils.setValue(pushVec, cache.facing.getAxisDirection().getOffset(), cache.facing.getAxis());
+				VectorUtils.set(pushVec, cache.facing.getAxisDirection().getOffset(), cache.facing.getAxis());
 				if (!ignoreOne && positiveOne != null)
-					RotationUtils.setValue(pushVec, positiveOne ? 1 : -1, one);
+					VectorUtils.set(pushVec, positiveOne ? 1 : -1, one);
 				if (!ignoreTwo && positiveTwo != null)
-					RotationUtils.setValue(pushVec, positiveTwo ? 1 : -1, two);
+					VectorUtils.set(pushVec, positiveTwo ? 1 : -1, two);
 				
 				double scale = 0;
 				

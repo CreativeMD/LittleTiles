@@ -7,6 +7,7 @@ import javax.vecmath.Vector3d;
 import com.creativemd.creativecore.CreativeCore;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 
@@ -127,8 +128,8 @@ public enum LittleSlice {
 		this.sliceVec = new Vec3i(getDirectionBetweenFacing(start.x, end.x), getDirectionBetweenFacing(start.y, end.y), getDirectionBetweenFacing(start.z, end.z));
 		Vec3i temp = RotationUtils.rotate(sliceVec, Rotation.getRotation(axis, isRight));
 		this.normal = new int[] { temp.getX(), temp.getY(), temp.getZ() };
-		Axis one = RotationUtils.getDifferentAxisFirst(axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		Axis one = RotationUtils.getOne(axis);
+		Axis two = RotationUtils.getTwo(axis);
 		this.emptySideOne = EnumFacing.getFacingFromAxis(normal[one.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, one);
 		this.emptySideTwo = EnumFacing.getFacingFromAxis(normal[two.ordinal()] == 1 ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, two);
 	}
@@ -138,7 +139,7 @@ public enum LittleSlice {
 	}
 	
 	public int getDirectionScale(Axis axis) {
-		return RotationUtils.get(axis, sliceVec);
+		return VectorUtils.get(axis, sliceVec);
 	}
 	
 	public boolean isFacingPositive(Axis axis) {
@@ -179,8 +180,8 @@ public enum LittleSlice {
 	}
 	
 	public EnumFacing getPreferedSide(Vector3d size) {
-		double sizeOne = RotationUtils.get(emptySideOne.getAxis(), size);
-		double sizeTwo = RotationUtils.get(emptySideTwo.getAxis(), size);
+		double sizeOne = VectorUtils.get(emptySideOne.getAxis(), size);
+		double sizeTwo = VectorUtils.get(emptySideTwo.getAxis(), size);
 		if (sizeOne > sizeTwo)
 			return emptySideTwo;
 		else if (sizeOne < sizeTwo)
@@ -190,8 +191,8 @@ public enum LittleSlice {
 	}
 	
 	public EnumFacing getPreferedSide(Vec3d size) {
-		double sizeOne = RotationUtils.get(emptySideOne.getAxis(), size);
-		double sizeTwo = RotationUtils.get(emptySideTwo.getAxis(), size);
+		double sizeOne = VectorUtils.get(emptySideOne.getAxis(), size);
+		double sizeTwo = VectorUtils.get(emptySideTwo.getAxis(), size);
 		if (sizeOne > sizeTwo)
 			return emptySideTwo;
 		else if (sizeOne < sizeTwo)
@@ -202,9 +203,9 @@ public enum LittleSlice {
 	
 	public boolean shouldRenderSide(EnumFacing facing, LittleVec size) {
 		if (normal[facing.getAxis().ordinal()] == facing.getAxisDirection().getOffset()) {
-			Axis otherAxis = RotationUtils.getDifferentAxisFirst(axis);
+			Axis otherAxis = RotationUtils.getOne(axis);
 			if (otherAxis == facing.getAxis())
-				otherAxis = RotationUtils.getDifferentAxisSecond(axis);
+				otherAxis = RotationUtils.getTwo(axis);
 			
 			int sizeOne = size.get(facing.getAxis());
 			int sizeTwo = size.get(otherAxis);
@@ -213,25 +214,25 @@ public enum LittleSlice {
 			else if (sizeOne < sizeTwo)
 				return true;
 			else
-				return axis == Axis.Y ? RotationUtils.getDifferentAxisFirst(axis) == facing.getAxis() : otherAxis != Axis.Y;
+				return axis == Axis.Y ? RotationUtils.getOne(axis) == facing.getAxis() : otherAxis != Axis.Y;
 		}
 		return true;
 	}
 	
 	public boolean shouldRenderSide(EnumFacing facing, Vec3d size) {
 		if (normal[facing.getAxis().ordinal()] == facing.getAxisDirection().getOffset()) {
-			Axis otherAxis = RotationUtils.getDifferentAxisFirst(axis);
+			Axis otherAxis = RotationUtils.getOne(axis);
 			if (otherAxis == facing.getAxis())
-				otherAxis = RotationUtils.getDifferentAxisSecond(axis);
+				otherAxis = RotationUtils.getTwo(axis);
 			
-			double sizeOne = RotationUtils.get(facing.getAxis(), size);
-			double sizeTwo = RotationUtils.get(otherAxis, size);
+			double sizeOne = VectorUtils.get(facing.getAxis(), size);
+			double sizeTwo = VectorUtils.get(otherAxis, size);
 			if (sizeOne > sizeTwo)
 				return false;
 			else if (sizeOne < sizeTwo)
 				return true;
 			else
-				return axis == Axis.Y ? RotationUtils.getDifferentAxisFirst(axis) == facing.getAxis() : otherAxis != Axis.Y;
+				return axis == Axis.Y ? RotationUtils.getOne(axis) == facing.getAxis() : otherAxis != Axis.Y;
 		}
 		return true;
 	}

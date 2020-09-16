@@ -10,7 +10,7 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.block.BlockTile.TEResult;
@@ -313,7 +313,7 @@ public abstract class SelectShape {
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
@@ -326,7 +326,7 @@ public abstract class SelectShape {
 				nbt.setInteger("thick", thickness = context.size);
 			LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			boxes.add(getBox(vec.getRelative(new LittleAbsoluteVec(result.getBlockPos(), context)).getVec(context), Math.max(1, nbt.getInteger("thick")), result.sideHit, context));
 			return boxes;
@@ -376,7 +376,7 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getHighlightBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			if (first == null) {
 				LittleBoxes boxes = new LittleBoxes(result.getBlockPos(), context);
@@ -396,7 +396,7 @@ public abstract class SelectShape {
 			if (first != null)
 				return true;
 			first = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				first.getVec().sub(result.sideHit);
 			return false;
 		}
@@ -409,7 +409,7 @@ public abstract class SelectShape {
 		@Override
 		public LittleBoxes getBoxes(World world, BlockPos pos, EntityPlayer player, NBTTagCompound nbt, RayTraceResult result, LittleGridContext context) {
 			LittleAbsoluteVec vec = new LittleAbsoluteVec(result, context);
-			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(RotationUtils.get(result.sideHit.getAxis(), result.hitVec)))
+			if (result.sideHit.getAxisDirection() == AxisDirection.POSITIVE && context.isAtEdge(VectorUtils.get(result.sideHit.getAxis(), result.hitVec)))
 				vec.getVec().sub(result.sideHit);
 			LittleBoxes boxes = getBoxes(player, nbt, first, vec, false, context);
 			first = null;

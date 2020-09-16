@@ -41,8 +41,8 @@ public class LittleBoxFace {
 		this.faceFans = faceFans;
 		this.context = context;
 		this.facing = facing;
-		this.one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-		this.two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+		this.one = RotationUtils.getOne(facing.getAxis());
+		this.two = RotationUtils.getTwo(facing.getAxis());
 		this.minOne = minOne;
 		this.minTwo = minTwo;
 		this.maxOne = maxOne;

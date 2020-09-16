@@ -35,7 +35,7 @@ public class LittleTileCylinder extends LittleBox {
 	// ================Cylinder================
 	
 	public int getCenter(Axis axis) {
-		if (axis == RotationUtils.getDifferentAxisFirst(axis))
+		if (axis == RotationUtils.getOne(axis))
 			return centerOne;
 		return centerTwo;
 	}

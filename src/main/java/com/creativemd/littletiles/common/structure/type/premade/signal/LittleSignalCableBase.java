@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
@@ -278,7 +279,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		Axis axis = facing.getAxis();
 		boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
 		if (positive)
-			pos = RotationUtils.setValue(pos, box.getMaxPos(axis), axis);
+			pos = VectorUtils.set(pos, box.getMaxPos(axis), axis);
 		
 		World world = getWorld();
 		
@@ -354,8 +355,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			EnumFacing facing = getFacing(i);
 			
 			Axis axis = facing.getAxis();
-			Axis one = RotationUtils.getDifferentAxisFirst(axis);
-			Axis two = RotationUtils.getDifferentAxisSecond(axis);
+			Axis one = RotationUtils.getOne(axis);
+			Axis two = RotationUtils.getTwo(axis);
 			boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
 			LittleGridContext context = faces[i].context;
 			

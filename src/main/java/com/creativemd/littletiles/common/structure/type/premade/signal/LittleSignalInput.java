@@ -102,8 +102,8 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 		
 		float sizePercentage = 0.25F;
 		
-		Axis one = RotationUtils.getDifferentAxisFirst(axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		Axis one = RotationUtils.getOne(axis);
+		Axis two = RotationUtils.getTwo(axis);
 		
 		float sizeOne = cube.getSize(one);
 		float sizeTwo = cube.getSize(two);

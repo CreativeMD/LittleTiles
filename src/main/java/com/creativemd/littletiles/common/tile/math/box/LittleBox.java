@@ -810,8 +810,8 @@ public class LittleBox {
 	}
 	
 	public boolean intersectsWithFace(EnumFacing facing, LittleVec vec) {
-		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-		Axis two = RotationUtils.getDifferentAxisFirst(facing.getAxis());
+		Axis one = RotationUtils.getOne(facing.getAxis());
+		Axis two = RotationUtils.getOne(facing.getAxis());
 		return vec.get(one) >= getMin(one) && vec.get(one) <= getMax(one) && vec.get(two) >= getMin(two) && vec.get(two) <= getMax(two);
 	}
 	
@@ -1012,8 +1012,8 @@ public class LittleBox {
 	
 	@Nullable
 	public LittleBoxFace generateFace(LittleGridContext context, EnumFacing facing) {
-		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+		Axis one = RotationUtils.getOne(facing.getAxis());
+		Axis two = RotationUtils.getTwo(facing.getAxis());
 		
 		return new LittleBoxFace(this, null, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}

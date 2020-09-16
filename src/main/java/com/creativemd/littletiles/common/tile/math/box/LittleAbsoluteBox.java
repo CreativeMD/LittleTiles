@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tile.math.box;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.type.HashMapList;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVecContext;
@@ -79,7 +80,7 @@ public class LittleAbsoluteBox implements IGridBased {
 	}
 	
 	public int getMinGridFrom(Axis axis, BlockPos pos) {
-		return context.toGrid(RotationUtils.get(axis, this.pos) - RotationUtils.get(axis, pos)) + box.getMin(axis);
+		return context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)) + box.getMin(axis);
 	}
 	
 	public BlockPos getMinPos() {
@@ -104,7 +105,7 @@ public class LittleAbsoluteBox implements IGridBased {
 	}
 	
 	public int getMaxGridFrom(Axis axis, BlockPos pos) {
-		return context.toGrid(RotationUtils.get(axis, this.pos) - RotationUtils.get(axis, pos)) + box.getMax(axis);
+		return context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)) + box.getMax(axis);
 	}
 	
 	public BlockPos getMaxPos() {
@@ -129,19 +130,17 @@ public class LittleAbsoluteBox implements IGridBased {
 		}
 		
 		Axis axis = facing.getAxis();
-		Axis one = RotationUtils.getDifferentAxisFirst(axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		Axis one = RotationUtils.getOne(axis);
+		Axis two = RotationUtils.getTwo(axis);
 		boolean positive = facing.getAxisDirection() == AxisDirection.POSITIVE;
 		
 		BlockPos diff = this.pos.subtract(pos);
-		int diffOne = context.toGrid(RotationUtils.get(one, this.pos) - RotationUtils.get(one, pos));
-		int diffTwo = context.toGrid(RotationUtils.get(two, this.pos) - RotationUtils.get(two, pos));
+		int diffOne = context.toGrid(VectorUtils.get(one, this.pos) - VectorUtils.get(one, pos));
+		int diffTwo = context.toGrid(VectorUtils.get(two, this.pos) - VectorUtils.get(two, pos));
 		
-		if (box.getMin(one) - diffOne == this.box.getMin(one) /*&& box.getMax(one) - diffOne == this.box.getMax(one)*/ && box.getMin(two) - diffTwo == this.box.getMin(
-		        two) /* && box.getMax(
-		             two) - diffTwo == this.box.getMax(two)*/)
-			return positive ? box.getMin(axis) - context.toGrid(RotationUtils.get(axis, this.pos) - RotationUtils.get(axis, pos)) - this.box.getMax(axis) : this.box.getMin(
-			        axis) - (box.getMax(axis) - context.toGrid(RotationUtils.get(axis, this.pos) - RotationUtils.get(axis, pos)));
+		if (box.getMin(one) - diffOne == this.box.getMin(one) /*&& box.getMax(one) - diffOne == this.box.getMax(one)*/ && box.getMin(two) - diffTwo == this.box.getMin(two) /* && box.getMax(
+		                                                                                                                                                                    two) - diffTwo == this.box.getMax(two)*/)
+			return positive ? box.getMin(axis) - context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)) - this.box.getMax(axis) : this.box.getMin(axis) - (box.getMax(axis) - context.toGrid(VectorUtils.get(axis, this.pos) - VectorUtils.get(axis, pos)));
 		return -1;
 	}
 	

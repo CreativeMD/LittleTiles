@@ -246,8 +246,8 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 		if (size == null)
 			return;
 		
-		Axis one = RotationUtils.getDifferentAxisFirst(axisDirection);
-		Axis two = RotationUtils.getDifferentAxisSecond(axisDirection);
+		Axis one = RotationUtils.getOne(axisDirection);
+		Axis two = RotationUtils.getTwo(axisDirection);
 		if (size.get(one) >= size.get(two))
 			normalAxis = two;
 		else
@@ -255,7 +255,7 @@ public class GuiTileViewer extends GuiParent implements IAnimationControl {
 	}
 	
 	public void changeNormalAxis() {
-		normalAxis = RotationUtils.getDifferentAxis(axisDirection, normalAxis);
+		normalAxis = RotationUtils.getThird(axisDirection, normalAxis);
 	}
 	
 	@Override

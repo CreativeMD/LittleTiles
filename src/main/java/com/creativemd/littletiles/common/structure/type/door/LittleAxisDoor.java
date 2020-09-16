@@ -21,6 +21,7 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
@@ -550,8 +551,8 @@ public class LittleAxisDoor extends LittleDoorBase {
 			Vec3d playerVec = player.getPositionVector();
 			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
 			boolean clockwise;
-			Axis third = RotationUtils.getDifferentAxis(door.axis, normalAxis);
-			boolean toTheSide = RotationUtils.get(third, playerVec) <= RotationUtils.get(third, axisVec);
+			Axis third = RotationUtils.getThird(door.axis, normalAxis);
+			boolean toTheSide = VectorUtils.get(third, playerVec) <= VectorUtils.get(third, axisVec);
 			
 			switch (third) {
 			case X:

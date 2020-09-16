@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.CreativeAxisAlignedBB;
 import com.creativemd.creativecore.common.utils.math.box.OrientatedBoundingBox;
 import com.creativemd.creativecore.common.utils.math.geo.NormalPlane;
@@ -164,8 +165,8 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
 		boolean positive = offset > 0;
 		EnumFacing direction = EnumFacing.getFacingFromAxis(positive ? AxisDirection.POSITIVE : AxisDirection.NEGATIVE, axis);
 		
-		Axis one = RotationUtils.getDifferentAxisFirst(axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		Axis one = RotationUtils.getOne(axis);
+		Axis two = RotationUtils.getTwo(axis);
 		float minOne = (float) getMin(other, one);
 		minOne -= Math.floor(getMin(one));
 		minOne *= context.size;
@@ -210,7 +211,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
 		}
 		
 		Ray3d ray = new Ray3d(new Vector3f(), direction);
-		RotationUtils.setValue(ray.origin, otherAxis, axis);
+		VectorUtils.set(ray.origin, otherAxis, axis);
 		float distance = Float.POSITIVE_INFINITY;
 		
 		for (int i = 0; i < EnumFacing.VALUES.length; i++) {
@@ -230,7 +231,7 @@ public class TransformableAxisBox extends CreativeAxisAlignedBB {
 				
 				for (int j = 0; j < tempFan.count(); j++) {
 					Vector3f vec = tempFan.get(j);
-					float tempDistance = positive ? RotationUtils.get(axis, vec) - otherAxis : otherAxis - RotationUtils.get(axis, vec);
+					float tempDistance = positive ? VectorUtils.get(axis, vec) - otherAxis : otherAxis - VectorUtils.get(axis, vec);
 					
 					if (tempDistance < 0 && !OrientatedBoundingBox.equals(tempDistance, 0))
 						return offset;

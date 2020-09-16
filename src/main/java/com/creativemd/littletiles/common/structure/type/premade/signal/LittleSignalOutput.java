@@ -102,8 +102,8 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 		float thickness = cube.getSize(axis) * 0.25F;
 		float sizePercentage = 0.25F;
 		
-		Axis one = RotationUtils.getDifferentAxisFirst(axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(axis);
+		Axis one = RotationUtils.getOne(axis);
+		Axis two = RotationUtils.getTwo(axis);
 		
 		float sizeOne = cube.getSize(one);
 		cube.setMin(one, cube.getMin(one) + sizeOne * sizePercentage);

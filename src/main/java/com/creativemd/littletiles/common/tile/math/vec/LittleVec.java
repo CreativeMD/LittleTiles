@@ -5,7 +5,7 @@ import java.security.InvalidParameterException;
 import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.utils.math.Rotation;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.vec.IVecInt;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -58,7 +58,7 @@ public class LittleVec implements IVecInt {
 	
 	public LittleVec(LittleGridContext context, Vec3d vec, EnumFacing facing) {
 		this(context, vec);
-		if (facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(RotationUtils.get(facing.getAxis(), vec)))
+		if (facing.getAxisDirection() == AxisDirection.POSITIVE && !context.isAtEdge(VectorUtils.get(facing.getAxis(), vec)))
 			set(facing.getAxis(), get(facing.getAxis()) + 1);
 	}
 	

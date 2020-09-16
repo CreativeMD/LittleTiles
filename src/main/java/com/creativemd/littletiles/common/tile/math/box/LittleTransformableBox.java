@@ -15,6 +15,7 @@ import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.creativecore.common.utils.math.IntegerUtils;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
+import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
@@ -65,8 +66,8 @@ public class LittleTransformableBox extends LittleBox {
 		super(minX, minY, minZ, maxX, maxY, maxZ);
 		
 		LittleVec size = getSize();
-		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		Axis one = RotationUtils.getOne(slice.axis);
+		Axis two = RotationUtils.getTwo(slice.axis);
 		
 		EnumFacing preferedSide = slice.getPreferedSide(size);
 		CornerCache corners = new CornerCache(true);
@@ -86,12 +87,12 @@ public class LittleTransformableBox extends LittleBox {
 	public LittleTransformableBox(int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleSlice slice, float startOne, float startTwo, float endOne, float endTwo) {
 		super(minX, minY, minZ, maxX, maxY, maxZ);
 		
-		Axis one = RotationUtils.getDifferentAxisFirst(slice.axis);
-		Axis two = RotationUtils.getDifferentAxisSecond(slice.axis);
+		Axis one = RotationUtils.getOne(slice.axis);
+		Axis two = RotationUtils.getTwo(slice.axis);
 		
 		Vector3d size = new Vector3d(maxX - minX, maxY - minY, maxZ - minZ);
-		RotationUtils.setValue(size, Math.abs(startOne - endOne), one);
-		RotationUtils.setValue(size, Math.abs(startTwo - endTwo), two);
+		VectorUtils.set(size, Math.abs(startOne - endOne), one);
+		VectorUtils.set(size, Math.abs(startTwo - endTwo), two);
 		
 		EnumFacing preferedSide = slice.getPreferedSide(size);
 		CornerCache corners = new CornerCache(false);
@@ -329,10 +330,10 @@ public class LittleTransformableBox extends LittleBox {
 			
 			NormalPlane plane = new NormalPlane(new Vector3f(), new Vector3f());
 			plane.origin.set(0, 0, 0);
-			RotationUtils.setValue(plane.origin, get(facing), axis);
+			VectorUtils.set(plane.origin, get(facing), axis);
 			
 			plane.normal.set(0, 0, 0);
-			RotationUtils.setValue(plane.normal, facing.getAxisDirection().getOffset(), axis);
+			VectorUtils.set(plane.normal, facing.getAxisDirection().getOffset(), axis);
 			
 			planes[i] = plane;
 		}
@@ -572,23 +573,23 @@ public class LittleTransformableBox extends LittleBox {
 			
 			VectorFanCache stripCache = result.requestCache();
 			
-			Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-			Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+			Axis one = RotationUtils.getOne(facing.getAxis());
+			Axis two = RotationUtils.getTwo(facing.getAxis());
 			Vector3f origin = new Vector3f();
-			RotationUtils.setValue(origin, get(facing), facing.getAxis());
+			VectorUtils.set(origin, get(facing), facing.getAxis());
 			NormalPlane axisPlane = new NormalPlane(origin, new Vector3f());
 			axisPlane.normal.set(0, 0, 0);
 			
 			if (box.getMin(one) != getMin(one)) {
 				if (box.getMin(one) < getMin(one))
-					RotationUtils.setValue(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
 				else
-					RotationUtils.setValue(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
 				
 				Vector3f secondOrigin = new Vector3f();
-				RotationUtils.setValue(secondOrigin, Math.max(box.getMin(one), getMin(one)), one);
+				VectorUtils.set(secondOrigin, Math.max(box.getMin(one), getMin(one)), one);
 				Vector3f secondNormal = new Vector3f();
-				RotationUtils.setValue(secondNormal, -1, one);
+				VectorUtils.set(secondNormal, -1, one);
 				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
 				if (stripCache.intersects(axisPlane, secondPlane))
 					return null;
@@ -596,14 +597,14 @@ public class LittleTransformableBox extends LittleBox {
 			
 			if (box.getMax(one) != getMax(one)) {
 				if (box.getMax(one) > getMax(one))
-					RotationUtils.setValue(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
 				else
-					RotationUtils.setValue(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
 				
 				Vector3f secondOrigin = new Vector3f();
-				RotationUtils.setValue(secondOrigin, Math.min(box.getMax(one), getMax(one)), one);
+				VectorUtils.set(secondOrigin, Math.min(box.getMax(one), getMax(one)), one);
 				Vector3f secondNormal = new Vector3f();
-				RotationUtils.setValue(secondNormal, 1, one);
+				VectorUtils.set(secondNormal, 1, one);
 				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
 				if (stripCache.intersects(axisPlane, secondPlane))
 					return null;
@@ -611,14 +612,14 @@ public class LittleTransformableBox extends LittleBox {
 			
 			if (box.getMin(two) != getMin(two)) {
 				if (box.getMin(two) < getMin(two))
-					RotationUtils.setValue(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
 				else
-					RotationUtils.setValue(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
 				
 				Vector3f secondOrigin = new Vector3f();
-				RotationUtils.setValue(secondOrigin, Math.max(box.getMin(two), getMin(two)), two);
+				VectorUtils.set(secondOrigin, Math.max(box.getMin(two), getMin(two)), two);
 				Vector3f secondNormal = new Vector3f();
-				RotationUtils.setValue(secondNormal, -1, two);
+				VectorUtils.set(secondNormal, -1, two);
 				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
 				if (stripCache.intersects(axisPlane, secondPlane))
 					return null;
@@ -626,14 +627,14 @@ public class LittleTransformableBox extends LittleBox {
 			
 			if (box.getMax(two) != getMax(two)) {
 				if (box.getMax(two) > getMax(two))
-					RotationUtils.setValue(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
 				else
-					RotationUtils.setValue(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
+					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
 				
 				Vector3f secondOrigin = new Vector3f();
-				RotationUtils.setValue(secondOrigin, Math.min(box.getMax(two), getMax(two)), two);
+				VectorUtils.set(secondOrigin, Math.min(box.getMax(two), getMax(two)), two);
 				Vector3f secondNormal = new Vector3f();
-				RotationUtils.setValue(secondNormal, 1, two);
+				VectorUtils.set(secondNormal, 1, two);
 				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
 				if (stripCache.intersects(axisPlane, secondPlane))
 					return null;
@@ -702,12 +703,12 @@ public class LittleTransformableBox extends LittleBox {
 			if (face.hasAxisStrip() && otherFace.hasAxisStrip()) {
 				EnumFacing facing = EnumFacing.VALUES[i];
 				Axis axis = facing.getAxis();
-				Axis one = RotationUtils.getDifferentAxisFirst(axis);
-				Axis two = RotationUtils.getDifferentAxisSecond(axis);
+				Axis one = RotationUtils.getOne(axis);
+				Axis two = RotationUtils.getTwo(axis);
 				
 				for (VectorFan fan : face.axisStrips)
 					for (VectorFan fan2 : otherFace.axisStrips)
-						if (RotationUtils.get(axis, fan.get(0)) == RotationUtils.get(axis, fan2.get(0)) && fan.intersect2d(fan2, one, two))
+						if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan.intersect2d(fan2, one, two))
 							return true;
 			}
 		}
@@ -748,10 +749,10 @@ public class LittleTransformableBox extends LittleBox {
 					
 					NormalPlane plane = new NormalPlane(new Vector3f(), new Vector3f());
 					plane.origin.set(0, 0, 0);
-					RotationUtils.setValue(plane.origin, get(facing), axis);
+					VectorUtils.set(plane.origin, get(facing), axis);
 					
 					plane.normal.set(0, 0, 0);
-					RotationUtils.setValue(plane.normal, facing.getAxisDirection().getOffset(), axis);
+					VectorUtils.set(plane.normal, facing.getAxisDirection().getOffset(), axis);
 					
 					shapes.get(j).add(plane);
 				}
@@ -1127,8 +1128,8 @@ public class LittleTransformableBox extends LittleBox {
 			return super.generateFace(context, facing);
 		if (faceCache.axisStrips.isEmpty())
 			return null;
-		Axis one = RotationUtils.getDifferentAxisFirst(facing.getAxis());
-		Axis two = RotationUtils.getDifferentAxisSecond(facing.getAxis());
+		Axis one = RotationUtils.getOne(facing.getAxis());
+		Axis two = RotationUtils.getTwo(facing.getAxis());
 		return new LittleBoxFace(this, faceCache.axisStrips, context, facing, getMin(one), getMin(two), getMax(one), getMax(two), facing.getAxisDirection() == AxisDirection.POSITIVE ? getMax(facing.getAxis()) : getMin(facing.getAxis()));
 	}
 	
