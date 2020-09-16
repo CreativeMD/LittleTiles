@@ -112,7 +112,7 @@ public class LittleRenderChunk {
 					if (!teBuffer.isInvalid())
 						expand += teBuffer.vertexCount();
 					
-				if (managers[i] == null) {
+				if (managers[i] == null || managers[i].getBuilder() == null) {
 					BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
 					tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
 					tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
