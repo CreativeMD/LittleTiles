@@ -377,6 +377,13 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		return box.cutOut(cutting, cutout);
 	}
 	
+	public Pair<IParentTileList, LittleTile> intersectingTile(LittleBox box) {
+		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
+			if (pair.value.intersectsWith(box))
+				return pair;
+		return null;
+	}
+	
 	public boolean isSpaceForLittleTile(LittleBox box, BiPredicate<IParentTileList, LittleTile> predicate) {
 		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
 			if (predicate != null && !predicate.test(pair.key, pair.value))

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
@@ -35,11 +36,15 @@ public class PlaceModeNormal extends PlacementMode {
 	@Override
 	public List<LittleTile> placeTile(Placement placement, PlacementBlock block, IParentTileList parent, LittleStructure structure, LittleTile tile, boolean requiresCollisionTest) {
 		List<LittleTile> tiles = new ArrayList<>();
-		if (!requiresCollisionTest || block.getTe().isSpaceForLittleTile(tile.getBox()))
+		Pair<IParentTileList, LittleTile> intersecting = null;
+		if (!requiresCollisionTest || (intersecting = block.getTe().intersectingTile(tile.getBox())) == null)
 			tiles.add(tile);
-		else if (this instanceof PlaceModeAll)
-			throw new RuntimeException("Something went wrong. There should be space for the tile!");
-		else
+		else if (this instanceof PlaceModeAll) {
+			if (intersecting.key == parent)
+				System.out.println("Structure is not valid ... some tiles will be left out");
+			else
+				throw new RuntimeException("Something went wrong. There should be space for the tile!");
+		} else
 			placement.unplaceableTiles.addTile(parent, tile);
 		return tiles;
 	}
