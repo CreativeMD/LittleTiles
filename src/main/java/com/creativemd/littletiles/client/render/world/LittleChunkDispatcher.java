@@ -169,8 +169,10 @@ public class LittleChunkDispatcher {
 				buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
 				try {
 					added.setBoolean(buffer, true);
-					manager.readyUp();
-					blockLayerManager.set(buffer, manager);
+					if (layer != BlockRenderLayer.TRANSLUCENT) {
+						manager.readyUp();
+						blockLayerManager.set(buffer, manager);
+					}
 				} catch (IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
