@@ -10,6 +10,11 @@ import net.minecraft.server.MinecraftServer;
 public class DebugCommand extends CommandBase {
 	
 	@Override
+	public int getRequiredPermissionLevel() {
+		return 0;
+	}
+	
+	@Override
 	public String getName() {
 		return "lt-debug";
 	}
