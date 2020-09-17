@@ -232,7 +232,6 @@ public class RenderingThread extends Thread {
 									buffer = LayeredRenderBufferCache.createVertexBuffer(format, cubes);
 								
 								if (buffer != null) {
-									
 									buffer.begin(7, format);
 									if (FMLClientHandler.instance().hasOptifine() && OptifineHelper.isRenderRegions() && !data.subWorld) {
 										int bits = 8;
@@ -307,7 +306,8 @@ public class RenderingThread extends Thread {
 									buffer.finishDrawing();
 									
 									layerBuffer.set(layer, buffer);
-								}
+								} else
+									layerBuffer.set(layer, null);
 							}
 							
 							net.minecraftforge.client.ForgeHooksClient.setRenderLayer(null);
