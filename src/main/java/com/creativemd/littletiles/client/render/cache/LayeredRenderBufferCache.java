@@ -141,7 +141,7 @@ public class LayeredRenderBufferCache {
 		}
 		
 		public boolean isInvalid() {
-			return invalid;
+			return invalid || (byteBuffer == null && manager == null);
 		}
 		
 		public ByteBuffer getBuffer() {
