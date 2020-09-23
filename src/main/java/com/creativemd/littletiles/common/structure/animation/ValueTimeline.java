@@ -38,7 +38,10 @@ public abstract class ValueTimeline {
 			ValueTimeline timeline = type.getConstructor().newInstance();
 			int points = array[1];
 			for (int i = 0; i < points; i++) {
-				timeline.points.add(array[2 + i * 3], Double.longBitsToDouble((((long) array[3 + i * 3]) << 32) | (array[4 + i * 3] & 0xffffffffL)));
+				double value = Double.longBitsToDouble((((long) array[3 + i * 3]) << 32) | (array[4 + i * 3] & 0xffffffffL));
+				if (Double.isNaN(value))
+					value = 0;
+				timeline.points.add(array[2 + i * 3], value);
 			}
 			timeline.readAdditionalData(array, 2 + points * 3);
 			return timeline;
