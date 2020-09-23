@@ -103,7 +103,7 @@ public class TileList extends ParentTileList {
 								next = null;
 							}
 						}
-						return itr.hasNext();
+						return next != null;
 					}
 					
 					@Override
