@@ -137,15 +137,11 @@ public class LittleActionDestroy extends LittleActionInteract {
 		public boolean requiresItemStack;
 		public LittleStructure structure;
 		
-		public StructurePreview(LittleStructure structure) {
-			try {
-				structure.load();
-				previews = structure.getAbsolutePreviews(structure.getPos());
-				requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
-				this.structure = structure;
-			} catch (CorruptedConnectionException | NotYetConnectedException e) {
-				throw new RuntimeException(e);
-			}
+		public StructurePreview(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+			structure.load();
+			previews = structure.getAbsolutePreviews(structure.getPos());
+			requiresItemStack = previews.getStructureType().canOnlyBePlacedByItemStack();
+			this.structure = structure;
 		}
 		
 		public LittleAction getPlaceAction() {
