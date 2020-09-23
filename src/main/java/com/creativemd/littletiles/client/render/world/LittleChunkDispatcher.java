@@ -7,8 +7,8 @@ import java.nio.FloatBuffer;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.creativemd.littletiles.client.render.cache.BufferHolder;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
-import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -102,84 +102,91 @@ public class LittleChunkDispatcher {
 				return;
 			}
 			
-			ChunkBlockLayerManager manager = new ChunkBlockLayerManager(buffer, layer);
-			
-			int expanded = 0;
-			
-			boolean dynamicUpdate = false;
-			try {
-				if (layer == BlockRenderLayer.SOLID)
-					dynamicUpdate = dynamicLightUpdate.getBoolean(chunk);
-			} catch (IllegalArgumentException | IllegalAccessException e2) {
-				e2.printStackTrace();
-			}
-			
-			if (!tiles.isEmpty()) {
-				for (TileEntityLittleTiles te : tiles) {
-					if (layer == BlockRenderLayer.SOLID) {
-						if (dynamicUpdate)
-							te.render.hasLightChanged = true;
-						
-						te.updateQuadCache(chunk);
-					}
-					
-					BufferHolder holder = te.render.getBufferCache().get(layer);
-					if (holder != null && !holder.isInvalid())
-						expanded += holder.vertexCount();
-				}
-			}
-			
-			try {
-				if (layer == BlockRenderLayer.SOLID)
-					dynamicLightUpdate.setBoolean(chunk, false);
-			} catch (IllegalArgumentException | IllegalAccessException e2) {
-				e2.printStackTrace();
-			}
-			
-			if (expanded > 0) {
-				if (compiled.isLayerEmpty(layer))
-					try {
-						if (compiled != CompiledChunk.DUMMY)
-							setLayerUseMethod.invoke(compiled, layer);
-						if (chunk.getCompiledChunk() != CompiledChunk.DUMMY)
-							setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
-					} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
-						e1.printStackTrace();
-					}
-				
-				BufferBuilderUtils.growBufferSmall(buffer, buffer.getVertexFormat().getNextOffset() * expanded + buffer.getVertexFormat().getNextOffset());
-				
+			if (!tiles.isEmpty())
 				for (TileEntityLittleTiles te : tiles)
-					manager.add(te);
+					te.render.backToRAM(layer);
 				
-				if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
-					Entity entity = mc.getRenderViewEntity();
-					float x = (float) entity.posX;
-					float y = (float) entity.posY + entity.getEyeHeight();
-					float z = (float) entity.posZ;
-					
-					BlockPos pos = chunk.getPosition();
-					buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
-					
-					buffer.sortVertexData(x, y, z);
-					compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
-				}
+			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
 				
-				buffer.getByteBuffer().position(0);
-				buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
+				ChunkBlockLayerManager manager = new ChunkBlockLayerManager(buffer, layer);
+				
+				int expanded = 0;
+				
+				boolean dynamicUpdate = false;
 				try {
-					added.setBoolean(buffer, true);
-					if (layer != BlockRenderLayer.TRANSLUCENT) {
-						manager.readyUp();
-						blockLayerManager.set(buffer, manager);
-					}
-				} catch (IllegalArgumentException | IllegalAccessException e) {
-					e.printStackTrace();
+					if (layer == BlockRenderLayer.SOLID)
+						dynamicUpdate = dynamicLightUpdate.getBoolean(chunk);
+				} catch (IllegalArgumentException | IllegalAccessException e2) {
+					e2.printStackTrace();
 				}
-				LittleTilesProfilerOverlay.uploaded++;
+				
+				if (!tiles.isEmpty()) {
+					for (TileEntityLittleTiles te : tiles) {
+						if (layer == BlockRenderLayer.SOLID) {
+							if (dynamicUpdate)
+								te.render.hasLightChanged = true;
+							
+							te.updateQuadCache(chunk);
+						}
+						
+						BufferHolder holder = te.render.getBufferCache().get(layer);
+						if (holder != null)
+							expanded += holder.vertexCount;
+					}
+				}
+				
+				try {
+					if (layer == BlockRenderLayer.SOLID)
+						dynamicLightUpdate.setBoolean(chunk, false);
+				} catch (IllegalArgumentException | IllegalAccessException e2) {
+					e2.printStackTrace();
+				}
+				
+				if (expanded > 0) {
+					if (compiled.isLayerEmpty(layer))
+						try {
+							if (compiled != CompiledChunk.DUMMY)
+								setLayerUseMethod.invoke(compiled, layer);
+							if (chunk.getCompiledChunk() != CompiledChunk.DUMMY)
+								setLayerUseMethod.invoke(chunk.getCompiledChunk(), layer);
+						} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e1) {
+							e1.printStackTrace();
+						}
+					
+					BufferBuilderUtils.growBufferSmall(buffer, buffer.getVertexFormat().getNextOffset() * expanded + buffer.getVertexFormat().getNextOffset());
+					
+					for (TileEntityLittleTiles te : tiles)
+						manager.add(te);
+					
+					if (layer == BlockRenderLayer.TRANSLUCENT && buffer.getVertexFormat() != null && mc.getRenderViewEntity() != null) {
+						Entity entity = mc.getRenderViewEntity();
+						float x = (float) entity.posX;
+						float y = (float) entity.posY + entity.getEyeHeight();
+						float z = (float) entity.posZ;
+						
+						BlockPos pos = chunk.getPosition();
+						buffer.setTranslation(-pos.getX(), -pos.getY(), -pos.getZ());
+						
+						buffer.sortVertexData(x, y, z);
+						compiled.setState(new LittleVertexBufferState(buffer, buffer.getVertexState()));
+					}
+					
+					buffer.getByteBuffer().position(0);
+					buffer.getByteBuffer().limit(buffer.getVertexFormat().getNextOffset() * buffer.getVertexCount());
+					try {
+						added.setBoolean(buffer, true);
+						if (layer != BlockRenderLayer.TRANSLUCENT) {
+							manager.readyUp();
+							blockLayerManager.set(buffer, manager);
+						}
+					} catch (IllegalArgumentException | IllegalAccessException e) {
+						e.printStackTrace();
+					}
+					LittleTilesProfilerOverlay.uploaded++;
+				}
 			}
+			
 		}
-		
 		int index = layer.ordinal(); // Check if another layer needs to be added if yes abort
 		while (index < 3) {
 			index++;

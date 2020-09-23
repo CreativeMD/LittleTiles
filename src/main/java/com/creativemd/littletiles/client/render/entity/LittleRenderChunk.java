@@ -6,9 +6,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 
 import com.creativemd.creativecore.client.rendering.model.BufferBuilderUtils;
+import com.creativemd.littletiles.client.render.cache.BufferHolder;
 import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
-import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache.BufferHolder;
 import com.creativemd.littletiles.client.render.world.LittleChunkDispatcher;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
@@ -108,29 +108,30 @@ public class LittleRenderChunk {
 		for (int i = 0; i < queuedBuffers.length; i++) {
 			if (queuedBuffers[i] != null && !queuedBuffers[i].isEmpty()) {
 				int expand = 0;
-				for (BufferHolder teBuffer : queuedBuffers[i])
-					if (!teBuffer.isInvalid())
-						expand += teBuffer.vertexCount();
+				synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
+					for (BufferHolder teBuffer : queuedBuffers[i])
+						if (!teBuffer.isRemoved())
+							expand += teBuffer.vertexCount;
+						
+					if (managers[i] == null || managers[i].getBuilder() == null) {
+						BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
+						tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
+						tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
+						managers[i] = new ChunkBlockLayerManager(tempBuffer, BlockRenderLayer.values()[i]);
+					} else
+						BufferBuilderUtils.growBufferSmall(managers[i].getBuilder(), managers[i].getBuilder().getVertexFormat().getNextOffset() * expand);
 					
-				if (managers[i] == null || managers[i].getBuilder() == null) {
-					BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
-					tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
-					tempBuffer.setTranslation(pos.getX(), pos.getY(), pos.getZ());
-					managers[i] = new ChunkBlockLayerManager(tempBuffer, BlockRenderLayer.values()[i]);
-				} else
-					BufferBuilderUtils.growBufferSmall(managers[i].getBuilder(), managers[i].getBuilder().getVertexFormat().getNextOffset() * expand);
-				
-				BufferBuilder builder = managers[i].getBuilder();
-				
-				for (BufferHolder holder : queuedBuffers[i]) {
-					if (holder.isInvalid())
-						continue;
-					int index = BufferBuilderUtils.getBufferSizeByte(builder);
-					if (holder.getManager() != null)
-						holder.getManager().backToRAM();
-					managers[i].add(holder);
+					BufferBuilder builder = managers[i].getBuilder();
+					
+					for (BufferHolder holder : queuedBuffers[i]) {
+						if (holder.isRemoved())
+							continue;
+						int index = BufferBuilderUtils.getBufferSizeByte(builder);
+						if (holder.getManager() != null)
+							holder.getManager().backToRAM();
+						managers[i].add(holder);
+					}
 				}
-				
 				queuedBuffers[i].clear();
 				bufferChanged[i] = true;
 			}

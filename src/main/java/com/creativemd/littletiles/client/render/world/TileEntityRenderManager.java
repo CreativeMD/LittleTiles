@@ -1,11 +1,13 @@
 package com.creativemd.littletiles.client.render.world;
 
+import com.creativemd.littletiles.client.render.cache.BufferHolder;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -38,6 +40,12 @@ public class TileEntityRenderManager {
 	
 	public boolean isInQueue() {
 		return queued;
+	}
+	
+	public void backToRAM(BlockRenderLayer layer) {
+		BufferHolder holder = bufferCache.get(layer);
+		if (holder != null && !holder.hasBufferInRAM())
+			holder.backToRAM();
 	}
 	
 	public void chunkUpdate(Object chunk) {
