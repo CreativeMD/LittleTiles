@@ -51,10 +51,10 @@ public class LittleAbsoluteBox implements IGridBased {
 	}
 	
 	public LittleVec getDoubledCenter(BlockPos pos) {
-		LittleVec vec = box.getCenter();
-		vec.add(this.pos.subtract(pos), context);
-		vec.scale(2);
-		return vec;
+		double x = (box.maxX + box.minX) / 2D;
+		double y = (box.maxY + box.minY) / 2D;
+		double z = (box.maxZ + box.minZ) / 2D;
+		return new LittleVec((int) (x * 2), (int) (y * 2), (int) (z * 2));
 	}
 	
 	public LittleVecContext getSize() {
