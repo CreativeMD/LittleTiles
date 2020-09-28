@@ -109,10 +109,14 @@ public class LittleRenderChunk {
 			if (queuedBuffers[i] != null && !queuedBuffers[i].isEmpty()) {
 				int expand = 0;
 				synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-					for (BufferHolder teBuffer : queuedBuffers[i])
-						if (!teBuffer.isRemoved())
-							expand += teBuffer.vertexCount;
-						
+					for (BufferHolder holder : queuedBuffers[i])
+						if (!holder.isRemoved()) {
+							if (!holder.hasBufferInRAM())
+								holder.getManager().backToRAM();
+							if (!holder.isRemoved())
+								expand += holder.vertexCount;
+						}
+					
 					if (managers[i] == null || managers[i].getBuilder() == null) {
 						BufferBuilder tempBuffer = new BufferBuilder(DefaultVertexFormats.BLOCK.getNextOffset() * expand + DefaultVertexFormats.BLOCK.getNextOffset());
 						tempBuffer.begin(7, DefaultVertexFormats.BLOCK);
@@ -127,8 +131,7 @@ public class LittleRenderChunk {
 						if (holder.isRemoved())
 							continue;
 						int index = BufferBuilderUtils.getBufferSizeByte(builder);
-						if (holder.getManager() != null)
-							holder.getManager().backToRAM();
+						
 						managers[i].add(holder);
 					}
 				}
@@ -142,6 +145,8 @@ public class LittleRenderChunk {
 	public void uploadBuffer() {
 		synchronized (tileEntities) {
 			if (modified) {
+				
+				backToRAM();
 				
 				for (int i = 0; i < vertexBuffers.length; i++) {
 					if (vertexBuffers[i] != null)

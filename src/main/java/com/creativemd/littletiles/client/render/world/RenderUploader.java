@@ -41,7 +41,8 @@ public class RenderUploader {
 	public static int getBufferId(VertexBuffer buffer) {
 		try {
 			return bufferIdField.getInt(buffer);
-		} catch (IllegalArgumentException | IllegalAccessException e) {}
+		} catch (IllegalArgumentException | IllegalAccessException e) {
+		}
 		return -1;
 	}
 	
@@ -58,7 +59,7 @@ public class RenderUploader {
 					
 					for (TileEntityLittleTiles te : tiles) {
 						BufferHolder holder = te.render.getBufferCache().get(layer);
-						if (holder != null)
+						if (holder != null && holder.hasBufferInRAM())
 							expanded += holder.length;
 					}
 					
@@ -85,7 +86,7 @@ public class RenderUploader {
 								
 								for (TileEntityLittleTiles te : tiles) {
 									BufferHolder holder = te.render.getBufferCache().get(layer);
-									if (holder != null)
+									if (holder != null && holder.hasBufferInRAM())
 										holder.add(builder);
 								}
 								
@@ -114,8 +115,8 @@ public class RenderUploader {
 								
 								for (TileEntityLittleTiles te : tiles) {
 									BufferHolder holder = te.render.getBufferCache().get(layer);
-									if (holder != null) {
-										ByteBuffer buffer = holder.getBuffer();
+									if (holder != null && holder.hasBufferInRAM()) {
+										ByteBuffer buffer = holder.getBufferRAM();
 										buffer.position(0);
 										buffer.limit(holder.length);
 										toUpload.put(buffer);
@@ -132,7 +133,8 @@ public class RenderUploader {
 						e.printStackTrace();
 					}
 				}
-			} catch (NotSupportedException e) {}
+			} catch (NotSupportedException e) {
+			}
 		}
 	}
 	
@@ -141,8 +143,10 @@ public class RenderUploader {
 	public static ByteBuffer glMapBufferRange(long length) throws NotSupportedException {
 		try {
 			ByteBuffer result = ByteBuffer.allocateDirect((int) length);
-			if (arbVboField.getBoolean(null))
+			if (arbVboField.getBoolean(null)) {
+				System.out.println("Using arb buffers ...");
 				ARBBufferObject.glGetBufferSubDataARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, 0, result);
+			}
 			//return ARBVertexBufferObject.glMapBufferARB(ARBVertexBufferObject.GL_ARRAY_BUFFER_ARB, ARBVertexBufferObject.GL_READ_ONLY_ARB, length, null);
 			//else if (GLContext.getCapabilities().OpenGL30)
 			//return GL30.glMapBufferRange(OpenGlHelper.GL_ARRAY_BUFFER, 0, length, GL30.GL_MAP_READ_BIT, null);

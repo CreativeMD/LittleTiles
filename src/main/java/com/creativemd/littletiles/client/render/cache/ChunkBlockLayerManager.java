@@ -34,14 +34,14 @@ public class ChunkBlockLayerManager {
 		this.layer = layer;
 	}
 	
-	public synchronized void add(TileEntityLittleTiles te) {
+	public void add(TileEntityLittleTiles te) {
 		LayeredRenderBufferCache bufferCache = te.render.getBufferCache();
 		BufferHolder holder = bufferCache.get(layer);
 		if (holder != null)
 			add(holder);
 	}
 	
-	public synchronized void add(BufferHolder holder) {
+	public void add(BufferHolder holder) {
 		holder.add(builder);
 		holders.add(holder);
 	}
@@ -67,6 +67,49 @@ public class ChunkBlockLayerManager {
 		}
 	}
 	
+	public ByteBuffer getTempBuffer(BufferHolder holder) {
+		Callable<ByteBuffer> run = () -> {
+			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
+				if (Minecraft.getMinecraft().world == null || RenderUploader.getBufferId(buffer) == -1)
+					return null;
+				buffer.bindBuffer();
+				try {
+					ByteBuffer uploadedData = RenderUploader.glMapBufferRange(totalSize);
+					if (uploadedData != null) {
+						if (holder.isRemoved())
+							return null;
+						try {
+							if (uploadedData.capacity() >= holder.getIndex() + holder.length) {
+								ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
+								uploadedData.position(holder.getIndex());
+								int end = holder.getIndex() + holder.length;
+								while (uploadedData.position() < end)
+									newBuffer.put(uploadedData.get());
+								return newBuffer;
+							}
+						} catch (IllegalArgumentException e) {}
+					}
+					return null;
+				} catch (NotSupportedException | IllegalArgumentException e) {
+					e.printStackTrace();
+				}
+				buffer.unbindBuffer();
+				return null;
+			}
+		};
+		try {
+			if (Minecraft.getMinecraft().isCallingFromMinecraftThread())
+				return run.call();
+			else {
+				ListenableFuture<ByteBuffer> future = Minecraft.getMinecraft().addScheduledTask(run);
+				return future.get();
+			}
+		} catch (Exception e1) {
+			e1.printStackTrace();
+			return null;
+		}
+	}
+	
 	public void backToRAM() {
 		if (buffer == null)
 			return;
@@ -87,9 +130,9 @@ public class ChunkBlockLayerManager {
 						for (BufferHolder holder : holders) {
 							if (holder.isRemoved())
 								continue;
-							ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
 							try {
 								if (uploadedData.capacity() >= holder.getIndex() + holder.length) {
+									ByteBuffer newBuffer = ByteBuffer.allocateDirect(holder.length);
 									uploadedData.position(holder.getIndex());
 									int end = holder.getIndex() + holder.length;
 									while (uploadedData.position() < end)
@@ -103,7 +146,8 @@ public class ChunkBlockLayerManager {
 							
 						}
 					} else
-						System.out.println("No uploaded data found");
+						for (BufferHolder holder : holders)
+							holder.remove();
 					holders.clear();
 					blockLayerManager.set(buffer, null);
 				} catch (NotSupportedException | IllegalArgumentException | IllegalAccessException e) {

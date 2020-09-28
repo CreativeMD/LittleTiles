@@ -47,9 +47,9 @@ public class BufferHolder {
 	public void add(BufferBuilder builder) {
 		int index = BufferBuilderUtils.getBufferSizeByte(builder);
 		if (!hasBufferInRAM())
-			manager.backToRAM();
+			throw new IllegalStateException("Buffer is still in VRAM");
 		this.index = index;
-		BufferBuilderUtils.addBuffer(builder, getBuffer(), length, vertexCount);
+		BufferBuilderUtils.addBuffer(builder, byteBuffer, length, vertexCount);
 	}
 	
 	public boolean hasBufferInRAM() {
@@ -67,19 +67,12 @@ public class BufferHolder {
 		this.manager = null;
 	}
 	
-	public ByteBuffer getBuffer() {
-		if (byteBuffer != null)
-			return byteBuffer;
-		if (index != -1) {
-			manager.backToRAM();
-			return byteBuffer;
-		}
-		throw new IllegalStateException("Index of VRAM buffer is not set!");
+	public ByteBuffer getBufferRAM() {
+		return byteBuffer;
 	}
 	
-	public void backToRAM() {
-		if (manager != null)
-			manager.backToRAM();
+	public ByteBuffer tryGetBufferVRAM() {
+		return manager.getTempBuffer(this);
 	}
 	
 	public boolean isRemoved() {
@@ -91,9 +84,10 @@ public class BufferHolder {
 	}
 	
 	public void onRemoved() {
+		removed = true;
 		byteBuffer = null;
 		manager = null;
 		index = -1;
-		removed = true;
+		
 	}
 }

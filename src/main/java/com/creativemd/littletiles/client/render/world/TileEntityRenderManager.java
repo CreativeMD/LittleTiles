@@ -45,7 +45,7 @@ public class TileEntityRenderManager {
 	public void backToRAM(BlockRenderLayer layer) {
 		BufferHolder holder = bufferCache.get(layer);
 		if (holder != null && !holder.hasBufferInRAM())
-			holder.backToRAM();
+			holder.getManager().backToRAM();
 	}
 	
 	public void chunkUpdate(Object chunk) {

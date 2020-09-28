@@ -54,25 +54,44 @@ public class LayeredRenderBufferCache {
 	}
 	
 	private BufferHolder combine(int layer, BufferHolder first, BufferHolder second) {
-		if (first == null || first.isRemoved())
-			return second;
-		else if (second == null || second.isRemoved())
-			return first;
+		int vertexCount = 0;
+		int length = 0;
+		ByteBuffer firstBuffer = null;
+		if (first != null && !first.isRemoved()) {
+			firstBuffer = first.hasBufferInRAM() ? first.getBufferRAM() : first.tryGetBufferVRAM();
+			if (firstBuffer != null) {
+				vertexCount += first.vertexCount;
+				length += first.length;
+			}
+		}
 		
-		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(first.length + second.length);
+		ByteBuffer secondBuffer = null;
+		if (second != null && !second.isRemoved()) {
+			secondBuffer = second.hasBufferInRAM() ? second.getBufferRAM() : second.tryGetBufferVRAM();
+			if (secondBuffer != null) {
+				vertexCount += second.vertexCount;
+				length += second.length;
+			}
+		}
 		
-		ByteBuffer firstBuffer = first.getBuffer();
-		firstBuffer.position(0);
-		firstBuffer.limit(first.length);
-		byteBuffer.put(firstBuffer);
+		if (vertexCount == 0)
+			return null;
+		ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
 		
-		ByteBuffer secondBuffer = second.getBuffer();
-		secondBuffer.position(0);
-		secondBuffer.limit(second.length);
-		byteBuffer.put(secondBuffer);
-		first.onRemoved();
-		second.onRemoved();
-		return new BufferHolder(this, layer, byteBuffer, first.length + second.length, first.vertexCount + second.vertexCount);
+		if (firstBuffer != null) {
+			firstBuffer.position(0);
+			firstBuffer.limit(first.length);
+			byteBuffer.put(firstBuffer);
+		}
+		
+		if (secondBuffer != null) {
+			secondBuffer.position(0);
+			secondBuffer.limit(second.length);
+			byteBuffer.put(secondBuffer);
+		}
+		if (first != null)
+			first.onRemoved();
+		return new BufferHolder(this, layer, byteBuffer, length, vertexCount);
 	}
 	
 	public static BufferBuilder createVertexBuffer(VertexFormat format, List<? extends RenderBox> cubes) {
