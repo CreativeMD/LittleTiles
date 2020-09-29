@@ -646,7 +646,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		protected void rotate(Axis doorAxis, Rotation rotation) {
-			degree = Rotation.getRotation(doorAxis, degree > 0 ? true : false).clockwise ? Math.abs(degree) : -Math.abs(degree);
+			degree = RotationUtils.rotate(Rotation.getRotation(doorAxis, degree > 0 ? true : false), rotation).clockwise ? Math.abs(degree) : -Math.abs(degree);
 		}
 		
 		@Override
