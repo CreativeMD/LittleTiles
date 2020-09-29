@@ -218,13 +218,13 @@ public class DoorController extends EntityAnimationController {
 				if (!(world instanceof CreativeWorld) && world.isRemote && !placedOnServer)
 					newDoor.waitingForApproval = true;
 				
+				newDoor.transferChildrenFromAnimation(parent);
+				
 				if (parent.structure.getParent() != null) {
 					LittleStructure parentStructure = parent.structure.getParent().getStructure();
 					newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure);
 					parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor);
 				}
-				
-				newDoor.transferChildrenFromAnimation(parent);
 			} else {
 				parent.markRemoved();
 				if (!world.isRemote)
