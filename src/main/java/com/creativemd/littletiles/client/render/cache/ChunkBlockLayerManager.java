@@ -70,7 +70,7 @@ public class ChunkBlockLayerManager {
 	public ByteBuffer getTempBuffer(BufferHolder holder) {
 		Callable<ByteBuffer> run = () -> {
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-				if (Minecraft.getMinecraft().world == null || RenderUploader.getBufferId(buffer) == -1)
+				if (Minecraft.getMinecraft().world == null || buffer == null || RenderUploader.getBufferId(buffer) == -1)
 					return null;
 				buffer.bindBuffer();
 				try {
@@ -111,15 +111,14 @@ public class ChunkBlockLayerManager {
 	}
 	
 	public void backToRAM() {
-		if (buffer == null)
-			return;
 		Callable<Boolean> run = () -> {
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
-				if (Minecraft.getMinecraft().world == null || RenderUploader.getBufferId(buffer) == -1) {
+				if (Minecraft.getMinecraft().world == null || buffer == null || RenderUploader.getBufferId(buffer) == -1) {
 					for (BufferHolder holder : holders)
 						holder.remove();
 					holders.clear();
-					blockLayerManager.set(buffer, null);
+					if (buffer != null)
+						blockLayerManager.set(buffer, null);
 					buffer = null;
 					return false;
 				}
