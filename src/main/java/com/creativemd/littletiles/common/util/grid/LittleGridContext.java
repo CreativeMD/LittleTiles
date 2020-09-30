@@ -65,7 +65,7 @@ public class LittleGridContext {
 	}
 	
 	public static LittleGridContext get(NBTTagCompound nbt) {
-		if (nbt.hasKey("grid"))
+		if (nbt != null && nbt.hasKey("grid"))
 			return LittleGridContext.get(nbt.getInteger("grid"));
 		return LittleGridContext.get();
 	}
