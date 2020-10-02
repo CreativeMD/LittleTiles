@@ -364,13 +364,13 @@ public class RenderingThread extends Thread {
 				} else
 					chunks.put(data.chunk, count - 1);
 				
-			boolean finished = true;
+			/*boolean finished = true;
 			for (RenderingThread thread : threads) {
 				if (thread != null && !thread.updateCoords.isEmpty()) {
 					finished = false;
 					break;
 				}
-			}
+			}*/
 			//if (finished && !chunks.isEmpty())
 			//chunks.clear();
 		}

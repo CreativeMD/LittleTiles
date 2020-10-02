@@ -123,7 +123,7 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			te.updateTiles(x -> x.noneStructureTiles().removeAll(toRemove));
+			te.updateTilesSecretly(x -> x.noneStructureTiles().removeAll(toRemove));
 			
 			Placement placement = new Placement(player, PlacementHelper.getAbsolutePreviews(world, previews, pos, PlacementMode.normal));
 			placement.place();
@@ -138,7 +138,7 @@ public class LittleActionReplace extends LittleActionInteract {
 			boxes.addBox(parent, tile);
 			
 			LittlePreviews toBePlaced = new LittlePreviews(te.getContext());
-			toReplace.box = tile.getBox();
+			toReplace.box = tile.getBox().copy();
 			toBePlaced.addPreview(null, toReplace, te.getContext());
 			
 			try {
@@ -149,7 +149,7 @@ public class LittleActionReplace extends LittleActionInteract {
 				inventory.stopSimulation();
 			}
 			
-			te.updateTiles((x) -> x.noneStructureTiles().remove(tile));
+			te.updateTilesSecretly((x) -> x.noneStructureTiles().remove(tile));
 			
 			LittlePreviews previews = new LittlePreviews(te.getContext());
 			previews.addWithoutCheckingPreview(toReplace);

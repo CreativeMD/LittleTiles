@@ -127,8 +127,8 @@ public class TileEntityRenderManager {
 		synchronized (this) {
 			requestedIndex++;
 			if (!queued) {
-				RenderingThread.addCoordToUpdate(te);
-				queued = true;
+				if (RenderingThread.addCoordToUpdate(te))
+					queued = true;
 			}
 		}
 	}

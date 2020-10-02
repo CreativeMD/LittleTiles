@@ -541,8 +541,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	
 	public void handleUpdatePacket(NetworkManager net, NBTTagCompound nbt) {
 		readFromNBT(nbt);
-		updateTiles();
-		
+		updateTiles(false);
 	}
 	
 	public RayTraceResult rayTrace(EntityPlayer player) {
