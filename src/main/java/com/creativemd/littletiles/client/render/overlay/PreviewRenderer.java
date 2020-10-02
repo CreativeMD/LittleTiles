@@ -250,8 +250,6 @@ public class PreviewRenderer {
 					GlStateManager.depthMask(true);
 					GlStateManager.enableTexture2D();
 					GlStateManager.disableBlend();
-					
-					event.setCanceled(true);
 				}
 			}
 		}
