@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.item;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -48,6 +49,9 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	@Override
 	@SideOnly(Side.CLIENT)
 	public List<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		if (!stack.hasTagCompound() || !stack.getTagCompound().hasKey("structure"))
+			return Collections.EMPTY_LIST;
+		
 		LittleStructureTypePremade premade = (LittleStructureTypePremade) LittleStructureRegistry.getStructureType(stack.getTagCompound().getCompoundTag("structure").getString("id"));
 		LittlePreviews previews = getLittlePreview(stack);
 		List<RenderBox> cubes = premade.getRenderingCubes(previews);
