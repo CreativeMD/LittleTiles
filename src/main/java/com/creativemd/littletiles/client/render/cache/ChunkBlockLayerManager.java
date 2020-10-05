@@ -37,7 +37,7 @@ public class ChunkBlockLayerManager {
 	public void add(TileEntityLittleTiles te) {
 		LayeredRenderBufferCache bufferCache = te.render.getBufferCache();
 		BufferHolder holder = bufferCache.get(layer);
-		if (holder != null)
+		if (holder != null && holder.hasBufferInRAM())
 			add(holder);
 	}
 	

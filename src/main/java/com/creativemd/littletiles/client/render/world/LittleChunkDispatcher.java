@@ -130,7 +130,7 @@ public class LittleChunkDispatcher {
 						}
 						
 						BufferHolder holder = te.render.getBufferCache().get(layer);
-						if (holder != null)
+						if (holder != null && holder.hasBufferInRAM())
 							expanded += holder.vertexCount;
 					}
 				}
