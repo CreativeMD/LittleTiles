@@ -66,7 +66,7 @@ public class StructureLocation {
 	
 	public LittleStructure find(World world) throws LittleActionException {
 		if (worldUUID != null) {
-			EntityAnimation animation = WorldAnimationHandler.findAnimation(false, worldUUID);
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(world.isRemote, worldUUID);
 			if (animation == null)
 				throw new MissingAnimationException(worldUUID);
 			

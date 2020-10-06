@@ -509,6 +509,15 @@ public abstract class LittleStructure {
 		
 	}
 	
+	public void callStructureDestroyedToSameWorld() {
+		for (StructureChildConnection child : children)
+			if (!child.isLinkToAnotherWorld())
+				try {
+					child.getStructure().callStructureDestroyedToSameWorld();
+				} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+		onStructureDestroyed();
+	}
+	
 	/** Is called before the structure is removed */
 	public void onStructureDestroyed() {
 		

@@ -73,6 +73,8 @@ public class LittleStorage extends LittleStructure {
 		lastSlotStackSize = nbt.getInteger("lastSlot");
 		if (nbt.hasKey("inventory"))
 			inventory = InventoryUtils.loadInventoryBasic(nbt.getCompoundTag("inventory"));
+		else
+			inventory = null;
 		
 		invisibleStorageTiles = nbt.getBoolean("invisibleStorage");
 	}
@@ -120,9 +122,16 @@ public class LittleStorage extends LittleStructure {
 		return (int) size;
 	}
 	
+	public boolean hasPlayerOpened(EntityPlayer player) {
+		for (SubContainerStorage container : openContainers)
+			if (container.getPlayer() == player)
+				return true;
+		return false;
+	}
+	
 	@Override
 	public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, @Nullable ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) {
-		if (!worldIn.isRemote)
+		if (!worldIn.isRemote && !hasPlayerOpened(playerIn))
 			LittleStructureGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, this);
 		return true;
 	}

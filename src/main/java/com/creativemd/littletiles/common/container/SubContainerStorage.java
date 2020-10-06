@@ -79,10 +79,11 @@ public class SubContainerStorage extends SubContainer {
 	
 	@Override
 	public void onPacketReceive(NBTTagCompound nbt) {
-		if (nbt.hasKey("inventory")) {
-			ItemStack[] stacks = InventoryUtils.loadInventory(nbt.getCompoundTag("inventory"));
-			for (int i = 0; i < stacks.length; i++) {
-				storage.inventory.setInventorySlotContents(i, stacks[i]);
+		if (isRemote()) {
+			if (nbt.hasKey("inventory")) {
+				ItemStack[] stacks = InventoryUtils.loadInventory(nbt.getCompoundTag("inventory"));
+				for (int i = 0; i < stacks.length; i++)
+					storage.inventory.setInventorySlotContents(i, stacks[i]);
 			}
 		}
 		if (nbt.getBoolean("sort")) {

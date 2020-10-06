@@ -6,11 +6,14 @@ import java.util.UUID;
 import com.creativemd.creativecore.common.utils.type.Pair;
 import com.creativemd.creativecore.common.world.CreativeWorld;
 import com.creativemd.littletiles.common.action.LittleActionException;
+import com.creativemd.littletiles.common.entity.EntityAnimation;
+import com.creativemd.littletiles.common.structure.exception.MissingAnimationException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IParentTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
+import com.creativemd.littletiles.common.world.WorldAnimationHandler;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -76,6 +79,14 @@ public class TileLocation {
 	}
 	
 	public Pair<IParentTileList, LittleTile> find(World world) throws LittleActionException {
+		if (worldUUID != null) {
+			EntityAnimation animation = WorldAnimationHandler.findAnimation(world.isRemote, worldUUID);
+			if (animation == null)
+				throw new MissingAnimationException(worldUUID);
+			
+			world = animation.fakeWorld;
+		}
+		
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityLittleTiles) {
 			IParentTileList list = ((TileEntityLittleTiles) te).noneStructureTiles();

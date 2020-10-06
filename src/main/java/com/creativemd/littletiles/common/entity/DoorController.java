@@ -205,6 +205,8 @@ public class DoorController extends EntityAnimationController {
 			World world = parent.world;
 			LittleAbsolutePreviews previews = parent.structure.getAbsolutePreviewsSameWorldOnly(parent.absolutePreviewPos);
 			
+			parent.structure.callStructureDestroyedToSameWorld();
+			
 			if (world.isRemote)
 				parent.getRenderChunkSuppilier().backToRAM(); //Just doesn't work you cannot get the render data after everything happened
 				
