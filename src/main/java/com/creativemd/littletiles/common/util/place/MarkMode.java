@@ -36,10 +36,13 @@ public class MarkMode {
 		if (!preview.previews.isAbsolute()) {
 			position.setVecContext(new LittleVecContext(preview.box.getCenter(), preview.context));
 			
+			EnumFacing facing = position.facing;
+			if (preview.mode.placeInside)
+				facing = facing.getOpposite();
+			
 			LittleVec center = preview.size.calculateCenter();
 			LittleVec centerInv = preview.size.calculateInvertedCenter();
-			
-			switch (position.facing) {
+			switch (facing) {
 			case EAST:
 				position.getVec().x -= center.x;
 				break;
