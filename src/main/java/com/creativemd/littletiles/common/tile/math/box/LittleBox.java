@@ -110,8 +110,7 @@ public class LittleBox {
 	}
 	
 	public AxisAlignedBB getBox(LittleGridContext context, BlockPos offset) {
-		return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(
-		        maxZ) + offset.getZ());
+		return new AxisAlignedBB(context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
 	}
 	
 	public AxisAlignedBB getBox(LittleGridContext context) {
@@ -530,10 +529,8 @@ public class LittleBox {
 			if (!box.isSolid())
 				return null;
 			
-			if (box.intersectsWith(this)) {
-				set.add(box.getMin(axis));
-				set.add(box.getMax(axis));
-			}
+			if (box.intersectsWith(this))
+				set.add(box.getMin(axis), box.getMax(axis));
 		}
 		
 		return set;
@@ -549,15 +546,15 @@ public class LittleBox {
 			for (SplitRangeBox range : ranges) {
 				LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max);
 				
-				boolean cutted = false;
+				//boolean cutted = false;
 				if (box != null) {
-					for (LittleBox cutBox : boxes) {
+					/*for (LittleBox cutBox : boxes) {
 						if (cutBox.intersectsWith(box)) {
 							cutted = true;
 							break;
 						}
-					}
-					if (cutted)
+					}*/
+					if (range.inside)
 						cutout.add(box);
 					else
 						newBoxes.add(box);
@@ -573,8 +570,7 @@ public class LittleBox {
 			boolean expected = filled[0][0][0];
 			boolean continuous = true;
 			
-			loop:
-			for (int x = 0; x < filled.length; x++) {
+			loop: for (int x = 0; x < filled.length; x++) {
 				for (int y = 0; y < filled[x].length; y++) {
 					for (int z = 0; z < filled[x][y].length; z++) {
 						if (filled[x][y][z] != expected) {
@@ -896,8 +892,7 @@ public class LittleBox {
 		long tempMaxX = maxX * 2 - doubledCenter.x;
 		long tempMaxY = maxY * 2 - doubledCenter.y;
 		long tempMaxZ = maxZ * 2 - doubledCenter.z;
-		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2),
-		        (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
+		resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
 		changed();
 	}
 	
