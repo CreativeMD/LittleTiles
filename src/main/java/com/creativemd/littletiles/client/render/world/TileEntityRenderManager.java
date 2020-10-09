@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.client.render.world;
 
 import com.creativemd.littletiles.client.render.cache.BufferHolder;
+import com.creativemd.littletiles.client.render.cache.ChunkBlockLayerManager;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBoxCache;
 import com.creativemd.littletiles.client.render.cache.LayeredRenderBufferCache;
 import com.creativemd.littletiles.client.render.cache.RenderingThread;
@@ -44,8 +45,11 @@ public class TileEntityRenderManager {
 	
 	public void backToRAM(BlockRenderLayer layer) {
 		BufferHolder holder = bufferCache.get(layer);
-		if (holder != null && !holder.hasBufferInRAM())
-			holder.getManager().backToRAM();
+		if (holder != null && !holder.hasBufferInRAM()) {
+			ChunkBlockLayerManager manager = holder.getManager();
+			if (manager != null)
+				manager.backToRAM();
+		}
 	}
 	
 	public void chunkUpdate(Object chunk) {
