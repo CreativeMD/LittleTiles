@@ -231,6 +231,10 @@ public class LittleTile implements ICombinable {
 		return changed;
 	}
 	
+	public boolean fillInSpaceInaccurate(LittleBox otherBox, boolean[][][] filled) {
+		return box.fillInSpaceInaccurate(otherBox, filled);
+	}
+	
 	@Override
 	public boolean fillInSpace(LittleBox otherBox, boolean[][][] filled) {
 		return box.fillInSpace(otherBox, filled);
@@ -248,8 +252,9 @@ public class LittleTile implements ICombinable {
 		return this.box.cutOut(boxes, cutout);
 	}
 	
-	public void getCuttingBoxes(List<LittleBox> boxes) {
-		boxes.add(box);
+	public void getIntersectingBox(LittleBox box, List<LittleBox> boxes) {
+		if (LittleBox.intersectsWith(box, this.box))
+			boxes.add(this.box);
 	}
 	
 	public LittleBox getCompleteBox() {

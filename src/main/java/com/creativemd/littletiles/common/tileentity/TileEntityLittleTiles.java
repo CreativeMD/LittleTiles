@@ -373,7 +373,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 	public List<LittleBox> cutOut(LittleBox box, List<LittleBox> cutout) {
 		List<LittleBox> cutting = new ArrayList<>();
 		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles())
-			pair.value.getCuttingBoxes(cutting);
+			pair.value.getIntersectingBox(box, cutting);
 		return box.cutOut(cutting, cutout);
 	}
 	
@@ -972,7 +972,7 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 			boolean noclip = false;
 			
 			for (Pair<IParentTileList, LittleTile> pair : TileEntityLittleTiles.this.tiles.allTiles())
-				if (pair.value.fillInSpace(box, filled)) {
+				if (pair.value.fillInSpaceInaccurate(box, filled)) {
 					if (!pair.value.doesProvideSolidFace(facing))
 						translucent = true;
 					if (LittleStructureAttribute.noCollision(pair.key.getAttribute()) || pair.value.hasNoCollision())

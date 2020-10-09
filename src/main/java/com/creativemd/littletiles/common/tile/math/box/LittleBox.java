@@ -541,6 +541,12 @@ public class LittleBox {
 	 * @return all remaining boxes or null if the box remains as it is */
 	public List<LittleBox> cutOut(List<LittleBox> boxes, List<LittleBox> cutout) {
 		List<LittleBox> newBoxes = new ArrayList<>();
+		
+		if (boxes.isEmpty()) {
+			newBoxes.add(this.copy());
+			return newBoxes;
+		}
+		
 		SplitRangeBoxes ranges;
 		if ((ranges = split(boxes)) != null) {
 			for (SplitRangeBox range : ranges) {
@@ -664,6 +670,27 @@ public class LittleBox {
 	
 	public boolean containsBox(LittleBox box) {
 		return this.minX <= box.minX && this.maxX >= box.maxX && this.minY <= box.minY && this.maxY >= box.maxY && this.minZ <= box.minZ && this.maxZ >= box.maxZ;
+	}
+	
+	public boolean fillInSpaceInaccurate(LittleBox otherBox, boolean[][][] filled) {
+		boolean changed = false;
+		if (isSolid()) {
+			int minX = Math.max(this.minX, otherBox.minX);
+			int maxX = Math.min(this.maxX, otherBox.maxX);
+			int minY = Math.max(this.minY, otherBox.minY);
+			int maxY = Math.min(this.maxY, otherBox.maxY);
+			int minZ = Math.max(this.minZ, otherBox.minZ);
+			int maxZ = Math.min(this.maxZ, otherBox.maxZ);
+			for (int x = minX; x < maxX; x++) {
+				for (int y = minY; y < maxY; y++) {
+					for (int z = minZ; z < maxZ; z++) {
+						filled[x - otherBox.minX][y - otherBox.minY][z - otherBox.minZ] = true;
+						changed = true;
+					}
+				}
+			}
+		}
+		return changed;
 	}
 	
 	public boolean fillInSpace(LittleBox otherBox, boolean[][][] filled) {
