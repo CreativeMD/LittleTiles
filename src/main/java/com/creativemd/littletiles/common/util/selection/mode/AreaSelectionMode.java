@@ -131,7 +131,7 @@ public class AreaSelectionMode extends SelectionMode {
 							if (tileEntity instanceof TileEntityLittleTiles) {
 								TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
 								for (IParentTileList parent : te.groups()) {
-									if (parent.isStructure()) {
+									if (rememberStructure && parent.isStructure()) {
 										try {
 											LittleStructure structure = parent.getStructure();
 											while (structure.getParent() != null)
