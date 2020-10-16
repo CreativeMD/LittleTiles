@@ -34,7 +34,6 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
 			
 			@Override
 			public boolean hasNext() {
-				
 				return current < total;
 			}
 			

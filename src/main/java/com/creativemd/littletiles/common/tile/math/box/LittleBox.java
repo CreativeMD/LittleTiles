@@ -552,15 +552,16 @@ public class LittleBox {
 			for (SplitRangeBox range : ranges) {
 				LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max);
 				
-				//boolean cutted = false;
+				boolean cutted = false;
 				if (box != null) {
-					/*for (LittleBox cutBox : boxes) {
+					for (LittleBox cutBox : boxes) {
 						if (cutBox.intersectsWith(box)) {
 							cutted = true;
 							break;
 						}
-					}*/
-					if (range.inside)
+					}
+					//if (range.inside)
+					if (cutted)
 						cutout.add(box);
 					else
 						newBoxes.add(box);
