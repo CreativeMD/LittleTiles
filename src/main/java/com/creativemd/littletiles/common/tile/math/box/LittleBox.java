@@ -529,8 +529,10 @@ public class LittleBox {
 			if (!box.isSolid())
 				return null;
 			
-			if (box.intersectsWith(this))
-				set.add(box.getMin(axis), box.getMax(axis));
+			if (box.intersectsWith(this)) {
+				set.add(box.getMin(axis));
+				set.add(box.getMax(axis));
+			}
 		}
 		
 		return set;
@@ -552,15 +554,14 @@ public class LittleBox {
 			for (SplitRangeBox range : ranges) {
 				LittleBox box = extractBox(range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max);
 				
-				boolean cutted = false;
 				if (box != null) {
+					boolean cutted = false;
 					for (LittleBox cutBox : boxes) {
 						if (cutBox.intersectsWith(box)) {
 							cutted = true;
 							break;
 						}
 					}
-					//if (range.inside)
 					if (cutted)
 						cutout.add(box);
 					else
