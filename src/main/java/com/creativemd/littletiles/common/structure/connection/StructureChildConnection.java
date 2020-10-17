@@ -9,6 +9,7 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.CorruptedLinkException;
 import com.creativemd.littletiles.common.structure.exception.MissingBlockException;
 import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
+import com.creativemd.littletiles.common.structure.exception.MissingWorldException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
@@ -106,6 +107,9 @@ public class StructureChildConnection implements IStructureConnection {
 			throw new CorruptedLinkException();
 		
 		World world = getWorld();
+		
+		if (world == null)
+			throw new MissingWorldException();
 		
 		BlockPos absoluteCoord = getStructurePosition();
 		Chunk chunk = world.getChunkFromBlockCoords(absoluteCoord);
