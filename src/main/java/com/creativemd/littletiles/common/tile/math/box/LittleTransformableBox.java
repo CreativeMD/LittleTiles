@@ -192,8 +192,7 @@ public class LittleTransformableBox extends LittleBox {
 	
 	@Override
 	public TransformableAxisBox getBox(LittleGridContext context, BlockPos offset) {
-		return new TransformableAxisBox(this, context, context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(
-		        maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
+		return new TransformableAxisBox(this, context, context.toVanillaGrid(minX) + offset.getX(), context.toVanillaGrid(minY) + offset.getY(), context.toVanillaGrid(minZ) + offset.getZ(), context.toVanillaGrid(maxX) + offset.getX(), context.toVanillaGrid(maxY) + offset.getY(), context.toVanillaGrid(maxZ) + offset.getZ());
 	}
 	
 	@Override
@@ -523,11 +522,14 @@ public class LittleTransformableBox extends LittleBox {
 			if (facing == null)
 				return null;
 			
-			Iterator<TransformablePoint> points = points();
-			Iterator<TransformablePoint> otherPoints = ((LittleTransformableBox) box).points();
+			Iterator<TransformableVec> points = corners();
+			Iterator<TransformableVec> otherPoints = ((LittleTransformableBox) box).corners();
 			
-			TransformablePoint point = null;
-			TransformablePoint otherPoint = null;
+			TransformableVec point = null;
+			TransformableVec otherPoint = null;
+			
+			Axis one = RotationUtils.getOne(facing.getAxis());
+			Axis two = RotationUtils.getTwo(facing.getAxis());
 			
 			while (points.hasNext() || otherPoints.hasNext()) {
 				
@@ -541,9 +543,9 @@ public class LittleTransformableBox extends LittleBox {
 				else
 					otherPoint = null;
 				
-				while (point != null && (otherPoint == null || point.progressIndex < otherPoint.progressIndex)) {
+				while (point != null && (otherPoint == null || point.corner.ordinal() < otherPoint.corner.ordinal())) {
 					
-					if (box.get(point.corner, point.axis) != point.getAbsolute())
+					if (box.get(point.corner, one) != point.getAbsolute(one) || box.get(point.corner, two) != point.getAbsolute(two))
 						return null;
 					
 					if (points.hasNext())
@@ -552,8 +554,8 @@ public class LittleTransformableBox extends LittleBox {
 						point = null;
 				}
 				
-				while (otherPoint != null && (point == null || point.progressIndex > otherPoint.progressIndex)) {
-					if (get(otherPoint.corner, otherPoint.axis) != otherPoint.getAbsolute())
+				while (otherPoint != null && (point == null || point.corner.ordinal() > otherPoint.corner.ordinal())) {
+					if (get(otherPoint.corner, one) != otherPoint.getAbsolute(one) || get(otherPoint.corner, two) != otherPoint.getAbsolute(two))
 						return null;
 					
 					if (otherPoints.hasNext())
@@ -562,9 +564,12 @@ public class LittleTransformableBox extends LittleBox {
 						otherPoint = null;
 				}
 				
-				if (point != null && otherPoint != null && point.getAbsolute() != otherPoint.getAbsolute())
+				if (point != null && otherPoint != null && (point.getAbsolute(one) != otherPoint.getAbsolute(one) || point.getAbsolute(two) != otherPoint.getAbsolute(two)))
 					return null;
 			}
+			
+			if (!requestCache().get(facing).equalAxisStrip(((LittleTransformableBox) box).requestCache().get(facing.getOpposite()), facing.getAxis()))
+				return null;
 			
 			LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data);
 			CornerCache cache = result.new CornerCache(false);
@@ -573,8 +578,8 @@ public class LittleTransformableBox extends LittleBox {
 			
 			VectorFanCache stripCache = result.requestCache();
 			
-			Axis one = RotationUtils.getOne(facing.getAxis());
-			Axis two = RotationUtils.getTwo(facing.getAxis());
+			//Axis one = RotationUtils.getOne(facing.getAxis());
+			//Axis two = RotationUtils.getTwo(facing.getAxis());
 			Vector3f origin = new Vector3f();
 			VectorUtils.set(origin, get(facing), facing.getAxis());
 			NormalPlane axisPlane = new NormalPlane(origin, new Vector3f());
@@ -1563,6 +1568,12 @@ public class LittleTransformableBox extends LittleBox {
 					completedFilled = before.equals(axisStrips.get(0));
 				else
 					completedFilled = false;
+		}
+		
+		public boolean equalAxisStrip(VectorFanFaceCache cache, Axis toIgnore) {
+			if (axisStrips.size() != cache.axisStrips.size() || axisStrips.size() != 1)
+				return false;
+			return axisStrips.get(0).equalsIgnoreOrder(cache.axisStrips.get(0), toIgnore);
 		}
 		
 		protected void add(int x, int y, int z) {
