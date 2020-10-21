@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.chunk.ChunkCompileTaskGenerator;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.client.renderer.vertex.VertexBuffer;
 import net.minecraft.entity.Entity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
@@ -102,10 +103,17 @@ public class LittleChunkDispatcher {
 				return;
 			}
 			
-			if (!tiles.isEmpty())
-				for (TileEntityLittleTiles te : tiles)
-					te.render.backToRAM(layer);
-				
+			if (!tiles.isEmpty()) {
+				VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
+				try {
+					ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
+					if (oldManager != null)
+						oldManager.backToRAM();
+				} catch (IllegalArgumentException | IllegalAccessException e) {}
+				//for (TileEntityLittleTiles te : tiles)
+				//te.render.backToRAM(layer);
+			}
+			
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
 				
 				ChunkBlockLayerManager manager = new ChunkBlockLayerManager(buffer, layer);
@@ -178,6 +186,11 @@ public class LittleChunkDispatcher {
 						if (layer != BlockRenderLayer.TRANSLUCENT) {
 							manager.readyUp();
 							blockLayerManager.set(buffer, manager);
+							VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
+							ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
+							//if (oldManager != null)
+							//oldManager.backToRAM();
+							ChunkBlockLayerManager.blockLayerManager.set(vertexBuffer, manager);
 						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						e.printStackTrace();

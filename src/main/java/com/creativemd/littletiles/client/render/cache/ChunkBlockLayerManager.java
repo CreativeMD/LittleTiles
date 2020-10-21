@@ -21,7 +21,7 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 
 public class ChunkBlockLayerManager {
 	
-	private static final Field blockLayerManager = ReflectionHelper.findField(VertexBuffer.class, "blockLayerManager");
+	public static final Field blockLayerManager = ReflectionHelper.findField(VertexBuffer.class, "blockLayerManager");
 	
 	private BufferBuilder builder;
 	private VertexBuffer buffer;
@@ -111,6 +111,8 @@ public class ChunkBlockLayerManager {
 	}
 	
 	public void backToRAM() {
+		if (buffer == null)
+			return;
 		Callable<Boolean> run = () -> {
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
 				if (Minecraft.getMinecraft().world == null || buffer == null || RenderUploader.getBufferId(buffer) == -1) {
@@ -140,15 +142,19 @@ public class ChunkBlockLayerManager {
 								} else
 									holder.remove();
 							} catch (IllegalArgumentException e) {
+								System.out.println("Invalid Buffer");
 								holder.remove();
 							}
 							
 						}
-					} else
+					} else {
+						System.out.println("Buffer is lost!");
 						for (BufferHolder holder : holders)
 							holder.remove();
+					}
 					holders.clear();
-					blockLayerManager.set(buffer, null);
+					if (blockLayerManager.get(buffer) == this)
+						blockLayerManager.set(buffer, null);
 				} catch (NotSupportedException | IllegalArgumentException | IllegalAccessException e) {
 					e.printStackTrace();
 				}
