@@ -47,6 +47,11 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	}
 	
 	@Override
+	public boolean[] getState() {
+		return state;
+	}
+	
+	@Override
 	public void setState(boolean[] state) {
 		this.state = state;
 	}

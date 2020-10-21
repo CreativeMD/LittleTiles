@@ -4,6 +4,8 @@ public interface ISignalInput extends ISignalBase {
 	
 	public void setState(boolean[] state);
 	
+	public boolean[] getState();
+	
 	@Override
 	public default SignalType getType() {
 		return SignalType.INPUT;

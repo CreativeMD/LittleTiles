@@ -30,6 +30,7 @@ import com.creativemd.littletiles.common.structure.exception.MissingParentExcept
 import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalEvent;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
@@ -409,6 +410,13 @@ public abstract class LittleStructure {
 				field.set(this, failedLoadingRelative(nbt, field));
 		}
 		
+		if (nbt.hasKey("signal")) {
+			NBTTagList list = nbt.getTagList("signal", 10);
+			List<SignalEvent> events = new ArrayList<>();
+			for (int i = 0; i < list.tagCount(); i++)
+				events.add(SignalEvent.loadFromNBT(list.getCompoundTagAt(i)));
+			setSignalEvents(events);
+		}
 		loadFromNBTExtra(nbt);
 	}
 	
@@ -436,6 +444,9 @@ public abstract class LittleStructure {
 			field.save(nbt, value);
 			field.move(value, vec.getContext(), inverted);
 		}
+		
+		if (hasSignalEvents())
+			nbt.setTag("signal", writeSignalEvents());
 		
 		writeToNBTExtra(nbt);
 		return nbt;
@@ -475,10 +486,38 @@ public abstract class LittleStructure {
 			field.save(nbt, value);
 		}
 		
+		if (hasSignalEvents())
+			nbt.setTag("signal", writeSignalEvents());
+		
 		writeToNBTExtra(nbt);
 	}
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
+	
+	protected NBTTagList writeSignalEvents() {
+		NBTTagList list = new NBTTagList();
+		for (SignalEvent event : getSignalEvents())
+			list.appendTag(event.writeToNBT());
+		return list;
+	}
+	
+	// ================Signal================
+	
+	public boolean hasSignalEvents() {
+		return false;
+	}
+	
+	public List<SignalEvent> getSignalEvents() {
+		return null;
+	}
+	
+	public void setSignalEvents(List<SignalEvent> events) {
+		
+	}
+	
+	public void signalInput(int id, boolean[] beforeState, boolean[] state) {
+		
+	}
 	
 	// ====================Destroy====================
 	
