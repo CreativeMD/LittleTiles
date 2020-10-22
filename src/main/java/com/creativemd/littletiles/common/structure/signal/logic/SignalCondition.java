@@ -28,7 +28,7 @@ public abstract class SignalCondition {
 		}
 		
 		public char next() {
-			return pattern.charAt(pos++);
+			return pattern.charAt(++pos);
 		}
 		
 		public char lookForNext() {
@@ -67,12 +67,14 @@ public abstract class SignalCondition {
 		throw new ParseException("Invalid signal pattern " + parser.pattern, parser.position());
 	}
 	
-	public static SignalCondition parseExpression(Parser parser, char until, PatternOperator operator) throws ParseException {
-		SignalCondition first;
+	private static SignalCondition parseLower(Parser parser, char until, PatternOperator operator) throws ParseException {
 		if (operator.lower() != null)
-			first = parseExpression(parser, until, operator);
-		else
-			first = parseNextCondition(parser);
+			return parseExpression(parser, until, operator.lower());
+		return parseNextCondition(parser);
+	}
+	
+	public static SignalCondition parseExpression(Parser parser, char until, PatternOperator operator) throws ParseException {
+		SignalCondition first = parseLower(parser, until, operator);
 		
 		if (!parser.hasNext() || parser.lookForNext() == until)
 			return first;
@@ -80,9 +82,9 @@ public abstract class SignalCondition {
 		if (operator.goOn(parser)) {
 			List<SignalCondition> conditions = new ArrayList<>();
 			conditions.add(first);
-			conditions.add(parseNextCondition(parser));
+			conditions.add(parseLower(parser, until, operator));
 			while (operator.goOn(parser))
-				conditions.add(parseNextCondition(parser));
+				conditions.add(parseLower(parser, until, operator));
 			return operator.create(conditions.toArray(new SignalCondition[conditions.size()]));
 		}
 		return first;
@@ -90,7 +92,8 @@ public abstract class SignalCondition {
 	
 	private static int parseInputIndex(char current, Parser parser) throws ParseException {
 		int index = indexOf(current);
-		index += charAmount * parseDigit(parser.next(), parser);
+		if (Character.isDigit(parser.lookForNext()))
+			index += charAmount * parseDigit(parser.next(), parser);
 		return index;
 	}
 	
@@ -317,7 +320,7 @@ public abstract class SignalCondition {
 	
 	private static String indexToChar(int index) {
 		int digit = index / charAmount;
-		return charIndex(index - digit * charAmount) + "" + digit;
+		return charIndex(index - digit * charAmount) + "" + (digit > 0 ? digit : "");
 	}
 	
 	private static ISignalInput get(LittleStructure structure, int id) {
@@ -366,6 +369,11 @@ public abstract class SignalCondition {
 	public abstract boolean test(LittleStructure structure);
 	
 	public abstract String write();
+	
+	@Override
+	public String toString() {
+		return write();
+	}
 	
 	public static class SignalConditionAND extends SignalCondition {
 		
