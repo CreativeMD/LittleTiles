@@ -1,7 +1,6 @@
 package com.creativemd.littletiles.common.structure.signal.logic;
 
 import java.lang.reflect.InvocationTargetException;
-import java.text.ParseException;
 import java.util.HashMap;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
@@ -44,21 +43,14 @@ public abstract class SignalEvent {
 		return eventTypesInv.get(type);
 	}
 	
-	public SignalCondition condition;
-	
 	public SignalEvent(NBTTagCompound nbt) {
-		try {
-			condition = SignalCondition.parse(nbt.getString("condition"));
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
+		
 	}
 	
 	public abstract void update(LittleStructure structure, int id, boolean[] stateBefore, boolean[] state);
 	
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setString("condition", condition.write());
 		nbt.setString("id", get(this.getClass()));
 		writeToNBTExtra(nbt);
 		return nbt;
