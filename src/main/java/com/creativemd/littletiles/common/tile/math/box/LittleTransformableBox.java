@@ -28,6 +28,7 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBoxTransformabl
 import com.creativemd.littletiles.common.tile.combine.BasicCombiner;
 import com.creativemd.littletiles.common.tile.math.box.face.LittleBoxFace;
 import com.creativemd.littletiles.common.tile.math.box.slice.LittleSlice;
+import com.creativemd.littletiles.common.tile.math.vec.LittleRay;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
@@ -571,79 +572,42 @@ public class LittleTransformableBox extends LittleBox {
 			if (!requestCache().get(facing).equalAxisStrip(((LittleTransformableBox) box).requestCache().get(facing.getOpposite()), facing.getAxis()))
 				return null;
 			
+			CornerCache cornerCache = new CornerCache(false);
+			setAbsoluteCorners(cornerCache);
+			CornerCache otherCornerCache = ((LittleTransformableBox) box).new CornerCache(false);
+			((LittleTransformableBox) box).setAbsoluteCorners(otherCornerCache);
+			
+			// Check lines and angles
+			LittleRay ray = new LittleRay(new LittleVec(0, 0, 0), new LittleVec(0, 0, 0));
+			LittleRay ray2 = new LittleRay(new LittleVec(0, 0, 0), new LittleVec(0, 0, 0));
+			BoxCorner[] corners = BoxCorner.faceCorners(facing);
+			for (int i = 0; i < corners.length; i++) {
+				BoxCorner corner = corners[i];
+				BoxCorner otherCorner = corner.flip(facing.getAxis());
+				ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(otherCorner));
+				ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(otherCorner));
+				if (!ray.parallel(ray2))
+					return null;
+				
+				if (ray.direction.x == 0 && ray.direction.y == 0 && ray.direction.z == 0) {
+					BoxCorner newCorner = otherCorner.flip(one);
+					ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
+					ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
+					if (!ray.parallel(ray2))
+						return null;
+					
+					newCorner = otherCorner.flip(two);
+					ray.set(cornerCache.getOrCreate(corner), cornerCache.getOrCreate(newCorner));
+					ray2.set(otherCornerCache.getOrCreate(corner), otherCornerCache.getOrCreate(newCorner));
+					if (!ray.parallel(ray2))
+						return null;
+				}
+			}
+			
 			LittleTransformableBox result = new LittleTransformableBox(new LittleBox(this, box), data);
 			CornerCache cache = result.new CornerCache(false);
 			setAbsoluteCornersTakeBounds(cache);
 			result.data = cache.getData();
-			
-			VectorFanCache stripCache = result.requestCache();
-			
-			//Axis one = RotationUtils.getOne(facing.getAxis());
-			//Axis two = RotationUtils.getTwo(facing.getAxis());
-			Vector3f origin = new Vector3f();
-			VectorUtils.set(origin, get(facing), facing.getAxis());
-			NormalPlane axisPlane = new NormalPlane(origin, new Vector3f());
-			axisPlane.normal.set(0, 0, 0);
-			
-			if (box.getMin(one) != getMin(one)) {
-				if (box.getMin(one) < getMin(one))
-					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
-				else
-					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
-				
-				Vector3f secondOrigin = new Vector3f();
-				VectorUtils.set(secondOrigin, Math.max(box.getMin(one), getMin(one)), one);
-				Vector3f secondNormal = new Vector3f();
-				VectorUtils.set(secondNormal, -1, one);
-				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
-				if (stripCache.intersects(axisPlane, secondPlane))
-					return null;
-			}
-			
-			if (box.getMax(one) != getMax(one)) {
-				if (box.getMax(one) > getMax(one))
-					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
-				else
-					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
-				
-				Vector3f secondOrigin = new Vector3f();
-				VectorUtils.set(secondOrigin, Math.min(box.getMax(one), getMax(one)), one);
-				Vector3f secondNormal = new Vector3f();
-				VectorUtils.set(secondNormal, 1, one);
-				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
-				if (stripCache.intersects(axisPlane, secondPlane))
-					return null;
-			}
-			
-			if (box.getMin(two) != getMin(two)) {
-				if (box.getMin(two) < getMin(two))
-					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
-				else
-					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
-				
-				Vector3f secondOrigin = new Vector3f();
-				VectorUtils.set(secondOrigin, Math.max(box.getMin(two), getMin(two)), two);
-				Vector3f secondNormal = new Vector3f();
-				VectorUtils.set(secondNormal, -1, two);
-				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
-				if (stripCache.intersects(axisPlane, secondPlane))
-					return null;
-			}
-			
-			if (box.getMax(two) != getMax(two)) {
-				if (box.getMax(two) > getMax(two))
-					VectorUtils.set(axisPlane.normal, facing.getOpposite().getAxisDirection().getOffset(), facing.getAxis());
-				else
-					VectorUtils.set(axisPlane.normal, facing.getAxisDirection().getOffset(), facing.getAxis());
-				
-				Vector3f secondOrigin = new Vector3f();
-				VectorUtils.set(secondOrigin, Math.min(box.getMax(two), getMax(two)), two);
-				Vector3f secondNormal = new Vector3f();
-				VectorUtils.set(secondNormal, 1, two);
-				NormalPlane secondPlane = new NormalPlane(secondOrigin, secondNormal);
-				if (stripCache.intersects(axisPlane, secondPlane))
-					return null;
-			}
 			
 			return result;
 		}
