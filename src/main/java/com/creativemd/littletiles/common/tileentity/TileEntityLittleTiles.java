@@ -676,6 +676,8 @@ public class TileEntityLittleTiles extends TileEntityCreative implements ILittle
 		box = box.expand(0, -1, 0);
 		LittleTile highest = null;
 		for (Pair<IParentTileList, LittleTile> pair : tiles.allTiles()) {
+			if (pair.value.getCollisionBox() == null)
+				continue;
 			if ((highest == null || (pair.value.getMaxY() > highest.getMaxY()) && pair.value.getCollisionBox().getBox(context, pos).intersects(box)))
 				highest = pair.value;
 			
