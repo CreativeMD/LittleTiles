@@ -105,13 +105,13 @@ public class LittleChunkDispatcher {
 			
 			if (!tiles.isEmpty()) {
 				VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
-				try {
-					ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
-					if (oldManager != null)
-						oldManager.backToRAM();
-				} catch (IllegalArgumentException | IllegalAccessException e) {}
-				//for (TileEntityLittleTiles te : tiles)
-				//te.render.backToRAM(layer);
+				if (vertexBuffer != null) {
+					try {
+						ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
+						if (oldManager != null)
+							oldManager.backToRAM();
+					} catch (IllegalArgumentException | IllegalAccessException e) {}
+				}
 			}
 			
 			synchronized (BufferHolder.BUFFER_CHANGE_LOCK) {
@@ -187,10 +187,12 @@ public class LittleChunkDispatcher {
 							manager.readyUp();
 							blockLayerManager.set(buffer, manager);
 							VertexBuffer vertexBuffer = chunk.getVertexBufferByLayer(layer.ordinal());
-							ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
-							//if (oldManager != null)
-							//oldManager.backToRAM();
-							ChunkBlockLayerManager.blockLayerManager.set(vertexBuffer, manager);
+							if (vertexBuffer != null) {
+								ChunkBlockLayerManager oldManager = (ChunkBlockLayerManager) ChunkBlockLayerManager.blockLayerManager.get(vertexBuffer);
+								//if (oldManager != null)
+								//oldManager.backToRAM();
+								ChunkBlockLayerManager.blockLayerManager.set(vertexBuffer, manager);
+							}
 						}
 					} catch (IllegalArgumentException | IllegalAccessException e) {
 						e.printStackTrace();
