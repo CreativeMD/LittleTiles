@@ -720,19 +720,19 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 		@Override
 		public void flip(LittlePreviews previews, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-			super.flip(previews, context, axis, doubledCenter);
 			AxisDoorRotation doorRotation = parseRotation(previews.structureNBT);
 			
 			doorRotation.flip(Axis.values()[previews.structureNBT.getInteger("axis")], axis);
 			doorRotation.writeToNBT(previews.structureNBT);
+			super.flip(previews, context, axis, doubledCenter);
 		}
 		
 		@Override
 		public void rotate(LittlePreviews previews, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-			super.rotate(previews, context, rotation, doubledCenter);
 			AxisDoorRotation doorRotation = parseRotation(previews.structureNBT);
 			doorRotation.rotate(Axis.values()[previews.structureNBT.getInteger("axis")], rotation);
 			doorRotation.writeToNBT(previews.structureNBT);
+			super.rotate(previews, context, rotation, doubledCenter);
 		}
 		
 	}
