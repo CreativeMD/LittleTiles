@@ -14,6 +14,7 @@ import com.creativemd.littletiles.common.structure.exception.MissingStructureExc
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.LittleFixedStructure;
 import com.creativemd.littletiles.common.tileentity.TileEntityLittleTiles;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -195,9 +196,12 @@ public class StructureTileList extends ParentTileList implements IStructureTileL
 			
 			return structure;
 			
-		} else
-			System.out.println("Could not find structureID=" + id);
-		return null;
+		}
+		
+		System.out.println("Could not find structureID=" + id);
+		LittleStructure structure = new LittleFixedStructure(LittleStructureRegistry.getStructureType(LittleFixedStructure.class), mainBlock);
+		structure.loadFromNBT(nbt);
+		return structure;
 	}
 	
 }
