@@ -677,7 +677,7 @@ public class LittleTransformableBox extends LittleBox {
 				
 				for (VectorFan fan : face.axisStrips)
 					for (VectorFan fan2 : otherFace.axisStrips)
-						if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan.intersect2d(fan2, one, two))
+						if (VectorUtils.get(axis, fan.get(0)) == VectorUtils.get(axis, fan2.get(0)) && fan.intersect2d(fan2, one, two, facing.getAxisDirection() == AxisDirection.POSITIVE))
 							return true;
 			}
 		}
