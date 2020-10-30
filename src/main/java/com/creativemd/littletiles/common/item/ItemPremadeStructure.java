@@ -107,7 +107,8 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> list) {
 		if (isInCreativeTab(tab))
 			for (LittleStructureTypePremade entry : LittleStructurePremade.getPremadeStructureTypes())
-				list.add(entry.createItemStack());
+				if (entry.showInCreativeTab)
+					list.add(entry.createItemStack());
 	}
 	
 	@Override

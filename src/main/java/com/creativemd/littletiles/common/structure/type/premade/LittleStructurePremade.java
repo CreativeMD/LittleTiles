@@ -141,6 +141,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
 	public static class LittleStructureTypePremade extends LittleStructureType {
 		
 		public final String modid;
+		public boolean showInCreativeTab = true;
 		
 		public LittleStructureTypePremade(String id, String category, Class<? extends LittleStructure> structureClass, int attribute, String modid) {
 			super(id, category, structureClass, LittleStructureAttribute.PREMADE | attribute);
@@ -155,6 +156,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
 			stackNBT.setTag("structure", structureNBT);
 			stack.setTagCompound(stackNBT);
 			return stack;
+		}
+		
+		public LittleStructureTypePremade setNotShowCreativeTab() {
+			this.showInCreativeTab = false;
+			return this;
 		}
 		
 		@SideOnly(Side.CLIENT)
