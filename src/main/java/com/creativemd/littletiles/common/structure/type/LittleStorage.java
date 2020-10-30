@@ -22,6 +22,8 @@ import com.creativemd.littletiles.common.structure.exception.CorruptedConnection
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.signal.input.ISignalStructureInternalInput;
+import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -40,11 +42,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
-public class LittleStorage extends LittleStructure {
-	
-	public LittleStorage(LittleStructureType type, IStructureTileList mainBlock) {
-		super(type, mainBlock);
-	}
+public class LittleStorage extends LittleStructure implements ISignalStructureInternalInput {
 	
 	public List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
 	
@@ -58,6 +56,11 @@ public class LittleStorage extends LittleStructure {
 	public IInventory inventory = null;
 	
 	public boolean invisibleStorageTiles = false;
+	public InternalSignalInput[] inputs;
+	
+	public LittleStorage(LittleStructureType type, IStructureTileList mainBlock) {
+		super(type, mainBlock);
+	}
 	
 	public void updateNumberOfSlots() {
 		float slots = inventorySize / (float) stackSizeLimit;
@@ -134,6 +137,24 @@ public class LittleStorage extends LittleStructure {
 		if (!worldIn.isRemote && !hasPlayerOpened(playerIn))
 			LittleStructureGuiHandler.openGui("littleStorageStructure", new NBTTagCompound(), playerIn, this);
 		return true;
+	}
+	
+	@Override
+	public void createInputs(NBTTagCompound nbt) {
+		inputs = new InternalSignalInput[] { new InternalSignalInput(this, "accessed", 1, nbt) };
+	}
+	
+	@Override
+	public InternalSignalInput getInput(int id) {
+		if (id < inputs.length)
+			return inputs[id];
+		return null;
+	}
+	
+	@Override
+	public void saveInputs(NBTTagCompound nbt) {
+		for (int i = 0; i < inputs.length; i++)
+			inputs[i].writeToNBT(nbt);
 	}
 	
 	public static class LittleStorageParser extends LittleStructureGuiParser {

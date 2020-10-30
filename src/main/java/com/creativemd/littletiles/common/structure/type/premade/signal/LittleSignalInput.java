@@ -12,8 +12,12 @@ import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
+import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
+import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.signal.ISignalInput;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
+import com.creativemd.littletiles.common.structure.signal.logic.ISignalStructureEvent;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -30,9 +34,9 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleSignalInput extends LittleSignalCableBase implements ISignalInput {
+public class LittleSignalInput extends LittleSignalCableBase implements ISignalStructureComponent {
 	
-	private boolean[] state;
+	private final boolean[] state;
 	@StructureDirectional
 	public EnumFacing facing;
 	
@@ -52,20 +56,28 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalI
 	}
 	
 	@Override
-	public void setState(boolean[] state) {
-		this.state = state;
-	}
-	
-	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
-		nbt.setInteger("state", BooleanUtils.boolToInt(state));
+		BooleanUtils.intToBool(nbt.getInteger("state"), state);
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
-		BooleanUtils.intToBool(nbt.getInteger("state"), state);
+		nbt.setInteger("state", BooleanUtils.boolToInt(state));
+	}
+	
+	@Override
+	public SignalComponentType getType() {
+		return SignalComponentType.INPUT;
+	}
+	
+	@Override
+	public void changed() {
+		try {
+			if (getParent() != null && getParent().getStructure() instanceof ISignalStructureEvent)
+				((ISignalStructureEvent) getParent().getStructure()).changed(this);
+		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	
 	@Override

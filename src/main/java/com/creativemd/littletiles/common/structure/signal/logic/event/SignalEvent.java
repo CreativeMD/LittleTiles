@@ -1,4 +1,4 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package com.creativemd.littletiles.common.structure.signal.logic.event;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
@@ -47,7 +47,7 @@ public abstract class SignalEvent {
 		
 	}
 	
-	public abstract void update(LittleStructure structure, int id, boolean[] stateBefore, boolean[] state);
+	public abstract void update(LittleStructure structure);
 	
 	public NBTTagCompound writeToNBT() {
 		NBTTagCompound nbt = new NBTTagCompound();

@@ -1,15 +1,16 @@
-package com.creativemd.littletiles.common.structure.signal;
+package com.creativemd.littletiles.common.structure.signal.component;
 
 import java.util.Iterator;
 
+import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.util.grid.LittleGridContext;
 
 import net.minecraft.util.EnumFacing;
 
-public interface ISignalBase {
+public interface ISignalStructureBase {
 	
-	public default boolean compatible(ISignalBase other) {
-		if (other.getType() != SignalType.TRANSMITTER && other.getType() == getType())
+	public default boolean compatible(ISignalStructureBase other) {
+		if (other.getType() != SignalComponentType.TRANSMITTER && other.getType() == getType())
 			return false;
 		return getBandwidth() == other.getBandwidth();
 	}
@@ -20,15 +21,15 @@ public interface ISignalBase {
 	
 	public void setNetwork(SignalNetwork network);
 	
-	public Iterator<ISignalBase> connections();
+	public Iterator<ISignalStructureBase> connections();
 	
 	public boolean canConnect(EnumFacing facing);
 	
-	public void connect(EnumFacing facing, ISignalBase base, LittleGridContext context, int distance);
+	public void connect(EnumFacing facing, ISignalStructureBase base, LittleGridContext context, int distance);
 	
-	public void disconnect(EnumFacing facing, ISignalBase base);
+	public void disconnect(EnumFacing facing, ISignalStructureBase base);
 	
-	public SignalType getType();
+	public SignalComponentType getType();
 	
 	public default boolean hasNetwork() {
 		return getNetwork() != null;
@@ -38,9 +39,9 @@ public interface ISignalBase {
 		if (hasNetwork())
 			return getNetwork();
 		
-		Iterator<ISignalBase> connections = connections();
+		Iterator<ISignalStructureBase> connections = connections();
 		while (connections.hasNext()) {
-			ISignalBase connection = connections.next();
+			ISignalStructureBase connection = connections.next();
 			if (connection.hasNetwork()) {
 				connection.getNetwork().add(this);
 				return getNetwork();

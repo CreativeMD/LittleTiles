@@ -13,7 +13,8 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.signal.ISignalOutput;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.place.PlacePreview;
@@ -29,7 +30,7 @@ import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleSignalOutput extends LittleSignalCableBase implements ISignalOutput {
+public class LittleSignalOutput extends LittleSignalCableBase implements ISignalStructureComponent {
 	
 	private final boolean[] state;
 	@StructureDirectional
@@ -53,13 +54,23 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
-		nbt.setInteger("state", BooleanUtils.boolToInt(state));
+		BooleanUtils.intToBool(nbt.getInteger("state"), state);
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
-		BooleanUtils.intToBool(nbt.getInteger("state"), state);
+		nbt.setInteger("state", BooleanUtils.boolToInt(state));
+	}
+	
+	@Override
+	public SignalComponentType getType() {
+		return SignalComponentType.OUTPUT;
+	}
+	
+	@Override
+	public void changed() {
+		findNetwork().update();
 	}
 	
 	@Override

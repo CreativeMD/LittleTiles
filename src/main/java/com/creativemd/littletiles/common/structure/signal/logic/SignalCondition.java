@@ -4,11 +4,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.creativemd.creativecore.common.utils.math.BooleanUtils;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
-import com.creativemd.littletiles.common.structure.signal.ISignalInput;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
+import com.creativemd.littletiles.common.structure.signal.input.ISignalStructureInternalInput;
+import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 
 public abstract class SignalCondition {
 	
@@ -54,12 +57,17 @@ public abstract class SignalCondition {
 			if (current == ' ')
 				continue;
 			
+			int type = Character.getType(current);
+			
 			if (current == '(')
 				return parseExpression(parser, ')', PatternOperator.HIGHEST);
 			else if (current == '!')
 				return new SignalConditionNot(parseNextCondition(parser));
-			else if (current <= 122 && current >= 97)
-				return parseInput(current, parser);
+			else if (type == Character.LOWERCASE_LETTER)
+				//else if (current <= 122 && current >= 97)
+				return parseInputExternal(current, parser);
+			else if (type == Character.UPPERCASE_LETTER)
+				return parseInputInternal(current, parser);
 			else
 				throw new ParseException("Invalid signal pattern " + parser.pattern, parser.position());
 		}
@@ -91,7 +99,7 @@ public abstract class SignalCondition {
 	}
 	
 	private static int parseInputIndex(char current, Parser parser) throws ParseException {
-		int index = indexOf(current);
+		int index = indexOf(Character.toLowerCase(current));
 		if (Character.isDigit(parser.lookForNext()))
 			index += charAmount * parseDigit(parser.next(), parser);
 		return index;
@@ -183,21 +191,38 @@ public abstract class SignalCondition {
 		return result;
 	}
 	
-	private static SignalCondition parseInput(char current, Parser parser) throws ParseException {
+	private static SignalCondition parseInputExternal(char current, Parser parser) throws ParseException {
 		int index = parseInputIndex(current, parser);
 		if (parser.lookForNext() == '{')
-			return new SignalConditionIsExact(index, parseInputExact(parser));
+			return new SignalConditionExternalIsExact(index, parseInputExact(parser));
 		else if (parser.lookForNext() == '-') {
 			parser.next();
 			int secondIndex = parseInputIndex(current, parser);
 			if (index >= secondIndex)
 				throw new IllegalArgumentException("Second index cannot be equal or higher than first " + index + "-" + secondIndex);
 			if (parser.lookForNext() == '{')
-				return new SignalConditionIsBetweenExact(index, secondIndex, parseInputExact(parser));
+				return new SignalConditionExternalIsBetweenExact(index, secondIndex, parseInputExact(parser));
 			else
-				return new SignalConditionIsBetween(index, secondIndex);
+				return new SignalConditionExternalIsBetween(index, secondIndex);
 		} else
-			return new SignalConditionIs(index);
+			return new SignalConditionExternalIs(index);
+	}
+	
+	private static SignalCondition parseInputInternal(char current, Parser parser) throws ParseException {
+		int index = parseInputIndex(current, parser);
+		if (parser.lookForNext() == '{')
+			return new SignalConditionInternalIsExact(index, parseInputExact(parser));
+		else if (parser.lookForNext() == '-') {
+			parser.next();
+			int secondIndex = parseInputIndex(current, parser);
+			if (index >= secondIndex)
+				throw new IllegalArgumentException("Second index cannot be equal or higher than first " + index + "-" + secondIndex);
+			if (parser.lookForNext() == '{')
+				return new SignalConditionInternalIsBetweenExact(index, secondIndex, parseInputExact(parser));
+			else
+				return new SignalConditionInternalIsBetween(index, secondIndex);
+		} else
+			return new SignalConditionInternalIs(index);
 	}
 	
 	private static int indexOf(char letter) {
@@ -318,40 +343,39 @@ public abstract class SignalCondition {
 		}
 	}
 	
-	private static String indexToChar(int index) {
+	private static String indexToChar(int index, boolean external) {
 		int digit = index / charAmount;
-		return charIndex(index - digit * charAmount) + "" + (digit > 0 ? digit : "");
+		char front = charIndex(index - digit * charAmount);
+		if (!external)
+			front = Character.toUpperCase(front);
+		return front + "" + (digit > 0 ? digit : "");
 	}
 	
-	private static ISignalInput get(LittleStructure structure, int id) {
+	private static InternalSignalInput getInternal(LittleStructure structure, int id) {
+		if (id > 0 && id < structure.getChildren().size() && structure instanceof ISignalStructureInternalInput)
+			return ((ISignalStructureInternalInput) structure).getInput(id);
+		return null;
+	}
+	
+	public static boolean[] getInternalState(LittleStructure structure, int id) {
+		InternalSignalInput child = getInternal(structure, id);
+		if (child != null)
+			return child.getState();
+		return null;
+	}
+	
+	private static ISignalStructureComponent getExternal(LittleStructure structure, int id) {
 		if (id > 0 && id < structure.getChildren().size())
 			try {
 				LittleStructure child = structure.getChild(id).getStructure();
-				if (child instanceof ISignalInput)
-					return (ISignalInput) child;
+				if (child instanceof ISignalStructureComponent && ((ISignalStructureComponent) child).getType() == SignalComponentType.INPUT)
+					return (ISignalStructureComponent) child;
 			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		return null;
 	}
 	
-	public static boolean is(LittleStructure structure, int id) {
-		ISignalInput child = get(structure, id);
-		if (child != null)
-			return BooleanUtils.any(child.getState());
-		return false;
-	}
-	
-	public static boolean is(LittleStructure structure, int id, int index) {
-		ISignalInput child = get(structure, id);
-		if (child != null) {
-			boolean[] state = child.getState();
-			if (index < state.length)
-				return state[index];
-		}
-		return false;
-	}
-	
-	public static boolean[] getState(LittleStructure structure, int id) {
-		ISignalInput child = get(structure, id);
+	public static boolean[] getExternalState(LittleStructure structure, int id) {
+		ISignalComponent child = getExternal(structure, id);
 		if (child != null)
 			return child.getState();
 		return null;
@@ -366,7 +390,13 @@ public abstract class SignalCondition {
 		return true;
 	}
 	
-	public abstract boolean test(LittleStructure structure);
+	public static void combine(boolean[] state, boolean[] second) {
+		int count = Math.min(state.length, second.length);
+		for (int i = 0; i < count; i++)
+			state[i] = second[i];
+	}
+	
+	public abstract void test(LittleStructure structure, boolean[] state);
 	
 	public abstract String write();
 	
@@ -384,11 +414,13 @@ public abstract class SignalCondition {
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			for (int i = 0; i < conditions.length; i++)
-				if (!conditions[i].test(structure))
-					return false;
-			return true;
+		public void test(LittleStructure structure, boolean[] state) {
+			for (int i = 0; i < conditions.length; i++) {
+				boolean[] newState = new boolean[state.length];
+				conditions[i].test(structure, newState);
+				for (int j = 0; j < newState.length; j++)
+					state[j] = state[j] && newState[j];
+			}
 		}
 		
 		@Override
@@ -410,11 +442,13 @@ public abstract class SignalCondition {
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			for (int i = 0; i < conditions.length; i++)
-				if (conditions[i].test(structure))
-					return true;
-			return false;
+		public void test(LittleStructure structure, boolean[] state) {
+			for (int i = 0; i < conditions.length; i++) {
+				boolean[] newState = new boolean[state.length];
+				conditions[i].test(structure, newState);
+				for (int j = 0; j < newState.length; j++)
+					state[j] = state[j] || newState[j];
+			}
 		}
 		
 		@Override
@@ -439,15 +473,26 @@ public abstract class SignalCondition {
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			boolean oneTrue = false;
+		public void test(LittleStructure structure, boolean[] state) {
+			boolean[][] newStates = new boolean[conditions.length][state.length];
+			
 			for (int i = 0; i < conditions.length; i++)
-				if (conditions[i].test(structure)) {
-					if (oneTrue)
-						return false;
-					oneTrue = true;
+				conditions[i].test(structure, newStates[i]);
+			
+			for (int i = 0; i < state.length; i++) {
+				boolean oneTrue = false;
+				
+				for (int j = 0; j < newStates.length; j++) {
+					if (newStates[j][i])
+						if (!oneTrue)
+							oneTrue = true;
+						else {
+							oneTrue = false;
+							break;
+						}
+					newStates[j][i] = oneTrue;
 				}
-			return oneTrue;
+			}
 		}
 		
 		@Override
@@ -463,78 +508,82 @@ public abstract class SignalCondition {
 		
 	}
 	
-	public static class SignalConditionIs extends SignalCondition {
+	public static class SignalConditionInternalIs extends SignalCondition {
 		
 		public int id;
 		
-		public SignalConditionIs(int id) {
+		public SignalConditionInternalIs(int id) {
 			this.id = id;
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			return is(structure, id);
+		public void test(LittleStructure structure, boolean[] state) {
+			combine(state, getInternalState(structure, id));
 		}
 		
 		@Override
 		public String write() {
-			return indexToChar(id);
+			return indexToChar(id, false);
 		}
 		
 	}
 	
-	public static class SignalConditionIsBetween extends SignalCondition {
+	public static class SignalConditionInternalIsBetween extends SignalCondition {
 		
 		public int startId;
 		public int endId;
 		
-		public SignalConditionIsBetween(int startId, int endId) {
+		public SignalConditionInternalIsBetween(int startId, int endId) {
 			this.startId = startId;
 			this.endId = endId;
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
+		public void test(LittleStructure structure, boolean[] state) {
 			for (int i = startId; i <= endId; i++) {
-				ISignalInput child = get(structure, i);
+				InternalSignalInput child = getInternal(structure, i);
 				if (child != null)
-					return BooleanUtils.any(child.getState());
+					combine(state, child.getState());
 			}
-			return false;
 		}
 		
 		@Override
 		public String write() {
-			return indexToChar(startId) + "-" + indexToChar(endId);
+			return indexToChar(startId, false) + "-" + indexToChar(endId, false);
 		}
 		
 	}
 	
-	public static class SignalConditionIsBetweenExact extends SignalCondition {
+	public static class SignalConditionInternalIsBetweenExact extends SignalCondition {
 		
 		public int startId;
 		public int endId;
 		public int[] indexes;
 		
-		public SignalConditionIsBetweenExact(int startId, int endId, int[] indexes) {
+		public SignalConditionInternalIsBetweenExact(int startId, int endId, int[] indexes) {
 			this.startId = startId;
 			this.endId = endId;
 			this.indexes = indexes;
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
+		public void test(LittleStructure structure, boolean[] state) {
+			boolean found = false;
 			for (int i = startId; i <= endId; i++) {
-				ISignalInput child = get(structure, i);
-				if (child != null)
-					return is(child.getState(), indexes);
+				InternalSignalInput child = getInternal(structure, i);
+				if (child != null && is(child.getState(), indexes)) {
+					found = true;
+					break;
+				}
 			}
-			return false;
+			for (int i = 0; i < state.length; i++)
+				state[i] = found;
+			
 		}
 		
 		@Override
 		public String write() {
-			String result = indexToChar(startId) + "-" + indexToChar(endId) + "{";
+			String result = indexToChar(startId, false) + "-" + indexToChar(endId, false) + "{";
 			for (int i = 0; i < indexes.length; i++) {
 				int index = indexes[i];
 				if (index < 0)
@@ -546,25 +595,146 @@ public abstract class SignalCondition {
 		
 	}
 	
-	public static class SignalConditionIsExact extends SignalCondition {
+	public static class SignalConditionInternalIsExact extends SignalCondition {
 		
 		public int id;
 		
 		public int[] indexes;
 		
-		public SignalConditionIsExact(int id, int[] indexes) {
+		public SignalConditionInternalIsExact(int id, int[] indexes) {
 			this.id = id;
 			this.indexes = indexes;
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			return is(getState(structure, id), indexes);
+		public void test(LittleStructure structure, boolean[] state) {
+			boolean found = is(getInternalState(structure, id), indexes);
+			for (int i = 0; i < state.length; i++)
+				state[i] = found;
 		}
 		
 		@Override
 		public String write() {
-			String result = indexToChar(id) + "{";
+			String result = indexToChar(id, false) + "{";
+			for (int i = 0; i < indexes.length; i++) {
+				int index = indexes[i];
+				if (index < 0)
+					result += "!";
+				result += (char) index;
+			}
+			return result + "}";
+		}
+		
+	}
+	
+	public static class SignalConditionExternalIs extends SignalCondition {
+		
+		public int id;
+		
+		public SignalConditionExternalIs(int id) {
+			this.id = id;
+		}
+		
+		@Override
+		public void test(LittleStructure structure, boolean[] state) {
+			combine(state, getExternalState(structure, id));
+		}
+		
+		@Override
+		public String write() {
+			return indexToChar(id, true);
+		}
+		
+	}
+	
+	public static class SignalConditionExternalIsBetween extends SignalCondition {
+		
+		public int startId;
+		public int endId;
+		
+		public SignalConditionExternalIsBetween(int startId, int endId) {
+			this.startId = startId;
+			this.endId = endId;
+		}
+		
+		@Override
+		public void test(LittleStructure structure, boolean[] state) {
+			for (int i = startId; i <= endId; i++) {
+				ISignalStructureComponent child = getExternal(structure, i);
+				if (child != null)
+					combine(state, child.getState());
+			}
+		}
+		
+		@Override
+		public String write() {
+			return indexToChar(startId, true) + "-" + indexToChar(endId, true);
+		}
+		
+	}
+	
+	public static class SignalConditionExternalIsBetweenExact extends SignalCondition {
+		
+		public int startId;
+		public int endId;
+		public int[] indexes;
+		
+		public SignalConditionExternalIsBetweenExact(int startId, int endId, int[] indexes) {
+			this.startId = startId;
+			this.endId = endId;
+			this.indexes = indexes;
+		}
+		
+		@Override
+		public void test(LittleStructure structure, boolean[] state) {
+			boolean found = false;
+			for (int i = startId; i <= endId; i++) {
+				ISignalStructureComponent child = getExternal(structure, i);
+				if (child != null && is(child.getState(), indexes)) {
+					found = true;
+					break;
+				}
+			}
+			for (int i = 0; i < state.length; i++)
+				state[i] = found;
+			
+		}
+		
+		@Override
+		public String write() {
+			String result = indexToChar(startId, true) + "-" + indexToChar(endId, true) + "{";
+			for (int i = 0; i < indexes.length; i++) {
+				int index = indexes[i];
+				if (index < 0)
+					result += "!";
+				result += (char) index;
+			}
+			return result + "}";
+		}
+		
+	}
+	
+	public static class SignalConditionExternalIsExact extends SignalCondition {
+		
+		public int id;
+		
+		public int[] indexes;
+		
+		public SignalConditionExternalIsExact(int id, int[] indexes) {
+			this.id = id;
+			this.indexes = indexes;
+		}
+		
+		@Override
+		public void test(LittleStructure structure, boolean[] state) {
+			boolean found = is(getExternalState(structure, id), indexes);
+			for (int i = 0; i < state.length; i++)
+				state[i] = found;
+		}
+		
+		@Override
+		public String write() {
+			String result = indexToChar(id, true) + "{";
 			for (int i = 0; i < indexes.length; i++) {
 				int index = indexes[i];
 				if (index < 0)
@@ -585,8 +755,10 @@ public abstract class SignalCondition {
 		}
 		
 		@Override
-		public boolean test(LittleStructure structure) {
-			return !condition.test(structure);
+		public void test(LittleStructure structure, boolean[] state) {
+			condition.test(structure, state);
+			for (int i = 0; i < state.length; i++)
+				state[i] = !state[i];
 		}
 		
 		@Override

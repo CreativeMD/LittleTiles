@@ -61,6 +61,7 @@ public class ItemPremadeStructure extends Item implements ICreativeRendered, ILi
 			for (LittlePreview preview : previews.allPreviews())
 				cubes.add(preview.getCubeBlock(previews.getContext()));
 		}
+		
 		return cubes;
 	}
 	

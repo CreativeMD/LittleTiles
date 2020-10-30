@@ -1,6 +1,8 @@
-package com.creativemd.littletiles.common.structure.signal.logic;
+package com.creativemd.littletiles.common.structure.signal.logic.event;
 
 import java.text.ParseException;
+
+import com.creativemd.littletiles.common.structure.signal.logic.SignalCondition;
 
 import net.minecraft.nbt.NBTTagCompound;
 

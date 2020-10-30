@@ -30,7 +30,10 @@ import com.creativemd.littletiles.common.structure.exception.MissingParentExcept
 import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.signal.logic.SignalEvent;
+import com.creativemd.littletiles.common.structure.signal.input.ISignalStructureInternalInput;
+import com.creativemd.littletiles.common.structure.signal.logic.ISignalStructureEvent;
+import com.creativemd.littletiles.common.structure.signal.logic.event.SignalEvent;
+import com.creativemd.littletiles.common.structure.signal.output.ISignalStructureInternalOutput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
@@ -100,6 +103,10 @@ public abstract class LittleStructure {
 	public LittleStructure(LittleStructureType type, IStructureTileList mainBlock) {
 		this.type = type;
 		this.mainBlock = mainBlock;
+		if (this instanceof ISignalStructureInternalInput)
+			((ISignalStructureInternalInput) this).createInputs(null);
+		if (this instanceof ISignalStructureInternalOutput)
+			((ISignalStructureInternalOutput) this).createOutputs(null);
 	}
 	
 	// ================Basics================
@@ -410,14 +417,18 @@ public abstract class LittleStructure {
 				field.set(this, failedLoadingRelative(nbt, field));
 		}
 		
-		if (nbt.hasKey("signal")) {
+		if (nbt.hasKey("signal") && this instanceof ISignalStructureEvent) {
 			NBTTagList list = nbt.getTagList("signal", 10);
 			List<SignalEvent> events = new ArrayList<>();
 			for (int i = 0; i < list.tagCount(); i++)
 				events.add(SignalEvent.loadFromNBT(list.getCompoundTagAt(i)));
-			setSignalEvents(events);
+			((ISignalStructureEvent) this).setSignalEvents(events);
 		}
 		loadFromNBTExtra(nbt);
+		if (this instanceof ISignalStructureInternalInput)
+			((ISignalStructureInternalInput) this).createInputs(nbt);
+		if (this instanceof ISignalStructureInternalOutput)
+			((ISignalStructureInternalOutput) this).createOutputs(nbt);
 	}
 	
 	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
@@ -445,8 +456,12 @@ public abstract class LittleStructure {
 			field.move(value, vec.getContext(), inverted);
 		}
 		
-		if (hasSignalEvents())
-			nbt.setTag("signal", writeSignalEvents());
+		if (this instanceof ISignalStructureEvent)
+			nbt.setTag("signal", ((ISignalStructureEvent) this).writeSignalEvents());
+		if (this instanceof ISignalStructureInternalInput)
+			((ISignalStructureInternalInput) this).saveInputs(nbt);
+		if (this instanceof ISignalStructureInternalOutput)
+			((ISignalStructureInternalOutput) this).saveOutputs(nbt);
 		
 		writeToNBTExtra(nbt);
 		return nbt;
@@ -486,38 +501,17 @@ public abstract class LittleStructure {
 			field.save(nbt, value);
 		}
 		
-		if (hasSignalEvents())
-			nbt.setTag("signal", writeSignalEvents());
+		if (this instanceof ISignalStructureEvent)
+			nbt.setTag("signal", ((ISignalStructureEvent) this).writeSignalEvents());
+		if (this instanceof ISignalStructureInternalInput)
+			((ISignalStructureInternalInput) this).saveInputs(nbt);
+		if (this instanceof ISignalStructureInternalOutput)
+			((ISignalStructureInternalOutput) this).saveOutputs(nbt);
 		
 		writeToNBTExtra(nbt);
 	}
 	
 	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
-	
-	protected NBTTagList writeSignalEvents() {
-		NBTTagList list = new NBTTagList();
-		for (SignalEvent event : getSignalEvents())
-			list.appendTag(event.writeToNBT());
-		return list;
-	}
-	
-	// ================Signal================
-	
-	public boolean hasSignalEvents() {
-		return false;
-	}
-	
-	public List<SignalEvent> getSignalEvents() {
-		return null;
-	}
-	
-	public void setSignalEvents(List<SignalEvent> events) {
-		
-	}
-	
-	public void signalInput(int id, boolean[] beforeState, boolean[] state) {
-		
-	}
 	
 	// ====================Destroy====================
 	
