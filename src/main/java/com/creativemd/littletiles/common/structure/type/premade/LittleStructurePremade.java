@@ -76,12 +76,15 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		registerPremadeStructureType(id, modid, classStructure, LittleStructureAttribute.NONE);
 	}
 	
-	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
-		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null));
+	public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {
+		LittleStructureTypePremade type = (LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(new LittleStructureTypePremade(id, "premade", classStructure, attribute, modid), null);
+		premadeStructures.add(type);
+		return type;
 	}
 	
-	public static void registerPremadeStructureType(LittleStructureTypePremade type) {
+	public static LittleStructureTypePremade registerPremadeStructureType(LittleStructureTypePremade type) {
 		premadeStructures.add((LittleStructureTypePremade) LittleStructureRegistry.registerStructureType(type, null));
+		return type;
 	}
 	
 	public static LittlePreviews getPreviews(String id) {
