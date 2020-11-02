@@ -130,6 +130,9 @@ public class LittleChunkDispatcher {
 				
 				if (!tiles.isEmpty()) {
 					for (TileEntityLittleTiles te : tiles) {
+						if (!te.hasLoaded())
+							continue;
+						
 						if (layer == BlockRenderLayer.SOLID) {
 							if (dynamicUpdate)
 								te.render.hasLightChanged = true;
