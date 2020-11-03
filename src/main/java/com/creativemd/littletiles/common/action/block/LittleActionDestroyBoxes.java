@@ -83,8 +83,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 					continue;
 				
 				boolean intersects = false;
-				outer_loop:
-				for (LittleTile tile : parent)
+				outer_loop: for (LittleTile tile : parent)
 					for (int j = 0; j < boxes.size(); j++)
 						if (tile.intersectsWith(boxes.get(j))) {
 							intersects = true;
@@ -143,7 +142,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
 								if (!simulate) {
 									LittlePreview preview2 = preview.copy();
 									preview2.box = cutout.get(l).copy();
-									previews.addPreview(te.getPos(), preview2, te.getContext());
+									previews.addPreview(te.getPos(), preview2, context);
 								}
 							}
 						}

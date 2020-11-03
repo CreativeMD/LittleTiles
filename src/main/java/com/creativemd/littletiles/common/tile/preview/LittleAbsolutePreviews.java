@@ -57,7 +57,7 @@ public class LittleAbsolutePreviews extends LittlePreviews {
 				convertTo(context);
 		}
 		
-		preview.box.add(new LittleVec(context, pos.subtract(this.pos)));
+		preview.box.add(new LittleVec(getContext(), pos.subtract(this.pos)));
 		previews.add(preview);
 		return preview;
 	}
