@@ -72,8 +72,8 @@ public abstract class LittleStructurePremade extends LittleStructure {
 		}
 	}
 	
-	public static void registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure) {
-		registerPremadeStructureType(id, modid, classStructure, LittleStructureAttribute.NONE);
+	public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure) {
+		return registerPremadeStructureType(id, modid, classStructure, LittleStructureAttribute.NONE);
 	}
 	
 	public static LittleStructureTypePremade registerPremadeStructureType(String id, String modid, Class<? extends LittleStructurePremade> classStructure, int attribute) {

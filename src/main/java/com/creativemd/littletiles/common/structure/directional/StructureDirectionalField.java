@@ -19,6 +19,7 @@ public class StructureDirectionalField {
 	public final String saveKey;
 	public final StructureDirectional annotation;
 	public final StructureDirectionalType type;
+	private Object defaultValue;
 	
 	public StructureDirectionalField(Field field, StructureDirectional annotation) {
 		this.field = field;
@@ -50,8 +51,18 @@ public class StructureDirectionalField {
 		return relative;
 	}
 	
+	public void setDefault(Object value) {
+		this.defaultValue = value;
+	}
+	
 	public Object create(NBTTagCompound nbt) {
-		return type.read(nbt.getTag(saveKey));
+		Object value = type.read(nbt.getTag(saveKey));
+		if (value == null)
+			if (defaultValue != null)
+				return defaultValue;
+			else
+				return type.getDefault();
+		return value;
 	}
 	
 	public void save(NBTTagCompound nbt, Object value) {

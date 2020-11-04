@@ -126,6 +126,15 @@ public class LittleStructureType {
 		return null;
 	}
 	
+	public LittleStructureType setFieldDefault(String key, Object defaultValue) {
+		for (StructureDirectionalField field : directional)
+			if (field.key.equals(key)) {
+				field.setDefault(defaultValue);
+				break;
+			}
+		return this;
+	}
+	
 	public void move(LittleStructure structure, LittleGridContext context, LittleVec offset) {
 		for (StructureDirectionalField field : directional) {
 			Object value = field.get(structure);

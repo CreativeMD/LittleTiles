@@ -42,7 +42,7 @@ public abstract class StructureDirectionalType<T> {
 			public EnumFacing read(NBTBase nbt) {
 				if (nbt instanceof NBTTagInt)
 					return EnumFacing.VALUES[((NBTTagInt) nbt).getInt()];
-				return EnumFacing.EAST;
+				return null;
 			}
 			
 			@Override
@@ -78,7 +78,7 @@ public abstract class StructureDirectionalType<T> {
 			public Axis read(NBTBase nbt) {
 				if (nbt instanceof NBTTagInt)
 					return Axis.values()[((NBTTagInt) nbt).getInt()];
-				return Axis.X;
+				return null;
 			}
 			
 			@Override
