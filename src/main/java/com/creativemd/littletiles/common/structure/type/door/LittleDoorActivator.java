@@ -34,10 +34,14 @@ import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleDoorActivator extends LittleDoor {
 	
 	public int[] toActivate;
+	
+	public boolean inMotion = false;
 	
 	public LittleDoorActivator(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
@@ -47,12 +51,14 @@ public class LittleDoorActivator extends LittleDoor {
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		super.writeToNBTExtra(nbt);
 		nbt.setIntArray("activate", toActivate);
+		nbt.setBoolean("inMotion", inMotion);
 	}
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
 		toActivate = nbt.getIntArray("activate");
+		inMotion = nbt.getBoolean("inMotion");
 	}
 	
 	public LittleDoor getChildrenDoor(int index) throws CorruptedConnectionException, NotYetConnectedException {
@@ -67,6 +73,7 @@ public class LittleDoorActivator extends LittleDoor {
 	
 	@Override
 	public EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException {
+		inMotion = true;
 		for (int i : toActivate) {
 			LittleDoor child = getChildrenDoor(i);
 			if (child == null)
@@ -110,6 +117,10 @@ public class LittleDoorActivator extends LittleDoor {
 	
 	@Override
 	public boolean isInMotion() {
+		return inMotion;
+	}
+	
+	public boolean checkChildrenInMotion() {
 		for (int i : toActivate) {
 			try {
 				LittleDoor child = getChildrenDoor(i);
@@ -120,6 +131,13 @@ public class LittleDoorActivator extends LittleDoor {
 			} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 		}
 		return false;
+	}
+	
+	@Override
+	public void onChildComplete(LittleDoor door, int childId) {
+		inMotion = checkChildrenInMotion();
+		if (!inMotion)
+			completeAnimation();
 	}
 	
 	public static class LittleDoorActivatorParser extends LittleStructureGuiParser {
@@ -142,7 +160,7 @@ public class LittleDoorActivator extends LittleDoor {
 		
 		@Override
 		public void createControls(LittlePreviews previews, LittleStructure structure) {
-			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 0, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
+			parent.controls.add(new GuiCheckBox("rightclick", CoreControl.translate("gui.door.rightclick"), 50, 123, structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true));
 			
 			GuiScrollBox box = new GuiScrollBox("content", 0, 0, 100, 115);
 			parent.controls.add(box);
@@ -199,6 +217,12 @@ public class LittleDoorActivator extends LittleDoor {
 				activator.toActivate[i] = toActivate.get(i);
 			
 			return activator;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleDoorActivator.class);
 		}
 		
 	}

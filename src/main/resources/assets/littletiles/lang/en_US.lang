@@ -171,9 +171,14 @@ gui.sound.volume=Volume
 gui.sound.pitch=Pitch
 gui.structure.hierarchy=Hierarchy
 gui.color.rightclick=right click to drain
+gui.signal.events=Signals
 
 animation.event.child.name=Activate Child
 animation.event.sound-event.name=Play Sound Event
+
+signal.mode.equal=EQUAL
+signal.mode.toggle=TOGGLE
+signal.mode.pulse=PULSE
 
 config.littletiles.building.invertStickToGrid.comment=Whether tiles should stick to the vanilla grid when second mode is enabled or disabled.
 config.littletiles.building.maxSavedActions.comment=Number of actions which can be reverted.

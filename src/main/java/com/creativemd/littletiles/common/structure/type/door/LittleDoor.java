@@ -13,12 +13,14 @@ import com.creativemd.littletiles.common.action.LittleActionException.LittleActi
 import com.creativemd.littletiles.common.action.block.LittleActionActivated;
 import com.creativemd.littletiles.common.entity.EntityAnimation;
 import com.creativemd.littletiles.common.packet.LittleActivateDoorPacket;
+import com.creativemd.littletiles.common.structure.IAnimatedStructure;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.event.AnimationEvent;
 import com.creativemd.littletiles.common.structure.animation.event.ChildActivateEvent;
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -43,17 +45,20 @@ public abstract class LittleDoor extends LittleStructure {
 	public boolean activateParent = false;
 	public boolean waitingForApproval = false;
 	public boolean disableRightClick = false;
+	public boolean opened = false;
 	
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		activateParent = nbt.getBoolean("activateParent");
 		disableRightClick = nbt.getBoolean("disableRightClick");
+		opened = nbt.getBoolean("opened");
 	}
 	
 	@Override
 	protected void writeToNBTExtra(NBTTagCompound nbt) {
 		nbt.setBoolean("activateParent", activateParent);
 		nbt.setBoolean("disableRightClick", disableRightClick);
+		nbt.setBoolean("opened", opened);
 	}
 	
 	public DoorActivationResult activate(@Nullable EntityPlayer player, @Nullable UUID uuid, boolean sendUpdate) throws LittleActionException {
@@ -73,7 +78,7 @@ public abstract class LittleDoor extends LittleStructure {
 		}
 		
 		if (isInMotion())
-			return null;
+			throw new StillInMotionException();
 		
 		DoorOpeningResult result = canOpenDoor(player);
 		if (result == null) {
@@ -83,15 +88,18 @@ public abstract class LittleDoor extends LittleStructure {
 		}
 		
 		if (uuid == null)
-			uuid = UUID.randomUUID();
-		
+			if (this instanceof IAnimatedStructure && ((IAnimatedStructure) this).isAnimated())
+				uuid = ((IAnimatedStructure) this).getAnimation().getUniqueID();
+			else
+				uuid = UUID.randomUUID();
+			
 		if (sendUpdate) {
 			if (getWorld().isRemote)
 				sendActivationToServer(player, uuid, result);
 			else
 				sendActivationToClient(player, uuid, result);
 		}
-		
+		opened = !opened;
 		EntityAnimation animation = openDoor(player, new UUIDSupplier(uuid), result, false);
 		
 		return new DoorActivationResult(animation, result);
@@ -177,6 +185,33 @@ public abstract class LittleDoor extends LittleStructure {
 	
 	public abstract EntityAnimation openDoor(@Nullable EntityPlayer player, UUIDSupplier uuid, DoorOpeningResult result, boolean tickOnce) throws LittleActionException;
 	
+	public void onChildComplete(LittleDoor door, int childId) {
+		
+	}
+	
+	public void completeAnimation() {
+		if (activateParent && getParent() != null) {
+			try {
+				LittleStructure parent = getParent().getStructure();
+				if (parent instanceof LittleDoor)
+					((LittleDoor) parent).onChildComplete(this, getParent().childId);
+			} catch (CorruptedConnectionException | NotYetConnectedException e) {
+				e.printStackTrace();
+			}
+		}
+		if (!getWorld().isRemote)
+			getOutput(0).changed();
+	}
+	
+	@Override
+	public void performInternalOutputChange(InternalSignalOutput output) {
+		if (output.name.equals("state"))
+			if (opened != output.getState()[0] && !isInMotion())
+				try {
+					activate(null, null, true);
+				} catch (LittleActionException e) {}
+	}
+	
 	public static final DoorOpeningResult EMPTY_OPENING_RESULT = new DoorOpeningResult(null);
 	
 	public static class DoorOpeningResult {
@@ -235,6 +270,14 @@ public abstract class LittleDoor extends LittleStructure {
 		public DoorActivationResult(EntityAnimation animation, DoorOpeningResult result) {
 			this.animation = animation;
 			this.result = result;
+		}
+		
+	}
+	
+	public static class StillInMotionException extends LittleActionException {
+		
+		public StillInMotionException() {
+			super("Structure is still in motion");
 		}
 		
 	}

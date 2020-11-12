@@ -7,6 +7,7 @@ import com.creativemd.littletiles.common.block.BlockTile;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -21,6 +22,8 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.ForgeModContainer;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleLadder extends LittleStructure {
 	
@@ -94,6 +97,12 @@ public class LittleLadder extends LittleStructure {
 		@Override
 		public LittleLadder parseStructure(LittlePreviews previews) {
 			return createStructure(LittleLadder.class, null);
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleLadder.class);
 		}
 	}
 }

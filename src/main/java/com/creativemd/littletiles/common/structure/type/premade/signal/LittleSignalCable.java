@@ -7,6 +7,7 @@ import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.littletiles.LittleTiles;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 import com.creativemd.littletiles.common.structure.signal.network.ISignalStructureTransmitter;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -56,6 +57,26 @@ public class LittleSignalCable extends LittleSignalCableBase implements ISignalS
 				cubes.add(new RenderBox(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}
 			return cubes;
+		}
+		
+		@Override
+		public int getBandwidth() {
+			return bandwidth;
+		}
+		
+		@Override
+		public void changed() {
+			
+		}
+		
+		@Override
+		public boolean[] getState() {
+			return null;
+		}
+		
+		@Override
+		public SignalComponentType getType() {
+			return SignalComponentType.TRANSMITTER;
 		}
 		
 	}

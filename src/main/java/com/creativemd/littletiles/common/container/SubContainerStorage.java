@@ -48,7 +48,7 @@ public class SubContainerStorage extends SubContainer {
 		this.storage = storage;
 		this.size = StorageSize.getSizeFromInventory(storage.inventory);
 		if (!player.world.isRemote)
-			this.storage.openContainers.add(this);
+			this.storage.openContainer(this);
 	}
 	
 	@Override
@@ -98,7 +98,7 @@ public class SubContainerStorage extends SubContainer {
 	public void onClosed() {
 		super.onClosed();
 		if (storage != null && !player.world.isRemote)
-			storage.openContainers.remove(this);
+			storage.closeContainer(this);
 	}
 	
 }

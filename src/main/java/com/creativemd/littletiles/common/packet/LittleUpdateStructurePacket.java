@@ -41,9 +41,7 @@ public class LittleUpdateStructurePacket extends CreativeCorePacket {
 		try {
 			LittleStructure structure = location.find(player.world);
 			structure.mainBlock.getTe().updateTiles(x -> x.get(structure.mainBlock).setStructureNBT(structureNBT));
-		} catch (LittleActionException e) {
-			e.printStackTrace();
-		}
+		} catch (LittleActionException e) {}
 	}
 	
 	@Override

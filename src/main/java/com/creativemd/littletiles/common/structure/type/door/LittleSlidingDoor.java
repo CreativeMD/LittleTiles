@@ -21,6 +21,7 @@ import com.creativemd.littletiles.common.structure.animation.AnimationState;
 import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
@@ -255,6 +256,12 @@ public class LittleSlidingDoor extends LittleDoorBase {
 			GuiLTDistance distance = (GuiLTDistance) parent.get("distance");
 			
 			timeline.values.add(AnimationKey.getOffset(direction.getAxis()), ValueTimeline.create(interpolation).addPoint(0, 0D).addPoint(timeline.duration, direction.getAxisDirection().getOffset() * distance.getDistanceContext().toVanillaGrid(distance.getDistance())));
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleSlidingDoor.class);
 		}
 	}
 	

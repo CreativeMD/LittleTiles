@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.client.gui.controls.IAnimationControl;
+import com.creativemd.littletiles.client.gui.dialogs.SubGuiSignalEvents.GuiSignalEventsButton;
 import com.creativemd.littletiles.common.entity.AnimationPreview;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
@@ -24,10 +25,28 @@ public abstract class LittleStructureGuiParser implements IAnimationControl {
 	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract void createControls(LittlePreviews previews, @Nullable LittleStructure structure);
+	public void create(LittlePreviews previews, @Nullable LittleStructure structure) {
+		createControls(previews, structure);
+		parent.controls.add(new GuiSignalEventsButton("signal", 0, 122, previews, structure, getStructureType()));
+		
+	}
 	
 	@SideOnly(Side.CLIENT)
-	public abstract LittleStructure parseStructure(LittlePreviews previews);
+	public LittleStructure parse(LittlePreviews previews) {
+		LittleStructure structure = parseStructure(previews);
+		GuiSignalEventsButton button = (GuiSignalEventsButton) parent.get("signal");
+		structure.setSignalEvents(button.events);
+		return structure;
+	}
+	
+	@SideOnly(Side.CLIENT)
+	protected abstract void createControls(LittlePreviews previews, @Nullable LittleStructure structure);
+	
+	@SideOnly(Side.CLIENT)
+	protected abstract LittleStructure parseStructure(LittlePreviews previews);
+	
+	@SideOnly(Side.CLIENT)
+	protected abstract LittleStructureType getStructureType();
 	
 	public <T extends LittleStructure> T createStructure(Class<T> structureClass, StructureTileList parent) {
 		LittleStructureType type = LittleStructureRegistry.getStructureType(structureClass);

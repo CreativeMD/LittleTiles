@@ -13,8 +13,24 @@ public interface ISignalComponent {
 		}
 	}
 	
+	public default void updateState(int offset, boolean[] state) {
+		boolean[] internal = getState();
+		boolean changed = false;
+		for (int i = 0; i < state.length; i++) {
+			int index = i + offset;
+			if (index < internal.length && state[i] != internal[index]) {
+				internal[index] = state[i];
+				changed = true;
+			}
+		}
+		if (changed)
+			changed();
+	}
+	
 	public void changed();
 	
 	public boolean[] getState();
+	
+	public SignalComponentType getType();
 	
 }

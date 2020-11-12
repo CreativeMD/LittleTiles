@@ -21,9 +21,8 @@ import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.signal.input.ISignalStructureInternalInput;
-import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -41,10 +40,12 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class LittleStorage extends LittleStructure implements ISignalStructureInternalInput {
+public class LittleStorage extends LittleStructure {
 	
-	public List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
+	private List<SubContainerStorage> openContainers = new ArrayList<SubContainerStorage>();
 	
 	public static int maxSlotStackSize = 64;
 	
@@ -56,7 +57,6 @@ public class LittleStorage extends LittleStructure implements ISignalStructureIn
 	public IInventory inventory = null;
 	
 	public boolean invisibleStorageTiles = false;
-	public InternalSignalInput[] inputs;
 	
 	public LittleStorage(LittleStructureType type, IStructureTileList mainBlock) {
 		super(type, mainBlock);
@@ -139,22 +139,18 @@ public class LittleStorage extends LittleStructure implements ISignalStructureIn
 		return true;
 	}
 	
-	@Override
-	public void createInputs(NBTTagCompound nbt) {
-		inputs = new InternalSignalInput[] { new InternalSignalInput(this, "accessed", 1, nbt) };
+	protected void updateInput() {
+		getInput(0).updateState(new boolean[] { !openContainers.isEmpty() });
 	}
 	
-	@Override
-	public InternalSignalInput getInput(int id) {
-		if (id < inputs.length)
-			return inputs[id];
-		return null;
+	public void openContainer(SubContainerStorage container) {
+		openContainers.add(container);
+		updateInput();
 	}
 	
-	@Override
-	public void saveInputs(NBTTagCompound nbt) {
-		for (int i = 0; i < inputs.length; i++)
-			inputs[i].writeToNBT(nbt);
+	public void closeContainer(SubContainerStorage container) {
+		openContainers.remove(container);
+		updateInput();
 	}
 	
 	public static class LittleStorageParser extends LittleStructureGuiParser {
@@ -187,6 +183,12 @@ public class LittleStorage extends LittleStructure implements ISignalStructureIn
 			storage.inventory = new InventoryBasic("basic", false, storage.numberOfSlots);
 			
 			return storage;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleStorage.class);
 		}
 	}
 	

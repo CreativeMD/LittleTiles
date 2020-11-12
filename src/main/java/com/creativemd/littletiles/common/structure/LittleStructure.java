@@ -1,5 +1,6 @@
 package com.creativemd.littletiles.common.structure;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,10 +31,12 @@ import com.creativemd.littletiles.common.structure.exception.MissingParentExcept
 import com.creativemd.littletiles.common.structure.exception.MissingStructureException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.signal.input.ISignalStructureInternalInput;
-import com.creativemd.littletiles.common.structure.signal.logic.ISignalStructureEvent;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
+import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
 import com.creativemd.littletiles.common.structure.signal.logic.event.SignalEvent;
-import com.creativemd.littletiles.common.structure.signal.output.ISignalStructureInternalOutput;
+import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.LittleTile.LittleTilePosition;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
@@ -59,6 +62,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.nbt.NBTTagString;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
@@ -100,13 +104,15 @@ public abstract class LittleStructure {
 	private StructureChildConnection parent;
 	private List<StructureChildConnection> children;
 	
+	private List<SignalEvent> signalEvents;
+	private final InternalSignalInput[] inputs;
+	private final InternalSignalOutput[] outputs;
+	
 	public LittleStructure(LittleStructureType type, IStructureTileList mainBlock) {
 		this.type = type;
 		this.mainBlock = mainBlock;
-		if (this instanceof ISignalStructureInternalInput)
-			((ISignalStructureInternalInput) this).createInputs(null);
-		if (this instanceof ISignalStructureInternalOutput)
-			((ISignalStructureInternalOutput) this).createOutputs(null);
+		this.inputs = type.createInputs(this);
+		this.outputs = type.createOutputs(this);
 	}
 	
 	// ================Basics================
@@ -417,18 +423,23 @@ public abstract class LittleStructure {
 				field.set(this, failedLoadingRelative(nbt, field));
 		}
 		
-		if (nbt.hasKey("signal") && this instanceof ISignalStructureEvent) {
-			NBTTagList list = nbt.getTagList("signal", 10);
-			List<SignalEvent> events = new ArrayList<>();
+		if (nbt.hasKey("signal")) {
+			NBTTagList list = nbt.getTagList("signal", 8);
+			signalEvents = new ArrayList<>();
 			for (int i = 0; i < list.tagCount(); i++)
-				events.add(SignalEvent.loadFromNBT(list.getCompoundTagAt(i)));
-			((ISignalStructureEvent) this).setSignalEvents(events);
+				try {
+					signalEvents.add(new SignalEvent(list.getStringTagAt(i)));
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
 		}
 		loadFromNBTExtra(nbt);
-		if (this instanceof ISignalStructureInternalInput)
-			((ISignalStructureInternalInput) this).createInputs(nbt);
-		if (this instanceof ISignalStructureInternalOutput)
-			((ISignalStructureInternalOutput) this).createOutputs(nbt);
+		if (inputs != null)
+			for (int i = 0; i < inputs.length; i++)
+				inputs[i].load(nbt);
+		if (outputs != null)
+			for (int i = 0; i < outputs.length; i++)
+				outputs[i].load(nbt);
 	}
 	
 	protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
@@ -456,13 +467,19 @@ public abstract class LittleStructure {
 			field.move(value, vec.getContext(), inverted);
 		}
 		
-		if (this instanceof ISignalStructureEvent)
-			nbt.setTag("signal", ((ISignalStructureEvent) this).writeSignalEvents());
-		if (this instanceof ISignalStructureInternalInput)
-			((ISignalStructureInternalInput) this).saveInputs(nbt);
-		if (this instanceof ISignalStructureInternalOutput)
-			((ISignalStructureInternalOutput) this).saveOutputs(nbt);
-		
+		if (hasSignalEvents()) {
+			NBTTagList list = new NBTTagList();
+			for (SignalEvent event : signalEvents)
+				list.appendTag(new NBTTagString(event.write()));
+			nbt.setTag("signal", list);
+		}
+		if (inputs != null)
+			for (int i = 0; i < inputs.length; i++)
+				inputs[i].write(nbt);
+		if (outputs != null)
+			for (int i = 0; i < outputs.length; i++)
+				outputs[i].write(nbt);
+			
 		writeToNBTExtra(nbt);
 		return nbt;
 	}
@@ -501,13 +518,19 @@ public abstract class LittleStructure {
 			field.save(nbt, value);
 		}
 		
-		if (this instanceof ISignalStructureEvent)
-			nbt.setTag("signal", ((ISignalStructureEvent) this).writeSignalEvents());
-		if (this instanceof ISignalStructureInternalInput)
-			((ISignalStructureInternalInput) this).saveInputs(nbt);
-		if (this instanceof ISignalStructureInternalOutput)
-			((ISignalStructureInternalOutput) this).saveOutputs(nbt);
-		
+		if (hasSignalEvents()) {
+			NBTTagList list = new NBTTagList();
+			for (SignalEvent event : signalEvents)
+				list.appendTag(new NBTTagString(event.write()));
+			nbt.setTag("signal", list);
+		}
+		if (inputs != null)
+			for (int i = 0; i < inputs.length; i++)
+				inputs[i].write(nbt);
+		if (outputs != null)
+			for (int i = 0; i < outputs.length; i++)
+				outputs[i].write(nbt);
+			
 		writeToNBTExtra(nbt);
 	}
 	
@@ -553,6 +576,119 @@ public abstract class LittleStructure {
 	
 	/** Is called before the structure is removed */
 	public void onStructureDestroyed() {
+		
+	}
+	
+	// ================Signal================
+	
+	public boolean hasSignalEvents() {
+		return signalEvents != null && !signalEvents.isEmpty();
+	}
+	
+	public List<SignalEvent> getSignalEvents() {
+		return signalEvents;
+	}
+	
+	public void setSignalEvents(List<SignalEvent> events) {
+		if (events.isEmpty())
+			this.signalEvents = null;
+		else
+			this.signalEvents = events;
+	}
+	
+	public Iterable<ISignalStructureComponent> inputs() {
+		return new Iterable<ISignalStructureComponent>() {
+			
+			@Override
+			public Iterator<ISignalStructureComponent> iterator() {
+				return new Iterator<ISignalStructureComponent>() {
+					
+					Iterator<StructureChildConnection> iterator = children.iterator();
+					ISignalStructureComponent next;
+					
+					@Override
+					public boolean hasNext() {
+						if (next == null) {
+							while (iterator.hasNext()) {
+								StructureChildConnection connection = iterator.next();
+								try {
+									if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure()).getType() == SignalComponentType.INPUT) {
+										next = (ISignalStructureComponent) connection.getStructure();
+										break;
+									}
+								} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+							}
+						}
+						return next != null;
+					}
+					
+					@Override
+					public ISignalStructureComponent next() {
+						ISignalStructureComponent result = next;
+						next = null;
+						return result;
+					}
+				};
+			}
+		};
+	}
+	
+	public Iterable<ISignalStructureComponent> outputs() {
+		return new Iterable<ISignalStructureComponent>() {
+			
+			@Override
+			public Iterator<ISignalStructureComponent> iterator() {
+				return new Iterator<ISignalStructureComponent>() {
+					
+					Iterator<StructureChildConnection> iterator = children.iterator();
+					ISignalStructureComponent next;
+					
+					@Override
+					public boolean hasNext() {
+						if (next == null) {
+							while (iterator.hasNext()) {
+								StructureChildConnection connection = iterator.next();
+								try {
+									if (connection.getStructure() instanceof ISignalStructureComponent && ((ISignalStructureComponent) connection.getStructure()).getType() == SignalComponentType.OUTPUT) {
+										next = (ISignalStructureComponent) connection.getStructure();
+										break;
+									}
+								} catch (CorruptedConnectionException | NotYetConnectedException e) {}
+							}
+						}
+						return next != null;
+					}
+					
+					@Override
+					public ISignalStructureComponent next() {
+						ISignalStructureComponent result = next;
+						next = null;
+						return result;
+					}
+				};
+			}
+		};
+	}
+	
+	public void changed(ISignalComponent changed) {
+		if (hasSignalEvents())
+			for (SignalEvent event : signalEvents)
+				event.update(this);
+	}
+	
+	public InternalSignalInput getInput(int id) {
+		if (inputs != null && id < inputs.length)
+			return inputs[id];
+		return null;
+	}
+	
+	public InternalSignalOutput getOutput(int id) {
+		if (outputs != null && id < outputs.length)
+			return outputs[id];
+		return null;
+	}
+	
+	public void performInternalOutputChange(InternalSignalOutput output) {
 		
 	}
 	

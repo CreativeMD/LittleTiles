@@ -4,11 +4,14 @@ import com.creativemd.creativecore.common.gui.container.GuiParent;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
 
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class LittleFixedStructure extends LittleStructure {
 	
@@ -42,5 +45,10 @@ public class LittleFixedStructure extends LittleStructure {
 			return createStructure(LittleFixedStructure.class, null);
 		}
 		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleFixedStructure.class);
+		}
 	}
 }

@@ -18,6 +18,7 @@ import com.creativemd.littletiles.common.structure.attribute.LittleStructureAttr
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.signal.component.ISignalComponent;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureBase;
 import com.creativemd.littletiles.common.structure.signal.network.SignalNetwork;
 import com.creativemd.littletiles.common.structure.type.premade.LittleStructurePremade;
@@ -167,8 +168,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 			load();
 			return new Iterator<ISignalStructureBase>() {
 				
-				int index = searchForNextIndex(0);
 				LittleAbsoluteBox box = getSurroundingBox().getAbsoluteBox();
+				int index = searchForNextIndex(0);
 				
 				int searchForNextIndex(int index) {
 					while (index < faces.length && (faces[index] == null || !faces[index].verifyConnect(getFacing(index), box))) {
@@ -186,7 +187,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 				@Override
 				public ISignalStructureBase next() {
 					ISignalStructureBase next = faces[index].getConnection();
-					this.index = searchForNextIndex(index++);
+					this.index = searchForNextIndex(index + 1);
 					return next;
 				}
 			};
@@ -443,7 +444,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
 		
 	}
 	
-	public static abstract class LittleStructureTypeNetwork extends LittleStructureTypePremade {
+	public static abstract class LittleStructureTypeNetwork extends LittleStructureTypePremade implements ISignalComponent {
 		
 		public final int bandwidth;
 		public final int numberOfConnections;

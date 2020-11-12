@@ -362,10 +362,10 @@ public abstract class LittleDoorBase extends LittleDoor implements IAnimatedStru
 	}
 	
 	public static void initDoors() {
-		LittleStructureRegistry.registerStructureType(new LittleAxisDoorType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE), LittleAxisDoorParser.class);
-		LittleStructureRegistry.registerStructureType(new LittleDoorType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE), LittleSlidingDoorParser.class);
-		LittleStructureRegistry.registerStructureType(new LittleAdvancedDoorType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE), LittleAdvancedDoorParser.class);
-		LittleStructureRegistry.registerStructureType(new LittleDoorActivatorType("doorActivator", "door", LittleDoorActivator.class, LittleStructureAttribute.NONE), LittleDoorActivatorParser.class);
+		LittleStructureRegistry.registerStructureType(new LittleAxisDoorType("door", "door", LittleAxisDoor.class, LittleStructureAttribute.NONE).addOutput("state", 1), LittleAxisDoorParser.class);
+		LittleStructureRegistry.registerStructureType(new LittleDoorType("slidingDoor", "door", LittleSlidingDoor.class, LittleStructureAttribute.NONE).addOutput("state", 1), LittleSlidingDoorParser.class);
+		LittleStructureRegistry.registerStructureType(new LittleAdvancedDoorType("advancedDoor", "door", LittleAdvancedDoor.class, LittleStructureAttribute.NONE).addOutput("state", 1), LittleAdvancedDoorParser.class);
+		LittleStructureRegistry.registerStructureType(new LittleDoorActivatorType("doorActivator", "door", LittleDoorActivator.class, LittleStructureAttribute.NONE).addOutput("state", 1), LittleDoorActivatorParser.class);
 	}
 	
 	public static abstract class LittleDoorBaseType extends LittleStructureType {

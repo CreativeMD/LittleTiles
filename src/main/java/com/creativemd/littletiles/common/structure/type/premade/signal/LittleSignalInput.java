@@ -17,7 +17,6 @@ import com.creativemd.littletiles.common.structure.exception.NotYetConnectedExce
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
-import com.creativemd.littletiles.common.structure.signal.logic.ISignalStructureEvent;
 import com.creativemd.littletiles.common.tile.LittleTileColored;
 import com.creativemd.littletiles.common.tile.math.box.LittleBox;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
@@ -75,8 +74,8 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
 	@Override
 	public void changed() {
 		try {
-			if (getParent() != null && getParent().getStructure() instanceof ISignalStructureEvent)
-				((ISignalStructureEvent) getParent().getStructure()).changed(this);
+			if (getParent() != null)
+				getParent().getStructure().changed(this);
 		} catch (CorruptedConnectionException | NotYetConnectedException e) {}
 	}
 	
@@ -257,6 +256,11 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
 		return facing;
 	}
 	
+	@Override
+	public int getId() {
+		return getParent().childId;
+	}
+	
 	public static class LittleStructureTypeInput extends LittleStructureTypeNetwork {
 		
 		@SideOnly(Side.CLIENT)
@@ -286,6 +290,26 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
 				//cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}
 			return cubes;
+		}
+		
+		@Override
+		public int getBandwidth() {
+			return bandwidth;
+		}
+		
+		@Override
+		public void changed() {
+			
+		}
+		
+		@Override
+		public boolean[] getState() {
+			return null;
+		}
+		
+		@Override
+		public SignalComponentType getType() {
+			return SignalComponentType.INPUT;
 		}
 		
 	}

@@ -23,6 +23,7 @@ import com.creativemd.littletiles.common.structure.directional.StructureDirectio
 import com.creativemd.littletiles.common.structure.exception.CorruptedConnectionException;
 import com.creativemd.littletiles.common.structure.exception.NotYetConnectedException;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.type.door.LittleSlidingDoor.LittleSlidingDoorParser;
 import com.creativemd.littletiles.common.tile.LittleTile;
@@ -334,6 +335,11 @@ public class LittleBed extends LittleStructure {
 			return bed;
 		}
 		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleBed.class);
+		}
 	}
 	
 }

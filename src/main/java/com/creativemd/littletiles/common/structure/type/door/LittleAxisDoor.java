@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.vecmath.Vector3d;
 
 import com.creativemd.creativecore.common.gui.GuiControl;
 import com.creativemd.creativecore.common.gui.container.GuiParent;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiPanel;
@@ -21,7 +19,6 @@ import com.creativemd.creativecore.common.gui.event.gui.GuiControlChangedEvent;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.math.Rotation;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.VectorUtils;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.creativecore.common.utils.type.UUIDSupplier;
 import com.creativemd.littletiles.client.gui.controls.GuiTileViewer;
@@ -36,6 +33,7 @@ import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -59,8 +57,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -74,10 +70,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		super.loadFromNBTExtra(nbt);
 		
-		if (nbt.hasKey("ndirection")) {
-			doorRotation = new PlayerOrientatedRotation();
-			((PlayerOrientatedRotation) doorRotation).normalAxis = EnumFacing.getFront(nbt.getInteger("ndirection")).getAxis();
-		} else
+		if (nbt.hasKey("ndirection"))
+			doorRotation = new DirectionRotation();
+		else
 			doorRotation = parseRotation(nbt);
 	}
 	
@@ -283,7 +278,7 @@ public class LittleAxisDoor extends LittleDoorBase {
 			} else {
 				viewer.setEven(false);
 				viewer.setAxis(new LittleBox(0, 0, 0, 1, 1, 1), viewer.context);
-				doorRotation = new PlayerOrientatedRotation();
+				doorRotation = new DirectionRotation();
 			}
 			viewer.visibleAxis = true;
 			
@@ -447,13 +442,19 @@ public class LittleAxisDoor extends LittleDoorBase {
 			GuiTileViewer viewer = (GuiTileViewer) parent.get("tileviewer");
 			onAxisChanged(new GuiTileViewerAxisChangedEvent(viewer));
 		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleAxisDoor.class);
+		}
 	}
 	
 	private static List<Class<? extends AxisDoorRotation>> rotationTypes = new ArrayList<>();
 	private static List<String> rotationTypeNames = new ArrayList<>();
 	static {
-		rotationTypes.add(PlayerOrientatedRotation.class);
-		rotationTypeNames.add("orientated");
+		rotationTypes.add(DirectionRotation.class);
+		rotationTypeNames.add("direction");
 		rotationTypes.add(FixedRotation.class);
 		rotationTypeNames.add("fixed");
 	}
@@ -467,12 +468,9 @@ public class LittleAxisDoor extends LittleDoorBase {
 				AxisDoorRotation rotation = rotationType.getConstructor().newInstance();
 				rotation.readFromNBT(nbt);
 				return rotation;
-			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-				e.printStackTrace();
-			}
+			} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {}
 		}
-		
-		throw new RuntimeException("Invalid axis door rotation found index: " + index);
+		return new DirectionRotation();
 	}
 	
 	protected static AxisDoorRotation createRotation(int index) {
@@ -522,57 +520,37 @@ public class LittleAxisDoor extends LittleDoorBase {
 		
 	}
 	
-	public static class PlayerOrientatedRotation extends AxisDoorRotation {
+	public static class DirectionRotation extends AxisDoorRotation {
 		
-		public Axis normalAxis;
+		public boolean clockwise;
 		
 		@Override
 		protected void writeToNBTCore(NBTTagCompound nbt) {
-			nbt.setInteger("normal", normalAxis.ordinal());
+			nbt.setBoolean("clockwise", clockwise);
 		}
 		
 		@Override
 		protected void readFromNBT(NBTTagCompound nbt) {
-			normalAxis = Axis.values()[nbt.getInteger("normal")];
+			clockwise = nbt.getBoolean("clockwise");
 		}
 		
 		@Override
 		protected void rotate(Axis doorAxis, Rotation rotation) {
-			this.normalAxis = RotationUtils.rotate(normalAxis, rotation);
+			clockwise = RotationUtils.rotate(Rotation.getRotation(doorAxis, clockwise), rotation).clockwise;
 		}
 		
 		@Override
 		protected void flip(Axis doorAxis, Axis axis) {
-			
+			if (doorAxis != axis)
+				clockwise = !clockwise;
 		}
 		
 		protected Rotation getRotation(EntityPlayer player, LittleAxisDoor door, StructureAbsolute absolute) {
-			Vector3d axisVec = absolute.getCenter();
-			Vec3d playerVec = player.getPositionVector();
-			double playerRotation = MathHelper.wrapDegrees(player.rotationYaw);
-			boolean clockwise;
-			Axis third = RotationUtils.getThird(door.axis, normalAxis);
-			boolean toTheSide = VectorUtils.get(third, playerVec) <= VectorUtils.get(third, axisVec);
-			
-			switch (third) {
-			case X:
-				clockwise = !(playerRotation <= -90 || playerRotation >= 90);
-				break;
-			case Y:
-				clockwise = player.rotationPitch <= 0;
-				break;
-			case Z:
-				clockwise = playerRotation > 0 && playerRotation <= 180;
-				break;
-			default:
-				clockwise = false;
-				break;
-			}
-			return Rotation.getRotation(door.axis, toTheSide == clockwise);
+			return Rotation.getRotation(door.axis, clockwise);
 		}
 		
 		protected Rotation getDefaultRotation(LittleAxisDoor door, StructureAbsolute absolute) {
-			return Rotation.getRotation(door.axis, true);
+			return Rotation.getRotation(door.axis, clockwise);
 		}
 		
 		@Override
@@ -585,24 +563,13 @@ public class LittleAxisDoor extends LittleDoorBase {
 		@Override
 		@SideOnly(Side.CLIENT)
 		protected void onSelected(GuiTileViewer viewer, GuiParent parent) {
-			parent.addControl(new GuiButton("swap normal", 0, 0) {
-				
-				@Override
-				public void onClicked(int x, int y, int button) {
-					viewer.changeNormalAxis();
-				}
-				
-			});
 			
-			if (normalAxis != null)
-				viewer.setNormalAxis(normalAxis);
-			viewer.visibleNormalAxis = true;
 		}
 		
 		@Override
 		@SideOnly(Side.CLIENT)
 		protected void parseGui(GuiTileViewer viewer, GuiParent parent) {
-			normalAxis = viewer.getNormalAxis();
+			
 		}
 		
 		@Override

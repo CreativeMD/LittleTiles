@@ -29,8 +29,6 @@ public interface ISignalStructureBase {
 	
 	public void disconnect(EnumFacing facing, ISignalStructureBase base);
 	
-	public SignalComponentType getType();
-	
 	public default boolean hasNetwork() {
 		return getNetwork() != null;
 	}
@@ -52,5 +50,7 @@ public interface ISignalStructureBase {
 		network.add(this);
 		return getNetwork();
 	}
+	
+	public SignalComponentType getType();
 	
 }

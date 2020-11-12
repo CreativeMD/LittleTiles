@@ -144,6 +144,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 		return facing;
 	}
 	
+	@Override
+	public int getId() {
+		return getParent().childId;
+	}
+	
 	public static class LittleStructureTypeOutput extends LittleStructureTypeNetwork {
 		
 		@SideOnly(Side.CLIENT)
@@ -173,6 +178,26 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
 				//cubes.add(new RenderCubeObject(1 - size * 2, 0.5F - size, 0.5F - size, 1, 0.5F + size, 0.5F + size, LittleTiles.coloredBlock).setColor(-13619152));
 			}
 			return cubes;
+		}
+		
+		@Override
+		public int getBandwidth() {
+			return bandwidth;
+		}
+		
+		@Override
+		public void changed() {
+			
+		}
+		
+		@Override
+		public boolean[] getState() {
+			return null;
+		}
+		
+		@Override
+		public SignalComponentType getType() {
+			return SignalComponentType.OUTPUT;
 		}
 		
 	}

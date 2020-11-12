@@ -13,6 +13,7 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorActivationResult;
 import com.creativemd.littletiles.common.structure.type.door.LittleDoor.DoorOpeningResult;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoor.StillInMotionException;
 import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
 
@@ -68,6 +69,9 @@ public class LittleActivateDoorPacket extends CreativeCorePacket {
 				LittleDoor door = (LittleDoor) structure;
 				door.activate(null, uuid, false);
 			}
+			
+		} catch (StillInMotionException e) {
+			PacketHandler.sendPacketToServer(new LittleEntityFixControllerPacket(uuid, new NBTTagCompound()));
 		} catch (LittleActionException e) {
 			e.printStackTrace();
 		}

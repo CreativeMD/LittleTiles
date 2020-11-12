@@ -105,6 +105,10 @@ public class SignalNetwork {
 		
 		base.setNetwork(this);
 		
+		Iterator<ISignalStructureBase> connections = base.connections();
+		while (connections.hasNext())
+			add(connections.next());
+		
 		switch (base.getType()) {
 		case INPUT:
 			inputs.add((ISignalStructureComponent) base);
@@ -113,9 +117,6 @@ public class SignalNetwork {
 			outputs.add((ISignalStructureComponent) base);
 			break;
 		case TRANSMITTER:
-			Iterator<ISignalStructureBase> connections = base.connections();
-			while (connections.hasNext())
-				add(connections.next());
 			transmitters.add((ISignalStructureTransmitter) base);
 			break;
 		}

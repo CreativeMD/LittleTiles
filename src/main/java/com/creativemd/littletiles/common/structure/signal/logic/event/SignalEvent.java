@@ -1,61 +1,41 @@
 package com.creativemd.littletiles.common.structure.signal.logic.event;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
+import java.text.ParseException;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalCondition;
+import com.creativemd.littletiles.common.structure.signal.logic.SignalMode;
 
-import net.minecraft.nbt.NBTTagCompound;
-
-public abstract class SignalEvent {
+public class SignalEvent {
 	
-	private static HashMap<String, Class<? extends SignalEvent>> eventTypes = new HashMap<>();
-	private static HashMap<Class<? extends SignalEvent>, String> eventTypesInv = new HashMap<>();
+	public final SignalCondition condition;
+	public final SignalOutputCondition output;
 	
-	public static void registerEventType(String id, Class<? extends SignalEvent> type) {
-		if (eventTypes.containsKey(id))
-			throw new IllegalArgumentException("id " + id + " is already taken");
-		try {
-			type.getConstructor(NBTTagCompound.class);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new IllegalArgumentException("Invalid event type missing nbt constructor " + id);
+	public SignalEvent(String pattern) throws ParseException {
+		for (SignalMode mode : SignalMode.values()) {
+			if (pattern.contains(mode.splitter)) {
+				String[] parts = pattern.split(mode.splitter);
+				if (parts.length != 2)
+					throw new ParseException("Invalid event " + pattern, 0);
+				this.output = SignalOutputCondition.create(parts[0], mode);
+				this.condition = SignalCondition.parse(parts[1]);
+				return;
+			}
 		}
-		eventTypes.put(id, type);
-		eventTypesInv.put(type, id);
+		throw new ParseException("Invalid event pattern missing mode " + pattern, 0);
 	}
 	
-	public static SignalEvent loadFromNBT(NBTTagCompound nbt) {
-		Class<? extends SignalEvent> type = get(nbt.getString("id"));
-		if (type == null)
-			throw new RuntimeException("No event type found for " + nbt.getString("id"));
-		try {
-			return type.getConstructor(NBTTagCompound.class).newInstance(nbt);
-		} catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Invalid event type " + nbt.getString("id"));
+	public void update(LittleStructure structure) {
+		int bandwidth = output.getBandwidth(structure);
+		if (bandwidth > 0) {
+			boolean[] state = new boolean[bandwidth];
+			condition.test(structure, state);
+			output.setState(structure, state);
 		}
 	}
 	
-	public static Class<? extends SignalEvent> get(String id) {
-		return eventTypes.get(id);
+	public String write() {
+		return output.write() + condition.write();
 	}
-	
-	public static String get(Class<? extends SignalEvent> type) {
-		return eventTypesInv.get(type);
-	}
-	
-	public SignalEvent(NBTTagCompound nbt) {
-		
-	}
-	
-	public abstract void update(LittleStructure structure);
-	
-	public NBTTagCompound writeToNBT() {
-		NBTTagCompound nbt = new NBTTagCompound();
-		nbt.setString("id", get(this.getClass()));
-		writeToNBTExtra(nbt);
-		return nbt;
-	}
-	
-	protected abstract void writeToNBTExtra(NBTTagCompound nbt);
 	
 }

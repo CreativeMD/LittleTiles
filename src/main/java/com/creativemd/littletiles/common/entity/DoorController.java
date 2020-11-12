@@ -195,7 +195,8 @@ public class DoorController extends EntityAnimationController {
 				placed = false;
 			else
 				place();
-		}
+		} else
+			((LittleDoor) parent.structure).completeAnimation();
 	}
 	
 	public void place() {
@@ -227,6 +228,8 @@ public class DoorController extends EntityAnimationController {
 					newDoor.updateParentConnection(parent.structure.getParent().getChildId(), parentStructure);
 					parentStructure.updateChildConnection(parent.structure.getParent().getChildId(), newDoor);
 				}
+				
+				newDoor.completeAnimation();
 			} else {
 				parent.markRemoved();
 				if (!world.isRemote)

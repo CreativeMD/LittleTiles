@@ -265,7 +265,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		parser = LittleStructureRegistry.getParser(panel, handler, selected.value);
 		if (parser != null) {
 			handler.setTimeline(null, null);
-			parser.createControls(this.selected.previews, saved);
+			parser.create(this.selected.previews, saved);
 			panel.refreshControls();
 			addListener(parser);
 			if (animationPreview != null) {
@@ -291,7 +291,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
 		LittlePreviews oldPreviews = selected.previews;
 		if (SubGuiRecipe.this.parser != null) {
 			GuiTextfield textfield = (GuiTextfield) get("name");
-			structure = SubGuiRecipe.this.parser.parseStructure(oldPreviews);
+			structure = SubGuiRecipe.this.parser.parse(oldPreviews);
 			if (structure != null)
 				structure.name = textfield.text.isEmpty() ? null : textfield.text;
 			

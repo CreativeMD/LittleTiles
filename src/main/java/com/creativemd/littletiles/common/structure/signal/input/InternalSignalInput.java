@@ -2,20 +2,21 @@ package com.creativemd.littletiles.common.structure.signal.input;
 
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.signal.component.InternalSignal;
-import com.creativemd.littletiles.common.structure.signal.logic.ISignalStructureEvent;
-
-import net.minecraft.nbt.NBTTagCompound;
+import com.creativemd.littletiles.common.structure.signal.component.SignalComponentType;
 
 public class InternalSignalInput extends InternalSignal {
 	
-	public InternalSignalInput(LittleStructure parent, String name, int bandwidth, NBTTagCompound nbt) {
-		super(parent, name, bandwidth, nbt);
+	public InternalSignalInput(LittleStructure parent, String name, int bandwidth) {
+		super(parent, name, bandwidth);
 	}
 	
 	@Override
 	public void changed() {
-		if (parent instanceof ISignalStructureEvent)
-			((ISignalStructureEvent) parent).changed(this);
+		parent.changed(this);
 	}
 	
+	@Override
+	public SignalComponentType getType() {
+		return SignalComponentType.INPUT;
+	}
 }

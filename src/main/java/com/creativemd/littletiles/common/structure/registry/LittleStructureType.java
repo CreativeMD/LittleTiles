@@ -9,6 +9,8 @@ import com.creativemd.littletiles.client.render.tile.LittleRenderBox;
 import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectionalField;
+import com.creativemd.littletiles.common.structure.signal.input.InternalSignalInput;
+import com.creativemd.littletiles.common.structure.signal.output.InternalSignalOutput;
 import com.creativemd.littletiles.common.tile.math.vec.LittleVec;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
@@ -31,6 +33,8 @@ public class LittleStructureType {
 	public final Class<? extends LittleStructure> clazz;
 	public final int attribute;
 	public final List<StructureDirectionalField> directional;
+	public final List<InternalComponent> inputs = new ArrayList<>();
+	public final List<InternalComponent> outputs = new ArrayList<>();
 	
 	public LittleStructureType(String id, String category, Class<? extends LittleStructure> structureClass, int attribute) {
 		this.id = id;
@@ -44,11 +48,43 @@ public class LittleStructureType {
 				directional.add(new StructureDirectionalField(field, field.getAnnotation(StructureDirectional.class)));
 	}
 	
+	public InternalSignalInput[] createInputs(LittleStructure structure) {
+		if (inputs.isEmpty())
+			return null;
+		InternalSignalInput[] result = new InternalSignalInput[inputs.size()];
+		for (int i = 0; i < result.length; i++) {
+			InternalComponent component = inputs.get(i);
+			result[i] = new InternalSignalInput(structure, component.identifier, component.bandwidth);
+		}
+		return result;
+	}
+	
+	public InternalSignalOutput[] createOutputs(LittleStructure structure) {
+		if (outputs.isEmpty())
+			return null;
+		InternalSignalOutput[] result = new InternalSignalOutput[outputs.size()];
+		for (int i = 0; i < result.length; i++) {
+			InternalComponent component = outputs.get(i);
+			result[i] = new InternalSignalOutput(structure, component.identifier, component.bandwidth);
+		}
+		return result;
+	}
+	
+	public LittleStructureType addInput(String name, int bandwidth) {
+		inputs.add(new InternalComponent(name, bandwidth));
+		return this;
+	}
+	
+	public LittleStructureType addOutput(String name, int bandwidth) {
+		outputs.add(new InternalComponent(name, bandwidth));
+		return this;
+	}
+	
 	public LittleStructure createStructure(StructureTileList mainBlock) {
 		try {
 			return clazz.getConstructor(LittleStructureType.class, IStructureTileList.class).newInstance(this, mainBlock);
 		} catch (Exception e) {
-			throw new RuntimeException("Invalid structure type " + id);
+			throw new RuntimeException("Invalid structure type " + id, e);
 		}
 	}
 	
@@ -165,6 +201,22 @@ public class LittleStructureType {
 			value = field.rotate(value, context, rotation, doubledCenter);
 			field.save(previews.structureNBT, value);
 		}
+	}
+	
+	public static class InternalComponent {
+		
+		public final String identifier;
+		public final int bandwidth;
+		
+		public InternalComponent(String identifier, int bandwidth) {
+			this.identifier = identifier;
+			this.bandwidth = bandwidth;
+		}
+		
+		public boolean is(String name) {
+			return identifier.equals(name);
+		}
+		
 	}
 	
 }

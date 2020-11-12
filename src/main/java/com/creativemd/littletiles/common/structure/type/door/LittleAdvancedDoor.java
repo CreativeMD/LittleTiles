@@ -37,6 +37,7 @@ import com.creativemd.littletiles.common.structure.animation.AnimationTimeline;
 import com.creativemd.littletiles.common.structure.animation.ValueTimeline;
 import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
 import com.creativemd.littletiles.common.structure.relative.StructureAbsolute;
 import com.creativemd.littletiles.common.structure.relative.StructureRelative;
@@ -339,7 +340,7 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 			boolean stayAnimated = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).stayAnimated : false;
 			boolean disableRightClick = structure instanceof LittleDoor ? !((LittleDoor) structure).disableRightClick : true;
 			boolean noClip = structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).noClip : false;
-			parent.controls.add(new GuiDoorSettingsButton("settings", 0, 113, stayAnimated, disableRightClick, noClip));
+			parent.controls.add(new GuiDoorSettingsButton("settings", 0, 110, stayAnimated, disableRightClick, noClip));
 			parent.controls.add(new GuiLabel(CoreControl.translate("gui.door.duration") + ":", 90, 122));
 			parent.controls.add(new GuiTextfield("duration_s", structure instanceof LittleAdvancedDoor ? "" + ((LittleDoorBase) structure).duration : "" + 50, 149, 121, 40, 8).setNumbersOnly());
 			parent.controls.add(new GuiStateButton("interpolation", structure instanceof LittleDoorBase ? ((LittleDoorBase) structure).interpolation : 0, 140, 107, 40, 7, ValueTimeline.interpolationTypes));
@@ -536,6 +537,12 @@ public class LittleAdvancedDoor extends LittleDoorBase {
 				door.stayAnimated = settings.stayAnimated;
 			door.offGrid = context;
 			return door;
+		}
+		
+		@Override
+		@SideOnly(Side.CLIENT)
+		protected LittleStructureType getStructureType() {
+			return LittleStructureRegistry.getStructureType(LittleAdvancedDoor.class);
 		}
 		
 	}

@@ -11,12 +11,14 @@ public abstract class InternalSignal implements ISignalComponent {
 	public final String name;
 	private final boolean[] state;
 	
-	public InternalSignal(LittleStructure parent, String name, int bandwidth, NBTTagCompound nbt) {
+	public InternalSignal(LittleStructure parent, String name, int bandwidth) {
 		this.parent = parent;
 		this.name = name;
 		this.state = new boolean[bandwidth];
-		if (nbt != null)
-			BooleanUtils.intToBool(nbt.getInteger(name), state);
+	}
+	
+	public void load(NBTTagCompound nbt) {
+		BooleanUtils.intToBool(nbt.getInteger(name), state);
 	}
 	
 	@Override
@@ -24,7 +26,7 @@ public abstract class InternalSignal implements ISignalComponent {
 		return state;
 	}
 	
-	public void writeToNBT(NBTTagCompound nbt) {
+	public void write(NBTTagCompound nbt) {
 		nbt.setInteger("state", BooleanUtils.boolToInt(state));
 	}
 	
